@@ -35,7 +35,7 @@ public class StudentScreeningProgressVO {
     private static ThreadLocal<Boolean> hasAbnormalInSubsequentCheck = new ThreadLocal<>();
 
     /** 学生ID */
-    private String studentId;
+    private Integer studentId;
     /** 学籍号 */
     private String studentNo;
     /** 用户名称 */
@@ -114,6 +114,11 @@ public class StudentScreeningProgressVO {
     /** 是否初诊有异常 */
     private Boolean firstCheckAbnormal;
 
+    /** 筛查状态（复测使用） */
+    private Integer screeningStatus;
+
+    /** 是否有初筛数据 */
+    private Boolean isFirst;
     /**
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
      * 1. 托幼机构
@@ -138,7 +143,9 @@ public class StudentScreeningProgressVO {
                     .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK)
                     .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
                     .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
-                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
+                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz())
+                    .setStateStatus(screeningPlanSchoolStudent.getState());
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
@@ -156,8 +163,8 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
-        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(),false));
-        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
+        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(), screeningResult.getScreeningType() == 1));
+
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
         studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
@@ -171,7 +178,9 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setDiseasesHistoryStatus(getProgress(screeningResult.getDiseasesHistoryData(),false));
         studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
 
+        studentScreeningProgressVO.setStudentId(screeningResult.getScreeningPlanSchoolStudentId());
         studentScreeningProgressVO.setClassName(studentVO.getClazz());
+        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();

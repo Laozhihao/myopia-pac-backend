@@ -149,9 +149,19 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer visionLabel;
 
     /**
+     * 视力低下等级, 1-视力低下 （暂时只显示这个）
+     */
+    private Integer lowVision;
+
+    /**
      * 近视等级，0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视
      */
     private Integer myopiaLevel;
+
+    /**
+     * 筛查性近视
+     */
+    private Integer screeningMyopia;
 
     /**
      * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视

@@ -69,7 +69,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeEnum.COMMON_DISEASE.type;
+        return ScreeningTypeEnum.COMMON_DISEASE.getType();
     }
 
     @Override
@@ -125,6 +125,19 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setRightReScreenAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
                     .setIsRescreenDesc("是").setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
                     .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
+            DeviationDO deviationData = rescreenVo.getDeviationData();
+            if (Objects.nonNull(deviationData)) {
+                String result = StringUtils.EMPTY;
+                DeviationDO.VisionOrOptometryDeviation visionOrOptometryDeviation = deviationData.getVisionOrOptometryDeviation();
+                if (Objects.nonNull(visionOrOptometryDeviation)) {
+                    result = "视力或屈光检查误差：" + DeviationDO.VisionOrOptometryDeviationEnum.getByCode(visionOrOptometryDeviation.getType().getCode()).getName() +"，" + visionOrOptometryDeviation.getRemark() + "；";
+                }
+                DeviationDO.HeightWeightDeviation heightWeightDeviation = deviationData.getHeightWeightDeviation();
+                if (Objects.nonNull(heightWeightDeviation)) {
+                    result = result + "身高体重误差：" +DeviationDO.HeightWeightDeviationEnum.getByCode(heightWeightDeviation.getType().getCode()).getName() +"，" + heightWeightDeviation.getRemark();
+                }
+                exportDTO.setDeviationData(result);
+            }
         }
     }
 
@@ -240,10 +253,6 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
             } else {
                 exportDTO.setPrivacyData("否");
             }
-        }
-        DeviationDO deviationData = dto.getDeviationData();
-        if (Objects.nonNull(deviationData)) {
-            exportDTO.setDeviationData(deviationData.getHeightWeightDeviation().getRemark());
         }
     }
 

@@ -491,7 +491,7 @@
                mspss.grade_id as gradeId,
                mspss.class_id as classId
         from m_screening_plan_school_student mspss
-        join m_vision_screening_result mvsr
+        left join m_vision_screening_result mvsr
         on  mspss.id = mvsr.screening_plan_school_student_id
         and mspss.screening_plan_id = mvsr.plan_id
         and mspss.school_id = mvsr.school_id
@@ -560,6 +560,13 @@
         select *
         from m_screening_plan_school_student
         where screening_plan_id != #{planId}
+    </select>
+
+    <select id="getOneByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+        limit 1
     </select>
 
     <select id="getGradeByPlanIdAndSchoolId" resultMap="GradeClassesDTO">

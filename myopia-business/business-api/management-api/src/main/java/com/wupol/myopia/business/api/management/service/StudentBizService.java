@@ -8,12 +8,12 @@ import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
-import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -146,6 +146,7 @@ public class StudentBizService {
             TwoTuple<Integer, String> tuple = StatUtil.getAge(student.getBirthday());
             if (tuple.getFirst() < 6){
                 student.setMyopiaLevel(null);
+                student.setScreeningMyopia(null);
             }
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
@@ -175,6 +176,7 @@ public class StudentBizService {
             StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
             BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
             studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
+            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
             // 筛查信息
             studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());

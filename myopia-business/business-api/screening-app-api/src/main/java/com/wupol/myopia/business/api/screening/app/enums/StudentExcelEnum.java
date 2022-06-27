@@ -13,7 +13,7 @@ public enum StudentExcelEnum {
     EXCEL_PHONE_NULL(120006, "【数据导入异常】手机号为空"),
     EXCEL_PHONE_ERROR(120007, "【数据导入异常】手机号为错误"),
     EXCEL_IDCARD_NULL(120008, "【数据导入异常】身份证号为空"),
-    EXCEL_IDCARD_ERROR(120009, "【数据导入异常】身份证号异常:"),
+    EXCEL_IDCARD_ERROR(120009, "【数据导入异常】身份证号异常"),
 
 
     EXCEL_BIRTHDAY_NULL(120010, "【数据导入异常】出生年月日为空"),

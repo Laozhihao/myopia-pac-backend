@@ -41,14 +41,4 @@ public class OtherEyeDiseasesDO extends AbstractDiagnosisResult implements Seria
          */
         private List<String> eyeDiseases;
     }
-
-    /**
-     * 判断诊断结果是否为正常，两只眼都没有眼病才为正常
-     *
-     * @return boolean
-     **/
-    @Override
-    public boolean isNormal() {
-        return (Objects.isNull(rightEyeData) || CollectionUtils.isEmpty(rightEyeData.getEyeDiseases())) && (Objects.isNull(leftEyeData) || CollectionUtils.isEmpty(leftEyeData.getEyeDiseases()));
-    }
 }

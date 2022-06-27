@@ -19,6 +19,7 @@
         where plan_id = #{planId}
           and school_id = #{schoolId}
         and create_time <![CDATA[ <= ]]> #{createTime}
+        order by create_time desc
     </select>
 
     <select id="getByPlanAndSchool" resultType="com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen">

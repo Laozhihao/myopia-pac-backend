@@ -107,8 +107,8 @@ public class StatConclusionTest {
 
             BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
             BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
-            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaLevel(leftSph, leftCyl, age, leftNakedVision);
-            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaLevel(rightSph, rightCyl, age, rightNakedVision);
+            MyopiaLevelEnum leftMyopiaWarningLevel = StatUtil.getMyopiaLevel(leftSph, leftCyl);
+            MyopiaLevelEnum rightMyopiaWarningLevel = StatUtil.getMyopiaLevel(rightSph, rightCyl);
 
             Integer myopiaWarningLevel = leftMyopiaWarningLevel.code > rightMyopiaWarningLevel.code
                     ? leftMyopiaWarningLevel.code

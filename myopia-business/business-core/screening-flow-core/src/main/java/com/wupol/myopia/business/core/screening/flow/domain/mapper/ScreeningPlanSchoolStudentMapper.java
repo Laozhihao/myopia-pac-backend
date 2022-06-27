@@ -30,7 +30,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningStudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
-    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId, @Param("studentIds") List<Integer> studentIds);
+    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId,@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId,@Param("studentIds") List<Integer> studentIds);
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 
@@ -68,11 +68,13 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 
+    ScreeningPlanSchoolStudent getOneByPlanId(@Param("planId") Integer planId);
+
     List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
-    List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
-
     List<Integer> findSchoolIdsByPlanId(Integer planId);
+
+    List<ScreeningPlanSchoolStudent> getReviewStudentList(@Param("planId") Integer planId, @Param("orgId") Integer orgId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
     List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(@Param("planId") Integer planId, @Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
 

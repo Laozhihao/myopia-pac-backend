@@ -33,4 +33,10 @@ public class ClassScreeningProgress {
     private List<StudentScreeningProgressVO> studentScreeningProgressList;
     /** 是否为人造的 */
     private Boolean artificial;
+    /** 是否已完成（复测使用 筛查学生中完成复测的学生≥需要参与复测学生数）*/
+    private boolean finish;
+    /**
+     * 未进行筛查学生数
+     */
+    private Integer unCheckCount;
 }

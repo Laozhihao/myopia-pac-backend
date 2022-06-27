@@ -47,6 +47,11 @@ public class RecordDetails {
     private Integer realScreeningNumbers;
 
     /**
+     * 实际筛查的学生占比
+     */
+    private String realScreeningRatio;
+
+    /**
      * 计划开始时间
      */
     private Date startTime;
@@ -70,6 +75,10 @@ public class RecordDetails {
      * 复查人数
      */
     private Integer rescreenNum;
+    /**
+     * 复查占比
+     */
+    private String rescreenRatio;
 
 
 }

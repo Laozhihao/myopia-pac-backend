@@ -39,7 +39,9 @@
         passport,
         create_time,
         update_time,
-        source_client
+        source_client,
+        screening_myopia,
+        low_vision
     </sql>
 
     <select id="getList"

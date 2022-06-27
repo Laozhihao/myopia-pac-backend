@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -219,12 +220,15 @@ public class StatUtil {
     public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
 
-        int sumSize = statConclusions.size();
-        double sumVisionL = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionL()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(sumSize),1);
+        List<BigDecimal> visionLeftList = statConclusions.stream().map(StatConclusion::getVisionL).filter(Objects::nonNull).collect(Collectors.toList());
+        int leftSumSize = visionLeftList.size();
+        double sumVisionL = visionLeftList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionL = BigDecimalUtil.divide(String.valueOf(sumVisionL), String.valueOf(leftSumSize),1);
 
-        double sumVisionR = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).orElse(new BigDecimal("0")).doubleValue()).sum();
-        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(sumSize),1);
+        List<BigDecimal> visionRightList = statConclusions.stream().map(StatConclusion::getVisionR).filter(Objects::nonNull).collect(Collectors.toList());
+        int rightSumSize = visionRightList.size();
+        double sumVisionR = visionRightList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        BigDecimal avgVisionR = BigDecimalUtil.divide(String.valueOf(sumVisionR), String.valueOf(rightSumSize),1);
 
         return TwoTuple.of(avgVisionL,avgVisionR);
     }
@@ -239,18 +243,18 @@ public class StatUtil {
      * @param nakedVision 裸眼视力
      */
     public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
-        if (Objects.nonNull(age)) {
-            if (Objects.nonNull(nakedVision) && age < 6 && BigDecimalUtil.lessThan(nakedVision,"4.9")) {
-                return true;
+
+        MyopiaLevelEnum screeningMyopia = getScreeningMyopia(sphere, cylinder, age, nakedVision);
+        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder);
+
+        if (Objects.isNull(screeningMyopia)){
+            if (Objects.nonNull(myopiaLevel) ){
+                return !Objects.equals(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY, myopiaLevel);
             }
-            if (Objects.nonNull(nakedVision) && age >= 6 && BigDecimalUtil.lessThan(nakedVision,"5.0")) {
-                return true;
-            }
+        }else {
+            return Boolean.TRUE;
         }
-        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder, age, nakedVision);
-        if (Objects.nonNull(myopiaLevel)){
-            return isMyopia(myopiaLevel);
-        }
+
         return null;
     }
 
@@ -837,14 +841,12 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
      */
-    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder, Integer age, Float nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
+    public static MyopiaLevelEnum getMyopiaLevel(Float sphere, Float cylinder) {
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getMyopiaLevel(sphere.toString(), cylinder.toString(), age, nakedVision.toString());
+        return getMyopiaLevel(sphere.toString(), cylinder.toString());
     }
 
     /**
@@ -852,14 +854,12 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
      */
-    public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder, Integer age, String nakedVision) {
-        if (ObjectsUtil.hasNull(sphere, cylinder, nakedVision)) {
+    public static MyopiaLevelEnum getMyopiaLevel(String sphere, String cylinder) {
+        if (ObjectsUtil.hasNull(sphere, cylinder)) {
             return null;
         }
-        return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder), age, new BigDecimal(nakedVision));
+        return getMyopiaLevel(new BigDecimal(sphere), new BigDecimal(cylinder));
     }
 
     /**
@@ -867,10 +867,32 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
-     * @param nakedVision 裸眼视力
      */
-    public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
+    public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder) {
+        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        if (Objects.isNull(se)) {
+            return null;
+        }
+
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
+        }
+
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_6, MINUS_0_5)) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
+        }
+
+        if (BigDecimalUtil.lessThanAndEqual(se, MINUS_6)) {
+            return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+        }
+
+        return null;
+    }
+
+    /**
+     * 筛查性近视
+     */
+    public static MyopiaLevelEnum getScreeningMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
 
         if (ObjectsUtil.allNotNull(age, nakedVision)
                 && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))) {
@@ -880,23 +902,15 @@ public class StatUtil {
                 return null;
             }
 
-            if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
-            }
-
-            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
-            }
-            if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_MIDDLE;
-            }
-            if (BigDecimalUtil.lessThan(se, MINUS_6)) {
-                return MyopiaLevelEnum.MYOPIA_LEVEL_HIGH;
+            if (BigDecimalUtil.lessThanAndEqual(se, MINUS_0_5)) {
+                return MyopiaLevelEnum.SCREENING_MYOPIA;
             }
         }
-        return MyopiaLevelEnum.ZERO;
+        return null;
 
     }
+
+
 
 
     /**
@@ -1415,7 +1429,7 @@ public class StatUtil {
      * @param saprodontiaData 龋齿数据
      * @param itemList 相关类型
      */
-    public static Set<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData,List<String> itemList){
+    public static List<SaprodontiaDataDO.SaprodontiaItem> getSaprodontia(SaprodontiaDataDO saprodontiaData, List<String> itemList){
         List<SaprodontiaDataDO.SaprodontiaItem> above = saprodontiaData.getAbove();
         List<SaprodontiaDataDO.SaprodontiaItem> underneath = saprodontiaData.getUnderneath();
         List<SaprodontiaDataDO.SaprodontiaItem> saprodontiaItemList=Lists.newArrayList();
@@ -1425,7 +1439,7 @@ public class StatUtil {
         if (CollectionUtil.isNotEmpty(underneath)){
             saprodontiaItemList.addAll(underneath);
         }
-        return saprodontiaItemList.stream().filter(s -> itemList.contains(s.getDeciduous()) || itemList.contains(s.getPermanent())).collect(Collectors.toSet());
+        return itemList.stream().flatMap(item -> saprodontiaItemList.stream().filter(s -> Objects.equals(item,s.getDeciduous()) || Objects.equals(item,s.getPermanent()))).collect(Collectors.toList());
     }
 
 
@@ -1436,10 +1450,13 @@ public class StatUtil {
      * @param height 身高 m
      */
     public static BigDecimal bmi(BigDecimal weight, BigDecimal height) {
-        if (ObjectsUtil.hasNull(weight,height)){
+        if (ObjectsUtil.hasNull(weight, height)) {
             return null;
         }
         BigDecimal heightSquare = height.multiply(height).divide(new BigDecimal("10000"));
+        if (heightSquare.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
         return weight.divide(heightSquare, 1, RoundingMode.HALF_UP);
     }
 
@@ -1679,6 +1696,31 @@ public class StatUtil {
 
         return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
+    }
+
+    /**
+     * 是否复查
+     */
+    public static Boolean isReview(Boolean isLowVision,Boolean isMyopia,Boolean isHyperopia,
+                                   Boolean isAstigmatism,Boolean isObesity,Boolean isOverweight,
+                                   Boolean isMalnutrition,Boolean isStunting,Boolean isSpinalCurvature) {
+        List<Boolean> isReviewList =Lists.newArrayList();
+        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+
+        Optional.ofNullable(isLowVision).ifPresent(consumerTrue);
+        Optional.ofNullable(isMyopia).ifPresent(consumerTrue);
+        Optional.ofNullable(isHyperopia).ifPresent(consumerTrue);
+        Optional.ofNullable(isAstigmatism).ifPresent(consumerTrue);
+        Optional.ofNullable(isObesity).ifPresent(consumerTrue);
+        Optional.ofNullable(isOverweight).ifPresent(consumerTrue);
+        Optional.ofNullable(isMalnutrition).ifPresent(consumerTrue);
+        Optional.ofNullable(isStunting).ifPresent(consumerTrue);
+        Optional.ofNullable(isSpinalCurvature).ifPresent(consumerTrue);
+
+        if (CollectionUtil.isNotEmpty(isReviewList)){
+            return isReviewList.stream().filter(Objects::nonNull).anyMatch(Boolean::booleanValue);
+        }
+        return null;
     }
 
 

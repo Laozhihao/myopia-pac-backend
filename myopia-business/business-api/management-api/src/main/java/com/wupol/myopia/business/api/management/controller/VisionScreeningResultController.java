@@ -90,7 +90,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         } else {
             screeningPlanSchoolStudentIds = planStudentIds;
         }
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByScreeningPlanSchoolStudentIds(screeningPlanSchoolStudentIds,false);
         return studentFacade.generateBatchStudentCard(visionScreeningResults);
     }
 

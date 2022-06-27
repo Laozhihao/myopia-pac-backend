@@ -27,6 +27,8 @@ public class DiseasesHistoryDTO extends ScreeningResultBasicData {
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         DiseasesHistoryDO diseasesHistoryDO = new DiseasesHistoryDO();
         diseasesHistoryDO.setDiseases(diseases);
+        diseasesHistoryDO.setDiagnosis(super.getDiagnosis());
+        diseasesHistoryDO.setCreateUserId(getCreateUserId());
         return visionScreeningResult.setDiseasesHistoryData(diseasesHistoryDO);
     }
 

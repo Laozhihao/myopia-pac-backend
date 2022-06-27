@@ -341,7 +341,39 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getWholeCountryDistrictTree() {
-        return baseMapper.selectChildNodeByParentCode(PROVINCE_PARENT_CODE);
+        return districtListToTree(this.findByList(new District()), PROVINCE_PARENT_CODE);
+    }
+
+    /**
+     * 行政区域集合转树形结构
+     * @author hang.yuan
+     * @date 2022/4/2
+     */
+    private List<District> districtListToTree(List<District> list,Long parentCode){
+        Map<Long,District> map = new HashMap<>();
+        List<District> rootList = new ArrayList<>();
+        for (District district : list) {
+            if (Objects.equals(district.getParentCode(),parentCode)){
+                rootList.add(district);
+            }
+            map.put(district.getCode(),district);
+        }
+        for (District district : list) {
+            Long tmpParentCode = district.getParentCode();
+            if (Objects.equals(tmpParentCode,parentCode)){
+                continue;
+            }
+            District parent = map.get(tmpParentCode);
+            if (parent != null&&CollectionUtils.isEmpty(parent.getChild())){
+                parent.setChild(new ArrayList<>());
+            }
+            if (parent != null){
+                parent.getChild().add(district);
+            }
+        }
+        map.clear();
+        return rootList;
+
     }
 
     /**
