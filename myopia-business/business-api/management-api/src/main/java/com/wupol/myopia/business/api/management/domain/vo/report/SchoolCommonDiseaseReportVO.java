@@ -146,6 +146,7 @@ public class SchoolCommonDiseaseReportVO {
         /**
          * 占比(不带%)
          */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
         private BigDecimal ratio;
 
         public Item(Integer num, BigDecimal ratio) {
