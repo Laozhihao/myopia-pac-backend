@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 public enum SchoolAge {
 
 
-    UNKNOWN(-1, "未知"),
-    KINDERGARTEN(5, "幼儿园"),
-    PRIMARY(0, "小学"),
-    JUNIOR(1, "初中"),
-    HIGH(2, "普高"),
-    VOCATIONAL_HIGH(3, "职高"),
-    UNIVERSITY(4, "大学");
+    UNKNOWN(-1, "未知", -1),
+    KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType()),
+    PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    HIGH(2, "普高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    VOCATIONAL_HIGH(3, "职高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    UNIVERSITY(4, "大学", SchoolTypeEnum.UNIVERSITY.getType());
 
     /**
      * 学龄段ID
@@ -37,9 +37,15 @@ public enum SchoolAge {
      */
     public final String desc;
 
-    SchoolAge(Integer code, String desc) {
+    /**
+     * 学校类型
+     */
+    public final Integer type;
+
+    SchoolAge(Integer code, String desc, Integer type) {
         this.desc = desc;
         this.code = code;
+        this.type = type;
     }
 
     /**

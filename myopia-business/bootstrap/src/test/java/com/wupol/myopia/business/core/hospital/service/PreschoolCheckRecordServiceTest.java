@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.service;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.utils.util.JsonUtil;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentPreschoolCheckRecordDTO;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class PreschoolCheckRecordServiceTest {
     public void testGetInit() {
         HospitalStudentPreschoolCheckRecordDTO init = preschoolCheckRecordService.getInit(108, null, 521772);
         System.out.println(JsonUtil.objectToJsonString(init));
+        Assert.assertTrue(true);
     }
 
 }

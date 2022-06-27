@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ValidatorUtils {
 
     private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();

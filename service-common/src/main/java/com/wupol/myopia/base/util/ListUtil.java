@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ListUtil {
 
     /**

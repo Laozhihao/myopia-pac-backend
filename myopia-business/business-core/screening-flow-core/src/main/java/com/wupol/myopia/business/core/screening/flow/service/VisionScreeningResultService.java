@@ -1,16 +1,15 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
@@ -22,12 +21,13 @@ import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,20 +43,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Resource
     private StatConclusionService statConclusionService;
-
-    /***
-     * @Description: 学生ID集合
-     * @Param: [studentIds]
-     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
-     * @Author: 钓猫的小鱼
-     * @Date: 2022/1/12
-     */
-    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds, Integer isDoubleScreen) {
-        return baseMapper.getByStudentIdsAndPlanId(planId, studentIds, isDoubleScreen);
-    }
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
     /**
      * 通过StudentId获取筛查结果
@@ -267,12 +257,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return List<Integer>
      */
     public List<Integer> getByPlanStudentIdPlanIdAndSchoolId(Integer planId, Integer schoolId) {
-        List<VisionScreeningResult> resultList = baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtils.isEmpty(resultList)) {
-            return new ArrayList<>();
-        }
-
-        return resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId).stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
     }
 
     /**
@@ -324,6 +309,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         if (CollectionUtils.isEmpty(planStudents)) {
             return;
         }
+        // 设置常见病ID
+        if (!ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType())) {
+            planStudents.forEach(x -> x.setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(x.getSchoolDistrictId(), x.getSchoolId(), x.getGradeId(), x.getStudentId(), plan.getStartTime())));
+        }
+        // 新增或更新筛查计划学生
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
         Integer planId = plan.getId();
@@ -341,6 +331,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         Map<Integer, StatConclusion> statConclusionMap = statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
 
+        // 更新学生筛查数据的 studentId、schoolId
         List<VisionScreeningResult> updateResultList = new ArrayList<>();
         List<StatConclusion> updateStatConclusionList = new ArrayList<>();
 
@@ -369,32 +360,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 获取学生初筛/复测（默认初测）
-     *
-     * @param planId                       计划ID
-     * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen               false：初测  true：复测
-     * @return
-     */
-    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
-        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen);
-        QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
-        return getOne(queryWrapper);
-    }
-
-    /**
-     * 获取学生初筛/复测（默认初测）
-     *
-     * @param planIds                      计划ID集合
-     * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen               false：初测  true：复测
-     * @return
-     */
-    public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
-        return baseMapper.getIsDoubleScreeningResult(planIds, screeningPlanSchoolStudentId, isDoubleScreen);
-    }
-
-    /**
      * 通过计划id，学校id获取复查学生数据
      *
      * @param planId    计划Id
@@ -406,119 +371,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return new ArrayList<>();
         }
         return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
-    }
-
-    /**
-     * 通过计划id，学校id获取复查学生数据
-     *
-     * @param planId    计划Id
-     * @param schoolIds 学校Id
-     * @return List<VisionScreeningResult>
-     */
-    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
-        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
-        if (CollectionUtils.isEmpty(results)) {
-            return new HashMap<>();
-        }
-        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
-    }
-
-    public VisionScreeningResultDTO getStudentEyeByStudentId(List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults) {
-        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
-        if (!visionScreeningResults.isEmpty()){
-            BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
-            visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
-            ScreeningPlanSchoolStudent schoolStudent = new ScreeningPlanSchoolStudent();
-            schoolStudent.setId(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
-            schoolStudent.setScreeningPlanId(visionScreeningResults.get(0).getPlanId());
-            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(schoolStudent);
-            if (screeningPlanSchoolStudent != null){
-                visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
-            }
-            if (!doubleScreeningResults.isEmpty() && doubleScreeningResults.get(0).getVisionData() !=null
-                    && doubleScreeningResults.get(0).getComputerOptometry() != null && doubleScreeningResults.get(0).getHeightAndWeightData() != null){
-
-                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
-            }
-            visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setSaprodontiaData(VisionScreeningResultDTO.saprodontiaDataDOIsNull(visionScreeningResultDTO.getSaprodontiaData()));
-            visionScreeningResultDTO.setSpineData(VisionScreeningResultDTO.spineDataDOIsNull(visionScreeningResultDTO.getSpineData()));
-            visionScreeningResultDTO.setBloodPressureData(VisionScreeningResultDTO.bloodPressureDataDOIsNull(visionScreeningResultDTO.getBloodPressureData()));
-            visionScreeningResultDTO.setDiseasesHistoryData(VisionScreeningResultDTO.diseasesHistoryDOIsNull(visionScreeningResultDTO.getDiseasesHistoryData()));
-            visionScreeningResultDTO.setPrivacyData(VisionScreeningResultDTO.privacyDataDOIsNull(visionScreeningResultDTO.getPrivacyData()));
-            visionScreeningResultDTO.setDeviationData(VisionScreeningResultDTO.deviationDOIsNull(visionScreeningResultDTO.getDeviationData()));
-            visionScreeningResultDTO.setOtherEyeDiseases(VisionScreeningResultDTO.otherEyeDiseasesDOIsNull(visionScreeningResultDTO.getOtherEyeDiseases()));
-            visionScreeningResultDTO.setRescreening(VisionScreeningResultDTO.reScreenDTOIsNull(visionScreeningResultDTO.getRescreening()));
-        }
-        return visionScreeningResultDTO;
-    }
-
-    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(result),EyeDataUtil.leftCyl(result));
-    }
-
-    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(result),EyeDataUtil.rightCyl(result));
-    }
-
-
-    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result) {
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        if (Objects.nonNull(result) && Objects.nonNull(result.getSaprodontiaData())) {
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     *
-     * @param items
-     */
-    private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDTO saprodontiaDataDTO = new SaprodontiaDataDTO();
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_D.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_M.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_F.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_D.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_M.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_F.getName(), item.getPermanent())).collect(Collectors.toList());
-
-
-        SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
-        SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
-
-        if (CollectionUtil.isNotEmpty(deciduousDs)){
-            deciduousTooth.setDCount(deciduousDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousMs)){
-            deciduousTooth.setMCount(deciduousMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousFs)){
-            deciduousTooth.setFCount(deciduousFs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentDs)){
-            permanentTooth.setDCount(permanentDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentMs)){
-            permanentTooth.setMCount(permanentMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentFs)){
-            permanentTooth.setFCount(permanentFs.size());
-        }
-
-        saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDTO;
-    }
-
-    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType) {
-
-        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId, planId, screeningType);
     }
 
     ;
@@ -534,6 +386,65 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return Collections.emptyList();
         }
         return baseMapper.getFirstByPlanStudentIds(planStudentIds);
+    }
+
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planId 计划ID
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public VisionScreeningResult getOneScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
+        return findOne(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen));
+    }
+
+    /**
+     * 获取学生筛查结果明细
+     *
+     * @param planId    筛查ID
+     * @param planStudentId 计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO
+     **/
+    public VisionScreeningResultDTO getStudentScreeningResultDetail(Integer planId, Integer planStudentId){
+        List<VisionScreeningResult> visionScreeningResultList = findByList(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(planStudentId));
+        VisionScreeningResult firstResult = visionScreeningResultList.stream().filter(x -> Boolean.FALSE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
+        if (Objects.isNull(firstResult)) {
+            return new VisionScreeningResultDTO();
+        }
+
+        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
+        BeanUtils.copyProperties(firstResult, visionScreeningResultDTO);
+
+        visionScreeningResultDTO.setSaprodontiaStat(SaprodontiaStat.parseFromSaprodontiaDataDO(firstResult.getSaprodontiaData()))
+                .setGender(screeningPlanSchoolStudentService.getById(firstResult.getScreeningPlanSchoolStudentId()).getGender())
+                .setLeftSE(StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(firstResult), EyeDataUtil.leftCyl(firstResult)))
+                .setRightSE(StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(firstResult),EyeDataUtil.rightCyl(firstResult)))
+                .setSaprodontiaData(Optional.ofNullable(firstResult.getSaprodontiaData()).orElse(new SaprodontiaDataDO()))
+                .setSpineData(Optional.ofNullable(firstResult.getSpineData()).orElse(new SpineDataDO()))
+                .setBloodPressureData(Optional.ofNullable(firstResult.getBloodPressureData()).orElse(new BloodPressureDataDO()))
+                .setDiseasesHistoryData(Optional.ofNullable(firstResult.getDiseasesHistoryData()).orElse(new DiseasesHistoryDO()))
+                .setPrivacyData(Optional.ofNullable(firstResult.getPrivacyData()).orElse(new PrivacyDataDO()))
+                .setDeviationData(Optional.ofNullable(firstResult.getDeviationData()).orElse(new DeviationDO()))
+                .setOtherEyeDiseases(Optional.ofNullable(firstResult.getOtherEyeDiseases()).orElse(new OtherEyeDiseasesDO()));
+        // 做完全部复测项目才会出现复测情况模块
+        VisionScreeningResult reScreeningResult = visionScreeningResultList.stream().filter(x -> Boolean.TRUE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
+        if(Objects.nonNull(reScreeningResult) && ObjectsUtil.allNotNull(reScreeningResult.getVisionData(), reScreeningResult.getComputerOptometry(), reScreeningResult.getHeightAndWeightData())) {
+            visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
+        }
+        return visionScreeningResultDTO;
+    }
+
+    /**
+     * 根据筛查任务ID统计每个计划下筛查中的学校数量
+     *
+     * @param taskId
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount>
+     **/
+    public List<ScreeningSchoolCount> countScreeningSchoolByTaskId(Integer taskId) {
+        Assert.notNull(taskId, "筛查任务ID不能为空");
+        return baseMapper.countScreeningSchoolByTaskId(taskId);
     }
 
     public List<VisionScreeningResult> getByIds(List<Integer> ids) {

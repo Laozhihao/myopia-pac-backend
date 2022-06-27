@@ -31,7 +31,7 @@ public class ParentController {
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
     @GetMapping("/current/info")
-    public Parent getCurrentLoginParentInfo() throws IOException {
+    public Parent getCurrentLoginParentInfo() {
         return parentService.getParentByUserId(CurrentUserUtil.getCurrentUser().getId());
     }
 }

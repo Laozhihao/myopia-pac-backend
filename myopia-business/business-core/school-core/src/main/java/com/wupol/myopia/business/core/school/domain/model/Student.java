@@ -152,21 +152,25 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 戴镜类型
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer glassesType;
 
     /**
      * 是否近视
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Boolean isMyopia;
 
     /**
      * 是否远视
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Boolean isHyperopia;
 
     /**
      * 是否散光
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Boolean isAstigmatism;
 
     /**
@@ -207,23 +211,28 @@ public class Student extends AddressCode implements Serializable {
     /**
      * 视力低下等级, 1-视力低下 （暂时只显示这个）
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer lowVision;
 
     /**
      * 近视等级，0-正常、1-筛查性近视、2-近视前期、3-低度近视、4-中度近视、5-重度近视
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer myopiaLevel;
     /**
      * 筛查性近视
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer screeningMyopia;
     /**
      * 远视等级，0-正常、1-远视、2-低度远视、3-中度远视、4-重度远视
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer hyperopiaLevel;
     /**
      * 散光等级，0-正常、1-低度散光、2-中度散光、3-重度散光
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer astigmatismLevel;
 
     /**

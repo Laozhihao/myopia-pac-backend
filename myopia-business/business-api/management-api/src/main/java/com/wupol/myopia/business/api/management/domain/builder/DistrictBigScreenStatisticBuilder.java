@@ -11,10 +11,7 @@ import com.wupol.myopia.business.core.stat.domain.dto.DistributionDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalDouble;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,19 +73,19 @@ public class DistrictBigScreenStatisticBuilder {
             num.setStudentDistribution(MathUtil.getFormatNumWith2Scale(realValidScreeningNum / (double) realScreeningNum * 100));
             districtBigScreenStatistic.setRealScreening(realScreeningData);
             //获取视力低下的地区
-            List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsLowVision).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsLowVision())).collect(Collectors.toList());
             BigScreenScreeningDO lowVisionScreeningData = this.getScreeningData(lowVisionBigScreenStatDataDTOs);
             districtBigScreenStatistic.setLowVision(lowVisionScreeningData);
             //获取屈光不正
-            List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsRefractiveError).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsRefractiveError())).collect(Collectors.toList());
             BigScreenScreeningDO refractiveErrorScreeningData = this.getScreeningData(refractiveErrorBigScreenStatDataDTOs);
             districtBigScreenStatistic.setAmetropia(refractiveErrorScreeningData);
             //近视
-            List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(BigScreenStatDataDTO::getIsMyopia).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsMyopia())).collect(Collectors.toList());
             BigScreenScreeningDO myopiaScreeningData = this.getScreeningData(myopiaBigScreenStatDataDTOs);
             districtBigScreenStatistic.setMyopia(myopiaScreeningData);
             //重点视力对象
-            List<BigScreenStatDataDTO> focusObjectBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bigScreenStatDataDTO -> bigScreenStatDataDTO.getWarningLevel() > 0).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> focusObjectBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss -> Objects.nonNull(bss.getWarningLevel()) && bss.getWarningLevel() > 0).collect(Collectors.toList());
             BigScreenScreeningDO focusScreeningData = this.getScreeningData(focusObjectBigScreenStatDataDTOs);
             districtBigScreenStatistic.setFocusObjects(focusScreeningData);
             //平均视力

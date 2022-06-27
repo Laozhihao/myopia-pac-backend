@@ -53,8 +53,6 @@ public class BigScreeningStatService {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private BigScreeningProperties bigScreeningProperties;
-    @Autowired
-    private BigScreeningStatService bigScreeningStatService;
 
 
     /**
@@ -127,7 +125,7 @@ public class BigScreeningStatService {
      */
     public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
-            bigScreeningStatService.generateResultAndSave(provinceDistrictId, screeningNotice);
+            generateResultAndSave(provinceDistrictId, screeningNotice);
         }
     }
 

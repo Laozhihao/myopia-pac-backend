@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.constant;
 
 import com.wupol.myopia.base.constant.PermissionTemplateType;
+import lombok.experimental.UtilityClass;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class OrgScreeningMap {
 
     public static final Map<Integer, Integer> ORG_CONFIG_TYPE_TO_TEMPLATE = new HashMap<>();

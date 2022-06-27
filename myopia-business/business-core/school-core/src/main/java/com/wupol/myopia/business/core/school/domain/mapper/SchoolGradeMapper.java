@@ -3,10 +3,7 @@ package com.wupol.myopia.business.core.school.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeQueryDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentClazzDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import org.apache.ibatis.annotations.Param;
 
@@ -45,5 +42,13 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
     List<SchoolGrade> getBySchoolId(@Param("schoolId") Integer schoolId);
 
     Integer countBySchoolIdAndCode(@Param("schoolId") Integer schoolId, @Param("code") String code);
+
+    /**
+     * 获取班级信息，并带有学校和年级名称
+     *
+     * @param classId   班级ID
+     * @return com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO
+     **/
+    SchoolClassDTO selectClassWithSchoolAndGradeName(@Param("classId") Integer classId);
 
 }

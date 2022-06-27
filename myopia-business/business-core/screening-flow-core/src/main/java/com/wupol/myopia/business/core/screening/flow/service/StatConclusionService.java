@@ -119,21 +119,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<screeningPlanSchoolStudentDTO> getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<ExportPlanSchool> getPlanSchoolGradeClassHasData(Integer screeningNoticeId, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(screeningNoticeId, districtIds);
-    }
-
-    /**
-     * 根据筛查通知ID与学校Id查出导出的筛查数据
-     * @param screeningNoticeId
-     * @param schoolId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId, Integer planId) {
-        return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId, planId);
+        return baseMapper.selectPlanSchoolGradeClassHasData(screeningNoticeId, districtIds);
     }
 
     /**
@@ -145,15 +135,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
-    /**
-     * 根据筛查计划ID与学校Id查出导出的筛查数据
-     * @param screeningPlanId
-     * @param schoolId
-     * @return
-     */
-    public List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
-    }
+
     /**
      * 根据筛查通知ID与学校Id查出报告的筛查数据
      * @param screeningNoticeId
@@ -163,26 +145,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusionReportDTO> getReportVo(
             Integer screeningNoticeId, Integer planId, Integer schoolId) {
         return baseMapper.selectReportVoByQuery(screeningNoticeId, planId, schoolId);
-    }
-
-    /**
-     * 根据筛查通知ID与筛查机构Id查出导出的筛查数据
-     * @param screeningNoticeId
-     * @param screeningOrgId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
-        return baseMapper.selectExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
-    }
-
-    /**
-     * 根据筛查计划ID与筛查机构Id查出导出的筛查数据
-     * @param screeningPlanId
-     * @param screeningOrgId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
     }
 
     /**

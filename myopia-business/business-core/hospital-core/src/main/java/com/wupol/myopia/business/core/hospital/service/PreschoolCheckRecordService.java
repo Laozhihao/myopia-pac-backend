@@ -129,9 +129,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
         IPage<PreschoolCheckRecordDTO> records = baseMapper.getListByCondition(pageRequest.toPage(), query);
         // 获取医生信息集
         Set<Integer> doctorIds = new HashSet<>();
-        records.getRecords().forEach(record -> {
-            doctorIds.addAll(record.getDoctorIds());
-        });
+        records.getRecords().forEach(record -> doctorIds.addAll(record.getDoctorIds()));
         Map<Integer, String> doctorNames = hospitalDoctorService.getDoctorNameByIds(doctorIds);
         // 设置名称
         records.getRecords().forEach(record -> {
@@ -310,7 +308,7 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      * @return
      */
     public List<MonthAgeStatusDTO> createMonthAgeStatusDTOByMap(Map<Integer, MonthAgeStatusDTO> map) {
-        return map.keySet().stream().map(monthAge -> map.get(monthAge)).collect(Collectors.toList());
+        return map.keySet().stream().map(map::get).collect(Collectors.toList());
     }
 
     /**

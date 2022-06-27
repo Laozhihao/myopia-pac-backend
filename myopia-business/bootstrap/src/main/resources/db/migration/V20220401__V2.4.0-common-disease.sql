@@ -61,10 +61,6 @@ ALTER TABLE m_school_student ADD low_vision TINYINT(3) NULL COMMENT '视力低�
 ALTER TABLE m_student ADD low_vision TINYINT(3) NULL COMMENT '视力低下';
 
 
-
-
-
-
 -- 新增筛查数据结果统计表
 CREATE TABLE `m_screening_result_statistic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
@@ -116,3 +112,54 @@ alter table m_stat_rescreen
 
 alter table m_school
     modify type tinyint not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他,8幼儿园,9大学';
+
+-- 学生常见病ID表，m_student_common_disease_id
+CREATE TABLE `m_student_common_disease_id` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID主键',
+  `student_id` int(11) NOT NULL COMMENT '学生ID',
+  `area_district_short_code` varchar(6) NOT NULL COMMENT '区/县行政区域编码简称（6位）',
+  `school_id` int(11) NOT NULL COMMENT '学校ID',
+  `grade_id` int(11) NOT NULL COMMENT '年级ID',
+  `year` int(4) NOT NULL COMMENT '年份，如：2016、2019、2022',
+  `common_disease_code` varchar(4) NOT NULL COMMENT '学生常见病编码，4位（同一年，同年级下，从0001到9999）',
+  `common_disease_id` varchar(16) NOT NULL COMMENT '学生常见病ID，16位',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `area_type` tinyint(1) NOT NULL COMMENT '片区类型',
+  `monitor_type` tinyint(1) NOT NULL COMMENT '监测点类型',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_index_student_id_grade_id_year_code` (`student_id`,`grade_id`,`year`,`common_disease_code`,`area_district_short_code`) USING BTREE COMMENT '唯一索引'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='学生常见病ID';
+
+-- 学校常见病编码表，m_school_common_disease_code
+CREATE TABLE `m_school_common_disease_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `area_district_short_code` varchar(6) NOT NULL COMMENT '区/县行政区域编码简称（6位）',
+  `school_id` int(11) NOT NULL COMMENT '学校ID',
+  `year` int(4) NOT NULL COMMENT '年份，如：2016、2019、2022',
+  `code` varchar(2) NOT NULL COMMENT '学校常见病编码，2位，同年同区域下学校从01到99',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_index_school_id_year_code` (`school_id`,`year`,`code`,`area_district_short_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='学校常见病编码';
+
+-- 表m_screening_plan_school_student，加字段
+ALTER TABLE m_screening_plan_school_student ADD COLUMN common_disease_id varchar(16) COMMENT '常见病ID，16位';
+
+-- 模板表加字段
+ALTER TABLE m_template ADD COLUMN biz tinyint(1) NOT NULL DEFAULT 1 COMMENT '业务类型：1-视力筛查、2-常见病' AFTER id;
+-- 更新模板名称
+UPDATE m_template SET name = '视力筛查报告-学校维度样板1' WHERE id = 5;
+UPDATE m_template SET name = '视力筛查报告-计划维样板1' WHERE id = 6;
+UPDATE m_template SET name = '视力筛查报告-区域维度样板1' WHERE id = 7;
+-- 新增模板
+INSERT INTO `m_template` ( `id`, `biz`, `type`, `name` )
+VALUES
+       ( 8, 2, 1, '学生监测表-常见病筛查结果记录表' ),
+       ( 9, 2, 2, '常见病筛查报告-学校维度样板1' ),
+       ( 10, 2, 2, '常见病筛查报告-计划维度样板1' ),
+       ( 11, 2, 2, '常见病筛查报告-区域维度样板1' );
+-- 新模板默认为全国使用
+INSERT INTO `m_template_district`(`template_id`, `district_id`, `district_name`) SELECT 8, id, name FROM m_district WHERE parent_code = 100000000;
+INSERT INTO `m_template_district`(`template_id`, `district_id`, `district_name`) SELECT 9, id, name FROM m_district WHERE parent_code = 100000000;
+INSERT INTO `m_template_district`(`template_id`, `district_id`, `district_name`) SELECT 10, id, name FROM m_district WHERE parent_code = 100000000;
+INSERT INTO `m_template_district`(`template_id`, `district_id`, `district_name`) SELECT 11, id, name FROM m_district WHERE parent_code = 100000000;

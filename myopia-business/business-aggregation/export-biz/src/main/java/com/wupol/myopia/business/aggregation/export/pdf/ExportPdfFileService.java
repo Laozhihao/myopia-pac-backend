@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 
 /**
  * 导出pdf文件
@@ -13,7 +13,7 @@ public interface ExportPdfFileService {
     /**
      * 获取类型
      *
-     * @return 类型 {@link ScreeningTypeConst}
+     * @return 类型 {@link ScreeningTypeEnum}
      */
     Integer getScreeningType();
 

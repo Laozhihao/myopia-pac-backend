@@ -57,7 +57,13 @@ public class StatDistrictService {
         return getKindergartenResultVO(screeningNotice,districtId,noticeId);
     }
 
-    public KindergartenResultVO getKindergartenResultVO(ScreeningNotice screeningNotice,Integer districtId, Integer noticeId){
+    /**
+     * 获取幼儿园统计结果
+     * @param screeningNotice 筛查通知数据
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
+    public KindergartenResultVO getKindergartenResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId){
 
         //查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> visionStatistics = getKindergartenResultList(noticeId, districtId, screeningNotice.getScreeningType());
@@ -66,7 +72,7 @@ public class StatDistrictService {
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
         //查找当前层级的数据（非合计数据）
-        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE);
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.TRUE,screeningNotice.getScreeningType());
         //构建数据
         KindergartenResultVO kindergartenResultVO = new KindergartenResultVO();
         kindergartenResultVO.setBasicData(districtId,districtInfo.getFirst());
@@ -93,7 +99,12 @@ public class StatDistrictService {
         return getPrimarySchoolAndAboveResultVO(screeningNotice,districtId,noticeId);
     }
 
-
+    /**
+     * 获取小学及以上数据
+     * @param screeningNotice 筛查通知数据
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     private PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
         //查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> visionStatistics = getPrimarySchoolAndAboveResultList(noticeId, districtId, screeningNotice.getScreeningType());
@@ -101,7 +112,7 @@ public class StatDistrictService {
             return null;
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
-        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE);
+        ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE,screeningNotice.getScreeningType());
         //构建数据
         PrimarySchoolAndAboveResultVO primarySchoolAndAboveResultVO = new PrimarySchoolAndAboveResultVO();
         primarySchoolAndAboveResultVO.setBasicData(districtId,districtInfo.getFirst());
@@ -111,8 +122,15 @@ public class StatDistrictService {
 
     }
 
-    private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten) {
-        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, 0, isKindergarten);
+    /**
+     * 获取当前筛查统计结果数据
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     * @param isKindergarten 是否是幼儿园
+     */
+    private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten,Integer screeningType) {
+        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, screeningType, isKindergarten);
         ScreeningResultStatistic currentVisionStatistic = null;
         if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
             currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
@@ -141,6 +159,9 @@ public class StatDistrictService {
 
     /**
      * 按区域-视力筛查-获取数据详情（合计）
+     * @param screeningNotice  筛查通知数据
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
      */
     private ScreeningResultStatisticDetailVO getScreeningResultStatisticDetailVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
         TwoTuple<List<ScreeningResultStatistic>, List<ScreeningResultStatistic>> screeningResult = getScreeningResult(noticeId, districtId, screeningNotice.getScreeningType());
@@ -169,7 +190,11 @@ public class StatDistrictService {
 
     }
 
-
+    /**
+     * 地区信息
+     * @param districtId 区域ID
+     * @param screeningResultStatistics 筛查结果数据集合
+     */
     private TwoTuple<String,Map<Integer, String>> districtInfo(Integer districtId,List<ScreeningResultStatistic> screeningResultStatistics){
         //获取当前范围名
         String currentRangeName = districtService.getDistrictNameByDistrictId(districtId);
@@ -181,14 +206,32 @@ public class StatDistrictService {
         return new TwoTuple<>(currentRangeName,districtIdNameMap);
     }
 
+    /**
+     * 获取幼儿园统计结果集合
+     * @param noticeId 通知ID
+     * @param districtId 区域ID
+     * @param screeningType 筛查类型
+     */
     private List<ScreeningResultStatistic> getKindergartenResultList(Integer noticeId,Integer districtId,Integer screeningType){
         return screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.TRUE);
     }
 
+    /**
+     * 获取小学及以上统计结果集合
+     * @param noticeId 通知ID
+     * @param districtId 区域ID
+     * @param screeningType 筛查类型
+     */
     private List<ScreeningResultStatistic> getPrimarySchoolAndAboveResultList(Integer noticeId,Integer districtId,Integer screeningType){
         return screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.FALSE);
     }
 
+    /**
+     * 获取筛查统计结果
+     * @param noticeId 通知ID
+     * @param districtId 区域ID
+     * @param screeningType 筛查类型
+     */
     private TwoTuple<List<ScreeningResultStatistic>,List<ScreeningResultStatistic>> getScreeningResult(Integer noticeId,Integer districtId,Integer screeningType){
         //幼儿园 查找合计数据（当前层级 + 下级）
         List<ScreeningResultStatistic> kindergartenVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentChildDistrictIds(noticeId,districtId,Boolean.TRUE,screeningType,Boolean.TRUE);

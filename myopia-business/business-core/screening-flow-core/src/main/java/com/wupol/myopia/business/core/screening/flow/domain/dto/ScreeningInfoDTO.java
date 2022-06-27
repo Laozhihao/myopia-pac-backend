@@ -1,17 +1,18 @@
-package com.wupol.myopia.business.core.screening.flow.domain.dto;/*
- * @Author  钓猫的小鱼
- * @Date  2022/4/12 16:54
- * @Email: shuailong.wu@vistel.cn
- * @Des:
- */
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
+
 /**
  * 筛查信息扩展类：包括视力筛查/常见病筛查/复测筛查
+ *
+ * @Author  钓猫的小鱼
+ * @Date  2022/4/12 16:54
  */
+@Accessors(chain = true)
 @Data
 public class ScreeningInfoDTO {
     /**
@@ -25,6 +26,6 @@ public class ScreeningInfoDTO {
     /**
      * 复测信息
      */
-    public ReScreenDTO rescreening;
+    private ReScreenDTO reScreening;
 
 }

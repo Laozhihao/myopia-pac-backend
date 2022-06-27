@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -337,5 +338,16 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
             });
             schoolClassService.batchUpdateOrSave(schoolClassList);
         });
+    }
+
+    /**
+     * 获取班级信息，并带有学校和年级名称
+     *
+     * @param classId   班级ID
+     * @return com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO
+     **/
+    public SchoolClassDTO getClassWithSchoolAndGradeName(Integer classId) {
+        Assert.notNull(classId, "班级ID不能为空");
+        return baseMapper.selectClassWithSchoolAndGradeName(classId);
     }
 }
