@@ -36,9 +36,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -109,8 +106,8 @@ public class ReportController {
     /**
      * 导出学校的筛查报告
      *
-     * @param planId         筛查计划ID
-     * @param schoolId       学校ID
+     * @param planId   筛查计划ID
+     * @param schoolId 学校ID
      *
      * @return com.wupol.myopia.base.domain.ApiResult
      **/

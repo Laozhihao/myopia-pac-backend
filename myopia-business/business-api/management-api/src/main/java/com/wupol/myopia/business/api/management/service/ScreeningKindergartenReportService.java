@@ -154,17 +154,17 @@ public class ScreeningKindergartenReportService {
 
         GradeLowVision.Info info = new GradeLowVision.Info();
 
-        info.setOne(highLowProportionService.getMaxMin(
+        info.setOne(highLowProportionService.getKindergartenMaxMin(
                 countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
                 gradeMap.get(GradeCodeEnum.ONE_KINDERGARTEN.getName()),
                 s -> Float.valueOf(s.getLowVisionProportion())));
 
-        info.setTwo(highLowProportionService.getMaxMin(
+        info.setTwo(highLowProportionService.getKindergartenMaxMin(
                 countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
                 gradeMap.get(GradeCodeEnum.TWO_KINDERGARTEN.getName()),
                 s -> Float.valueOf(s.getLowVisionProportion())));
 
-        info.setThree(highLowProportionService.getMaxMin(
+        info.setThree(highLowProportionService.getKindergartenMaxMin(
                 countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
                 gradeMap.get(GradeCodeEnum.THREE_KINDERGARTEN.getName()),
                 s -> Float.valueOf(s.getLowVisionProportion())));
@@ -188,9 +188,9 @@ public class ScreeningKindergartenReportService {
             return null;
         }
         GradeRefractive.Detail detail = new GradeRefractive.Detail();
-        detail.setInsufficient(highLowProportionService.getMaxMin(countAndProportionService.insufficient(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getInsufficientProportion())));
-        detail.setRefractiveError(highLowProportionService.getMaxMin(countAndProportionService.refractiveError(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
-        detail.setAnisometropia(highLowProportionService.getMaxMin(countAndProportionService.anisometropia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getAnisometropiaProportion())));
+        detail.setInsufficient(highLowProportionService.getKindergartenMaxMin(countAndProportionService.insufficient(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getInsufficientProportion())));
+        detail.setRefractiveError(highLowProportionService.getKindergartenMaxMin(countAndProportionService.refractiveError(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
+        detail.setAnisometropia(highLowProportionService.getKindergartenMaxMin(countAndProportionService.anisometropia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getAnisometropiaProportion())));
         return detail;
     }
 
@@ -210,8 +210,8 @@ public class ScreeningKindergartenReportService {
             return null;
         }
         GradeWarning.Detail detail = new GradeWarning.Detail();
-        detail.setWarningProportion(highLowProportionService.getMaxMin(countAndProportionService.warning(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getWarningProportion())));
-        detail.setRecommendDoctor(highLowProportionService.getMaxMin(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+        detail.setWarningProportion(highLowProportionService.getKindergartenMaxMin(countAndProportionService.warning(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getWarningProportion())));
+        detail.setRecommendDoctor(highLowProportionService.getKindergartenMaxMin(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
         detail.setZeroWarning(countAndProportionService.zeroAndSPWarning(statConclusions, total).getProportion());
         detail.setOneWarning(countAndProportionService.oneWarning(statConclusions, total).getProportion());
         detail.setTwoWarning(countAndProportionService.twoWarning(statConclusions, total).getProportion());

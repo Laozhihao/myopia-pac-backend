@@ -502,17 +502,18 @@ public class CommonReportService {
                 .filter(s -> !filterList().contains(s.getName())).collect(Collectors.toList());
 
         WarningSituation.GradeWarningInfo gradeWarning = new WarningSituation.GradeWarningInfo();
-        gradeWarning.setTables(Lists.newArrayList(tables));
         List<WarningTable> collect;
 
         if (isArea) {
+            gradeWarning.setTables(Lists.newArrayList(tables));
             collect = tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList());
             gradeWarning.setGradeWarningChart(portraitChartService.warningChart(collect));
         } else {
+            gradeWarning.setTables(Lists.newArrayList(warningTables));
             collect = tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList());
             gradeWarning.setGradeWarningChart(portraitChartService.warningChart2(collect));
         }
-        if (isShowInfo(collect, true)) {
+        if (isShowInfo(collect, false)) {
             WarningSituation.Info info = new WarningSituation.Info();
             info.setZero(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
             info.setOne(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
@@ -734,7 +735,7 @@ public class CommonReportService {
         table.setVisionWarning(WarningLevel.getDesc(statConclusion.getWarningLevel()));
         table.setIsRecommendDoctor(statConclusion.getIsRecommendVisit());
 
-        table.setRemark(getRemark(statConclusion.getIsValid(), planStudent.getState()));
+        table.setRemark(getRemark(statConclusion.getId(), statConclusion.getIsValid(), planStudent.getState()));
         return table;
     }
 
@@ -776,18 +777,21 @@ public class CommonReportService {
         return StringUtils.EMPTY;
     }
 
-    private String getRemark(Boolean isValid, Integer state) {
+    private String getRemark(Integer id, Boolean isValid, Integer state) {
+        if (Objects.isNull(id)) {
+            return "未做检查";
+        }
         if (Objects.equals(isValid, Boolean.FALSE)) {
             return "数据缺失【不满足初筛完整数据判断】";
         }
         if (state == 1) {
-            return "请假";
+            return "未做检查：请假";
         }
         if (state == 2) {
-            return "转学";
+            return "未做检查：转学";
         }
         if (state == 3) {
-            return "其他";
+            return "未做检查：其他";
         }
         return StringUtils.EMPTY;
     }

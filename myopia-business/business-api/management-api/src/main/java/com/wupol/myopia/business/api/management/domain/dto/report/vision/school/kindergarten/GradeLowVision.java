@@ -56,11 +56,6 @@ public class GradeLowVision {
     public static class Table extends RowSpan{
 
         /**
-         * 班级名称
-         */
-        private String className;
-
-        /**
          * 男-人数
          */
         private Long mCount;

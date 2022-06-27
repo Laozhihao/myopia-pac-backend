@@ -101,11 +101,6 @@ public class GradeWarning {
     public static class Table extends CommonWarningTable {
 
         /**
-         * 班级名称
-         */
-        private String className;
-
-        /**
          * 预警人数
          */
         private Long warningCount;

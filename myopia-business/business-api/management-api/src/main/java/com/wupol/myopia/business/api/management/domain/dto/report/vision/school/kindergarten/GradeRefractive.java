@@ -87,11 +87,6 @@ public class GradeRefractive {
     public static class Table extends RowSpan{
 
         /**
-         * 班级名称
-         */
-        private String className;
-
-        /**
          * 远视储备不足-有效人数
          */
         private Long insufficientStudentCount;

@@ -14,6 +14,11 @@ import lombok.Setter;
 public class RowSpan extends CommonTable {
 
     /**
+     * 班级名称
+     */
+    private String className;
+
+    /**
      * 班级数量
      */
     private Long rowSpan;

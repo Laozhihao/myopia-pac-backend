@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service.report;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.RowSpan;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,20 @@ public class HighLowProportionService {
         T max = tables.get(tables.size() - 1);
         T min = tables.get(0);
         return new MaxMinProportion(proportion, max.getName(), getStringValue(comparingFunction.apply(max)), min.getName(), getStringValue(comparingFunction.apply(min)));
+    }
+
+    public <T extends RowSpan> MaxMinProportion getKindergartenMaxMin(String proportion, List<T> tables, Function<T, Float> comparingFunction) {
+        if (CollectionUtils.isEmpty(tables)) {
+            return new MaxMinProportion();
+        }
+        if (tables.size() == 1) {
+            T min = tables.get(0);
+            return new MaxMinProportion(proportion, min.getClassName(), getStringValue(comparingFunction.apply(min)), min.getClassName(), getStringValue(comparingFunction.apply(min)));
+        }
+        tables.sort(Comparator.comparing(comparingFunction));
+        T max = tables.get(tables.size() - 1);
+        T min = tables.get(0);
+        return new MaxMinProportion(proportion, max.getClassName(), getStringValue(comparingFunction.apply(max)), min.getClassName(), getStringValue(comparingFunction.apply(min)));
     }
 
     public <T extends CommonTable> List<T> filterTable(List<T> tables) {
