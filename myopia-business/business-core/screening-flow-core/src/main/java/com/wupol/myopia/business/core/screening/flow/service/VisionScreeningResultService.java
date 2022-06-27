@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -8,13 +7,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
@@ -376,119 +371,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return new ArrayList<>();
         }
         return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
-    }
-
-    /**
-     * 通过计划id，学校id获取复查学生数据
-     *
-     * @param planId    计划Id
-     * @param schoolIds 学校Id
-     * @return List<VisionScreeningResult>
-     */
-    public Map<Integer, List<VisionScreeningResult>> getMapRescreenBySchoolIds(Integer planId, List<Integer> schoolIds) {
-        List<VisionScreeningResult> results = getRescreenBySchoolIds(planId, schoolIds);
-        if (CollectionUtils.isEmpty(results)) {
-            return new HashMap<>();
-        }
-        return results.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId));
-    }
-
-    public VisionScreeningResultDTO getStudentEyeByStudentId(List<VisionScreeningResult> visionScreeningResults, List<VisionScreeningResult> doubleScreeningResults) {
-        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
-        if (!visionScreeningResults.isEmpty()){
-            BeanUtils.copyProperties(visionScreeningResults.get(0), visionScreeningResultDTO);
-            visionScreeningResultDTO.setSaprodontiaDataDTO(getSaprodontiaDataDTO(visionScreeningResults.get(0)));
-            ScreeningPlanSchoolStudent schoolStudent = new ScreeningPlanSchoolStudent();
-            schoolStudent.setId(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
-            schoolStudent.setScreeningPlanId(visionScreeningResults.get(0).getPlanId());
-            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(schoolStudent);
-            if (screeningPlanSchoolStudent != null){
-                visionScreeningResultDTO.setGender(screeningPlanSchoolStudent.getGender());
-            }
-            if (!doubleScreeningResults.isEmpty() && doubleScreeningResults.get(0).getVisionData() !=null
-                    && doubleScreeningResults.get(0).getComputerOptometry() != null && doubleScreeningResults.get(0).getHeightAndWeightData() != null){
-
-                visionScreeningResultDTO.setRescreening(ReScreenCardUtil.reScreeningResult(visionScreeningResults.get(0),doubleScreeningResults.get(0)));
-            }
-            visionScreeningResultDTO.setLeftSE(getLeftSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setRightSE(getRightSphericalEquivalent(visionScreeningResults.get(0)));
-            visionScreeningResultDTO.setSaprodontiaData(VisionScreeningResultDTO.saprodontiaDataDOIsNull(visionScreeningResultDTO.getSaprodontiaData()));
-            visionScreeningResultDTO.setSpineData(VisionScreeningResultDTO.spineDataDOIsNull(visionScreeningResultDTO.getSpineData()));
-            visionScreeningResultDTO.setBloodPressureData(VisionScreeningResultDTO.bloodPressureDataDOIsNull(visionScreeningResultDTO.getBloodPressureData()));
-            visionScreeningResultDTO.setDiseasesHistoryData(VisionScreeningResultDTO.diseasesHistoryDOIsNull(visionScreeningResultDTO.getDiseasesHistoryData()));
-            visionScreeningResultDTO.setPrivacyData(VisionScreeningResultDTO.privacyDataDOIsNull(visionScreeningResultDTO.getPrivacyData()));
-            visionScreeningResultDTO.setDeviationData(VisionScreeningResultDTO.deviationDOIsNull(visionScreeningResultDTO.getDeviationData()));
-            visionScreeningResultDTO.setOtherEyeDiseases(VisionScreeningResultDTO.otherEyeDiseasesDOIsNull(visionScreeningResultDTO.getOtherEyeDiseases()));
-            visionScreeningResultDTO.setRescreening(VisionScreeningResultDTO.reScreenDTOIsNull(visionScreeningResultDTO.getRescreening()));
-        }
-        return visionScreeningResultDTO;
-    }
-
-    private BigDecimal getLeftSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(result),EyeDataUtil.leftCyl(result));
-    }
-
-    private BigDecimal getRightSphericalEquivalent(VisionScreeningResult result){
-        return StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(result),EyeDataUtil.rightCyl(result));
-    }
-
-
-    public SaprodontiaDataDTO getSaprodontiaDataDTO(VisionScreeningResult result) {
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-        if (Objects.nonNull(result) && Objects.nonNull(result.getSaprodontiaData())) {
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     *
-     * @param items
-     */
-    private SaprodontiaDataDTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDTO saprodontiaDataDTO = new SaprodontiaDataDTO();
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_D.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_M.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_F.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_D.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_M.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_F.getName(), item.getPermanent())).collect(Collectors.toList());
-
-
-        SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
-        SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
-
-        if (CollectionUtil.isNotEmpty(deciduousDs)){
-            deciduousTooth.setDCount(deciduousDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousMs)){
-            deciduousTooth.setMCount(deciduousMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousFs)){
-            deciduousTooth.setFCount(deciduousFs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentDs)){
-            permanentTooth.setDCount(permanentDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentMs)){
-            permanentTooth.setMCount(permanentMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentFs)){
-            permanentTooth.setFCount(permanentFs.size());
-        }
-
-        saprodontiaDataDTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDTO;
-    }
-
-    public VisionScreeningResult getIsDoubleScreen(Integer screeningPlanSchoolStudentId, Integer planId, Integer screeningType) {
-
-        return baseMapper.getIsDoubleScreen(screeningPlanSchoolStudentId, planId, screeningType);
     }
 
     ;

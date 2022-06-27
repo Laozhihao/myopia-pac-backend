@@ -110,8 +110,6 @@ public class ScreeningAppController {
     private ScreeningOrganizationStaffService screeningOrganizationStaffService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-    @Autowired
-    private ScreeningOrganizationStaffService screeningOrganizationStaffService;
 
     /**
      * 模糊查询某个筛查机构下的学校的
@@ -392,7 +390,7 @@ public class ScreeningAppController {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getPrivacyData());
             }
             if (screeningResultDataVO.getDeviationData() != null) {
-                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDeviationData(), clientId);
+                visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getDeviationData());
             }
         } catch (Exception e) {
             logger.error(e.getMessage());
