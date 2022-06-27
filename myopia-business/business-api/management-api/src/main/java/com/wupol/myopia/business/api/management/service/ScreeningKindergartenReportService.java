@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.MaxMinProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.*;
 import com.wupol.myopia.business.api.management.service.report.*;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -138,7 +139,7 @@ public class ScreeningKindergartenReportService {
         GradeWarning gradeWarning = new GradeWarning();
         List<GradeWarning.Table> gradeWarningTable = kindergartenReportTableService.kindergartenGradeWarningTable(statConclusions, total);
         gradeWarning.setTables(Lists.newArrayList(gradeWarningTable));
-        if (commonReportService.isShowInfo(gradeWarningTable,true)) {
+        if (commonReportService.isShowInfo(gradeWarningTable, true)) {
             gradeWarning.setGradeWarningChart(horizontalChartService.kGradeWarning(statConclusions));
             gradeWarning.setInfo(getGradeWarning(statConclusions, gradeWarningTable, total));
         }
@@ -153,22 +154,18 @@ public class ScreeningKindergartenReportService {
                 .collect(Collectors.groupingBy(GradeLowVision.Table::getName));
 
         GradeLowVision.Info info = new GradeLowVision.Info();
-
-        info.setOne(highLowProportionService.getKindergartenMaxMin(
-                countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
-                gradeMap.get(GradeCodeEnum.ONE_KINDERGARTEN.getName()),
-                s -> Float.valueOf(s.getLowVisionProportion())));
-
-        info.setTwo(highLowProportionService.getKindergartenMaxMin(
-                countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
-                gradeMap.get(GradeCodeEnum.TWO_KINDERGARTEN.getName()),
-                s -> Float.valueOf(s.getLowVisionProportion())));
-
-        info.setThree(highLowProportionService.getKindergartenMaxMin(
-                countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode())).collect(Collectors.toList()), total).getProportion(),
-                gradeMap.get(GradeCodeEnum.THREE_KINDERGARTEN.getName()),
-                s -> Float.valueOf(s.getLowVisionProportion())));
+        info.setOne(getGradeLowVisionInfo(statConclusions, gradeMap, GradeCodeEnum.ONE_KINDERGARTEN, total));
+        info.setTwo(getGradeLowVisionInfo(statConclusions, gradeMap, GradeCodeEnum.TWO_KINDERGARTEN, total));
+        info.setThree(getGradeLowVisionInfo(statConclusions, gradeMap, GradeCodeEnum.THREE_KINDERGARTEN, total));
         return info;
+    }
+
+    private MaxMinProportion getGradeLowVisionInfo(List<StatConclusion> statConclusions, Map<String, List<GradeLowVision.Table>> gradeMap,
+                                                   GradeCodeEnum gradeCodeEnum, Long total) {
+        highLowProportionService.getKindergartenMaxMin(
+                countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), gradeCodeEnum.getCode())).collect(Collectors.toList()), total).getProportion(),
+                gradeMap.get(gradeCodeEnum.getName()),
+                s -> Float.valueOf(s.getLowVisionProportion()));
     }
 
     private GradeRefractive.Info getGradeRefractiveInfo(List<StatConclusion> statConclusions, List<GradeRefractive.Table> tables, Long total) {
