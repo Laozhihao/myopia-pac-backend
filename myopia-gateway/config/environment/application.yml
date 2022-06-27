@@ -160,3 +160,6 @@ white-list:
   - "/management/archive/data"
   # 获取验证图片
   - "/auth/verify/image"
+  - "/management/report/screening/areaReport"
+  - "/management/report/screening/primaryReport"
+  - "/management/report/screening/kindergartenReport"

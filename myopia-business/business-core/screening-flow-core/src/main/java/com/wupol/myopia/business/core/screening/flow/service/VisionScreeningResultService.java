@@ -447,4 +447,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.countScreeningSchoolByTaskId(taskId);
     }
 
+    public List<VisionScreeningResult> getByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
+    }
+
 }

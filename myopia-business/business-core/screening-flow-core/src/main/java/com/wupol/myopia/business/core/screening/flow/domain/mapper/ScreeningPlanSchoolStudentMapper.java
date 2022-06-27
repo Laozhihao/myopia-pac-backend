@@ -30,7 +30,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningStudentDTO> selectByGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
-    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId,@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId,@Param("studentIds") List<Integer> studentIds);
+    List<ScreeningStudentDTO> selectBySchoolGradeAndClass(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId, @Param("studentIds") List<Integer> studentIds);
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 
@@ -79,4 +79,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getByPlanIdIdCardAndPassport(@Param("planId") Integer planId, @Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
 
     List<CommonDiseasePlanStudent> selectCommonDiseaseScreeningPlanStudent(@Param("schoolId") Integer schoolId);
+
+    List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(@Param("noticeIds") List<Integer> noticeIds, @Param("schoolIds") List<Integer> schoolIds);
 }

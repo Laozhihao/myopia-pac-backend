@@ -46,5 +46,35 @@ public class HtmlPageUrlConstant {
      * 【档案卡】学生档案卡html页面地址
      */
     public static final String STUDENT_ARCHIVE_HTML_URL = "%s?templateId=%d&planId=%d&classId=%d&planStudentIds=%s&type=%d&reportType=monitor";
+    /**
+     *  视力报告-区域
+     */
+    public static final String REPORT_AREA_VISION = "%s?reportType=visonArea&noticeId=%d&districtId=%d";
+
+    /**
+     *  视力报告-小学
+     */
+    public static final String REPORT_PRIMARY_VISION = "%s?reportType=visonPrimarySchool&planId=%d&schoolId=%d";
+
+    /**
+     *  视力报告-幼儿园
+     */
+    public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonKindergartenSchool&planId=%d&schoolId=%d";
+
+    /**
+     * 视力报告区域-文件名
+     */
+    public static final String SCREENING_VISION_DISTRICT = "";
+    /**
+     * 视力报告学校-文件名
+     */
+    public static final String SCREENING_VISION_SCHOOL_PRIMARY = "";
+    /**
+     * 视力报告学校-文件名
+     */
+    public static final String SCREENING_VISION_SCHOOL_KINDERGARTEN = "";
+
+
+
 
 }

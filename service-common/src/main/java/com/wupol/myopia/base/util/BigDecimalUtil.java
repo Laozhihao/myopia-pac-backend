@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Objects;
@@ -321,6 +322,12 @@ public class BigDecimalUtil {
             return new BigDecimal("0.0");
         }
         return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP);
+    }
+
+    public static String divide(Long b1, Long b2) {
+        Assert.notNull(b1, "can not null");
+        Assert.notNull(b2, "can not null");
+        return divide(new BigDecimal(b1), new BigDecimal(b2), 4).multiply(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP).toString();
     }
 
     /**

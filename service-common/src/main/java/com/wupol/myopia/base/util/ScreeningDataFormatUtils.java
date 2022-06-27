@@ -69,6 +69,41 @@ public class ScreeningDataFormatUtils {
     }
 
     /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    public static String singlePlusEyeDateFormatTwo(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return Objects.isNull(date) ? "--" : singleEyeFormat(decimalFormat.format(date));
+    }
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    public static String singleEyeDateFormatZero(BigDecimal date) {
+        DecimalFormat decimalFormat = new DecimalFormat("0");
+        return Objects.isNull(date) ? "--" : decimalFormat.format(date);
+    }
+
+    /**
+     * 单眼数据格式化
+     *
+     * @param date 左眼数据
+     * @return String
+     */
+    public static String singleEyeFormat(String date) {
+        if (BigDecimalUtil.moreThanAndEqual(date, "0")) {
+            return "+" + date;
+        }
+        return date;
+    }
+
+    /**
      * 格式化眼压数据
      *
      * @param data 眼数据

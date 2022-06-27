@@ -58,4 +58,6 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     IPage<VisionScreeningResult> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId);
 
     List<ScreeningSchoolCount> countScreeningSchoolByTaskId(@Param("taskId") Integer taskId);
+
+    List<VisionScreeningResult> getByIds(@Param("ids") List<Integer> ids);
 }

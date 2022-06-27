@@ -1,9 +1,11 @@
 package com.wupol.myopia.base.util;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 /**
  * 戴眼镜类型
@@ -46,5 +48,9 @@ public enum GlassesTypeEnum {
             return StringUtils.EMPTY;
         }
         return glassesType.getDesc();
+    }
+
+    public static List<GlassesTypeEnum> glassesList() {
+        return Lists.newArrayList(NOT_WEARING, FRAME_GLASSES, CONTACT_LENS, ORTHOKERATOLOGY);
     }
 }

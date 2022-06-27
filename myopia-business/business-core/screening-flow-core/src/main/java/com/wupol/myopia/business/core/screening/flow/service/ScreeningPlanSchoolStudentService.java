@@ -675,4 +675,23 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
         return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
     }
+
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(List<Integer> noticeIds, List<Integer> schoolIds) {
+        return baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
+
+    }
+
+    public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId)
+                .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,noticeId);
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId,districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

@@ -302,5 +302,33 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
     }
 
+    public List<StatConclusion> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.getByNoticeIdDistrictIds(noticeId, districtIds);
+    }
+
+    public List<StatConclusion> getByPlanIdSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdSchoolId(planId, schoolId);
+    }
+
+    public List<StatConclusion> getByPlanId(Integer planId) {
+        return baseMapper.getByPlanId(planId);
+    }
+
+    public List<StatConclusion> getByDistrictIds(List<Integer> districtIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getDistrictId, districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<StatConclusion> getByPlanStudentIds(List<Integer> planStudentIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId,planStudentIds);
+        queryWrapper.eq(StatConclusion::getIsRescreen,Boolean.FALSE);
+        return baseMapper.selectList(queryWrapper);
+    }
+
 }
 

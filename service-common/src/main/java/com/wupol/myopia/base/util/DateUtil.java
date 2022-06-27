@@ -489,4 +489,24 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         end.setTime(endTime);
         return date.after(begin) && date.before(end);
     }
+
+    /**
+     * 判断时间是否在时间段内
+     *
+     * @param beginTime 开始时间
+     * @param endTime   结束时间
+     *
+     * @return 是否在时间段内
+     */
+    public static boolean isBetweenDate(Date beginTime, Date endTime, Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        Calendar begin = Calendar.getInstance();
+        begin.setTime(beginTime);
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+        return calendar.after(begin) && calendar.before(end);
+    }
 }

@@ -358,4 +358,16 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.selectBatchIds(ids);
     }
 
+    /**
+     * 通过Ids获取
+     *
+     * @param ids 筛查计划Id
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByIdsOrderByStartTime(Collection<Integer> ids) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, ids)
+                .orderByAsc(ScreeningPlan::getStartTime);
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+    }
 }
