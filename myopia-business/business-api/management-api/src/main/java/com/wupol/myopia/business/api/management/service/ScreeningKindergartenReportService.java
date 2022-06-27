@@ -162,7 +162,7 @@ public class ScreeningKindergartenReportService {
 
     private MaxMinProportion getGradeLowVisionInfo(List<StatConclusion> statConclusions, Map<String, List<GradeLowVision.Table>> gradeMap,
                                                    GradeCodeEnum gradeCodeEnum, Long total) {
-        highLowProportionService.getKindergartenMaxMin(
+        return highLowProportionService.getKindergartenMaxMin(
                 countAndProportionService.lowVision(statConclusions.stream().filter(s -> StringUtils.equals(s.getSchoolGradeCode(), gradeCodeEnum.getCode())).collect(Collectors.toList()), total).getProportion(),
                 gradeMap.get(gradeCodeEnum.getName()),
                 s -> Float.valueOf(s.getLowVisionProportion()));
