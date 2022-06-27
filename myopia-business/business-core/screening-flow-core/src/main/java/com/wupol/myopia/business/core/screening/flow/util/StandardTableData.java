@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  *
  * @author hang.yuan 2022/4/12 16:58
  */
+@UtilityClass
 public class StandardTableData {
 
     private static final List<OverweightAndObesityData> OVERWEIGHT_AND_OBESITY_DATA_LIST;
@@ -43,6 +45,9 @@ public class StandardTableData {
         private String obesity;
     }
 
+    /**
+     * 初始化超重和肥胖数据
+     */
     private static List<OverweightAndObesityData> initOverweightAndObesityData(){
         List<OverweightAndObesityData> overweightAndObesityDataList= Lists.newArrayList();
         //男
@@ -101,7 +106,11 @@ public class StandardTableData {
         return overweightAndObesityDataList;
     }
 
-
+    /**
+     * 获取超重和肥胖数据
+     * @param age 年龄
+     * @param gender 性别
+     */
     public static OverweightAndObesityData getOverweightAndObesityData(String age,Integer gender){
          String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"18.0")?"18.0":age;
          return OVERWEIGHT_AND_OBESITY_DATA_LIST.stream()
@@ -123,6 +132,9 @@ public class StandardTableData {
         private String height;
     }
 
+    /**
+     * 初始化生长迟缓数据
+     */
     private static List<StuntingData> initStuntingData() {
         List<StuntingData> stuntingDataList= Lists.newArrayList();
         //男
@@ -179,6 +191,11 @@ public class StandardTableData {
         return stuntingDataList;
     }
 
+    /**
+     * 获取生长迟缓数据
+     * @param age 年龄
+     * @param gender 性别
+     */
     public static StuntingData getStuntingData(String age,Integer gender){
         String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"17.5")?"17.5":age;
         return  STUNTING_DATA_LIST.stream()
@@ -202,6 +219,9 @@ public class StandardTableData {
         private String moderateAndHigh;
     }
 
+    /**
+     * 消瘦数据
+     */
     private static List<WastingData> initWastingData(){
         List<WastingData> wastingDataList= Lists.newArrayList();
         wastingDataList.add(new WastingData().setAge("6.0").setGender(0).setModerateAndHigh("13.2").setMild(new String[]{"13.3","13.4"}));
@@ -257,6 +277,11 @@ public class StandardTableData {
         return wastingDataList;
     }
 
+    /**
+     * 获取消瘦数据
+     * @param age 年龄
+     * @param gender 性别
+     */
     public static WastingData getWastingData(String age,Integer gender){
         String newAge = BigDecimalUtil.lessThan(new BigDecimal(age),"6.0")?"6.0":BigDecimalUtil.moreThan(new BigDecimal(age),"17.5")?"17.5":age;
         return  WASTING_DATA_LIST.stream()
@@ -280,6 +305,9 @@ public class StandardTableData {
         private Integer dbp;
     }
 
+    /**
+     * 初始化血压偏高数据
+     */
     private static List<BloodPressureData> initBloodPressureData(){
         List<BloodPressureData> bloodPressureDataList =Lists.newLinkedList();
         bloodPressureDataList.add(new BloodPressureData().setAge(7).setGender(0).setSbp(121).setDbp(79));
@@ -308,7 +336,11 @@ public class StandardTableData {
 
         return bloodPressureDataList;
     }
-
+    /**
+     * 获取血压偏高数据
+     * @param age 年龄
+     * @param gender 性别
+     */
     public static BloodPressureData getBloodPressureData(Integer age,Integer gender){
         return  BLOOD_PRESSURE_DATA_LIST.stream()
                 .filter(data -> data.getAge().equals(age) && data.getGender().equals(gender))

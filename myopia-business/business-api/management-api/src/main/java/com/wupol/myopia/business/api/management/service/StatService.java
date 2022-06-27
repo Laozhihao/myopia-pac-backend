@@ -10,10 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -36,7 +33,6 @@ import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo;
 import com.wupol.myopia.business.core.stat.domain.dto.WarningInfo.WarningLevelInfo;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -218,7 +214,6 @@ public class StatService {
      * @param notificationId 筛查通知ID
      * @param currentUser    当前用户
      * @return
-     * @throws IOException
      */
     public List<Integer> getValidDistrictIdsByNotificationId(int notificationId, CurrentUser currentUser) {
         List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService
@@ -597,7 +592,7 @@ public class StatService {
 
         RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
 
-        if (Objects.equals(screeningType,ScreeningTypeConst.COMMON_DISEASE)){
+        if (Objects.equals(screeningType, ScreeningTypeEnum.COMMON_DISEASE.getType())){
             builder.wearingGlassesRescreenIndexNum(8);
             builder.withoutGlassesRescreenIndexNum(6);
             long wearingGlassesIndexNum = wearingGlassesNum * 8;
@@ -888,7 +883,7 @@ public class StatService {
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));
 
-        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeConst.COMMON_DISEASE)) {
+        if (!CollectionUtils.isEmpty(statConclusionList) && Objects.equals(statConclusionList.get(0).getScreeningType(), ScreeningTypeEnum.COMMON_DISEASE.getType())) {
             RescreenStat rescreenStat = dataContrastFilterResultDTO.getResult().getRescreenStat();
             rescreenStat.setWearingGlassesRescreenIndexNum(8);
             rescreenStat.setWithoutGlassesRescreenIndexNum(6);
@@ -1090,31 +1085,64 @@ public class StatService {
         return String.format("%s，%s 至 %s", title, startDate, endDate);
     }
 
+    /**
+     * 按区域-获取幼儿园结果统计
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public KindergartenResultVO getKindergartenResult(Integer districtId, Integer noticeId) {
         return statDistrictService.getKindergartenResult(districtId,noticeId);
 
     }
 
+    /**
+     * 按区域-获取小学及以上结果统计
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId) {
         return statDistrictService.getPrimarySchoolAndAboveResult(districtId,noticeId);
 
     }
 
+    /**
+     * 按区域-获取合计详情
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public ScreeningResultStatisticDetailVO getScreeningResultTotalDetail(Integer districtId, Integer noticeId) {
         return statDistrictService.getScreeningResultTotalDetail(districtId,noticeId);
 
     }
 
+    /**
+     * 按学校-获取幼儿园结果统计
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     * @param planId 计划ID
+     */
     public SchoolKindergartenResultVO getSchoolKindergartenResult(Integer districtId, Integer noticeId,Integer planId) {
         return statSchoolService.getSchoolKindergartenResult(districtId,noticeId,planId);
 
     }
 
+    /**
+     * 按学校-获取小学及以上结果统计
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     * @param planId 计划ID
+     */
     public SchoolPrimarySchoolAndAboveResultVO getSchoolPrimarySchoolAndAboveResult(Integer districtId, Integer noticeId,Integer planId) {
         return statSchoolService.getSchoolPrimarySchoolAndAboveResult(districtId,noticeId,planId);
 
     }
 
+    /**
+     * 按学校-查看详情
+     * @param statisticDetailBO 统计详情业务流转实体
+     */
     public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
         return statSchoolService.getSchoolStatisticDetail(statisticDetailBO);
     }
@@ -1208,7 +1236,7 @@ public class StatService {
      * @param screeningTime
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int rescreenStat(Date screeningTime) {
         List<StatRescreen> statRescreens = new ArrayList<>();
         // 获取昨日有进行复测的计划及学校信息
@@ -1229,7 +1257,7 @@ public class StatService {
                         .setScreeningTime(screeningTime);
                 RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
-                if (ScreeningTypeConst.COMMON_DISEASE.equals(conclusion.getScreeningType())) {
+                if (ScreeningTypeEnum.COMMON_DISEASE.getType().equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
                 }
                 statRescreens.add(statRescreen);
@@ -1259,9 +1287,16 @@ public class StatService {
         return statConclusionService.listByQuery(query);
     }
 
+    /**
+     * 生成常见病复查信息
+     *
+     * @param statRescreen    复查
+     * @param statConclusions 结论
+     */
     private void composePhysiqueReScreenConclusion(StatRescreen statRescreen, List<StatConclusion> statConclusions) {
         int total = statConclusions.size();
         statRescreen.setPhysiqueRescreenNum((long) total);
+        // 体格复查指数只有两个：身高和体重
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
@@ -1292,10 +1327,13 @@ public class StatService {
         Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIdList).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
+        // 获取计划学生的commonDiseasesCode
+        List<Integer> planStudentIds = firstResult.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
+
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planSchoolStudentMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, screeningPlanSchoolStudent.getCommonDiseaseId()));
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, commonDiseaseMap.get(first.getScreeningPlanSchoolStudentId())));
         });
         return reScreeningCardVO;
     }

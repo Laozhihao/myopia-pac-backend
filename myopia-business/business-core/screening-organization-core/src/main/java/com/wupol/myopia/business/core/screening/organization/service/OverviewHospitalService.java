@@ -57,7 +57,7 @@ public class OverviewHospitalService extends BaseService<OverviewHospitalMapper,
      */
     public Map<Integer, Long> getOverviewHospitalNum(List<Integer> overviewIds) {
         if (CollectionUtils.isEmpty(overviewIds)) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
         return baseMapper.getListByOverviewIds(overviewIds).stream()
                 .collect(Collectors.groupingBy(OverviewHospital::getOverviewId, Collectors.counting()));

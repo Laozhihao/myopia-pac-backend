@@ -2,8 +2,8 @@ package com.wupol.myopia.business.api.management.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class ScreeningPlanResponseDTO extends ScreeningPlan {
 
     /**

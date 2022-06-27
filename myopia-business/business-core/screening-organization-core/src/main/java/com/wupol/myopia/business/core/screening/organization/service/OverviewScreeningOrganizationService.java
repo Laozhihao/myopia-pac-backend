@@ -57,7 +57,7 @@ public class OverviewScreeningOrganizationService extends BaseService<OverviewSc
      */
     public Map<Integer, Long> getOverviewScreeningOrganizationNum(List<Integer> overviewIds) {
         if (CollectionUtils.isEmpty(overviewIds)) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
         return baseMapper.getListByOverviewIds(overviewIds).stream()
                 .collect(Collectors.groupingBy(OverviewScreeningOrganization::getOverviewId, Collectors.counting()));

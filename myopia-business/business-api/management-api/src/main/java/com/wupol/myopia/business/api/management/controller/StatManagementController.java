@@ -6,10 +6,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
@@ -55,8 +53,6 @@ public class StatManagementController {
     @Autowired
     private BigScreeningStatService bigScreeningStatService;
     @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
@@ -64,6 +60,9 @@ public class StatManagementController {
     private SchoolBizService schoolBizService;
     @Autowired
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
+    @Autowired
+    private DistrictVisionStatisticService districtVisionStatisticService;
+
     @Autowired
     private StatConclusionBizService statConclusionBizService;
     @Autowired

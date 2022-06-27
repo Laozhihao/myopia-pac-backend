@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,6 +58,6 @@ public class ArchiveExportCondition {
     private Integer districtId;
 
     public String getPlanStudentIdsStr() {
-        return StringUtils.join(planStudentIds,",");
+        return StringUtils.join(planStudentIds, StrUtil.COMMA);
     }
 }

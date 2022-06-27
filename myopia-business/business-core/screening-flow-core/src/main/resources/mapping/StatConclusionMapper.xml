@@ -189,23 +189,6 @@
         ORDER BY mspss.school_name
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
-            parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List"/>
-        FROM m_stat_conclusion msc
-                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-                WHERE msc.school_id = #{schoolId}
-        <if test="screeningNoticeId != null">
-            and msc.src_screening_notice_id = #{screeningNoticeId}
-        </if>
-        <if test="planId != null">
-            and msc.plan_id = #{planId}
-        </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
     <select id="selectExportVoByScreeningPlanIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
         SELECT
         <include refid="Export_Vo_List" />
@@ -232,28 +215,6 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningPlanIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 

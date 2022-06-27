@@ -7,7 +7,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -44,8 +43,4 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
     Integer countByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 
     List<ScreeningPlan> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
-
-    List<ScreeningPlan> getByIds(@Param("ids") Collection<Integer> ids);
-
-    ScreeningPlan getPlanByTaskId(@Param("screeningTaskId") Integer screeningTaskId,@Param("screeningOrgId")Integer screeningOrgId);
 }

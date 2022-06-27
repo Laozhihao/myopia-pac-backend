@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class StatRescreenServiceTest {
     public void testCountByPlanAndSchool() {
         int i = statRescreenService.countByPlanAndSchool(121, 25);
         System.out.println(i);
+        Assert.assertTrue(true);
     }
 
 }

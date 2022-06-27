@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 /**

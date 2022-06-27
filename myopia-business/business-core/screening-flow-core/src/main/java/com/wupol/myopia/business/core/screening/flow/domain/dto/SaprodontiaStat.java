@@ -54,11 +54,11 @@ public class SaprodontiaStat implements Serializable {
      * @return com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat
      **/
     public static SaprodontiaStat parseFromSaprodontiaDataDO(SaprodontiaDataDO saprodontiaDataDO) {
+        if (Objects.isNull(saprodontiaDataDO)) {
+            return null;
+        }
         SaprodontiaStat.StatItem deciduousStat = new SaprodontiaStat.StatItem(0, 0, 0);
         SaprodontiaStat.StatItem permanentStat = new SaprodontiaStat.StatItem(0, 0, 0);
-        if (Objects.isNull(saprodontiaDataDO)) {
-            return new SaprodontiaStat().setDeciduous(deciduousStat).setPermanent(permanentStat);
-        }
         // 合并上下牙床数据
         List<SaprodontiaDataDO.SaprodontiaItem> allSaprodontiaList = new ArrayList<>();
         allSaprodontiaList.addAll(saprodontiaDataDO.getAbove());

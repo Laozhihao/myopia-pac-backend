@@ -22,7 +22,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<GradeClassesDTO> selectSchoolGradeVoByPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
-    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<ScreeningStudentDTO> page, @Param("param") ScreeningStudentQueryDTO query);
+    IPage<ScreeningStudentDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningStudentQueryDTO query);
 
     List<ScreeningStudentDTO> selectListByQuery(@Param("param") ScreeningStudentQueryDTO query);
 
@@ -65,8 +65,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(@Param("idCard") String idCard, @Param("passport") String passport, @Param("id") Integer id);
 
     void deleteByStudentIds(@Param("studentIds") List<Integer> studentIds);
-
-    List<ScreeningPlanSchoolStudent> getByIds(@Param("ids") List<Integer> ids);
 
     List<ScreeningPlanSchoolStudent> getByNePlanId(@Param("planId") Integer planId);
 

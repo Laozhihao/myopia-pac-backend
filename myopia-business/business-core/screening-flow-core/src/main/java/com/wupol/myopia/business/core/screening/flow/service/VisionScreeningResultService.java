@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
@@ -26,11 +28,11 @@ import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -50,17 +52,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     private StatConclusionService statConclusionService;
     @Autowired
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
-
-    /***
-     * @Description: 学生ID集合
-     * @Param: [studentIds]
-     * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
-     * @Author: 钓猫的小鱼
-     * @Date: 2022/1/12
-     */
-    public List<VisionScreeningResult> getByStudentIdsAndPlanId(Integer planId, List<Integer> studentIds, Integer isDoubleScreen) {
-        return baseMapper.getByStudentIdsAndPlanId(planId, studentIds, isDoubleScreen);
-    }
 
     /**
      * 通过StudentId获取筛查结果
@@ -271,12 +262,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return List<Integer>
      */
     public List<Integer> getByPlanStudentIdPlanIdAndSchoolId(Integer planId, Integer schoolId) {
-        List<VisionScreeningResult> resultList = baseMapper.getByPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtils.isEmpty(resultList)) {
-            return new ArrayList<>();
-        }
-
-        return resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        return baseMapper.getByPlanIdAndSchoolId(planId, schoolId).stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
     }
 
     /**
@@ -376,32 +362,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         });
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
-    }
-
-    /**
-     * 获取学生初筛/复测（默认初测）
-     *
-     * @param planId                       计划ID
-     * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen               false：初测  true：复测
-     * @return
-     */
-    public VisionScreeningResult getIsDoubleScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
-        VisionScreeningResult visionScreeningResultQuery = new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen);
-        QueryWrapper<VisionScreeningResult> queryWrapper = getQueryWrapper(visionScreeningResultQuery);
-        return getOne(queryWrapper);
-    }
-
-    /**
-     * 获取学生初筛/复测（默认初测）
-     *
-     * @param planIds                      计划ID集合
-     * @param screeningPlanSchoolStudentId 学生ID
-     * @param isDoubleScreen               false：初测  true：复测
-     * @return
-     */
-    public List<VisionScreeningResult> getIsDoubleScreeningResult(List<Integer> planIds, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
-        return baseMapper.getIsDoubleScreeningResult(planIds, screeningPlanSchoolStudentId, isDoubleScreen);
     }
 
     /**
@@ -544,6 +504,65 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return Collections.emptyList();
         }
         return baseMapper.getFirstByPlanStudentIds(planStudentIds);
+    }
+
+
+    /**
+     * 获取学生初筛/复测（默认初测）
+     * @param planId 计划ID
+     * @param screeningPlanSchoolStudentId 学生ID
+     * @param isDoubleScreen false：初测  true：复测
+     * @return
+     */
+    public VisionScreeningResult getOneScreeningResult(Integer planId, Integer screeningPlanSchoolStudentId, boolean isDoubleScreen) {
+        return findOne(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(screeningPlanSchoolStudentId).setIsDoubleScreen(isDoubleScreen));
+    }
+
+    /**
+     * 获取学生筛查结果明细
+     *
+     * @param planId    筛查ID
+     * @param planStudentId 计划学生ID
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO
+     **/
+    public VisionScreeningResultDTO getStudentScreeningResultDetail(Integer planId, Integer planStudentId){
+        List<VisionScreeningResult> visionScreeningResultList = findByList(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(planStudentId));
+        VisionScreeningResult firstResult = visionScreeningResultList.stream().filter(x -> Boolean.FALSE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
+        if (Objects.isNull(firstResult)) {
+            return new VisionScreeningResultDTO();
+        }
+
+        VisionScreeningResultDTO visionScreeningResultDTO = new VisionScreeningResultDTO();
+        BeanUtils.copyProperties(firstResult, visionScreeningResultDTO);
+
+        visionScreeningResultDTO.setSaprodontiaStat(SaprodontiaStat.parseFromSaprodontiaDataDO(firstResult.getSaprodontiaData()))
+                .setGender(screeningPlanSchoolStudentService.getById(firstResult.getScreeningPlanSchoolStudentId()).getGender())
+                .setLeftSE(StatUtil.getSphericalEquivalent(EyeDataUtil.leftSph(firstResult), EyeDataUtil.leftCyl(firstResult)))
+                .setRightSE(StatUtil.getSphericalEquivalent(EyeDataUtil.rightSph(firstResult),EyeDataUtil.rightCyl(firstResult)))
+                .setSaprodontiaData(Optional.ofNullable(firstResult.getSaprodontiaData()).orElse(new SaprodontiaDataDO()))
+                .setSpineData(Optional.ofNullable(firstResult.getSpineData()).orElse(new SpineDataDO()))
+                .setBloodPressureData(Optional.ofNullable(firstResult.getBloodPressureData()).orElse(new BloodPressureDataDO()))
+                .setDiseasesHistoryData(Optional.ofNullable(firstResult.getDiseasesHistoryData()).orElse(new DiseasesHistoryDO()))
+                .setPrivacyData(Optional.ofNullable(firstResult.getPrivacyData()).orElse(new PrivacyDataDO()))
+                .setDeviationData(Optional.ofNullable(firstResult.getDeviationData()).orElse(new DeviationDO()))
+                .setOtherEyeDiseases(Optional.ofNullable(firstResult.getOtherEyeDiseases()).orElse(new OtherEyeDiseasesDO()));
+        // 做完全部复测项目才会出现复测情况模块
+        VisionScreeningResult reScreeningResult = visionScreeningResultList.stream().filter(x -> Boolean.TRUE.equals(x.getIsDoubleScreen())).findFirst().orElse(null);
+        if(Objects.nonNull(reScreeningResult) && ObjectsUtil.allNotNull(reScreeningResult.getVisionData(), reScreeningResult.getComputerOptometry(), reScreeningResult.getHeightAndWeightData())) {
+            visionScreeningResultDTO.setRescreening(Optional.ofNullable(ReScreenCardUtil.reScreeningResult(firstResult, reScreeningResult)).orElse(new ReScreenDTO()));
+        }
+        return visionScreeningResultDTO;
+    }
+
+    /**
+     * 根据筛查任务ID统计每个计划下筛查中的学校数量
+     *
+     * @param taskId
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount>
+     **/
+    public List<ScreeningSchoolCount> countScreeningSchoolByTaskId(Integer taskId) {
+        Assert.notNull(taskId, "筛查任务ID不能为空");
+        return baseMapper.countScreeningSchoolByTaskId(taskId);
     }
 
 }
