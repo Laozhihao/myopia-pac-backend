@@ -293,22 +293,23 @@ public class DistrictSaprodontiaMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+        Boolean singleSchoolAge = ReportUtil.singleSchoolAge(statConclusionList);
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
-        List<SaprodontiaMonitorTable> primaryList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
+        List<SaprodontiaMonitorTable> primaryList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(primaryList)) {
             tableList.addAll(primaryList);
         }
-        List<SaprodontiaMonitorTable> juniorList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
+        List<SaprodontiaMonitorTable> juniorList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(juniorList)) {
             tableList.addAll(juniorList);
         }
-        List<SaprodontiaMonitorTable> vocationalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+        List<SaprodontiaMonitorTable> vocationalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<SaprodontiaMonitorTable> normalHighList = changeSaprodontiaSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
+            List<SaprodontiaMonitorTable> normalHighList = changeSaprodontiaSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
                 tableList.addAll(vocationalHighList);
-                List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                List<SaprodontiaMonitorTable> highList = getSaprodontiaSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH,singleSchoolAge);
                 if (CollectionUtil.isNotEmpty(highList)) {
                     tableList.addAll(highList);
                 }
@@ -317,23 +318,24 @@ public class DistrictSaprodontiaMonitorService {
             }
 
         } else {
-            List<SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
+            List<SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
                 tableList.addAll(normalHighList);
             }
         }
 
-        List<SaprodontiaMonitorTable> universityList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
+        List<SaprodontiaMonitorTable> universityList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(universityList)) {
             tableList.addAll(universityList);
         }
 
         getSaprodontiaSchoolAgeTable(statConclusionList,ReportConst.TOTAL,tableList);
+
         saprodontiaSchoolAgeVO.setSaprodontiaSchoolAgeMonitorTableList(tableList);
     }
 
-    private List<SaprodontiaMonitorTable> getSaprodontiaSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName) {
+    private List<SaprodontiaMonitorTable> getSaprodontiaSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName,Boolean singleSchoolAge) {
 
         if (Objects.equals(schoolAge, 10)) {
             List<SaprodontiaMonitorTable> mergeList = Lists.newArrayList();
@@ -341,14 +343,14 @@ public class DistrictSaprodontiaMonitorService {
             getSaprodontiaSchoolAgeTable(conclusionList, itemName, mergeList);
             return mergeList;
         }
-        List<SaprodontiaMonitorTable> saprodontiaGradeList = getSaprodontiaGrade(statConclusionList, schoolAge);
+        List<SaprodontiaMonitorTable> saprodontiaGradeList = getSaprodontiaGrade(statConclusionList, schoolAge,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(saprodontiaGradeList)) {
             saprodontiaGradeList.get(saprodontiaGradeList.size() - 1).setItemName(itemName);
         }
         return saprodontiaGradeList;
     }
 
-    private List<SaprodontiaMonitorTable> getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<SaprodontiaMonitorTable> getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
@@ -359,14 +361,14 @@ public class DistrictSaprodontiaMonitorService {
             return mergeList;
         }
 
-        return getSaprodontiaGrade(statConclusionList, schoolAge);
+        return getSaprodontiaGrade(statConclusionList, schoolAge,singleSchoolAge);
     }
 
-    private List<SaprodontiaMonitorTable> changeSaprodontiaSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<SaprodontiaMonitorTable> changeSaprodontiaSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
-        List<SaprodontiaMonitorTable> saprodontiaGrade = getSaprodontiaGrade(statConclusionList, schoolAge);
+        List<SaprodontiaMonitorTable> saprodontiaGrade = getSaprodontiaGrade(statConclusionList, schoolAge,singleSchoolAge);
         for (SaprodontiaMonitorTable table : saprodontiaGrade) {
             if (table.getItemName().startsWith("高")){
                 table.setItemName("普"+table.getItemName());
@@ -376,7 +378,7 @@ public class DistrictSaprodontiaMonitorService {
     }
 
 
-    private List<SaprodontiaMonitorTable> getSaprodontiaGrade(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<SaprodontiaMonitorTable> getSaprodontiaGrade(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
@@ -388,7 +390,9 @@ public class DistrictSaprodontiaMonitorService {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getSaprodontiaSchoolAgeTable(list, gradeCodeEnum.getName(), gradeList);
         });
-        getSaprodontiaSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        if (Objects.equals(singleSchoolAge,Boolean.FALSE)){
+            getSaprodontiaSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        }
 
         return gradeList;
     }

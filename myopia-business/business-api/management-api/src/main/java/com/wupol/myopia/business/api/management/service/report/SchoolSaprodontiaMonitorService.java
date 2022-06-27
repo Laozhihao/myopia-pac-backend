@@ -184,10 +184,7 @@ public class SchoolSaprodontiaMonitorService {
         SaprodontiaGradeVO.SaprodontiaGradeVariableVO saprodontiaGradeVariableVO = new SaprodontiaGradeVO.SaprodontiaGradeVariableVO();
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, SaprodontiaNum> saprodontiaNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getSaprodontiaNum(gradeCodeEnum.getName(), list, saprodontiaNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getSaprodontiaNum(ReportUtil.getItemName(gradeCode,SchoolAge.VOCATIONAL_HIGH.code), list, saprodontiaNumMap));
 
         if (saprodontiaNumMap.size() >= 2) {
             saprodontiaGradeVariableVO.setSaprodontiaRatio(ReportUtil.getSchoolGradeRatio(saprodontiaNumMap, SaprodontiaNum::getSaprodontiaCount, SaprodontiaNum::getSaprodontiaRatioStr));

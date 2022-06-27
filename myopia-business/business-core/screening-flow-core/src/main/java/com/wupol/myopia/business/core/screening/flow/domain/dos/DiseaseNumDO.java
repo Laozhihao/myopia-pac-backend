@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 疾病数量实体
  *
@@ -10,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class DiseaseNumDO {
+public class DiseaseNumDO implements Serializable {
     /**
      * 肝炎
      */

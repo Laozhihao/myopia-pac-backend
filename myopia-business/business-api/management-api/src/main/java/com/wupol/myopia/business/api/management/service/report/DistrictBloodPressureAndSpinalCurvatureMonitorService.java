@@ -282,23 +282,24 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+        Boolean singleSchoolAge = ReportUtil.singleSchoolAge(statConclusionList);
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
-        List<BloodPressureAndSpinalCurvatureMonitorTable> primaryList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> primaryList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(primaryList)) {
             tableList.addAll(primaryList);
         }
-        List<BloodPressureAndSpinalCurvatureMonitorTable> juniorList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> juniorList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(juniorList)) {
             tableList.addAll(juniorList);
         }
 
-        List<BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
+            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
                 tableList.addAll(vocationalHighList);
-                List<BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                List<BloodPressureAndSpinalCurvatureMonitorTable> highList = getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH,singleSchoolAge);
                 if (CollectionUtil.isNotEmpty(highList)) {
                     tableList.addAll(highList);
                 }
@@ -307,14 +308,14 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             }
 
         } else {
-            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+            List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
                 tableList.addAll(normalHighList);
             }
         }
 
-        List<BloodPressureAndSpinalCurvatureMonitorTable> universityList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> universityList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(universityList)) {
             tableList.addAll(universityList);
         }
@@ -324,21 +325,21 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         schoolAgeVO.setBloodPressureAndSpinalCurvatureSchoolAgeMonitorTableList(tableList);
     }
 
-    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName) {
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName,Boolean singleSchoolAge) {
         if (Objects.equals(schoolAge, 10)) {
             List<BloodPressureAndSpinalCurvatureMonitorTable> mergeList = Lists.newArrayList();
             List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
             getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList, itemName, mergeList);
             return mergeList;
         }
-        List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGradeList = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGradeList = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(bloodPressureAndSpinalCurvatureGradeList)) {
             bloodPressureAndSpinalCurvatureGradeList.get(bloodPressureAndSpinalCurvatureGradeList.size() - 1).setItemName(itemName);
         }
         return bloodPressureAndSpinalCurvatureGradeList;
     }
 
-    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
@@ -349,14 +350,14 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
             return mergeList;
         }
 
-        return getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge);
+        return getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge,singleSchoolAge);
     }
 
-    private List<BloodPressureAndSpinalCurvatureMonitorTable> changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> changeBloodPressureAndSpinalCurvatureSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
-        List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGrade = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge);
+        List<BloodPressureAndSpinalCurvatureMonitorTable> bloodPressureAndSpinalCurvatureGrade = getBloodPressureAndSpinalCurvatureGrade(statConclusionList, schoolAge,singleSchoolAge);
         for (BloodPressureAndSpinalCurvatureMonitorTable table : bloodPressureAndSpinalCurvatureGrade) {
             if (table.getItemName().startsWith("高")){
                 table.setItemName("普"+table.getItemName());
@@ -366,19 +367,21 @@ public class DistrictBloodPressureAndSpinalCurvatureMonitorService {
         return bloodPressureAndSpinalCurvatureGrade;
     }
 
-    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureGrade(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureGrade(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        MapUtil.sort(gradeCodeMap);
+        gradeCodeMap = MapUtil.sort(gradeCodeMap);
         List<BloodPressureAndSpinalCurvatureMonitorTable> gradeList = Lists.newArrayList();
         gradeCodeMap.forEach((grade, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getBloodPressureAndSpinalCurvatureSchoolAgeTable(list, gradeCodeEnum.getName(), gradeList);
         });
-        getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        if (Objects.equals(singleSchoolAge,Boolean.FALSE)){
+            getBloodPressureAndSpinalCurvatureSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        }
 
         return gradeList;
     }

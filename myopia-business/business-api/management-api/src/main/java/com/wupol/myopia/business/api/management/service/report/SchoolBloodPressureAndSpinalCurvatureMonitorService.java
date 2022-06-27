@@ -182,10 +182,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, BloodPressureAndSpinalCurvatureNum> bloodPressureAndSpinalCurvatureNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getBloodPressureAndSpinalCurvatureNum(gradeCodeEnum.getName(), list, bloodPressureAndSpinalCurvatureNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getBloodPressureAndSpinalCurvatureNum(ReportUtil.getItemName(gradeCode,SchoolAge.VOCATIONAL_HIGH.code), list, bloodPressureAndSpinalCurvatureNumMap));
 
         if (bloodPressureAndSpinalCurvatureNumMap.size() >= 2) {
             schoolAgeVariableVO.setAbnormalSpineCurvatureRatio(ReportUtil.getSchoolGradeRatio(bloodPressureAndSpinalCurvatureNumMap, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureNum, BloodPressureAndSpinalCurvatureNum::getAbnormalSpineCurvatureRatioStr));
