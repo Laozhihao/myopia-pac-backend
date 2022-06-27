@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
 
@@ -46,8 +46,8 @@ public class ReportGradeChart {
 
         gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            x.add(new ChartVO.ChartData(gradeCodeEnum.getName(),Lists.newArrayList()));
+            String itemName = ReportUtil.getItemName(gradeCode, SchoolAge.VOCATIONAL_HIGH.code);
+            x.add(new ChartVO.ChartData(itemName,Lists.newArrayList()));
         });
 
         Set<Map.Entry<String, List<StatConclusion>>> entrySet = gradeCodeMap.entrySet();
