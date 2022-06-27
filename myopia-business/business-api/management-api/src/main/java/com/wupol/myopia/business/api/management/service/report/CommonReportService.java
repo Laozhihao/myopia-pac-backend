@@ -88,6 +88,9 @@ public class CommonReportService {
     @Resource
     private ScreeningPlanService screeningPlanService;
 
+    @Resource
+    private StackedChartService stackedChartService;
+
 
     public static final String TOTAL_NAME = "合计";
 
@@ -546,6 +549,15 @@ public class CommonReportService {
         return primary;
     }
 
+    public PrimaryOverall getAreaPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
+        PrimaryOverall primary = new PrimaryOverall();
+        primary.setTables(Lists.newArrayList(tables));
+        if (isShowInfo(tables, false)) {
+            primary.setCharts(stackedChartService.getOverallChart(tables, statConclusions, total));
+        }
+        return primary;
+    }
+
     /**
      * 标题信息
      */
@@ -677,7 +689,7 @@ public class CommonReportService {
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(school.getId());
         Predicate<SchoolGrade> schoolGradePredicate;
         if (isk) {
-            schoolGradePredicate= s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
+            schoolGradePredicate = s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
         } else {
             schoolGradePredicate = s -> !GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
         }

@@ -20,6 +20,8 @@ public class PrimaryOverall {
      */
     private Info info;
 
+    private List<StackedChart> charts;
+
     /**
      * 表格
      */

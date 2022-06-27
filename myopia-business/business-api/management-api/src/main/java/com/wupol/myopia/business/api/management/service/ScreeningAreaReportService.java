@@ -699,7 +699,7 @@ public class ScreeningAreaReportService {
             schoolScreeningInfo.setKindergarten(kindergarten);
         }
         if (!CollectionUtils.isEmpty(pList)) {
-            schoolScreeningInfo.setPrimary(commonReportService.getPrimaryOverall(screeningReportTableService.schoolScreeningInfoTables(pList), pList, (long) pList.size()));
+            schoolScreeningInfo.setPrimary(commonReportService.getAreaPrimaryOverall(screeningReportTableService.schoolScreeningInfoTables(pList), pList, (long) pList.size()));
         }
         return schoolScreeningInfo;
     }
