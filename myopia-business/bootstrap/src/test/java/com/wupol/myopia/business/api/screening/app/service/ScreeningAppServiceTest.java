@@ -1,16 +1,10 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.fastjson.JSON;
-import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.DeviationDTO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
-import com.wupol.myopia.business.api.screening.app.enums.SysEnum;
-import com.wupol.myopia.business.api.screening.app.service.ScreeningAppService;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
@@ -24,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Objects;
 
 /**
@@ -125,7 +117,7 @@ class ScreeningAppServiceTest {
         if (deviationDTO.isValid()) {
             // 只是复测数据
             deviationDTO.setIsState(1);
-            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO,"1");
+            visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
         } else {
             System.out.println("不是复测数据");
         }

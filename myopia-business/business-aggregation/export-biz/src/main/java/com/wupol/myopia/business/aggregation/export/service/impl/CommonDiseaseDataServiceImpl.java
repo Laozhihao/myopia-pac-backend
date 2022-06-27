@@ -69,7 +69,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeEnum.COMMON_DISEASE.type;
+        return ScreeningTypeEnum.COMMON_DISEASE.getType();
     }
 
     @Override

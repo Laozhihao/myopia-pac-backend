@@ -64,7 +64,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeEnum.VISION.type;
+        return ScreeningTypeEnum.VISION.getType();
     }
 
     @Override

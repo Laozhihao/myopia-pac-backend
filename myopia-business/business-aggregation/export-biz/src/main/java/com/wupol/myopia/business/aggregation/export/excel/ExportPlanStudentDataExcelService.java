@@ -105,10 +105,10 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         String suffix = StringUtils.EMPTY;
         Integer screeningType = exportCondition.getScreeningType();
-        if (ScreeningTypeEnum.VISION.type.equals(screeningType)) {
+        if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
             suffix = "【视力数据】";
         }
-        if (ScreeningTypeEnum.COMMON_DISEASE.type.equals(screeningType)) {
+        if (ScreeningTypeEnum.COMMON_DISEASE.getType().equals(screeningType)) {
             suffix = "【常见病数据】";
         }
         return getFileNameTitle(exportCondition) + suffix;
