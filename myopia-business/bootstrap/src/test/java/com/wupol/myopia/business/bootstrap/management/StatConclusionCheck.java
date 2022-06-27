@@ -24,7 +24,6 @@ import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;

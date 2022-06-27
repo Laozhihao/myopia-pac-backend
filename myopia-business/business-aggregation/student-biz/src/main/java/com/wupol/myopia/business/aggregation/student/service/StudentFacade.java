@@ -744,7 +744,7 @@ public class StudentFacade {
             // 是否正常
             boolean isNormal = CollectionUtils.isEmpty(otherEyeDiseasesList);
             cardDetail.setIsNormal(!isRefractiveError && isNormal);
-            if (cardDetail.getIsNormal()) {
+            if (Objects.equals(cardDetail.getIsNormal(),Boolean.TRUE)) {
                 // 正常就不显示近、远视
                 cardDetail.setIsMyopia(null);
                 cardDetail.setIsHyperopia(null);
@@ -1060,12 +1060,12 @@ public class StudentFacade {
             return isRefractiveError;
         }
         // 设置近视、远视、散光
-        if (isRefractiveError && Objects.nonNull(leftEye)) {
+        if (Objects.equals(isRefractiveError,Boolean.TRUE) && Objects.nonNull(leftEye)) {
             cardDetail.setLeftMyopiaInfo(leftEye.getMyopiaLevel());
             cardDetail.setLeftFarsightednessInfo(leftEye.getHyperopiaLevel());
             cardDetail.setLeftAstigmatismInfo(leftEye.getAstigmatism());
         }
-        if (isRefractiveError && Objects.nonNull(rightEye)) {
+        if (Objects.equals(isRefractiveError,Boolean.TRUE) && Objects.nonNull(rightEye)) {
             cardDetail.setRightMyopiaInfo(rightEye.getMyopiaLevel());
             cardDetail.setRightFarsightednessInfo(rightEye.getHyperopiaLevel());
             cardDetail.setRightAstigmatismInfo(rightEye.getAstigmatism());

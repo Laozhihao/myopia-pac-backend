@@ -348,7 +348,6 @@ public class ScreeningAppController {
             return ApiResult.failure("个人隐私数据,请输入正确的参数");
         }
 
-        String clientId = CurrentUserUtil.getCurrentUser().getClientId();
         try {
             if (screeningResultDataVO.getMultiCheckData() != null) {
                 visionScreeningBizService.saveOrUpdateStudentScreenData(screeningResultDataVO.getMultiCheckData());
@@ -1112,7 +1111,6 @@ public class ScreeningAppController {
             visionScreeningBizService.verifyScreening(screeningResult, screeningPlan.getScreeningType() == 1);
             // 只是复测数据
             deviationDTO.setIsState(1);
-            CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
             visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
         }
     }

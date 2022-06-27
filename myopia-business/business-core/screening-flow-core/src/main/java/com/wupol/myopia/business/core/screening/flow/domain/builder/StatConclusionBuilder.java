@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.builder;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.*;

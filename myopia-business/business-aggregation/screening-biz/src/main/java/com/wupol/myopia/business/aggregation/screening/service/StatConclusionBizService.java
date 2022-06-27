@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
 import com.wupol.myopia.business.common.utils.util.MapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;

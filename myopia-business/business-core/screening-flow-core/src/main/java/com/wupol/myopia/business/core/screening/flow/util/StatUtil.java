@@ -1705,7 +1705,7 @@ public class StatUtil {
                                    Boolean isAstigmatism,Boolean isObesity,Boolean isOverweight,
                                    Boolean isMalnutrition,Boolean isStunting,Boolean isSpinalCurvature) {
         List<Boolean> isReviewList =Lists.newArrayList();
-        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+        Consumer<Boolean> consumerTrue = flag -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
 
         Optional.ofNullable(isLowVision).ifPresent(consumerTrue);
         Optional.ofNullable(isMyopia).ifPresent(consumerTrue);

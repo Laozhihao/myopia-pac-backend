@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.ObjectUtils;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;

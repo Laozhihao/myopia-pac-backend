@@ -6,11 +6,11 @@ import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,8 +44,11 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
     @Override
     public void generateDistrictReportPdfFile(String fileSavePath,String fileName, ExportCondition exportCondition) {
+
         generateDistrictCommonDiseaseReport(exportCondition.getNotificationId(), exportCondition.getDistrictId(), fileSavePath,fileName);
     }
+
+
 
     private void generateDistrictCommonDiseaseReport(Integer noticeId, Integer districtId, String fileSavePath,String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_COMMON_DISEASE, htmlUrlHost,  districtId,noticeId);
@@ -59,7 +62,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
     @Override
     public void generateSchoolReportPdfFile(String fileSavePath,String fileName, ExportCondition exportCondition) {
-        generateSchoolCommonDiseaseReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath,fileName);
+        generateSchoolCommonDiseaseReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath,getSubFileName(exportCondition));
     }
 
     private void generateSchoolCommonDiseaseReport(Integer planId, Integer schoolId, String fileSavePath,String fileName) {
@@ -74,18 +77,38 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeConst.COMMON_DISEASE;
+        return ScreeningTypeEnum.COMMON_DISEASE.getType();
     }
 
-    @Override
-    public String getFileName(ExportCondition exportCondition) {
+    private String getSubFileName(ExportCondition exportCondition){
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)){
             String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
-            return districtName+"区域筛查报告-常见病分析.pdf";
+            return districtName+"筛查报告-常见病分析.pdf";
         }
         if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.SCHOOL)){
             School school = schoolService.getById(exportCondition.getSchoolId());
-            return school.getName()+"学校筛查报告-常见病分析.pdf";
+            return school.getName()+"筛查报告-常见病分析.pdf";
+        }
+        return null;
+    }
+
+
+    @Override
+    public String getFileName(ExportCondition exportCondition) {
+//        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)){
+//            return districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
+//        }
+//        if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.SCHOOL)){
+//            School school = schoolService.getById(exportCondition.getSchoolId());
+//            return school.getName();
+//        }
+        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)){
+            String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
+            return districtName+"筛查报告-常见病分析.pdf";
+        }
+        if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.SCHOOL)){
+            School school = schoolService.getById(exportCondition.getSchoolId());
+            return school.getName()+"筛查报告-常见病分析.pdf";
         }
         return StrUtil.EMPTY;
     }

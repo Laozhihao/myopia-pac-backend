@@ -3,8 +3,6 @@ package com.wupol.myopia.business.core.hospital.domain.query;
 import com.wupol.myopia.business.core.hospital.domain.dto.DoctorDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**

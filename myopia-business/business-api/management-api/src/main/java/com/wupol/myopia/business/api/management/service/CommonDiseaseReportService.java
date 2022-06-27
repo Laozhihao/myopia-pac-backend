@@ -7,8 +7,6 @@ import com.wupol.myopia.business.api.management.service.report.SchoolCommonDisea
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.Callable;
-
 /**
  * 常见病报告
  *

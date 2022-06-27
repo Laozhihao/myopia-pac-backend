@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.refraction.primary.WarningSituation;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.VisionWarningSituation;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.LowMyopiaInfo;
 import lombok.Getter;
 import lombok.Setter;

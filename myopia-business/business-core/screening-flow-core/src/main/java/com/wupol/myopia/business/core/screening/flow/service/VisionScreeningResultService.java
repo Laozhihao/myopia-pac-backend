@@ -373,8 +373,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
     }
 
-    ;
-
     /**
      * 通过筛查学生查询初筛筛查结果
      *
