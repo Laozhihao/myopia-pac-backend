@@ -206,7 +206,7 @@ public class ScreeningDataService {
      **/
     private static BigDecimal getBigDecimalValue(String valStr) {
         try {
-            return StringUtils.isBlank(valStr.trim()) ? null : new BigDecimal(valStr.trim());
+            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr.trim());
         } catch (Exception e) {
             log.error("转换数值异常：[{}]", valStr, e);
             return null;
