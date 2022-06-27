@@ -803,7 +803,7 @@ public class CommonReportService {
             return "未做检查";
         }
         if (Objects.equals(isValid, Boolean.FALSE)) {
-            return "数据缺失【不满足初筛完整数据判断】";
+            return "数据缺失";
         }
         return StringUtils.EMPTY;
     }
