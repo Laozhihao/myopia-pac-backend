@@ -778,12 +778,6 @@ public class CommonReportService {
     }
 
     private String getRemark(Integer id, Boolean isValid, Integer state) {
-        if (Objects.isNull(id)) {
-            return "未做检查";
-        }
-        if (Objects.equals(isValid, Boolean.FALSE)) {
-            return "数据缺失【不满足初筛完整数据判断】";
-        }
         if (state == 1) {
             return "未做检查：请假";
         }
@@ -792,6 +786,12 @@ public class CommonReportService {
         }
         if (state == 3) {
             return "未做检查：其他";
+        }
+        if (Objects.isNull(id)) {
+            return "未做检查";
+        }
+        if (Objects.equals(isValid, Boolean.FALSE)) {
+            return "数据缺失【不满足初筛完整数据判断】";
         }
         return StringUtils.EMPTY;
     }
