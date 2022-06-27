@@ -8,13 +8,13 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlCons
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +59,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeConst.VISION;
+        return ScreeningTypeEnum.VISION.getType();
     }
 
     @Override

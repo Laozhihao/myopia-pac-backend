@@ -370,9 +370,4 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 .orderByAsc(ScreeningPlan::getStartTime);
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
-
-    public ScreeningPlan getPlanByTaskId(Integer screeningTaskId,Integer screeningOrgId) {
-
-        return  baseMapper.getPlanByTaskId(screeningTaskId,screeningOrgId);
-    }
 }
