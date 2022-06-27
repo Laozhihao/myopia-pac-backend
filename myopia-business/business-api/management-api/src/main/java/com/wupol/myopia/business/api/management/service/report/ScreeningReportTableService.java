@@ -68,25 +68,67 @@ public class ScreeningReportTableService {
             for (Map.Entry<String, List<StatConclusion>> entry : gradeMap.entrySet()) {
                 CommonLowVisionTable table = new CommonLowVisionTable();
                 List<StatConclusion> value = entry.getValue();
-                table.setName(GradeCodeEnum.getDesc(entry.getKey()));
-                extracted(tables, table, value, totalCount);
+                String gradeCode = entry.getKey();
+                table.setName(GradeCodeEnum.getDesc(gradeCode));
+                table.setValidCount((long) value.size());
+                // 幼儿园数据特殊处理
+                if (GradeCodeEnum.kindergartenSchoolCode().contains(gradeCode)) {
+                    generateNotKindergartenLowVisionTable(table, value, totalCount);
+                } else {
+                    generateLowVisionTable(table, value, totalCount);
+                }
+                table.setAvgVision(commonReportService.getAvgVision(value));
+                tables.add(table);
             }
             CommonLowVisionTable schoolAgeTotal = new CommonLowVisionTable();
             schoolAgeTotal.setName(SchoolAge.get(k).desc);
-            extracted(tables, schoolAgeTotal, v, totalCount);
+            schoolAgeTotal.setValidCount((long) v.size());
+            // 幼儿园数据特殊处理
+            if (SchoolAge.KINDERGARTEN.code.equals(k)) {
+                generateNotKindergartenLowVisionTable(schoolAgeTotal, v, totalCount);
+            } else {
+                generateLowVisionTable(schoolAgeTotal, v, totalCount);
+            }
+            schoolAgeTotal.setAvgVision(commonReportService.getAvgVision(v));
+            tables.add(schoolAgeTotal);
 
             // 如果有普高和职高，则添加多一条高中数据
             if (haveSenior && SchoolAge.VOCATIONAL_HIGH.code.equals(k)) {
                 List<StatConclusion> seniorList = commonReportService.getSeniorList(statConclusions);
                 CommonLowVisionTable senior = new CommonLowVisionTable();
                 senior.setName(CommonReportService.SENIOR_NAME);
-                extracted(tables, senior, seniorList, totalCount);
+                senior.setValidCount((long) seniorList.size());
+                generateLowVisionTable(senior, seniorList, totalCount);
+                senior.setAvgVision(commonReportService.getAvgVision(seniorList));
+                tables.add(senior);
             }
         });
         CommonLowVisionTable total = new CommonLowVisionTable();
         total.setName(CommonReportService.TOTAL_NAME);
-        extracted(tables, total, statConclusions, totalCount);
+        total.setValidCount((long) statConclusions.size());
+        total.setAvgVision(commonReportService.getAvgVision(statConclusions));
+        // 合计-幼儿园数据特殊处理
+        primaryLowVisionTableTotal(total, commonReportService.getPList(statConclusions), totalCount);
+        CountAndProportion lowVision = countAndProportionService.lowVision(statConclusions, totalCount);
+        total.setLowVisionCount(lowVision.getCount());
+        total.setLowVisionProportion(lowVision.getProportion());
+        tables.add(total);
         return tables;
+    }
+
+    private <T extends LowVisionLevelTable> void primaryLowVisionTableTotal(T tables, List<StatConclusion> v, Long total) {
+
+        CountAndProportion light = countAndProportionService.lightLowVision(v, total);
+        tables.setLightLowVisionCount(light.getCount());
+        tables.setLightLowVisionProportion(light.getProportion());
+
+        CountAndProportion middle = countAndProportionService.middleLowVision(v, total);
+        tables.setMiddleLowVisionCount(middle.getCount());
+        tables.setMiddleLowVisionProportion(middle.getProportion());
+
+        CountAndProportion high = countAndProportionService.highLowVision(v, total);
+        tables.setHighLowVisionCount(high.getCount());
+        tables.setHighLowVisionProportion(high.getProportion());
     }
 
     public List<CommonLowVisionTable> schoolAgeLowVisionTables(List<StatConclusion> statConclusions, Long totalCount) {
@@ -96,8 +138,7 @@ public class ScreeningReportTableService {
         for (AgeGeneration age : ageList) {
             CommonLowVisionTable table = new CommonLowVisionTable();
             table.setName(age.getDesc());
-            List<StatConclusion> value = statConclusions.stream()
-                    .filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            List<StatConclusion> value = statConclusions.stream().filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(value)) {
                 continue;
             }
@@ -159,8 +200,7 @@ public class ScreeningReportTableService {
         List<AgeGeneration> ageList = AgeGenerationEnum.getKList(statAgeRange.getFirst(), statAgeRange.getSecond());
         ageList.forEach(age -> {
             RefractiveTable table = new RefractiveTable();
-            List<StatConclusion> list = statConclusions.stream()
-                    .filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            List<StatConclusion> list = statConclusions.stream().filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(list)) {
                 return;
             }
@@ -297,8 +337,10 @@ public class ScreeningReportTableService {
         List<AgeGeneration> ageList = AgeGenerationEnum.getPList(statAgeRange.getFirst(), statAgeRange.getSecond());
         ageList.forEach(age -> {
             AstigmatismTable table = new AstigmatismTable();
-            List<StatConclusion> list = statConclusions.stream()
-                    .filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            List<StatConclusion> list = statConclusions.stream().filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(list)) {
+                return;
+            }
             table.setName(age.getDesc());
             extracted(tables, table, list, total);
         });
@@ -458,8 +500,10 @@ public class ScreeningReportTableService {
         ageList.forEach(age -> {
             AgeWearingTable table = new AgeWearingTable();
             table.setName(age.getDesc());
-            List<StatConclusion> list = statConclusions.stream()
-                    .filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            List<StatConclusion> list = statConclusions.stream().filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(list)) {
+                return;
+            }
             extracted(tables, table, list, total);
         });
         AgeWearingTable table = new AgeWearingTable();
@@ -526,7 +570,7 @@ public class ScreeningReportTableService {
         tables.add(table);
     }
 
-    public  <T extends CommonWarningTable> void generateWarningDateInfo(T table, List<StatConclusion> v, Long total, boolean isK) {
+    public <T extends CommonWarningTable> void generateWarningDateInfo(T table, List<StatConclusion> v, Long total, boolean isK) {
         CountAndProportion zeroWarning;
         if (isK) {
             zeroWarning = countAndProportionService.zeroAndSPWarning(v, total);
@@ -657,8 +701,7 @@ public class ScreeningReportTableService {
     }
 
 
-    public List<AreaHistoryLowVisionTable> historySchoolAgeLowVisionTables(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples,
-                                                                           Integer noticeId) {
+    public List<AreaHistoryLowVisionTable> historySchoolAgeLowVisionTables(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer noticeId) {
         List<AreaHistoryLowVisionTable> tables = new ArrayList<>();
 
         tuples.forEach(tuple -> {
@@ -774,8 +817,7 @@ public class ScreeningReportTableService {
         tables.add(table);
     }
 
-    public List<MyopiaTable> historyMyopiaTables(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples,
-                                                 Integer planId) {
+    public List<MyopiaTable> historyMyopiaTables(List<ThreeTuple<Integer, String, List<StatConclusion>>> tuples, Integer planId) {
         List<MyopiaTable> tables = new ArrayList<>();
 
         tuples.forEach(s -> {
@@ -843,6 +885,12 @@ public class ScreeningReportTableService {
         tables.add(lowVisionTable);
     }
 
+    public <T extends LowVisionLevelTable> void generateNotKindergartenLowVisionTable(T tables, List<StatConclusion> v, Long total) {
+        CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
+        tables.setLowVisionCount(lowVision.getCount());
+        tables.setLowVisionProportion(lowVision.getProportion());
+    }
+
     public <T extends LowVisionLevelTable> void generateLowVisionTable(T tables, List<StatConclusion> v, Long total) {
         CountAndProportion lowVision = countAndProportionService.lowVision(v, total);
         tables.setLowVisionCount(lowVision.getCount());
@@ -894,8 +942,10 @@ public class ScreeningReportTableService {
         ageList.forEach(age -> {
             CommonLowVisionTable table = new CommonLowVisionTable();
             table.setName(age.getDesc());
-            List<StatConclusion> list = statConclusions.stream()
-                    .filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            List<StatConclusion> list = statConclusions.stream().filter(s -> s.getAge() >= age.getLeftAge() && s.getAge() < age.getRightAge()).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(list)) {
+                return;
+            }
             table.setValidCount((long) list.size());
 
             CommonLowVisionTable lowVisionTable = new CommonLowVisionTable();

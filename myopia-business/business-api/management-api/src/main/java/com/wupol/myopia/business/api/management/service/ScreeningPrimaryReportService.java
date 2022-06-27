@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.PrimaryLowVisionInfo;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.PrimaryScreeningInfoTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.SchoolReportInfo;
@@ -28,9 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -114,15 +115,7 @@ public class ScreeningPrimaryReportService {
             reportDTO.setClassScreeningData(classScreeningData);
             return classScreeningData;
         }, executor);
-
-
-        try {
-            CompletableFuture.allOf(c1, c2, c3, c4, c5).get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("生成区域视力筛查报告异常,planId:{},schoolId:{}", planId, schoolId);
-            e.printStackTrace();
-            throw new BusinessException("生成区域视力筛查报告异常");
-        }
+        CompletableFuture.allOf(c1, c2, c3, c4, c5).join();
         return reportDTO;
     }
 
@@ -161,11 +154,11 @@ public class ScreeningPrimaryReportService {
         primaryHistoryVision.setTables(tables);
         PrimaryHistoryVision.Info info = new PrimaryHistoryVision.Info();
         if (!CollectionUtils.isEmpty(tables) && tables.size() > 1) {
-            info.setLowVision(commonReportService.getConvertRatio(tables,MyopiaTable::getLowVisionProportion));
-            info.setMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getMyopiaProportion));
-            info.setEarly(commonReportService.getConvertRatio(tables,MyopiaTable::getEarlyProportion));
-            info.setLightMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getLightProportion));
-            info.setHighMyopia(commonReportService.getConvertRatio(tables,MyopiaTable::getHighProportion));
+            info.setLowVision(commonReportService.getConvertRatio(tables, MyopiaTable::getLowVisionProportion));
+            info.setMyopia(commonReportService.getConvertRatio(tables, MyopiaTable::getMyopiaProportion));
+            info.setEarly(commonReportService.getConvertRatio(tables, MyopiaTable::getEarlyProportion));
+            info.setLightMyopia(commonReportService.getConvertRatio(tables, MyopiaTable::getLightProportion));
+            info.setHighMyopia(commonReportService.getConvertRatio(tables, MyopiaTable::getHighProportion));
             primaryHistoryVision.setInfo(info);
             primaryHistoryVision.setPrimaryHistoryVisionChart(horizontalChartService.myopiaTableChart(tables));
             primaryHistoryVision.setPrimaryLevelHistoryVisionChart(horizontalChartService.myopiaLevelTableChart(tables));
@@ -335,7 +328,7 @@ public class ScreeningPrimaryReportService {
         if (commonReportService.isShowInfo(gradeTables, true)) {
             gradeWearingGlasses.setGradeWearingGlassesChart(portraitChartService.wearingGlassesWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
             gradeWearingGlasses.setGradeVisionCorrectionChart(portraitChartService.visionCorrectionWearingChartY(gradeTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList())));
-            gradeWearingGlasses.setInfo(primaryWearingInfo(statConclusions, gradeTables, total));
+            gradeWearingGlasses.setInfo(primaryWearingInfo(statConclusions, gradeTables, total, false));
         }
         wearingGlassesInfo.setGradeWearingGlasses(gradeWearingGlasses);
 
@@ -345,8 +338,8 @@ public class ScreeningPrimaryReportService {
         ageWearingGlasses.setTables(Lists.newArrayList(ageTables));
         if (commonReportService.isShowInfo(gradeTables, true)) {
             ageWearingGlasses.setWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), true));
-            ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()),true));
-            ageWearingGlasses.setInfo(primaryWearingInfo(statConclusions, ageTables, total));
+            ageWearingGlasses.setVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageTables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), true));
+            ageWearingGlasses.setInfo(primaryWearingInfo(statConclusions, ageTables, total, false));
         }
         wearingGlassesInfo.setAgeWearingGlasses(ageWearingGlasses);
 
@@ -357,8 +350,8 @@ public class ScreeningPrimaryReportService {
         GenderWearingGlasses genderWearingGlasses = new GenderWearingGlasses();
         List<AgeWearingTable> genderTables = screeningReportTableService.genderWearingTable(statConclusions, total);
         genderWearingGlasses.setTables(Lists.newArrayList(genderTables));
-        genderWearingGlasses.setGenderWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()),false));
-        genderWearingGlasses.setGenderVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()),false));
+        genderWearingGlasses.setGenderWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()), false));
+        genderWearingGlasses.setGenderVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(genderTables.stream().filter(s -> !StringUtils.equals(s.getName(), CommonReportService.TOTAL_NAME)).collect(Collectors.toList()), false));
         genderWearingGlasses.setInfo(generateGenderWearingGlasses(statConclusions, commonReportService, total));
         return genderWearingGlasses;
     }
@@ -381,8 +374,14 @@ public class ScreeningPrimaryReportService {
     /**
      * 戴镜情况
      */
-    public PrimaryWearingInfo primaryWearingInfo(List<StatConclusion> statConclusions, List<AgeWearingTable> tables, Long total) {
-        List<AgeWearingTable> collect = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
+    public PrimaryWearingInfo primaryWearingInfo(List<StatConclusion> statConclusions, List<AgeWearingTable> tables, Long total, Boolean isArea) {
+        List<AgeWearingTable> collect;
+        if (isArea) {
+            collect = tables;
+        } else {
+            collect = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
+        }
+
         PrimaryWearingInfo info = new PrimaryWearingInfo();
         info.setNotWearing(highLowProportionService.getMaxMin(countAndProportionService.notWearing(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getNotWearingProportion())));
         info.setGlasses(highLowProportionService.getMaxMin(countAndProportionService.glasses(statConclusions, total).getProportion(), collect, s -> Float.valueOf(s.getGlassesProportion())));

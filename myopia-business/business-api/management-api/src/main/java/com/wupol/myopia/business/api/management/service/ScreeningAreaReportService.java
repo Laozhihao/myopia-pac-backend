@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.PrimaryLowVisionInfo;
@@ -39,7 +38,6 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -125,13 +123,7 @@ public class ScreeningAreaReportService {
             reportDTO.setSchoolScreeningInfo(schoolScreeningInfo);
             return schoolScreeningInfo;
         }, executor);
-
-        try {
-            CompletableFuture.allOf(c1, c2, c3, c4).get();
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("生成区域视力筛查报告异常,noticeId:{},districtId:{}", noticeId, districtId);
-            throw new BusinessException("生成区域视力筛查报告异常");
-        }
+        CompletableFuture.allOf(c1, c2, c3, c4).join();
         return reportDTO;
     }
 
@@ -405,17 +397,15 @@ public class ScreeningAreaReportService {
         schoolAgeLowVision.setLowVisionChart(horizontalChartService.areaLowVision(tableChart, true));
 
         // 小学及以上
-        List<CommonLowVisionTable> filterTable = tables.stream()
-                .filter(s -> !commonReportService.filterList().contains(s.getName()))
-                .filter(s -> !GradeCodeEnum.kindergartenSchoolName().contains(s.getName()))
-                .collect(Collectors.toList());
+        List<CommonLowVisionTable> filterTable = tableChart.stream().filter(s -> !StringUtils.equals(s.getName(), SchoolAge.KINDERGARTEN.desc)).collect(Collectors.toList());
         if (filterTable.size() > 2) {
             schoolAgeLowVision.setLowVisionLevelChart(horizontalChartService
-                    .lowVisionChart(tableChart.stream().filter(s -> !StringUtils.equals(s.getName(), SchoolAge.KINDERGARTEN.desc)).collect(Collectors.toList()), false));
+                    .lowVisionChart(filterTable, false));
             SchoolAgeLowVision.Detail detail = new SchoolAgeLowVision.Detail();
-            detail.setLight(highLowProportionService.getHighLow(filterTable, s -> Float.valueOf(s.getLightLowVisionProportion())));
-            detail.setMiddle(highLowProportionService.getHighLow(filterTable, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
-            detail.setHigh(highLowProportionService.getHighLow(filterTable, s -> Float.valueOf(s.getHighLowVisionProportion())));
+            List<CommonLowVisionTable> list = highLowProportionService.filterTable(filterTable);
+            detail.setLight(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getLightLowVisionProportion())));
+            detail.setMiddle(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getMiddleLowVisionProportion())));
+            detail.setHigh(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getHighLowVisionProportion())));
             info.setDetail(detail);
         }
         schoolAgeLowVision.setInfo(info);
@@ -609,10 +599,14 @@ public class ScreeningAreaReportService {
         SchoolAgeWearingGlasses schoolAgeWearingGlasses = new SchoolAgeWearingGlasses();
         List<AgeWearingTable> ageWearingTableList = screeningReportTableService.gradeWearingTable(statConclusions, total);
         schoolAgeWearingGlasses.setTables(Lists.newArrayList(ageWearingTableList));
-        if (commonReportService.isShowInfo(ageWearingTableList.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList()), false)) {
-            schoolAgeWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), false));
-            schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(ageWearingTableList.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList()), true));
-            schoolAgeWearingGlasses.setInfo(screeningPrimaryReportService.primaryWearingInfo(statConclusions, ageWearingTableList, total));
+
+        List<AgeWearingTable> list = ageWearingTableList.stream()
+                .filter(s -> commonReportService.schoolAgeList().contains(s.getName()))
+                .collect(Collectors.toList());
+        if (commonReportService.isShowInfo(list, false)) {
+            schoolAgeWearingGlasses.setAgeWearingGlassesChart(horizontalChartService.primaryWearingGlassesChart(list, false));
+            schoolAgeWearingGlasses.setAgeVisionCorrectionChart(horizontalChartService.primaryVisionCorrectionChart(list, true));
+            schoolAgeWearingGlasses.setInfo(screeningPrimaryReportService.primaryWearingInfo(statConclusions, highLowProportionService.filterTable(list), total, true));
         }
         return schoolAgeWearingGlasses;
     }
@@ -644,16 +638,19 @@ public class ScreeningAreaReportService {
         SchoolAgeRefraction schoolAgeRefraction = new SchoolAgeRefraction();
         List<AstigmatismTable> tables = screeningReportTableService.schoolPrimaryRefractiveTable(statConclusions, total);
         schoolAgeRefraction.setTables(Lists.newArrayList(tables));
-        List<AstigmatismTable> filterTables = tables.stream().filter(s -> !commonReportService.filterList().contains(s.getName())).collect(Collectors.toList());
+        List<AstigmatismTable> filterTables = tables.stream()
+                .filter(s -> commonReportService.schoolAgeList().contains(s.getName()))
+                .collect(Collectors.toList());
         if (commonReportService.isShowInfo(filterTables, false)) {
-            schoolAgeRefraction.setSchoolAgeRefractionChart(portraitChartService.refractionChart(tables.stream().filter(s -> commonReportService.schoolAgeList().contains(s.getName())).collect(Collectors.toList())));
+            schoolAgeRefraction.setSchoolAgeRefractionChart(portraitChartService.refractionChart(filterTables));
 
             SchoolAgeRefraction.Info info = new SchoolAgeRefraction.Info();
-            info.setMyopia(highLowProportionService.getHighLow(filterTables, s -> Float.valueOf(s.getMyopiaProportion())));
-            info.setAstigmatism(highLowProportionService.getHighLow(filterTables, s -> Float.valueOf(s.getAstigmatismProportion())));
-            info.setEarlyMyopia(highLowProportionService.getHighLow(filterTables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-            info.setLightMyopia(highLowProportionService.getHighLow(filterTables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-            info.setHighMyopia(highLowProportionService.getHighLow(filterTables, s -> Float.valueOf(s.getHighMyopiaProportion())));
+            List<AstigmatismTable> list = highLowProportionService.filterTable(filterTables);
+            info.setMyopia(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getMyopiaProportion())));
+            info.setAstigmatism(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getAstigmatismProportion())));
+            info.setEarlyMyopia(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
+            info.setLightMyopia(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getLightMyopiaProportion())));
+            info.setHighMyopia(highLowProportionService.getHighLow(list, s -> Float.valueOf(s.getHighMyopiaProportion())));
             schoolAgeRefraction.setInfo(info);
         }
         return schoolAgeRefraction;
