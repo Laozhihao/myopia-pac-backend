@@ -22,7 +22,7 @@ import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -177,8 +176,8 @@ public class StudentController {
      * @return 学生筛查档案
      */
     @GetMapping("/screening")
-    public StudentScreeningResultResponseDTO getScreeningList(PageRequest pageReques,@NotNull(message = "学生Id不能为空") Integer id) {
-        return studentFacade.getScreeningList(pageReques,id);
+    public IPage<StudentScreeningResultItemsDTO> getScreeningList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer id) {
+        return studentFacade.getScreeningList(pageRequest, id);
     }
 
     /**
@@ -188,9 +187,8 @@ public class StudentController {
      * @return 复测卡
      */
     @GetMapping("/screeningResult")
-    public ReScreeningCardVO getRetestResult( @RequestParam Integer planStudentId,
-                                              @RequestParam Integer planId ) {
-        return studentFacade.getRetestResult(planStudentId,planId);
+    public ReScreeningCardVO getRetestResult(@NotNull(message = "planStudentId不能为空") Integer planStudentId, @NotNull(message = "planId不能为空") Integer planId ) {
+        return studentFacade.getRetestResult(planStudentId, planId);
     }
 
     /**

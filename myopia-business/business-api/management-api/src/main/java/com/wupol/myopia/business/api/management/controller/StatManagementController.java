@@ -55,8 +55,6 @@ public class StatManagementController {
     @Autowired
     private BigScreeningStatService bigScreeningStatService;
     @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
-    @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
@@ -68,6 +66,8 @@ public class StatManagementController {
     private StatConclusionBizService statConclusionBizService;
     @Autowired
     private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -230,6 +230,19 @@ public class StatManagementController {
     public void afreshScreeningToConclusion(Integer planId){
         statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE);
     }
+
+    /**
+     * 筛查结果统计，根据筛查计划删除旧数据重新生成，解决修改数据之后，统计数据存在旧数据问题
+     */
+    @GetMapping("afreshStatistic")
+    public void afreshStatistic(Integer planId){
+        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
+        if (deleteByPlanId){
+            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+        }
+    }
+
+
 
     /**
      * 筛查结果统计定时任务手动调用 TODO：为了测试方便

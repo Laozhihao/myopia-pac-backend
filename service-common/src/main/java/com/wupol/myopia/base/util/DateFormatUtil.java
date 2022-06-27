@@ -28,6 +28,8 @@ public final class DateFormatUtil {
     public static final String FORMAT_ONLY_DATE_WITH_CHINESE = "MM月dd日";
     public static final String FORMAT_ONLY_MONTH_DATE = "MM/dd";
     public static final String FORMAT_ONLY_YEAR_MONTH = "yyyy-MM";
+
+    public static final String FORMAT_YEAR_AND_MONTH = "yyyy/MM";
     public static final String FORMAT_ONLY_YEAR = "yyyy";
     public static final String FORMAT_ONLY_DAY = "dd";
 

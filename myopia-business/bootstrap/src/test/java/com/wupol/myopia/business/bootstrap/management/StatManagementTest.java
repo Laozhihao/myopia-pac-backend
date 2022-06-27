@@ -54,10 +54,7 @@ public class StatManagementTest {
      * 获取数据
      */
     public ThreeTuple<ScreeningPlanSchoolStudent,SchoolGrade,List<VisionScreeningResult>>  getTupleResult(Integer planId, Integer planSchoolStudentId){
-        LambdaQueryWrapper<VisionScreeningResult> queryWrapper= new LambdaQueryWrapper<>();
-        queryWrapper.eq(VisionScreeningResult::getScreeningPlanSchoolStudentId,planSchoolStudentId);
-        queryWrapper.eq(VisionScreeningResult::getPlanId,planId);
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.list(queryWrapper);
+        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.findByList(new VisionScreeningResult().setPlanId(planId).setScreeningPlanSchoolStudentId(planSchoolStudentId));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planSchoolStudentId);
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         return new ThreeTuple<>(screeningPlanSchoolStudent,schoolGrade,visionScreeningResults);
@@ -88,7 +85,6 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
@@ -101,13 +97,10 @@ public class StatManagementTest {
                     .setStatConclusion(null)
                     .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                     .setGradeCode(schoolGrade.getGradeCode())
-                    .setClientId("1")
                     .build();
             log.info(JSONObject.toJSONString(statConclusion,true));
         }
-
         Assert.assertTrue(true);
-
     }
 
 
@@ -118,5 +111,4 @@ public class StatManagementTest {
         log.info(JSONObject.toJSONString(checkResult,true));
         Assert.assertTrue(true);
     }
-
 }

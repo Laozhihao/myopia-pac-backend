@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.bootstrap.management;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -483,8 +483,6 @@ public class StatConclusionCheck {
      * 屈光不正 人数/占比
      */
     private TwoTuple<Integer,String> getRefractiveError(@NotNull Integer planId){
-        String clientId = "1";
-        boolean zeroToSixPlatform = Objects.equals(SystemCode.PRESCHOOL_CLIENT.getCode() + StrUtil.EMPTY, clientId);
         List<ThreeTuple<ScreeningPlanSchoolStudent,VisionScreeningResult,String>> dataList = getDataList(planId);
         if (!CollectionUtils.isEmpty(dataList)){
             int size = dataList.size();
@@ -492,8 +490,8 @@ public class StatConclusionCheck {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),zeroToSixPlatform);
-                Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),zeroToSixPlatform);
+                Boolean leftRefractiveError = StatUtil.isRefractiveError(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
+                Boolean rightRefractiveError = StatUtil.isRefractiveError(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());
                 return StatUtil.getIsExist(leftRefractiveError, rightRefractiveError);
             }).collect(Collectors.toList());
             int refractiveError = tupleList.size();

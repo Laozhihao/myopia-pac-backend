@@ -26,15 +26,14 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * 获取统计结论数据
      *
      * @param query 查询条件
+     *
      * @return
      */
     List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
 
     List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 
-    List<screeningPlanSchoolStudentDTO> selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndSchoolId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("schoolId") Integer schoolId, @Param("planId") Integer planId);
+    List<ExportPlanSchool> selectPlanSchoolGradeClassHasData(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
     List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
 
@@ -51,11 +50,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
             @Param("screeningNoticeId") Integer screeningNoticeId,
             @Param("planId") Integer planId,
             @Param("schoolId") Integer schoolId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndScreeningOrgId(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("screeningOrgId") Integer screeningOrgId);
-
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndScreeningOrgId(@Param("screeningPlanId") Integer screeningPlanId, @Param("screeningOrgId") Integer screeningOrgId);
-
     /**
      * @Description: 查询学校、班级、年级 筛查数据
      * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
@@ -76,6 +70,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      *
      * @param noticeId    筛查通知ID
      * @param districtIds 行政区域ID集
+     *
      * @return java.util.List<java.lang.Integer>
      **/
     List<Integer> selectSchoolIdsByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer noticeId, @Param("districtIds") List<Integer> districtIds);
@@ -84,6 +79,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * 根据筛查计划ID获取学校ID
      *
      * @param planId 筛查计划ID
+     *
      * @return java.util.List<java.lang.Integer>
      **/
     List<Integer> selectSchoolIdByPlanId(@Param("planId") Integer planId);
@@ -93,6 +89,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      *
      * @param date
      * @param isRescreen
+     *
      * @return
      */
     List<ScreenPlanSchoolDTO> getPlanSchoolByDate(@Param("date") Date date, @Param("isRescreen") Boolean isRescreen);
@@ -102,6 +99,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      *
      * @param statConclusionId 表ID
      * @param studentId        学校ID
+     *
      * @return com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
      **/
     StatConclusion getNextScreeningStat(@Param("statConclusionId") Integer statConclusionId, @Param("studentId") Integer studentId);
@@ -118,9 +116,16 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * 根据筛查结果id获取数据（取第一条）
      *
      * @param resultId
+     *
      * @return
      */
     StatConclusion getByResultId(@Param("resultId") Integer resultId);
 
     List<StatConclusion> getReviewByPlanIdAndSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
+
+    List<StatConclusion> getByNoticeIdDistrictIds(@Param("noticeId") Integer noticeId, @Param("districtIds") List<Integer> districtIds);
+
+    List<StatConclusion> getByPlanIdSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
+
+    List<StatConclusion> getByPlanId(Integer planId);
 }

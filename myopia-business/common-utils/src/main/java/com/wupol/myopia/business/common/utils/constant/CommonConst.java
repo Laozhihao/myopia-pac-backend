@@ -169,4 +169,14 @@ public class CommonConst {
      *  Excel格式
      */
     public static final String FILE_SUFFIX = ".xlsx";
+
+    /**
+     *  中文逗号
+     */
+    public static final String CH_COMMA = "，";
+
+    /**
+     * 顿号
+     */
+    public static final String CN_PUNCTUATION_COMMA = "、";
 }

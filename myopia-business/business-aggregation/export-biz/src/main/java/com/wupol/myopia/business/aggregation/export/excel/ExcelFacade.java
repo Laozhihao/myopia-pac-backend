@@ -47,6 +47,9 @@ public class ExcelFacade {
     @Autowired
     private ScreeningPlanService screeningPlanService;
 
+    @Resource
+    private ScreeningDataFactory screeningDataFactory;
+
     /**
      * 导出统计报表 - 数据对比表
      *
@@ -84,7 +87,7 @@ public class ExcelFacade {
         // 通过筛查类型获取实现
         Integer planId = statConclusionExportDTOs.get(0).getPlanId();
         ScreeningPlan plan = screeningPlanService.getById(planId);
-        IScreeningDataService screeningDataService = ScreeningDataFactory.getScreeningDataService(plan.getScreeningType());
+        IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(plan.getScreeningType());
 
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (isSchoolExport) {

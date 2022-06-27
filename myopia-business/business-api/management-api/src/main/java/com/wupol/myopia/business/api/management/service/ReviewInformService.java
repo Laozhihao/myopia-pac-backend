@@ -255,7 +255,7 @@ public class ReviewInformService {
             noticeService.sendExportFailNotice(userId, userId, getNoticeTitle(schoolId, gradeId, type) + RESCREEN_NAME);
             throw new BusinessException("发送通知异常");
         } finally {
-            FileUtils.deleteDir(new File(fileSaveParentPath));
+            FileUtil.del(new File(fileSaveParentPath));
         }
     }
 
@@ -278,12 +278,7 @@ public class ReviewInformService {
      * @return List<ScreeningPlanSchoolStudent>
      */
     private List<ScreeningPlanSchoolStudent> getMatchRescreenResults(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
-        if (CollectionUtils.isEmpty(planStudentList)) {
-            return new ArrayList<>();
-        }
-        return planStudentList;
+        return screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
     }
 
     /**

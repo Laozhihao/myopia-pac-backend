@@ -118,7 +118,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, e) -> {
             response.setStatus(HttpStatus.HTTP_OK);
-            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader("Cache-Control", "no-cache");
             ApiResult result = ApiResult.failure(ResultCode.CLIENT_AUTHENTICATION_FAILED.getMessage());

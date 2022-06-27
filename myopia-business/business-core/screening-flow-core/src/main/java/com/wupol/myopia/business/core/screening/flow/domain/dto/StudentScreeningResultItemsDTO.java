@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.List;
@@ -11,11 +11,15 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Accessors(chain = true)
+@Data
 public class StudentScreeningResultItemsDTO {
 
+    /**
+     * 筛查数据详情
+     */
     private ScreeningInfoDTO details;
+
     /**
      * 常见病编码code
      */

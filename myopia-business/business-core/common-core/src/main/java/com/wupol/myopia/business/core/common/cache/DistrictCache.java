@@ -80,9 +80,6 @@ public class DistrictCache implements CommandLineRunner {
         pageSize = pageSize == 0 ? 50000 : pageSize;
         List<Map<K, V>> newList = new ArrayList<>();
         int j = 0;
-        map.forEach((k,v)->{
-
-        });
         for (Map.Entry<K, V> entry : map.entrySet()) {
             if (j % pageSize == 0) {
                 newList.add(Maps.newHashMap());

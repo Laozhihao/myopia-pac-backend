@@ -33,12 +33,12 @@ public class CommonDiseaseArchiveCard {
     /**
      * 视力数据
      */
-    private ArchiveVisionDataDO visionData;
+    private VisionDataDO visionData;
 
     /**
      * 屈光数据
      */
-    private ArchiveComputerOptometryDO computerOptometryData;
+    private ComputerOptometryDO computerOptometryData;
 
     /**
      * 龋齿数据

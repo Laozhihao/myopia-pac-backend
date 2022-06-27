@@ -452,9 +452,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             schoolGrade.setGradeCode(GradeCodeEnum.getByName(schoolGrade.getName()).getCode());
             List<SchoolClass> schoolClassList = item.getSchoolClass();
             if (!CollectionUtils.isEmpty(schoolClassList)) {
-                schoolClassList.forEach(schoolClass -> {
-                    schoolClass.setSchoolId(schoolId);
-                });
+                schoolClassList.forEach(schoolClass -> schoolClass.setSchoolId(schoolId));
             }
         });
         schoolGradeService.batchSaveGrade(saveGradeRequestDTO, userId);

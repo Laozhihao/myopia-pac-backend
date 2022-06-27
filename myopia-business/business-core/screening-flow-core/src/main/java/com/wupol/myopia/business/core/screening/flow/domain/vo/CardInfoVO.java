@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -10,8 +10,8 @@ import java.util.Date;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Accessors(chain = true)
+@Data
 public class CardInfoVO {
 
     /**

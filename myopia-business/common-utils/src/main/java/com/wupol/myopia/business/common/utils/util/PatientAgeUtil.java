@@ -58,6 +58,8 @@ public final class PatientAgeUtil {
             case 5:
                 result = "20-100Y";
                 break;
+            default:
+                break;
         }
         return result;
     }

@@ -1,12 +1,15 @@
 package com.wupol.myopia.business.core.screening.flow.constant;
 
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @Author  钓猫的小鱼
  * @Date  2022/4/15 16:39
  * @Email: shuailong.wu@vistel.cn
  * @Des: 复测工具类参数
  */
+@UtilityClass
 public class ReScreenConstant {
     /**
      *  复测项(常见病-佩戴眼镜)
@@ -33,7 +36,7 @@ public class ReScreenConstant {
      */
     public static final String COMPUTEROPTOMETRY_DEVIATION = "0.5";
     /**
-     * 等效球镜误差标准
+     * 等效球镜误差标准（D）
      */
     public static final String SE_DEVIATION = "0.5";
     /**

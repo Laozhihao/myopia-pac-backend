@@ -148,31 +148,11 @@
         </foreach>
     </select>
 
-    <select id="getIsDoubleScreeningResult" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result where is_double_screen =  #{isDoubleScreen} and screening_plan_school_student_id =  #{screeningPlanSchoolStudentId} and plan_id in
-        <foreach collection="planIds" item="planId" index="index" open="(" close=")" separator=",">
-            #{planId}
-        </foreach>
-    </select>
-
     <select id="getBySchoolIdPlanId" resultType="java.lang.Integer">
         select school_id
         from m_vision_screening_result
         where plan_id = #{planId}
         group by school_id
-    </select>
-
-    <select id="getByStudentIdsAndPlanId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where plan_id = #{planId} and screening_plan_school_student_id in
-        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
-             #{studentId}
-        </foreach>
-        and is_double_screen = #{isDoubleScreen}
     </select>
 
     <select id="getByPlanIdAndSchoolId" resultMap="BaseResultMap">
@@ -227,16 +207,6 @@
             is_double_screen = 0
     </select>
 
-
-    <select id="getIsDoubleScreen" resultMap="BaseResultMap">
-        select *
-        from m_vision_screening_result
-        where screening_plan_school_student_id = #{screeningPlanSchoolStudentId}
-        and plan_id = #{planId}
-        and screening_type = #{screeningType}
-        and is_double_screen = 1
-    </select>
-
     <select id="getRescreenBySchoolIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -256,5 +226,26 @@
             #{planStudentId}
         </foreach>
         and is_double_screen = 0
+    </select>
+
+    <select id="countScreeningSchoolByTaskId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount">
+        SELECT
+               plan_id,
+               count( * ) AS screening_school_count
+        FROM
+             ( SELECT plan_id, school_id FROM m_vision_screening_result WHERE task_id = #{taskId} GROUP BY plan_id, school_id ) temp
+        GROUP BY
+               plan_id
+    </select>
+
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and is_double_screen = false
+        order by create_time desc
     </select>
 </mapper>

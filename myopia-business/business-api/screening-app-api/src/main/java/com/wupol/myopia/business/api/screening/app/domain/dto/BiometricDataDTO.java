@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BiometricDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -151,6 +152,7 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         BiometricDataDO biometricDataDO = new BiometricDataDO().setRightEyeData(rightBiometricData).setLeftEyeData(leftBiometricData).setIsCooperative(getIsCooperative());
         biometricDataDO.setCreateUserId(getCreateUserId());
         biometricDataDO.setDiagnosis(super.getDiagnosis());
+        biometricDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setBiometricData(biometricDataDO);
     }
 
@@ -196,5 +198,10 @@ public class BiometricDataDTO extends ScreeningResultBasicData {
         }
         biometricDataDTO.setIsCooperative(biometricDataDO.getIsCooperative());
         return biometricDataDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC;
     }
 }

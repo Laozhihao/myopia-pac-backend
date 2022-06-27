@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
@@ -41,6 +42,7 @@ public class SaprodontiaDTO extends ScreeningResultBasicData {
         saprodontiaDataDO.setDiagnosis(super.getDiagnosis());
         saprodontiaDataDO.setCreateUserId(getCreateUserId());
         saprodontiaDataDO.setUnderneath(underneath);
+        saprodontiaDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setSaprodontiaData(saprodontiaDataDO);
     }
 
@@ -57,5 +59,10 @@ public class SaprodontiaDTO extends ScreeningResultBasicData {
         saprodontiaDTO.setAbove(saprodontiaDataDO.getAbove());
         saprodontiaDTO.setUnderneath(saprodontiaDataDO.getUnderneath());
         return saprodontiaDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_SAPRODONTIA;
     }
 }

@@ -19,7 +19,7 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -103,8 +103,8 @@ public class SchoolStudentController {
      * @return StudentScreeningResultResponseDTO
      */
     @GetMapping("screening/list/{studentId}")
-    public StudentScreeningResultResponseDTO screeningList(PageRequest pageReques,@PathVariable("studentId") Integer studentId) {
-        return studentFacade.getScreeningList(pageReques,studentId);
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
+        return studentFacade.getScreeningList(pageRequest, studentId);
     }
 
 

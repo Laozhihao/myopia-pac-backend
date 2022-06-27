@@ -33,11 +33,9 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
-    <resultMap id="ScreeningPlanSchoolStudentVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.screeningPlanSchoolStudentDTO">
+    <resultMap id="PlanSchoolGradeClassResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ExportPlanSchool">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="screening_plan_id" property="screeningPlanId" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="school_id" property="schoolId" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="grade_id" property="gradeId" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="class_id" property="classId" />
     </resultMap>
 
     <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
@@ -181,35 +179,16 @@
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy" resultMap="ScreeningPlanSchoolStudentVoResultMap" parameterType="java.util.Map">
+    <select id="selectPlanSchoolGradeClassHasData" resultMap="PlanSchoolGradeClassResultMap" parameterType="java.util.Map">
         SELECT
-        mspss.screening_plan_id,mspss.school_id,mspss.grade_id,mspss.class_id
+        mspss.screening_plan_id, mspss.school_id
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
-        GROUP BY mspss.screening_plan_id, mspss.school_id, mspss.grade_id, mspss.class_id
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
-            parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List"/>
-        FROM m_stat_conclusion msc
-                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-                WHERE msc.school_id = #{schoolId}
-        <if test="screeningNoticeId != null">
-            and msc.src_screening_notice_id = #{screeningNoticeId}
-        </if>
-        <if test="planId != null">
-            and msc.plan_id = #{planId}
-        </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        GROUP BY mspss.screening_plan_id, mspss.school_id
+        ORDER BY mspss.school_name
     </select>
 
     <select id="selectExportVoByScreeningPlanIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
@@ -238,28 +217,6 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningPlanIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -437,5 +394,31 @@
         </foreach>
         and is_review = 1
         and is_rescreen = 0
+    </select>
+
+    <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where src_screening_notice_id = #{noticeId}
+                                 and district_id in
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and is_rescreen = false
+    </select>
+
+    <select id="getByPlanIdSchoolId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+        and is_rescreen = false
+        order by create_time desc
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and is_rescreen = false
     </select>
 </mapper>

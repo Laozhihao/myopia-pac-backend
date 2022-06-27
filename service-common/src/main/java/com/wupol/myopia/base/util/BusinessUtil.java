@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
+import lombok.experimental.UtilityClass;
 
 import java.time.Period;
 import java.time.ZoneId;
@@ -12,6 +13,7 @@ import java.util.*;
  * @Author wulizhou
  * @Date 2021/12/28 16:04
  */
+@UtilityClass
 public class BusinessUtil {
 
     /**
