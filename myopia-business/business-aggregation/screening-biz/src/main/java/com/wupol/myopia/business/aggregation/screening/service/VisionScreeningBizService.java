@@ -1,20 +1,27 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -77,6 +84,10 @@ public class VisionScreeningBizService {
         // 1: 根据筛查计划获得 初筛和复测数据
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
         TwoTuple<VisionScreeningResult, VisionScreeningResult> currentAndOtherResult = getAllFirstAndSecondResult(screeningResultBasicData);
+
+        // 判断对应的检查项目的更新时间是否新于当前已保存的更新时间，如果是旧的，则不保存。
+        checkCanSaveScreeningResultBasicDataWithUpdateTime(screeningResultBasicData, currentAndOtherResult);
+
         VisionScreeningResult currentVisionScreeningResult = currentAndOtherResult.getFirst();
         // 获取了筛查计划
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
@@ -158,11 +169,86 @@ public class VisionScreeningBizService {
             throw new BusinessException("需要完成柱镜检查");
         }
         if (Objects.isNull(computerOptometry.getLeftEyeData().getAxial()) && Objects.isNull(computerOptometry.getRightEyeData().getAxial())) {
-            throw new BusinessException("需要完成柱镜检查");
+            throw new BusinessException("需要完成轴位检查");
         }
         if (checkHeight && Objects.isNull(firstResult.getHeightAndWeightData())) {
             throw new BusinessException("需要完成体重检查");
         }
+    }
+
+    /**
+     * 校验是否能够保存检查数据，目前只通过更新时间来判断。如果提交的数据的更新时间比数据库的早，则不保存该数据
+     * @param screeningResultBasicData
+     * @param tuple
+     * @return
+     */
+    private void checkCanSaveScreeningResultBasicDataWithUpdateTime(ScreeningResultBasicData screeningResultBasicData, TwoTuple<VisionScreeningResult, VisionScreeningResult> tuple) {
+        boolean isDoubleScreening = screeningResultBasicData.getIsState() == 1;
+        // 如果更新时间为空，则设置成当前的时间。用于兼容旧的App的版本
+        if (Objects.isNull(screeningResultBasicData.getUpdateTime()) || screeningResultBasicData.getUpdateTime() == 0) {
+            screeningResultBasicData.setUpdateTime(System.currentTimeMillis());
+        }
+        BusinessException exception  = new BusinessException("检查数据已过期", ResultCode.DATA_UPLOAD_DATA_OUT_DATE.getCode());
+        VisionScreeningResult firstResult = tuple.getFirst();
+        VisionScreeningResult secondResult = tuple.getSecond();
+
+        // 初筛
+        if (!isDoubleScreening && Objects.nonNull(firstResult)) {
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISION) && Objects.nonNull(firstResult.getVisionData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getVisionData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY) && Objects.nonNull(firstResult.getComputerOptometry())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getComputerOptometry().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_MULTI_CHECK) && Objects.nonNull(firstResult.getFundusData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getFundusData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC) && Objects.nonNull(firstResult.getBiometricData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getBiometricData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_PUPIL_OPTOMETRY) && Objects.nonNull(firstResult.getPupilOptometryData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getPupilOptometryData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_EYE_PRESSURE) && Objects.nonNull(firstResult.getEyePressureData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getEyePressureData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_OTHER_EYE_DISEASE) && Objects.nonNull(firstResult.getOtherEyeDiseases())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getOtherEyeDiseases().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT) && Objects.nonNull(firstResult.getHeightAndWeightData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getHeightAndWeightData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_DEVIATION) && Objects.nonNull(firstResult.getDeviationData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getDeviationData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SAPRODONTIA) && Objects.nonNull(firstResult.getSaprodontiaData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSaprodontiaData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SPINE) && Objects.nonNull(firstResult.getSpineData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSpineData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_BLOOD_PRESSURE) && Objects.nonNull(firstResult.getBloodPressureData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getBloodPressureData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_DISEASES_HISTORY) && Objects.nonNull(firstResult.getDiseasesHistoryData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getDiseasesHistoryData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_PRIVACY) && Objects.nonNull(firstResult.getPrivacyData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getPrivacyData().getUpdateTime())) throw exception;
+            }
+        } else if (Objects.nonNull(secondResult)){
+            // 复测
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISION) && Objects.nonNull(secondResult.getVisionData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getVisionData().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY) && Objects.nonNull(secondResult.getComputerOptometry())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getComputerOptometry().getUpdateTime())) throw exception;
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT) && Objects.nonNull(secondResult.getHeightAndWeightData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getHeightAndWeightData().getUpdateTime())) throw exception;
+            }
+        }
+
     }
 
     /**
@@ -276,8 +362,17 @@ public class VisionScreeningBizService {
         student.setUpdateTime(new Date());
         student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        if (statConclusion.getAge() >= 6) {
+        String schoolGradeCode = statConclusion.getSchoolGradeCode();
+        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+        if (!Objects.equals(SchoolAge.KINDERGARTEN.code,gradeCodeEnum.getType())){
+            //小学及以上的数据同步
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
+            student.setScreeningMyopia(statConclusion.getScreeningMyopia());
+            if (Objects.nonNull(statConclusion.getIsLowVision()) && statConclusion.getIsLowVision()) {
+                student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
+            }else {
+                student.setLowVision(null);
+            }
         }
         studentService.updateScreenStudent(student);
     }

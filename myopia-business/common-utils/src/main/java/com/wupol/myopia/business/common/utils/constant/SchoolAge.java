@@ -16,12 +16,13 @@ import java.util.List;
  */
 public enum SchoolAge {
 
+
     UNKNOWN(-1, "未知", -1),
     KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType()),
     PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
     JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    HIGH(2, "高中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    VOCATIONAL_HIGH(3, "职业高中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    HIGH(2, "普高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    VOCATIONAL_HIGH(3, "职高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
     UNIVERSITY(4, "大学", SchoolTypeEnum.UNIVERSITY.getType());
 
     /**

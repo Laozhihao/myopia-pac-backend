@@ -6,8 +6,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
@@ -21,7 +23,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictAttentiveObjectsStatistic;
-import com.wupol.myopia.business.core.stat.service.DistrictVisionStatisticService;
+import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +63,11 @@ public class StatManagementController {
     @Autowired
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
     @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
-
+    private StatConclusionBizService statConclusionBizService;
+    @Autowired
+    private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -129,7 +134,7 @@ public class StatManagementController {
             return districtBizService.getValidDistrictTree(currentUser, districts);
         }
         // 政府人员走新逻辑
-        return districtBizService.getChildDistrictValidDistrictTree(currentUser, districtVisionStatisticService.getDistrictIdByNoticeId(noticeId));
+        return districtBizService.getChildDistrictValidDistrictTree(currentUser, screeningResultStatisticService.getDistrictIdByNoticeId(noticeId));
     }
 
     @GetMapping("/plan-district")
@@ -203,6 +208,50 @@ public class StatManagementController {
         }
         return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
     }
+
+
+    /**
+     * 筛查结果数据转筛查数据结论和筛查结果统计  TODO： 为了测试方便
+     *
+     * @param planId 筛查计划ID, 不必填
+     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
+     */
+    @GetMapping("screeningToConclusion")
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
+        statConclusionBizService.screeningToConclusion(planId,isAll);
+        scheduledTasksExecutor.statistic(null,planId,isAll);
+    }
+
+    /**
+     * 筛查结果统计，根据筛查计划删除旧数据重新生成，解决修改数据之后，统计数据存在旧数据问题
+     */
+    @GetMapping("afreshStatistic")
+    public void afreshStatistic(Integer planId){
+        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
+        if (deleteByPlanId){
+            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+        }
+    }
+
+
+
+    /**
+     * 筛查结果统计定时任务手动调用 TODO：为了测试方便
+     */
+    @GetMapping("/triggerAll")
+    public void statTaskTrigger() {
+        scheduledTasksExecutor.statistic();
+    }
+    /**
+     * 触发大屏统计（todo 为了测试方便）
+     *
+     * @throws IOException
+     */
+    @GetMapping("/big")
+    public void statBigScreen() throws IOException {
+        bigScreeningStatService.statisticBigScreen();
+    }
+
 
     /**
      * 按区域-幼儿园

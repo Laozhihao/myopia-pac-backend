@@ -43,9 +43,15 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
      */
     private Integer diagnosis;
     /**
+     * 更新时间
+     */
+    private Long updateTime;
+
+    /**
      * 是否配合检查：0-配合、1-不配合
      */
     private Integer isCooperative;
+
 
     public Integer getPlanStudentId() {
         return stringToInteger(planStudentId);
@@ -86,5 +92,15 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
 
     public void setIsState(Integer isState) {
         this.isState = isState;
+    }
+
+    /** 获取数据的类型，用于区分哪种类型的检查 */
+    public abstract String getDataType();
+
+    /** 传进来的时间是否为更加新的时间 */
+    public boolean isNewerUpdateTime(Long otherUpdateTime) {
+        if (Objects.isNull(otherUpdateTime)) {return true;}
+        if (Objects.isNull(updateTime)) {return false;}
+        return updateTime > otherUpdateTime;
     }
 }

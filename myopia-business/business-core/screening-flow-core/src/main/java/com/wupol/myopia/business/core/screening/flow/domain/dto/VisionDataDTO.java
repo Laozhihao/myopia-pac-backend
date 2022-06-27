@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -63,6 +64,10 @@ public class VisionDataDTO extends ScreeningResultBasicData {
     @JsonProperty("l_ok_degree")
     private BigDecimal leftOkDegree;
 
+    /**
+     * 是否配合检查：0-配合、1-不配合
+     */
+    private Integer isCooperative;
 
 
     @Override
@@ -79,9 +84,10 @@ public class VisionDataDTO extends ScreeningResultBasicData {
                 .setGlassesType(WearingGlassesSituation.getKey(glassesType))
                 .setLateriality(CommonConst.RIGHT_EYE)
                 .setOkDegree(rightOkDegree);
-        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(super.getIsCooperative());
+        VisionDataDO visionDataDO = new VisionDataDO().setRightEyeData(rightVisionData).setLeftEyeData(leftVisionData).setIsCooperative(isCooperative);
         visionDataDO.setDiagnosis(super.getDiagnosis());
         visionDataDO.setCreateUserId(getCreateUserId());
+        visionDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setVisionData(visionDataDO);
     }
 
@@ -92,7 +98,7 @@ public class VisionDataDTO extends ScreeningResultBasicData {
      **/
     public boolean isValid() {
         // 不配合时全部校验
-        if (Objects.isNull(super.getIsCooperative()) || super.getIsCooperative() == 1) {
+        if (Objects.isNull(isCooperative) || isCooperative == 1) {
             return true;
         }
         // 没带眼镜
@@ -147,6 +153,11 @@ public class VisionDataDTO extends ScreeningResultBasicData {
 
     public BigDecimal getLeftNakedVision() {
         return BigDecimalUtil.keepDecimalPlaces(leftNakedVision, 1);
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_VISION;
     }
 }
 

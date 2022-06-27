@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanScho
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
+import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
@@ -557,7 +558,7 @@ public class ScreeningPlanController {
      * @Date: 2022/1/12
      */
     @GetMapping("/getStudentEyeByStudentId")
-    public ApiResult getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
+    public ApiResult<VisionScreeningResultDTO> getStudentEyeByStudentId(@RequestParam Integer planId,@RequestParam Integer planStudentId) {
         return ApiResult.success(visionScreeningResultService.getStudentScreeningResultDetail(planId, planStudentId));
     }
 
@@ -670,8 +671,8 @@ public class ScreeningPlanController {
      * @return List<ReviewInformExportDataDTO>
      */
     @GetMapping("/review/getExportData")
-    public Object getExportData(Integer planId, Integer orgId, Integer schoolId,
-                                Integer gradeId, Integer classId) {
+    public List<ReviewInformExportDataDTO> getExportData(Integer planId, Integer orgId, Integer schoolId,
+                                                         Integer gradeId, Integer classId) {
         return reviewInformService.getExportData(planId, orgId, schoolId, gradeId, classId);
 
     }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.BloodPressureDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
@@ -39,6 +40,7 @@ public class BloodPressureDTO  extends ScreeningResultBasicData {
         bloodPressureDataDO.setSbp(sbp);
         bloodPressureDataDO.setDiagnosis(super.getDiagnosis());
         bloodPressureDataDO.setCreateUserId(getCreateUserId());
+        bloodPressureDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setBloodPressureData(bloodPressureDataDO);
     }
 
@@ -55,5 +57,10 @@ public class BloodPressureDTO  extends ScreeningResultBasicData {
         bloodPressureDTO.setDbp(bloodPressureDataDO.getDbp());
         bloodPressureDTO.setSbp(bloodPressureDataDO.getSbp());
         return bloodPressureDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_BLOOD_PRESSURE;
     }
 }

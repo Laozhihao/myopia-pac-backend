@@ -1281,9 +1281,9 @@ public class StatUtil {
      * @param isWearingGlasses 是否戴镜
      */
     public static int calculateErrorNum(VisionScreeningResult currentVisionScreeningResult,VisionScreeningResult anotherVisionScreeningResult,Boolean isWearingGlasses) {
-        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+        int errorNum = getNakedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult) + getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         if (Objects.nonNull(isWearingGlasses) && Objects.equals(isWearingGlasses,Boolean.TRUE)) {
-            errorNum += getSeErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
+            errorNum += getCorrectedVisionErrorNum(currentVisionScreeningResult,anotherVisionScreeningResult);
         }
         if (Objects.equals(ScreeningTypeEnum.COMMON_DISEASE.getType(),currentVisionScreeningResult.getScreeningType())){
             errorNum += getHeightAndWeight(currentVisionScreeningResult,anotherVisionScreeningResult);
@@ -1354,7 +1354,7 @@ public class StatUtil {
             BigDecimal currentLeftSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
             BigDecimal currentRightSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
             BigDecimal anotherLeftSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
-            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getRightEyeData().getCyl());
             errorNum += inRange(currentLeftSe,anotherLeftSe, seAndHeightRangeValue);
             errorNum += inRange(currentRightSe,anotherRightSe, seAndHeightRangeValue);
         }

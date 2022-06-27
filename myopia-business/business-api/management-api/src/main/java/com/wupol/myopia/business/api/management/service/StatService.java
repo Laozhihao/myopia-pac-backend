@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -311,8 +312,8 @@ public class StatService {
                 .validScreeningNum(validFirstScreeningNum)
                 .screeningFinishedRatio(planScreeningNum > 0 ?
                         convertToPercentage(totalFirstScreeningNum * 1f / planScreeningNum) : 0)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .tabGender(tabGender)
                 .tabSchoolAge(tabSchoolAge)
                 .rescreenStat(rescreenStat)
@@ -419,8 +420,8 @@ public class StatService {
                 .screeningNum(contrast.getScreeningNum())
                 .actualScreeningNum(contrast.getActualScreeningNum())
                 .validScreeningNum(contrast.getValidScreeningNum())
-                .averageVisionLeft(contrast.getAverageVisionLeft())
-                .averageVisionRight(contrast.getAverageVisionRight())
+                .averageVisionLeft(Optional.ofNullable(contrast.getAverageVisionLeft()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
+                .averageVisionRight(Optional.ofNullable(contrast.getAverageVisionRight()).map(BigDecimal::toString).orElse(StrUtil.EMPTY))
                 .lowVisionNum(contrast.getLowVisionNum())
                 .lowVisionRatio(nullToRatio(contrast.getLowVisionRatio()))
                 .wearingGlassesNum(contrast.getWearingGlassesNum())
@@ -655,8 +656,8 @@ public class StatService {
                 .screeningNum(planScreeningNum)
                 .actualScreeningNum(totalFirstScreeningNum)
                 .validScreeningNum(validFirstScreeningNum)
-                .averageVisionLeft(tuple.getFirst().floatValue())
-                .averageVisionRight(tuple.getSecond().floatValue())
+                .averageVisionLeft(tuple.getFirst())
+                .averageVisionRight(tuple.getSecond())
                 .lowVisionNum(lowVisionNum)
                 .lowVisionRatio(convertToPercentage(lowVisionNum * 1f / validFirstScreeningNum))
                 .refractiveErrorRatio(convertToPercentage(refractiveErrorNum * 1f / validFirstScreeningNum))
@@ -1254,7 +1255,7 @@ public class StatService {
                         .setPlanId(conclusion.getPlanId())
                         .setSchoolId(conclusion.getSchoolId())
                         .setScreeningTime(screeningTime);
-                RescreenStat rescreenStat = this.rescreenConclusion(rescreenInfoByTime);
+                RescreenStat rescreenStat = this.composeRescreenConclusion(rescreenInfoByTime);
                 BeanUtils.copyProperties(rescreenStat, statRescreen);
                 if (ScreeningTypeEnum.COMMON_DISEASE.getType().equals(conclusion.getScreeningType())) {
                     composePhysiqueReScreenConclusion(statRescreen, rescreenInfoByTime);
@@ -1299,7 +1300,7 @@ public class StatService {
         statRescreen.setPhysiqueIndexNum(2L);
         statRescreen.setPhysiqueRescreenItemNum(total * 2L);
         statRescreen.setPhysiqueIncorrectItemNum(statConclusions.stream().mapToLong(StatConclusion::getPhysiqueRescreenErrorNum).sum());
-        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage((float) (statRescreen.getPhysiqueIncorrectItemNum() / statRescreen.getPhysiqueRescreenItemNum())));
+        statRescreen.setPhysiqueIncorrectRatio(convertToPercentage(statRescreen.getPhysiqueIncorrectItemNum() * 1f/ statRescreen.getPhysiqueRescreenItemNum()));
     }
 
     /**
@@ -1321,7 +1322,9 @@ public class StatService {
         List<VisionScreeningResult> reScreenResults = resultList.stream().filter(VisionScreeningResult::getIsDoubleScreen).collect(Collectors.toList());
 
         // 获取初筛数据
-        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList()));
+        List<Integer> planStudentIdList = reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(planStudentIdList);
+        Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIdList).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 获取计划学生的commonDiseasesCode

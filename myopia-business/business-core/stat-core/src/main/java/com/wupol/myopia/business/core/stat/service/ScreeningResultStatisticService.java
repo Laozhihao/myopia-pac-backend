@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * 筛查结果统计服务层
@@ -248,5 +249,21 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         queryWrapper.in(ScreeningResultStatistic::getScreeningPlanId,planIds);
         queryWrapper.eq(ScreeningResultStatistic::getSchoolId,schoolId);
         return list(queryWrapper);
+    }
+
+    public Set<Integer> getDistrictIdByNoticeId(Integer noticeId){
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId,noticeId);
+        List<ScreeningResultStatistic> list = list(queryWrapper);
+        if (CollectionUtil.isNotEmpty(list)){
+            return list.stream().map(ScreeningResultStatistic::getDistrictId).collect(Collectors.toSet());
+        }
+        return Sets.newHashSet();
+    }
+
+    public boolean deleteByPlanId(Integer planId){
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningPlanId,planId);
+        return remove(queryWrapper);
     }
 }

@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +40,7 @@ public final class SchoolMonitorStatisticBuilder {
         Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
         Integer wearingGlassDsn = isWearGlassNumMap.getOrDefault(true, 0L).intValue();
         Integer rescreeningItemNumbers = withoutGlassDsn * 4 + wearingGlassDsn * 6;
-        Integer errorNumbers = statConclusions.stream().mapToInt(StatConclusion::getRescreenErrorNum).sum();
+        Integer errorNumbers = statConclusions.stream().mapToInt(sc-> Optional.ofNullable(sc.getRescreenErrorNum()).orElse(0)).sum();
         int dsn = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
                 .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())

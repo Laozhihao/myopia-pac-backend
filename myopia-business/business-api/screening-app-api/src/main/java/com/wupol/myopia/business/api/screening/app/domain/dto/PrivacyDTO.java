@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.PrivacyDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
@@ -38,6 +39,7 @@ public class PrivacyDTO extends ScreeningResultBasicData {
         privacyDataDO.setHasIncident(hasIncident);
         privacyDataDO.setDiagnosis(super.getDiagnosis());
         privacyDataDO.setCreateUserId(getCreateUserId());
+        privacyDataDO.setUpdateTime(getUpdateTime());
         return visionScreeningResult.setPrivacyData(privacyDataDO);
     }
 
@@ -57,5 +59,10 @@ public class PrivacyDTO extends ScreeningResultBasicData {
         privacyDTO.setAge(privacyDataDO.getAge());
         privacyDTO.setHasIncident(privacyDataDO.getHasIncident());
         return privacyDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_PRIVACY;
     }
 }
