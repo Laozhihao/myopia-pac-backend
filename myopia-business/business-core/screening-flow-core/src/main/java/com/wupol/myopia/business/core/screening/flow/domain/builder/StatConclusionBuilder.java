@@ -94,12 +94,8 @@ public class StatConclusionBuilder {
         }
         // 基本数据的准备
         basicData = BasicData.getInstance(currentVisionScreeningResult, screeningPlanSchoolStudent);
-        // 如果新增的话，设置基本的数据
-        if (!isUpdate) {
-            this.setBasicData();
-        } else {
-            statConclusion.setUpdateTime(new Date());
-        }
+        // 设置基本的数据(数据实时更新)
+        this.setBasicData();
         this.setValid();
         if (basicData.getIsValid()){
             // 设置视力相关的数据
@@ -166,17 +162,21 @@ public class StatConclusionBuilder {
         statConclusion.setSrcScreeningNoticeId(screeningPlanSchoolStudent.getSrcScreeningNoticeId());
         statConclusion.setTaskId(screeningPlanSchoolStudent.getScreeningTaskId());
         statConclusion.setPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
-        statConclusion.setCreateTime(new Date());
         statConclusion.setDistrictId(screeningPlanSchoolStudent.getSchoolDistrictId());
         statConclusion.setSchoolAge(screeningPlanSchoolStudent.getGradeType());
         statConclusion.setGender(screeningPlanSchoolStudent.getGender());
         statConclusion.setAge(screeningPlanSchoolStudent.getStudentAge());
         statConclusion.setIsRescreen(currentVisionScreeningResult.getIsDoubleScreen());
-        statConclusion.setRescreenErrorNum(0);
         statConclusion.setSchoolId(screeningPlanSchoolStudent.getSchoolId());
         statConclusion.setSchoolClassName(screeningPlanSchoolStudent.getClassName());
         statConclusion.setSchoolGradeCode(gradeCode);
         statConclusion.setScreeningType(currentVisionScreeningResult.getScreeningType());
+        if (!isUpdate) {
+            statConclusion.setCreateTime(new Date());
+            statConclusion.setRescreenErrorNum(0);
+        } else {
+            statConclusion.setUpdateTime(new Date());
+        }
     }
 
     /**
@@ -313,7 +313,7 @@ public class StatConclusionBuilder {
         Integer warningLevelInt = StatUtil.getWarningLevelInt(
                 basicData.getLeftCyl(),basicData.getLeftSph(),basicData.getLeftNakedVision(),
                 basicData.getRightCyl(),basicData.getRightSph(),basicData.getRightNakedVision(),
-                basicData.getAge(),Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null));
+                basicData.getAge(),gradeCodeEnum.getType());
         statConclusion.setWarningLevel(warningLevelInt);
     }
 
@@ -401,7 +401,7 @@ public class StatConclusionBuilder {
         Boolean isRecommendVisit = ScreeningResultUtil.getDoctorAdvice(
                 basicData.getLeftNakedVision(),basicData.getRightNakedVision(),
                 basicData.getLeftCorrectVision(),basicData.getRightCorrectVision(),
-                basicData.getGlassesType(), Optional.ofNullable(gradeCodeEnum).map(GradeCodeEnum::getType).orElse(null), basicData.getAge(), otherEyeDiseasesNormal,
+                basicData.getGlassesType(), gradeCodeEnum.getType(), basicData.getAge(), otherEyeDiseasesNormal,
                 currentVisionScreeningResult.getComputerOptometry()).getIsRecommendVisit();
         statConclusion.setIsRecommendVisit(isRecommendVisit);
     }

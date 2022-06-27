@@ -216,4 +216,10 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         }
         return Sets.newHashSet();
     }
+
+    public boolean deleteByPlanId(Integer planId){
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningPlanId,planId);
+        return remove(queryWrapper);
+    }
 }

@@ -146,11 +146,6 @@ public class StudentBizService {
 
         // 封装DTO
         for (StudentDTO student : students) {
-            TwoTuple<Integer, String> tuple = StatUtil.getAge(student.getBirthday());
-            if (tuple.getFirst() < 6){
-                student.setMyopiaLevel(null);
-                student.setScreeningMyopia(null);
-            }
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // 筛查码

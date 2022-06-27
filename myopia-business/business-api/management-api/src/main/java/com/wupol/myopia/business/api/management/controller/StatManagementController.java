@@ -223,6 +223,19 @@ public class StatManagementController {
     }
 
     /**
+     * 筛查结果统计，根据筛查计划删除旧数据重新生成，解决修改数据之后，统计数据存在旧数据问题
+     */
+    @GetMapping("afreshStatistic")
+    public void afreshStatistic(Integer planId){
+        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
+        if (deleteByPlanId){
+            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+        }
+    }
+
+
+
+    /**
      * 筛查结果统计定时任务手动调用 TODO：为了测试方便
      */
     @GetMapping("/triggerAll")
