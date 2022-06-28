@@ -59,25 +59,25 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
 
     private Set<Integer> preProcess(ExportCondition exportCondition) {
+        Set<Integer> sets = Sets.newHashSet();
         //区域预处理
         if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.District)){
-
+            sets.add(ScreeningTypeEnum.VISION.getType());
+            sets.add(ScreeningTypeEnum.COMMON_DISEASE.getType());
+            return sets;
         }
         //学校预处理
         if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.SCHOOL)){
-
             List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId());
-            Set<Integer> sets = Sets.newHashSet();
             if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
                 sets.add(SchoolAge.KINDERGARTEN.code);
             }
             if (!CollectionUtils.isEmpty(statConclusions.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode())).collect(Collectors.toList()))) {
                 sets.add(SchoolAge.PRIMARY.code);
             }
-            return sets;
-        }
 
-        return null;
+        }
+        return sets;
     }
 
     /**
@@ -116,7 +116,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         if (!CollectionUtils.isEmpty(preProcess)){
             preProcess.forEach(schoolAge->generateSchoolVisionReport(exportCondition.getPlanId(),exportCondition.getSchoolId(),fileSavePath,getSchoolVisionName(exportCondition,schoolAge),schoolAge));
         }
-//        generateSchoolCommonDiseaseReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath,getSchoolVisionName(exportCondition));
+        generateSchoolCommonDiseaseReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath,getCommonName(exportCondition,Boolean.TRUE));
     }
 
 
@@ -124,7 +124,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_COMMON_DISEASE, htmlUrlHost, schoolId,planId);
         String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl,fileName, UUID.randomUUID().toString()).getUrl();
         try {
-            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath,fileName).toString()));
         } catch (IOException e) {
             throw new BusinessException("生成学校报告PDF文件异常", e);
         }
@@ -156,15 +156,17 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         }
     }
 
-
     @Override
     public Integer getScreeningType() {
         return ScreeningTypeEnum.COMMON_DISEASE.getType();
     }
 
     private String getName(ExportCondition exportCondition,Integer screeningType){
-
-        return null;
+        if (Objects.equals(screeningType,ScreeningTypeEnum.VISION.getType())){
+            return getDistrictVisionName(exportCondition);
+        }else {
+            return getDistrictCommonDiseaseName(exportCondition);
+        }
     }
 
     /**
