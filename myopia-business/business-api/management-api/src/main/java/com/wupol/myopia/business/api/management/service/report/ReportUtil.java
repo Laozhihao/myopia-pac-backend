@@ -256,4 +256,13 @@ public class ReportUtil {
         vocationalHighList.forEach(table -> table.setItemName(table.getItemName().replace("职", StrUtil.EMPTY)));
         tableList.addAll(vocationalHighList);
     }
+
+    /**
+     * 是否单个学龄
+     * @param statConclusionList 筛查结论数据
+     */
+    public static Boolean singleSchoolAge(List<StatConclusion> statConclusionList){
+        Map<Integer, List<StatConclusion>> schoolMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolAge));
+        return schoolMap.size() <= 1;
+    }
 }

@@ -289,23 +289,24 @@ public class DistrictHeightAndWeightMonitorService {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
         }
+        Boolean singleSchoolAge = ReportUtil.singleSchoolAge(statConclusionList);
         List<HeightAndWeightMonitorTable> tableList = Lists.newArrayList();
-        List<HeightAndWeightMonitorTable> primaryList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
+        List<HeightAndWeightMonitorTable> primaryList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(primaryList)) {
             tableList.addAll(primaryList);
         }
-        List<HeightAndWeightMonitorTable> juniorList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
+        List<HeightAndWeightMonitorTable> juniorList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(juniorList)) {
             tableList.addAll(juniorList);
         }
 
-        List<HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
+        List<HeightAndWeightMonitorTable> vocationalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(vocationalHighList)) {
-            List<HeightAndWeightMonitorTable> normalHighList = changeHeightAndWeightSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code);
+            List<HeightAndWeightMonitorTable> normalHighList = changeHeightAndWeightSchoolAgeNameTable(statConclusionList, SchoolAge.HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 tableList.addAll(normalHighList);
                 tableList.addAll(vocationalHighList);
-                List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH);
+                List<HeightAndWeightMonitorTable> highList = getHeightAndWeightSchoolAgeMergeTable(statConclusionList, 10, ReportConst.HIGH,singleSchoolAge);
                 if (CollectionUtil.isNotEmpty(highList)) {
                     tableList.addAll(highList);
                 }
@@ -314,14 +315,14 @@ public class DistrictHeightAndWeightMonitorService {
             }
 
         } else {
-            List<HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList,  SchoolAge.HIGH.code);
+            List<HeightAndWeightMonitorTable> normalHighList = getHeightAndWeightSchoolAgeTable(statConclusionList,  SchoolAge.HIGH.code,singleSchoolAge);
             if (CollectionUtil.isNotEmpty(normalHighList)) {
                 normalHighList.get(normalHighList.size()-1).setItemName(ReportConst.HIGH);
                 tableList.addAll(normalHighList);
             }
         }
 
-        List<HeightAndWeightMonitorTable> universityList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
+        List<HeightAndWeightMonitorTable> universityList = getHeightAndWeightSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(universityList)) {
             tableList.addAll(universityList);
         }
@@ -330,14 +331,14 @@ public class DistrictHeightAndWeightMonitorService {
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorTableList(tableList);
     }
 
-    private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName) {
+    private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName,Boolean singleSchoolAge) {
         if (Objects.equals(schoolAge, 10)) {
             List<HeightAndWeightMonitorTable> mergeList = Lists.newArrayList();
             List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), SchoolAge.HIGH.code) || Objects.equals(sc.getSchoolAge(), SchoolAge.VOCATIONAL_HIGH.code)).collect(Collectors.toList());
             getHeightAndWeightSchoolAgeTable(conclusionList, itemName, mergeList);
             return mergeList;
         }
-        List<HeightAndWeightMonitorTable> heightAndWeightGradeList = getHeightAndWeightGrade(statConclusionList, schoolAge);
+        List<HeightAndWeightMonitorTable> heightAndWeightGradeList = getHeightAndWeightGrade(statConclusionList, schoolAge,singleSchoolAge);
         if (CollectionUtil.isNotEmpty(heightAndWeightGradeList)) {
             heightAndWeightGradeList.get(heightAndWeightGradeList.size() - 1).setItemName(itemName);
         }
@@ -345,7 +346,7 @@ public class DistrictHeightAndWeightMonitorService {
     }
 
 
-    private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
@@ -356,14 +357,14 @@ public class DistrictHeightAndWeightMonitorService {
             return mergeList;
         }
 
-        return getHeightAndWeightGrade(statConclusionList, schoolAge);
+        return getHeightAndWeightGrade(statConclusionList, schoolAge,singleSchoolAge);
     }
 
-    private List<HeightAndWeightMonitorTable> changeHeightAndWeightSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<HeightAndWeightMonitorTable> changeHeightAndWeightSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
-        List<HeightAndWeightMonitorTable> heightAndWeightGrade = getHeightAndWeightGrade(statConclusionList, schoolAge);
+        List<HeightAndWeightMonitorTable> heightAndWeightGrade = getHeightAndWeightGrade(statConclusionList, schoolAge,singleSchoolAge);
         for (HeightAndWeightMonitorTable table : heightAndWeightGrade) {
             if (table.getItemName().startsWith("高")){
                 table.setItemName("普"+table.getItemName());
@@ -373,19 +374,21 @@ public class DistrictHeightAndWeightMonitorService {
         return heightAndWeightGrade;
     }
 
-    private List<HeightAndWeightMonitorTable> getHeightAndWeightGrade(List<StatConclusion> statConclusionList, Integer schoolAge) {
+    private List<HeightAndWeightMonitorTable> getHeightAndWeightGrade(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        MapUtil.sort(gradeCodeMap);
+        gradeCodeMap = MapUtil.sort(gradeCodeMap);
         List<HeightAndWeightMonitorTable> gradeList = Lists.newArrayList();
         gradeCodeMap.forEach((grade, list) -> {
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(grade);
             getHeightAndWeightSchoolAgeTable(list, gradeCodeEnum.getName(), gradeList);
         });
-        getHeightAndWeightSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        if (Objects.equals(singleSchoolAge,Boolean.FALSE)){
+            getHeightAndWeightSchoolAgeTable(conclusionList, SchoolAge.get(schoolAge).desc, gradeList);
+        }
 
         return gradeList;
     }

@@ -186,10 +186,7 @@ public class SchoolHeightAndWeightMonitorService {
 
         Map<String, List<StatConclusion>> gradeCodeMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, HeightAndWeightNum> heightAndWeightNumMap = Maps.newHashMap();
-        gradeCodeMap.forEach((gradeCode, list) -> {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            ReportUtil.getHeightAndWeightNum(gradeCodeEnum.getName(), list, heightAndWeightNumMap);
-        });
+        gradeCodeMap.forEach((gradeCode, list) -> ReportUtil.getHeightAndWeightNum(ReportUtil.getItemName(gradeCode,SchoolAge.VOCATIONAL_HIGH.code), list, heightAndWeightNumMap));
 
         if (heightAndWeightNumMap.size() >= 2) {
             schoolAgeVariableVO.setOverweightRatio(ReportUtil.getSchoolGradeRatio(heightAndWeightNumMap, HeightAndWeightNum::getOverweightNum, HeightAndWeightNum::getOverweightRatioStr));
