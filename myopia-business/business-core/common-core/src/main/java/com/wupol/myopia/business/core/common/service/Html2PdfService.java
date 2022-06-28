@@ -91,7 +91,7 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public PdfResponseDTO syncGeneratorPdfSpecial(String url, String fileName) {
-        return syncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
+        return syncGeneratorPdfSpecial(url, fileName, UUID.randomUUID().toString());
     }
 
 
@@ -119,9 +119,9 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public PdfResponseDTO syncGeneratorPdfSpecial(String url, String fileName, String uuid) {
-        log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
+        log.info("【同步生成PDF,专用方法】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid,Boolean.TRUE);
-        log.info("【请求node-js服务】：{}", JSONObject.toJSONString(request));
+        log.info("【请求node-js服务,专用方法】：{}", JSONObject.toJSONString(request));
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
