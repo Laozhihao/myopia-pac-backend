@@ -529,26 +529,6 @@ public class CommonReportService {
         return warningSituation;
     }
 
-    /**
-     * 小学及以上整体情况
-     */
-    public PrimaryOverall getPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
-        PrimaryOverall primary = new PrimaryOverall();
-        primary.setTables(Lists.newArrayList(tables));
-        if (isShowInfo(tables, false)) {
-            PrimaryOverall.Info info = new PrimaryOverall.Info();
-            info.setLowVision(highLowProportionService.getMaxMin(countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion())));
-            info.setMyopia(highLowProportionService.getMaxMin(countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion())));
-            info.setEarlyMyopia(highLowProportionService.getMaxMin(countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion())));
-            info.setLightMyopia(highLowProportionService.getMaxMin(countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion())));
-            info.setHighMyopia(highLowProportionService.getMaxMin(countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion())));
-            info.setRecommendDoctor(highLowProportionService.getMaxMin(countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
-            info.setOwe(highLowProportionService.getMaxMin(countAndProportionService.underAndUncorrected(statConclusions).getProportion(), tables, s -> Float.valueOf(s.getOweProportion())));
-            primary.setInfo(info);
-        }
-        return primary;
-    }
-
     public PrimaryOverall getAreaPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
         PrimaryOverall primary = new PrimaryOverall();
         primary.setTables(Lists.newArrayList(tables));
@@ -738,9 +718,9 @@ public class CommonReportService {
         table.setVisionInfo(statConclusion.getIsLowVision());
         if (Objects.nonNull(statConclusion.getId())) {
             if (isk) {
-                table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel()));
+                table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel(), result));
             } else {
-                table.setRefractiveInfo(pVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia()));
+                table.setRefractiveInfo(pVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
             }
         }
         table.setMyopiaCorrection(VisionCorrection.getDesc(statConclusion.getVisionCorrection()));
@@ -751,7 +731,10 @@ public class CommonReportService {
         return table;
     }
 
-    private String pVisionAnalyze(Boolean isMyopia, Boolean isAstigmatism, Boolean isHyperopia) {
+    private String pVisionAnalyze(Boolean isMyopia, Boolean isAstigmatism, Boolean isHyperopia, VisionScreeningResult visionScreeningResult) {
+        if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
+            return StringUtils.EMPTY;
+        }
         List<String> result = new ArrayList<>();
         if (Objects.equals(isMyopia, Boolean.TRUE)) {
             result.add("近视");
@@ -768,8 +751,10 @@ public class CommonReportService {
         return result.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 
-    private String kVisionAnalyze(Boolean isRefractiveError, Integer warningLevel) {
-
+    private String kVisionAnalyze(Boolean isRefractiveError, Integer warningLevel, VisionScreeningResult visionScreeningResult) {
+        if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
+            return StringUtils.EMPTY;
+        }
         boolean isZeroSp = WarningLevel.ZERO_SP.code.equals(warningLevel);
         if (Objects.equals(isRefractiveError, Boolean.FALSE) && !isZeroSp) {
             return "正常";

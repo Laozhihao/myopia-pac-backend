@@ -88,6 +88,9 @@ public class ScreeningAreaReportService {
     @Resource
     private ThreadPoolTaskExecutor executor;
 
+    @Resource
+    private StackedChartService stackedChartService;
+
     public ScreeningAreaReportDTO generateReport(Integer noticeId, Integer districtId) {
         List<Integer> childDistrictIds;
         childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
@@ -691,11 +694,7 @@ public class ScreeningAreaReportService {
             SchoolScreeningInfo.Kindergarten kindergarten = new SchoolScreeningInfo.Kindergarten();
             List<KindergartenScreeningInfoTable> kTables = screeningReportTableService.kindergartenScreeningInfoTables(kList, total);
             kindergarten.setTables(kTables);
-            kindergarten.setLowVision(highLowProportionService.getHighLow(kTables, s -> Float.valueOf(s.getLowVisionProportion())));
-            kindergarten.setInsufficient(highLowProportionService.getHighLow(kTables, s -> Float.valueOf(s.getInsufficientProportion())));
-            kindergarten.setRefractiveError(highLowProportionService.getHighLow(kTables, s -> Float.valueOf(s.getRefractiveErrorProportion())));
-            kindergarten.setAnisometropia(highLowProportionService.getHighLow(kTables, s -> Float.valueOf(s.getAnisometropiaProportion())));
-            kindergarten.setRecommendDoctor(highLowProportionService.getHighLow(kTables, s -> Float.valueOf(s.getRecommendDoctorProportion())));
+            kindergarten.setCharts(stackedChartService.getKindergartenOverallChart(kTables, statConclusions, total));
             schoolScreeningInfo.setKindergarten(kindergarten);
         }
         if (!CollectionUtils.isEmpty(pList)) {

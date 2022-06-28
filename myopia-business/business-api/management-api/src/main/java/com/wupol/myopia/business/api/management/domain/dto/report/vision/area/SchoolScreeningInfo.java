@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PrimaryOverall;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.StackedChart;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,30 +31,8 @@ public class SchoolScreeningInfo {
     @Getter
     @Setter
     public static class Kindergarten {
-        /**
-         * 视力低常
-         */
-        private HighLowProportion lowVision;
 
-        /**
-         * 远视储备不足
-         */
-        private HighLowProportion insufficient;
-
-        /**
-         * 屈光不正
-         */
-        private HighLowProportion refractiveError;
-
-        /**
-         * 屈光参差
-         */
-        private HighLowProportion anisometropia;
-
-        /**
-         * 建议就诊
-         */
-        private HighLowProportion recommendDoctor;
+        private List<StackedChart> charts;
 
         /**
          * 表格

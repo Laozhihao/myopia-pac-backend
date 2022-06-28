@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service.report;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.KindergartenScreeningInfoTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.PrimaryScreeningInfoTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.StackedChart;
@@ -26,7 +27,6 @@ public class StackedChartService {
     private CountAndProportionService countAndProportionService;
 
     public List<StackedChart> getOverallChart(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
-
         return Lists.newArrayList(generateOverallChartDetail("视力低下", countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
                 generateOverallChartDetail("近视", countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion()), PrimaryScreeningInfoTable::getMyopiaProportion),
                 generateOverallChartDetail("近视前期", countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion()), PrimaryScreeningInfoTable::getEarlyMyopiaProportion),
@@ -35,7 +35,18 @@ public class StackedChartService {
                 generateOverallChartDetail("建议就诊", countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion()), PrimaryScreeningInfoTable::getRecommendDoctorProportion));
     }
 
-    private  <T extends CommonTable> StackedChart generateOverallChartDetail(String name, String proportion, List<T> tables, Function<T, Float> comparingFunction, Function<T, String> getLowVisionProportionList) {
+    public List<StackedChart> getKindergartenOverallChart(List<KindergartenScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
+        if (CollectionUtils.isEmpty(tables)) {
+            return null;
+        }
+        return Lists.newArrayList(generateOverallChartDetail("视力低常", countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion()), KindergartenScreeningInfoTable::getLowVisionProportion),
+                generateOverallChartDetail("远视储备不足", countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getInsufficientProportion()), KindergartenScreeningInfoTable::getInsufficientProportion),
+                generateOverallChartDetail("屈光不正", countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRefractiveErrorProportion()), KindergartenScreeningInfoTable::getRefractiveErrorProportion),
+                generateOverallChartDetail("屈光参差", countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getAnisometropiaProportion()), KindergartenScreeningInfoTable::getAnisometropiaProportion),
+                generateOverallChartDetail("建议就诊", countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion()), KindergartenScreeningInfoTable::getRecommendDoctorProportion));
+    }
+
+    private <T extends CommonTable> StackedChart generateOverallChartDetail(String name, String proportion, List<T> tables, Function<T, Float> comparingFunction, Function<T, String> getLowVisionProportionList) {
         if (CollectionUtils.isEmpty(tables)) {
             return new StackedChart();
         }
@@ -47,9 +58,5 @@ public class StackedChartService {
 
     private String getStringValue(Float f) {
         return String.format("%.2f", f);
-    }
-
-    public List<String> a() {
-        return Lists.newArrayList("视力低下", "近视", "近视前期", "低度近视", "高度近视", "建议就诊");
     }
 }
