@@ -67,6 +67,8 @@ public class PdfRequestDTO {
         private String headerTemplate;
         private String footerTemplate;
         private String margin;
+        private String selector;
+        private Integer timeout;
     }
 
 }

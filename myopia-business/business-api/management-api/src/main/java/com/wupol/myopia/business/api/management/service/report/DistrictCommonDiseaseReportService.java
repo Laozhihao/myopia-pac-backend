@@ -187,6 +187,10 @@ public class DistrictCommonDiseaseReportService {
                 itemList.add(ReportConst.HIGH);
                 continue;
             }
+            if (Objects.equals(type,SchoolAge.UNIVERSITY.code)){
+                itemList.add("综合性大学");
+                continue;
+            }
             itemList.add(desc);
         }
         globalVariableVO.setSchoolItem(itemList);
