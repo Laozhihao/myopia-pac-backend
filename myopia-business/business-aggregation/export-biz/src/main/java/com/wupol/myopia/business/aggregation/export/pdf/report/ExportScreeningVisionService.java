@@ -54,7 +54,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     @Resource
     private SchoolService schoolService;
 
-    private static final String abc = "筛查报告-视力分析";
+    private static final String EXPORT_FILE_NAME = "筛查报告-视力分析";
 
 
     @Override
@@ -66,11 +66,11 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     public String getFileName(ExportCondition exportCondition) {
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)) {
             String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
-            return districtName + abc;
+            return districtName + EXPORT_FILE_NAME;
         }
 
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
-            return schoolService.getById(exportCondition.getSchoolId()).getName() + abc;
+            return schoolService.getById(exportCondition.getSchoolId()).getName() + EXPORT_FILE_NAME;
         }
         return StrUtil.EMPTY;
     }
