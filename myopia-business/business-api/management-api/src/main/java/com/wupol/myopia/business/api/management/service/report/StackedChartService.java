@@ -28,11 +28,11 @@ public class StackedChartService {
     public List<StackedChart> getOverallChart(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
 
         return Lists.newArrayList(generateOverallChartDetail("视力低下", countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
-                generateOverallChartDetail("近视", countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
-                generateOverallChartDetail("近视前期", countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
-                generateOverallChartDetail("低度近视", countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
-                generateOverallChartDetail("高度近视", countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion()), PrimaryScreeningInfoTable::getLowVisionProportion),
-                generateOverallChartDetail("建议就诊", countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion()), PrimaryScreeningInfoTable::getLowVisionProportion));
+                generateOverallChartDetail("近视", countAndProportionService.myopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getMyopiaProportion()), PrimaryScreeningInfoTable::getMyopiaProportion),
+                generateOverallChartDetail("近视前期", countAndProportionService.earlyMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getEarlyMyopiaProportion()), PrimaryScreeningInfoTable::getEarlyMyopiaProportion),
+                generateOverallChartDetail("低度近视", countAndProportionService.lightMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLightMyopiaProportion()), PrimaryScreeningInfoTable::getLightMyopiaProportion),
+                generateOverallChartDetail("高度近视", countAndProportionService.highMyopia(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getHighMyopiaProportion()), PrimaryScreeningInfoTable::getHighMyopiaProportion),
+                generateOverallChartDetail("建议就诊", countAndProportionService.getRecommendDoctor(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getRecommendDoctorProportion()), PrimaryScreeningInfoTable::getRecommendDoctorProportion));
     }
 
     private  <T extends CommonTable> StackedChart generateOverallChartDetail(String name, String proportion, List<T> tables, Function<T, Float> comparingFunction, Function<T, String> getLowVisionProportionList) {
