@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseaseNumDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -16,7 +18,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_stat_conclusion")
+@TableName(value = "m_stat_conclusion", autoResultMap = true)
 public class StatConclusion implements Serializable {
     /** id */
     @TableId(value = "id", type = IdType.AUTO)
@@ -305,4 +307,9 @@ public class StatConclusion implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer screeningMyopia;
 
+    /**
+     * 疾病统计数
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED,typeHandler = JacksonTypeHandler.class)
+    private DiseaseNumDO diseaseNum;
 }

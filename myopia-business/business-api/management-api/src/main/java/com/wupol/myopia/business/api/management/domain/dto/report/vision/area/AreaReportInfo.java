@@ -3,8 +3,6 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-
 /**
  * 视力筛查-幼儿园报告
  *

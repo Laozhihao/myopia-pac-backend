@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import cn.hutool.core.util.StrUtil;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -15,6 +16,7 @@ import java.util.Optional;
  *
  * @author hang.yuan 2022/5/10 09:41
  */
+@UtilityClass
 @Slf4j
 public class RequestUtil {
 

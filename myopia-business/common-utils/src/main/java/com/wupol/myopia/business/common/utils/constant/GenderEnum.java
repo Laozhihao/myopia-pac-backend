@@ -38,15 +38,15 @@ public enum GenderEnum {
 
     /** 获取性别名称 */
     public static String getName(Integer type) {
-        if (MALE.type.equals(type)) return MALE.desc;
-        if (FEMALE.type.equals(type)) return FEMALE.desc;
+        if (MALE.type.equals(type)) {return MALE.desc;}
+        if (FEMALE.type.equals(type)) {return FEMALE.desc;}
         return UNKNOWN.desc;
     }
 
     /** 获取性别对应数值 */
     public static Integer getType(String name) {
-        if (MALE.desc.equals(name) || MALE.enDesc.equals(name)) return MALE.type;
-        if (FEMALE.desc.equals(name) || FEMALE.enDesc.equals(name)) return FEMALE.type;
+        if (MALE.desc.equals(name) || MALE.enDesc.equals(name)) {return MALE.type;}
+        if (FEMALE.desc.equals(name) || FEMALE.enDesc.equals(name)) {return FEMALE.type;}
         return UNKNOWN.type;
     }
 

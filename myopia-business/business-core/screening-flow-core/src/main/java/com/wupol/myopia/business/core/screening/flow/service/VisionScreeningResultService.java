@@ -373,8 +373,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getRescreenBySchoolIds(planId, schoolIds);
     }
 
-    ;
-
     /**
      * 通过筛查学生查询初筛筛查结果
      *
@@ -451,4 +449,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getByIds(ids);
     }
 
+    public int selectScreeningResultByDistrictIdAndTaskId(List<Integer> districtIds, List<Integer> taskIds) {
+        return baseMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
+    }
 }

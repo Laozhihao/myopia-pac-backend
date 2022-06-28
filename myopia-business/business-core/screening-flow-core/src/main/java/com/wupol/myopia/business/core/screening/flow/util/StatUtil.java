@@ -121,22 +121,6 @@ public class StatUtil {
         //屈光
         Optional.ofNullable(visionScreeningResult.getComputerOptometry()).ifPresent(computerOptometry-> cooperativeSet.add(computerOptometry.getIsCooperative()));
 
-        if (Objects.equals(visionScreeningResult.getScreeningType(),ScreeningTypeEnum.VISION.getType())){
-            //生物测量
-            Optional.ofNullable(visionScreeningResult.getBiometricData()).ifPresent(biometricData-> cooperativeSet.add(biometricData.getIsCooperative()));
-            //33cm眼位
-            Optional.ofNullable(visionScreeningResult.getOcularInspectionData()).ifPresent(ocularInspectionData-> cooperativeSet.add(ocularInspectionData.getIsCooperative()));
-            //眼压
-            Optional.ofNullable(visionScreeningResult.getEyePressureData()).ifPresent(eyePressureData-> cooperativeSet.add(eyePressureData.getIsCooperative()));
-            //眼底
-            Optional.ofNullable(visionScreeningResult.getFundusData()).ifPresent(fundusData-> cooperativeSet.add(fundusData.getIsCooperative()));
-            //裂隙灯检查
-            Optional.ofNullable(visionScreeningResult.getSlitLampData()).ifPresent(slitLampData-> cooperativeSet.add(slitLampData.getIsCooperative()));
-            //小瞳验光
-            Optional.ofNullable(visionScreeningResult.getPupilOptometryData()).ifPresent(pupilOptometryData-> cooperativeSet.add(pupilOptometryData.getIsCooperative()));
-            //盲及视力损害分类
-            Optional.ofNullable(visionScreeningResult.getVisualLossLevelData()).ifPresent(visualLossLevelData-> cooperativeSet.add(visualLossLevelData.getIsCooperative()));
-        }
 
         if (CollectionUtil.isNotEmpty(cooperativeSet)){
             if (cooperativeSet.size() == 1) {
@@ -214,8 +198,8 @@ public class StatUtil {
     }
 
     /**
-     * 平均视力 (初筛数据完整才使用)
-     * @param statConclusions 筛查结论数据集合
+     * 平均视力（左/右） (初筛数据完整才使用)
+     * @param statConclusions
      */
     public static TwoTuple<BigDecimal,BigDecimal> calculateAverageVision(List<StatConclusion> statConclusions) {
         statConclusions = statConclusions.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsValid())).collect(Collectors.toList());
@@ -233,6 +217,14 @@ public class StatUtil {
         return TwoTuple.of(avgVisionL,avgVisionR);
     }
 
+    /**
+     * 平均视力 (初筛数据完整才使用)
+     */
+    public static BigDecimal averageVision(List<StatConclusion> statConclusions) {
+        List<BigDecimal> visionList = statConclusions.stream().flatMap(sc->Lists.newArrayList(sc.getVisionL(),sc.getVisionR()).stream()).filter(Objects::nonNull).collect(Collectors.toList());
+        double sumVision = visionList.stream().mapToDouble(BigDecimal::doubleValue).sum();
+        return BigDecimalUtil.divide(String.valueOf(sumVision), String.valueOf(visionList.size()),1);
+    }
 
     /**
      * 是否近视
@@ -517,8 +509,8 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(leftNakedVision,rightNakedVision,isWearGlasses)){
             return null;
         }
-        if (BigDecimalUtil.lessThan(leftNakedVision,nakedVision)
-                ||BigDecimalUtil.lessThan(rightNakedVision,nakedVision)){
+        if (BigDecimalUtil.lessThanAndEqual(leftNakedVision,nakedVision)
+                ||BigDecimalUtil.lessThanAndEqual(rightNakedVision,nakedVision)){
 
             return correctionWearGlasses(leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
         }
@@ -1605,13 +1597,13 @@ public class StatUtil {
      * @param gender 性别
      * @param age    年龄
      */
-    public static boolean isHighBloodPressure(Integer sbp, Integer dbp, Integer gender, Integer age) {
+    public static boolean isHighBloodPressure(Integer sbp, Integer dbp, Integer gender, Integer age,BigDecimal height) {
         if (age >= 7 && age <= 17) {
-            StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender);
-            return sbp >= bloodPressureData.getSbp() && dbp >= bloodPressureData.getDbp();
+            StandardTableData.BloodPressureData bloodPressureData = StandardTableData.getBloodPressureData(age, gender,height);
+            return sbp >= bloodPressureData.getSbp() || dbp >= bloodPressureData.getDbp();
         }
         if (age >= 18) {
-            return sbp >= 140 && dbp >= 90;
+            return sbp >= 140 || dbp >= 90;
         }
 
         return Boolean.FALSE;
@@ -1675,14 +1667,24 @@ public class StatUtil {
             return null;
         }
 
-        List<WarningLevel> warningLevelList = Lists.newArrayList();
-
         if (Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
-            //裸眼视力
-            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
-            warningLevelList.add(StatUtil.myopiaLevelInsufficient(spn, cyl));
 
-        }else {
+            WarningLevel warningLevel = StatUtil.myopiaLevelInsufficient(spn, cyl);
+            if (Objects.isNull(warningLevel)){
+                //裸眼视力
+                return StatUtil.nakedVision(nakedVision, age);
+            }
+            //0级预警（远视储备不足）优先级大于 0级预警
+            WarningLevel nakedVisionWarningLevel = StatUtil.nakedVision(nakedVision, age);
+            if (Objects.isNull(nakedVisionWarningLevel) || Objects.equals(nakedVisionWarningLevel,WarningLevel.ZERO)){
+                return warningLevel;
+            }
+            return nakedVisionWarningLevel;
+
+        }
+
+        List<WarningLevel> warningLevelList = Lists.newArrayList();
+        if (!Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
             //裸眼视力
             warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
             //近视
@@ -1691,9 +1693,7 @@ public class StatUtil {
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
             //远视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 2));
-
         }
-
         return warningLevelList.stream().filter(Objects::nonNull).max(Comparator.comparing(WarningLevel::getCode)).orElse(null);
 
     }
@@ -1705,7 +1705,7 @@ public class StatUtil {
                                    Boolean isAstigmatism,Boolean isObesity,Boolean isOverweight,
                                    Boolean isMalnutrition,Boolean isStunting,Boolean isSpinalCurvature) {
         List<Boolean> isReviewList =Lists.newArrayList();
-        Consumer<Boolean> consumerTrue = (flag) -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
+        Consumer<Boolean> consumerTrue = flag -> isReviewList.add(Objects.equals(Boolean.TRUE, flag));
 
         Optional.ofNullable(isLowVision).ifPresent(consumerTrue);
         Optional.ofNullable(isMyopia).ifPresent(consumerTrue);

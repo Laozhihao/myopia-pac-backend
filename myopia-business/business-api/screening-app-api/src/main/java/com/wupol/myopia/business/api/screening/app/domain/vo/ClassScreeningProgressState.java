@@ -1,18 +1,10 @@
 package com.wupol.myopia.business.api.screening.app.domain.vo;
 
-import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Description 复测情况

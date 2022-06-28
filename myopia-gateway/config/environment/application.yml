@@ -163,3 +163,6 @@ white-list:
   - "/management/report/screening/areaReport"
   - "/management/report/screening/primaryReport"
   - "/management/report/screening/kindergartenReport"
+  # 按区域/学校常见病报告
+  - "/management/report/districtCommonDiseaseReport"
+  - "/management/report/schoolCommonDiseaseReport"

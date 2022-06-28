@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonTable;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import lombok.Getter;
 import lombok.Setter;
 

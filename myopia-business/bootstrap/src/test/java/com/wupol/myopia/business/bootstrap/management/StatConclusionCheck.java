@@ -934,8 +934,11 @@ public class StatConclusionCheck {
                 TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
                 HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
                 Boolean wasting = StatUtil.isWasting(heightAndWeightData.getBmi(), ageTuple.getSecond(), screeningPlanSchoolStudent.getGender());
+                if(Objects.isNull(wasting)){
+                    return null;
+                }
                 Boolean stunting = StatUtil.isStunting(screeningPlanSchoolStudent.getGender(), ageTuple.getSecond(), heightAndWeightData.getHeight());
-                if (ObjectsUtil.hasNull(wasting,stunting)){
+                if (Objects.isNull(stunting)){
                     return null;
                 }
                 return wasting && stunting;
@@ -970,7 +973,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getSpinalCurvature(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getSpineData());
@@ -989,20 +992,27 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getBloodPressure(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().filter(tuple -> {
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 return Objects.nonNull(visionScreeningResult.getBloodPressureData());
             }).map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 BloodPressureDataDO bloodPressureData = tuple.getSecond().getBloodPressureData();
+                HeightAndWeightDataDO heightAndWeightData = tuple.getSecond().getHeightAndWeightData();
+                if (Objects.equals(SchoolAge.KINDERGARTEN.code,screeningPlanSchoolStudent.getGradeType()) || Objects.isNull(bloodPressureData)){
+                    return null;
+                }
+                if (Objects.isNull(heightAndWeightData) || Objects.isNull(heightAndWeightData.getHeight())){
+                    return null;
+                }
                 TwoTuple<Integer, String> ageTuple = StatUtil.getAge(screeningPlanSchoolStudent.getBirthday());
                 Integer age = ageTuple.getFirst();
                 if (age < 7){
                     age = 7;
                 }
-                return StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age);
-            }).collect(Collectors.toList());
+                return StatUtil.isHighBloodPressure(bloodPressureData.getSbp().intValue(), bloodPressureData.getDbp().intValue(), screeningPlanSchoolStudent.getGender(), age,null);
+            }).filter(Objects::nonNull).collect(Collectors.toList());
             return TwoTuple.of(tupleList.size(),MathUtil.ratio(tupleList.size(),commonDiseaseScreeningNum.size()));
         }
         return null;
@@ -1013,7 +1023,7 @@ public class StatConclusionCheck {
      */
     private TwoTuple<Integer,String> getReview(Integer planId){
         List<ThreeTuple<ScreeningPlanSchoolStudent, VisionScreeningResult, String>> commonDiseaseScreeningNum = getCommonDiseaseScreeningNum(planId);
-        if (CollectionUtil.isNotEmpty(commonDiseaseScreeningNum)){
+        if (!CollectionUtils.isEmpty(commonDiseaseScreeningNum)){
             List<Boolean> tupleList = commonDiseaseScreeningNum.stream().map(tuple -> {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
