@@ -14,9 +14,9 @@ import java.util.Arrays;
 @Getter
 public enum SchoolTypeEnum {
 
-    KINDERGARTEN(1, "幼儿园"),
-    PRIMARY_AND_SECONDARY(2, "中小学"),
-    UNIVERSITY(3, "大学");
+    PRIMARY_AND_SECONDARY(1, "中小学"),
+    UNIVERSITY(2, "大学"),
+    KINDERGARTEN(3, "幼儿园");
 
     private Integer type;
     private String desc;
