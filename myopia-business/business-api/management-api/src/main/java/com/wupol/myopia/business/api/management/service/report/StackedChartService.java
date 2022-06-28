@@ -36,7 +36,7 @@ public class StackedChartService {
     }
 
     public List<StackedChart> getKindergartenOverallChart(List<KindergartenScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
-        if (CollectionUtils.isEmpty(tables)) {
+        if (CollectionUtils.isEmpty(tables) || tables.size() < 2) {
             return null;
         }
         return Lists.newArrayList(generateOverallChartDetail("视力低常", countAndProportionService.lowVision(statConclusions, total).getProportion(), tables, s -> Float.valueOf(s.getLowVisionProportion()), KindergartenScreeningInfoTable::getLowVisionProportion),
