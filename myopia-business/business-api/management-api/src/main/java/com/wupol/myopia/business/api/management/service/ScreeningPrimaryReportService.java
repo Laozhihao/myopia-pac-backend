@@ -110,12 +110,12 @@ public class ScreeningPrimaryReportService {
             reportDTO.setOveralls(classOveralls);
             return classOveralls;
         }, executor);
-        CompletableFuture<List<ClassScreeningData>> c5 = CompletableFuture.supplyAsync(() -> {
-            List<ClassScreeningData> classScreeningData = commonReportService.generateClassScreeningData(school, plan, false);
-            reportDTO.setClassScreeningData(classScreeningData);
-            return classScreeningData;
-        }, executor);
-        CompletableFuture.allOf(c1, c2, c3, c4, c5).join();
+//        CompletableFuture<List<ClassScreeningData>> c5 = CompletableFuture.supplyAsync(() -> {
+//            List<ClassScreeningData> classScreeningData = commonReportService.generateClassScreeningData(school, plan, false);
+//            reportDTO.setClassScreeningData(classScreeningData);
+//            return classScreeningData;
+//        }, executor);
+        CompletableFuture.allOf(c1, c2, c3, c4).join();
         return reportDTO;
     }
 
