@@ -74,7 +74,6 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         Assert.notNull(exportCondition.getType(), BizMsgConstant.EXPORT_TYPE_IS_NULL);
-        Assert.notNull(exportCondition.getScreeningType(), BizMsgConstant.SCREENING_TYPE_IS_NULL);
         Assert.notNull(exportCondition.getDistrictId(), BizMsgConstant.DISTRICT_ID_IS_NULL);
         Assert.notNull(exportCondition.getNotificationId(), BizMsgConstant.NOTICE_ID_IS_NULL);
 
