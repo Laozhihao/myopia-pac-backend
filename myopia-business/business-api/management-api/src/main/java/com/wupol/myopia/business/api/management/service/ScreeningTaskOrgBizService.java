@@ -209,7 +209,7 @@ public class ScreeningTaskOrgBizService {
             if (plan != null){
                 Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(plan.getId());
                 List<ScreeningPlanSchool> screeningPlanSchools = planSchoolGroupByPlanIdMap.get(plan.getId());
-                if (!screeningPlanSchools.isEmpty()){
+                if (!CollectionUtils.isEmpty(screeningPlanSchools)){
                     dto.setScreeningPlanSchools(getScreeningPlanSchools(screeningPlanSchools, schoolIdStudentCountMap, plan));
                 }
             }
