@@ -54,7 +54,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     @Resource
     private SchoolService schoolService;
 
-    private static final String abc = "筛查报告";
+    private static final String abc = "筛查报告-视力分析";
 
 
     @Override
