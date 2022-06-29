@@ -80,5 +80,6 @@ public class ReportConst {
     public static final String FEMALE ="女生";
     public static final String TOTAL ="合计";
     public static final String HIGH ="高中";
+    public static final String VOCATIONAL_HIGH ="职";
 
 }
