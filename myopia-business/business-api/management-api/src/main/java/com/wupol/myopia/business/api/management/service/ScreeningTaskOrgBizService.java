@@ -144,9 +144,9 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, String> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
         // 批量获取筛查计划信息
         List<ScreeningPlan> screeningPlanList = screeningPlanService.findByList(new ScreeningPlan().setScreeningTaskId(screeningTaskId));
-        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
+        Map<Integer, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
         // 统计每个计划下的筛查学校数量
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(new ArrayList<>(planMap.keySet()));
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         Map<Integer, Long> planSchoolCountMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId, Collectors.counting()));
         // 统计筛查中的学校数量
         List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultService.countScreeningSchoolByTaskId(screeningTaskId);
@@ -158,13 +158,13 @@ public class ScreeningTaskOrgBizService {
             // TODO：调查问卷暂时为0
             dto.setQuestionnaire(getScreeningState(0,0,0,1));
             // TODO：差评，开发调查问卷模块时，优化该模块：学校进度统计仅返回数量，不拼接文字，减少与展示样式的耦合
-            ScreeningPlan screeningPlan = planMap.get(orgVo.getScreeningOrgId());
+            ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             if (screeningPlan == null){
                 return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0,0,0,0));
             }
             int total =  Optional.ofNullable(planSchoolCountMap.get(screeningPlan.getId())).map(Long::intValue).orElse(0);
             return dto.setScreeningSchoolNum(total)
-                    .setScreeningSituation(findByScreeningSituation(total, Optional.of(schoolCountMap.get(screeningPlan.getId())).orElse(0), screeningPlan.getEndTime()));
+                    .setScreeningSituation(findByScreeningSituation(total, Optional.ofNullable(schoolCountMap.get(screeningPlan.getId())).orElse(0), screeningPlan.getEndTime()));
         }).collect(Collectors.toList());
     }
 
@@ -196,20 +196,20 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, String> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
         // 批量获取筛查计划信息
         List<ScreeningPlan> screeningPlanList = screeningPlanService.findByList(new ScreeningPlan().setScreeningTaskId(screeningTaskId));
-        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
+        Map<Integer, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
         // 批量获取筛查学校信息
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(new ArrayList<>(planMap.keySet()));
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         Map<Integer, List<ScreeningPlanSchool>> planSchoolGroupByPlanIdMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId));
         return orgVoLists.stream().map(orgVo -> {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrgNameMap.getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
-            ScreeningPlan plan = planMap.get(orgVo.getScreeningOrgId());
+            ScreeningPlan plan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             // TODO：不在循环内操作数据库
             if (plan != null){
                 Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(plan.getId());
                 List<ScreeningPlanSchool> screeningPlanSchools = planSchoolGroupByPlanIdMap.get(plan.getId());
-                if (!screeningPlanSchools.isEmpty()){
+                if (!CollectionUtils.isEmpty(screeningPlanSchools)){
                     dto.setScreeningPlanSchools(getScreeningPlanSchools(screeningPlanSchools, schoolIdStudentCountMap, plan));
                 }
             }

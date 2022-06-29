@@ -95,7 +95,7 @@
         where id = #{id}
     </update>
 
-    <select id="getByStudentIds" resultMap="BaseResultMap">
+    <select id="getBySchoolIdStudentIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_school_student
@@ -103,6 +103,7 @@
         <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
             #{studentId}
         </foreach>
+        and school_id = #{schoolId}
     </select>
 
     <select id="getByStudentId" resultMap="BaseResultMap">

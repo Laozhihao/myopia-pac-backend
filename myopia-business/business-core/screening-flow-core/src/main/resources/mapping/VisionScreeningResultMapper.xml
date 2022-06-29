@@ -231,7 +231,7 @@
     <select id="countScreeningSchoolByTaskId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount">
         SELECT
                plan_id,
-               count( * ) AS screening_school_count
+               count( * ) AS school_count
         FROM
              ( SELECT plan_id, school_id FROM m_vision_screening_result WHERE task_id = #{taskId} GROUP BY plan_id, school_id ) temp
         GROUP BY

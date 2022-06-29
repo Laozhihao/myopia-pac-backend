@@ -26,8 +26,6 @@ public class BizMsgConstant {
     
     public final String STUDENT_ID_IS_BLANK = "学生ID为空";
 
-    public final String SCREENING_TYPE_IS_NULL = "筛查业务类型为空";
-
     public final String EXPORT_TYPE_IS_NULL = "导出类型为空";
 
     public final String VALIDATION_START_TIME_ERROR = "筛查开始时间不能早于今天";
