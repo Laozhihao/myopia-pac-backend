@@ -68,8 +68,8 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param studentIds 学生ids
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds) {
-        return baseMapper.getByStudentIds(studentIds);
+    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds, Integer schoolId) {
+        return baseMapper.getBySchoolIdStudentIds(studentIds, schoolId);
     }
 
     /**

@@ -21,7 +21,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,9 +45,6 @@ public class VisionScreeningService {
 
     @Resource
     private ScreeningPlanService screeningPlanService;
-
-    @Resource
-    private SchoolMonitorStatisticService schoolMonitorStatisticService;
 
     @Resource
     private StatConclusionService statConclusionService;
@@ -76,6 +72,7 @@ public class VisionScreeningService {
      *
      * @param pageRequest 分页请求
      * @param schoolId    学校Id
+     *
      * @return IPage<ScreeningListResponseDTO>
      */
     public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest, Integer schoolId) {
@@ -155,6 +152,7 @@ public class VisionScreeningService {
      * @param pageRequest 分页请求
      * @param requestDTO  入参
      * @param schoolId    学校Id
+     *
      * @return IPage<StudentTrackWarningResponseDTO>
      */
     public IPage<StudentTrackWarningResponseDTO> getTrackList(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO, Integer schoolId) {
@@ -170,7 +168,7 @@ public class VisionScreeningService {
                 .collect(Collectors.toMap(MedicalReport::getId, Function.identity()));
 
         // 学校端学生
-        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream()
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds, schoolId).stream()
                 .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
 
         trackList.forEach(track -> {
