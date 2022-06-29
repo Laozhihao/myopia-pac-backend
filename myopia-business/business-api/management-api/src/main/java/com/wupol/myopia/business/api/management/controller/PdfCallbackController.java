@@ -57,7 +57,11 @@ public class PdfCallbackController {
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
     public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
-        log.info("report callback info:{}", JSONObject.toJSONString(responseDTO));
+
+        if(Objects.equals(responseDTO.getStatus(), Boolean.FALSE))  {
+            log.error("report callback info:{}", JSONObject.toJSONString(responseDTO));
+            return;
+        }
         String uuid = responseDTO.getUuid();
 
         // 通过UUID获取信息
