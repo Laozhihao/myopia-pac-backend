@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -115,6 +114,10 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         Set<Integer> preProcess = preProcess(exportCondition);
         if (!CollectionUtils.isEmpty(preProcess)){
             preProcess.forEach(schoolAge->generateSchoolVisionReport(exportCondition.getPlanId(),exportCondition.getSchoolId(),fileSavePath,getSchoolVisionName(exportCondition,schoolAge),schoolAge));
+        }
+
+        if (!CollectionUtils.isEmpty(preProcess) && Objects.equals(preProcess.size(),1) && preProcess.contains(SchoolAge.KINDERGARTEN.code) ){
+            return;
         }
         generateSchoolCommonDiseaseReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath,getCommonName(exportCondition,Boolean.TRUE));
     }

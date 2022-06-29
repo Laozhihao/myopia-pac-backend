@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
