@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +45,7 @@ public final class DistrictVisionStatisticBuilder {
         double avgRightVision = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).map(BigDecimal::doubleValue).orElse(new Double("0"))).average().orElse(0);
         int validScreeningNumbers = statConclusions.size();
         statistic.setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setDistrictId(districtId).setIsTotal(isTotal)
-                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision)).setAvgRightVision(BigDecimal.valueOf(avgRightVision))
+                .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision).setScale(2, RoundingMode.HALF_UP)).setAvgRightVision(BigDecimal.valueOf(avgRightVision).setScale(2, RoundingMode.HALF_UP))
                 .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
                 .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(MathUtil.divide(myopiaNumber, validScreeningNumbers))
                 .setAmetropiaNumbers(ametropiaNumber).setAmetropiaRatio(MathUtil.divide(ametropiaNumber, validScreeningNumbers))

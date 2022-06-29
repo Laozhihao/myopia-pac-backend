@@ -64,10 +64,6 @@ public class ScheduledTasksExecutor {
     @Autowired
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
     @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private DistrictMonitorStatisticService districtMonitorStatisticService;
-    @Autowired
     private SchoolVisionStatisticService schoolVisionStatisticService;
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
@@ -195,8 +191,8 @@ public class ScheduledTasksExecutor {
         //重点视力对象需统计的是学校所在区域的所有数据，另外统计
 //        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
 //        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
-        districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
-        districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
+//        districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
+//        districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);
         schoolMonitorStatisticService.batchSaveOrUpdate(schoolMonitorStatistics);
     }

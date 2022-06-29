@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
+import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,8 @@ public class OperationAndMaintenanceController {
     private StatConclusionBizService statConclusionBizService;
     @Autowired
     private ScheduledTasksExecutor scheduledTasksExecutor;
+    @Autowired
+    private ScreeningResultStatisticService screeningResultStatisticService;
 
     /**
      * 触发大屏统计
@@ -51,4 +54,30 @@ public class OperationAndMaintenanceController {
         scheduledTasksExecutor.statistic(null,planId,isAll);
     }
 
+    /**
+     * 筛查结果转换筛查结论数据，解决了录入筛查结果数据正常，筛查结论数据有误，修改规则后可以更新结论数据
+     */
+    @GetMapping("afreshScreeningToConclusion")
+    public void afreshScreeningToConclusion(Integer planId){
+        statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE);
+    }
+
+    /**
+     * 筛查结果统计，根据筛查计划删除旧数据重新生成，解决修改数据之后，统计数据存在旧数据问题
+     */
+    @GetMapping("afreshStatistic")
+    public void afreshStatistic(Integer planId){
+        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
+        if (deleteByPlanId){
+            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+        }
+    }
+
+    /**
+     * 筛查结果统计定时任务手动调用 TODO：为了测试方便
+     */
+    @GetMapping("/triggerAll")
+    public void statTaskTrigger() {
+        scheduledTasksExecutor.statistic();
+    }
 }
