@@ -10,6 +10,8 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 根据学生id获取筛查计划学校学生
@@ -43,7 +48,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
-        return baseMapper.findByStudentId(studentId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByStudentId(studentId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -73,7 +79,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -93,7 +100,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId) {
@@ -106,7 +114,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, screeningOrgId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeId, gradeId);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId, Integer channel) {
@@ -119,7 +128,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, screeningOrgId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeId, gradeId);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
 
@@ -141,13 +151,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.findByPlanId(screeningPlanId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanId(screeningPlanId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanIds);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -167,7 +179,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.findByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -311,7 +324,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 查询学生
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).orderByDesc(ScreeningPlanSchoolStudent::getCreateTime);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -330,7 +344,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         // 查询学生
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).orderByDesc(ScreeningPlanSchoolStudent::getCreateTime);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -345,8 +360,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(
-                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
+        return results.stream()
+                .map(planSchoolStudent -> {
+                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
+                    return planSchoolStudent;
+                })
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 
     /**
@@ -361,9 +381,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(
-                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
+        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
+        return results.stream()
+                .map(planSchoolStudent -> {
+                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
+                    return planSchoolStudent;
+                })
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
     }
+
 
     /**
      * 根据筛查任务Id获取筛查学校所在层级的计划筛查学生总数
@@ -377,8 +403,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(
-                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
+        return results.stream()
+                .map(planSchoolStudent -> {
+                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
+                    return planSchoolStudent;
+                })
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 
     /**
@@ -393,8 +424,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollectionUtils.isEmpty(results)) {
             return Collections.emptyMap();
         }
-        return results.stream().collect(
-                Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
+        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
+        return results.stream()
+                .map(planSchoolStudent -> {
+                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
+                    return planSchoolStudent;
+                })
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
     }
 
     /**
@@ -420,7 +456,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             default:
                 return Collections.emptyList();
         }
-        return baseMapper.selectList(lambdaQueryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(lambdaQueryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -432,7 +469,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByEntity(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -443,7 +481,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByIds(Set<String> planStudentIdSet) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningPlanSchoolStudent::getId,planStudentIdSet);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -454,7 +493,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningCodes(List<Long> screeningCode, Integer planId) {
-        return baseMapper.getByScreeningCodes(screeningCode, planId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByScreeningCodes(screeningCode, planId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -466,7 +506,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeId(Integer planId, Integer schoolId, Integer gradeId) {
-        return baseMapper.getByPlanIdAndSchoolIdAndGradeId(planId, schoolId, gradeId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByPlanIdAndSchoolIdAndGradeId(planId, schoolId, gradeId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -478,7 +519,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getByStudentIds(List<Integer> studentIds) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ScreeningPlanSchoolStudent::getStudentId, studentIds);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public StudentScreeningProgressVO getStudentScreeningProgress(VisionScreeningResult screeningResult) {
@@ -498,7 +540,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,
                                                                                        Integer gradeId, Integer classId) {
-        return baseMapper.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId, gradeId, classId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -514,7 +557,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     public ScreeningPlanSchoolStudent getOneByStudentName(String name) {
-        return baseMapper.getOneByStudentName(name);
+        ScreeningPlanSchoolStudent planSchoolStudent = baseMapper.getOneByStudentName(name);
+        return setSchoolDistrictId(planSchoolStudent);
     }
 
     /**
@@ -524,7 +568,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return ScreeningPlanSchoolStudent
      */
     public ScreeningPlanSchoolStudent getLastByStudentId(Integer studentId) {
-        return baseMapper.getLastByStudentId(studentId);
+        ScreeningPlanSchoolStudent planSchoolStudent = baseMapper.getLastByStudentId(studentId);
+        return setSchoolDistrictId(planSchoolStudent);
     }
 
     /**
@@ -565,7 +610,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     public List<ScreeningPlanSchoolStudent> getByIdCardAndPassport(String idCard, String passport, Integer id) {
-        return baseMapper.getByIdCardAndPassport(idCard, passport, id);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByIdCardAndPassport(idCard, passport, id);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -609,7 +655,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByIds(List<Integer> ids) {
-        return baseMapper.selectBatchIds(ids);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectBatchIds(ids);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -619,7 +666,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
-        return baseMapper.getByNePlanId(planId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByNePlanId(planId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -629,7 +677,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public ScreeningPlanSchoolStudent getOneByPlanId(Integer planId) {
-        return baseMapper.getOneByPlanId(planId);
+        ScreeningPlanSchoolStudent planSchoolStudent = baseMapper.getOneByPlanId(planId);
+        return setSchoolDistrictId(planSchoolStudent);
     }
 
     public List<GradeClassesDTO> getGradeByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
@@ -656,7 +705,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getReviewStudentList(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-        return baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     /**
@@ -673,11 +723,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent>
      **/
     public List<CommonDiseasePlanStudent> getCommonDiseaseScreeningPlanStudent(Integer schoolId) {
-        return baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
+        List<CommonDiseasePlanStudent> commonDiseasePlanStudents = baseMapper.selectCommonDiseaseScreeningPlanStudent(schoolId);
+        if (CollectionUtils.isEmpty(commonDiseasePlanStudents)){
+            return commonDiseasePlanStudents;
+        }
+        Map<Integer, Integer> schoolDistrictIdMap = getCommonDiseasePlanStudentDistrictIdMap(commonDiseasePlanStudents);
+        commonDiseasePlanStudents.forEach(planSchoolStudent -> Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId));
+        return commonDiseasePlanStudents;
     }
 
     public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(List<Integer> noticeIds, List<Integer> schoolIds) {
-        return baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
 
     }
 
@@ -685,19 +742,69 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId)
                 .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public List<ScreeningPlanSchoolStudent> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,noticeId);
         queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId,districtIds);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
     public List<ScreeningPlanSchoolStudent> getBySchoolId(Integer schoolId) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
-        return baseMapper.selectList(queryWrapper);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
+
+    @Override
+    public ScreeningPlanSchoolStudent findOne(ScreeningPlanSchoolStudent screeningPlanSchoolStudent){
+        ScreeningPlanSchoolStudent planSchoolStudent = super.findOne(screeningPlanSchoolStudent);
+        return setSchoolDistrictId(planSchoolStudent);
+    }
+
+    @Override
+    public ScreeningPlanSchoolStudent getById(Serializable id){
+        ScreeningPlanSchoolStudent planSchoolStudent = super.getById(id);
+        return setSchoolDistrictId(planSchoolStudent);
+    }
+
+    private List<ScreeningPlanSchoolStudent> setSchoolDistrictId(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList){
+        if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
+            return screeningPlanSchoolStudentList;
+        }
+        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(screeningPlanSchoolStudentList);
+        screeningPlanSchoolStudentList.forEach(planSchoolStudent -> Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId));
+        return screeningPlanSchoolStudentList;
+    }
+
+    private ScreeningPlanSchoolStudent setSchoolDistrictId(ScreeningPlanSchoolStudent planSchoolStudent){
+        School school = schoolService.getById(planSchoolStudent.getSchoolId());
+        planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
+        return planSchoolStudent;
+    }
+
+    private Map<Integer,Integer> getSchoolDistrictIdMap(List<ScreeningPlanSchoolStudent> results){
+        Set<Integer> schoolIds = results.stream().map(ScreeningPlanSchoolStudent::getSchoolId).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+        if (CollectionUtils.isEmpty(schoolList)){
+            return Collections.emptyMap();
+        }
+        return schoolList.stream().collect(Collectors.toMap(School::getId,School::getDistrictId));
+    }
+
+    private Map<Integer,Integer> getCommonDiseasePlanStudentDistrictIdMap(List<CommonDiseasePlanStudent> results){
+        Set<Integer> schoolIds = results.stream().map(CommonDiseasePlanStudent::getSchoolId).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+        if (CollectionUtils.isEmpty(schoolList)){
+            return Collections.emptyMap();
+        }
+        return schoolList.stream().collect(Collectors.toMap(School::getId,School::getDistrictId));
+    }
+
+
 }
