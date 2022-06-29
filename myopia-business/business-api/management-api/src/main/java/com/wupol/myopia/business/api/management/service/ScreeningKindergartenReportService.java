@@ -67,7 +67,7 @@ public class ScreeningKindergartenReportService {
         kindergartenReportDTO.setInfo(commonReportService.generateInfo(school, plan));
         kindergartenReportDTO.setOutline(generateKindergartenSchoolOutline(statConclusions, school, plan));
         kindergartenReportDTO.setGeneralVision(generateGeneralVision(statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList())));
-//        kindergartenReportDTO.setClassScreeningData(commonReportService.generateClassScreeningData(school, plan, true));
+        kindergartenReportDTO.setClassScreeningData(commonReportService.generateClassScreeningData(school, plan, true));
         return kindergartenReportDTO;
     }
 

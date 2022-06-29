@@ -56,7 +56,6 @@ public class Html2PdfService {
      */
     public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String uuid) {
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid, Boolean.TRUE);
-        log.info("asyncGeneratorPDF info:{}", JSONObject.toJSONString(request));
         return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
     }
 

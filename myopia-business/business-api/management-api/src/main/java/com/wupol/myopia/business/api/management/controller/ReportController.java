@@ -10,7 +10,6 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStudentScreeningArchivesService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.export.pdf.report.ExportScreeningVisionService;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
@@ -83,9 +82,6 @@ public class ReportController {
 
     @Autowired
     private CommonDiseaseReportService commonDiseaseReportService;
-
-    @Autowired
-    private ExportScreeningVisionService exportScreeningVisionService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -297,14 +293,6 @@ public class ReportController {
     public ApiResult<SchoolCommonDiseaseReportVO> schoolCommonDiseaseReport(@RequestParam Integer schoolId,
                                                                             @RequestParam Integer planId){
         return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId));
-    }
-    @GetMapping("export/test")
-    public void test(Integer planId, Integer schoolId) {
-        ExportCondition exportCondition = new ExportCondition();
-        exportCondition.setPlanId(planId);
-        exportCondition.setSchoolId(schoolId);
-        exportCondition.setExportType(2);
-        exportScreeningVisionService.test(exportCondition);
     }
 
 

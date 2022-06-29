@@ -32,6 +32,9 @@ public class SchoolScreeningInfo {
     @Setter
     public static class Kindergarten {
 
+        /**
+         * 图表
+         */
         private List<StackedChart> charts;
 
         /**

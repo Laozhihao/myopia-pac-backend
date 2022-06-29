@@ -139,20 +139,20 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
-    public void test(ExportCondition exportCondition) {
+    public void asyncExportSchool(ExportCondition exportCondition, Integer userId) {
         Set<Integer> preProcess = preProcess(exportCondition);
         String uuid = UUID.randomUUID().toString();
         PdfGeneratorVO vo = new PdfGeneratorVO();
-        vo.setUserId(101);
+        vo.setUserId(userId);
         vo.setFileName(getFileName(exportCondition));
         vo.setExportTotal(preProcess.size());
         vo.setExportCount(0);
         vo.setFileIds(new ArrayList<>());
         redisUtil.set(uuid, vo);
-        preProcess.forEach(s -> generateReport2(uuid, exportCondition.getPlanId(), exportCondition.getSchoolId(), getName(exportCondition, s), s));
+        preProcess.forEach(s -> asyncGenerateReport(uuid, exportCondition.getPlanId(), exportCondition.getSchoolId(), getName(exportCondition, s), s));
     }
 
-    private void generateReport2(String uuid, Integer planId, Integer schoolId, String fileName, Integer schoolAge) {
+    private void asyncGenerateReport(String uuid, Integer planId, Integer schoolId, String fileName, Integer schoolAge) {
 
 
         String reportHtmlUrl;
