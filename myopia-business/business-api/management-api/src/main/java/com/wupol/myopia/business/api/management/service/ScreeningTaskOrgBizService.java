@@ -196,15 +196,15 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, String> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
         // 批量获取筛查计划信息
         List<ScreeningPlan> screeningPlanList = screeningPlanService.findByList(new ScreeningPlan().setScreeningTaskId(screeningTaskId));
-        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
+        Map<Integer, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
         // 批量获取筛查学校信息
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(new ArrayList<>(planMap.keySet()));
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         Map<Integer, List<ScreeningPlanSchool>> planSchoolGroupByPlanIdMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId));
         return orgVoLists.stream().map(orgVo -> {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrgNameMap.getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
-            ScreeningPlan plan = planMap.get(orgVo.getScreeningOrgId());
+            ScreeningPlan plan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             // TODO：不在循环内操作数据库
             if (plan != null){
                 Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(plan.getId());
