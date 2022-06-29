@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Sets;
+import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -25,10 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +54,9 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     private SchoolService schoolService;
 
     private static final String EXPORT_FILE_NAME = "筛查报告-视力分析";
+
+    @Resource
+    private RedisUtil redisUtil;
 
 
     @Override
@@ -136,4 +138,30 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
     }
+
+    public void test(ExportCondition exportCondition) {
+        Set<Integer> preProcess = preProcess(exportCondition);
+        String uuid = UUID.randomUUID().toString();
+        PdfGeneratorVO vo = new PdfGeneratorVO();
+        vo.setUserId(101);
+        vo.setFileName(getFileName(exportCondition));
+        vo.setExportTotal(preProcess.size());
+        vo.setExportCount(0);
+        vo.setFileIds(new ArrayList<>());
+        redisUtil.set(uuid, vo);
+        preProcess.forEach(s -> generateReport2(uuid, exportCondition.getPlanId(), exportCondition.getSchoolId(), getName(exportCondition, s), s));
+    }
+
+    private void generateReport2(String uuid, Integer planId, Integer schoolId, String fileName, Integer schoolAge) {
+
+
+        String reportHtmlUrl;
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
+        } else {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+        }
+        html2PdfService.asyncGeneratorPDF(reportHtmlUrl, fileName, uuid);
+    }
+
 }

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * PDF生成Redis对象
  *
@@ -24,8 +26,11 @@ public class PdfGeneratorVO {
      */
     private String fileName;
 
-    public PdfGeneratorVO(Integer userId, String fileName) {
-        this.userId = userId;
-        this.fileName = fileName;
-    }
+    private Integer exportTotal;
+
+    private Integer exportCount;
+
+    private List<Integer> fileIds;
+
+    private Integer schoolId;
 }

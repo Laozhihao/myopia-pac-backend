@@ -60,6 +60,24 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
         return fileIdList.stream().map(this::getResourcePath).collect(Collectors.toList());
     }
 
+    public List<TwoTuple<String, String>> getBatchFileNamePath(List<Integer> fileIdList) {
+        if (CollectionUtils.isEmpty(fileIdList)) {
+            return Collections.emptyList();
+        }
+        return fileIdList.stream().map(this::getFileNameResourcePath).collect(Collectors.toList());
+    }
+
+    public TwoTuple<String, String> getFileNameResourcePath(Integer fileId) {
+        if (Objects.isNull(fileId) || fileId < 1) {
+            return null;
+        }
+        ResourceFile file = getById(fileId);
+        if (Objects.isNull(file)) {
+            return null;
+        }
+        return new TwoTuple<>(file.getFileName(),s3Utils.getResourcePath(file.getBucket(), file.getS3Key()));
+    }
+
     /**
      * 上传文件，并保存入库
      *
