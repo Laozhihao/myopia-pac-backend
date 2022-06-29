@@ -97,31 +97,6 @@
         group by grade_id, class_id
     </select>
 
-    <select id="selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId" resultMap="ScreeningStudentDTO">
-        SELECT mspss.student_id     as id,
-               mspss.student_no     as sno,
-               mspss.student_name   as name,
-               mspss.gender,
-               mspss.birthday,
-               mspss.province_code,
-               mspss.city_code,
-               mspss.area_code,
-               mspss.town_code,
-               mspss.address,
-               mspss.id_card,
-               mspss.nation,
-               mspss.parent_phone,
-               mspss.grade_id,
-               mspss.class_id,
-               mspss.id as planSutdhentId,
-               mspss.passport,
-               mspss.screening_code as screeningCode,
-               mspss.id             as planStudentId
-        FROM m_screening_plan_school_student mspss
-        where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId} and grade_id = #{gradeId} and class_id = #{classId}
-        group by grade_id, class_id
-    </select>
-
 
     <select id="selectPageByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
         SELECT mspss.student_id     as id,
@@ -221,46 +196,6 @@
         </where>
     </select>
 
-    <select id="selectListByQuery" resultMap="ScreeningStudentDTO" parameterType="java.util.Map">
-        SELECT mspss.student_id     as id,
-        mspss.student_no     as sno,
-        mspss.student_name   as name,
-        mspss.gender,
-        mspss.birthday,
-        mspss.province_code,
-        mspss.city_code,
-        mspss.area_code,
-        mspss.town_code,
-        mspss.address,
-        mspss.id_card,
-        mspss.nation,
-        mspss.parent_phone,
-        mspss.grade_id,
-        mspss.class_id,
-        mspss.passport,
-        ms.name   as school_name,
-        sg.name   as gradeName,
-        sc.name   as className,
-        mspss.screening_code as screeningCode,
-        mspss.id             as planStudentId
-        FROM m_screening_plan_school_student mspss
-        left join m_school ms on ms.id = mspss.school_id
-        left join m_school_grade sg on sg.id = mspss.grade_id
-        left join m_school_class sc on sc.id = mspss.class_id
-        <where>
-            <trim prefixOverrides="and">
-                AND mspss.screening_plan_id = #{param.screeningPlanId}
-                AND mspss.school_id = #{param.schoolId}
-                <if test="param.gradeId != null and param.gradeId != ''">
-                    and mspss.grade_id = #{param.gradeId}
-                </if>
-                <if test="param.classId != null and param.classId != ''">
-                    and mspss.class_id = #{param.classId}
-                </if>
-            </trim>
-        </where>
-
-    </select>
 
     <select id="selectPlanStudentListByPage" resultMap="BaseResultMap" parameterType="map">
         SELECT

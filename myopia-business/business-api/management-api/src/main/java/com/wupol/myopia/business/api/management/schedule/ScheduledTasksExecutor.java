@@ -181,18 +181,12 @@ public class ScheduledTasksExecutor {
      * @param yesterdayScreeningPlanIds
      */
     public void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
-        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
         List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
         List<DistrictVisionStatistic> districtVisionStatistics = new ArrayList<>();
         List<SchoolVisionStatistic> schoolVisionStatistics = new ArrayList<>();
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
         genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
-        //重点视力对象需统计的是学校所在区域的所有数据，另外统计
-//        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
-//        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
-//        districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
-//        districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);
         schoolMonitorStatisticService.batchSaveOrUpdate(schoolMonitorStatistics);
     }

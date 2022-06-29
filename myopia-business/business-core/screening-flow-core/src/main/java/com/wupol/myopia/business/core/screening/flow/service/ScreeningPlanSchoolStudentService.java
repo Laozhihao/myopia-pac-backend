@@ -62,26 +62,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectStudentInfoWithResult(screeningResultSearchDTO);
     }
 
-    /**
-     * 根据学校ID和筛查机构ID获取计划的学生
-     *
-     * @param schoolId 学校ID
-     * @param deptId 筛查机构ID
-     * @return
-     */
-    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId) {
-        if (deptId == null) {
-            throw new ManagementUncheckedException("deptId 不能为空");
-        }
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId);
-        if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return Collections.emptyList();
-        }
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, deptId).eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
-        return setSchoolDistrictId(screeningPlanSchoolStudentList);
-    }
 
     /**
      * 根据学校ID和筛查机构ID获取计划的学生
@@ -104,19 +84,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
-    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId) {
-        if (screeningOrgId == null) {
-            throw new ManagementUncheckedException("screeningOrgId 不能为空");
-        }
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
-        if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new ArrayList<>();
-        }
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningOrgId, screeningOrgId).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).eq(ScreeningPlanSchoolStudent::getGradeId, gradeId);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
-        return setSchoolDistrictId(screeningPlanSchoolStudentList);
-    }
 
     public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId, Integer channel) {
         if (screeningOrgId == null) {
@@ -218,35 +185,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, gradeId);
     }
 
-    public List<ScreeningStudentDTO> selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId,Integer gradeId,Integer classId) {
-        return baseMapper.selectStudentVoByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
-    }
-
     public IPage<ScreeningStudentDTO> selectPageByQuery(Page<?> page, ScreeningStudentQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
-    /**
-    * @Description: 导出学生筛查数据
-    * @Param: [query]
-    * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO>
-    * @Author: 钓猫的小鱼
-    * @Date: 2022/1/6
-    */
-    public List<ScreeningStudentDTO> selectListByQuery(ScreeningStudentQueryDTO query) {
-        return baseMapper.selectListByQuery(query);
-    }
 
-    /**
-     * 根据身份证号获取筛查学生
-     *
-     * @param screeningPlanId
-     * @param schoolId
-     * @param idCardList
-     * @return
-     */
-    public List<ScreeningPlanSchoolStudent> getByIdCards(Integer screeningPlanId, Integer schoolId, List<String> idCardList) {
-        return Lists.partition(idCardList, 50).stream().map(list -> baseMapper.selectByIdCards(screeningPlanId, schoolId, list)).flatMap(Collection::stream).collect(Collectors.toList());
-    }
 
     /**
      * 根据年级班级ID获取筛查学生
@@ -270,24 +212,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return baseMapper.selectBySchoolGradeAndClass(screeningPlanId, schoolId,gradeId, classId,studentIds);
     }
 
-    /**
-     * 根据查询条件获取当前进行中的计划的学生
-     *
-     * @param screeningStudentQuery 查询条件
-     * @param page 页码
-     * @param size 条数
-     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
-     **/
-    public IPage<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size) {
-        // 获取当前计划
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningStudentQuery.getScreeningOrgId());
-        if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new Page<>(page, size);
-        }
-        screeningStudentQuery.setPlanIds(currentPlanIds);
-        return selectPlanStudentListByPage(page, size, screeningStudentQuery);
-    }
-
 
     /**
      * 根据查询条件获取当前进行中的计划的学生
@@ -308,25 +232,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return selectPlanStudentListByPage(page, size, screeningStudentQuery);
     }
 
-
-    /**
-     * 根据实体条件查询
-     *
-     * @param screeningPlanSchoolStudent 查询条件
-     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
-     **/
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
-        // 获取当前计划
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId());
-        if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return Collections.emptyList();
-        }
-        // 查询学生
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.setEntity(screeningPlanSchoolStudent).in(ScreeningPlanSchoolStudent::getScreeningPlanId, currentPlanIds).orderByDesc(ScreeningPlanSchoolStudent::getCreateTime);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
-        return setSchoolDistrictId(screeningPlanSchoolStudentList);
-    }
 
     /**
      * 根据实体条件查询
@@ -390,48 +295,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId));
     }
 
-
-    /**
-     * 根据筛查任务Id获取筛查学校所在层级的计划筛查学生总数
-     *
-     * @param taskId
-     * @return
-     */
-    public Map<Integer, Long> getDistrictPlanStudentCountByScreeningTaskId(Integer taskId) {
-        List<ScreeningPlanSchoolStudent> results =
-                this.getPlanStudentCountByScreeningItemId(taskId, ContrastTypeEnum.TASK);
-        if (CollectionUtils.isEmpty(results)) {
-            return Collections.emptyMap();
-        }
-        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
-        return results.stream()
-                .map(planSchoolStudent -> {
-                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
-                    return planSchoolStudent;
-                })
-                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
-    }
-
-    /**
-     * 根据筛查计划Id获取筛查学校所在层级的计划筛查学生总数
-     *
-     * @param planId
-     * @return
-     */
-    public Map<Integer, Long> getDistrictPlanStudentCountByScreeningPlanId(Integer planId) {
-        List<ScreeningPlanSchoolStudent> results =
-                this.getPlanStudentCountByScreeningItemId(planId, ContrastTypeEnum.PLAN);
-        if (CollectionUtils.isEmpty(results)) {
-            return Collections.emptyMap();
-        }
-        Map<Integer, Integer> schoolDistrictIdMap = getSchoolDistrictIdMap(results);
-        return results.stream()
-                .map(planSchoolStudent -> {
-                    Optional.ofNullable(schoolDistrictIdMap.get(planSchoolStudent.getSchoolId())).ifPresent(planSchoolStudent::setSchoolDistrictId);
-                    return planSchoolStudent;
-                })
-                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolDistrictId, Collectors.counting()));
-    }
 
     /**
      * 根据通知、任务或者计划获取计划筛查学生记录
@@ -732,12 +595,23 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return commonDiseasePlanStudents;
     }
 
+    /**
+     * 获取参与筛查计划的学生集合
+     *
+     * @param noticeIds 通知ID集合
+     * @param schoolIds 学校ID集合
+     */
     public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(List<Integer> noticeIds, List<Integer> schoolIds) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByNoticeIdsAndSchoolIds(noticeIds, schoolIds);
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
 
     }
 
+    /**
+     * 获取参与筛查计划的学生集合
+     * @param planId 计划ID
+     * @param schoolId 学校ID
+     */
     public List<ScreeningPlanSchoolStudent> getByPlanIdAndSchoolId(Integer planId, Integer schoolId) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getScreeningPlanId, planId)
@@ -746,6 +620,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
+    /**
+     * 获取参与筛查计划的学生集合
+     *
+     * @param noticeId 通知ID
+     * @param districtIds 区域ID集合
+     */
     public List<ScreeningPlanSchoolStudent> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,noticeId);
@@ -754,6 +634,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
+
+    /**
+     * 获取参与筛查计划的学生集合
+     *
+     * @param schoolId 学校ID
+     */
     public List<ScreeningPlanSchoolStudent> getBySchoolId(Integer schoolId) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
@@ -761,18 +647,31 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
+    /**
+     * 参与筛查计划的学生
+     * @param screeningPlanSchoolStudent 参与筛查计划的学生表对象
+     */
     @Override
     public ScreeningPlanSchoolStudent findOne(ScreeningPlanSchoolStudent screeningPlanSchoolStudent){
         ScreeningPlanSchoolStudent planSchoolStudent = super.findOne(screeningPlanSchoolStudent);
         return setSchoolDistrictId(planSchoolStudent);
     }
 
+    /**
+     * 根据ID查询参与筛查计划的学生
+     *
+     * @param id 主键
+     */
     @Override
     public ScreeningPlanSchoolStudent getById(Serializable id){
         ScreeningPlanSchoolStudent planSchoolStudent = super.getById(id);
         return setSchoolDistrictId(planSchoolStudent);
     }
 
+    /**
+     * 设置学校区域ID
+     * @param screeningPlanSchoolStudentList 参与筛查计划的学生集合
+     */
     private List<ScreeningPlanSchoolStudent> setSchoolDistrictId(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList){
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)){
             return screeningPlanSchoolStudentList;
@@ -782,12 +681,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return screeningPlanSchoolStudentList;
     }
 
+    /**
+     * 设置学校区域ID
+     * @param planSchoolStudent 参与筛查计划的学生
+     */
     private ScreeningPlanSchoolStudent setSchoolDistrictId(ScreeningPlanSchoolStudent planSchoolStudent){
         School school = schoolService.getById(planSchoolStudent.getSchoolId());
         planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
         return planSchoolStudent;
     }
 
+    /**
+     * 获取学校区域ID
+     * @param results  参与筛查计划的学生集合
+     */
     private Map<Integer,Integer> getSchoolDistrictIdMap(List<ScreeningPlanSchoolStudent> results){
         Set<Integer> schoolIds = results.stream().map(ScreeningPlanSchoolStudent::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
@@ -797,6 +704,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return schoolList.stream().collect(Collectors.toMap(School::getId,School::getDistrictId));
     }
 
+    /**
+     * 获取学校区域ID
+     *
+     * @param results 常见病筛查学生ID集合
+     */
     private Map<Integer,Integer> getCommonDiseasePlanStudentDistrictIdMap(List<CommonDiseasePlanStudent> results){
         Set<Integer> schoolIds = results.stream().map(CommonDiseasePlanStudent::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
