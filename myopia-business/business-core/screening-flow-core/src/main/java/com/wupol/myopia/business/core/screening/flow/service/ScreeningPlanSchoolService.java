@@ -201,6 +201,9 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool>
      **/
     public List<ScreeningPlanSchool> getByPlanIds(List<Integer> screeningPlanIds) {
+        if (CollectionUtils.isEmpty(screeningPlanIds)) {
+            return Collections.emptyList();
+        }
         return baseMapper.getByPlanIds(screeningPlanIds);
     }
 
