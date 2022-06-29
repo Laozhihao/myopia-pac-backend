@@ -203,17 +203,30 @@ public class ScreeningPlanSchoolStudent implements Serializable {
     private Long screeningCode;
 
     /**
+     * 不检查说明（未做检查说明【0：清空的。默认;1：请假；2：转学;3:其他】）
+     */
+    private Integer state;
+
+    /**
      * 护照
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String passport;
 
+    /**
+     * 学生筛查ID - 山西数据库版
+     */
     private String migrateStudentScreeningId;
+
+    /**
+     * 学生常见病ID，16位
+     */
+    private String commonDiseaseId;
 
     /**
      * 检查学生信息是否正确
      * <p>
-     *     身份证和护照二选一
+     * 身份证和护照二选一
      * </p>
      */
     public void checkStudentInfo() {
@@ -221,6 +234,4 @@ public class ScreeningPlanSchoolStudent implements Serializable {
             throw new BusinessException("身份证、护照信息异常");
         }
     }
-
-
 }

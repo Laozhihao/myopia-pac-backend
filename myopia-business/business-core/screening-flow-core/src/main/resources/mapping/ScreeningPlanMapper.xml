@@ -36,13 +36,14 @@
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+                <if test="@Ognl@isNotEmpty(updateScreeningEndTimeStatus)">and `update_screening_end_time_status` = #{updateScreeningEndTimeStatus}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time
+        id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time, screening_type ,update_screening_end_time_status
     </sql>
 
     <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
@@ -54,6 +55,7 @@
         and sps.school_id = #{schoolId}
         and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]> and
                     <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
+          and p.screening_type = #{channel}
     </select>
 
     <select id="getPlanLists" resultMap="BaseResultDTOMap">
@@ -72,7 +74,7 @@
         mst.id, mst.src_screening_notice_id, mst.screening_task_id, mst.screening_org_id, mst.title, mst.start_time,
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, mst.gov_dept_id, mst.create_user_id,
-        mst.create_time
+        mst.create_time,mst.screening_type,mst.update_screening_end_time_status
         FROM
         m_screening_plan mst
         <where>
@@ -97,6 +99,9 @@
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
                     and <![CDATA[ DATE(mst.`start_time`) < DATE(#{param.endCreateTime})]]> and
                     <![CDATA[ DATE(mst.`end_time`) >= DATE(#{param.startCreateTime})]]>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningType)">
+                    and mst.screening_type = #{param.screeningType}
                 </if>
             </trim>
         </where>
@@ -151,15 +156,6 @@
         from m_screening_plan where screening_org_id in
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
-        </foreach>
-    </select>
-
-    <select id="getByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
         </foreach>
     </select>
 </mapper>

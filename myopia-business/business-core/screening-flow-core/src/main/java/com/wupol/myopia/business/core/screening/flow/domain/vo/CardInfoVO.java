@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -10,8 +10,8 @@ import java.util.Date;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Accessors(chain = true)
+@Data
 public class CardInfoVO {
 
     /**
@@ -80,11 +80,22 @@ public class CardInfoVO {
     private Integer countNotCooperate;
 
     /**
+     * 民族 1-汉族、2-回族
+     */
+    private Integer nation;
+
+    /**
      * 民族描述
      */
     private String nationDesc;
+
     /**
      * 护照号
      */
     private String passport;
+
+    /**
+     * 学龄段
+     */
+    private Integer schoolType;
 }

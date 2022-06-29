@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatRescreenMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import io.jsonwebtoken.lang.Assert;
@@ -37,11 +40,38 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
     public int countByPlanAndSchool(Integer planId, Integer schoolId) {
         Assert.notNull(planId);
         Assert.notNull(schoolId);
-        return baseMapper.countByPlanAndSchool(planId, schoolId);
+        return baseMapper.countByPlanAndSchool(planId, schoolId, DateUtil.getYesterdayEndTime());
+    }
+
+    public List<StatRescreen> getByPlanIdAndSchoolId(List<Integer> planIds,List<Integer> schoolIds){
+        Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
+        Assert.isTrue(CollectionUtil.isNotEmpty(planIds));
+        LambdaQueryWrapper<StatRescreen> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatRescreen::getPlanId,planIds);
+        queryWrapper.in(StatRescreen::getSchoolId,schoolIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
     public int deleteByScreeningTime(Date screeningTime) {
         return baseMapper.deleteByScreeningTime(screeningTime);
+    }
+
+    /**
+     * 获取学校日期
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     * @return 日期
+     */
+    public List<Date> getSchoolDate(Integer planId, Integer schoolId) {
+        return baseMapper.getSchoolDate(planId, schoolId, DateUtil.getYesterdayEndTime());
+    }
+
+    /**
+     * 通过计划和学校复测报告
+     */
+    public List<StatRescreen> getByPlanAndSchool(Integer planId, Integer schoolId, Date screeningTime) {
+        return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime);
     }
 
 }

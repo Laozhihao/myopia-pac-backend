@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author wulizhou
@@ -24,7 +25,7 @@ import java.util.List;
 @RequestMapping("/preschool/app/student")
 public class PreschoolHospitalStudentController {
 
-    private final String NOT_HOSPITAL_STUDENT = "NotHospitalStudent";
+    private static final String NOT_HOSPITAL_STUDENT = "NotHospitalStudent";
 
     @Autowired
     private HospitalAggService hospitalAggService;
@@ -53,7 +54,7 @@ public class PreschoolHospitalStudentController {
     }
 
     private ApiResult<HospitalStudentVO> getStudentResult(TwoTuple<HospitalStudentVO, Boolean> studentInfo) {
-        return ApiResult.success(hospitalAggService.setPreschoolDistrict(studentInfo.getFirst())).setMessage(studentInfo.getSecond() ?
+        return ApiResult.success(hospitalAggService.setPreschoolDistrict(studentInfo.getFirst())).setMessage(Objects.equals(studentInfo.getSecond(),Boolean.TRUE) ?
                 ResultCode.SUCCESS.getMessage() : NOT_HOSPITAL_STUDENT);
     }
 

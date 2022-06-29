@@ -46,6 +46,14 @@ public class StudentWarningArchiveVO {
 
     /** 散光预警等级 */
     private Integer astigmatismLevel;
+    /**
+     * 筛查性近视
+     */
+    private Integer screeningMyopia;
+    /**
+     * 视力低下等级, 1-视力低下 （暂时只显示这个）
+     */
+    private Integer lowVision;
 
     /**
      * 视力标签 0-零级、1-一级、2-二级、3-三级

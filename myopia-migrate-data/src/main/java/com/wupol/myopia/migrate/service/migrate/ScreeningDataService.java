@@ -1,6 +1,7 @@
 package com.wupol.myopia.migrate.service.migrate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;

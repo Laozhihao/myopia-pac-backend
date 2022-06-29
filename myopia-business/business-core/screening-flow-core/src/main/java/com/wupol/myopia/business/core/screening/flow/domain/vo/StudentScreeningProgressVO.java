@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.AbstractDiagnosisResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -34,7 +35,7 @@ public class StudentScreeningProgressVO {
     private static ThreadLocal<Boolean> hasAbnormalInSubsequentCheck = new ThreadLocal<>();
 
     /** 学生ID */
-    private String studentId;
+    private Integer studentId;
     /** 学籍号 */
     private String studentNo;
     /** 用户名称 */
@@ -47,6 +48,20 @@ public class StudentScreeningProgressVO {
     private Integer gradeType;
     /** 学校ID */
     private Integer schoolId;
+    /** 年级id */
+    private Integer gradeId;
+    /**
+     * 年级名称
+     */
+    private String gradeName;
+    /**
+     * 班级id
+     */
+    private Integer classId;
+    /**
+     * 班级名称
+     */
+    private String className;
 
     /** 筛查结果，是否完成了筛查 */
     private Boolean result;
@@ -70,11 +85,40 @@ public class StudentScreeningProgressVO {
     private Integer otherStatus;
     /** 身高体重 */
     private Integer heightWeightStatus;
+    /**
+     * 未做检查说明
+     */
+    private Integer stateStatus;
+    /**
+     * 龋齿
+     */
+    private Integer saprodontiaStatus;
+    /**
+     * 脊柱
+     */
+    private Integer spineStatus;
+    /**
+     * 血压
+     */
+    private Integer bloodPressureStatus;
+    /**
+     * 疾病史检查
+     */
+    private Integer diseasesHistoryStatus;
+    /**
+     * 个人隐私保存
+     */
+    private Integer privacyStatus;
     /** 是否有异常 */
     private Boolean hasAbnormal;
     /** 是否初诊有异常 */
     private Boolean firstCheckAbnormal;
 
+    /** 筛查状态（复测使用） */
+    private Integer screeningStatus;
+
+    /** 是否有初筛数据 */
+    private Boolean isFirst;
     /**
      * [注意！！！]下面前四个的赋值顺序不能改变：视力-眼位-裂隙灯-电脑验光
      * 1. 托幼机构
@@ -88,7 +132,7 @@ public class StudentScreeningProgressVO {
      * @param studentVO 学生信息
      * @return com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO
      **/
-    public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO) {
+    public static StudentScreeningProgressVO getInstanceWithDefault(VisionScreeningResult screeningResult, StudentVO studentVO, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         Assert.notNull(studentVO, "学生信息不能为空");
         StudentScreeningProgressVO studentScreeningProgressVO = new StudentScreeningProgressVO();
         BeanUtils.copyProperties(studentVO, studentScreeningProgressVO);
@@ -96,7 +140,12 @@ public class StudentScreeningProgressVO {
         // 筛查结果为空则返回默认值
         if (Objects.isNull(screeningResult)) {
             return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
-                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK).setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false);
+                    .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK)
+                    .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
+                    .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
+                    .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
+                    .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz())
+                    .setStateStatus(screeningPlanSchoolStudent.getState());
         }
         // 默认完成了所有必要检查
         isAllMustCheckDone.set(true);
@@ -114,10 +163,24 @@ public class StudentScreeningProgressVO {
         studentScreeningProgressVO.setPressureStatus(getProgress(screeningResult.getEyePressureData(), !isKindergarten && firstCheckAbnormal));
         studentScreeningProgressVO.setFundusStatus(getProgress(screeningResult.getFundusData(), false));
         studentScreeningProgressVO.setOtherStatus(getProgress(screeningResult.getOtherEyeDiseases(), false));
-        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(),false));
-        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
+        studentScreeningProgressVO.setHeightWeightStatus(getProgress(screeningResult.getHeightAndWeightData(), screeningResult.getScreeningType() == 1));
+
         studentScreeningProgressVO.setHasAbnormal(hasAbnormalInSubsequentCheck.get() || firstCheckAbnormal);
         studentScreeningProgressVO.setFirstCheckAbnormal(isKindergarten ? firstCheckAbnormal : hasAbnormalInFirstCheck.get());
+        studentScreeningProgressVO.setGradeId(studentVO.getGradeId());
+        studentScreeningProgressVO.setClassId(studentVO.getClassId());
+        studentScreeningProgressVO.setGradeName(studentVO.getGrade());
+
+        studentScreeningProgressVO.setStateStatus(screeningPlanSchoolStudent.getState());
+        studentScreeningProgressVO.setSaprodontiaStatus(getProgress(screeningResult.getSaprodontiaData(),false));
+        studentScreeningProgressVO.setSpineStatus(getProgress(screeningResult.getSpineData(),false));
+        studentScreeningProgressVO.setBloodPressureStatus(getProgress(screeningResult.getBloodPressureData(),false));
+        studentScreeningProgressVO.setDiseasesHistoryStatus(getProgress(screeningResult.getDiseasesHistoryData(),false));
+        studentScreeningProgressVO.setPrivacyStatus(getProgress(screeningResult.getPrivacyData(),false));
+
+        studentScreeningProgressVO.setStudentId(screeningResult.getScreeningPlanSchoolStudentId());
+        studentScreeningProgressVO.setClassName(studentVO.getClazz());
+        studentScreeningProgressVO.setResult(isAllMustCheckDone.get());
         isAllMustCheckDone.remove();
         hasAbnormalInFirstCheck.remove();
         hasAbnormalInSubsequentCheck.remove();

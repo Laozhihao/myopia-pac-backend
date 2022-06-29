@@ -49,7 +49,7 @@ public class DeviceUploadDataController {
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
             if (e instanceof BusinessException) {
-                return DeviceUploadResult.FAILURE(e.getMessage());
+                return DeviceUploadResult.failure(e.getMessage());
             }
             return DeviceUploadResult.FAILURE;
         }

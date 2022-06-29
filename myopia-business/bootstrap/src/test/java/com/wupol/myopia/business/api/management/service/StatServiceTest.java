@@ -3,12 +3,14 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.business.api.management.domain.vo.RescreenReportVO;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,8 +26,9 @@ public class StatServiceTest {
 
     @Test
     public void testGetRescreenStatInfo() {
-        List<RescreenReportVO> rescreenStatInfo = statService.getRescreenStatInfo(118, 12, "吴某周", "吴队长");
+        List<RescreenReportVO> rescreenStatInfo = statService.getRescreenStatInfo(118, 12, "吴某周", "吴队长", 1627171200000L);
         System.out.println(JSON.toJSONString(rescreenStatInfo));
+        Assert.assertTrue(true);
     }
 
 }

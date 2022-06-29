@@ -15,6 +15,12 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="pupil_optometry_data" property="pupilOptometryData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="saprodontia_data" property="saprodontiaData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="spine_data" property="spineData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="blood_pressure_data" property="bloodPressureData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="diseases_history_data" property="diseasesHistoryData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="privacy_data" property="privacyData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="deviation_data" property="deviationData"/>
     </resultMap>
 
 
@@ -44,7 +50,7 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id,screening_plan_school_student_id, task_id, student_id, create_user_id, screening_org_id, school_id, plan_id, district_id, vision_data,computer_optometry, biometric_data,  other_eye_diseases, is_double_screen, update_time, create_time,
-        ocular_inspection_data, eye_pressure_data, fundus_data, slit_lamp_data, pupil_optometry_data, visual_loss_level_data, systemic_disease_symptom, height_and_weight_data
+        ocular_inspection_data, eye_pressure_data, fundus_data, slit_lamp_data, pupil_optometry_data, visual_loss_level_data, systemic_disease_symptom, height_and_weight_data, saprodontia_data, spine_data, blood_pressure_data, diseases_history_data, privacy_data, deviation_data, screening_type
     </sql>
 
     <select id="getSchoolIdByTaskId" resultType="java.lang.Integer">
@@ -106,6 +112,15 @@
         order by update_time desc
     </select>
 
+    <select id="getByStudentIdWithPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result
+        where student_id = #{studentId}
+        group by update_time
+        order by update_time desc
+    </select>
+
     <select id="getStudentResults" resultMap="BaseResultMap">
         select mvsr.*
         from m_vision_screening_result mvsr
@@ -140,18 +155,8 @@
         group by school_id
     </select>
 
-    <select id="getByStudentIdsAndPlanId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where plan_id = #{planId} and student_id in
-        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
-             #{studentId}
-        </foreach>
-    </select>
-
-    <select id="getByPlanIdAndSchoolId" resultType="java.lang.Integer">
-        select screening_plan_school_student_id
+    <select id="getByPlanIdAndSchoolId" resultMap="BaseResultMap">
+        select *
         from m_vision_screening_result
         where plan_id = #{planId}
           and school_id = #{schoolId}
@@ -200,5 +205,47 @@
         </foreach>
         and
             is_double_screen = 0
+    </select>
+
+    <select id="getRescreenBySchoolIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where plan_id = #{planId}
+                                         and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        and is_double_screen = true
+    </select>
+
+    <select id="getFirstByPlanStudentIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_vision_screening_result where screening_plan_school_student_id in
+        <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
+            #{planStudentId}
+        </foreach>
+        and is_double_screen = 0
+    </select>
+
+    <select id="countScreeningSchoolByTaskId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount">
+        SELECT
+               plan_id,
+               count( * ) AS school_count
+        FROM
+             ( SELECT plan_id, school_id FROM m_vision_screening_result WHERE task_id = #{taskId} GROUP BY plan_id, school_id ) temp
+        GROUP BY
+               plan_id
+    </select>
+
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and is_double_screen = false
+        order by create_time desc
     </select>
 </mapper>

@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 /**
  * @Author HaoHao
  * @Date 2021-02-26
@@ -31,7 +29,7 @@ public class ParentController {
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
     @GetMapping("/current/info")
-    public Parent getCurrentLoginParentInfo() throws IOException {
+    public Parent getCurrentLoginParentInfo() {
         return parentService.getParentByUserId(CurrentUserUtil.getCurrentUser().getId());
     }
 }

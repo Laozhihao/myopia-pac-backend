@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.lang.Assert;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.JsonUtil;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +42,9 @@ public class DeviceScreeningDataBizServiceTest {
             query.setPatientGender(1);
             log.info(JsonUtil.objectToJsonString(deviceScreeningDataBizService.getPage(query, pageRequest)));
         } catch (Exception e) {
-            Assert.isTrue(false);
+            Assert.assertFalse(false);
         }
-        Assert.isTrue(true);
+        Assert.assertTrue(true);
     }
 
 }

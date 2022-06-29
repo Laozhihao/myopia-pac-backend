@@ -1,8 +1,13 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.function.Function;
 
 /**
  * 计算工具
@@ -24,6 +29,75 @@ public class MathUtil {
         BigDecimal n = new BigDecimal(numerator);
         BigDecimal d = new BigDecimal(denominator);
         return n.multiply(hundred).divide(d, 2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * 占比 （带%）
+     */
+    public String ratio(Integer numerator, Integer denominator) {
+        if (ObjectsUtil.allNull(numerator,denominator)){
+            return null;
+        }
+        DecimalFormat df = new DecimalFormat("0.00%");
+        return ratio(numerator,denominator,df);
+    }
+
+    public <T> String ratio(Function<T,Integer> mapper,T t, Integer denominator) {
+        DecimalFormat df = new DecimalFormat("0.00%");
+        Integer numerator = mapper.apply(t);
+        return ratio(numerator,denominator,df);
+    }
+
+    /**
+     * 占比 （不带%）
+     */
+    public BigDecimal ratioNotSymbol(Integer numerator,Integer denominator){
+        if(ObjectsUtil.hasNull(numerator,denominator)){
+            return null;
+        }
+        return ratioNotSymbol(new BigDecimal(numerator),new BigDecimal(denominator));
+    }
+
+    public BigDecimal ratioNotSymbol(BigDecimal numerator,BigDecimal denominator){
+        if (BigDecimalUtil.decimalEqual(numerator,"0") || BigDecimalUtil.decimalEqual(denominator,"0")){
+            return new BigDecimal("0.00");
+        }
+        BigDecimal divide = numerator.multiply(new BigDecimal("100")).divide(denominator, 2, RoundingMode.HALF_UP);
+       return BigDecimalUtil.getBigDecimalByFormat(divide,2);
+    }
+
+    public String num(Integer numerator, Integer denominator) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        return ratio(numerator,denominator,df);
+    }
+
+    public BigDecimal numNotSymbol(Integer numerator, Integer denominator) {
+        if(ObjectsUtil.hasNull(numerator,denominator)){
+            return null;
+        }
+        if (numerator == 0 ||denominator == 0) {
+            return new BigDecimal("0.00");
+        }
+        return new BigDecimal(numerator).divide(new BigDecimal(denominator),2, RoundingMode.HALF_UP);
+    }
+
+    public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {
+        if(ObjectsUtil.hasNull(numerator,denominator,df)){
+            return null;
+        }
+        if (numerator == 0 ||denominator == 0) {
+            return df.format(new BigDecimal("0"));
+        }
+        BigDecimal divide = new BigDecimal(numerator).divide(new BigDecimal(denominator), 4, BigDecimal.ROUND_HALF_UP);
+        return df.format(divide);
+    }
+
+    /**
+     * 占比 （带%）
+     */
+    public String ratio(BigDecimal bigDecimal) {
+        DecimalFormat df = new DecimalFormat("0.00%");
+        return df.format(bigDecimal);
     }
 
     /**

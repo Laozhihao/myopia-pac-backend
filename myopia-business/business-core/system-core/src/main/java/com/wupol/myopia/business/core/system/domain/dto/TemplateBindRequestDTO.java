@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.system.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
@@ -10,8 +9,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class TemplateBindRequestDTO {
 
     private Integer templateId;

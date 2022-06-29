@@ -138,6 +138,44 @@ public class VisionScreeningResult implements Serializable {
     private VisualLossLevelDataDO visualLossLevelData;
 
     /**
+     * 筛查结果--龋齿
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SaprodontiaDataDO saprodontiaData;
+
+    /**
+     * 筛查结果--脊柱
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private SpineDataDO spineData;
+
+    /**
+     * 筛查结果--血压
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private BloodPressureDataDO bloodPressureData;
+
+    /**
+     * 筛查结果--疾病史(汉字)
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DiseasesHistoryDO diseasesHistoryData;
+
+    /**
+     * 筛查结果--隐私项
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private PrivacyDataDO privacyData;
+
+    /**
+     *
+     * 筛查不准确说明
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private DeviationDO deviationData;
+
+
+    /**
      * 筛查结果--全身疾病在眼部的表现
      */
     private String systemicDiseaseSymptom;
@@ -153,6 +191,11 @@ public class VisionScreeningResult implements Serializable {
     private Boolean isNotice;
 
     /**
+     * 筛查类型--来自筛查计划，筛查计划强一致 （0：视力筛查，1；常见病） app：常见病新增 2022-04-07
+     */
+    private Integer screeningType;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -160,4 +203,5 @@ public class VisionScreeningResult implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
 }

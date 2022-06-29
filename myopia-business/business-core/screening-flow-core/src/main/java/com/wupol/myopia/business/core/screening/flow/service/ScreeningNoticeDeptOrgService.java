@@ -67,7 +67,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
         return baseMapper.getByNoticeId(screeningNoticeId);
     }
 
-    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<ScreeningNotice> page, ScreeningNoticeQueryDTO query) {
+    public IPage<ScreeningNoticeDTO> selectPageByQuery(IPage<?> page, ScreeningNoticeQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
 

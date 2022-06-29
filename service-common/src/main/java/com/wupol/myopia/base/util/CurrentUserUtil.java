@@ -5,8 +5,8 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2020/12/27
  **/
-@Component
+@UtilityClass
 public class CurrentUserUtil {
 
     /**

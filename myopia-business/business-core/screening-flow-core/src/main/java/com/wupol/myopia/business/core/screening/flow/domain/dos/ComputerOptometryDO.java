@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.interfaces.ScreeningResultStructureInterface;
 import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
@@ -67,6 +68,13 @@ public class ComputerOptometryDO extends AbstractDiagnosisResult implements Scre
             return sph != null;
         }
 
+        public BigDecimal getSph() {
+            return BigDecimalUtil.getBigDecimalByFormat(sph, 2);
+        }
+
+        public BigDecimal getCyl() {
+            return BigDecimalUtil.getBigDecimalByFormat(cyl, 2);
+        }
     }
 
     /**

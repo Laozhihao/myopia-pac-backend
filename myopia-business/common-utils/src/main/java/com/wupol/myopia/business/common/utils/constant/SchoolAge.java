@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 学龄相关
@@ -16,13 +18,14 @@ import java.util.List;
  */
 public enum SchoolAge {
 
-    UNKNOWN(-1, "未知"),
-    KINDERGARTEN(5, "幼儿园"),
-    PRIMARY(0, "小学"),
-    JUNIOR(1, "初中"),
-    HIGH(2, "高中"),
-    VOCATIONAL_HIGH(3, "职业高中"),
-    UNIVERSITY(4, "大学");
+
+    UNKNOWN(-1, "未知", -1),
+    KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType()),
+    PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    HIGH(2, "普高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    VOCATIONAL_HIGH(3, "职高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
+    UNIVERSITY(4, "大学", SchoolTypeEnum.UNIVERSITY.getType());
 
     /**
      * 学龄段ID
@@ -34,15 +37,22 @@ public enum SchoolAge {
      */
     public final String desc;
 
-    SchoolAge(Integer code, String desc) {
+    /**
+     * 学校类型
+     */
+    public final Integer type;
+
+    SchoolAge(Integer code, String desc, Integer type) {
         this.desc = desc;
         this.code = code;
+        this.type = type;
     }
 
     /**
      * 通过code 获取学龄段
      *
      * @param code code
+     *
      * @return 学龄段
      */
     public static SchoolAge get(Integer code) {
@@ -50,6 +60,20 @@ public enum SchoolAge {
                 .filter(item -> item.code.equals(code))
                 .findFirst()
                 .orElse(UNKNOWN);
+    }
+
+    /**
+     * 通过code 获取学龄段
+     *
+     * @param code code
+     *
+     * @return 学龄段
+     */
+    public static String getDesc(Integer code) {
+        return Arrays.stream(SchoolAge.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().map(s -> s.desc)
+                .orElse(null);
     }
 
     /**
@@ -72,6 +96,7 @@ public enum SchoolAge {
      * 是否初中生（包括初中、高中、职业高中）
      *
      * @param schoolAge 学龄段
+     *
      * @return Boolean
      */
     public static Boolean isMiddleSchool(Integer schoolAge) {
@@ -82,10 +107,58 @@ public enum SchoolAge {
      * 是否小学生和幼儿园
      *
      * @param schoolAge 学龄段
+     *
      * @return Boolean
      */
     public static Boolean isPrimaryAndKindergarten(Integer schoolAge) {
         return KINDERGARTEN.code.equals(schoolAge) || PRIMARY.code.equals(schoolAge);
+    }
+
+    /**
+     * 批量通过code获取名称
+     *
+     * @param codes code
+     *
+     * @return 名称
+     */
+    public static List<String> batchNameByCode(List<Integer> codes) {
+        return codes.stream().map(s -> SchoolAge.get(s).desc).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学龄段描述
+     */
+    public static List<String> getAllDesc() {
+        return getSchoolAgeList().stream().map(SchoolAgeDTO::getDesc).collect(Collectors.toList());
+    }
+
+
+    public static List<Integer> getList() {
+        return Lists.newArrayList(KINDERGARTEN.code, PRIMARY.code, JUNIOR.code, HIGH.code, VOCATIONAL_HIGH.code, UNIVERSITY.code);
+    }
+
+    public static List<String> getNameList() {
+        return Lists.newArrayList(KINDERGARTEN.desc, PRIMARY.desc, JUNIOR.desc, HIGH.desc, VOCATIONAL_HIGH.desc, "高中", UNIVERSITY.desc);
+    }
+
+    public static List<Integer> sortList(List<Integer> schoolAgeList) {
+        List<Integer> result = new ArrayList<>();
+        getList().forEach(schoolAge -> {
+            if (schoolAgeList.contains(schoolAge)) {
+                result.add(schoolAge);
+            }
+        });
+        return result;
+    }
+
+    public static List<String> sortByNameList(List<String> schoolAgeNames) {
+        List<String> result = new ArrayList<>();
+        getNameList().forEach(schoolAge -> {
+            if (schoolAgeNames.contains(schoolAge)) {
+                result.add(schoolAge);
+            }
+        });
+        return result;
     }
 
     /**

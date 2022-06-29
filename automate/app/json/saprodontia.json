@@ -1,0 +1,17 @@
+{
+  "isCooperative": 0,
+  "above": [
+    {
+      "index": 11,
+      "deciduous": "d",
+      "permanent": "d"
+    }
+  ],
+  "underneath": [
+    {
+      "index": 11,
+      "deciduous": "d",
+      "permanent": "d"
+    }
+  ]
+}

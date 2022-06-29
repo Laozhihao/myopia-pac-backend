@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.annotation.CheckTimeInterval;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,16 @@ import java.util.Date;
 public class ScreeningPlan implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 已修改
+     */
+    public static final int MODIFIED = 1;
+
+    /**
+     * 未修改
+     */
+    public static final int NOT_CHANGED = 0;
 
     /**
      * 主键id
@@ -65,6 +76,7 @@ public class ScreeningPlan implements Serializable {
      * 筛查计划--结束时间（时间戳）
      */
     @NotNull(message = "筛查计划结束时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date endTime;
 
     /**
@@ -116,4 +128,14 @@ public class ScreeningPlan implements Serializable {
      * 筛查计划--最后操作时间（时间戳）
      */
     private Date operateTime;
+
+    /**
+     * 筛查类型（0：视力筛查，1；常见病） app：常见病新增 2022-04-07
+     */
+    private Integer screeningType;
+
+    /**
+     * 修改筛查结束时间状态（0：未修改，1；已修改）
+     */
+    private Integer updateScreeningEndTimeStatus;
 }

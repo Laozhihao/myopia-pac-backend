@@ -75,8 +75,12 @@ public enum NationEnum {
     OTHER(57, "其他");
 
     private final Integer code;
-
     private final String name;
+
+    /**
+     * 常见民族
+     */
+    public static final List<NationEnum> COMMON_NATION =  Arrays.asList(HAN, MONGOLIAN, TIBETAN, ZHUANG, HUI, MANCHU, UYGHUR);
 
     NationEnum(Integer code, String name) {
         this.code = code;

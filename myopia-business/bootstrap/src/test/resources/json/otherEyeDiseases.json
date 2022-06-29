@@ -1,0 +1,12 @@
+{
+  "studentId":3,
+  "schoolId": 4,
+  "deptId": 3,
+  "userId": 16,
+  "planStudentId": 19,
+  "createUserId": 3,
+  "isCooperative": 0,
+  "lDiseaseStr": "测试1",
+  "rDiseaseStr": "123121",
+  "systemicDiseaseSymptom": "12312"
+}

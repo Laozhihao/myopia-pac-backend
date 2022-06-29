@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.common.cache;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.business.core.common.constant.DistrictCacheKey;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -14,8 +15,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,11 @@ public class DistrictCache implements CommandLineRunner {
             logger.info("...缓存全国行政区域-列表结构");
             List<District> districtList = districtService.findByList(new District());
             Map<String, Object> districtMap = districtList.stream().collect(Collectors.toMap(x -> String.valueOf(x.getCode()), Function.identity()));
-            redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_LIST, districtMap);
+            List<Map<String, Object>> mapList = splitMap(districtMap, 0);
+            for (int i = 0; i < mapList.size(); i++) {
+                redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_LIST, mapList.get(i));
+                logger.info("...第{}批完成！",i+1);
+            }
             logger.info("...完成缓存全国行政区域-列表结构");
         }
 
@@ -62,5 +66,27 @@ public class DistrictCache implements CommandLineRunner {
             redisUtil.hmset(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, districtMap);
             logger.info("...完成缓存各省行政区域-树结构");
         }
+    }
+
+    /**
+     *  分割Map大小
+     * @author hang.yuan
+     * @date 2022/4/2
+     */
+    private static <K, V> List<Map<K, V>> splitMap(Map<K, V> map, int pageSize) {
+        if (map == null || map.isEmpty()) {
+            return Collections.emptyList();
+        }
+        pageSize = pageSize == 0 ? 50000 : pageSize;
+        List<Map<K, V>> newList = new ArrayList<>();
+        int j = 0;
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (j % pageSize == 0) {
+                newList.add(Maps.newHashMap());
+            }
+            newList.get(newList.size() - 1).put(entry.getKey(), entry.getValue());
+            j++;
+        }
+        return newList;
     }
 }

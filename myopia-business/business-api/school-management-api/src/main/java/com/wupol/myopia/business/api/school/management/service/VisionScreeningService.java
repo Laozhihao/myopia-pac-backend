@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -21,7 +22,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.Screenin
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,9 +46,6 @@ public class VisionScreeningService {
 
     @Resource
     private ScreeningPlanService screeningPlanService;
-
-    @Resource
-    private SchoolMonitorStatisticService schoolMonitorStatisticService;
 
     @Resource
     private StatConclusionService statConclusionService;
@@ -76,6 +73,7 @@ public class VisionScreeningService {
      *
      * @param pageRequest 分页请求
      * @param schoolId    学校Id
+     *
      * @return IPage<ScreeningListResponseDTO>
      */
     public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest, Integer schoolId) {
@@ -87,8 +85,10 @@ public class VisionScreeningService {
         if (CollectionUtils.isEmpty(planIds)) {
             return responseDTO;
         }
-        List<ScreeningPlan> screeningPlans = screeningPlanService.getByIds(planIds);
-        Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
+        List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
+        Map<Integer, ScreeningPlan> planMap = screeningPlans.stream()
+                .filter(s->Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息
         List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
@@ -155,6 +155,7 @@ public class VisionScreeningService {
      * @param pageRequest 分页请求
      * @param requestDTO  入参
      * @param schoolId    学校Id
+     *
      * @return IPage<StudentTrackWarningResponseDTO>
      */
     public IPage<StudentTrackWarningResponseDTO> getTrackList(PageRequest pageRequest, StudentTrackWarningRequestDTO requestDTO, Integer schoolId) {
@@ -170,7 +171,7 @@ public class VisionScreeningService {
                 .collect(Collectors.toMap(MedicalReport::getId, Function.identity()));
 
         // 学校端学生
-        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds).stream()
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds, schoolId).stream()
                 .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
 
         trackList.forEach(track -> {

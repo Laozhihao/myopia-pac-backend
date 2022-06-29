@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OtherEyeDiseasesDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -77,6 +78,8 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         OtherEyeDiseasesDO.OtherEyeDiseases leftOtherEyeDiseases = new OtherEyeDiseasesDO.OtherEyeDiseases().setEyeDiseases(getLeftDiseaseStrList()).setLateriality(CommonConst.LEFT_EYE);
         OtherEyeDiseasesDO otherEyeDiseasesDO = new OtherEyeDiseasesDO().setRightEyeData(rightOtherEyeDiseases).setLeftEyeData(leftOtherEyeDiseases);
         otherEyeDiseasesDO.setCreateUserId(getCreateUserId());
+        otherEyeDiseasesDO.setDiagnosis(super.getDiagnosis());
+        otherEyeDiseasesDO.setUpdateTime(getUpdateTime());
         // 全身疾病在眼部的表现
         return visionScreeningResult.setOtherEyeDiseases(otherEyeDiseasesDO).setSystemicDiseaseSymptom(systemicDiseaseSymptom);
     }
@@ -96,6 +99,11 @@ public class OtherEyeDiseasesDTO extends ScreeningResultBasicData {
         }
         otherEyeDiseasesDTO.setSystemicDiseaseSymptom(systemicDiseaseSymptom);
         return otherEyeDiseasesDTO;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_OTHER_EYE_DISEASE;
     }
 
 }

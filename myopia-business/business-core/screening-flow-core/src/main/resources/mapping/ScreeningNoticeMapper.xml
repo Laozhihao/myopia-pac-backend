@@ -28,13 +28,14 @@
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
+                <if test="@Ognl@isNotEmpty(screeningType)">and `screening_type` = #{screeningType}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time
+        id, title, content, start_time, end_time, type, gov_dept_id, district_id, screening_task_id, release_status, release_time, operation_version, create_user_id, create_time, operator_id, operate_time,screening_type
     </sql>
 
     <update id="release">
@@ -74,10 +75,12 @@
         <where>
             <trim prefixOverrides="and">
                 and release_status = 1 and type = 0
-                <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ `id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and `gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startTime != null and param.endTime != null">
-                    and <![CDATA[ DATE(`start_time`) < DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                    and <![CDATA[ DATE(`start_time`) <= DATE(#{param.endTime})]]> and <![CDATA[ DATE(`end_time`) >= DATE(#{param.startTime})]]>
+                </if>
+                <if test="@Ognl@isNotEmpty(param.screeningType)">
+                    and screening_type = #{param.screeningType}
                 </if>
             </trim>
         </where>
@@ -98,14 +101,14 @@
           and type = 1
     </select>
 
-    <select id="getByIdsOrderByCreateTime" resultMap="BaseResultMap">
+    <select id="getByIdsOrderByStartTime" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
         from m_screening_notice
                 where id in
         <foreach collection="ids" open="(" close=")" separator="," item="id">
             #{id}
         </foreach>
-        order by create_time desc
+        order by start_time asc
     </select>
 
     <select id="checkTitleExist" resultMap="BaseResultMap">

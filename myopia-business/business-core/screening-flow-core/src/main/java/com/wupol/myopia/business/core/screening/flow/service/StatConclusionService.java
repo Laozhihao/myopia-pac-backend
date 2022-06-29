@@ -68,13 +68,27 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
+    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 根据筛查计划获取筛查结论Vo列表
      * @param screeningPlanId
      * @return
      */
-    public List<StatConclusionDTO> getVoByScreeningPlanId(Integer screeningPlanId) {
-        return baseMapper.selectVoByScreeningPlanId(screeningPlanId);
+    public List<StatConclusion> getVoByScreeningPlanId(Integer screeningPlanId) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatConclusion::getPlanId,screeningPlanId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<StatConclusion> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getPlanId,screeningPlanIds);
+        return baseMapper.selectList(queryWrapper);
     }
 
 
@@ -92,11 +106,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndDistrictIds(Integer screeningNoticeId, List<Integer> districtIds,Boolean isKindergarten) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, districtIds);
+        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, districtIds,isKindergarten);
     }
 
     /**
@@ -105,21 +119,11 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param districtIds
      * @return
      */
-    public List<screeningPlanSchoolStudentDTO> getExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(Integer screeningNoticeId, List<Integer> districtIds) {
+    public List<ExportPlanSchool> getPlanSchoolGradeClassHasData(Integer screeningNoticeId, List<Integer> districtIds) {
         if (CollectionUtils.isEmpty(districtIds)) {
             return Collections.emptyList();
         }
-        return baseMapper.selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy(screeningNoticeId, districtIds);
-    }
-
-    /**
-     * 根据筛查通知ID与学校Id查出导出的筛查数据
-     * @param screeningNoticeId
-     * @param schoolId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndSchoolId(Integer screeningNoticeId, Integer schoolId, Integer planId) {
-        return baseMapper.selectExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId, planId);
+        return baseMapper.selectPlanSchoolGradeClassHasData(screeningNoticeId, districtIds);
     }
 
     /**
@@ -131,15 +135,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
-    /**
-     * 根据筛查计划ID与学校Id查出导出的筛查数据
-     * @param screeningPlanId
-     * @param schoolId
-     * @return
-     */
-    public List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId,classId);
-    }
+
     /**
      * 根据筛查通知ID与学校Id查出报告的筛查数据
      * @param screeningNoticeId
@@ -152,34 +148,14 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
     /**
-     * 根据筛查通知ID与筛查机构Id查出导出的筛查数据
-     * @param screeningNoticeId
-     * @param screeningOrgId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningNoticeIdAndScreeningOrgId(Integer screeningNoticeId, Integer screeningOrgId) {
-        return baseMapper.selectExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
-    }
-
-    /**
-     * 根据筛查计划ID与筛查机构Id查出导出的筛查数据
-     * @param screeningPlanId
-     * @param screeningOrgId
-     * @return
-     */
-    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndScreeningOrgId(Integer screeningPlanId, Integer screeningOrgId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
-    }
-
-    /**
      * @Description:
      * @Param: [screeningPlanId, screeningOrgId, 学校ID, 年级名称, 班级名称]
      * @return: java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO>
      * @Author: 钓猫的小鱼
      * @Date: 2021/12/31
      */
-    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId) {
-        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId);
+    public List<StatConclusionExportDTO> selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId, Integer gradeId, Integer classId,Boolean isKindergarten) {
+        return baseMapper.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId,screeningOrgId,schoolId,gradeId,classId,isKindergarten);
     }
 
     /**
@@ -314,6 +290,44 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public StatConclusion getByResultId(Integer resultId){
         return baseMapper.getByResultId(resultId);
+    }
+
+    /**
+     * 通过筛查学生获取
+     *
+     * @param planId 计划Id
+     * @return StatConclusion
+     */
+    public List<StatConclusion> getReviewByPlanIdAndSchoolIds(Integer planId, List<Integer> schoolIds) {
+        return baseMapper.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
+    }
+
+    public List<StatConclusion> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.getByNoticeIdDistrictIds(noticeId, districtIds);
+    }
+
+    public List<StatConclusion> getByPlanIdSchoolId(Integer planId, Integer schoolId) {
+        return baseMapper.getByPlanIdSchoolId(planId, schoolId);
+    }
+
+    public List<StatConclusion> getByPlanId(Integer planId) {
+        return baseMapper.getByPlanId(planId);
+    }
+
+    public List<StatConclusion> getByDistrictIds(List<Integer> districtIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getDistrictId, districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    public List<StatConclusion> getByPlanStudentIds(List<Integer> planStudentIds) {
+        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId,planStudentIds);
+        queryWrapper.eq(StatConclusion::getIsRescreen,Boolean.FALSE);
+        return baseMapper.selectList(queryWrapper);
     }
 
 }

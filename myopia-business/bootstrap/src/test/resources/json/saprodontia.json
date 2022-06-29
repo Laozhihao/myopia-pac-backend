@@ -1,0 +1,24 @@
+{
+  "studentId":3,
+  "schoolId": 4,
+  "deptId": 3,
+  "userId": 16,
+  "planStudentId": 19,
+  "createUserId": 3,
+  "isState": 0,
+  "isCooperative": 0,
+  "above": [
+    {
+      "index": 11,
+      "deciduous": "d",
+      "permanent": "d"
+    }
+  ],
+  "underneath": [
+    {
+      "index": 11,
+      "deciduous": "d",
+      "permanent": "d"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
@@ -28,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSch
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -99,6 +101,9 @@ public class ScreeningOrganizationBizService {
     private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
     @Autowired
     private OverviewService overviewService;
+
+    @Autowired
+    private StatConclusionService statConclusionService;
 
     /**
      * 保存筛查机构
@@ -207,6 +212,13 @@ public class ScreeningOrganizationBizService {
         } else {
             response.setStaffCount(0);
         }
+        Map<Integer, List<StatConclusion>> rescreenSchoolMap;
+        List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
+        if (CollectionUtils.isEmpty(results)) {
+            rescreenSchoolMap = new HashMap<>();
+        } else {
+            rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        }
 
         // 封装DTO
         schoolIds.forEach(schoolId -> {
@@ -224,6 +236,10 @@ public class ScreeningOrganizationBizService {
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
             detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
+
+            detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
+            detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
+            detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
             details.add(detail);
         });
         response.setDetails(details);
@@ -399,7 +415,7 @@ public class ScreeningOrganizationBizService {
      * @return List<Integer>
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQueryDTO query) {
-        if (Objects.nonNull(query.getNeedCheckHaveTask()) && query.getNeedCheckHaveTask()) {
+        if (Objects.nonNull(query.getNeedCheckHaveTask()) && Objects.equals(query.getNeedCheckHaveTask(),Boolean.TRUE)) {
             return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
         }
         return Collections.emptyList();

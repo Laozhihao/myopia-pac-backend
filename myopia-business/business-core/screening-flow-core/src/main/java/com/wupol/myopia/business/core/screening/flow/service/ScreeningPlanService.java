@@ -174,7 +174,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 year.equals(DateUtil.getYear(screeningPlan.getStartTime())) || year.equals(DateUtil.getYear(screeningPlan.getEndTime()))
         ).map(screeningPlan -> {
             ScreeningPlanNameDTO screeningTaskNameVO = new ScreeningPlanNameDTO();
-            screeningTaskNameVO.setPlanName(screeningPlan.getTitle()).setPlanId(screeningPlan.getId()).setScreeningStartTime(screeningPlan.getStartTime()).setScreeningEndTime(screeningPlan.getEndTime());
+            screeningTaskNameVO.setPlanName(screeningPlan.getTitle())
+                    .setPlanId(screeningPlan.getId())
+                    .setScreeningStartTime(screeningPlan.getStartTime())
+                    .setScreeningEndTime(screeningPlan.getEndTime())
+                    .setScreeningType(screeningPlan.getScreeningType());
             return screeningTaskNameVO;
         }).collect(Collectors.toList());
     }
@@ -237,6 +241,19 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * @param screeningOrgId
+     * @return
+     */
+    public List<Integer> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId, Integer channel) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
+        List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
+        List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
+                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+    }
+
+    /**
      * 获取用户当前的计划
      *
      * @param deptId
@@ -249,12 +266,26 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     /**
      * 获取用户当前的计划
      *
+     * @param deptId
+     */
+    public Set<Integer> getCurrentPlanIds(Integer deptId,Integer channel) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
+        List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
+        List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
+                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
+    }
+
+    /**
+     * 获取用户当前的计划
+     *
      * @param screeningOrgId
      * @param schoolId
      * @return
      */
-    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId) {
-        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
+    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), channel);
     }
 
     /**
@@ -324,7 +355,19 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return List<ScreeningPlan>
      */
     public List<ScreeningPlan> getByIds(Collection<Integer> ids) {
-        return baseMapper.getByIds(ids);
+        return baseMapper.selectBatchIds(ids);
     }
 
+    /**
+     * 通过Ids获取
+     *
+     * @param ids 筛查计划Id
+     * @return List<ScreeningPlan>
+     */
+    public List<ScreeningPlan> getByIdsOrderByStartTime(Collection<Integer> ids) {
+        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, ids)
+                .orderByAsc(ScreeningPlan::getStartTime);
+        return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+    }
 }

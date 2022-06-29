@@ -100,7 +100,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return HospitalExportDTO.class;
     }
 

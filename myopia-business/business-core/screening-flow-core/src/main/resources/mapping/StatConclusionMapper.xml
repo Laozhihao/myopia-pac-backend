@@ -3,9 +3,10 @@
 <mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion"></resultMap>
-    <!-- Vo查询映射结果 -->
-    <resultMap id="VoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionDTO"></resultMap>
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_num" property="diseaseNum" />
+    </resultMap>
+
     <!-- ExportVo查询映射结果 -->
     <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="vision_data" property="visionData" />
@@ -19,6 +20,12 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="visual_loss_level_data" property="visualLossLevelData" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="other_eye_diseases" property="otherEyeDiseases" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="height_and_weight_data" property="heightAndWeightData" />
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="saprodontia_data" property="saprodontiaData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="spine_data" property="spineData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="blood_pressure_data" property="bloodPressureData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="diseases_history_data" property="diseasesHistoryData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="privacy_data" property="privacyData"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="deviation_data" property="deviationData"/>
     </resultMap>
 
     <resultMap id="ReportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionReportDTO">
@@ -26,11 +33,9 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="computer_optometry" property="computerOptometry" />
     </resultMap>
 
-    <resultMap id="ScreeningPlanSchoolStudentVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.screeningPlanSchoolStudentDTO">
+    <resultMap id="PlanSchoolGradeClassResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ExportPlanSchool">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="screening_plan_id" property="screeningPlanId" />
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="school_id" property="schoolId" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="grade_id" property="gradeId" />
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="class_id" property="classId" />
     </resultMap>
 
     <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
@@ -73,8 +78,26 @@
                 <if test="@Ognl@isNotEmpty(schoolClassName)">and `school_class_name` = #{schoolClassName}</if>
                 <if test="@Ognl@isNotEmpty(myopiaWarningLevel)">and `myopia_warning_level` = #{myopiaWarningLevel}</if>
                 <if test="@Ognl@isNotEmpty(nakedVisionWarningLevel)">and `naked_vision_warning_level` = #{nakedVisionWarningLevel}</if>
+                <if test="@Ognl@isNotEmpty(lowVisionLevel)">and `low_vision_level` = #{lowVisionLevel}</if>
                 <if test="@Ognl@isNotEmpty(glassesType)">and `glasses_type` = #{glassesType}</if>
                 <if test="@Ognl@isNotEmpty(visionCorrection)">and `vision_correction` = #{visionCorrection}</if>
+                <if test="@Ognl@isNotEmpty(screeningType)">and `screening_type` = #{screeningType}</if>
+                <if test="@Ognl@isNotEmpty(isSaprodontia)">and `is_saprodontia` = #{isSaprodontia}</if>
+                <if test="@Ognl@isNotEmpty(isOverweight)">and `is_overweight` = #{isOverweight}</if>
+                <if test="@Ognl@isNotEmpty(isObesity)">and `is_obesity` = #{isObesity}</if>
+                <if test="@Ognl@isNotEmpty(isMalnutrition)">and `is_malnutrition` = #{isMalnutrition}</if>
+                <if test="@Ognl@isNotEmpty(isStunting)">and `is_stunting` = #{isStunting}</if>
+                <if test="@Ognl@isNotEmpty(isSpinalCurvature)">and `is_spinal_curvature` = #{isSpinalCurvature}</if>
+                <if test="@Ognl@isNotEmpty(isNormalBloodPressure)">and `is_normal_blood_pressure` = #{isNormalBloodPressure}</if>
+                <if test="@Ognl@isNotEmpty(isDiseasesHistory)">and `is_diseases_history` = #{isDiseasesHistory}</if>
+                <if test="@Ognl@isNotEmpty(isNocturnalEmission)">and `is_nocturnal_emission` = #{isNocturnalEmission}</if>
+                <if test="@Ognl@isNotEmpty(isMenarche)">and `is_menarche` = #{isMenarche}</if>
+                <if test="@Ognl@isNotEmpty(isReview)">and `is_review` = #{isReview}</if>
+                <if test="@Ognl@isNotEmpty(isAnisometropia)">and `is_anisometropia` = #{isAnisometropia}</if>
+                <if test="@Ognl@isNotEmpty(isSaprodontiaLoss)">and `is_saprodontia_loss` = #{isSaprodontiaLoss}</if>
+                <if test="@Ognl@isNotEmpty(isSaprodontiaRepair)">and `is_saprodontia_repair` = #{isSaprodontiaRepair}</if>
+                <if test="@Ognl@isNotEmpty(isWearingGlasses)">and `is_wearing_glasses` = #{isWearingGlasses}</if>
+                <if test="@Ognl@isNotEmpty(isCooperative)">and `is_cooperative` = #{isCooperative}</if>
                 <if test="@Ognl@isNotEmpty(startTime)">
                     and `create_time`
                     <![CDATA[>=]]>
@@ -98,7 +121,8 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level,
-        is_bind_mp,report_id
+        is_bind_mp,report_id,screening_type,is_saprodontia,is_overweight,is_obesity,is_malnutrition,is_stunting,is_spinal_curvature,is_normal_blood_pressure,
+        is_diseases_history,is_nocturnal_emission,is_menarche,physique_rescreen_error_num,is_review,is_anisometropia,saprodontia_teeth,is_saprodontia_loss,saprodontia_loss_teeth,is_saprodontia_repair,saprodontia_repair_teeth,rescreen_item_num,low_vision_level,is_cooperative,screening_myopia,disease_num
     </sql>
 
     <!-- 通用查询结果列 -->
@@ -108,7 +132,14 @@
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
         mvsr.systemic_disease_symptom,mvsr.biometric_data,mvsr.other_eye_diseases, mspss.grade_id, mspss.class_id, msc.myopia_level,msc.hyperopia_level,msc.astigmatism_level,mspss.student_id,msc.create_time,msc.report_id,mspss.passport, mvsr.height_and_weight_data,
-        msc.is_valid
+        msc.is_valid,mspss.screening_plan_id as planId,
+        mvsr.saprodontia_data,
+        mvsr.spine_data,
+        mvsr.blood_pressure_data,
+        mvsr.diseases_history_data,
+        mvsr.privacy_data,
+        mvsr.deviation_data,
+        msc.is_low_vision,msc.screening_myopia
     </sql>
 
     <select id="selectLastOne" resultMap="BaseResultMap" parameterType="java.util.Map">
@@ -125,12 +156,6 @@
         <include refid="Base_Where_Clause" />
     </select>
 
-    <select id="selectVoByScreeningPlanId" resultMap="VoResultMap" parameterType="java.util.Map">
-        SELECT msc.*, mvsr.school_id
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        WHERE msc.plan_id = #{screeningPlanId}
-    </select>
 
     <select id="selectExportVoByScreeningNoticeIdAndDistrictIds" resultMap="ExportVoResultMap" parameterType="java.util.Map">
         SELECT
@@ -141,38 +166,29 @@
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
+        <if test="isKindergarten != null">
+            <choose>
+                <when test="isKindergarten == true">
+                    and msc.school_age = 5
+                </when>
+                <when test="isKindergarten == false">
+                    and msc.school_age != 5
+                </when>
+            </choose>
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndDistrictIdsAndGroupBy" resultMap="ScreeningPlanSchoolStudentVoResultMap" parameterType="java.util.Map">
+    <select id="selectPlanSchoolGradeClassHasData" resultMap="PlanSchoolGradeClassResultMap" parameterType="java.util.Map">
         SELECT
-        mspss.screening_plan_id,mspss.school_id,mspss.grade_id,mspss.class_id
+        mspss.screening_plan_id, mspss.school_id
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.src_screening_notice_id = #{screeningNoticeId}
         AND msc.district_id IN
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">#{id}</foreach>
-        GROUP BY mspss.screening_plan_id, mspss.school_id, mspss.grade_id, mspss.class_id
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
-            parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List"/>
-        FROM m_stat_conclusion msc
-                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-                WHERE msc.school_id = #{schoolId}
-        <if test="screeningNoticeId != null">
-            and msc.src_screening_notice_id = #{screeningNoticeId}
-        </if>
-        <if test="planId != null">
-            and msc.plan_id = #{planId}
-        </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        GROUP BY mspss.screening_plan_id, mspss.school_id
+        ORDER BY mspss.school_name
     </select>
 
     <select id="selectExportVoByScreeningPlanIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
@@ -183,6 +199,7 @@
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
         AND msc.school_id = #{schoolId}
+        AND msc.is_rescreen = 0
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -200,28 +217,6 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningPlanIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -347,6 +342,7 @@
                 </when>
             </choose>
         </if>
+        and is_rescreen = false
     </select>
 
     <select id="getByPlanStudentId" resultMap="BaseResultMap">
@@ -359,14 +355,15 @@
         limit 1
     </select>
 
-    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap" parameterType="java.util.Map">
+    <select id="selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme" resultMap="ExportVoResultMap"
+            parameterType="java.util.Map">
         SELECT
-        <include refid="Export_Vo_List" />
+        <include refid="Export_Vo_List"/>
         FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
+                 LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
+                 LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
+          AND mvsr.screening_org_id = #{screeningOrgId}
         <if test="schoolId != null and schoolId != '' and schoolId != 0">
             AND mspss.school_id = #{schoolId}
         </if>
@@ -376,6 +373,53 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
+        <if test="isKindergarten != null">
+            <choose>
+                <when test="isKindergarten == true">
+                    and msc.school_age = 5
+                </when>
+                <when test="isKindergarten == false">
+                    and msc.school_age != 5
+                </when>
+            </choose>
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+    </select>
+
+    <select id="getReviewByPlanIdAndSchoolIds" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where plan_id = #{planId}
+                                 and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        and is_review = 1
+        and is_rescreen = 0
+    </select>
+
+    <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where src_screening_notice_id = #{noticeId}
+                                 and district_id in
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and is_rescreen = false
+    </select>
+
+    <select id="getByPlanIdSchoolId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+        and is_rescreen = false
+        order by create_time desc
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and is_rescreen = false
     </select>
 </mapper>

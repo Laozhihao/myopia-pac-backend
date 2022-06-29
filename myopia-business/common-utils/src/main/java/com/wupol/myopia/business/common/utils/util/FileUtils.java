@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 public final class FileUtils {
@@ -88,6 +90,15 @@ public final class FileUtils {
                 fileOutputStream.close();
             }
         }
+    }
+
+    /**
+     * 获取文件保存父目录路径
+     *
+     * @return java.lang.String
+     **/
+    public static String getFileSaveParentPath(String savePath) {
+        return Paths.get(savePath, UUID.randomUUID().toString()).toString();
     }
 
 }

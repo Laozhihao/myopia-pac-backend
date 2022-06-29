@@ -35,7 +35,7 @@ public interface ScreeningNoticeMapper extends BaseMapper<ScreeningNotice> {
 
     ScreeningNotice getByTaskId(Integer taskId);
 
-    List<ScreeningNotice> getByIdsOrderByCreateTime(@Param("ids") List<Integer> ids);
+    List<ScreeningNotice> getByIdsOrderByStartTime(@Param("ids") List<Integer> ids);
 
     List<ScreeningNotice> checkTitleExist(@Param("govDeptId") Integer govDeptId,
                                           @Param("title") String title,

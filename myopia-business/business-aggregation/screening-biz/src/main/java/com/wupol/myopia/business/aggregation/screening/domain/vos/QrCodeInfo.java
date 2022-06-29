@@ -31,4 +31,9 @@ public class QrCodeInfo {
      * 二维码内容
      */
     private String qrCodeContent;
+
+    /**
+     * 出生年月
+     */
+    private String birthday;
 }

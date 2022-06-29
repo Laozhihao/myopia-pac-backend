@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * 重点
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class FocusObjectsStatisticVO extends ScreeningBasicResult {
 
@@ -55,7 +55,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     /**
      * 下级的数据列表，如果没有的话，为null
      */
-    private Set<Item> subordinateDatas;
+    private Set<Item> childDataSet;
 
     /**
      * 设置基础数据
@@ -122,7 +122,7 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
      */
     private void setItemData(Integer currentDistrictId, List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics, Map<Integer, String> districtIdNameMap) {
         // 下级数据 + 当前数据 + 合计数据
-        this.subordinateDatas = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
+        this.childDataSet = districtAttentiveObjectsStatistics.stream().map(districtAttentiveObjectsStatistic -> {
             Integer districtAttentiveDistrictId = districtAttentiveObjectsStatistic.getDistrictId();
             String rangeName;
             //是合计数据

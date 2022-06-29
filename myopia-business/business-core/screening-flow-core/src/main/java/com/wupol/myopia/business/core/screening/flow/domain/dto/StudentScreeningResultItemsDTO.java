@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.List;
@@ -11,14 +11,19 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Accessors(chain = true)
+@Data
 public class StudentScreeningResultItemsDTO {
 
     /**
-     * 详情
+     * 筛查数据详情
      */
-    private List<StudentResultDetailsDTO> details;
+    private ScreeningInfoDTO details;
+
+    /**
+     * 常见病编码code
+     */
+    private String commonDiseasesCode;
 
     /**
      * 筛查标题
@@ -33,7 +38,7 @@ public class StudentScreeningResultItemsDTO {
     /**
      * 眼睛类型
      */
-    private String glassesType;
+    private String glassesTypeDes;
 
     /**
      * 筛查结果表ID
@@ -89,4 +94,27 @@ public class StudentScreeningResultItemsDTO {
      * 筛查编码
      */
     private Long screeningCode;
+
+    /**
+     * 筛查类型
+     */
+    private Integer screeningType;
+    /**
+     * 筛查机构名称
+     */
+    private String screeningOrgName;
+    /**
+     * 性别
+     */
+    private Integer gender;
+    /**
+     * 班级ID
+     */
+    private Integer classId;
+
+    /**
+     * 筛查结果--所属的学生id
+     */
+    private Integer planStudentId;
+
 }

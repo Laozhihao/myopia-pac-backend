@@ -1,0 +1,18 @@
+{
+  "studentId": 3,
+  "schoolId": 4,
+  "deptId": 3,
+  "userId": 16,
+  "planStudentId": 19,
+  "createUserId": 3,
+  "isCooperative": 0,
+  "glassesType": "没有佩戴眼镜",
+  "rightCorrectedVision": 0.5,
+  "leftCorrectedVision": 0.4,
+  "rightNakedVision": 0.2,
+  "leftNakedVision": 0.2,
+  "diagnosis": 0,
+  "isState": 0,
+  "rightOkDegree": 0.2,
+  "leftOkDegree": 0.2
+}

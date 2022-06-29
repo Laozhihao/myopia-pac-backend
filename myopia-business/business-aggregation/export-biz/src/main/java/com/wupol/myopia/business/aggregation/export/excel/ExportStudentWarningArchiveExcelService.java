@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -69,7 +70,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
                     .setStudentName(statConclusionExport.getStudentName())
                     .setGenderDesc(GenderEnum.getName(statConclusionExport.getGender()))
                     .setGradeAndClassName(gradeNameMap.get(statConclusionExport.getGradeId()) + "-" + classNameMap.get(statConclusionExport.getClassId()))
-                    .setVisionStatus(VisionUtil.getVisionSummary(statConclusionExport.getGlassesType(), statConclusionExport.getMyopiaLevel(), statConclusionExport.getHyperopiaLevel(), statConclusionExport.getAstigmatismLevel()))
+                    .setVisionStatus(VisionUtil.getVisionSummary(statConclusionExport.getGlassesType(), statConclusionExport.getMyopiaLevel(), statConclusionExport.getHyperopiaLevel(), statConclusionExport.getAstigmatismLevel(),statConclusionExport.getScreeningMyopia(), Optional.ofNullable(statConclusionExport.getIsLowVision()).map(low-> Objects.equals(low,Boolean.TRUE) ? 1:null).orElse(null)))
                     .setVisionWarning(WarningLevel.getDesc(statConclusionExport.getWarningLevel()))
                     // 系统暂时没有身高数据，写死null
                     .setDeskAndChairTypeSuggest(getDeskAndChairTypeSuggest(null, statConclusionExport.getSchoolAge()))
@@ -119,7 +120,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
     }
 
     @Override
-    public Class getHeadClass() {
+    public Class getHeadClass(ExportCondition exportCondition) {
         return StudentWarningArchive.class;
     }
 
