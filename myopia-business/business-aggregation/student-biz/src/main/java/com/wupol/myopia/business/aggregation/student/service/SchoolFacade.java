@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -124,6 +125,7 @@ public class SchoolFacade {
         // 更新关联的筛查学生的常见病ID
         School newSchool = schoolService.getById(schoolId);
         updateStudentCommonDiseaseId(oldSchool, newSchool);
+        updatePlanSchoolStudentDistrictId(newSchool);
         // 组装返回数据
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
@@ -135,6 +137,19 @@ public class SchoolFacade {
                 .setScreeningCount(schoolRequestDTO.getScreeningCount())
                 .setCreateUser(schoolRequestDTO.getCreateUser());
         return schoolResponseDTO;
+    }
+
+    /**
+     * 更新筛查计划学校中学校的区域ID
+     *
+     * @param newSchool 新学校对象
+     */
+    private void updatePlanSchoolStudentDistrictId(School newSchool){
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getBySchoolId(newSchool.getId());
+        if (CollectionUtil.isNotEmpty(planSchoolStudentList)){
+            planSchoolStudentList.forEach(planSchoolStudent -> planSchoolStudent.setSchoolDistrictId(newSchool.getDistrictId()));
+            screeningPlanSchoolStudentService.batchUpdateOrSave(planSchoolStudentList);
+        }
     }
 
     /**
