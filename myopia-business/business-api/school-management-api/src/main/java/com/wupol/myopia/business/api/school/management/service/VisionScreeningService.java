@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -85,7 +86,9 @@ public class VisionScreeningService {
             return responseDTO;
         }
         List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
-        Map<Integer, ScreeningPlan> planMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
+        Map<Integer, ScreeningPlan> planMap = screeningPlans.stream()
+                .filter(s->Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息
         List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
