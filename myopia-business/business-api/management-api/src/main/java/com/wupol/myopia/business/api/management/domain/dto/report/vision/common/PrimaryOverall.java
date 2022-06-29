@@ -21,6 +21,11 @@ public class PrimaryOverall {
     private Info info;
 
     /**
+     * 图表
+     */
+    private List<StackedChart> charts;
+
+    /**
      * 表格
      */
     private List<PrimaryScreeningInfoTable> tables;

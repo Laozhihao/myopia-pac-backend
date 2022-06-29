@@ -171,9 +171,13 @@
 
     <select id="getResponseBySchoolId"
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
-        select screening_plan_id as planId, school_id as schoolId, screening_org_id as screeningOrgId
-        from m_screening_plan_school
-        where school_id = #{schoolId}
-        order by create_time desc
+        select msps.screening_plan_id as planId,
+               msps.school_id         as schoolId,
+               msps.screening_org_id  as screeningOrgId
+        from m_screening_plan_school msps
+                 left join m_screening_plan msp on msps.screening_plan_id = msp.id
+        where msp.screening_type = 0
+          and school_id = #{schoolId}
+        order by msps.create_time desc
     </select>
 </mapper>
