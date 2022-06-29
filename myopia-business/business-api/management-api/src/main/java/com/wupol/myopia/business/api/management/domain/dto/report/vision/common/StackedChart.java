@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.common;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class StackedChart {
 
     private List<String> data;
@@ -26,9 +28,6 @@ public class StackedChart {
     private String proportion;
 
     private String maxValue;
-
-    public StackedChart() {
-    }
 
     public StackedChart(List<String> data, String maxName, String maxRatio, String minName, String minRatio, String name, String proportion) {
         this.data = data;

@@ -718,9 +718,9 @@ public class CommonReportService {
         table.setVisionInfo(statConclusion.getIsLowVision());
         if (Objects.nonNull(statConclusion.getId())) {
             if (isk) {
-                table.setRefractiveInfo(kVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel(), result));
+                table.setRefractiveInfo(kindergartenVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel(), result));
             } else {
-                table.setRefractiveInfo(pVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
+                table.setRefractiveInfo(primaryVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
             }
         }
         table.setMyopiaCorrection(VisionCorrection.getDesc(statConclusion.getVisionCorrection()));
@@ -731,7 +731,7 @@ public class CommonReportService {
         return table;
     }
 
-    private String pVisionAnalyze(Boolean isMyopia, Boolean isAstigmatism, Boolean isHyperopia, VisionScreeningResult visionScreeningResult) {
+    private String primaryVisionAnalyze(Boolean isMyopia, Boolean isAstigmatism, Boolean isHyperopia, VisionScreeningResult visionScreeningResult) {
         if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
             return StringUtils.EMPTY;
         }
@@ -751,7 +751,7 @@ public class CommonReportService {
         return result.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 
-    private String kVisionAnalyze(Boolean isRefractiveError, Integer warningLevel, VisionScreeningResult visionScreeningResult) {
+    private String kindergartenVisionAnalyze(Boolean isRefractiveError, Integer warningLevel, VisionScreeningResult visionScreeningResult) {
         if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
             return StringUtils.EMPTY;
         }
