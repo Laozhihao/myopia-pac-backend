@@ -53,11 +53,9 @@ public class OperationAndMaintenanceController {
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
     @GetMapping("screeningToConclusion")
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll){
-        CompletableFuture.runAsync(()->{
-            statConclusionBizService.screeningToConclusion(planId,isAll);
-            scheduledTasksExecutor.statistic(null,planId,isAll);
-        },asyncServiceExecutor);
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll) {
+        statConclusionBizService.screeningToConclusion(planId, isAll);
+        scheduledTasksExecutor.statistic(null, planId, isAll);
 
     }
 
