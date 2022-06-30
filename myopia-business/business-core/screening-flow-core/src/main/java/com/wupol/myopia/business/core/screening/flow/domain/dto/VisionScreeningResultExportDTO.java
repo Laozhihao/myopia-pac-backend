@@ -185,13 +185,13 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({TOP_HEADER, "生物测量", "玻璃体厚度VT（左）"})
     private String leftBiometricVT;
 
-    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼压（右）"})
+    @ExcelProperty({TOP_HEADER, "眼压", "眼压（右）"})
     private String rightEyePressureDate;
-    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼压（左）"})
+    @ExcelProperty({TOP_HEADER, "眼压", "眼压（左）"})
     private String leftEyePressureDate;
-    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼底（右）"})
+    @ExcelProperty({TOP_HEADER, "眼底", "眼底（右）"})
     private String rightFundusData;
-    @ExcelProperty({TOP_HEADER, "眼压（右）", "眼底（左）"})
+    @ExcelProperty({TOP_HEADER, "眼底", "眼底（左）"})
     private String leftFundusData;
 
     @ExcelProperty({TOP_HEADER, "其他眼病", "眼部疾病左"})
