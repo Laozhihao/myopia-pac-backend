@@ -228,7 +228,7 @@ public class ReviewInformService {
                             if (ExportTypeConst.GRADE.equals(type)) {
                                 FileUtils.downloadFile(pdfResponseDTO.getUrl(),
                                         Paths.get(fileSaveParentPath,
-                                                gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
+                                                schoolMap.get(schoolKey) + gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
                                                 classMap.get(classKey).getName() + RESCREEN_NAME,
                                                 RESCREEN_NAME + ".pdf").toString());
                             } else {
