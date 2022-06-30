@@ -119,7 +119,9 @@ public class StatUtil {
         Optional.ofNullable(visionScreeningResult.getVisionData()).ifPresent(visionData-> cooperativeSet.add(visionData.getIsCooperative()));
 
         //屈光
-        Optional.ofNullable(visionScreeningResult.getComputerOptometry()).ifPresent(computerOptometry-> cooperativeSet.add(computerOptometry.getIsCooperative()));
+        Optional.ofNullable(visionScreeningResult.getComputerOptometry())
+                .map(ComputerOptometryDO::getIsCooperative)
+                .ifPresent(cooperativeSet::add);
 
 
         if (CollectionUtil.isNotEmpty(cooperativeSet)){
