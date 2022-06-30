@@ -6,6 +6,7 @@ import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -32,6 +33,8 @@ public class OperationAndMaintenanceController {
     private ScheduledTasksExecutor scheduledTasksExecutor;
     @Autowired
     private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private ThreadPoolTaskExecutor asyncServiceExecutor;
 
     /**
      * 触发大屏统计
@@ -50,9 +53,11 @@ public class OperationAndMaintenanceController {
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
     @GetMapping("screeningToConclusion")
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll) {
-        statConclusionBizService.screeningToConclusion(planId, isAll);
-        scheduledTasksExecutor.statistic(null, planId, isAll);
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll){
+        CompletableFuture.runAsync(()->{
+            statConclusionBizService.screeningToConclusion(planId,isAll);
+            scheduledTasksExecutor.statistic(null,planId,isAll);
+        },asyncServiceExecutor);
 
     }
 
@@ -61,7 +66,7 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("afreshScreeningToConclusion")
     public void afreshScreeningToConclusion(Integer planId){
-        statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE);
+        CompletableFuture.runAsync(()-> statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE),asyncServiceExecutor);
     }
 
     /**
@@ -69,10 +74,13 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("afreshStatistic")
     public void afreshStatistic(Integer planId){
-        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
-        if (deleteByPlanId){
-            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
-        }
+        CompletableFuture.runAsync(()->{
+            boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
+            if (deleteByPlanId){
+                scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+            }
+        },asyncServiceExecutor);
+
     }
 
     /**
@@ -80,6 +88,6 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("/triggerAll")
     public void statTaskTrigger() {
-        scheduledTasksExecutor.statistic();
+        CompletableFuture.runAsync(()-> scheduledTasksExecutor.statistic(),asyncServiceExecutor);
     }
 }
