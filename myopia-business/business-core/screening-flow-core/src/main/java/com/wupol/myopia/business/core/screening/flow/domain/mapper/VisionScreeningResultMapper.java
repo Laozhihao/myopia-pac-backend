@@ -61,5 +61,5 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<VisionScreeningResult> getByIds(@Param("ids") List<Integer> ids);
 
-    List<StudentScreeningCountDTO> countVisionScreeningTimeBySchoolId(Integer schoolId);
+    List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId);
 }

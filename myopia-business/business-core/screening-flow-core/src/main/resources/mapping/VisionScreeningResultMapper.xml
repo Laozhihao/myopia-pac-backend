@@ -249,7 +249,7 @@
         order by create_time desc
     </select>
 
-    <select id="countVisionScreeningTimeBySchoolId"
+    <select id="getVisionScreeningCountBySchoolId"
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO">
         select count(1) as count, student_id
         from m_vision_screening_result

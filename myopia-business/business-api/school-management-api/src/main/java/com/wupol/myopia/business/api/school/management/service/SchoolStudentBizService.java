@@ -66,7 +66,7 @@ public class SchoolStudentBizService {
         }
 
         // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countVisionScreeningTimeBySchoolId(schoolId);
+        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(schoolId);
         Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
                 .toMap(StudentScreeningCountDTO::getStudentId,
                         StudentScreeningCountDTO::getCount));
