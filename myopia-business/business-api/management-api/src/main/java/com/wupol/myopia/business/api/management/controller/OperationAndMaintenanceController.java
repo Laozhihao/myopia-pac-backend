@@ -6,6 +6,7 @@ import com.wupol.myopia.business.api.management.schedule.ScheduledTasksExecutor;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,12 +54,10 @@ public class OperationAndMaintenanceController {
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
     @GetMapping("screeningToConclusion")
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll){
-        CompletableFuture.runAsync(()->{
-            statConclusionBizService.screeningToConclusion(planId,isAll);
-            scheduledTasksExecutor.statistic(null,planId,isAll);
-        },asyncServiceExecutor);
-
+    @Async
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll) {
+        statConclusionBizService.screeningToConclusion(planId, isAll);
+        scheduledTasksExecutor.statistic(null, planId, isAll);
     }
 
     /**
