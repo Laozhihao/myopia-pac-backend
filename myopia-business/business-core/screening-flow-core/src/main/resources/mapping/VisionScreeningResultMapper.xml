@@ -248,4 +248,14 @@
         and is_double_screen = false
         order by create_time desc
     </select>
+
+    <select id="getVisionScreeningCountBySchoolId"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO">
+        select count(1) as count, student_id
+        from m_vision_screening_result
+        where is_double_screen = 0
+          and school_id = #{schoolId}
+          and screening_type = 0
+        group by student_id
+    </select>
 </mapper>
