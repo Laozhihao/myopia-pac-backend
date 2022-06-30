@@ -110,16 +110,13 @@ public class ScheduledTasksExecutor {
      */
     public void statistic(String date,Integer planId,Boolean isAll){
         if(Objects.equals(isAll,Boolean.TRUE)){
-            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(Objects::nonNull).collect(Collectors.toList());
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");
                 return;
             }
             log.info("筛查数据统计,共{}条筛查计划",yesterdayScreeningPlanIds.size());
             Collections.sort(yesterdayScreeningPlanIds);
-            if(Objects.nonNull(planId)){
-                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->id>planId).collect(Collectors.toList());
-            }
             List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 20);
             for (int i = 0; i < planIdsList.size(); i++) {
                 log.info("分批执行中...{}/{}",i+1,planIdsList.size());
