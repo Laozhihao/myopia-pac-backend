@@ -62,7 +62,7 @@ public class VisionScreeningResultExportDTO implements Serializable {
     @ExcelProperty({"学号", "学号", "学号"})
     private String studentNo;
 
-    @ExcelProperty({"地址", "地址", "地址"})
+    @ExcelProperty({"家庭地址", "家庭地址", "家庭地址"})
     private String address;
 
     @ExcelProperty({"是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）", "是否有做检查（未做检查的原因）"})
