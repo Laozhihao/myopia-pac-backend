@@ -458,7 +458,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      *
      * @return List<StudentScreeningCountVO>
      */
-    public List<StudentScreeningCountDTO> countVisionScreeningTimeBySchoolId(Integer schoolId) {
-        return baseMapper.countVisionScreeningTimeBySchoolId(schoolId);
+    public List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId) {
+        return baseMapper.getVisionScreeningCountBySchoolId(schoolId);
     }
 }
