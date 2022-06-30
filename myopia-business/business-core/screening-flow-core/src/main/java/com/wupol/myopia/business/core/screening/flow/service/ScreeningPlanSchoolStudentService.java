@@ -333,8 +333,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.setEntity(screeningPlanSchoolStudent);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
-
-
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
