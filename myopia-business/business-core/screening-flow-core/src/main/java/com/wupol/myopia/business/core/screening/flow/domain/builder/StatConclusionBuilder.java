@@ -89,8 +89,8 @@ public class StatConclusionBuilder {
             this.setRecommendVisit();
             //预警等级
             this.setWarningLevel();
-            this.setWarningVision();
         }
+        this.setWarningVision();
 
         //身高体重
         this.setHeightAndWeightData();
