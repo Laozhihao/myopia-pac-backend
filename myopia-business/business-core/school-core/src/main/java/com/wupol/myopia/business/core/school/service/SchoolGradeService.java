@@ -350,4 +350,12 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         Assert.notNull(classId, "班级ID不能为空");
         return baseMapper.selectClassWithSchoolAndGradeName(classId);
     }
+
+    /**
+     * 批量通过id获取实体
+     */
+    public <T> Map<Integer, SchoolGrade> getGradeMapByIds(List<T> list, Function<T, Integer> function) {
+        List<Integer> gradeIds = list.stream().map(function).collect(Collectors.toList());
+        return getGradeMapByIds(gradeIds);
+    }
 }
