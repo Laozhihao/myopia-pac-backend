@@ -55,9 +55,11 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("screeningToConclusion")
     @Async
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId, @RequestParam Boolean isAll) {
-        statConclusionBizService.screeningToConclusion(planId, isAll);
-        scheduledTasksExecutor.statistic(null, planId, isAll);
+    public void screeningToConclusion(@RequestParam(required = false) Integer planId,
+                                      @RequestParam Boolean isAll,
+                                      @RequestParam(required = false) String exclude) {
+        statConclusionBizService.screeningToConclusion(planId, isAll, exclude);
+        scheduledTasksExecutor.statistic(null, planId, isAll,exclude);
     }
 
     /**
@@ -65,7 +67,7 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("afreshScreeningToConclusion")
     public void afreshScreeningToConclusion(Integer planId){
-        CompletableFuture.runAsync(()-> statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE),asyncServiceExecutor);
+        CompletableFuture.runAsync(()-> statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE,null),asyncServiceExecutor);
     }
 
     /**
@@ -76,7 +78,7 @@ public class OperationAndMaintenanceController {
         CompletableFuture.runAsync(()->{
             boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
             if (deleteByPlanId){
-                scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
+                scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE,null);
             }
         },asyncServiceExecutor);
 

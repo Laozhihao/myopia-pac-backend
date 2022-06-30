@@ -108,9 +108,12 @@ public class ScheduledTasksExecutor {
      * 根据指定日期生成筛查结果统计数据
      * @param date 日期
      */
-    public void statistic(String date,Integer planId,Boolean isAll){
+    public void statistic(String date,Integer planId,Boolean isAll,String exclude){
         if(Objects.equals(isAll,Boolean.TRUE)){
             List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(Objects::nonNull).collect(Collectors.toList());
+            if (StrUtil.isNotBlank(exclude)){
+                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->!exclude.contains(id.toString())).collect(Collectors.toList());
+            }
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");
                 return;
