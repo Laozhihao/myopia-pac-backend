@@ -208,20 +208,23 @@ public class ArchiveService {
      **/
     private StudentCommonDiseaseIdInfo getStudentCommonDiseaseIdInfo(StudentDTO studentDTO, ScreeningPlan screeningPlan, School school) {
         // TODO: 1. 减少数据库查询，在循环外查询数据库
-        // TODO: 2. 直辖市特殊处理
         List<District> districtList = JSON.parseObject(school.getDistrictDetail(), new TypeReference<List<District>>(){});
         StudentCommonDiseaseId studentCommonDiseaseId = studentCommonDiseaseIdService.getStudentCommonDiseaseIdInfo(school.getDistrictId(), school.getId(), studentDTO.getGradeId(), studentDTO.getId(), screeningPlan.getStartTime());
-        String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(String.valueOf(districtList.get(2).getCode()).substring(0, 6), school.getId(), screeningPlan.getStartTime());
+        String commonDiseaseId = studentCommonDiseaseId.getCommonDiseaseId();
+        Assert.isTrue(districtList.size() > 1, "学校行政区域无效");
+        String cityCode = String.valueOf(districtList.get(1).getCode());
+        // 用于判断是否为直辖市
+        int index = cityCode.indexOf("000");
         return new StudentCommonDiseaseIdInfo()
-                .setCommonDiseaseId(studentCommonDiseaseId.getCommonDiseaseId())
+                .setCommonDiseaseId(commonDiseaseId)
                 .setProvinceName(districtList.get(0).getName())
-                .setProvinceCode(String.valueOf(districtList.get(0).getCode()).substring(0, 2))
-                .setCityName(districtList.get(1).getName())
-                .setCityCode(String.valueOf(districtList.get(1).getCode()).substring(2, 4))
-                .setAreaName(districtList.get(2).getName())
-                .setAreaCode(String.valueOf(districtList.get(2).getCode()).substring(4, 6))
+                .setProvinceCode(commonDiseaseId.substring(0, 2))
+                .setCityName(index > 4 ? districtList.get(0).getName() : districtList.get(1).getName())
+                .setCityCode(commonDiseaseId.substring(2, 4))
+                .setAreaName(index > 4 ? districtList.get(1).getName() : districtList.get(2).getName())
+                .setAreaCode(commonDiseaseId.substring(5, 7))
                 .setSchoolName(studentDTO.getSchoolName())
-                .setSchoolCode(schoolCommonDiseaseCode)
+                .setSchoolCode(commonDiseaseId.substring(8, 10))
                 .setGradeName(studentDTO.getGradeName())
                 .setGradeCode(GradeCodeEnum.getByName(studentDTO.getGradeName()).getCode())
                 .setStudentCode(studentCommonDiseaseId.getCommonDiseaseCode())
