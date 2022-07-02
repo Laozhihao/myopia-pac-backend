@@ -73,8 +73,12 @@ public enum GenderEnum {
 
     /** 获取性别名称 */
     public static String getCnName(Integer type) {
-        if (MALE.type.equals(type)) return MALE.cnDesc;
-        if (FEMALE.type.equals(type)) return FEMALE.cnDesc;
+        if (MALE.type.equals(type)) {
+            return MALE.cnDesc;
+        }
+        if (FEMALE.type.equals(type)) {
+            return FEMALE.cnDesc;
+        }
         return UNKNOWN.cnDesc;
     }
 }

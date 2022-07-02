@@ -295,4 +295,5 @@ public class ReportController {
         return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId));
     }
 
+
 }

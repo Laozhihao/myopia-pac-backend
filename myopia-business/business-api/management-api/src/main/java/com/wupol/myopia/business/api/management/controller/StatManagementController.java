@@ -63,11 +63,7 @@ public class StatManagementController {
     @Autowired
     private DistrictAttentiveObjectsStatisticBizService districtAttentiveObjectsStatisticBizService;
     @Autowired
-    private StatConclusionBizService statConclusionBizService;
-    @Autowired
     private ScreeningResultStatisticService screeningResultStatisticService;
-    @Autowired
-    private ScheduledTasksExecutor scheduledTasksExecutor;
 
     /**
      * 根据查找当前用户所处层级能够查找到的年度
@@ -207,58 +203,6 @@ public class StatManagementController {
             throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
         }
         return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
-    }
-
-
-    /**
-     * 筛查结果数据转筛查数据结论和筛查结果统计  TODO： 为了测试方便
-     *
-     * @param planId 筛查计划ID, 不必填
-     * @param isAll 是否全部 (true-全部,false-不是全部) 必填
-     */
-    @GetMapping("screeningToConclusion")
-    public void screeningToConclusion(@RequestParam(required = false) Integer planId,@RequestParam Boolean isAll){
-        statConclusionBizService.screeningToConclusion(planId,isAll);
-        scheduledTasksExecutor.statistic(null,planId,isAll);
-    }
-
-
-    /**
-     * 筛查结果转换筛查结论数据，解决了录入筛查结果数据正常，筛查结论数据有误，修改规则后可以更新结论数据
-     */
-    @GetMapping("afreshScreeningToConclusion")
-    public void afreshScreeningToConclusion(Integer planId){
-        statConclusionBizService.screeningToConclusion(planId,Boolean.FALSE);
-    }
-
-    /**
-     * 筛查结果统计，根据筛查计划删除旧数据重新生成，解决修改数据之后，统计数据存在旧数据问题
-     */
-    @GetMapping("afreshStatistic")
-    public void afreshStatistic(Integer planId){
-        boolean deleteByPlanId = screeningResultStatisticService.deleteByPlanId(planId);
-        if (deleteByPlanId){
-            scheduledTasksExecutor.statistic(null,planId,Boolean.FALSE);
-        }
-    }
-
-
-
-    /**
-     * 筛查结果统计定时任务手动调用 TODO：为了测试方便
-     */
-    @GetMapping("/triggerAll")
-    public void statTaskTrigger() {
-        scheduledTasksExecutor.statistic();
-    }
-    /**
-     * 触发大屏统计（todo 为了测试方便）
-     *
-     * @throws IOException
-     */
-    @GetMapping("/big")
-    public void statBigScreen() throws IOException {
-        bigScreeningStatService.statisticBigScreen();
     }
 
 

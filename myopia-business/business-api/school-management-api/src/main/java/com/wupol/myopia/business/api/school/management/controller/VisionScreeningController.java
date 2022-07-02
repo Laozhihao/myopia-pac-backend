@@ -149,8 +149,8 @@ public class VisionScreeningController {
      */
     @GetMapping("statStudents/list")
     public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, @Valid StudentTrackWarningRequestDTO requestDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
+//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return visionScreeningService.getTrackList(pageRequest, requestDTO, 340);
     }
 
     /**

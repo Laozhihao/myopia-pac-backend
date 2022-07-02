@@ -41,6 +41,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 学校Service
@@ -477,4 +479,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         String newTotal = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
         return schoolNoPrefix + newTotal;
     }
+
+    /**
+     * 获取学校Map
+     */
+    public <T> Map<Integer, String> getSchoolMap(List<T> list, Function<T, Integer> function) {
+        List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
+        return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
+    }
+
+
 }

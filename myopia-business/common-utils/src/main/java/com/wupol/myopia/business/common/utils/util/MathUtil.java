@@ -36,7 +36,7 @@ public class MathUtil {
      */
     public String ratio(Integer numerator, Integer denominator) {
         if (ObjectsUtil.allNull(numerator,denominator)){
-            return null;
+            return "0.00%";
         }
         DecimalFormat df = new DecimalFormat("0.00%");
         return ratio(numerator,denominator,df);
@@ -83,7 +83,7 @@ public class MathUtil {
 
     public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {
         if(ObjectsUtil.hasNull(numerator,denominator,df)){
-            return null;
+            return "0.00%";
         }
         if (numerator == 0 ||denominator == 0) {
             return df.format(new BigDecimal("0"));

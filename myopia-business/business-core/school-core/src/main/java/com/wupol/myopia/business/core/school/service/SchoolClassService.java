@@ -207,4 +207,12 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         return baseMapper.getByGradeIdAndNames(schoolId, gradeId, names);
     }
 
+    /**
+     * 批量通过id获取实体
+     */
+    public <T> Map<Integer, SchoolClass> getClassMapByIds(List<T> list, Function<T, Integer> function) {
+        List<Integer> classIds = list.stream().map(function).collect(Collectors.toList());
+        return getClassMapByIds(classIds);
+    }
+
 }
