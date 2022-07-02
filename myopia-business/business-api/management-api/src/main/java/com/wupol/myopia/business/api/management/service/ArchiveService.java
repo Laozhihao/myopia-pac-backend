@@ -11,7 +11,6 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
-import com.wupol.myopia.business.core.school.service.SchoolCommonDiseaseCodeService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
@@ -57,8 +56,6 @@ public class ArchiveService {
     private StudentFacade studentFacade;
     @Autowired
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
-    @Autowired
-    private SchoolCommonDiseaseCodeService schoolCommonDiseaseCodeService;
     @Autowired
     private SchoolService schoolService;
     @Autowired
