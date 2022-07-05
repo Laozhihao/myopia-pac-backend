@@ -475,9 +475,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schoolList)) {
             return schoolNoPrefix + "01";
         }
-        String maxSchoolNo = String.valueOf(schoolList.stream().mapToLong(s -> Long.parseLong(s.getSchoolNo())).max().orElse(1000000000));
-        String newTotal = String.format("%02d", Integer.parseInt(maxSchoolNo.substring(maxSchoolNo.length() - 2)) + 1);
-        return schoolNoPrefix + newTotal;
+        // 同一区/镇/县的行政区域的序号递增，不考虑片区、监测点
+        int maxSerialNumber = schoolList.stream().map(School::getSchoolNo).mapToInt(x -> Integer.parseInt(x.substring(x.length() - 2))).max().orElse(0);
+        return schoolNoPrefix + String.format("%02d", maxSerialNumber + 1);
     }
 
     /**
