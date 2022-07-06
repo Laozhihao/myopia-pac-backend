@@ -63,6 +63,7 @@ public class MybatisPlusGenerator {
             .put(9, new CoreModule("screening-organization-core", "screening.organization"))
             .put(10, new CoreModule("stat-core", "stat"))
             .put(11, new CoreModule("system-core", "system"))
+            .put(12, new CoreModule("questionnaire-core", "questionnaire"))
             .build();
 
     public static void main(String[] args) {

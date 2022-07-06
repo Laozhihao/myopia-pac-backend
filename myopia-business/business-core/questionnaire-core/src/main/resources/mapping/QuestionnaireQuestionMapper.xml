@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(questionnaireId)">and `questionnaire_id` = #{questionnaireId}</if>
+                <if test="@Ognl@isNotEmpty(questionId)">and `question_id` = #{questionId}</if>
+                <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
+                <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
+                <if test="@Ognl@isNotEmpty(logicFunction)">and `logic_function` = #{logicFunction}</if>
+                <if test="@Ognl@isNotEmpty(nextQuestion)">and `next_question` = #{nextQuestion}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,questionnaire_id, question_id, pid, serial_number, logic_function, next_question
+    </sql>
+
+    <select id="getByQuestionnaireId" resultMap="BaseResultMap">
+        select *
+        from q_questionnaire_question
+        where questionnaire_id = #{questionnaireId}
+    </select>
+</mapper>
