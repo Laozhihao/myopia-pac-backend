@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.Attribute;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.Options;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionAttribute;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -50,13 +50,13 @@ public class Question implements Serializable {
      * 问题属性
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private Attribute attribute;
+    private QuestionAttribute attribute;
 
     /**
      * 问题的答案选项
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<Options> options;
+    private List<Option> options;
 
     /**
      * 问题的序号

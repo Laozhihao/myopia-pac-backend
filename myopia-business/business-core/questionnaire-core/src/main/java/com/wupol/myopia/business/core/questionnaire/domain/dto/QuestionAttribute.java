@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Attribute {
+public class QuestionAttribute {
 
     /**
      * 是否必填

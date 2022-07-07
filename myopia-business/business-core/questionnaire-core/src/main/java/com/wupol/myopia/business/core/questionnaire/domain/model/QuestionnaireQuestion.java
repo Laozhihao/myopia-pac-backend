@@ -50,6 +50,11 @@ public class QuestionnaireQuestion implements Serializable {
     private String serialNumber;
 
     /**
+     * 排序
+     */
+    private Integer sort;
+
+    /**
      * 逻辑题目
      */
     private String logicFunction;

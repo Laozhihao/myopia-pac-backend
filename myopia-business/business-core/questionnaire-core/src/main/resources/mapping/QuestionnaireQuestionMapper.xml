@@ -15,6 +15,7 @@
                 <if test="@Ognl@isNotEmpty(questionId)">and `question_id` = #{questionId}</if>
                 <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
                 <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
+                <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
                 <if test="@Ognl@isNotEmpty(logicFunction)">and `logic_function` = #{logicFunction}</if>
                 <if test="@Ognl@isNotEmpty(nextQuestion)">and `next_question` = #{nextQuestion}</if>
             </trim>
@@ -23,7 +24,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,questionnaire_id, question_id, pid, serial_number, logic_function, next_question
+        id,questionnaire_id, question_id, pid, serial_number, sort, logic_function, next_question
     </sql>
 
     <select id="getByQuestionnaireId" resultMap="BaseResultMap">
