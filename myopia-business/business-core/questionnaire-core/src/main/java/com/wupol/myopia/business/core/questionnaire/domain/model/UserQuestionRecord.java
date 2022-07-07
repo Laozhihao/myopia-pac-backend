@@ -11,16 +11,16 @@ import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * 
+ * 用户答问卷记录表
  *
  * @Author Simple4H
- * @Date 2022-07-06
+ * @Date 2022-07-07
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_user_answer")
-public class UserAnswer implements Serializable {
+@TableName("q_user_question_record")
+public class UserQuestionRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,34 @@ public class UserAnswer implements Serializable {
     private Integer id;
 
     /**
-     * 用户ID
+     * 问题类型，如：radio（单选）、checkbox（多选）、input（填空）
      */
-    private Integer userId;
+    private String userId;
 
     /**
-     * 问卷ID
+     * 问题题目
      */
-    private Integer questionnaireId;
+    private String questionnaireId;
 
     /**
-     * 问题ID
+     * 问题属性
      */
-    private Integer questionId;
+    private String planId;
 
     /**
-     * 用户答案
+     * 问题的答案选项
      */
-    private String answer;
+    private String taskId;
+
+    /**
+     * 问题的序号
+     */
+    private String noticeId;
+
+    /**
+     * 状态 0-未开始 1-进行中 2-结束
+     */
+    private Integer status;
 
     /**
      * 创建时间

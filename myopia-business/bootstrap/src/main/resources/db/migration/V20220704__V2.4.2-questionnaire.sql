@@ -5,7 +5,7 @@ CREATE TABLE `q_questionnaire`
     `district_id` int          default null comment '区域ID',
     `year`        int          not null comment '年份，如：2022',
     `pid`         int          not null comment '父ID，没有上级为-1',
-    `status`      tinyint      default null comment '问卷状态 0-未开始 1-进行中 2-结束',
+    `status`      tinyint      default null comment '问卷状态 0-启用 1-禁用',
     `qes_url`     varchar(150) default null comment 'qes文件地址',
     `page_json`   json         default null comment '页面json数据',
     `create_time` timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
@@ -63,15 +63,29 @@ CREATE TABLE `q_qes_field_mapping`
 
 CREATE TABLE `q_user_answer`
 (
-    `id`          int       not null auto_increment comment '主键',
-    `user_id`     int       not null comment '用户ID',
-    `survey_id`   int       not null comment '问卷ID',
-    `question_id` int       not null comment '问题ID',
-    `user_answer` json      default null comment '用户答案',
-    `create_time` timestamp not null default CURRENT_TIMESTAMP comment '创建时间',
-    `update_time` timestamp not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+    `id`               int       not null auto_increment comment '主键',
+    `user_id`          int       not null comment '用户ID',
+    `questionnaire_id` int       not null comment '问卷ID',
+    `question_id`      int       not null comment '问题ID',
+    `answer`           json      default null comment '用户答案',
+    `create_time`      timestamp not null default CURRENT_TIMESTAMP comment '创建时间',
+    `update_time`      timestamp not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   default CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
     comment '用户答案表';
+
+create table q_user_question_record
+(
+    id               int auto_increment comment '主键'
+        primary key,
+    user_id          varchar(30)                         not null comment '问题类型，如：radio（单选）、checkbox（多选）、input（填空）',
+    questionnaire_id varchar(255)                        not null comment '问题题目',
+    plan_id          json                                null comment '问题属性',
+    task_id          json                                null comment '问题的答案选项',
+    notice_id        varchar(15)                         null comment '问题的序号',
+    status           tinyint                             null comment '状态 0-未开始 1-进行中 2-结束',
+    create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+) comment '用户答问卷记录表';
