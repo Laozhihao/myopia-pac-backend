@@ -31,27 +31,27 @@ public class UserQuestionRecord implements Serializable {
     private Integer id;
 
     /**
-     * 问题类型，如：radio（单选）、checkbox（多选）、input（填空）
+     * 用户Id
      */
     private String userId;
 
     /**
-     * 问题题目
+     * 问卷Id
      */
     private String questionnaireId;
 
     /**
-     * 问题属性
+     * 计划Id
      */
     private String planId;
 
     /**
-     * 问题的答案选项
+     * 任务Id
      */
     private String taskId;
 
     /**
-     * 问题的序号
+     * 通知Id
      */
     private String noticeId;
 

@@ -5,6 +5,7 @@ CREATE TABLE `q_questionnaire`
     `district_id` int          default null comment '区域ID',
     `year`        int          not null comment '年份，如：2022',
     `pid`         int          not null comment '父ID，没有上级为-1',
+    `type`        tinyint      not null comment '问卷类型',
     `status`      tinyint      default null comment '问卷状态 0-启用 1-禁用',
     `qes_url`     varchar(150) default null comment 'qes文件地址',
     `page_json`   json         default null comment '页面json数据',
@@ -81,11 +82,12 @@ create table q_user_question_record
     id               int auto_increment comment '主键'
         primary key,
     user_id          varchar(30)                         not null comment '问题类型，如：radio（单选）、checkbox（多选）、input（填空）',
-    questionnaire_id varchar(255)                        not null comment '问题题目',
-    plan_id          json                                null comment '问题属性',
-    task_id          json                                null comment '问题的答案选项',
-    notice_id        varchar(15)                         null comment '问题的序号',
+    questionnaire_id varchar(255)                        not null comment '问卷Id',
+    plan_id          json                                null comment '计划Id',
+    task_id          json                                null comment '任务Id',
+    notice_id        varchar(15)                         null comment '通知Id',
     status           tinyint                             null comment '状态 0-未开始 1-进行中 2-结束',
     create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
-) comment '用户答问卷记录表';
+)
+    comment '用户答问卷记录表';
