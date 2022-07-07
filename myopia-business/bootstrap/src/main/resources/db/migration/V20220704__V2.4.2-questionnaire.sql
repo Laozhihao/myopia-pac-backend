@@ -43,7 +43,7 @@ create table q_questionnaire_question
     serial_number    varchar(15)  null comment '自定义问题的序号',
     sort             tinyint      not null  comment '排序',
     logic_function   varchar(512) null comment '逻辑题目',
-    next_question    int          null comment '下一题目Id',
+    next_question_id int          null comment '下一题目Id',
     constraint questionnaire_question_unique_index
         unique (questionnaire_id, question_id)
 )
@@ -54,7 +54,7 @@ CREATE TABLE `q_qes_field_mapping`
     `id`               int auto_increment primary key comment '主键',
     `questionnaire_id` int         not null comment '问卷ID',
     `qes_field`        varchar(60) not null comment 'qes字段',
-    `system_field`     varchar(60) default null comment '系统字段',
+    `system_field`     varchar(60) not null comment '系统字段',
     `create_time`      timestamp   not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`      timestamp   not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间'
 ) ENGINE = InnoDB

@@ -62,7 +62,7 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 下一题目Id
      */
-    private Integer nextQuestion;
+    private Integer nextQuestionId;
 
 
 }

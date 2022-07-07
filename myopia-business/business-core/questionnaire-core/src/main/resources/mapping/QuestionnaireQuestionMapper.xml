@@ -17,7 +17,7 @@
                 <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
                 <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
                 <if test="@Ognl@isNotEmpty(logicFunction)">and `logic_function` = #{logicFunction}</if>
-                <if test="@Ognl@isNotEmpty(nextQuestion)">and `next_question` = #{nextQuestion}</if>
+                <if test="@Ognl@isNotEmpty(nextQuestionId)">and `next_question_id` = #{nextQuestionId}</if>
             </trim>
         </where>
     </sql>

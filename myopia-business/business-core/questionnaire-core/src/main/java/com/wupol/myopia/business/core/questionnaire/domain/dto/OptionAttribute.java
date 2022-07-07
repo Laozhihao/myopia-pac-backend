@@ -40,7 +40,7 @@ public class OptionAttribute {
     /**
      * 是否必填
      */
-    private String required;
+    private Boolean required;
 
 
 }
