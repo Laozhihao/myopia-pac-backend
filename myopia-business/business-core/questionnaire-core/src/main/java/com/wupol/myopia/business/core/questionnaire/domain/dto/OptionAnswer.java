@@ -4,31 +4,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 问卷-属性
+ * 选项答案
  *
  * @author Simple4H
  */
 @Getter
 @Setter
-public class Option {
+public class OptionAnswer {
 
     /**
-     * id
+     * 选项Id
      */
-    private String id;
+    private String optionId;
 
     /**
-     * 标题
+     * 文本值
      */
     private String text;
 
     /**
-     * 属性
+     * 填空值
      */
-    private OptionAttribute attribute;
-
-    /**
-     * 系统序号
-     */
-    private String serialNumber;
+    private String value;
 }

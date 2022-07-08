@@ -26,7 +26,7 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * id
      */
-    @TableId(value = "questionnaire_id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**

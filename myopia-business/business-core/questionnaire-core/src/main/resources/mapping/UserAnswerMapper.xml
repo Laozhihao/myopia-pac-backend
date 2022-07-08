@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="answer" property="answer"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -14,7 +15,7 @@
                 <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
                 <if test="@Ognl@isNotEmpty(questionnaireId)">and `questionnaire_id` = #{questionnaireId}</if>
                 <if test="@Ognl@isNotEmpty(questionId)">and `question_id` = #{questionId}</if>
-                <if test="@Ognl@isNotEmpty(userAnswer)">and `answer` = #{userAnswer}</if>
+                <if test="@Ognl@isNotEmpty(answer)">and `answer` = #{answer}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
             </trim>
