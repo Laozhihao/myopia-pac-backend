@@ -3,8 +3,6 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
  * 问卷-属性
  *
@@ -17,7 +15,7 @@ public class Option {
     /**
      * id
      */
-    private Integer id;
+    private String id;
 
     /**
      * 标题

@@ -15,7 +15,7 @@ public class OptionAnswer {
     /**
      * 选项Id
      */
-    private Integer optionId;
+    private String optionId;
 
     /**
      * 文本值
@@ -23,7 +23,7 @@ public class OptionAnswer {
     private String text;
 
     /**
-     * 占位符值
+     * 填空值
      */
     private String value;
 }
