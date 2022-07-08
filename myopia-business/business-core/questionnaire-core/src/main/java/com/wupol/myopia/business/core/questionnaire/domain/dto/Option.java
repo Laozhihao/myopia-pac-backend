@@ -32,5 +32,5 @@ public class Option {
     /**
      * 系统序号
      */
-    private String systemSerialNumber;
+    private String serialNumber;
 }

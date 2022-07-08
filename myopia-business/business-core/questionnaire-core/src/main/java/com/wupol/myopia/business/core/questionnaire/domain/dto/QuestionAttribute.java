@@ -25,5 +25,5 @@ public class QuestionAttribute {
     /**
      * 是否标题
      */
-    private Boolean isTitle;
+    private Boolean onlyTitle;
 }
