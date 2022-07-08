@@ -22,6 +22,7 @@
         <module>device-api</module>
         <module>school-management-api</module>
         <module>preschool-app-api</module>
+        <module>questionnaire-api</module>
     </modules>
 
 </project>
