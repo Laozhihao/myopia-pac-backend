@@ -972,6 +972,6 @@ INSERT INTO m_template (id, type, name) VALUES (7, 2, '筛查报告-模板3');
 INSERT INTO m_template (id, type, name) VALUES (8, 2, '筛查报告-模板4');
 
 -- 初始化“其他”学校
-INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, type, status) VALUES (1, '1234567890', 1, 1, -1, '', '其他', 2, '其他', 7, 0);
+INSERT INTO m_school (id, school_no, create_user_id, gov_dept_id, district_id, district_detail, name, kind, kind_desc, type, status) VALUES (1, '1234567890', 1, 1, -1, '[]', '其他', 2, '其他', 7, 0);
 INSERT INTO m_school_grade (id, create_user_id, school_id, grade_code, name, status) VALUES (1, 1, 1, '90', '其他', 0);
 INSERT INTO m_school_class (grade_id, create_user_id, school_id, name, seat_count, status) VALUES (1, 1, 1, '其他', 30, 0);
