@@ -33,27 +33,27 @@ public class UserQuestionRecord implements Serializable {
     /**
      * 用户Id
      */
-    private String userId;
+    private Integer userId;
 
     /**
      * 问卷Id
      */
-    private String questionnaireId;
+    private Integer questionnaireId;
 
     /**
      * 计划Id
      */
-    private String planId;
+    private Integer planId;
 
     /**
      * 任务Id
      */
-    private String taskId;
+    private Integer taskId;
 
     /**
      * 通知Id
      */
-    private String noticeId;
+    private Integer noticeId;
 
     /**
      * 状态 0-未开始 1-进行中 2-结束
