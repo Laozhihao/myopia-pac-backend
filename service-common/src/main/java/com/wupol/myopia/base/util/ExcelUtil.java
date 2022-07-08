@@ -37,9 +37,23 @@ public class ExcelUtil {
      * @param head              Excel表头定义类
      * @return java.io.File
      **/
-    public static File exportListToExcel(String fileNamePrefix, List data, Class head) throws IOException {
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, Class<?> head) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
         EasyExcelFactory.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
+        return outputFile;
+    }
+
+    /**
+     * 根据模板导数据到Excel，返回Excel对应的File
+     * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
+     *
+     * @param fileNamePrefix 文件名前缀
+     * @param templateFile 模板名称
+     * @param data 数据集合
+     */
+    public static File exportListToExcel(String fileNamePrefix, String templateFile, List<?> data) throws IOException {
+        File outputFile = getOutputFile(fileNamePrefix);
+        EasyExcelFactory.write(outputFile.getAbsolutePath()).withTemplate(templateFile).sheet().doFill(data);
         return outputFile;
     }
 
@@ -53,7 +67,7 @@ public class ExcelUtil {
      * @param head              Excel表头定义类
      * @return java.io.File
      **/
-    public static File exportListToExcel(String fileNamePrefix, List data, SheetWriteHandler sheetWriteHandler,  Class head) throws IOException {
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, SheetWriteHandler sheetWriteHandler,  Class<?> head) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
         EasyExcelFactory.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
@@ -70,7 +84,7 @@ public class ExcelUtil {
      * @param head              Excel表头定义类
      * @return java.io.File
      **/
-    public static File exportListToExcelWithFolder(String folder, String fileNamePrefix, List data, SheetWriteHandler sheetWriteHandler,  Class head) throws IOException {
+    public static File exportListToExcelWithFolder(String folder, String fileNamePrefix, List<?> data, SheetWriteHandler sheetWriteHandler,  Class<?> head) throws IOException {
         File outputFile = getOutputFileWithFolder(folder, fileNamePrefix);
         EasyExcelFactory.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
@@ -162,7 +176,7 @@ public class ExcelUtil {
      * @throws IOException
      */
     public static File exportHorizonListToExcel(
-            String fileNamePrefix, List data, InputStream template) throws IOException {
+            String fileNamePrefix, List<?> data, InputStream template) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
         ExcelWriter excelWriter = EasyExcelFactory.write(outputFile).withTemplate(template).build();
         WriteSheet writeSheet = EasyExcelFactory.writerSheet().build();
@@ -172,4 +186,5 @@ public class ExcelUtil {
         excelWriter.finish();
         return outputFile;
     }
+
 }
