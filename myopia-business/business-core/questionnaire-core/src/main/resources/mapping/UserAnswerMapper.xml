@@ -27,4 +27,20 @@
         id, user_id, questionnaire_id, question_id, answer, create_time, update_time
     </sql>
 
+    <insert id="batchSaveUserAnswer">
+        INSERT INTO q_user_answer
+            (user_id, questionnaire_id, question_id, answer)
+        VALUES
+        <foreach collection="userAnswers" item="userAnswer" separator=",">
+            (#{userAnswer.userId}, #{userAnswer.questionnaireId}, #{userAnswer.questionId},
+             #{userAnswer.answer,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler})
+        </foreach>
+    </insert>
+
+    <select id="getByQuestionnaireId" resultMap="BaseResultMap">
+        select *
+        from q_user_answer
+        where questionnaire_id = #{questionnaireId}
+          and user_id = #{userId};
+    </select>
 </mapper>
