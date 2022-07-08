@@ -1,0 +1,41 @@
+package com.wupol.myopia.business.api.management.domain.vo;
+
+import lombok.Data;
+
+/**
+ * 问卷学校填写的情况
+ *
+ * @author xz 2022 07 06 12:30
+ */
+@Data
+public class QuestionSchoolVO {
+    /**
+     * 学校填写个数
+     */
+    private Integer schoolAmount;
+
+    /**
+     * 学校填写未完成个数
+     */
+    private Integer schoolUnfinished;
+
+    /**
+     * 学生专项填写个数
+     */
+    private Integer studentSpecialAmount;
+
+    /**
+     * 学生专项填写完未成个数
+     */
+    private Integer studentSpecialUnfinished;
+
+    /**
+     * 学生环境填写个数
+     */
+    private Integer studentEnvironmentAmount;
+
+    /**
+     * 学生环境填写未完成个数
+     */
+    private Integer studentEnvironmentUnfinished;
+}

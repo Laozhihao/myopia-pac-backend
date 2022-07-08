@@ -76,7 +76,7 @@ spring:
       resourceserver:
         jwt:
           # 通过gateway访问oauth服务，获取JWT验签公钥请求路径【如果直接访问oauth服务，则去掉“/auth”前缀】
-          jwk-set-uri: 'http://localhost:8000/auth/rsa/publicKey'
+          jwk-set-uri: 'http://localhost:80/auth/rsa/publicKey'
 
   ### Redis配置
   redis:
