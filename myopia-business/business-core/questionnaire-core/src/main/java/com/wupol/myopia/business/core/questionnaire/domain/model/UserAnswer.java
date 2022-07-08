@@ -1,18 +1,21 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.OptionAnswer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
- * 
- *
  * @Author Simple4H
  * @Date 2022-07-06
  */
@@ -48,7 +51,8 @@ public class UserAnswer implements Serializable {
     /**
      * 用户答案
      */
-    private String answer;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<OptionAnswer> answer;
 
     /**
      * 创建时间
