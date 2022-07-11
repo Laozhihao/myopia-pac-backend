@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 选项答案
  *
@@ -26,4 +28,9 @@ public class OptionAnswer {
      * 填空值
      */
     private String value;
+
+    /**
+     * 填空题
+     */
+    private List<OptionAnswer> children;
 }
