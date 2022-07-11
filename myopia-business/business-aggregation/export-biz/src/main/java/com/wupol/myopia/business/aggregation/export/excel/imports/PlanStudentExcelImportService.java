@@ -149,7 +149,7 @@ public class PlanStudentExcelImportService {
                     .setScreeningPlanId(screeningPlan.getId())
                     .setSchoolId(schoolId)
                     .setFileName(originalFilename)
-                    .setTemplateFileName("筛查学生数据导入异常表")
+                    .setTemplateFileName("ImportStudentExceptionTable")
                     .setUserId(userId);
             uploadScreeningStudentVO.setFileName(originalFilename);
             uploadScreeningStudentVO.setFailDataUrl(exportExcelService.process(condition, tuple.getSecond()));
