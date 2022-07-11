@@ -119,14 +119,23 @@ public class PlanStudentExcelImportService {
             // 无数据，直接返回
             return null;
         }
-        UploadScreeningStudentVO uploadScreeningStudentVO = preCheck(userId, multipartFile, screeningPlan, schoolId,listMap);
+        UploadScreeningStudentVO uploadScreeningStudentVO = preCheck(userId, getFileName(multipartFile), screeningPlan, schoolId,listMap);
 
         insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
         return uploadScreeningStudentVO;
     }
 
-    private UploadScreeningStudentVO preCheck(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
+    /**
+     * 前置检查
+     *
+     * @param userId 用户ID
+     * @param originalFilename 原文件名称
+     * @param screeningPlan 筛查计划对象
+     * @param schoolId 学校ID
+     * @param listMap 数据集合
+     */
+    private UploadScreeningStudentVO preCheck(Integer userId, String originalFilename, ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
         School school = schoolService.getById(schoolId);
         if (Objects.isNull(school)) {
             throw new BusinessException("不存在该学校");
@@ -136,8 +145,6 @@ public class PlanStudentExcelImportService {
         TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> tuple = ImportScreeningSchoolStudentBuilder.validData(listMap, existPlanSchoolStudentList, gradeAndClassMap.get(schoolId), school);
         UploadScreeningStudentVO uploadScreeningStudentVO = tuple.getFirst();
         if (CollectionUtil.isNotEmpty(tuple.getSecond())){
-            String originalFilename = multipartFile.getOriginalFilename();
-            originalFilename = originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
             ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
                     .setScreeningPlanId(screeningPlan.getId())
                     .setSchoolId(schoolId)
@@ -150,6 +157,15 @@ public class PlanStudentExcelImportService {
         return uploadScreeningStudentVO;
     }
 
+    /**
+     * 获取原文件名称
+     *
+     * @param multipartFile 上传文档对象
+     */
+    private String getFileName(MultipartFile multipartFile){
+        String originalFilename = multipartFile.getOriginalFilename();
+        return originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
+    }
 
 
     @Transactional(rollbackFor = Exception.class)

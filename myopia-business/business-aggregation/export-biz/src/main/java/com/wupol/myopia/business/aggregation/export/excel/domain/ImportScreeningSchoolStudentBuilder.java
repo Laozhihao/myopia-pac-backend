@@ -6,6 +6,7 @@ import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -16,10 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -59,6 +57,7 @@ public class ImportScreeningSchoolStudentBuilder {
         List<String> snoList = Lists.newArrayList();
         getDuplicateInfo(listMap,idCardList,passportList,snoList);
 
+        List<String> screeningCodeList = existPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).map(Objects::toString).collect(Collectors.toList());
         List<Map<Integer, String>> errorMapList = Lists.newArrayList();
 
         //失败数据移出
@@ -66,16 +65,18 @@ public class ImportScreeningSchoolStudentBuilder {
         while (it.hasNext()){
             Map<Integer, String> item = it.next();
             List<String> errorItemList = Lists.newArrayList();
-            // 必填项
-            checkRequired(item,errorItemList);
-            // 年级和班级
-            checkGradeAndClass(item, gradeMaps,errorItemList);
-            // 字段有效性
-            checkValidity(item, existPlanSchoolStudentList, errorItemList,school.getId());
-            // 检查重复
-            checkHaveDuplicate(item,errorItemList,idCardList,passportList,snoList);
+            checkProcess(item,errorItemList,screeningCodeList,idCardList,passportList,snoList,existPlanSchoolStudentList,gradeMaps,school.getId());
             if (CollectionUtil.isNotEmpty(errorItemList)){
-                item.put(11,CollectionUtil.join(errorItemList,"; "));
+                List<String> requiredList = errorItemList.stream().filter(error -> error.contains("必填项为空")).map(s -> s.split(":")[1]).collect(Collectors.toList());
+                String requiredStr=StrUtil.EMPTY;
+                if (CollectionUtil.isNotEmpty(requiredList)){
+                    requiredStr = "必填项为空:"+CollectionUtil.join(requiredList,"、");
+                }
+                List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains("必填项为空")).collect(Collectors.toList());
+                if (StrUtil.isNotBlank(requiredStr)){
+                    notRequiredList.add(requiredStr);
+                }
+                item.put(11,CollectionUtil.join(notRequiredList, "; "));
                 errorMapList.add(item);
                 it.remove();
             }
@@ -111,6 +112,148 @@ public class ImportScreeningSchoolStudentBuilder {
     }
 
     /**
+     * 每行数据校验处理
+     *
+     * @param item 数据
+     * @param errorItemList 错误集合
+     * @param screeningCodeList 筛查编码集合
+     * @param idCardList 重复身份证号集合
+     * @param passportList 重复护照集合
+     * @param snoList 重复学号集合
+     * @param existPlanSchoolStudentList 筛查计划学校学生集合
+     * @param gradeMaps 年级和班级集合
+     * @param schoolId 学校ID
+     */
+    private static void checkProcess(Map<Integer, String> item,
+                                     List<String> errorItemList,
+                                     List<String> screeningCodeList,
+                                     List<String> idCardList, List<String> passportList, List<String> snoList,
+                                     List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList,
+                                     Map<String, SchoolGradeExportDTO> gradeMaps,
+                                     Integer schoolId){
+        String screeningCode = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
+        String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
+        String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
+        String name = item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null);
+        String gender = item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null);
+        String birthdayStr = item.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null);
+        String gradeName = item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null);
+        String className = item.getOrDefault(ImportExcelEnum.CLASS.getIndex(), null);
+        String studentNo = item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null);
+        String phone = item.getOrDefault(ImportExcelEnum.PHONE.getIndex(), null);
+        //筛查编号
+        if (Objects.nonNull(screeningCode) && !screeningCodeList.contains(screeningCode)){
+            //校验编码是否存在于系统
+            errorItemList.add("编码错误");
+        }
+
+        if (StringUtils.isAllBlank(idCard,passport)){
+            errorItemList.add("身份证号和护照，二选一必填");
+        }
+
+        if (StringUtils.isAllBlank(idCard,passport,screeningCode)){
+            errorItemList.add("身份证号、护照、编码不能都为空");
+        }
+
+        boolean isIdCard = StringUtils.isNotBlank(idCard);
+        //身份证号/护照
+        if (isIdCard){
+            if (!IdcardUtil.isValidCard(idCard)){
+                errorItemList.add("身份证号错误");
+            }
+            if (idCardList.contains(idCard)){
+                errorItemList.add("身份证号与其他重复");
+            }
+        }else {
+            boolean isPassport = StrUtil.isNotBlank(passport);
+            if (isPassport && passport.length() < 7) {
+                errorItemList.add("护照错误");
+            }
+            if (isPassport && passportList.contains(passport)){
+                errorItemList.add("护照与其他重复");
+            }
+        }
+
+        //姓名
+        if (StrUtil.isBlank(name)){
+            errorItemList.add("必填项为空:姓名");
+        }
+
+        //性别
+        if (!isIdCard && StrUtil.isBlank(gender)){
+            errorItemList.add("必填项为空:性别");
+        }
+
+        //出生日期
+        if (!isIdCard && StrUtil.isBlank(birthdayStr)){
+            errorItemList.add("必填项为空:出生日期");
+        }
+
+        if (StrUtil.isNotBlank(birthdayStr)){
+            Date birthday =null;
+            try {
+                birthday = DateFormatUtil.parseDate(birthdayStr, DateFormatUtil.FORMAT_ONLY_DATE2);
+            }catch (Exception e){
+                errorItemList.add("出生日期格式错误");
+            }
+            // 1970-01-01 00:00:02 毫秒时间戳
+            Date beforeDate = new Date(-28798000L);
+            Date afterDate = new Date();
+            if (Objects.nonNull(birthday) && (birthday.before(beforeDate) || birthday.after(afterDate))) {
+                errorItemList.add("出生日期超出限制错误");
+            }
+        }
+
+        SchoolGradeExportDTO schoolGradeExportDTO=null;
+        //年级
+        if (StrUtil.isNotBlank(gradeName)){
+            schoolGradeExportDTO = gradeMaps.get(gradeName);
+            if (Objects.isNull(schoolGradeExportDTO)){
+                errorItemList.add("年级不存在");
+            }
+        }else {
+            errorItemList.add("必填项为空:年级");
+        }
+
+        if (StrUtil.isNotBlank(className) ){
+            if(Objects.nonNull(schoolGradeExportDTO)){
+                // 获取年级内的班级信息
+                List<SchoolClassExportDTO> classExportDTOList = schoolGradeExportDTO.getChild();
+                Map<String, Integer> classExportMaps=Maps.newHashMap();
+                if (CollectionUtil.isNotEmpty(classExportDTOList)){
+                    classExportMaps = classExportDTOList.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
+                }
+                // 转换成班级Maps 把班级名称作为key
+                Integer classId = classExportMaps.get(className);
+                if (Objects.isNull(classId)){
+                    errorItemList.add("班级不存在");
+                }
+            }else {
+                errorItemList.add("班级不存在");
+            }
+
+        }else {
+            errorItemList.add("必填项为空:班级");
+        }
+
+        //学号
+        if (StrUtil.isNotBlank(studentNo) ){
+            if (Objects.equals(Boolean.TRUE,checkSno(existPlanSchoolStudentList,studentNo,idCard,passport,schoolId))) {
+                errorItemList.add("学号错误");
+            }
+            if (snoList.contains(studentNo)){
+                errorItemList.add("学号与其他重复");
+            }
+        }
+        //手机号码
+        if (StrUtil.isNotBlank(phone) && !PhoneUtil.isPhone(phone)){
+            errorItemList.add("手机号码错误");
+        }
+
+    }
+
+
+    /**
      * 获取重复数据（身份证号，护照，学号）
      *
      * @param listMap 集合
@@ -144,47 +287,6 @@ public class ImportScreeningSchoolStudentBuilder {
 
     }
 
-    /**
-     * 检查数据的有效性
-     * @param item 数据
-     * @param existPlanSchoolStudentList 存在的筛查学校学生数据集合
-     * @param errorItemList 错误信息集合
-     * @param schoolId 学校ID
-     */
-    private static void checkValidity(Map<Integer, String> item,
-                                   List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList,
-                                   List<String> errorItemList,
-                                   Integer schoolId) {
-
-
-        String idCard = item.get(ImportExcelEnum.ID_CARD.getIndex());
-        String passport = item.get(ImportExcelEnum.PASSPORT.getIndex());
-        String screeningCode = item.get(ImportExcelEnum.SCREENING_CODE.getIndex());
-        String phone = item.get(ImportExcelEnum.PHONE.getIndex());
-        String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
-        // 唯一标志
-        if (StringUtils.isAllBlank(idCard, passport, screeningCode)) {
-            errorItemList.add("身份证、护照、编码不能都为空");
-        }
-        //护照
-        if (StringUtils.isNotBlank(passport) && passport.length() < 7) {
-            errorItemList.add("护照号错误");
-        }
-
-        // 身份证
-        if (StringUtils.isNotBlank(idCard) && !IdcardUtil.isValidCard(idCard)) {
-            errorItemList.add("身份证号错误");
-        }
-        // 手机号码
-        if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
-            errorItemList.add("手机号码错误");
-        }
-        //学号
-        if (Objects.equals(Boolean.TRUE,checkSno(existPlanSchoolStudentList,sno,idCard,passport,schoolId))) {
-            errorItemList.add("学号重复");
-        }
-
-    }
 
     /**
      * 检查学号是否被使用
@@ -205,102 +307,6 @@ public class ImportScreeningSchoolStudentBuilder {
         // 学号是否被使用
         List<ScreeningPlanSchoolStudent> collect = existPlanSchoolStudentList.stream().filter(predicate).collect(Collectors.toList());
         return CollectionUtil.isNotEmpty(collect);
-    }
-
-    /**
-     * 检查年级和班级
-     * @param item 数据
-     * @param gradeMaps 年级班级数据
-     * @param errorItemList 错误信息集合
-     */
-    private static void checkGradeAndClass(Map<Integer, String> item,
-                                             Map<String, SchoolGradeExportDTO> gradeMaps,
-                                             List<String> errorItemList) {
-
-
-        //检查班级和年级
-        String gradeName = item.get(ImportExcelEnum.GRADE.getIndex());
-        String className = item.get(ImportExcelEnum.CLASS.getIndex());
-
-        // 年级信息
-        SchoolGradeExportDTO schoolGradeExportDTO = gradeMaps.get(gradeName);
-        if (Objects.isNull(schoolGradeExportDTO)){
-            errorItemList.add("年级不存在");
-        }
-
-        if (Objects.nonNull(schoolGradeExportDTO)){
-            // 获取年级内的班级信息
-            List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
-            Map<String, Integer> classExportMaps=Maps.newHashMap();
-            if (CollectionUtil.isNotEmpty(classExportVOS)){
-                classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
-            }
-            // 转换成班级Maps 把班级名称作为key
-            Integer classId = classExportMaps.get(className);
-            if (Objects.isNull(classId)){
-                errorItemList.add("班级不存在");
-            }
-        }else {
-            errorItemList.add("班级不存在");
-        }
-    }
-
-    /**
-     * 检查重复
-     *
-     * @param item 数据
-     * @param errorItemList 错误集合
-     * @param idCardList 身份证号重复集合
-     * @param passportList 护照重复集合
-     * @param snoList 学号重复集合
-     */
-    private static void checkHaveDuplicate(Map<Integer, String> item,List<String> errorItemList,List<String> idCardList, List<String> passportList, List<String> snoList){
-        String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
-        String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
-        String sno = item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null);
-
-        if (StrUtil.isNotBlank(idCard) && idCardList.contains(idCard)){
-            errorItemList.add("身份证号与其他重复");
-        }
-        if (StrUtil.isNotBlank(passport) && passportList.contains(passport)){
-            errorItemList.add("护照与其他重复");
-        }
-        if (StrUtil.isNotBlank(sno) && snoList.contains(sno)){
-            errorItemList.add("学号与其他重复");
-        }
-    }
-    /**
-     * 检查必须项
-     * @param item 数据
-     * @param errorItemList 错误信息集合
-     */
-    private static void checkRequired(Map<Integer, String> item,List<String> errorItemList){
-        List<String> errorList = Lists.newArrayList();
-        String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
-        String passPort = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
-        if (Objects.isNull(idCard) && Objects.isNull(passPort)){
-            errorList.add(ImportExcelEnum.ID_CARD.getName()+"/"+ImportExcelEnum.PASSPORT+": 二选一必填");
-        }
-
-        if (Objects.isNull(item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null))){
-            errorList.add(ImportExcelEnum.NAME.getName());
-        }
-        if (Objects.isNull(item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null))){
-            errorList.add(ImportExcelEnum.GENDER.getName());
-        }
-        if (Objects.isNull(item.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null))){
-            errorList.add(ImportExcelEnum.BIRTHDAY.getName());
-        }
-        if (Objects.isNull(item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null))){
-            errorList.add(ImportExcelEnum.GRADE.getName());
-        }
-        if (Objects.isNull(item.getOrDefault(ImportExcelEnum.GRADE.getIndex(), null))){
-            errorList.add(ImportExcelEnum.GRADE.getName());
-        }
-
-        if (CollectionUtil.isNotEmpty(errorList)){
-            errorItemList.add("必填项为空:" + CollectionUtil.join(errorList, "、"));
-        }
     }
 
 }
