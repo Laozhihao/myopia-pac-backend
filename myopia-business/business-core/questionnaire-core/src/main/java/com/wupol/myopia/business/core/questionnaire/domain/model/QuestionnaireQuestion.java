@@ -24,6 +24,11 @@ public class QuestionnaireQuestion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 顶层父级的标志Id
+     */
+    public static final int TOP_PARENT_ID  = -1;
+
+    /**
      * id
      */
     @TableId(value = "id", type = IdType.AUTO)

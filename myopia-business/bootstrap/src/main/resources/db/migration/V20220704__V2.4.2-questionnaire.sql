@@ -20,10 +20,10 @@ CREATE TABLE `q_questionnaire`
 CREATE TABLE `q_question`
 (
     `id`            int          not null auto_increment comment '主键',
-    `type`          varchar(30)  not null comment '问题类型，如：radio（单选）、checkbox（多选）、input（填空）',
+    `type`          varchar(30)  not null comment '问题类型，如：radio（单选）、checkbox（多选）、input（填空） title 标题',
     `title`         varchar(255) not null comment '问题题目',
     `attribute`     json         default null comment '问题属性',
-    `options`       json         not null comment '问题的答案选项',
+    `options`       json         null comment '问题的答案选项',
     `serial_number` varchar(15)  default null comment '问题的序号',
     `create_time`   timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`   timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
