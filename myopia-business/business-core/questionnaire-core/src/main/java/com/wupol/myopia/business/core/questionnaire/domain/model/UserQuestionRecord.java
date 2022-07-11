@@ -56,6 +56,16 @@ public class UserQuestionRecord implements Serializable {
     private Integer noticeId;
 
     /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
+     * 机构Id
+     */
+    private Integer orgId;
+
+    /**
      * 状态 0-未开始 1-进行中 2-结束
      */
     private Integer status;
