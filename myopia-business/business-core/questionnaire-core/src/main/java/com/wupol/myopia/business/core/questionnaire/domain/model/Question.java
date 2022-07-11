@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_question")
+@TableName(value = "q_question", autoResultMap = true)
 public class Question implements Serializable {
 
     private static final long serialVersionUID = 1L;
