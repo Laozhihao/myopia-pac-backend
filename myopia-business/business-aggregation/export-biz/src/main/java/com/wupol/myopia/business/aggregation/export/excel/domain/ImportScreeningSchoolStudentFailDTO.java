@@ -32,7 +32,7 @@ public class ImportScreeningSchoolStudentFailDTO implements Serializable {
     /**
      * 护照
      */
-    @ExcelProperty(value = "护照")
+    @ExcelProperty(value = "护照号")
     private String passport;
     /**
      * 姓名

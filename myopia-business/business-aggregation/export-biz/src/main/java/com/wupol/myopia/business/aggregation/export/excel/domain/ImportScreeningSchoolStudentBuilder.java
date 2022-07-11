@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class ImportScreeningSchoolStudentBuilder {
 
+    public static final String requiredText = "必填项为空";
 
     /**
      * 校验数据
@@ -67,12 +68,12 @@ public class ImportScreeningSchoolStudentBuilder {
             List<String> errorItemList = Lists.newArrayList();
             checkProcess(item,errorItemList,screeningCodeList,idCardList,passportList,snoList,existPlanSchoolStudentList,gradeMaps,school.getId());
             if (CollectionUtil.isNotEmpty(errorItemList)){
-                List<String> requiredList = errorItemList.stream().filter(error -> error.contains("必填项为空")).map(s -> s.split(":")[1]).collect(Collectors.toList());
+                List<String> requiredList = errorItemList.stream().filter(error -> error.contains(requiredText)).map(s -> s.split(StrUtil.COLON)[1]).collect(Collectors.toList());
                 String requiredStr=StrUtil.EMPTY;
                 if (CollectionUtil.isNotEmpty(requiredList)){
-                    requiredStr = "必填项为空:"+CollectionUtil.join(requiredList,"、");
+                    requiredStr = getRequiredText(CollectionUtil.join(requiredList,"、"));
                 }
-                List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains("必填项为空")).collect(Collectors.toList());
+                List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains(requiredText)).collect(Collectors.toList());
                 if (StrUtil.isNotBlank(requiredStr)){
                     notRequiredList.add(requiredStr);
                 }
@@ -148,11 +149,11 @@ public class ImportScreeningSchoolStudentBuilder {
         }
 
         if (StringUtils.isAllBlank(idCard,passport)){
-            errorItemList.add("身份证号和护照，二选一必填");
+            errorItemList.add("身份证号和护照号，二选一必填");
         }
 
         if (StringUtils.isAllBlank(idCard,passport,screeningCode)){
-            errorItemList.add("身份证号、护照、编码不能都为空");
+            errorItemList.add("身份证号、护照号、编码不能都为空");
         }
 
         boolean isIdCard = StringUtils.isNotBlank(idCard);
@@ -167,26 +168,26 @@ public class ImportScreeningSchoolStudentBuilder {
         }else {
             boolean isPassport = StrUtil.isNotBlank(passport);
             if (isPassport && passport.length() < 7) {
-                errorItemList.add("护照错误");
+                errorItemList.add("护照号错误");
             }
             if (isPassport && passportList.contains(passport)){
-                errorItemList.add("护照与其他重复");
+                errorItemList.add("护照号与其他重复");
             }
         }
 
         //姓名
         if (StrUtil.isBlank(name)){
-            errorItemList.add("必填项为空:姓名");
+            errorItemList.add(getRequiredText("姓名"));
         }
 
         //性别
         if (!isIdCard && StrUtil.isBlank(gender)){
-            errorItemList.add("必填项为空:性别");
+            errorItemList.add(getRequiredText("性别"));
         }
 
         //出生日期
         if (!isIdCard && StrUtil.isBlank(birthdayStr)){
-            errorItemList.add("必填项为空:出生日期");
+            errorItemList.add(getRequiredText("出生日期"));
         }
 
         if (StrUtil.isNotBlank(birthdayStr)){
@@ -212,7 +213,7 @@ public class ImportScreeningSchoolStudentBuilder {
                 errorItemList.add("年级不存在");
             }
         }else {
-            errorItemList.add("必填项为空:年级");
+            errorItemList.add(getRequiredText("年级"));
         }
 
         if (StrUtil.isNotBlank(className) ){
@@ -233,7 +234,7 @@ public class ImportScreeningSchoolStudentBuilder {
             }
 
         }else {
-            errorItemList.add("必填项为空:班级");
+            errorItemList.add(getRequiredText("班级"));
         }
 
         //学号
@@ -309,4 +310,7 @@ public class ImportScreeningSchoolStudentBuilder {
         return CollectionUtil.isNotEmpty(collect);
     }
 
+    private static String getRequiredText(String text){
+        return requiredText+StrUtil.COLON+text;
+    }
 }
