@@ -94,3 +94,6 @@ create table q_user_question_record
 
 alter table q_questionnaire_question
     add next_question_offset int null comment '下一个题目偏移量';
+
+alter table q_question
+    add same_question_group_id varchar(128) null comment '相同问题uuid' after serial_number;
