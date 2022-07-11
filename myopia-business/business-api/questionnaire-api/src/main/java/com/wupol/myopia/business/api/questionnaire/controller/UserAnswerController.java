@@ -19,9 +19,9 @@ public class UserAnswerController {
     @Resource
     private UserAnswerService userAnswerService;
 
-    @GetMapping("list")
-    public UserAnswerDTO getUserAnswerList(Integer userId, Integer questionnaireId) {
-        return userAnswerService.getUserAnswerList(userId, questionnaireId);
+    @GetMapping("list/{questionnaireId}")
+    public UserAnswerDTO getUserAnswerList(@PathVariable("questionnaireId") Integer questionnaireId) {
+        return userAnswerService.getUserAnswerList(questionnaireId);
     }
 
 

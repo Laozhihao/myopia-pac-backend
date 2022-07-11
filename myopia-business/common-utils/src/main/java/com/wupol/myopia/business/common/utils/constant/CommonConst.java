@@ -179,4 +179,6 @@ public class CommonConst {
      * 顿号
      */
     public static final String CN_PUNCTUATION_COMMA = "、";
+
+    public static final Integer USER_ID = 101;
 }

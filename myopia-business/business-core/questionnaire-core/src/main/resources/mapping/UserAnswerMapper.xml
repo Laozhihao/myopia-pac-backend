@@ -35,6 +35,9 @@
             (#{userAnswer.userId}, #{userAnswer.questionnaireId}, #{userAnswer.questionId},
              #{userAnswer.answer,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler})
         </foreach>
+        on duplicate key update id          = values(id),
+                                answer      = values(answer),
+                                update_time = now()
     </insert>
 
     <select id="getByQuestionnaireId" resultMap="BaseResultMap">
@@ -43,4 +46,14 @@
         where questionnaire_id = #{questionnaireId}
           and user_id = #{userId};
     </select>
+
+    <delete id="deleteBatchByCombinationId">
+        delete
+        from q_user_answer where user_id = #{userId}
+                             and questionnaire_id = #{questionnaireId}
+                             and question_id in
+        <foreach collection="questionIds" open="(" close=")" separator="," item="questionId">
+            #{questionId}
+        </foreach>
+    </delete>
 </mapper>

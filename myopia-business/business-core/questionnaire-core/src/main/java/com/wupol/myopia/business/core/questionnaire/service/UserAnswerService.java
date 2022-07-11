@@ -6,10 +6,12 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapp
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.wupol.myopia.business.common.utils.constant.CommonConst.USER_ID;
 
 /**
  * @author Simple4H
@@ -17,17 +19,14 @@ import java.util.stream.Collectors;
 @Service
 public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer> {
 
-    private static final Integer USER_ID = 101;
-
     /**
      * 获取用户答案
      *
-     * @param userId          用户Id
      * @param questionnaireId 问卷Id
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer userId, Integer questionnaireId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
         List<UserAnswer> userAnswers = getByQuestionnaireId(questionnaireId, USER_ID);
@@ -48,22 +47,14 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     @Transactional(rollbackFor = Exception.class)
     public void saveUserAnswer(UserAnswerDTO requestDTO) {
 
-
         Integer questionnaireId = requestDTO.getQuestionnaireId();
-        // 先删除当前问卷下的所有答案
-        List<Integer> ids = getByQuestionnaireId(questionnaireId, USER_ID).stream().map(UserAnswer::getId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(ids)) {
-            baseMapper.deleteBatchIds(ids);
-        }
+        List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
-        List<UserAnswer> userAnswers = requestDTO.getQuestionList().stream().map(s -> {
-            UserAnswer userAnswer = new UserAnswer();
-            userAnswer.setUserId(USER_ID);
-            userAnswer.setQuestionnaireId(questionnaireId);
-            userAnswer.setQuestionId(s.getQuestionId());
-            userAnswer.setAnswer(s.getAnswer());
-            return userAnswer;
-        }).collect(Collectors.toList());
+        // 先简单处理（最后提交的最新，即最新提交的会覆盖）
+        Map<Integer, Integer> questionMap = getByQuestionnaireId(questionnaireId, USER_ID)
+                .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
+
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, USER_ID, questionMap);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 
@@ -76,6 +67,28 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      */
     public List<UserAnswer> getByQuestionnaireId(Integer questionnaireId, Integer userId) {
         return baseMapper.getByQuestionnaireId(questionnaireId, userId);
+    }
+
+    /**
+     * 转换成UserAnswer
+     *
+     * @param list            请求参数
+     * @param questionnaireId 问卷Id
+     * @param questionMap     存在的答案Map
+     *
+     * @return List<UserAnswer>
+     */
+    private List<UserAnswer> convert2UserAnswer(List<UserAnswerDTO.QuestionDTO> list, Integer questionnaireId,
+                                                Integer userId, Map<Integer, Integer> questionMap) {
+        return list.stream().map(s -> {
+            UserAnswer userAnswer = new UserAnswer();
+            userAnswer.setId(questionMap.getOrDefault(s.getQuestionId(), null));
+            userAnswer.setUserId(userId);
+            userAnswer.setQuestionnaireId(questionnaireId);
+            userAnswer.setQuestionId(s.getQuestionId());
+            userAnswer.setAnswer(s.getAnswer());
+            return userAnswer;
+        }).collect(Collectors.toList());
     }
 
 

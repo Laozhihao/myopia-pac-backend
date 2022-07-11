@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.mapper;
 
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,5 +17,7 @@ public interface UserAnswerMapper extends BaseMapper<UserAnswer> {
     void batchSaveUserAnswer(@Param("userAnswers") List<UserAnswer> userAnswers);
 
     List<UserAnswer> getByQuestionnaireId(@Param("questionnaireId") Integer questionnaireId, @Param("userId") Integer userId);
+
+    void deleteBatchByCombinationId(@Param("questionnaireId") Integer questionnaireId, @Param("userId") Integer userId, @Param("questionIds") List<Integer> questionIds);
 
 }

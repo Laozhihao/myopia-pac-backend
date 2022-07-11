@@ -98,3 +98,6 @@ alter table q_questionnaire_question
 
 alter table q_question
     add same_question_group_id varchar(128) null comment '相同问题uuid' after serial_number;
+
+create unique index q_user_answer_user_id_questionnaire_id_question_id_uindex
+    on q_user_answer (user_id, questionnaire_id, question_id);
