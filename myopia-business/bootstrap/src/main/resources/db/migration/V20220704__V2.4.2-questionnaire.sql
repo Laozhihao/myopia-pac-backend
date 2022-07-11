@@ -94,3 +94,6 @@ create table q_user_question_record
     update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '用户答问卷记录表';
+
+alter table q_questionnaire_question
+    add next_question_offset int null comment '下一个题目偏移量';

@@ -64,5 +64,10 @@ public class QuestionnaireQuestion implements Serializable {
      */
     private Integer nextQuestionId;
 
+    /**
+     * 下一个题目偏移量
+     */
+    private Integer nextQuestionOffset;
+
 
 }
