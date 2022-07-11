@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -236,16 +237,33 @@ public class DistrictSaprodontiaMonitorService {
         saprodontiaSchoolAgeVariableVO.setPrimarySchool(primary);
         saprodontiaSchoolAgeVariableVO.setJuniorHighSchool(junior);
         saprodontiaSchoolAgeVariableVO.setUniversity(university);
-        if (Objects.nonNull(vocationalHigh)) {
+        if (Objects.nonNull(vocationalHigh) && Objects.nonNull(normalHigh) ) {
             saprodontiaSchoolAgeVariableVO.setHighSchool(high);
             saprodontiaSchoolAgeVariableVO.setNormalHighSchool(normalHigh);
             saprodontiaSchoolAgeVariableVO.setVocationalHighSchool(vocationalHigh);
         } else {
+            changeGradeName(high);
             saprodontiaSchoolAgeVariableVO.setHighSchool(high);
         }
         saprodontiaSchoolAgeVO.setSaprodontiaSchoolAgeVariableVO(saprodontiaSchoolAgeVariableVO);
     }
 
+    private void changeGradeName(SaprodontiaSchoolAge high){
+        Optional.ofNullable(high)
+                .map(SaprodontiaSchoolAge::getMaxSaprodontiaRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxSaprodontiaRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+
+        Optional.ofNullable(high)
+                .map(SaprodontiaSchoolAge::getMaxSaprodontiaLossRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxSaprodontiaLossRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+
+        Optional.ofNullable(high)
+                .map(SaprodontiaSchoolAge::getMaxSaprodontiaRepairRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxSaprodontiaRepairRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+    }
 
     private SaprodontiaSchoolAge getSaprodontiaSchoolAge(List<StatConclusion> statConclusionList, Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {

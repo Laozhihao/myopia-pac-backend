@@ -10,10 +10,7 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.re
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.AreaHistoryLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.GenderSexLowVisionTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.schoolage.SchoolAgeGenderTable;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CommonWarningTable;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.LowVisionLevelTable;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.RefractiveTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.*;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.AstigmatismTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.MyopiaTable;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.AgeWearingTable;
@@ -69,7 +66,7 @@ public class ScreeningReportTableService {
                 CommonLowVisionTable table = new CommonLowVisionTable();
                 List<StatConclusion> value = entry.getValue();
                 String gradeCode = entry.getKey();
-                table.setName(GradeCodeEnum.getDesc(gradeCode));
+                setGradeName(table, haveSenior, gradeCode);
                 table.setValidCount((long) value.size());
                 // 幼儿园数据特殊处理
                 if (GradeCodeEnum.kindergartenSchoolCode().contains(gradeCode)) {
@@ -308,7 +305,7 @@ public class ScreeningReportTableService {
             Map<String, List<StatConclusion>> gradeMap = y.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode, LinkedHashMap::new, Collectors.toList()));
             gradeMap.forEach((k, v) -> {
                 AstigmatismTable table = new AstigmatismTable();
-                table.setName(GradeCodeEnum.getDesc(k));
+                setGradeName(table, haveSenior, k);
                 extracted(tables, v, table, total);
             });
             AstigmatismTable table = new AstigmatismTable();
@@ -394,6 +391,7 @@ public class ScreeningReportTableService {
 
     public List<AstigmatismTable> gradePrimaryRefractiveTable(List<StatConclusion> statConclusions, Long total) {
         List<AstigmatismTable> tables = new ArrayList<>();
+        boolean haveSenior = commonReportService.isHaveSenior(statConclusions);
         Map<String, List<StatConclusion>> gradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         GradeCodeEnum.primaryAbove().forEach(k -> {
             List<StatConclusion> v = gradeMap.get(k);
@@ -401,7 +399,7 @@ public class ScreeningReportTableService {
                 return;
             }
             AstigmatismTable table = new AstigmatismTable();
-            table.setName(GradeCodeEnum.getDesc(k));
+            setGradeName(table, haveSenior, k);
             extracted(tables, v, table, total);
         });
         AstigmatismTable table = new AstigmatismTable();
@@ -471,7 +469,7 @@ public class ScreeningReportTableService {
             Map<String, List<StatConclusion>> gradeMap = y.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode, LinkedHashMap::new, Collectors.toList()));
             gradeMap.forEach((k, v) -> {
                 AgeWearingTable table = new AgeWearingTable();
-                table.setName(GradeCodeEnum.getDesc(k));
+                setGradeName(table, haveSenior, k);
                 extracted(tables, table, v, total);
             });
             AgeWearingTable table = new AgeWearingTable();
@@ -514,6 +512,7 @@ public class ScreeningReportTableService {
 
     public List<AgeWearingTable> gradePrimaryWearingTable(List<StatConclusion> statConclusions, Long total) {
         List<AgeWearingTable> tables = new ArrayList<>();
+        boolean haveSenior = commonReportService.isHaveSenior(statConclusions);
         Map<String, List<StatConclusion>> collect = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         GradeCodeEnum.primaryAbove().forEach(k -> {
             List<StatConclusion> v = collect.get(k);
@@ -521,7 +520,7 @@ public class ScreeningReportTableService {
                 return;
             }
             AgeWearingTable table = new AgeWearingTable();
-            table.setName(GradeCodeEnum.getDesc(k));
+            setGradeName(table, haveSenior, k);
             extracted(tables, table, v, total);
         });
         AgeWearingTable table = new AgeWearingTable();
@@ -542,7 +541,7 @@ public class ScreeningReportTableService {
             Map<String, List<StatConclusion>> gradeMap = y.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode, LinkedHashMap::new, Collectors.toList()));
             gradeMap.forEach((k, v) -> {
                 WarningTable table = new WarningTable();
-                table.setName(GradeCodeEnum.getDesc(k));
+                setGradeName(table, haveSenior, k);
                 generateWarningDate(tables, v, table, total);
             });
             WarningTable table = new WarningTable();
@@ -911,11 +910,11 @@ public class ScreeningReportTableService {
 
     public List<CommonLowVisionTable> gradeLowVision(List<StatConclusion> statConclusions, Long total) {
         List<CommonLowVisionTable> tables = new ArrayList<>();
-
+        boolean haveSenior = commonReportService.isHaveSenior(statConclusions);
         Map<String, List<StatConclusion>> collect = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         GradeCodeEnum.primaryAbove().forEach(k -> {
             CommonLowVisionTable lowVisionTable = new CommonLowVisionTable();
-            lowVisionTable.setName(GradeCodeEnum.getDesc(k));
+            setGradeName(lowVisionTable, haveSenior, k);
             List<StatConclusion> v = collect.get(k);
             if (CollectionUtils.isEmpty(v)) {
                 return;
@@ -957,5 +956,14 @@ public class ScreeningReportTableService {
         lowVisionTable.setName(CommonReportService.TOTAL_NAME);
         extracted(tables, lowVisionTable, statConclusions, total);
         return tables;
+    }
+
+    private <T extends CommonTable> void setGradeName(T table, Boolean haveSenior, String gradeCode) {
+        // 如果有普高和职高，则普高需要将高一改成普高一
+        if (haveSenior && GradeCodeEnum.highSchoolCodes().contains(gradeCode)) {
+            table.setName("普" + GradeCodeEnum.getDesc(gradeCode));
+            return;
+        }
+        table.setName(GradeCodeEnum.getDesc(gradeCode));
     }
 }

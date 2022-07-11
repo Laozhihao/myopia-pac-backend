@@ -342,6 +342,7 @@
                 </when>
             </choose>
         </if>
+        and is_rescreen = false
     </select>
 
     <select id="getByPlanStudentId" resultMap="BaseResultMap">

@@ -411,7 +411,7 @@ public class ScreeningPrimaryReportService {
             classOverall.setName(GradeCodeEnum.getDesc(k.getGradeCode()));
             List<PrimaryScreeningInfoTable> tables = screeningReportTableService.primaryScreeningInfoTables(v, total);
             tables.sort(Comparator.comparing((PrimaryScreeningInfoTable s) -> Float.valueOf(s.getMyopiaProportion())).reversed());
-            classOverall.setInfo(commonReportService.getPrimaryOverall(tables, v, total));
+            classOverall.setInfo(commonReportService.getAreaPrimaryOverall(tables, v, total));
             list.add(classOverall);
         });
         return list;

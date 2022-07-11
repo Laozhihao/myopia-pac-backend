@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
@@ -55,9 +56,13 @@ public class StatConclusionBizService {
      * @param planId 计划ID
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      */
-    public void screeningToConclusion(Integer planId,Boolean isAll){
+    public void screeningToConclusion(Integer planId,Boolean isAll,String exclude){
         if(Objects.equals(isAll,Boolean.TRUE)){
-            screeningToConclusion(visionScreeningResultService.list());
+            List<VisionScreeningResult> list = visionScreeningResultService.list();
+            if (StrUtil.isNotBlank(exclude)){
+                list = list.stream().filter(visionScreeningResult -> !exclude.contains(visionScreeningResult.getPlanId().toString())).collect(Collectors.toList());
+            }
+            screeningToConclusion(list);
             return;
         }
 
@@ -92,7 +97,7 @@ public class StatConclusionBizService {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
-        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 30);
+        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 2);
 
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
         mapList.forEach(list->{
@@ -161,7 +166,14 @@ public class StatConclusionBizService {
 
         if(CollectionUtil.isNotEmpty(statConclusionList)){
             log.info("生成筛查数据结论数据{}条",statConclusionList.size());
-            statConclusionService.batchUpdateOrSave(statConclusionList);
+            List<StatConclusion> saveList = statConclusionList.stream().filter(statConclusion -> Objects.isNull(statConclusion.getId())).collect(Collectors.toList());
+            List<StatConclusion> updateList = statConclusionList.stream().filter(statConclusion -> Objects.nonNull(statConclusion.getId())).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(saveList)){
+                statConclusionService.saveBatch(saveList,500);
+            }
+            if (CollectionUtil.isNotEmpty(updateList)){
+                statConclusionService.updateBatchById(updateList,500);
+            }
             updateRelatedTable(statConclusionList);
         }
     }
@@ -250,7 +262,7 @@ public class StatConclusionBizService {
         List<Student> studentList = Lists.newArrayList();
         statConclusionList.forEach(statConclusion -> setStudentInfo(studentMap,visionScreeningResultMap,studentList,statConclusion));
         if (CollectionUtil.isNotEmpty(studentList)){
-            studentService.updateBatchById(studentList);
+            studentService.updateBatchById(studentList,500);
         }
     }
 
@@ -313,7 +325,7 @@ public class StatConclusionBizService {
         });
 
         for (List<SchoolStudent> list : lists) {
-            schoolStudentService.updateBatchById(list);
+            schoolStudentService.updateBatchById(list,500);
         }
     }
 

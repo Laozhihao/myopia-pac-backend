@@ -452,4 +452,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public int selectScreeningResultByDistrictIdAndTaskId(List<Integer> districtIds, List<Integer> taskIds) {
         return baseMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
     }
+
+    /**
+     * 获取学生筛查次数
+     *
+     * @return List<StudentScreeningCountVO>
+     */
+    public List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId) {
+        return baseMapper.getVisionScreeningCountBySchoolId(schoolId);
+    }
 }

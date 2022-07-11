@@ -69,6 +69,12 @@ public class DistrictCommonDiseaseReportService {
     @Autowired
     private DistrictDiseaseMonitorService districtDiseaseMonitorService;
 
+    /**
+     * 区域常见病报告
+     *
+     * @param districtId 区域ID
+     * @param noticeId 通知ID
+     */
     public DistrictCommonDiseaseReportVO districtCommonDiseaseReport(Integer districtId, Integer noticeId) {
         DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO = new DistrictCommonDiseaseReportVO();
 
@@ -94,6 +100,10 @@ public class DistrictCommonDiseaseReportService {
 
     /**
      * 全局变量
+     * @param districtId 当前区域ID
+     * @param districtIds 符合的区域ID集合
+     * @param noticeId 通知ID
+     * @param districtCommonDiseaseReportVO 按区域常见病报告实体
      */
     private void getGlobalVariableVO(Integer districtId,List<Integer> districtIds, Integer noticeId, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO = new DistrictCommonDiseaseReportVO.GlobalVariableVO();
@@ -156,14 +166,21 @@ public class DistrictCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
     }
 
+    /**
+     * 日期转字符串
+     *
+     * @param date 日期
+     */
     private static String getDateStr(Date date){
         return DateUtil.format(date, DatePattern.CHINESE_DATE_PATTERN);
     }
 
 
-
     /**
      * 学龄及学校数
+     *
+     * @param planStudentCountList 参与筛查计划的学生集合
+     * @param globalVariableVO 全局变量
      */
     private void setSchoolItemData(List<ScreeningPlanSchoolStudent> planStudentCountList, DistrictCommonDiseaseReportVO.GlobalVariableVO globalVariableVO) {
         List<Integer> schoolAgeList = planStudentCountList.stream().map(planSchoolStudent -> {
@@ -196,6 +213,12 @@ public class DistrictCommonDiseaseReportService {
         globalVariableVO.setSchoolItem(itemList);
     }
 
+    /**
+     * 获取参与筛查计划的学生集合
+     *
+     * @param haveStudentDistrictIds 有学生区域Id集合
+     * @param planStudentCountMap 计划学生数据集合
+     */
     private List<ScreeningPlanSchoolStudent> getScreeningStudentList(List<Integer> haveStudentDistrictIds,Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap){
         return haveStudentDistrictIds.stream().distinct().flatMap(id -> {
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentCountMap.get(id);
@@ -209,6 +232,10 @@ public class DistrictCommonDiseaseReportService {
 
     /**
      * 筛查人数和实际筛查人数
+     *
+     * @param noticeId 通知ID
+     * @param districtIds 区域ID集合
+     * @param districtCommonDiseaseReportVO 按区域常见病报告实体
      */
     private void setNum(Integer noticeId,List<Integer> districtIds, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap = screeningPlanSchoolStudentService.getPlanStudentCountBySrcScreeningNoticeId(noticeId);
@@ -237,6 +264,9 @@ public class DistrictCommonDiseaseReportService {
 
     /**
      * 视力分析
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtCommonDiseaseReportVO 按区域常见病报告实体
      */
     private void getVisionAnalysisVO(List<StatConclusion> statConclusionList, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -255,6 +285,13 @@ public class DistrictCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setVisionAnalysisVO(visionAnalysisVO);
     }
 
+    /**
+     * 获取幼儿园分析
+     *
+     * @param kindergartenList 幼儿园筛查数据结论集合
+     * @param validScreeningNum 有效筛查数据
+     * @param visionAnalysisVO 视力分析对象
+     */
     private void getKindergartenVO(List<StatConclusion> kindergartenList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
         if (CollectionUtil.isEmpty(kindergartenList)) {
             return;
@@ -281,6 +318,13 @@ public class DistrictCommonDiseaseReportService {
     }
 
 
+    /**
+     * 获取小学及以上
+     *
+     * @param primarySchoolAndAboveList 小学及以上筛查数据结论集合
+     * @param validScreeningNum 有效筛查数据
+     * @param visionAnalysisVO 视力分析对象
+     */
     private void getPrimarySchoolAndAboveVO(List<StatConclusion> primarySchoolAndAboveList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
         if (CollectionUtil.isEmpty(primarySchoolAndAboveList)) {
             return;
@@ -306,6 +350,12 @@ public class DistrictCommonDiseaseReportService {
         visionAnalysisVO.setPrimarySchoolAndAboveVO(primarySchoolAndAboveVO);
     }
 
+    /**
+     * 设置学龄
+     * @param validScreeningNum 有效数据
+     * @param primarySchoolAndAboveVO 小学及以上
+     * @param schoolMap 学校集合
+     */
     private void setSchoolAge(int validScreeningNum, DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO primarySchoolAndAboveVO, Map<Integer, List<StatConclusion>> schoolMap) {
         //小学
         List<StatConclusion> primaryList = schoolMap.get(SchoolAge.PRIMARY.code);
@@ -344,6 +394,13 @@ public class DistrictCommonDiseaseReportService {
 
     }
 
+    /**
+     * 设置近视项目
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄
+     * @param validScreeningNum 有效筛查数
+     * @param consumer 消费
+     */
     private void getMyopiaItemVO(List<StatConclusion> statConclusionList, String schoolAge, Integer validScreeningNum,
                                  Consumer<DistrictCommonDiseaseReportVO.MyopiaItemVO> consumer) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -359,6 +416,13 @@ public class DistrictCommonDiseaseReportService {
         Optional.of(myopiaItemVO).ifPresent(consumer);
     }
 
+    /**
+     * 获取筛查数据结论集合
+     *
+     * @param noticeId 通知ID
+     * @param districtIds 区域ID集合
+     * @param isRescreen 是否复测
+     */
     private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isRescreen) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);

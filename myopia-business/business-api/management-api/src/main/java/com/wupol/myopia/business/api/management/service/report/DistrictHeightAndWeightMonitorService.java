@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service.report;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -31,6 +32,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtCommonDiseasesAnalysisVO 按区域常见病分析
      */
     public void getDistrictHeightAndWeightMonitorVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
 
@@ -53,6 +57,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-说明变量
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtHeightAndWeightMonitorVO 身高体重监测实体
      */
     private void getHeightAndWeightMonitorVariableVO(List<StatConclusion> statConclusionList, DistrictHeightAndWeightMonitorVO districtHeightAndWeightMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -67,6 +74,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同性别
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtHeightAndWeightMonitorVO 身高体重监测实体
      */
     private void getHeightAndWeightSexVO(List<StatConclusion> statConclusionList, DistrictHeightAndWeightMonitorVO districtHeightAndWeightMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -81,6 +91,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同性别-说明变量
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param heightAndWeightSexVO 身高体重监测-不同性别
      */
     private void getHeightAndWeightSexVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightSexVO heightAndWeightSexVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -101,6 +114,13 @@ public class DistrictHeightAndWeightMonitorService {
         }
     }
 
+    /**
+     * 获取身高体重监测统计对象
+     *
+     * @param gender 性别
+     * @param statConclusionList 筛查数据结论集合
+     * @param heightAndWeightSexList 身高体重监测统计对象集合
+     */
     private void getHeightAndWeightNum(Integer gender, List<StatConclusion> statConclusionList, List<HeightAndWeightNum> heightAndWeightSexList) {
         HeightAndWeightNum build = new HeightAndWeightNum()
                 .setGender(gender)
@@ -109,9 +129,11 @@ public class DistrictHeightAndWeightMonitorService {
     }
 
 
-
     /**
      * 体重身高监测结果-不同性别-表格数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param sexVO 身高体重监测-不同性别对象
      */
     private void getHeightAndWeightSexMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightSexVO sexVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -134,6 +156,12 @@ public class DistrictHeightAndWeightMonitorService {
 
     }
 
+    /**
+     * 获取身高体重性别表格数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param gender 性别
+     */
     private HeightAndWeightMonitorTable getHeightAndWeightSexTable(List<StatConclusion> statConclusionList, Integer gender) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return null;
@@ -158,6 +186,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同学龄段
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtHeightAndWeightMonitorVO 身高体重监测实体
      */
     private void getHeightAndWeightSchoolAgeVO(List<StatConclusion> statConclusionList, DistrictHeightAndWeightMonitorVO districtHeightAndWeightMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -171,6 +202,12 @@ public class DistrictHeightAndWeightMonitorService {
 
     }
 
+    /**
+     * 获取身高体重学龄图表数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param heightAndWeightSchoolAgeVO 身高体重监测-不同学龄
+     */
     private void getHeightAndWeightSchoolAgeMonitorChart(List<StatConclusion> statConclusionList, HeightAndWeightSchoolAgeVO heightAndWeightSchoolAgeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
@@ -182,7 +219,11 @@ public class DistrictHeightAndWeightMonitorService {
 
     }
 
-
+    /**
+     * 获取构建图表数据的原数据集合
+     *
+     * @param statConclusionList 筛查数据结论集合
+     */
     private List<TwoTuple<String, SchoolAgeRatioVO>> getData(List<StatConclusion> statConclusionList) {
         if (ReportUtil.getSchoolGrade(statConclusionList)) {
             return Collections.emptyList();
@@ -214,6 +255,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同学龄段-说明变量
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param heightAndWeightSchoolAgeVO 身高体重监测-不同学龄
      */
     private void getHeightAndWeightSchoolAgeVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightSchoolAgeVO heightAndWeightSchoolAgeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -232,16 +276,50 @@ public class DistrictHeightAndWeightMonitorService {
         schoolAgeVariableVO.setPrimarySchool(primary);
         schoolAgeVariableVO.setJuniorHighSchool(junior);
         schoolAgeVariableVO.setUniversity(university);
-        if (Objects.nonNull(vocationalHigh)) {
+        if (Objects.nonNull(vocationalHigh) && Objects.nonNull(normalHigh)) {
             schoolAgeVariableVO.setHighSchool(high);
             schoolAgeVariableVO.setNormalHighSchool(normalHigh);
             schoolAgeVariableVO.setVocationalHighSchool(vocationalHigh);
         } else {
+            changeGradeName(high);
             schoolAgeVariableVO.setHighSchool(high);
         }
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeVariableVO(schoolAgeVariableVO);
     }
 
+    /**
+     * 修改年级名称
+     *
+     * @param high 身高体重监测-不同学龄对象
+     */
+    private void changeGradeName(HeightAndWeightSchoolAge high){
+        Optional.ofNullable(high)
+                .map(HeightAndWeightSchoolAge::getMaxOverweightRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxOverweightRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+
+        Optional.ofNullable(high)
+                .map(HeightAndWeightSchoolAge::getMaxObeseRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxObeseRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+
+        Optional.ofNullable(high)
+                .map(HeightAndWeightSchoolAge::getMaxStuntingRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxStuntingRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+
+        Optional.ofNullable(high)
+                .map(HeightAndWeightSchoolAge::getMaxMalnourishedRatio)
+                .map(GradeRatio::getGrade)
+                .ifPresent(grade-> high.getMaxMalnourishedRatio().setGrade(grade.replace(ReportConst.VOCATIONAL_HIGH, StrUtil.EMPTY)));
+    }
+
+    /**
+     * 获取身高体重监测-不同学龄对象
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄段
+     */
     private HeightAndWeightSchoolAge getHeightAndWeightSchoolSchoolAge(List<StatConclusion> statConclusionList, Integer schoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return null;
@@ -257,6 +335,11 @@ public class DistrictHeightAndWeightMonitorService {
 
     }
 
+    /**
+     * 获取身高体重监测-不同学龄对象
+     *
+     * @param statConclusionList 筛查数据结论集合
+     */
     private HeightAndWeightSchoolAge getHeightAndWeightSchoolAge(List<StatConclusion> statConclusionList) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return null;
@@ -284,6 +367,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同学龄段-表格数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param heightAndWeightSchoolAgeVO 身高体重监测-不同学龄
      */
     private void getHeightAndWeightSchoolAgeMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightSchoolAgeVO heightAndWeightSchoolAgeVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -331,6 +417,14 @@ public class DistrictHeightAndWeightMonitorService {
         heightAndWeightSchoolAgeVO.setHeightAndWeightSchoolAgeMonitorTableList(tableList);
     }
 
+    /**
+     * 获取身高体重不同学龄表数据合并数据集合
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄
+     * @param itemName 项目名称
+     * @param singleSchoolAge 是否是单个学龄
+     */
     private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeMergeTable(List<StatConclusion> statConclusionList, Integer schoolAge, String itemName,Boolean singleSchoolAge) {
         if (Objects.equals(schoolAge, 10)) {
             List<HeightAndWeightMonitorTable> mergeList = Lists.newArrayList();
@@ -345,7 +439,13 @@ public class DistrictHeightAndWeightMonitorService {
         return heightAndWeightGradeList;
     }
 
-
+    /**
+     * 获取身高体重学龄表格数据集合
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄
+     * @param singleSchoolAge 是否是单个学龄
+     */
     private List<HeightAndWeightMonitorTable> getHeightAndWeightSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
@@ -360,6 +460,13 @@ public class DistrictHeightAndWeightMonitorService {
         return getHeightAndWeightGrade(statConclusionList, schoolAge,singleSchoolAge);
     }
 
+    /**
+     * 修改身高体重不同学龄表格数据的项目名称
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄
+     * @param singleSchoolAge 是否是单个学龄
+     */
     private List<HeightAndWeightMonitorTable> changeHeightAndWeightSchoolAgeNameTable(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
@@ -374,6 +481,13 @@ public class DistrictHeightAndWeightMonitorService {
         return heightAndWeightGrade;
     }
 
+    /**
+     * 获取身高体重不同学龄表格数据中年级数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param schoolAge 学龄
+     * @param singleSchoolAge 是否是单个学龄
+     */
     private List<HeightAndWeightMonitorTable> getHeightAndWeightGrade(List<StatConclusion> statConclusionList, Integer schoolAge,Boolean singleSchoolAge) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
@@ -393,6 +507,13 @@ public class DistrictHeightAndWeightMonitorService {
         return gradeList;
     }
 
+    /**
+     * 获取身高体重不同学龄表格数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param grade 年级
+     * @param gradeList 身高体重不同学龄表格数据集合
+     */
     private void getHeightAndWeightSchoolAgeTable(List<StatConclusion> statConclusionList, String grade, List<HeightAndWeightMonitorTable> gradeList) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
             return;
@@ -406,6 +527,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同年龄段
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param districtHeightAndWeightMonitorVO 身高体重监测实体
      */
     private void getHeightAndWeightAgeVO(List<StatConclusion> statConclusionList, DistrictHeightAndWeightMonitorVO districtHeightAndWeightMonitorVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -421,6 +545,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同年龄段-说明变量
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param ageVO 身高体重监测-不同年龄段
      */
     private void getHeightAndWeightAgeVariableVO(List<StatConclusion> statConclusionList, HeightAndWeightAgeVO ageVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -445,6 +572,9 @@ public class DistrictHeightAndWeightMonitorService {
 
     /**
      * 体重身高监测结果-不同年龄段-表格数据
+     *
+     * @param statConclusionList 筛查数据结论集合
+     * @param ageVO 身高体重监测-不同年龄段
      */
     private void getHeightAndWeightAgeMonitorTableList(List<StatConclusion> statConclusionList, HeightAndWeightAgeVO ageVO) {
         if (CollectionUtil.isEmpty(statConclusionList)) {
@@ -458,7 +588,14 @@ public class DistrictHeightAndWeightMonitorService {
         ageVO.setHeightAndWeightAgeMonitorTableList(tableList);
     }
 
-    private void getHeightAndWeightAgeTable(Integer age, List<StatConclusion> conclusionlist, List<HeightAndWeightMonitorTable> tableList) {
+    /**
+     * 获取体重身高监测结果-不同年龄段-表格数据
+     *
+     * @param age 年龄
+     * @param statConclusionList 筛查数据结论集合
+     * @param tableList 表格数据集合
+     */
+    private void getHeightAndWeightAgeTable(Integer age, List<StatConclusion> statConclusionList, List<HeightAndWeightMonitorTable> tableList) {
         String itemName;
         if (age == 1000) {
             itemName = ReportConst.TOTAL;
@@ -466,7 +603,7 @@ public class DistrictHeightAndWeightMonitorService {
             itemName = AgeSegmentEnum.get(age).getDesc();
         }
         HeightAndWeightMonitorTable heightAndWeightMonitorTable = new HeightAndWeightNum()
-                .build(conclusionlist)
+                .build(statConclusionList)
                 .ratioNotSymbol().buildTable();
         heightAndWeightMonitorTable.setItemName(itemName);
         tableList.add(heightAndWeightMonitorTable);

@@ -18,18 +18,19 @@ import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdServi
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -48,6 +49,8 @@ public class ScreeningPlanSchoolStudentBizService {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
 
     /**
@@ -164,15 +167,20 @@ public class ScreeningPlanSchoolStudentBizService {
      * 获取筛查学生列表
      *
      * @param requestDTO 请求入参
+     *
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getListByRequest(PlanStudentRequestDTO requestDTO) {
-        return screeningPlanSchoolStudentService.getByEntity(new ScreeningPlanSchoolStudent()
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByEntity(new ScreeningPlanSchoolStudent()
                 .setScreeningPlanId(requestDTO.getScreeningPlanId())
                 .setScreeningOrgId(requestDTO.getScreeningOrgId())
                 .setSchoolId(requestDTO.getSchoolId())
                 .setGradeId(requestDTO.getGradeId())
                 .setClassId(requestDTO.getClassId()));
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService
+                .getByPlanStudentIds(planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()))
+                .stream().filter(s->Objects.equals(s.getIsDoubleScreen(), Boolean.FALSE)).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        return planSchoolStudentList.stream().filter(s -> Objects.nonNull(resultMap.getOrDefault(s.getId(), null))).collect(Collectors.toList());
     }
 
 }

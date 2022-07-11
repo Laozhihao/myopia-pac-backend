@@ -82,6 +82,8 @@ public class StudentCommonDiseaseIdService extends BaseService<StudentCommonDise
      * @return com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId
      **/
     public StudentCommonDiseaseId createStudentCommonDiseaseId(Integer schoolId, Integer gradeId, Integer studentId, int year, String districtCode, School school) {
+        Assert.notNull(school.getAreaType(), "学校的片区为空");
+        Assert.notNull(school.getMonitorType(), "学校的监测点为空");
         SchoolGrade grade = schoolGradeService.getById(gradeId);
         String districtShortCode = districtCode.substring(0, 6);
         String schoolCommonDiseaseCode = schoolCommonDiseaseCodeService.getSchoolCommonDiseaseCode(districtShortCode, schoolId, year);
