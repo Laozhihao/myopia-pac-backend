@@ -18,10 +18,13 @@ import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,6 +48,9 @@ public class ExportExcelService  {
     @Autowired
     private ScreeningPlanService screeningPlanService;
 
+    @Value("classpath:excel/ImportStudentExceptionTable.xlsx")
+    private Resource importStudentExceptionTableTemplate;
+
     /**
      *  【提示】{{筛查计划名称}}-{{筛查学校}}-筛查学生数据【{{上传数据的表名}}】导入存在异常，请及时修正补全数据，点击下载《筛查学生数据导入异常表》，如已处理，请不要重复上传。
      */
@@ -60,7 +66,7 @@ public class ExportExcelService  {
         File file = null;
         try {
             //生成excel
-            file = generateExcelFile(condition.getFileName(), condition.getTemplateFileName(), data);
+            file = generateExcelFile(condition.getFileName(), importStudentExceptionTableTemplate.getInputStream(), data);
             //上传文件到S3
             ResourceFile resourceFile = uploadFile(file);
             //获取文件链接
@@ -105,11 +111,11 @@ public class ExportExcelService  {
      * 导出excel文件
      *
      * @param fileName 文件名称
-     * @param templateFileName 模板名称
+     * @param templateInputStream 模板流
      * @param data 数据集合
      */
-    private static File generateExcelFile(String fileName, String templateFileName,List<?> data) throws IOException {
-        return ExcelUtil.exportListToExcel(fileName, getTemplateFile(templateFileName),data);
+    private static File generateExcelFile(String fileName, InputStream templateInputStream, List<?> data) throws IOException {
+        return ExcelUtil.exportListToExcel(fileName, templateInputStream,data);
     }
 
     /**

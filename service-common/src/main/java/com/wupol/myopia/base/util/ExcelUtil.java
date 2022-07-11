@@ -48,12 +48,12 @@ public class ExcelUtil {
      * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
      *
      * @param fileNamePrefix 文件名前缀
-     * @param templateFile 模板名称
+     * @param templateInputStream 模板流
      * @param data 数据集合
      */
-    public static File exportListToExcel(String fileNamePrefix, String templateFile, List<?> data) throws IOException {
+    public static File exportListToExcel(String fileNamePrefix, InputStream templateInputStream, List<?> data) throws IOException {
         File outputFile = getOutputFile(fileNamePrefix);
-        EasyExcelFactory.write(outputFile.getAbsolutePath()).withTemplate(templateFile).sheet().doFill(data);
+        EasyExcelFactory.write(outputFile.getAbsolutePath()).withTemplate(templateInputStream).sheet().doFill(data);
         return outputFile;
     }
 
