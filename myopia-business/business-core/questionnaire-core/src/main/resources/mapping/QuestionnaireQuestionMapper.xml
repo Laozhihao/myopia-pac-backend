@@ -26,10 +26,4 @@
     <sql id="Base_Column_List">
         id,questionnaire_id, question_id, pid, serial_number, sort, jump_ids, required
     </sql>
-
-    <select id="getByQuestionnaireId" resultMap="BaseResultMap">
-        select *
-        from q_questionnaire_question
-        where questionnaire_id = #{questionnaireId}
-    </select>
 </mapper>

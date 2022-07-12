@@ -39,13 +39,13 @@ create table q_questionnaire_question
 (
     id               int auto_increment
         primary key,
-    questionnaire_id int          not null comment '问卷ID',
-    question_id      int          not null comment '题目ID',
-    pid              int          not null comment '父题目Id，没有父题目的则为-1',
-    serial_number    varchar(15)  null comment '自定义问题的序号',
-    sort             tinyint      not null comment '排序',
-    jump_ids         varchar(256) null comment '跳转题目Ids',
-    required         boolean      not null default true comment '是否必填',
+    questionnaire_id int         not null comment '问卷ID',
+    question_id      int         not null comment '题目ID',
+    pid              int         not null comment '父题目Id，没有父题目的则为-1',
+    serial_number    varchar(15) null comment '自定义问题的序号',
+    sort             tinyint     not null comment '排序',
+    jump_ids         json        null comment '跳转题目Ids',
+    required         boolean     not null default true comment '是否必填',
     constraint questionnaire_question_unique_index
         unique (questionnaire_id, question_id)
 )
