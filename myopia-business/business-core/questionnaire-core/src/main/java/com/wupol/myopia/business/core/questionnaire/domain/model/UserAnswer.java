@@ -22,7 +22,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_user_answer")
+@TableName(value = "q_user_answer", autoResultMap = true)
 public class UserAnswer implements Serializable {
 
     private static final long serialVersionUID = 1L;

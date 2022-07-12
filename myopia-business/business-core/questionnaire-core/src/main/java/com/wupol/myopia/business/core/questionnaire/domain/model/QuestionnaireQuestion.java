@@ -1,13 +1,16 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.JumpIdsDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 
@@ -18,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_questionnaire_question")
+@TableName(value = "q_questionnaire_question", autoResultMap = true)
 public class QuestionnaireQuestion implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,14 +58,15 @@ public class QuestionnaireQuestion implements Serializable {
     private Integer sort;
 
     /**
-     * 逻辑题目
+     * 跳转题目
      */
-    private String logicFunction;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private JumpIdsDO jumpIds;
 
     /**
-     * 下一题目Id
+     * 是否必填
      */
-    private Integer nextQuestionId;
+    private Boolean required;
 
 
 }
