@@ -30,6 +30,11 @@ public class UserAnswerDTO {
     private Boolean isFinish;
 
     /**
+     * 文本
+     */
+    private String text;
+
+    /**
      * 题目
      */
     private List<QuestionDTO> questionList;
@@ -42,6 +47,11 @@ public class UserAnswerDTO {
          * 问题Id
          */
         private Integer questionId;
+
+        /**
+         * 文本
+         */
+        private String text;
 
         /**
          * 答案
