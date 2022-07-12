@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -57,7 +60,8 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 跳转题目
      */
-    private String jumpIds;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Object jumpIds;
 
     /**
      * 是否必填
