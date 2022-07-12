@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.JumpIdsVO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -61,7 +62,7 @@ public class QuestionnaireQuestion implements Serializable {
      * 跳转题目
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private Object jumpIds;
+    private JumpIdsVO jumpIds;
 
     /**
      * 是否必填
