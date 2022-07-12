@@ -99,12 +99,3 @@ create table q_user_question_record
     update_time        timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '用户答问卷记录表';
-
-alter table q_questionnaire_question
-    add next_question_offset int null comment '下一个题目偏移量';
-
-alter table q_question
-    add same_question_group_id varchar(128) null comment '相同问题uuid' after serial_number;
-
-create unique index q_user_answer_user_id_questionnaire_id_question_id_uindex
-    on q_user_answer (user_id, questionnaire_id, question_id);

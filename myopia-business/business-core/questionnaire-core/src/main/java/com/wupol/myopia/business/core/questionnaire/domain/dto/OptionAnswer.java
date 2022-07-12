@@ -20,17 +20,22 @@ public class OptionAnswer {
     private String optionId;
 
     /**
-     * 文本值
-     */
-    private String text;
-
-    /**
-     * 填空值
-     */
-    private String value;
-
-    /**
      * 填空题
      */
-    private List<OptionAnswer> children;
+    private List<AnswerInput> children;
+
+    @Getter
+    @Setter
+    public static class AnswerInput {
+
+        /**
+         * 填空题
+         */
+        private String answerInputId;
+
+        /**
+         * 填空值
+         */
+        private String value;
+    }
 }

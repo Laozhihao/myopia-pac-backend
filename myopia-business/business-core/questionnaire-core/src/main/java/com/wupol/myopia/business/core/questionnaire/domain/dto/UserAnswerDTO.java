@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +26,7 @@ public class UserAnswerDTO {
      * 是否完成 true-提交 false-保存
      */
     @NotNull(message = "isFinish不能为空")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean isFinish;
 
     /**
