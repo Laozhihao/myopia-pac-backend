@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -7,14 +8,22 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.domain.vo.QuestionSchoolVO;
 import com.wupol.myopia.business.api.management.domain.vo.QuestionTaskVO;
 import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,6 +48,19 @@ public class QuestionnaireService {
 
     @Autowired
     private SchoolBizService schoolBizService;
+
+    @Autowired
+    private DistrictService districtService;
+
+    @Autowired
+    private SchoolService schoolService;
+
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
     /**
      * 根据机构id获得所有任务
      *
@@ -105,5 +127,19 @@ public class QuestionnaireService {
                 .sorted(Map.Entry.comparingByKey())
                 .forEachOrdered(e -> yearTask.put(e.getKey(), e.getValue()));
         return yearTask;
+    }
+
+    /**
+     * 学校填写情况
+     *
+     * @param taskId
+     * @param areaId
+     * @return
+     */
+    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
+        // 获得任务区域下的学校
+        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIds(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+
     }
 }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -489,4 +490,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
 
+    public List<School> findSchoolByDistrictIds(List<Integer> districtIds){
+        return baseMapper.selectList(new LambdaQueryWrapper<School>().in(!CollectionUtils.isEmpty(districtIds),School::getDistrictId,districtIds));
+    }
 }

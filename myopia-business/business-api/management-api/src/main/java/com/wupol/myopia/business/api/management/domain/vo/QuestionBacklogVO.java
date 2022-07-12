@@ -22,7 +22,7 @@ public class QuestionBacklogVO {
     /**
      * 未完成个数
      */
-    private Integer unfinished;
+    private Integer Accomplish;
 
     /**
      * 问卷Id

@@ -79,14 +79,7 @@ public class QuestionnaireController {
      */
     @GetMapping("/school")
     public QuestionSchoolVO getQuestionSchool(Integer taskId,Integer areaId) {
-        QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
-        questionSchoolVO.setSchoolUnfinished(10);
-        questionSchoolVO.setSchoolAmount(20);
-        questionSchoolVO.setStudentEnvironmentAmount(10);
-        questionSchoolVO.setStudentEnvironmentUnfinished(20);
-        questionSchoolVO.setStudentSpecialAmount(6);
-        questionSchoolVO.setStudentSpecialUnfinished(60);
-        return questionSchoolVO;
+        return questionnaireService.getQuestionSchool(taskId, areaId);
     }
 
     /**
