@@ -12,6 +12,4 @@ import java.util.List;
  * @Date 2022-07-06
  */
 public interface QuestionnaireQuestionMapper extends BaseMapper<QuestionnaireQuestion> {
-
-    List<QuestionnaireQuestion> getByQuestionnaireId(Integer questionnaireId);
 }

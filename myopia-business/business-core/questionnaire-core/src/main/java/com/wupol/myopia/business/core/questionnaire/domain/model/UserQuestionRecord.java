@@ -51,6 +51,11 @@ public class UserQuestionRecord implements Serializable {
     private Integer taskId;
 
     /**
+     * 政府Id
+     */
+    private Integer govId;
+
+    /**
      * 通知Id
      */
     private Integer noticeId;
@@ -60,10 +65,11 @@ public class UserQuestionRecord implements Serializable {
      */
     private Integer schoolId;
 
+
     /**
-     * 机构Id
+     * 问卷类型
      */
-    private Integer orgId;
+    private Integer questionnaireType;
 
     /**
      * 状态 0-未开始 1-进行中 2-结束
