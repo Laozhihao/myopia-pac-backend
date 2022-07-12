@@ -43,7 +43,6 @@ create table q_questionnaire_question
     pid              int          not null comment '父题目Id，没有父题目的则为-1',
     serial_number    varchar(15)  null comment '自定义问题的序号',
     sort             tinyint      not null comment '排序',
-    logic_function   varchar(512) null comment '逻辑题目',
     jump_ids         varchar(256) null comment '跳转题目Ids',
     constraint questionnaire_question_unique_index
         unique (questionnaire_id, question_id)
