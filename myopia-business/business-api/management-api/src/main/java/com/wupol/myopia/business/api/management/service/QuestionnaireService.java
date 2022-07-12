@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -8,8 +9,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.api.management.domain.vo.QuestionSchoolVO;
-import com.wupol.myopia.business.api.management.domain.vo.QuestionTaskVO;
+import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
+import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -70,10 +71,10 @@ public class QuestionnaireService {
     public List<QuestionTaskVO> getQuestionTaskByUnitId(Integer orgId) {
         List<ScreeningTask> screeningTasks = screeningTaskService.getScreeningTaskByOrgId(orgId);
         Map<Integer, Set<ScreeningTask>> yearTaskMap = getYears(screeningTasks);
-        return yearTaskMap.entrySet().stream().map(item->{
+        return yearTaskMap.entrySet().stream().map(item -> {
             QuestionTaskVO questionTaskVO = new QuestionTaskVO();
-            questionTaskVO.setAnnual(item.getKey()+"年度");
-            questionTaskVO.setTasks(item.getValue().stream().map(it2->{
+            questionTaskVO.setAnnual(item.getKey() + "年度");
+            questionTaskVO.setTasks(item.getValue().stream().map(it2 -> {
                 QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
                 taskItem.setTaskId(it2.getId());
                 taskItem.setTaskTitle(it2.getTitle());
@@ -85,7 +86,7 @@ public class QuestionnaireService {
         }).collect(Collectors.toList());
     }
 
-    public List<District> getQuestionTaskAreas(Integer taskId,CurrentUser user){
+    public List<District> getQuestionTaskAreas(Integer taskId, CurrentUser user) {
         try {
             ScreeningTask task = screeningTaskService.getById(taskId);
             if (Objects.isNull(task)) {
@@ -98,7 +99,7 @@ public class QuestionnaireService {
                 return districtBizService.getValidDistrictTree(user, districts);
             }
             return districtBizService.getChildDistrictValidDistrictTree(user, Sets.newHashSet(task.getDistrictId()));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             log.error("获得任务区域失败");
             throw new BusinessException("获得任务区域失败！");
@@ -118,10 +119,10 @@ public class QuestionnaireService {
             Integer endYear = DateUtil.getYear(screeningTask.getEndTime());
             Set<ScreeningTask> startYearTask = Objects.nonNull(yearTask.get(startYear)) ? yearTask.get(startYear) : Sets.newHashSet();
             startYearTask.add(screeningTask);
-            yearTask.put(startYear,startYearTask);
+            yearTask.put(startYear, startYearTask);
             Set<ScreeningTask> endYearTask = Objects.nonNull(yearTask.get(endYear)) ? yearTask.get(endYear) : Sets.newHashSet();
             endYearTask.add(screeningTask);
-            yearTask.put(endYear,endYearTask);
+            yearTask.put(endYear, endYearTask);
         });
         yearTask.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
@@ -138,6 +139,31 @@ public class QuestionnaireService {
      */
     public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
         // 获得任务区域下的学校
+        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIds(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+
+    }
+
+    /**
+     * 待办填写情况
+     *
+     * @param taskId
+     * @param areaId
+     * @return
+     */
+    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
+        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIds(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+
+    }
+
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO {
+        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIds(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+
+    }
+
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIds(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
 

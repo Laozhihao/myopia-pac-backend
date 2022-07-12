@@ -12,6 +12,7 @@ import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.service.QuestionnaireService;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +80,7 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/school")
-    public QuestionSchoolVO getQuestionSchool(Integer taskId,Integer areaId) {
+    public QuestionSchoolVO getQuestionSchool(Integer taskId,Integer areaId) throws IOException {
         return questionnaireService.getQuestionSchool(taskId, areaId);
     }
 
@@ -88,21 +90,8 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/backlog")
-    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId,Integer areaId) {
-        QuestionBacklogVO questionSchoolVO = new QuestionBacklogVO();
-        questionSchoolVO.setQuestionnaireId(1);
-        questionSchoolVO.setQuestionnaireTitle("xxssp");
-        questionSchoolVO.setAmount(12);
-        questionSchoolVO.setUnfinished(8);
-        QuestionBacklogVO questionSchoolVO2 = new QuestionBacklogVO();
-        questionSchoolVO.setQuestionnaireId(1);
-        questionSchoolVO.setQuestionnaireTitle("xxssp12312");
-        questionSchoolVO.setAmount(10);
-        questionSchoolVO.setUnfinished(5);
-        ArrayList<QuestionBacklogVO> ls = Lists.newArrayList();
-        ls.add(questionSchoolVO);
-        ls.add(questionSchoolVO2);
-        return ls;
+    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId,Integer areaId) throws IOException {
+        return questionnaireService.getQuestionBacklog(taskId, areaId);
     }
 
 
@@ -112,27 +101,8 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/schools/list")
-    public JSONObject getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
-        List<QuestionSchoolRecordVO> questionSchoolRecordVOS = Lists.newArrayList();
-        for (int i = 0; i < 25; i++) {
-            QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
-            vo.setAreaId(RandomUtil.randomInt(100));
-            vo.setAreaName(districtService.getById(vo.getAreaId()).getName());
-            vo.setSchoolId(RandomUtil.randomInt(188));
-            vo.setSchoolSurveyStatus(RandomUtil.randomInt(3));
-            vo.setStudentEnvironmentSurveyStatus(RandomUtil.randomInt(3));
-            vo.setStudentSpecialSurveyStatus(RandomUtil.randomInt(3));
-            vo.setSchoolName("xxx的假学校");
-            vo.setOrgId(RandomUtil.randomInt(89));
-            vo.setOrgName("xxx的假机构");
-            questionSchoolRecordVOS.add(vo);
-        }
-        JSONObject ret = new JSONObject();
-        ret.put("total",25);
-        ret.put("size",questionSearchDTO.getSize());
-        ret.put("current",questionSearchDTO.getPage());
-        ret.put("pages",25 % questionSearchDTO.getSize()>0?25 % questionSearchDTO.getSize()+1:25 % questionSearchDTO.getSize());
-        ret.put("records",questionSchoolRecordVOS);
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
+
         return ret;
     }
 
@@ -142,26 +112,7 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/backlog/list")
-    public JSONObject getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
-        List<QuestionBacklogRecordVO> questionSchoolRecordVOS = Lists.newArrayList();
-        for (int i = 0; i < 25; i++) {
-            QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
-            vo.setAreaId(RandomUtil.randomInt(100));
-            vo.setAreaName(districtService.getById(vo.getAreaId()).getName());
-            vo.setSchoolId(RandomUtil.randomInt(188));
-            vo.setEnvironmentalStatus(RandomUtil.randomInt(3));
-            vo.setEnvironmentalId(RandomUtil.randomInt());
-            vo.setSchoolName("xxx的假学校");
-            vo.setOrgId(RandomUtil.randomInt(89));
-            vo.setOrgName("xxx的假机构");
-            questionSchoolRecordVOS.add(vo);
-        }
-        JSONObject ret = new JSONObject();
-        ret.put("total",25);
-        ret.put("size",questionSearchDTO.getSize());
-        ret.put("current",questionSearchDTO.getPage());
-        ret.put("pages",25 % questionSearchDTO.getSize()>0?25 % questionSearchDTO.getSize()+1:25 % questionSearchDTO.getSize());
-        ret.put("records",questionSchoolRecordVOS);
-        return ret;
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
+
     }
 }
