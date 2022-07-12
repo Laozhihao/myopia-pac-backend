@@ -20,6 +20,11 @@ public class OptionAnswer {
     private String optionId;
 
     /**
+     * 文本
+     */
+    private String text;
+
+    /**
      * 填空题
      */
     private List<AnswerInput> children;

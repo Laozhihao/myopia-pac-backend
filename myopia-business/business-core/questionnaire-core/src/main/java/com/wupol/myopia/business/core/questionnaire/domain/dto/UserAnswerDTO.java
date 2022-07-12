@@ -30,11 +30,6 @@ public class UserAnswerDTO {
     private Boolean isFinish;
 
     /**
-     * 文本
-     */
-    private String text;
-
-    /**
      * 题目
      */
     private List<QuestionDTO> questionList;
