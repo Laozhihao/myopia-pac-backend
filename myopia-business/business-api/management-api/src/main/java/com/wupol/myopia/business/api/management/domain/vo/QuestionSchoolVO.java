@@ -15,7 +15,7 @@ public class QuestionSchoolVO {
     private Integer schoolAmount;
 
     /**
-     * 学校填写未完成个数
+     * 学校填写完成个数
      */
     private Integer schoolAccomplish;
 
@@ -25,7 +25,7 @@ public class QuestionSchoolVO {
     private Integer studentSpecialAmount;
 
     /**
-     * 学生专项填写完未成个数
+     * 学生专项填写完成个数
      */
     private Integer studentSpecialAccomplish;
 
@@ -35,7 +35,7 @@ public class QuestionSchoolVO {
     private Integer studentEnvironmentAmount;
 
     /**
-     * 学生环境填写未完成个数
+     * 学生环境填写完成个数
      */
     private Integer studentEnvironmentAccomplish;
 }

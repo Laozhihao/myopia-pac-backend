@@ -377,7 +377,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param taskId
      * @return
      */
-    public Set<Integer> getBySchoolIds(Set<Integer> districtIds, Integer taskId) {
+    public Set<Integer> getBySchoolIdsAndTaskId(Set<Integer> districtIds, Integer taskId) {
         return baseMapper.selectSchoolIds(districtIds,taskId);
     }
 }

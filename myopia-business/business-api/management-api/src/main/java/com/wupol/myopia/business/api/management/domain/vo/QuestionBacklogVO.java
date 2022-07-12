@@ -20,9 +20,9 @@ public class QuestionBacklogVO {
     private Integer amount;
 
     /**
-     * 未完成个数
+     * 完成个数
      */
-    private Integer Accomplish;
+    private Integer accomplish;
 
     /**
      * 问卷Id

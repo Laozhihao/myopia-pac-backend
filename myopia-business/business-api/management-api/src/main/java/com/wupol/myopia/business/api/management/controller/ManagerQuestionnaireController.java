@@ -1,22 +1,16 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import cn.hutool.core.util.RandomUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.service.QuestionnaireService;
+import com.wupol.myopia.business.api.management.service.ManagerQuestionnaireService;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -41,16 +34,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/management/questionnaire")
 @Slf4j
-public class QuestionnaireController {
+public class ManagerQuestionnaireController {
     @Autowired
-    private QuestionnaireService questionnaireService;
-
-    @Autowired
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Autowired
-    private DistrictService districtService;
-
+    private ManagerQuestionnaireService managerQuestionnaireService;
     /**
      * 获得当前登录人的筛查任务
      *
@@ -59,7 +45,7 @@ public class QuestionnaireController {
     @GetMapping("/task")
     public List<QuestionTaskVO> getQuestionTask() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return questionnaireService.getQuestionTaskByUnitId(user.getOrgId());
+        return managerQuestionnaireService.getQuestionTaskByUnitId(user.getOrgId());
     }
 
     /**
@@ -70,18 +56,17 @@ public class QuestionnaireController {
     @GetMapping("/areas")
     public List<District> getQuestionTaskAreas(Integer taskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return questionnaireService.getQuestionTaskAreas(taskId, user);
+        return managerQuestionnaireService.getQuestionTaskAreas(taskId, user);
     }
 
     /**
      * 学校填写情况
      *
-     *
      * @return
      */
     @GetMapping("/school")
-    public QuestionSchoolVO getQuestionSchool(Integer taskId,Integer areaId) throws IOException {
-        return questionnaireService.getQuestionSchool(taskId, areaId);
+    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
+        return managerQuestionnaireService.getQuestionSchool(taskId, areaId);
     }
 
     /**
@@ -90,8 +75,8 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/backlog")
-    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId,Integer areaId) throws IOException {
-        return questionnaireService.getQuestionBacklog(taskId, areaId);
+    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
+        return managerQuestionnaireService.getQuestionBacklog(taskId, areaId);
     }
 
 
@@ -101,9 +86,8 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/schools/list")
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
-
-        return ret;
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+        return managerQuestionnaireService.getQuestionSchoolList(questionSearchDTO);
     }
 
     /**
@@ -112,7 +96,7 @@ public class QuestionnaireController {
      * @return
      */
     @GetMapping("/backlog/list")
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
-
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+        return managerQuestionnaireService.getQuestionBacklogList(questionSearchDTO);
     }
 }
