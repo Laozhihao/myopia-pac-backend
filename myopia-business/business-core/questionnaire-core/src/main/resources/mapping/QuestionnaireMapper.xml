@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire">
+
     </resultMap>
 
     <!-- 通用查询条件 -->
