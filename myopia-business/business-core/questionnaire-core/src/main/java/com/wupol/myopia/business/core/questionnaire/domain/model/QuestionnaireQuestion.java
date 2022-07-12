@@ -59,5 +59,10 @@ public class QuestionnaireQuestion implements Serializable {
      */
     private String jumpIds;
 
+    /**
+     * 是否必填
+     */
+    private Boolean required;
+
 
 }

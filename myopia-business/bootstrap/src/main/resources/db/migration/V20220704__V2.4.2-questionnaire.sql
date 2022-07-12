@@ -45,6 +45,7 @@ create table q_questionnaire_question
     serial_number    varchar(15)  null comment '自定义问题的序号',
     sort             tinyint      not null comment '排序',
     jump_ids         varchar(256) null comment '跳转题目Ids',
+    required         boolean      not null default true comment '是否必填',
     constraint questionnaire_question_unique_index
         unique (questionnaire_id, question_id)
 )

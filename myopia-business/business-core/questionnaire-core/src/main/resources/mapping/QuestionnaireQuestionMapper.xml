@@ -17,13 +17,14 @@
                 <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
                 <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
                 <if test="@Ognl@isNotEmpty(jumpIds)">and `jump_ids` = #{jumpIds}</if>
+                <if test="@Ognl@isNotEmpty(required)">and `required` = #{required}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,questionnaire_id, question_id, pid, serial_number, sort, jump_ids
+        id,questionnaire_id, question_id, pid, serial_number, sort, jump_ids, required
     </sql>
 
     <select id="getByQuestionnaireId" resultMap="BaseResultMap">
