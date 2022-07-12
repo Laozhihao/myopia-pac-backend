@@ -16,16 +16,14 @@
                 <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
                 <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
                 <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
-                <if test="@Ognl@isNotEmpty(logicFunction)">and `logic_function` = #{logicFunction}</if>
-                <if test="@Ognl@isNotEmpty(nextQuestionId)">and `next_question_id` = #{nextQuestionId}</if>
-                <if test="@Ognl@isNotEmpty(nextQuestionOffset)">and `next_question_offset` = #{nextQuestionOffset}</if>
+                <if test="@Ognl@isNotEmpty(jumpIds)">and `jump_ids` = #{jumpIds}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,questionnaire_id, question_id, pid, serial_number, sort, logic_function, next_question,next_question_offset
+        id,questionnaire_id, question_id, pid, serial_number, sort, jump_ids
     </sql>
 
     <select id="getByQuestionnaireId" resultMap="BaseResultMap">

@@ -55,19 +55,9 @@ public class QuestionnaireQuestion implements Serializable {
     private Integer sort;
 
     /**
-     * 逻辑题目
+     * 跳转题目
      */
-    private String logicFunction;
-
-    /**
-     * 下一题目Id
-     */
-    private Integer nextQuestionId;
-
-    /**
-     * 下一个题目偏移量
-     */
-    private Integer nextQuestionOffset;
+    private String jumpIds;
 
 
 }

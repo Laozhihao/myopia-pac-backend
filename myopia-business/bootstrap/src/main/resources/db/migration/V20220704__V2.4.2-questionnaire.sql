@@ -42,9 +42,9 @@ create table q_questionnaire_question
     question_id      int          not null comment '题目ID',
     pid              int          not null comment '父题目Id，没有父题目的则为-1',
     serial_number    varchar(15)  null comment '自定义问题的序号',
-    sort             tinyint      not null  comment '排序',
+    sort             tinyint      not null comment '排序',
     logic_function   varchar(512) null comment '逻辑题目',
-    next_question_id int          null comment '下一题目Id',
+    jump_ids         varchar(256) null comment '跳转题目Ids',
     constraint questionnaire_question_unique_index
         unique (questionnaire_id, question_id)
 )
@@ -96,9 +96,6 @@ create table q_user_question_record
     update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '用户答问卷记录表';
-
-alter table q_questionnaire_question
-    add next_question_offset int null comment '下一个题目偏移量';
 
 alter table q_question
     add same_question_group_id varchar(128) null comment '相同问题uuid' after serial_number;
