@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.wupol.myopia.business.common.utils.constant.CommonConst.USER_ID;
-
 /**
  * @author Simple4H
  */
@@ -26,10 +24,10 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireId(questionnaireId, USER_ID);
+        List<UserAnswer> userAnswers = getByQuestionnaireId(questionnaireId, userId);
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
@@ -43,18 +41,19 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * 保存用户答案
      *
      * @param requestDTO 请求DTO
+     * @param userId     用户Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveUserAnswer(UserAnswerDTO requestDTO) {
+    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId) {
 
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
         // 先简单处理（最后提交的最新，即最新提交的会覆盖）
-        Map<Integer, Integer> questionMap = getByQuestionnaireId(questionnaireId, USER_ID)
+        Map<Integer, Integer> questionMap = getByQuestionnaireId(questionnaireId, userId)
                 .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
 
-        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, USER_ID, questionMap);
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 

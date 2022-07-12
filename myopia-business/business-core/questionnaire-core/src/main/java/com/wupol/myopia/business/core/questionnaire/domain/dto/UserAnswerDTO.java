@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -17,7 +18,14 @@ public class UserAnswerDTO {
     /**
      * 问卷Id
      */
+    @NotNull(message = "问卷Id不能为空")
     private Integer questionnaireId;
+
+    /**
+     * 是否完成 true-提交 false-保存
+     */
+    @NotNull(message = "isFinish不能为空")
+    private Boolean isFinish;
 
     /**
      * 题目

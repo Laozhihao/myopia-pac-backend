@@ -64,11 +64,6 @@ public class Question implements Serializable {
     private String serialNumber;
 
     /**
-     * 相同问题uuid
-     */
-    private String sameQuestionGroupId;
-
-    /**
      * 父题目Id，没有父题目的则为-1
      */
     private Integer pid;
