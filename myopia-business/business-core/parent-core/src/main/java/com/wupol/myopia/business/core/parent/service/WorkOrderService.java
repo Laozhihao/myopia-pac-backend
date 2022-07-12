@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.parent.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.service.BaseService;
@@ -55,11 +56,23 @@ public class WorkOrderService extends BaseService<WorkOrderMapper, WorkOrder> {
     }
 
     /**
+     * 根据创建用户ID和状态查询工单
+     * @param createUserId 用户ID
+     * @param status 状态
+     */
+    public List<WorkOrder> findByCreateUserIdAndStatus(Integer createUserId,Integer status){
+        LambdaQueryWrapper<WorkOrder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(WorkOrder::getCreateUserId,createUserId);
+        queryWrapper.eq(WorkOrder::getStatus,status);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 新建工单
      * @param workOrder
      * @param parent
      */
-    public void addWorkOrder (WorkOrder workOrder,Parent parent){
+    public void addWorkOrder(WorkOrder workOrder,Parent parent){
         workOrder.setStatus(WorkOrderStatusEnum.UNTREATED.code);
         if (parent != null && StringUtils.isNotBlank(parent.getWxNickname())){
             workOrder.setWxNickname(parent.getWxNickname());
