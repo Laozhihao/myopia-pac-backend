@@ -25,6 +25,7 @@ CREATE TABLE `q_question`
     `attribute`     json         default null comment '问题属性',
     `options`       json         not null comment '问题的答案选项',
     `serial_number` varchar(15)  default null comment '问题的序号',
+    `pid`           int          not null comment '父ID，没有上级为-1',
     `create_time`   timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`   timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     PRIMARY KEY (`id`)
@@ -86,6 +87,8 @@ create table q_user_question_record
     plan_id          int                                 null comment '计划Id',
     task_id          int                                 null comment '任务Id',
     notice_id        int                                 null comment '通知Id',
+    school_id        int                                 null comment '学校Id',
+    org_id           int                                  null comment '机构Id',
     status           tinyint                             null comment '状态 0-未开始 1-进行中 2-结束',
     create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time      timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
