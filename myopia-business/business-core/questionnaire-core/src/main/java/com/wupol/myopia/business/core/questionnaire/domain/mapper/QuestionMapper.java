@@ -13,8 +13,4 @@ import java.util.List;
  * @Date 2022-07-06
  */
 public interface QuestionMapper extends BaseMapper<Question> {
-
-    Question getByQuestionId(@Param("id") Integer id);
-
-    List<Question> getByIds(@Param("ids") List<Integer> ids);
 }

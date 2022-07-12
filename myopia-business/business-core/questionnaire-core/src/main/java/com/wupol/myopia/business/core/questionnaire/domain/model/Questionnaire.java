@@ -1,16 +1,15 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
-import lombok.Builder;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 
@@ -19,10 +18,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @Date 2022-07-06
  */
 @Data
-@Builder
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_questionnaire")
+@TableName(value = "q_questionnaire", autoResultMap = true)
 public class Questionnaire implements Serializable {
 
     private static final long serialVersionUID = 1L;

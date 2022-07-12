@@ -72,6 +72,11 @@ public class Question implements Serializable {
     private Integer pid;
 
     /**
+     * 相同问题uuid
+     */
+    private String sameQuestionGroupId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
