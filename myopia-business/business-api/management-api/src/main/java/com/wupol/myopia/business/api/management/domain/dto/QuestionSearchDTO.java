@@ -14,7 +14,7 @@ public class QuestionSearchDTO {
     /**
      * 页码
      */
-    private Integer page;
+    private Integer current;
 
     /**
      * 每页显示条数

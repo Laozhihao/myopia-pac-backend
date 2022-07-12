@@ -157,7 +157,9 @@ public class ManagerQuestionnaireService {
     public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
         // 获得任务区域下的学校
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
-        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
         questionSchoolVO.setSchoolAccomplish(
@@ -180,7 +182,9 @@ public class ManagerQuestionnaireService {
      */
     public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
-        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districts.stream().map(District::getId).collect(Collectors.toSet()), taskId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(areaId);
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT);
         return types.stream().map(item -> {
             QuestionBacklogVO vo = new QuestionBacklogVO();
@@ -193,15 +197,22 @@ public class ManagerQuestionnaireService {
 
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
+        if (!CollectionUtils.isEmpty(districts)) {
+            districts.add(districtService.getById(questionSearchDTO.getAreaId()));
+        }
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-                .in(ScreeningPlan::getDistrictId, districts.stream().map(District::getId).collect(Collectors.toSet()))
+                .in(ScreeningPlan::getDistrictId, districtIds)
         );
+        if (CollectionUtils.isEmpty(plans)) {
+            return new Page<>();
+        }
         Map<Integer, ScreeningPlan> plansIdMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
-        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getPage(), questionSearchDTO.getSize());
+        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
-                .like(Objects.nonNull(questionSearchDTO.getSchoolName()),ScreeningPlanSchool::getSchoolName,questionSearchDTO.getSchoolName())
+                .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
         Page<QuestionSchoolRecordVO> resultPage = new Page<>();
         BeanUtils.copyProperties(searchPage, resultPage);
@@ -259,15 +270,22 @@ public class ManagerQuestionnaireService {
 
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
+        if (!CollectionUtils.isEmpty(districts)) {
+            districts.add(districtService.getById(questionSearchDTO.getAreaId()));
+        }
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-                .in(ScreeningPlan::getDistrictId, districts.stream().map(District::getId).collect(Collectors.toSet()))
+                .in(ScreeningPlan::getDistrictId, districtIds)
         );
+        if (CollectionUtils.isEmpty(plans)) {
+            return new Page<>();
+        }
         Map<Integer, ScreeningPlan> plansIdMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
-        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getPage(), questionSearchDTO.getSize());
+        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
-                .like(Objects.nonNull(questionSearchDTO.getSchoolName()),ScreeningPlanSchool::getSchoolName,questionSearchDTO.getSchoolName())
+                .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
         Page<QuestionBacklogRecordVO> resultPage = new Page<>();
         BeanUtils.copyProperties(searchPage, resultPage);
