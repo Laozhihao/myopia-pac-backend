@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class JumpIdsVO {
+public class JumpIdsDO {
 
     /**
      * 选项Id
