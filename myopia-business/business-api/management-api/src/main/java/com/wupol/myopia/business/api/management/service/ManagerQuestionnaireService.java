@@ -201,6 +201,7 @@ public class ManagerQuestionnaireService {
         Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getPage(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
+                .like(Objects.nonNull(questionSearchDTO.getSchoolName()),ScreeningPlanSchool::getSchoolName,questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
         Page<QuestionSchoolRecordVO> resultPage = new Page<>();
         BeanUtils.copyProperties(searchPage, resultPage);
@@ -266,6 +267,7 @@ public class ManagerQuestionnaireService {
         Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getPage(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
+                .like(Objects.nonNull(questionSearchDTO.getSchoolName()),ScreeningPlanSchool::getSchoolName,questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
         Page<QuestionBacklogRecordVO> resultPage = new Page<>();
         BeanUtils.copyProperties(searchPage, resultPage);
