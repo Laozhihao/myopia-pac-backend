@@ -113,13 +113,14 @@ public class PlanStudentExcelImportService {
      */
     @Transactional(rollbackFor = Exception.class)
     public UploadScreeningStudentVO importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) {
-
+        UploadScreeningStudentVO uploadScreeningStudentVO;
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
-            // 无数据，直接返回
-            return null;
+            uploadScreeningStudentVO = new UploadScreeningStudentVO().buildNoData();
+            uploadScreeningStudentVO.setFileName(getFileName(multipartFile));
+            return uploadScreeningStudentVO;
         }
-        UploadScreeningStudentVO uploadScreeningStudentVO = preCheck(userId, getFileName(multipartFile), screeningPlan, schoolId,listMap);
+        uploadScreeningStudentVO = preCheck(userId, getFileName(multipartFile), screeningPlan, schoolId,listMap);
 
         insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));

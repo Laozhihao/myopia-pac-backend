@@ -32,4 +32,12 @@ public class UploadScreeningStudentVO implements Serializable {
      * 文件名称
      */
     private String fileName;
+
+    public UploadScreeningStudentVO buildNoData(){
+        UploadScreeningStudentVO uploadScreeningStudentVO = new UploadScreeningStudentVO();
+        uploadScreeningStudentVO.setTotalStudentNum(0);
+        uploadScreeningStudentVO.setSuccessStudentNum(0);
+        uploadScreeningStudentVO.setFailStudentNum(0);
+        return uploadScreeningStudentVO;
+    }
 }
