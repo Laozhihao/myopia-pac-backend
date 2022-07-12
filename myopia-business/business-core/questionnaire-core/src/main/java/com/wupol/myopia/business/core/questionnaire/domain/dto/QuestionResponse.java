@@ -15,6 +15,11 @@ import java.util.List;
 @Data
 public class QuestionResponse extends Question implements Serializable {
 
+    /**
+     * 是否必填
+     */
+    private Boolean required;
+
 
     private List<QuestionResponse> children;
 }

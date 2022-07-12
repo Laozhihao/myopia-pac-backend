@@ -17,7 +17,7 @@ public class JumpIdsDO {
     /**
      * 选项Id
      */
-    private Integer optionId;
+    private String optionId;
 
     /**
      * 跳转题目Id

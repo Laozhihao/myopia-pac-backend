@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 问卷-属性
  *
@@ -31,4 +33,9 @@ public class Option {
      * 系统序号
      */
     private String serialNumber;
+
+    /**
+     * 跳转题目Id
+     */
+    private List<Integer> jumpIds;
 }
