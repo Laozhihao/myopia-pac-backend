@@ -30,18 +30,4 @@
     <sql id="Base_Column_List">
         id, type, title, attribute, options, serial_number, pid, same_question_group_id, create_time, update_time
     </sql>
-
-    <select id="getByQuestionId" resultMap="BaseResultMap">
-        select *
-        from q_question
-        where id = #{id};
-    </select>
-
-    <select id="getByIds" resultMap="BaseResultMap">
-        select *
-        from q_question where id in
-        <foreach collection="ids" open="(" close=")" separator="," item="id">
-            #{id}
-        </foreach>
-    </select>
 </mapper>
