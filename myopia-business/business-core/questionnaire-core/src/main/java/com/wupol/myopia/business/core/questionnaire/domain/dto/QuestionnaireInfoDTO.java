@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Builder;
 import lombok.Data;
 
@@ -30,5 +29,5 @@ public class QuestionnaireInfoDTO implements Serializable {
     /**
      * 子模块问题数组
      */
-    private List<Question> questionList;
+    private List<QuestionResponse> questionList;
 }

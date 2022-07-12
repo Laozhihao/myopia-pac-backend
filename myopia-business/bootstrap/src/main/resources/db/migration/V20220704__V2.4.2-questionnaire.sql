@@ -4,7 +4,7 @@ CREATE TABLE `q_questionnaire`
     `title`       varchar(255) not null comment '问卷标题',
     `district_id` int          default null comment '区域ID',
     `year`        int          not null comment '年份，如：2022',
-    `pid`         int          not null comment '父ID，没有上级为-1',
+    `pid`         int default -1 not null comment '父ID，没有上级为-1',
     `type`        tinyint      not null comment '问卷类型',
     `status`      tinyint      default null comment '问卷状态 0-启用 1-禁用',
     `qes_url`     varchar(150) default null comment 'qes文件地址',
@@ -25,7 +25,7 @@ CREATE TABLE `q_question`
     `attribute`     json         default null comment '问题属性',
     `options`       json         null comment '问题的答案选项',
     `serial_number` varchar(15)  default null comment '问题的序号',
-    `pid`           int          not null comment '父ID，没有上级为-1',
+    `pid`           int default -1 not null comment '父ID，没有上级为-1',
     `create_time`   timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`   timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     PRIMARY KEY (`id`)
