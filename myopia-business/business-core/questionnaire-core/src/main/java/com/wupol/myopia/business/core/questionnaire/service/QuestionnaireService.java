@@ -85,6 +85,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                     if (Question.TOP_PARENT_ID == createQuestion.getPid()) {
                         QuestionResponse questionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
                         questionResponse.setRequired(child.getRequired());
+                        questionResponse.setSerialNumber(child.getSerialNumber());
                         setJumpIds(questionResponse, jumpIds);
                         setChildren(questionResponse, childQuestion, questionMap, childQuestionMap);
                         questionList.add(questionResponse);
