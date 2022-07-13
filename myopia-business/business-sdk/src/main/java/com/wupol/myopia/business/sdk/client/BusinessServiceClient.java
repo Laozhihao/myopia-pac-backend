@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.sdk.client;
 
 import com.wupol.myopia.base.config.feign.BusinessServiceFeignConfig;
+import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @Author wulizhou
@@ -10,6 +13,20 @@ import org.springframework.cloud.openfeign.FeignClient;
 @FeignClient(name = "myopia-business", decode404 = true, fallbackFactory = BusinessServiceFallbackFactory.class, configuration = BusinessServiceFeignConfig.class)
 public interface BusinessServiceClient {
 
+    /**
+     * 获取学生信息
+     * @param credentialNo
+     * @return
+     */
+    @GetMapping("/management/screeningPlan/student/")
+    QuestionnaireUser getStudent(@RequestParam("credentialNo") String credentialNo);
 
+    /**
+     * 获取学校信息
+     * @param schoolNo
+     * @return
+     */
+    @GetMapping("/management/screeningPlan/school/")
+    QuestionnaireUser getSchool(@RequestParam("schoolNo") String schoolNo);
 
 }

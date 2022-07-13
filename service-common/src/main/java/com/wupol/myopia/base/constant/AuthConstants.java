@@ -41,6 +41,11 @@ public interface AuthConstants {
     String CLIENT_ID_KEY = "client_id";
 
     /**
+     * 用户类型
+     */
+    String USER_TYPE = "user_type";
+
+    /**
      * 黑名单token前缀
      */
     String TOKEN_BLACKLIST_PREFIX = "auth:token:blacklist:";
@@ -76,6 +81,11 @@ public interface AuthConstants {
      */
     Integer IS_PAGE_PERMISSION = 1;
     Integer IS_API_PERMISSION = 0;
+
+    /**
+     * 用户状态正常
+     */
+    Integer STATUS_NORMAL = 0;
 
     /**
      * 授权类型

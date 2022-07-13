@@ -24,11 +24,14 @@ import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
+import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -37,6 +40,7 @@ import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -104,6 +108,8 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ReviewInformService reviewInformService;
+    @Autowired
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
 
     /**
      * 新增
@@ -701,6 +707,34 @@ public class ScreeningPlanController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         reviewInformService.asyncExportReview(planId, orgId, schoolId, gradeId, classId, type, currentUser.getId());
         return ApiResult.success();
+    }
+
+    /**
+     * 获取学生信息
+     * @param credentialNo
+     * @return
+     */
+    @GetMapping("/student")
+    public QuestionnaireUser getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo) {
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndScreeningType(credentialNo, ScreeningTypeEnum.COMMON_DISEASE.getType());
+        if (Objects.nonNull(screeningPlanSchoolStudent)) {
+            return new QuestionnaireUser(screeningPlanSchoolStudent.getId(), screeningPlanSchoolStudent.getSchoolId(), screeningPlanSchoolStudent.getStudentName());
+        }
+        return null;
+    }
+
+    /**
+     * 获取学校信息
+     * @param schoolNo
+     * @return
+     */
+    @GetMapping("/school")
+    public QuestionnaireUser getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo) {
+        School school = screeningPlanSchoolBizService.getLastBySchoolNoAndScreeningType(schoolNo, ScreeningTypeEnum.COMMON_DISEASE.getType());
+        if (Objects.nonNull(school)) {
+            return new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName());
+        }
+        return null;
     }
 
 }

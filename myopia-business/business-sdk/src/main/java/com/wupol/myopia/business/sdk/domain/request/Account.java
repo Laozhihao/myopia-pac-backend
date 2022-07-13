@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.sdk.domain.response;
+package com.wupol.myopia.business.sdk.domain.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -7,31 +7,24 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 问卷系统用户
- *
  * @Author wulizhou
- * @Date 2022/6/30 12:15
+ * @Date 2022/7/11 12:09
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class QuestionnaireUser {
+public class Account {
 
     /**
-     * 用户ID
+     * 账号
      */
-    private Integer id;
+    private String account;
 
     /**
-     * 机构组织ID（如政府部门ID、学校ID、医院ID）
+     * 密码
      */
-    private Integer orgId;
-
-    /**
-     * 真实姓名
-     */
-    private String realName;
+    private String password;
 
 }

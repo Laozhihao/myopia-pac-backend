@@ -180,4 +180,13 @@
           and school_id = #{schoolId}
         order by msps.create_time desc
     </select>
+
+    <select id="getLastBySchoolIdAndScreeningType" resultMap="BaseResultMap">
+        SELECT sps.* FROM m_screening_plan_school sps
+        INNER JOIN m_screening_plan sp ON sp.id = sps.screening_plan_id
+        WHERE sp.screening_type = #{screeningType}
+          AND sps.school_id = #{schoolId}
+        ORDER BY sps.create_time DESC LIMIT 1
+    </select>
+
 </mapper>

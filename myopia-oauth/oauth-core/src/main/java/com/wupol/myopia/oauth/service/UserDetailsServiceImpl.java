@@ -3,6 +3,10 @@ package com.wupol.myopia.oauth.service;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
+import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
+import com.wupol.myopia.oauth.constant.AuthConstant;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
@@ -14,10 +18,12 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,13 +45,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private OrganizationService organizationService;
 
+    @Autowired
+    private BusinessServiceClient businessServiceClient;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // clientId与systemCode一致，若不一致需要在SystemCode.java里加上clientId属性，维持两者的map关系
         String clientId = request.getParameter(AuthConstants.CLIENT_ID_KEY);
+        String userTypeStr = request.getParameter(AuthConstants.USER_TYPE);
         Integer systemCode = Integer.parseInt(clientId);
+        Integer userType = Integer.parseInt(userTypeStr);
         // 检查账号密码
-        User user = validateAccount(systemCode, username);
+        User user = validateAccount(systemCode, username, userType);
         // 判断是否分配角色
         List<Role> roles = validateRole(systemCode, user);
         // 生成用户明细，将作为accessToken的payload的一部分
@@ -65,12 +76,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      *
      * @param systemCode 系统编号
      * @param username 用户名
+     * @param userType 用户类型
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
-    private User validateAccount(Integer systemCode, String username) {
+    private User validateAccount(Integer systemCode, String username, Integer userType) {
         // 0-6岁客户端，实际上使用的是医院端
         if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)) {
             systemCode = SystemCode.HOSPITAL_CLIENT.getCode();
+        }
+        // 问卷系统端
+        if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
+            // 学校登录
+            if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
+                return questionnaireUser2User(businessServiceClient.getSchool(username), username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+            } else {
+                // 学生登录
+                QuestionnaireUser student = businessServiceClient.getStudent(username);
+                return questionnaireUser2User(student, username, userType, Objects.nonNull(student) ? student.getRealName() : null);
+            }
         }
         User user = userService.getByUsername(username, systemCode);
         if (Objects.isNull(user)) {
@@ -95,6 +118,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             || SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             return Collections.emptyList();
         }
+        // 问卷系统端
+        if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
+            // 学校登录
+            if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType())) {
+                return Arrays.asList(new Role().setRoleType(RoleType.QUESTIONNAIRE_SCHOOL.getType()));
+            } else {
+                // 学生登录
+                return Arrays.asList(new Role().setRoleType(RoleType.QUESTIONNAIRE_STUDENT.getType()));
+            }
+        }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
         // 0-6岁系统客户端
         if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)    // 0-6岁端必须要有0-6角色
@@ -108,6 +141,30 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配权限!");
         }
         return roles;
+    }
+
+    /**
+     * 组装虚拟user
+     * @param qUser
+     * @param username
+     * @param userType
+     * @param originalPassword
+     * @return
+     */
+    private User questionnaireUser2User(QuestionnaireUser qUser, String username, Integer userType, String originalPassword) {
+        if (Objects.isNull(qUser)) {
+            throw new AuthenticationCredentialsNotFoundException("账号或密码错误!");
+        }
+        User user = new User();
+        user.setId(qUser.getId());
+        user.setUsername(username);
+        user.setOrgId(qUser.getOrgId());
+        user.setRealName(qUser.getRealName());
+        user.setSystemCode(SystemCode.QUESTIONNAIRE.getCode());
+        user.setUserType(userType);
+        user.setStatus(AuthConstants.STATUS_NORMAL);
+        user.setPassword(new BCryptPasswordEncoder().encode(originalPassword));
+        return user;
     }
 
 }

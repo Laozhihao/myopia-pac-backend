@@ -43,6 +43,13 @@
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>business-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

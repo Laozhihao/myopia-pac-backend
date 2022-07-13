@@ -29,6 +29,7 @@ public enum ResultCode {
     DATA_UPLOAD_PLAN_STUDENT_ERROR(6001, "筛查学生异常"),
     DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR(6002, "学生筛查机构匹配异常"),
 
+
     ;
 
     /** 业务异常码 */

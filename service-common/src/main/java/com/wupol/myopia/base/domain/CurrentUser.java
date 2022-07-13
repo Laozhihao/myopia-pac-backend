@@ -99,4 +99,22 @@ public class CurrentUser {
         return UserType.OVERVIEW.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode);
     }
 
+    /**
+     * 是否筛查学校用户
+     * @return
+     */
+    @JsonIgnore
+    public boolean isQuestionnaireSchoolUser() {
+        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_SCHOOL.getType());
+    }
+
+    /**
+     * 是否筛查学生用户
+     * @return
+     */
+    @JsonIgnore
+    public boolean isQuestionnaireStudentUser() {
+        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_STUDENT.getType());
+    }
+
 }
