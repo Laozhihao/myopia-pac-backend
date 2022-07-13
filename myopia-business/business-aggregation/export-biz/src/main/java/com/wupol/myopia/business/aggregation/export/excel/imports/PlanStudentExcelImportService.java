@@ -115,47 +115,46 @@ public class PlanStudentExcelImportService {
     public UploadScreeningStudentVO importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) {
         UploadScreeningStudentVO uploadScreeningStudentVO;
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
+        String originalFilename = getFileName(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
             uploadScreeningStudentVO = new UploadScreeningStudentVO().buildNoData();
-            uploadScreeningStudentVO.setFileName(getFileName(multipartFile));
+            uploadScreeningStudentVO.setFileName(originalFilename);
             return uploadScreeningStudentVO;
         }
-        uploadScreeningStudentVO = preCheck(userId, getFileName(multipartFile), screeningPlan, schoolId,listMap);
+        //前置校验
+        TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> tuple = preCheck(screeningPlan, schoolId, listMap);
 
         insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
+
+        uploadScreeningStudentVO = tuple.getFirst();
+        if (CollectionUtil.isNotEmpty(tuple.getSecond())){
+            ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
+                    .setScreeningPlanId(screeningPlan.getId())
+                    .setSchoolId(schoolId)
+                    .setFileName(originalFilename)
+                    .setUserId(userId);
+            uploadScreeningStudentVO.setFileName(originalFilename);
+            uploadScreeningStudentVO.setFailDataUrl(exportExcelService.process(condition, tuple.getSecond()));
+        }
         return uploadScreeningStudentVO;
     }
 
     /**
      * 前置检查
      *
-     * @param userId 用户ID
-     * @param originalFilename 原文件名称
      * @param screeningPlan 筛查计划对象
      * @param schoolId 学校ID
      * @param listMap 数据集合
      */
-    private UploadScreeningStudentVO preCheck(Integer userId, String originalFilename, ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
+    private TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> preCheck(ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
         School school = schoolService.getById(schoolId);
         if (Objects.isNull(school)) {
             throw new BusinessException("不存在该学校");
         }
         List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlan.getId());
         Map<Integer, List<SchoolGradeExportDTO>> gradeAndClassMap = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
-        TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> tuple = ImportScreeningSchoolStudentBuilder.validData(listMap, existPlanSchoolStudentList, gradeAndClassMap.get(schoolId), school);
-        UploadScreeningStudentVO uploadScreeningStudentVO = tuple.getFirst();
-        if (CollectionUtil.isNotEmpty(tuple.getSecond())){
-            ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
-                    .setScreeningPlanId(screeningPlan.getId())
-                    .setSchoolId(schoolId)
-                    .setFileName(originalFilename)
-                    .setTemplateFileName("ImportStudentExceptionTable")
-                    .setUserId(userId);
-            uploadScreeningStudentVO.setFileName(originalFilename);
-            uploadScreeningStudentVO.setFailDataUrl(exportExcelService.process(condition, tuple.getSecond()));
-        }
-        return uploadScreeningStudentVO;
+        return ImportScreeningSchoolStudentBuilder.validData(listMap, existPlanSchoolStudentList, gradeAndClassMap.get(schoolId), school);
     }
 
     /**

@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -30,7 +31,8 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class ImportScreeningSchoolStudentBuilder {
 
-    public static final String requiredText = "必填项为空";
+    public static final String REQUIRED_TEXT = "必填项为空";
+    public static final Integer PASSPORT_CHECK = 7;
 
     /**
      * 校验数据
@@ -68,12 +70,12 @@ public class ImportScreeningSchoolStudentBuilder {
             List<String> errorItemList = Lists.newArrayList();
             checkProcess(item,errorItemList,screeningCodeList,idCardList,passportList,snoList,existPlanSchoolStudentList,gradeMaps,school.getId());
             if (CollectionUtil.isNotEmpty(errorItemList)){
-                List<String> requiredList = errorItemList.stream().filter(error -> error.contains(requiredText)).map(s -> s.split(StrUtil.COLON)[1]).collect(Collectors.toList());
+                List<String> requiredList = errorItemList.stream().filter(error -> error.contains(REQUIRED_TEXT)).map(s -> s.split(StrUtil.COLON)[1]).collect(Collectors.toList());
                 String requiredStr=StrUtil.EMPTY;
                 if (CollectionUtil.isNotEmpty(requiredList)){
-                    requiredStr = getRequiredText(CollectionUtil.join(requiredList,"、"));
+                    requiredStr = getRequiredText(CollectionUtil.join(requiredList, CommonConst.CN_PUNCTUATION_COMMA));
                 }
-                List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains(requiredText)).collect(Collectors.toList());
+                List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains(REQUIRED_TEXT)).collect(Collectors.toList());
                 if (StrUtil.isNotBlank(requiredStr)){
                     notRequiredList.add(requiredStr);
                 }
@@ -147,44 +149,52 @@ public class ImportScreeningSchoolStudentBuilder {
             //校验编码是否存在于系统
             errorItemList.add("编码错误");
         }
-
         if (StringUtils.isAllBlank(idCard,passport)){
             errorItemList.add("身份证号和护照号，二选一必填");
         }
-
         if (StringUtils.isAllBlank(idCard,passport,screeningCode)){
             errorItemList.add("身份证号、护照号、编码不能都为空");
         }
 
         boolean isIdCard = StringUtils.isNotBlank(idCard);
-        //身份证号/护照
-        if (isIdCard){
-            if (!IdcardUtil.isValidCard(idCard)){
-                errorItemList.add("身份证号错误");
-            }
-            if (idCardList.contains(idCard)){
-                errorItemList.add("身份证号与其他重复");
-            }
-        }else {
-            boolean isPassport = StrUtil.isNotBlank(passport);
-            if (isPassport && passport.length() < 7) {
-                errorItemList.add("护照号错误");
-            }
-            if (isPassport && passportList.contains(passport)){
-                errorItemList.add("护照号与其他重复");
-            }
-        }
+        checkLicenseNumber(errorItemList, idCardList, passportList, idCard, passport,isIdCard);
 
         //姓名
         if (StrUtil.isBlank(name)){
             errorItemList.add(getRequiredText("姓名"));
         }
-
         //性别
         if (!isIdCard && StrUtil.isBlank(gender)){
             errorItemList.add(getRequiredText("性别"));
         }
 
+        checkBirthday(errorItemList, birthdayStr, isIdCard);
+        checkGradeAndClass(errorItemList, gradeMaps, gradeName, className);
+
+        //学号
+        if (StrUtil.isNotBlank(studentNo) ){
+            if (Objects.equals(Boolean.TRUE,checkSno(existPlanSchoolStudentList,studentNo,idCard,passport,schoolId))) {
+                errorItemList.add("学号错误");
+            }
+            if (snoList.contains(studentNo)){
+                errorItemList.add("学号与其他重复");
+            }
+        }
+        //手机号码
+        if (StrUtil.isNotBlank(phone) && !PhoneUtil.isPhone(phone)){
+            errorItemList.add("手机号码错误");
+        }
+
+    }
+
+    /**
+     * 检查出生日期
+     *
+     * @param errorItemList 错误集合
+     * @param birthdayStr 出生日期
+     * @param isIdCard 身份证号是否空
+     */
+    private static void checkBirthday(List<String> errorItemList, String birthdayStr, boolean isIdCard) {
         //出生日期
         if (!isIdCard && StrUtil.isBlank(birthdayStr)){
             errorItemList.add(getRequiredText("出生日期"));
@@ -204,7 +214,16 @@ public class ImportScreeningSchoolStudentBuilder {
                 errorItemList.add("出生日期超出限制错误");
             }
         }
+    }
 
+    /**
+     * 检查年级和班级
+     * @param errorItemList 错误集合
+     * @param gradeMaps 年级集合
+     * @param gradeName 年级名称
+     * @param className 班级名称
+     */
+    private static void checkGradeAndClass(List<String> errorItemList, Map<String, SchoolGradeExportDTO> gradeMaps, String gradeName, String className) {
         SchoolGradeExportDTO schoolGradeExportDTO=null;
         //年级
         if (StrUtil.isNotBlank(gradeName)){
@@ -220,7 +239,7 @@ public class ImportScreeningSchoolStudentBuilder {
             if(Objects.nonNull(schoolGradeExportDTO)){
                 // 获取年级内的班级信息
                 List<SchoolClassExportDTO> classExportDTOList = schoolGradeExportDTO.getChild();
-                Map<String, Integer> classExportMaps=Maps.newHashMap();
+                Map<String, Integer> classExportMaps= Maps.newHashMap();
                 if (CollectionUtil.isNotEmpty(classExportDTOList)){
                     classExportMaps = classExportDTOList.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
                 }
@@ -236,21 +255,36 @@ public class ImportScreeningSchoolStudentBuilder {
         }else {
             errorItemList.add(getRequiredText("班级"));
         }
+    }
 
-        //学号
-        if (StrUtil.isNotBlank(studentNo) ){
-            if (Objects.equals(Boolean.TRUE,checkSno(existPlanSchoolStudentList,studentNo,idCard,passport,schoolId))) {
-                errorItemList.add("学号错误");
+    /**
+     * 检查证件号
+     *
+     * @param errorItemList 错误集合
+     * @param idCardList 重复身份证号集合
+     * @param passportList 重复护照集合
+     * @param idCard 身份证号
+     * @param passport 护照号
+     * @param isIdCard 身份证号是否空
+     */
+    private static void checkLicenseNumber(List<String> errorItemList, List<String> idCardList, List<String> passportList, String idCard, String passport,boolean isIdCard) {
+        //身份证号/护照
+        if (isIdCard){
+            if (!IdcardUtil.isValidCard(idCard)){
+                errorItemList.add("身份证号错误");
             }
-            if (snoList.contains(studentNo)){
-                errorItemList.add("学号与其他重复");
+            if (idCardList.contains(idCard.toUpperCase())){
+                errorItemList.add("身份证号与其他重复");
+            }
+        }else {
+            boolean isPassport = StrUtil.isNotBlank(passport);
+            if (isPassport && passport.length() < PASSPORT_CHECK) {
+                errorItemList.add("护照号错误");
+            }
+            if (isPassport && passportList.contains(passport)){
+                errorItemList.add("护照号与其他重复");
             }
         }
-        //手机号码
-        if (StrUtil.isNotBlank(phone) && !PhoneUtil.isPhone(phone)){
-            errorItemList.add("手机号码错误");
-        }
-
     }
 
 
@@ -269,7 +303,7 @@ public class ImportScreeningSchoolStudentBuilder {
         listMap.forEach(item -> {
             String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
             if (StringUtils.isNotBlank(idCard)) {
-                idCards.add(idCard);
+                idCards.add(idCard.toUpperCase());
             }
 
             String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
@@ -311,6 +345,6 @@ public class ImportScreeningSchoolStudentBuilder {
     }
 
     private static String getRequiredText(String text){
-        return requiredText+StrUtil.COLON+text;
+        return REQUIRED_TEXT +StrUtil.COLON+text;
     }
 }

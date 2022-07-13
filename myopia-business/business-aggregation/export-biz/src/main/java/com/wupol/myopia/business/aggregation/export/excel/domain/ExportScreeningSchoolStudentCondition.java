@@ -27,10 +27,7 @@ public class ExportScreeningSchoolStudentCondition implements Serializable {
      * 原文件名称
      */
     private String fileName;
-    /**
-     * 模板文件名
-     */
-    private String templateFileName;
+
     /**
      * 用户ID
      */
