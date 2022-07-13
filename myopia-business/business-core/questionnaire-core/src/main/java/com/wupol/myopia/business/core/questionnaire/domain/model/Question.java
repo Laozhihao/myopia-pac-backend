@@ -74,6 +74,11 @@ public class Question implements Serializable {
     private String sameQuestionGroupId;
 
     /**
+     * 图标描述-前端需要
+     */
+    private String iconName;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
