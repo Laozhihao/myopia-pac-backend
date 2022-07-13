@@ -52,11 +52,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // clientId与systemCode一致，若不一致需要在SystemCode.java里加上clientId属性，维持两者的map关系
         String clientId = request.getParameter(AuthConstants.CLIENT_ID_KEY);
-        String userTypeStr = request.getParameter(AuthConstants.USER_TYPE);
         Integer systemCode = Integer.parseInt(clientId);
-        Integer userType = Integer.parseInt(userTypeStr);
         // 检查账号密码
-        User user = validateAccount(systemCode, username, userType);
+        User user = validateAccount(systemCode, username);
         // 判断是否分配角色
         List<Role> roles = validateRole(systemCode, user);
         // 生成用户明细，将作为accessToken的payload的一部分
@@ -76,16 +74,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      *
      * @param systemCode 系统编号
      * @param username 用户名
-     * @param userType 用户类型
      * @return com.wupol.myopia.oauth.domain.model.User
      **/
-    private User validateAccount(Integer systemCode, String username, Integer userType) {
+    private User validateAccount(Integer systemCode, String username) {
         // 0-6岁客户端，实际上使用的是医院端
         if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)) {
             systemCode = SystemCode.HOSPITAL_CLIENT.getCode();
         }
         // 问卷系统端
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
+            String userTypeStr = request.getParameter(AuthConstants.USER_TYPE);
+            Integer userType = Integer.parseInt(userTypeStr);
             // 学校登录
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
                 return questionnaireUser2User(businessServiceClient.getSchool(username), username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
