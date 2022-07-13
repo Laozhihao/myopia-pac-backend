@@ -1,5 +1,6 @@
 package com.wupol.myopia.oauth.service;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -122,10 +122,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
             // 学校登录
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType())) {
-                return Arrays.asList(new Role().setRoleType(RoleType.QUESTIONNAIRE_SCHOOL.getType()));
+                return Lists.newArrayList(new Role().setRoleType(RoleType.QUESTIONNAIRE_SCHOOL.getType()));
             } else {
                 // 学生登录
-                return Arrays.asList(new Role().setRoleType(RoleType.QUESTIONNAIRE_STUDENT.getType()));
+                return Lists.newArrayList(new Role().setRoleType(RoleType.QUESTIONNAIRE_STUDENT.getType()));
             }
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
