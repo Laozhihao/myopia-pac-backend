@@ -11,6 +11,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.domain.UploadScreeningStudentVO;
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
@@ -384,7 +385,7 @@ public class ScreeningPlanController {
      * @throws IOException IO异常
      */
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
-    public void uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+    public UploadScreeningStudentVO uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         //1. 发布成功后才能导入
         screeningExportService.validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);
@@ -394,7 +395,7 @@ public class ScreeningPlanController {
             throw new ValidationException("该筛查学校不存在");
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
-        planStudentExcelImportService.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
+        return planStudentExcelImportService.importScreeningSchoolStudents(currentUser.getId(), file, screeningPlan, schoolId);
     }
 
     /**
