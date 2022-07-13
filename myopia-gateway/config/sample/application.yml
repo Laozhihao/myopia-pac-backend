@@ -40,7 +40,7 @@ spring:
       - id: route_business
         uri: lb://myopia-business
         predicates:
-        - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**
+        - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**, /questionnaire/**
 
       - id: route_migrate
         uri: lb://myopia-migrate
