@@ -15,7 +15,7 @@ public enum SchoolStudentImportEnum {
     CLASS_NAME(5, "班级"),
     SNO(6, "学号"),
     ID_CARD(7, "身份证号"),
-    PASSPORT(8, "护照"),
+    PASSPORT(8, "护照号"),
     PHONE(9, "手机号码"),
     PROVINCE_NAME(10, "省"),
     CITY_NAME(11, "市"),

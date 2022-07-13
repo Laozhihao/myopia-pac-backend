@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_question")
+@TableName(value = "q_question", autoResultMap = true)
 public class Question implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -62,6 +62,21 @@ public class Question implements Serializable {
      * 问题的序号
      */
     private String serialNumber;
+
+    /**
+     * 父题目Id，没有父题目的则为-1
+     */
+    private Integer pid;
+
+    /**
+     * 相同问题uuid
+     */
+    private String sameQuestionGroupId;
+
+    /**
+     * 图标描述-前端需要
+     */
+    private String iconName;
 
     /**
      * 创建时间
