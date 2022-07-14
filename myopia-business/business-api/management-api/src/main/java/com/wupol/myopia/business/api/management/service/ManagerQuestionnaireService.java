@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -10,6 +11,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -82,6 +84,7 @@ public class ManagerQuestionnaireService {
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
 
+
     /**
      * 根据机构id获得所有任务
      *
@@ -96,7 +99,7 @@ public class ManagerQuestionnaireService {
         if (!user.isPlatformAdminUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        List<ScreeningTaskPageDTO> screeningTasks = screeningTaskBizService.getPage(query, page).getRecords().stream().filter(item-> item.getScreeningType().equals(1) && item.getReleaseStatus().equals(1)).collect(Collectors.toList());
+        List<ScreeningTaskPageDTO> screeningTasks = screeningTaskBizService.getPage(query, page).getRecords().stream().filter(item -> item.getScreeningType().equals(1) && item.getReleaseStatus().equals(1)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
@@ -121,19 +124,31 @@ public class ManagerQuestionnaireService {
         }).collect(Collectors.toList());
     }
 
-    public List<District> getQuestionTaskAreas(Integer taskId, CurrentUser user) {
+    public QuestionAreaDTO getQuestionTaskAreas(Integer taskId, CurrentUser user) {
         try {
+            QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
             ScreeningTask task = screeningTaskService.getById(taskId);
             if (Objects.isNull(task)) {
-                return Lists.newArrayList();
+                return new QuestionAreaDTO();
             }
             if (!user.isGovDeptUser()) {
                 //查看该通知所有筛查学校的层级的 地区树
                 List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user);
-                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-                return districtBizService.getValidDistrictTree(user, districts);
+                if (!CollectionUtils.isEmpty(screeningPlans)) {
+                    List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
+                    Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
+                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                }
+            } else {
+                questionAreaDTO.setDistricts(districtBizService.getChildDistrictValidDistrictTree(user, Sets.newHashSet(task.getDistrictId())));
             }
-            return districtBizService.getChildDistrictValidDistrictTree(user, Sets.newHashSet(task.getDistrictId()));
+            District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
+            District district = questionAreaDTO.getDistricts().stream().filter(item -> item.getId().equals(parentDistrict.getId())).findFirst().orElse(null);
+            if (Objects.nonNull(district)) {
+                questionAreaDTO.setDefaultAreaId(district.getId());
+                questionAreaDTO.setDefaultAreaName(district.getName());
+            }
+            return questionAreaDTO;
         } catch (Exception e) {
             e.printStackTrace();
             log.error("获得任务区域失败");
@@ -174,7 +189,7 @@ public class ManagerQuestionnaireService {
      */
     public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
         // 获得任务区域下的学校
-        if(Objects.isNull(areaId) || Objects.isNull(taskId)){
+        if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return new QuestionSchoolVO();
         }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
@@ -203,7 +218,7 @@ public class ManagerQuestionnaireService {
      */
     public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
         List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT);
-        if(Objects.isNull(areaId) || Objects.isNull(taskId)){
+        if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return types.stream().map(item -> {
                 QuestionBacklogVO vo = new QuestionBacklogVO();
                 vo.setQuestionnaireTitle(item.getDesc());
@@ -224,7 +239,7 @@ public class ManagerQuestionnaireService {
     }
 
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
-        if(Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())){
+        if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
@@ -301,7 +316,7 @@ public class ManagerQuestionnaireService {
     }
 
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
-        if(Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())){
+        if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
