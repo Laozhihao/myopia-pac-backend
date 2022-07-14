@@ -45,5 +45,10 @@ public class QuestionTaskVO {
          * 筛查任务Id
          */
         private Integer taskId;
+
+        /**
+         * 创建时间
+         */
+        private Date createTime;
     }
 }

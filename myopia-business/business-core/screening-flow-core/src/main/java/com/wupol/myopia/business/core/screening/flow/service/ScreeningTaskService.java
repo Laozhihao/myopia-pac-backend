@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
@@ -94,6 +95,9 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      */
     public List<ScreeningTask> getScreeningTaskByOrgId(Integer orgId) {
         List<ScreeningTaskOrg> taskOrgs = screeningTaskOrgService.getOrgListsByOrgId(orgId);
+        if (CollectionUtils.isEmpty(taskOrgs)) {
+            return Lists.newArrayList();
+        }
         return baseMapper.selectList(new LambdaQueryWrapper<ScreeningTask>().in(!CollectionUtils.isEmpty(taskOrgs), ScreeningTask::getId, taskOrgs.stream().map(ScreeningTaskOrg::getScreeningTaskId).collect(Collectors.toList())));
     }
 }

@@ -20,10 +20,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -79,27 +76,38 @@ public class ManagerQuestionnaireService {
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
 
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
+
     /**
      * 根据机构id获得所有任务
      *
-     * @param orgId orgId
+     * @param user user
      * @return
      */
-    public List<QuestionTaskVO> getQuestionTaskByUnitId(Integer orgId) {
-        List<ScreeningTask> screeningTasks = screeningTaskService.getScreeningTaskByOrgId(orgId);
+    public List<QuestionTaskVO> getQuestionTaskByUnitId(CurrentUser user) {
+        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
+        List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().in(ScreeningTask::getScreeningNoticeId,screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toList())));
+        if (CollectionUtils.isEmpty(screeningTasks)) {
+            return Lists.newArrayList();
+        }
         Map<Integer, Set<ScreeningTask>> yearTaskMap = getYears(screeningTasks);
         return yearTaskMap.entrySet().stream().map(item -> {
             QuestionTaskVO questionTaskVO = new QuestionTaskVO();
-            questionTaskVO.setAnnual(item.getKey() + "年度");
+            questionTaskVO.setAnnual(item.getKey() + "");
             questionTaskVO.setTasks(item.getValue().stream().map(it2 -> {
                 QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
                 taskItem.setTaskId(it2.getId());
                 taskItem.setTaskTitle(it2.getTitle());
                 taskItem.setScreeningEndTime(it2.getEndTime());
                 taskItem.setScreeningStartTime(it2.getStartTime());
+                taskItem.setCreateTime(it2.getCreateTime());
                 return taskItem;
-            }).collect(Collectors.toList()));
+            }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
             return questionTaskVO;
+        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).map(item -> {
+            item.setAnnual(item.getAnnual() + "年度");
+            return item;
         }).collect(Collectors.toList());
     }
 

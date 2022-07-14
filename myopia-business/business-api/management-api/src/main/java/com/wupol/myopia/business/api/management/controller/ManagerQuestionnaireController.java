@@ -45,7 +45,7 @@ public class ManagerQuestionnaireController {
     @GetMapping("/task")
     public List<QuestionTaskVO> getQuestionTask() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return managerQuestionnaireService.getQuestionTaskByUnitId(user.getOrgId());
+        return managerQuestionnaireService.getQuestionTaskByUnitId(user);
     }
 
     /**
