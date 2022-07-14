@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.service.ManagerQuestionnaireService;
@@ -52,7 +53,7 @@ public class ManagerQuestionnaireController {
      * @return
      */
     @GetMapping("/areas")
-    public List<District> getQuestionTaskAreas(Integer taskId) {
+    public QuestionAreaDTO getQuestionTaskAreas(Integer taskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return managerQuestionnaireService.getQuestionTaskAreas(taskId, user);
     }
