@@ -13,10 +13,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +34,7 @@ import java.util.List;
 public class ManagerQuestionnaireController {
     @Autowired
     private ManagerQuestionnaireService managerQuestionnaireService;
+
     /**
      * 获得当前登录人的筛查任务
      *
@@ -65,7 +63,7 @@ public class ManagerQuestionnaireController {
      * @return
      */
     @GetMapping("/school")
-    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
+    public QuestionSchoolVO getQuestionSchool(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
         return managerQuestionnaireService.getQuestionSchool(taskId, areaId);
     }
 
@@ -75,7 +73,7 @@ public class ManagerQuestionnaireController {
      * @return
      */
     @GetMapping("/backlog")
-    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
+    public List<QuestionBacklogVO> getQuestionBacklog(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
         return managerQuestionnaireService.getQuestionBacklog(taskId, areaId);
     }
 
