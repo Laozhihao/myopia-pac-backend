@@ -100,6 +100,7 @@ public class ManagerQuestionnaireService {
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
+
         Map<Integer, Set<ScreeningTask>> yearTaskMap = getYears(screeningTasks);
         return yearTaskMap.entrySet().stream().map(item -> {
             QuestionTaskVO questionTaskVO = new QuestionTaskVO();
