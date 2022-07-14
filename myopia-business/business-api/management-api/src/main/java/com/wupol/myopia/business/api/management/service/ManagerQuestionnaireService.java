@@ -13,6 +13,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserQuestionRecordMapper;
@@ -20,6 +21,8 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -77,7 +80,7 @@ public class ManagerQuestionnaireService {
     private ScreeningOrganizationService screeningOrganizationService;
 
     @Autowired
-    private ScreeningNoticeBizService screeningNoticeBizService;
+    private ScreeningTaskBizService screeningTaskBizService;
 
     /**
      * 根据机构id获得所有任务
@@ -86,8 +89,14 @@ public class ManagerQuestionnaireService {
      * @return
      */
     public List<QuestionTaskVO> getQuestionTaskByUnitId(CurrentUser user) {
-        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
-        List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().in(ScreeningTask::getScreeningNoticeId,screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toList())));
+        PageRequest page = new PageRequest();
+        page.setCurrent(1);
+        page.setSize(Integer.MAX_VALUE);
+        ScreeningTaskQueryDTO query = new ScreeningTaskQueryDTO();
+        if (!user.isPlatformAdminUser()) {
+            query.setGovDeptId(user.getOrgId());
+        }
+        List<ScreeningTaskPageDTO> screeningTasks = screeningTaskBizService.getPage(query, page).getRecords().stream().filter(item-> item.getScreeningType().equals(1) && item.getReleaseStatus().equals(1)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
@@ -137,7 +146,7 @@ public class ManagerQuestionnaireService {
      *
      * @return
      */
-    private Map<Integer, Set<ScreeningTask>> getYears(List<ScreeningTask> screeningTasks) {
+    private Map<Integer, Set<ScreeningTask>> getYears(List<ScreeningTaskPageDTO> screeningTasks) {
         Map<Integer, Set<ScreeningTask>> yearTask = Maps.newConcurrentMap();
         screeningTasks.forEach(screeningTask -> {
             Integer startYear = DateUtil.getYear(screeningTask.getStartTime());
@@ -167,6 +176,9 @@ public class ManagerQuestionnaireService {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         districtIds.add(areaId);
+        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(taskId)){
+            return new QuestionSchoolVO();
+        }
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
@@ -192,8 +204,15 @@ public class ManagerQuestionnaireService {
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         districtIds.add(areaId);
-        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT);
+        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(taskId)){
+            return types.stream().map(item -> {
+                QuestionBacklogVO vo = new QuestionBacklogVO();
+                vo.setQuestionnaireTitle(item.getDesc());
+                return vo;
+            }).collect(Collectors.toList());
+        }
+        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         return types.stream().map(item -> {
             QuestionBacklogVO vo = new QuestionBacklogVO();
             vo.setAmount(schoolIds.size());
@@ -209,6 +228,9 @@ public class ManagerQuestionnaireService {
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(questionSearchDTO.getTaskId())){
+            return new Page<>();
+        }
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
                 .in(ScreeningPlan::getDistrictId, districtIds)
@@ -282,6 +304,9 @@ public class ManagerQuestionnaireService {
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(questionSearchDTO.getTaskId())){
+            return new Page<>();
+        }
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
                 .in(ScreeningPlan::getDistrictId, districtIds)

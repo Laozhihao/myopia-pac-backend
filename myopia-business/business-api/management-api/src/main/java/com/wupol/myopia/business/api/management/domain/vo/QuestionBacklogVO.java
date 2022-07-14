@@ -17,12 +17,12 @@ public class QuestionBacklogVO {
     /**
      * 总数
      */
-    private Integer amount;
+    private int amount;
 
     /**
      * 完成个数
      */
-    private Integer accomplish;
+    private int accomplish;
 
     /**
      * 问卷Id

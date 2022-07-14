@@ -12,30 +12,30 @@ public class QuestionSchoolVO {
     /**
      * 学校填写个数
      */
-    private Integer schoolAmount;
+    private int schoolAmount;
 
     /**
      * 学校填写完成个数
      */
-    private Integer schoolAccomplish;
+    private int schoolAccomplish;
 
     /**
      * 学生专项填写个数
      */
-    private Integer studentSpecialAmount;
+    private int studentSpecialAmount;
 
     /**
      * 学生专项填写完成个数
      */
-    private Integer studentSpecialAccomplish;
+    private int studentSpecialAccomplish;
 
     /**
      * 学生环境填写个数
      */
-    private Integer studentEnvironmentAmount;
+    private int studentEnvironmentAmount;
 
     /**
      * 学生环境填写完成个数
      */
-    private Integer studentEnvironmentAccomplish;
+    private int studentEnvironmentAccomplish;
 }
