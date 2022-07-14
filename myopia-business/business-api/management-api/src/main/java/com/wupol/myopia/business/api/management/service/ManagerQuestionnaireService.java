@@ -174,12 +174,12 @@ public class ManagerQuestionnaireService {
      */
     public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
         // 获得任务区域下的学校
+        if(Objects.isNull(areaId) || Objects.isNull(taskId)){
+            return new QuestionSchoolVO();
+        }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         districtIds.add(areaId);
-        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(taskId)){
-            return new QuestionSchoolVO();
-        }
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
@@ -202,17 +202,17 @@ public class ManagerQuestionnaireService {
      * @return
      */
     public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
-        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        districtIds.add(areaId);
         List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT);
-        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(taskId)){
+        if(Objects.isNull(areaId) || Objects.isNull(taskId)){
             return types.stream().map(item -> {
                 QuestionBacklogVO vo = new QuestionBacklogVO();
                 vo.setQuestionnaireTitle(item.getDesc());
                 return vo;
             }).collect(Collectors.toList());
         }
+        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
+        districtIds.add(areaId);
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
         return types.stream().map(item -> {
             QuestionBacklogVO vo = new QuestionBacklogVO();
@@ -224,14 +224,15 @@ public class ManagerQuestionnaireService {
     }
 
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+        if(Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())){
+            return new Page<>();
+        }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
         if (!CollectionUtils.isEmpty(districts)) {
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(questionSearchDTO.getTaskId())){
-            return new Page<>();
-        }
+
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
                 .in(ScreeningPlan::getDistrictId, districtIds)
@@ -300,14 +301,14 @@ public class ManagerQuestionnaireService {
     }
 
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+        if(Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())){
+            return new Page<>();
+        }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
         if (!CollectionUtils.isEmpty(districts)) {
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        if(CollectionUtils.isEmpty(districtIds) || Objects.isNull(questionSearchDTO.getTaskId())){
-            return new Page<>();
-        }
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
                 .in(ScreeningPlan::getDistrictId, districtIds)
