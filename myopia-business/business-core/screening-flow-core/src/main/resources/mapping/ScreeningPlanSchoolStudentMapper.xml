@@ -580,7 +580,7 @@
         LEFT JOIN m_screening_plan sp ON sp.id = spss.screening_plan_id
         WHERE sp.screening_type = #{screeningType}
           AND (spss.id_card = #{credentialNo} OR spss.passport = #{credentialNo})
-        ORDER BY spss.create_time DESC LIMIT 1
+        ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
     </select>
 
 </mapper>

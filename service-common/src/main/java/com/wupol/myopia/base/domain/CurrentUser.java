@@ -18,11 +18,7 @@ public class CurrentUser {
 
     /**
      * 用户ID
-     * <pre>
-     * 若systemCode为8，即问卷系统用户：
-     *     当用户为QuestionnaireSchoolUser时，id为school表id；
-     *     当用户为QuestionnaireStudentUser时，id为screening_plan_school_student表id;
-     * </pre>
+
      */
     private Integer id;
 
@@ -30,6 +26,15 @@ public class CurrentUser {
      * 机构组织ID（如政府部门ID、学校ID、医院ID）
      */
     private Integer orgId;
+
+    /**
+     * <pre>
+     * 若systemCode为8，即问卷系统用户：
+     *     当用户为QuestionnaireSchoolUser时，id为school表id；
+     *     当用户为QuestionnaireStudentUser时，id为screening_plan_school_student表id;
+     * </pre>
+     */
+    private Integer questionnaireUserId;
 
     /**
      * 筛查机构ID
