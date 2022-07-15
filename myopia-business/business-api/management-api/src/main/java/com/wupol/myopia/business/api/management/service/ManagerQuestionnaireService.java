@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -144,10 +145,9 @@ public class ManagerQuestionnaireService {
             }
             if (!user.isPlatformAdminUser()) {
                 District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
-                District district = questionAreaDTO.getDistricts().stream().filter(item -> item.getId().equals(parentDistrict.getId())).findFirst().orElse(null);
-                if (Objects.nonNull(district)) {
-                    questionAreaDTO.setDefaultAreaId(district.getId());
-                    questionAreaDTO.setDefaultAreaName(district.getName());
+                if (JSON.toJSONString(questionAreaDTO.getDistricts()).contains("\"id\":" + parentDistrict.getId())) {
+                    questionAreaDTO.setDefaultAreaId(parentDistrict.getId());
+                    questionAreaDTO.setDefaultAreaName(parentDistrict.getName());
                 }
             }
             return questionAreaDTO;
