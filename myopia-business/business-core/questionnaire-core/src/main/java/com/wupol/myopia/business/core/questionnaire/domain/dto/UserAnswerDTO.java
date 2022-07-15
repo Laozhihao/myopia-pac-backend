@@ -44,11 +44,6 @@ public class UserAnswerDTO {
         private Integer questionId;
 
         /**
-         * 文本
-         */
-        private String text;
-
-        /**
          * 答案
          */
         private List<OptionAnswer> answer;
