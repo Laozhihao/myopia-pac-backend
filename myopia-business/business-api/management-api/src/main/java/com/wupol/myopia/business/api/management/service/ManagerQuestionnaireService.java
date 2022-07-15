@@ -131,20 +131,16 @@ public class ManagerQuestionnaireService {
             if (Objects.isNull(task)) {
                 return new QuestionAreaDTO();
             }
-            if (!user.isGovDeptUser()) {
-                //查看该通知所有筛查学校的层级的 地区树
-                List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user);
-                if (!CollectionUtils.isEmpty(screeningPlans)) {
-                    List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
-                    Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
-                    if (!CollectionUtils.isEmpty(districts)) {
-                        questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
-                    } else {
-                        questionAreaDTO.setDistricts(Lists.newArrayList());
-                    }
+            //查看该通知所有筛查学校的层级的 地区树
+            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user);
+            if (!CollectionUtils.isEmpty(screeningPlans)) {
+                List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
+                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
+                if (!CollectionUtils.isEmpty(districts)) {
+                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                } else {
+                    questionAreaDTO.setDistricts(Lists.newArrayList());
                 }
-            } else {
-                questionAreaDTO.setDistricts(districtBizService.getChildDistrictValidDistrictTree(user, Sets.newHashSet(task.getDistrictId())));
             }
             if (!user.isPlatformAdminUser()) {
                 District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
