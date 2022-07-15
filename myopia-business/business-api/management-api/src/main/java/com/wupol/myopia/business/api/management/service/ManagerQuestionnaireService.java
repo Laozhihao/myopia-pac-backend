@@ -43,6 +43,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -197,18 +199,24 @@ public class ManagerQuestionnaireService {
      * @return
      */
     public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
-        // 获得任务区域下的学校
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return new QuestionSchoolVO();
         }
-        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(areaId));
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        districtIds.add(areaId);
-        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
+        ScreeningTask task = screeningTaskService.getById(taskId);
+        if (Objects.isNull(task)) {
+            return new QuestionSchoolVO();
+        }
+        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
+
+        Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
+
+        Set<Integer> schoolIds = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>().in(ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())))
+                .stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
         schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
                 .in(School::getId, schoolIds)
                 .in(School::getDistrictId, districtIds)
         ).stream().map(School::getId).collect(Collectors.toSet());
+
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
         questionSchoolVO.setSchoolAccomplish(
@@ -238,10 +246,13 @@ public class ManagerQuestionnaireService {
                 return vo;
             }).collect(Collectors.toList());
         }
-        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(areaId));
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        districtIds.add(areaId);
-        Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
+        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
+
+        Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
+
+        Set<Integer> schoolIds = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>().in(ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())))
+                .stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+
         schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
                 .in(School::getId, schoolIds)
                 .in(School::getDistrictId, districtIds)
@@ -256,22 +267,21 @@ public class ManagerQuestionnaireService {
         }).collect(Collectors.toList());
     }
 
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
-        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(questionSearchDTO.getAreaId()));
-        if (!CollectionUtils.isEmpty(districts)) {
-            districts.add(districtService.getById(questionSearchDTO.getAreaId()));
-        }
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-
-        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
-                .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-        );
+        //查看该通知所有筛查学校的层级的 地区树
+        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId()));
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
+
+        Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(questionSearchDTO.getTaskId(), questionSearchDTO.getAreaId(), plans);
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return new Page<>();
+        }
+
         List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
@@ -335,18 +345,22 @@ public class ManagerQuestionnaireService {
         return returnPage;
     }
 
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
-        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(questionSearchDTO.getAreaId()));
-        Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
-        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
-                .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-        );
+        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId()));
+
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
+
+        Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(questionSearchDTO.getTaskId(), questionSearchDTO.getAreaId(), plans);
+
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return new Page<>();
+        }
+
         List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
@@ -391,9 +405,12 @@ public class ManagerQuestionnaireService {
     }
 
     private Integer getStudentQuestionEndBySchool(Set<Integer> schoolIds, Integer type, Integer taskId) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return 0;
+        }
         return userQuestionRecordService.count(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getQuestionnaireType, type)
-                .in(!CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
+                .in(CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
                 .eq(UserQuestionRecord::getStatus, 2)
                 .eq(UserQuestionRecord::getTaskId, taskId)
         );
@@ -419,5 +436,41 @@ public class ManagerQuestionnaireService {
                 .in(!CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
                 .eq(UserQuestionRecord::getTaskId, taskId)
         ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+    }
+
+    public static List<Integer> getSubUtil(String soap, String regx) {
+        List<Integer> list = new ArrayList<Integer>();
+        Pattern pattern = Pattern.compile(regx);
+        Matcher m = pattern.matcher(soap);
+        while (m.find()) {
+            list.add(Integer.parseInt(m.group(1)));
+        }
+        return list;
+    }
+
+    /**
+     * 获得任务下 且在当前区域下学校的区域
+     *
+     * @param taskId
+     * @param areaId
+     * @return
+     * @throws IOException
+     */
+    private Set<Integer> getAreaIdsBySchoolsAndTaskId(Integer taskId, Integer areaId, List<ScreeningPlan> screeningPlans) throws IOException {
+        ScreeningTask task = screeningTaskService.getById(taskId);
+        if (Objects.isNull(task)) {
+            return Sets.newHashSet();
+        }
+        //查看该通知所有筛查学校的层级的 地区树
+        List<District> baseDistricts = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(screeningPlans)) {
+            Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+            districts.add(areaId);
+            if (!CollectionUtils.isEmpty(districts)) {
+                List<District> childDistrictTree = districtService.getSpecificDistrictTreePriorityCache(districtService.getById(areaId).getCode());
+                baseDistricts = districtService.filterDistrictTree(childDistrictTree, districts);
+            }
+        }
+        return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), "\"id\":(.*?),"));
     }
 }
