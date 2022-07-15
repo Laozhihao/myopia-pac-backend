@@ -149,6 +149,9 @@ public class ManagerQuestionnaireService {
                     questionAreaDTO.setDefaultAreaId(parentDistrict.getId());
                     questionAreaDTO.setDefaultAreaName(parentDistrict.getName());
                 }
+                if (!CollectionUtils.isEmpty(questionAreaDTO.getDistricts())) {
+                    questionAreaDTO.setDistricts(questionAreaDTO.getDistricts().get(0).getChild());
+                }
             }
             return questionAreaDTO;
         } catch (Exception e) {
