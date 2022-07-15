@@ -119,6 +119,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 QuestionnaireQuestion questionnaireQuestion = childQuestionMap.get(cache.getId());
                 QuestionResponse child = BeanCopyUtil.copyBeanPropertise(cache, QuestionResponse.class);
                 child.setRequired(questionnaireQuestion.getRequired());
+                child.setSerialNumber(questionnaireQuestion.getSerialNumber());
                 setJumpIds(child, questionnaireQuestion.getJumpIds());
                 setChildren(child, childQuestion, questionMap, childQuestionMap);
                 children.add(child);
