@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -84,6 +85,9 @@ public class ManagerQuestionnaireService {
 
     @Autowired
     private ScreeningTaskBizService screeningTaskBizService;
+
+    @Autowired
+    private SchoolService schoolService;
 
 
     /**
@@ -260,7 +264,6 @@ public class ManagerQuestionnaireService {
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
-        Map<Integer, ScreeningPlan> plansIdMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
         Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
@@ -272,10 +275,10 @@ public class ManagerQuestionnaireService {
         List<Integer> orgIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
 
-        Map<Integer, District> areaIdMap = districts.stream().collect(Collectors.toMap(District::getId, District -> District));
-
 
         List<Integer> schoolIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        Map<Integer, School> schoolIdsMap = schoolService.listByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School -> School));
+
         Map<Integer, List<UserQuestionRecord>> userRecordToSchoolMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType()));
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentSpecialMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()));
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()));
@@ -286,8 +289,8 @@ public class ManagerQuestionnaireService {
             vo.setSchoolId(item.getSchoolId());
             vo.setOrgId(item.getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(plansIdMap.get(item.getScreeningPlanId()).getDistrictId());
-            vo.setAreaName(areaIdMap.get(vo.getAreaId()).getName());
+            vo.setAreaId(schoolIdsMap.get(item.getSchoolId()).getDistrictId());
+            vo.setAreaName(districtService.getDistrictName(schoolIdsMap.get(item.getSchoolId()).getDistrictDetail()));
 
             // 学生总数
             int studentCount = screeningPlanSchoolStudentService.count(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
@@ -326,6 +329,7 @@ public class ManagerQuestionnaireService {
         }
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
         if (!CollectionUtils.isEmpty(districts)) {
+            // 不带上层
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
@@ -336,7 +340,6 @@ public class ManagerQuestionnaireService {
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
-        Map<Integer, ScreeningPlan> plansIdMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
         Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
         Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
@@ -347,9 +350,9 @@ public class ManagerQuestionnaireService {
 
         List<Integer> orgIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
-        Map<Integer, District> areaIdMap = districts.stream().collect(Collectors.toMap(District::getId, District -> District));
         List<Integer> schoolIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         Map<Integer, List<UserQuestionRecord>> userRecordToSchoolMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+        Map<Integer, School> schoolIdsMap = schoolService.listByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School -> School));
 
         List<QuestionBacklogRecordVO> records = searchPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
@@ -357,8 +360,8 @@ public class ManagerQuestionnaireService {
             vo.setSchoolId(item.getSchoolId());
             vo.setOrgId(item.getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(plansIdMap.get(item.getScreeningPlanId()).getDistrictId());
-            vo.setAreaName(areaIdMap.get(vo.getAreaId()).getName());
+            vo.setAreaId(schoolIdsMap.get(item.getSchoolId()).getDistrictId());
+            vo.setAreaName(districtService.getDistrictName(schoolIdsMap.get(item.getSchoolId()).getDistrictDetail()));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
