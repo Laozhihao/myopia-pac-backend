@@ -85,6 +85,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
             userAnswer.setQuestionId(s.getQuestionId());
+            userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
             return userAnswer;
         }).collect(Collectors.toList());
