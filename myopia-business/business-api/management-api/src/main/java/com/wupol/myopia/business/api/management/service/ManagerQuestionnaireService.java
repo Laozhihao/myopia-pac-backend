@@ -201,10 +201,14 @@ public class ManagerQuestionnaireService {
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return new QuestionSchoolVO();
         }
-        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(areaId));
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         districtIds.add(areaId);
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
+        schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
+                .in(School::getId, schoolIds)
+                .in(School::getDistrictId, districtIds)
+        ).stream().map(School::getId).collect(Collectors.toSet());
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
         questionSchoolVO.setSchoolAccomplish(
@@ -234,24 +238,29 @@ public class ManagerQuestionnaireService {
                 return vo;
             }).collect(Collectors.toList());
         }
-        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(areaId);
+        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(areaId));
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         districtIds.add(areaId);
         Set<Integer> schoolIds = screeningPlanService.getBySchoolIdsAndTaskId(districtIds, taskId);
+        schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
+                .in(School::getId, schoolIds)
+                .in(School::getDistrictId, districtIds)
+        ).stream().map(School::getId).collect(Collectors.toSet());
+        Set<Integer> finalSchoolIds = schoolIds;
         return types.stream().map(item -> {
             QuestionBacklogVO vo = new QuestionBacklogVO();
-            vo.setAmount(schoolIds.size());
+            vo.setAmount(finalSchoolIds.size());
             vo.setQuestionnaireTitle(item.getDesc());
-            vo.setAccomplish(getStudentQuestionEndBySchool(schoolIds, item.getType(), taskId));
+            vo.setAccomplish(getStudentQuestionEndBySchool(finalSchoolIds, item.getType(), taskId));
             return vo;
         }).collect(Collectors.toList());
     }
 
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
-        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
+        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(questionSearchDTO.getAreaId()));
         if (!CollectionUtils.isEmpty(districts)) {
             districts.add(districtService.getById(questionSearchDTO.getAreaId()));
         }
@@ -259,38 +268,39 @@ public class ManagerQuestionnaireService {
 
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-                .in(ScreeningPlan::getDistrictId, districtIds)
         );
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
-        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
-        Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
+        List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
-        Page<QuestionSchoolRecordVO> resultPage = new Page<>();
-        BeanUtils.copyProperties(searchPage, resultPage);
 
-        List<Integer> orgIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> orgIds = searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
+        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
 
+        List<Integer> schoolIds = searchPage.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
 
-        List<Integer> schoolIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
-        Map<Integer, School> schoolIdsMap = schoolService.listByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School -> School));
+        Page<School> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
+        Page<School> resultPage = schoolService.page(queryPage, new LambdaQueryWrapper<School>()
+                .in(School::getId, schoolIds)
+                .in(School::getDistrictId, districtIds)
+        );
 
         Map<Integer, List<UserQuestionRecord>> userRecordToSchoolMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType()));
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentSpecialMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()));
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()));
 
-        List<QuestionSchoolRecordVO> records = searchPage.getRecords().stream().map(item -> {
+        List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
-            vo.setSchoolName(item.getSchoolName());
-            vo.setSchoolId(item.getSchoolId());
-            vo.setOrgId(item.getScreeningOrgId());
+            vo.setSchoolName(item.getName());
+            vo.setSchoolId(item.getId());
+            vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(schoolIdsMap.get(item.getSchoolId()).getDistrictId());
-            vo.setAreaName(districtService.getDistrictName(schoolIdsMap.get(item.getSchoolId()).getDistrictDetail()));
+            vo.setAreaId(item.getId());
+            vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
 
             // 学生总数
             int studentCount = screeningPlanSchoolStudentService.count(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
@@ -319,54 +329,56 @@ public class ManagerQuestionnaireService {
             vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
-        resultPage.setRecords(records);
-        return resultPage;
+        Page<QuestionSchoolRecordVO> returnPage = new Page<>();
+        BeanUtils.copyProperties(resultPage, returnPage);
+        returnPage.setRecords(records);
+        return returnPage;
     }
 
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
-        List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(questionSearchDTO.getAreaId());
-        if (!CollectionUtils.isEmpty(districts)) {
-            // 不带上层
-            districts.add(districtService.getById(questionSearchDTO.getAreaId()));
-        }
+        List<District> districts = districtBizService.getValidDistrictTree(CurrentUserUtil.getCurrentUser(), Sets.newHashSet(questionSearchDTO.getAreaId()));
         Set<Integer> districtIds = districts.stream().map(District::getId).collect(Collectors.toSet());
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>()
                 .eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId())
-                .in(ScreeningPlan::getDistrictId, districtIds)
         );
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
-        Page<ScreeningPlanSchool> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
-        Page<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.page(queryPage, new LambdaQueryWrapper<ScreeningPlanSchool>()
+        List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
-        Page<QuestionBacklogRecordVO> resultPage = new Page<>();
-        BeanUtils.copyProperties(searchPage, resultPage);
 
-        List<Integer> orgIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> orgIds = searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
-        List<Integer> schoolIds = searchPage.getRecords().stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        List<Integer> schoolIds = searchPage.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         Map<Integer, List<UserQuestionRecord>> userRecordToSchoolMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
-        Map<Integer, School> schoolIdsMap = schoolService.listByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School -> School));
 
-        List<QuestionBacklogRecordVO> records = searchPage.getRecords().stream().map(item -> {
+        Page<School> queryPage = new Page<>(questionSearchDTO.getCurrent(), questionSearchDTO.getSize());
+        Page<School> resultPage = schoolService.page(queryPage, new LambdaQueryWrapper<School>()
+                .in(School::getId, schoolIds)
+                .in(School::getDistrictId, districtIds)
+        );
+        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
+
+        List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
-            vo.setSchoolName(item.getSchoolName());
-            vo.setSchoolId(item.getSchoolId());
-            vo.setOrgId(item.getScreeningOrgId());
+            vo.setSchoolName(item.getName());
+            vo.setSchoolId(item.getId());
+            vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(schoolIdsMap.get(item.getSchoolId()).getDistrictId());
-            vo.setAreaName(districtService.getDistrictName(schoolIdsMap.get(item.getSchoolId()).getDistrictDetail()));
+            vo.setAreaId(item.getId());
+            vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
-        resultPage.setRecords(records);
-        return resultPage;
+        Page<QuestionBacklogRecordVO> returnPage = new Page<>();
+        BeanUtils.copyProperties(resultPage, returnPage);
+        returnPage.setRecords(records);
+        return returnPage;
     }
 
     private Integer getStudentQuestionEndByType(Integer schoolId, List<Integer> types, Integer taskId) {

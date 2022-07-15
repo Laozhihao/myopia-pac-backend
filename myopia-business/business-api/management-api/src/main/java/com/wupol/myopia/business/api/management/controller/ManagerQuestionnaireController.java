@@ -85,7 +85,7 @@ public class ManagerQuestionnaireController {
      * @return
      */
     @GetMapping("/schools/list")
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
         return managerQuestionnaireService.getQuestionSchoolList(questionSearchDTO);
     }
 
@@ -95,7 +95,7 @@ public class ManagerQuestionnaireController {
      * @return
      */
     @GetMapping("/backlog/list")
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         return managerQuestionnaireService.getQuestionBacklogList(questionSearchDTO);
     }
 }
