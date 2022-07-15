@@ -137,16 +137,22 @@ public class ManagerQuestionnaireService {
                 if (!CollectionUtils.isEmpty(screeningPlans)) {
                     List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
                     Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
-                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                    if (!CollectionUtils.isEmpty(districts)) {
+                        questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                    } else {
+                        questionAreaDTO.setDistricts(Lists.newArrayList());
+                    }
                 }
             } else {
                 questionAreaDTO.setDistricts(districtBizService.getChildDistrictValidDistrictTree(user, Sets.newHashSet(task.getDistrictId())));
             }
-            District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
-            District district = questionAreaDTO.getDistricts().stream().filter(item -> item.getId().equals(parentDistrict.getId())).findFirst().orElse(null);
-            if (Objects.nonNull(district)) {
-                questionAreaDTO.setDefaultAreaId(district.getId());
-                questionAreaDTO.setDefaultAreaName(district.getName());
+            if (!user.isPlatformAdminUser()) {
+                District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
+                District district = questionAreaDTO.getDistricts().stream().filter(item -> item.getId().equals(parentDistrict.getId())).findFirst().orElse(null);
+                if (Objects.nonNull(district)) {
+                    questionAreaDTO.setDefaultAreaId(district.getId());
+                    questionAreaDTO.setDefaultAreaName(district.getName());
+                }
             }
             return questionAreaDTO;
         } catch (Exception e) {
