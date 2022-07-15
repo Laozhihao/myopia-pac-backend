@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 public enum QuestionnaireTypeEnum {
-
+    QUESTIONNAIRE_NOTICE(0, "问卷须知"),
     AREA_DISTRICT_SCHOOL(1, "地市及区（县）管理部门学校卫生工作调查表"),
     PRIMARY_SECONDARY_SCHOOLS(2, "中小学校开展学校卫生工作情况调查表"),
     PRIMARY_SCHOOL(3, "学生健康状况及影响因素调查表（小学版）"),
