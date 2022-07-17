@@ -206,17 +206,7 @@ public class ManagerQuestionnaireService {
         if (Objects.isNull(task)) {
             return new QuestionSchoolVO();
         }
-        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
-
-        Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
-
-        Set<Integer> schoolIds = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>().in(ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())))
-                .stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
-        schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
-                .in(School::getId, schoolIds)
-                .in(School::getDistrictId, districtIds)
-        ).stream().map(School::getId).collect(Collectors.toSet());
-
+        Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
         questionSchoolVO.setSchoolAccomplish(
@@ -246,25 +236,33 @@ public class ManagerQuestionnaireService {
                 return vo;
             }).collect(Collectors.toList());
         }
+        Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
+        return types.stream().map(item -> {
+            QuestionBacklogVO vo = new QuestionBacklogVO();
+            vo.setAmount(schoolIds.size());
+            vo.setQuestionnaireTitle(item.getDesc());
+            vo.setAccomplish(getStudentQuestionEndBySchool(schoolIds, item.getType(), taskId));
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获得任务下学校Id
+     *
+     * @param taskId
+     * @param areaId
+     * @return
+     * @throws IOException
+     */
+    private Set<Integer> getSchoolIds(Integer taskId, Integer areaId) throws IOException {
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
-
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
-
         Set<Integer> schoolIds = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>().in(ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())))
                 .stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
-
-        schoolIds = schoolService.list(new LambdaQueryWrapper<School>()
+        return schoolService.list(new LambdaQueryWrapper<School>()
                 .in(School::getId, schoolIds)
                 .in(School::getDistrictId, districtIds)
         ).stream().map(School::getId).collect(Collectors.toSet());
-        Set<Integer> finalSchoolIds = schoolIds;
-        return types.stream().map(item -> {
-            QuestionBacklogVO vo = new QuestionBacklogVO();
-            vo.setAmount(finalSchoolIds.size());
-            vo.setQuestionnaireTitle(item.getDesc());
-            vo.setAccomplish(getStudentQuestionEndBySchool(finalSchoolIds, item.getType(), taskId));
-            return vo;
-        }).collect(Collectors.toList());
     }
 
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
@@ -311,31 +309,13 @@ public class ManagerQuestionnaireService {
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
-
             // 学生总数
             int studentCount = screeningPlanSchoolStudentService.count(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
-                    .eq(ScreeningPlanSchoolStudent::getSchoolId, item)
+                    .eq(ScreeningPlanSchoolStudent::getSchoolId, item.getId())
                     .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, questionSearchDTO.getTaskId())
             );
-            if (CollectionUtils.isEmpty(userRecordToStudentSpecialMap.get(vo.getSchoolId()))) {
-                vo.setStudentSpecialSurveyStatus(0);
-            } else if (userRecordToStudentSpecialMap.get(vo.getSchoolId()).size() < studentCount) {
-                vo.setStudentSpecialSurveyStatus(1);
-            } else if (userRecordToStudentSpecialMap.get(vo.getSchoolId()).stream().filter(item3 -> item3.getStatus().equals(2)).count() == studentCount) {
-                vo.setStudentSpecialSurveyStatus(2);
-            } else {
-                vo.setStudentSpecialSurveyStatus(1);
-            }
-
-            if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(vo.getSchoolId()))) {
-                vo.setStudentEnvironmentSurveyStatus(0);
-            } else if (userRecordToStudentEnvironmentMap.get(vo.getSchoolId()).size() < studentCount) {
-                vo.setStudentEnvironmentSurveyStatus(1);
-            } else if (userRecordToStudentEnvironmentMap.get(vo.getSchoolId()).stream().filter(item3 -> item3.getStatus().equals(2)).count() == studentCount) {
-                vo.setStudentEnvironmentSurveyStatus(2);
-            } else {
-                vo.setStudentEnvironmentSurveyStatus(1);
-            }
+            vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentSpecialMap));
+            vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentEnvironmentMap));
             vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
@@ -344,6 +324,24 @@ public class ManagerQuestionnaireService {
         returnPage.setRecords(records);
         return returnPage;
     }
+
+    /**
+     * 获得问卷完成学校的个数
+     *
+     * @return
+     * @throws IOException
+     */
+    private Integer getCountBySchool(Integer studentCount, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
+        if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
+            return 0;
+        } else if (userRecordToStudentEnvironmentMap.get(schoolId).size() < studentCount) {
+            return 1;
+        } else if (userRecordToStudentEnvironmentMap.get(schoolId).stream().filter(item3 -> item3.getStatus().equals(2)).count() == studentCount) {
+            return 2;
+        }
+        return 1;
+    }
+
 
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
@@ -356,11 +354,9 @@ public class ManagerQuestionnaireService {
         }
 
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(questionSearchDTO.getTaskId(), questionSearchDTO.getAreaId(), plans);
-
         if (CollectionUtils.isEmpty(districtIds)) {
             return new Page<>();
         }
-
         List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
@@ -410,7 +406,7 @@ public class ManagerQuestionnaireService {
         }
         return userQuestionRecordService.count(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getQuestionnaireType, type)
-                .in(CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
+                .in(!CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
                 .eq(UserQuestionRecord::getStatus, 2)
                 .eq(UserQuestionRecord::getTaskId, taskId)
         );
