@@ -301,6 +301,12 @@ public class ManagerQuestionnaireService {
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentSpecialMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()));
         Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()));
 
+        // 学生总数
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountIdMap = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
+                .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
+                .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, questionSearchDTO.getTaskId())
+        ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
+
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
             vo.setSchoolName(item.getName());
@@ -309,11 +315,7 @@ public class ManagerQuestionnaireService {
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
-            // 学生总数
-            int studentCount = screeningPlanSchoolStudentService.count(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
-                    .eq(ScreeningPlanSchoolStudent::getSchoolId, item.getId())
-                    .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, questionSearchDTO.getTaskId())
-            );
+            Integer studentCount = studentCountIdMap.get(item.getId()).size();
             vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentSpecialMap));
             vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentEnvironmentMap));
             vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
@@ -413,13 +415,13 @@ public class ManagerQuestionnaireService {
     }
 
     private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, List<Integer> types, Integer taskId) {
+        // 学生总数
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountMaps = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
+                .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
+                .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
+        ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
         return schoolIds.stream().map(item -> {
-            // 学生总数
-            int studentCount = screeningPlanSchoolStudentService.count(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
-                    .eq(ScreeningPlanSchoolStudent::getSchoolId, item)
-                    .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
-            );
-            if (getStudentQuestionEndByType(item, types, taskId) >= studentCount) {
+            if (getStudentQuestionEndByType(item, types, taskId) >= studentCountMaps.get(item).size()) {
                 return 1;
             }
             return 0;
