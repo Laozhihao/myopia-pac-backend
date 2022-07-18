@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
@@ -28,5 +30,30 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectList(wrapper);
     }
 
+    public void deletedByQuestionnaireId(Integer questionnaireId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        baseMapper.delete(wrapper);
+    }
 
+    public void insert(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail> details, Integer pid) {
+        if (CollectionUtil.isEmpty(details)) {
+            return;
+        }
+        details.forEach(detail -> {
+            QuestionnaireQuestion question = new QuestionnaireQuestion();
+            question.setQuestionnaireId(questionnaireId);
+            question.setQuestionId(detail.getQuestionId());
+            question.setPid(pid);
+            question.setSerialNumber(detail.getSerialNumber());
+            question.setJumpIds(detail.getJumpIds());
+            question.setRequired(detail.getRequired());
+            question.setSort(1);
+            baseMapper.insert(question);
+            List<EditQuestionnaireRequestDTO.Detail> children = detail.getDetails();
+            if (CollectionUtil.isNotEmpty(children)) {
+                insert(questionnaireId, children, question.getId());
+            }
+        });
+    }
 }
