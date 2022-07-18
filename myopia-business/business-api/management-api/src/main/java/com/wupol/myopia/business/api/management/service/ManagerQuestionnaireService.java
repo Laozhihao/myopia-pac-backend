@@ -309,20 +309,20 @@ public class ManagerQuestionnaireService {
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
             vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getId());
+            vo.setSchoolId(item.getSchoolNo());
             vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
-            vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
+            vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             if (Objects.isNull(studentCountIdMap.get(item.getId()))) {
                 vo.setStudentSpecialSurveyStatus(0);
                 vo.setStudentEnvironmentSurveyStatus(0);
                 return vo;
             }
             Integer studentCount = studentCountIdMap.get(item.getId()).size();
-            vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentSpecialMap));
-            vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentEnvironmentMap));
+            vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, item.getId(), userRecordToStudentSpecialMap));
+            vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, item.getId(), userRecordToStudentEnvironmentMap));
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionSchoolRecordVO> returnPage = new Page<>();
@@ -386,12 +386,12 @@ public class ManagerQuestionnaireService {
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
             vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getId());
+            vo.setSchoolId(item.getSchoolNo());
             vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
-            vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
+            vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionBacklogRecordVO> returnPage = new Page<>();

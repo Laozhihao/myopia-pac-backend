@@ -12,7 +12,7 @@ public class QuestionSchoolRecordVO {
     /**
      * 学校Id
      */
-    private Integer schoolId;
+    private String schoolId;
 
     /**
      * 学校名称
