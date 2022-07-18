@@ -314,10 +314,15 @@ public class ManagerQuestionnaireService {
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
+            vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
+            if (Objects.isNull(studentCountIdMap.get(item.getId()))) {
+                vo.setStudentSpecialSurveyStatus(0);
+                vo.setStudentEnvironmentSurveyStatus(0);
+                return vo;
+            }
             Integer studentCount = studentCountIdMap.get(item.getId()).size();
             vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentSpecialMap));
             vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, vo.getSchoolId(), userRecordToStudentEnvironmentMap));
-            vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(vo.getSchoolId())) ? 0 : userRecordToSchoolMap.get(vo.getSchoolId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionSchoolRecordVO> returnPage = new Page<>();
@@ -423,6 +428,9 @@ public class ManagerQuestionnaireService {
                 .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
         ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
         return schoolIds.stream().map(item -> {
+            if (Objects.isNull(studentCountMaps.get(item))) {
+                return 0;
+            }
             if (getStudentQuestionEndByType(item, types, taskId) >= studentCountMaps.get(item).size()) {
                 return 1;
             }
