@@ -139,7 +139,7 @@ public class ManagerQuestionnaireService {
                 return new QuestionAreaDTO();
             }
             //查看该通知所有筛查学校的层级的 地区树
-            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item->item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
+            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(screeningPlans)) {
                 List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
                 Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
@@ -228,7 +228,7 @@ public class ManagerQuestionnaireService {
      * @return
      */
     public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
-        List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT);
+        List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL);
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return types.stream().map(item -> {
                 QuestionBacklogVO vo = new QuestionBacklogVO();
