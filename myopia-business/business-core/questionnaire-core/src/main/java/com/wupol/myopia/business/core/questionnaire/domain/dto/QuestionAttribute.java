@@ -26,4 +26,9 @@ public class QuestionAttribute {
      * 是否标题
      */
     private Boolean onlyTitle;
+
+    /**
+     * 是否展示
+     */
+    private Boolean isHidden;
 }
