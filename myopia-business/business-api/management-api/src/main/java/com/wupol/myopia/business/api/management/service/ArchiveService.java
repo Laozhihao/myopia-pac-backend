@@ -162,7 +162,7 @@ public class ArchiveService {
     private CommonDiseaseArchiveCard generateArchiveCard(VisionScreeningResult visionScreeningResult, StudentDTO studentDTO, ScreeningPlan screeningPlan, School school) {
         CardInfoVO studentInfo = studentFacade.getCardInfo(studentDTO);
         // 民族特殊处理，不在常见民族列表的设为其他（前端展示需要）
-        NationEnum nationEnum = NationEnum.COMMON_NATION.stream().filter(nation -> nation.getCode().equals(studentInfo.getNation())).findFirst().orElse(NationEnum.OTHER);
+        NationEnum nationEnum = NationEnum.COMMON_NATION.stream().filter(nation -> Objects.equals(nation.getCode(),studentInfo.getNation())).findFirst().orElse(NationEnum.OTHER);
         studentInfo.setScreeningDate(visionScreeningResult.getCreateTime())
                 .setNation(Optional.ofNullable(studentDTO.getNation()).map(x -> nationEnum.getCode()).orElse(null))
                 .setNationDesc(Optional.ofNullable(studentDTO.getNation()).map(x -> nationEnum.getName()).orElse(null));
