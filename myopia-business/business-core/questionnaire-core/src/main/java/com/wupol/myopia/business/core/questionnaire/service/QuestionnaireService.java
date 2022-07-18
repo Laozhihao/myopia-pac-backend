@@ -109,9 +109,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 JumpIdsDO jumpIds = it.getJumpIds();
                 Question createQuestion = questionMap.get(it.getQuestionId());
                 QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
-                questionResponse.setRequired(it.getRequired());
-                questionResponse.setSerialNumber(it.getSerialNumber());
-                setJumpIds(questionResponse, jumpIds);
+                childQuestionResponse.setRequired(it.getRequired());
+                childQuestionResponse.setSerialNumber(it.getSerialNumber());
+                setJumpIds(childQuestionResponse, jumpIds);
                 List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getChildren()) ? questionResponse.getChildren() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
                 questionResponse.setChildren(questionResponses);
