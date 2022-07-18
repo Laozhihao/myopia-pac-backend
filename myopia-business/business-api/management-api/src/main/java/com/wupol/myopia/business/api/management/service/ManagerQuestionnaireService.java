@@ -86,9 +86,6 @@ public class ManagerQuestionnaireService {
     private ScreeningOrganizationService screeningOrganizationService;
 
     @Autowired
-    private ScreeningTaskBizService screeningTaskBizService;
-
-    @Autowired
     private SchoolService schoolService;
 
 
@@ -106,7 +103,7 @@ public class ManagerQuestionnaireService {
         if (!user.isPlatformAdminUser()) {
             query.setGovDeptId(user.getOrgId());
         }
-        List<ScreeningTaskPageDTO> screeningTasks = screeningTaskBizService.getPage(query, page).getRecords().stream().filter(item -> item.getScreeningType().equals(1) && item.getReleaseStatus().equals(1)).collect(Collectors.toList());
+        List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().eq(!user.isPlatformAdminUser(), ScreeningTask::getGovDeptId, user.getOrgId()).eq(ScreeningTask::getScreeningType, 1).eq(ScreeningTask::getReleaseStatus, 1));
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
@@ -173,7 +170,7 @@ public class ManagerQuestionnaireService {
      *
      * @return
      */
-    private Map<Integer, Set<ScreeningTask>> getYears(List<ScreeningTaskPageDTO> screeningTasks) {
+    private Map<Integer, Set<ScreeningTask>> getYears(List<ScreeningTask> screeningTasks) {
         Map<Integer, Set<ScreeningTask>> yearTask = Maps.newConcurrentMap();
         screeningTasks.forEach(screeningTask -> {
             Integer startYear = DateUtil.getYear(screeningTask.getStartTime());
