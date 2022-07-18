@@ -76,19 +76,15 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                         .partName(question.getTitle())
                         .partId(question.getId()).build();
                 List<QuestionResponse> questionList = Lists.newArrayList();
-                List<QuestionnaireQuestion> childQuestion = questionnaireQuestions.stream().filter(cache -> it.getId().equals(cache.getPid())).sorted(Comparator.comparing(QuestionnaireQuestion::getSort)).collect(Collectors.toList());
-                Map<Integer, QuestionnaireQuestion> childQuestionMap = childQuestion.stream().collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, Function.identity()));
                 //构建此模块下的所有问题
-                childQuestion.forEach(child -> {
-                    JumpIdsDO jumpIds = child.getJumpIds();
-                    Question createQuestion = questionMap.get(child.getQuestionId());
-                    if (Question.TOP_PARENT_ID == createQuestion.getPid()) {
+                questionnaireQuestions.forEach(child -> {
+                    if (it.getId().equals(child.getPid())) {
+                        Question createQuestion = questionMap.get(child.getQuestionId());
                         QuestionResponse questionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
                         questionResponse.setRequired(child.getRequired());
-                        // 不确定这里直接复用有木有问题
                         questionResponse.setSerialNumber(child.getSerialNumber());
-                        setJumpIds(questionResponse, jumpIds);
-                        setChildren(questionResponse, childQuestion, questionMap, childQuestionMap);
+                        setJumpIds(questionResponse, child.getJumpIds());
+                        buildQuestion(questionResponse, child.getId(), questionnaireQuestions, questionMap);
                         questionList.add(questionResponse);
                     }
                 });
@@ -101,35 +97,28 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
 
 
     /**
-     * 递归封装子问题
+     * 设置问题层级关系
      *
-     * @param questionResponse
+     * @param pid
      * @param childQuestion
      * @param questionMap
      */
-    protected void setChildren(QuestionResponse questionResponse, List<QuestionnaireQuestion> childQuestion, Map<Integer, Question> questionMap, Map<Integer, QuestionnaireQuestion> childQuestionMap) {
-        ArrayList<QuestionResponse> children = Lists.newArrayList();
-        List<Question> questions = childQuestion.stream().map(it -> {
-            Question question = questionMap.get(it.getQuestionId());
-            return question;
-        }).collect(Collectors.toList());
-
-        questions = questions.stream().filter(it -> it.getPid().intValue() == questionResponse.getId().intValue()).collect(Collectors.toList());
-        if (CollectionUtil.isNotEmpty(questions)) {
-            questions.forEach(cache -> {
-                QuestionnaireQuestion questionnaireQuestion = childQuestionMap.get(cache.getId());
-                QuestionResponse child = BeanCopyUtil.copyBeanPropertise(cache, QuestionResponse.class);
-                child.setRequired(questionnaireQuestion.getRequired());
-                // 不确定这里直接复用有木有问题
-                child.setSerialNumber(questionnaireQuestion.getSerialNumber());
-                setJumpIds(child, questionnaireQuestion.getJumpIds());
-                setChildren(child, childQuestion, questionMap, childQuestionMap);
-                children.add(child);
-            });
-            questionResponse.setChildren(children);
-        }
+    protected void buildQuestion(QuestionResponse questionResponse, Integer pid, List<QuestionnaireQuestion> childQuestion, Map<Integer, Question> questionMap) {
+        childQuestion.forEach(it -> {
+            if (pid.equals(it.getPid())) {
+                JumpIdsDO jumpIds = it.getJumpIds();
+                Question createQuestion = questionMap.get(it.getQuestionId());
+                QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
+                questionResponse.setRequired(it.getRequired());
+                questionResponse.setSerialNumber(it.getSerialNumber());
+                setJumpIds(questionResponse, jumpIds);
+                List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getChildren()) ? questionResponse.getChildren() : new ArrayList<>();
+                questionResponses.add(childQuestionResponse);
+                questionResponse.setChildren(questionResponses);
+                buildQuestion(childQuestionResponse,it.getId(),childQuestion,questionMap);
+            }
+        });
     }
-
 
     /**
      * 封装跳转Id
