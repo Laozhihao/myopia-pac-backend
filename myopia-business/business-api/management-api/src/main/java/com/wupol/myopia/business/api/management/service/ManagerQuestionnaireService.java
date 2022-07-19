@@ -96,13 +96,6 @@ public class ManagerQuestionnaireService {
      * @return
      */
     public List<QuestionTaskVO> getQuestionTaskByUnitId(CurrentUser user) {
-        PageRequest page = new PageRequest();
-        page.setCurrent(1);
-        page.setSize(Integer.MAX_VALUE);
-        ScreeningTaskQueryDTO query = new ScreeningTaskQueryDTO();
-        if (!user.isPlatformAdminUser()) {
-            query.setGovDeptId(user.getOrgId());
-        }
         List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().eq(!user.isPlatformAdminUser(), ScreeningTask::getGovDeptId, user.getOrgId()).eq(ScreeningTask::getScreeningType, 1).eq(ScreeningTask::getReleaseStatus, 1));
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
