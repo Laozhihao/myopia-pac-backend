@@ -203,6 +203,15 @@ public class ManagerQuestionnaireService {
         if (Objects.isNull(task)) {
             return new QuestionSchoolVO();
         }
+        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
+
+        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
+        List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
+                .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
+                .orderByDesc(ScreeningPlanSchool::getCreateTime));
+
+        Map<Integer, ScreeningPlanSchool> schoolPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
+
         Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
         questionSchoolVO.setSchoolAmount(schoolIds.size());
@@ -212,8 +221,8 @@ public class ManagerQuestionnaireService {
                         .collect(Collectors.toList()).stream().mapToInt(item -> item).sum());
         questionSchoolVO.setStudentEnvironmentAmount(schoolIds.size());
         questionSchoolVO.setStudentSpecialAmount(schoolIds.size());
-        questionSchoolVO.setStudentEnvironmentAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()), taskId));
-        questionSchoolVO.setStudentSpecialAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()), taskId));
+        questionSchoolVO.setStudentEnvironmentAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()), taskId, schoolPlanMap, planMap));
+        questionSchoolVO.setStudentSpecialAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()), taskId, schoolPlanMap, planMap));
         return questionSchoolVO;
     }
 
@@ -268,6 +277,7 @@ public class ManagerQuestionnaireService {
         }
         //查看该通知所有筛查学校的层级的 地区树
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId()));
+        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
@@ -306,6 +316,7 @@ public class ManagerQuestionnaireService {
                 .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, questionSearchDTO.getTaskId())
         ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
 
+
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
             vo.setSchoolName(item.getName());
@@ -320,9 +331,9 @@ public class ManagerQuestionnaireService {
                 vo.setStudentEnvironmentSurveyStatus(0);
                 return vo;
             }
-            Integer studentCount = studentCountIdMap.get(item.getId()).size();
-            vo.setStudentSpecialSurveyStatus(getCountBySchool(studentCount, item.getId(), userRecordToStudentSpecialMap));
-            vo.setStudentEnvironmentSurveyStatus(getCountBySchool(studentCount, item.getId(), userRecordToStudentEnvironmentMap));
+            ScreeningPlan plan = planMap.get(schoolIdsPlanMap.get(item.getId()).getScreeningPlanId());
+            vo.setStudentSpecialSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentSpecialMap));
+            vo.setStudentEnvironmentSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentEnvironmentMap));
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionSchoolRecordVO> returnPage = new Page<>();
@@ -337,12 +348,12 @@ public class ManagerQuestionnaireService {
      * @return
      * @throws IOException
      */
-    private Integer getCountBySchool(Integer studentCount, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
+    private Integer getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
         if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
             return 0;
-        } else if (userRecordToStudentEnvironmentMap.get(schoolId).size() < studentCount) {
+        } else if (!userRecordToStudentEnvironmentMap.get(schoolId).isEmpty()) {
             return 1;
-        } else if (userRecordToStudentEnvironmentMap.get(schoolId).stream().filter(item3 -> item3.getStatus().equals(2)).count() == studentCount) {
+        } else if (plan.getEndTime().getTime() >= new Date().getTime()) {
             return 2;
         }
         return 1;
@@ -421,17 +432,18 @@ public class ManagerQuestionnaireService {
         );
     }
 
-    private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, List<Integer> types, Integer taskId) {
+    private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, List<Integer> types, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
         // 学生总数
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountMaps = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
                 .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
                 .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
         ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
         return schoolIds.stream().map(item -> {
+            ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
             if (Objects.isNull(studentCountMaps.get(item))) {
                 return 0;
             }
-            if (getStudentQuestionEndByType(item, types, taskId) >= studentCountMaps.get(item).size()) {
+            if (plan.getEndTime().getTime() >= new Date().getTime()) {
                 return 1;
             }
             return 0;
