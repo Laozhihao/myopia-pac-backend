@@ -30,6 +30,6 @@ public interface BusinessServiceClient {
      * @return
      */
     @GetMapping("/management/screeningPlan/school/")
-    QuestionnaireUser getSchool(@RequestParam("schoolNo") String schoolNo);
+    QuestionnaireUser getSchool(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password);
 
 }

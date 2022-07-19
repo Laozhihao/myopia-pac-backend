@@ -89,17 +89,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String password = request.getParameter(AuthConstants.PASSWORD);
             // 学校登录
             QuestionnaireUser questionnaireUser;
-            try {
-                if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
-                    questionnaireUser = businessServiceClient.getSchool(username);
-                    return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
-                } else {
-                    // 学生登录
-                    questionnaireUser = businessServiceClient.getStudent(username, password);
-                    return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
-                }
-            } catch (BusinessServiceRequestException exception) {
-                throw exception;
+            if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
+                questionnaireUser = businessServiceClient.getSchool(username, password);
+                return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+            } else {
+                // 学生登录
+                questionnaireUser = businessServiceClient.getStudent(username, password);
+                return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
             }
         }
         User user = userService.getByUsername(username, systemCode);

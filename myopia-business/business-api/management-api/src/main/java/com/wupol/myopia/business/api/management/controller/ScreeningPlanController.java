@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
+import com.wupol.myopia.business.api.management.constant.AuthConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
@@ -739,8 +740,8 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/school")
-    public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo) {
-        School school = schoolService.getBySchoolNo(schoolNo);
+    public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
+        School school = checkPassword(password, schoolNo);
         if (Objects.nonNull(school)) {
             //是否有筛查计划
             ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
@@ -752,4 +753,17 @@ public class ScreeningPlanController {
         return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
     }
 
+
+    /**
+     * 校验学校密码
+     * @param password
+     * @param schoolNo
+     * @return
+     */
+    public School checkPassword(String password,String schoolNo){
+        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD,password)) {
+            return null;
+        }
+        return schoolService.getBySchoolNo(schoolNo);
+    }
 }
