@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Log4j2
-public class QuestionnaireManagerService {
+public class QuestionnaireManagementService {
     @Autowired
     private ScreeningTaskService screeningTaskService;
 
@@ -143,7 +143,7 @@ public class QuestionnaireManagerService {
             }
             return questionAreaDTO;
         } catch (Exception e) {
-            log.error("获得任务区域失败",e);
+            log.error("获得任务区域失败", e);
             throw new BusinessException("获得任务区域失败！");
         }
     }
@@ -189,12 +189,12 @@ public class QuestionnaireManagerService {
         }
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
 
-        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
+        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
         List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
 
-        Map<Integer, ScreeningPlanSchool> schoolPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
+        Map<Integer, ScreeningPlanSchool> schoolPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
 
         Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
         QuestionSchoolVO questionSchoolVO = new QuestionSchoolVO();
@@ -205,8 +205,8 @@ public class QuestionnaireManagerService {
                         .collect(Collectors.toList()).stream().mapToInt(item -> item).sum());
         questionSchoolVO.setStudentEnvironmentAmount(schoolIds.size());
         questionSchoolVO.setStudentSpecialAmount(schoolIds.size());
-        questionSchoolVO.setStudentEnvironmentAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType()), taskId, schoolPlanMap, planMap));
-        questionSchoolVO.setStudentSpecialAccomplish(getSchoolQuestionEndByType(schoolIds, Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType()), taskId, schoolPlanMap, planMap));
+        questionSchoolVO.setStudentEnvironmentAccomplish(getSchoolQuestionEndByType(schoolIds, taskId, schoolPlanMap, planMap));
+        questionSchoolVO.setStudentSpecialAccomplish(getSchoolQuestionEndByType(schoolIds, taskId, schoolPlanMap, planMap));
         return questionSchoolVO;
     }
 
@@ -261,7 +261,7 @@ public class QuestionnaireManagerService {
         }
         //查看该通知所有筛查学校的层级的 地区树
         List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, questionSearchDTO.getTaskId()));
-        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan -> ScreeningPlan));
+        Map<Integer, ScreeningPlan> planMap = plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
@@ -279,8 +279,8 @@ public class QuestionnaireManagerService {
             return new Page<>();
         }
         List<Integer> orgIds = searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
-        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
+        Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, screeningOrganization -> screeningOrganization));
+        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
 
         List<Integer> schoolIds = searchPage.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
 
@@ -368,7 +368,7 @@ public class QuestionnaireManagerService {
         }
 
         List<Integer> orgIds = searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization -> ScreeningOrganization));
+        Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, screeningOrganization -> screeningOrganization));
         List<Integer> schoolIds = searchPage.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
         Map<Integer, List<UserQuestionRecord>> userRecordToSchoolMap = getRecordSchoolIdMap(Sets.newHashSet(schoolIds), questionSearchDTO.getTaskId(), Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
 
@@ -377,7 +377,7 @@ public class QuestionnaireManagerService {
                 .in(School::getId, schoolIds)
                 .in(School::getDistrictId, districtIds)
         );
-        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchool -> ScreeningPlanSchool));
+        Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
 
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
@@ -417,7 +417,7 @@ public class QuestionnaireManagerService {
         );
     }
 
-    private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, List<Integer> types, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
+    private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
         // 学生总数
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountMaps = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
                 .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
@@ -444,7 +444,7 @@ public class QuestionnaireManagerService {
     }
 
     public static List<Integer> getSubUtil(String soap, String regx) {
-        List<Integer> list = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<>();
         Pattern pattern = Pattern.compile(regx);
         Matcher m = pattern.matcher(soap);
         while (m.find()) {
