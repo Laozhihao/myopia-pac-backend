@@ -193,4 +193,18 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         responseDTO.setDetail(getQuestionnaireInfo(id));
         return responseDTO;
     }
+
+    /**
+     * 通过年份、类型获取
+     *
+     * @param year  年份
+     * @param types 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getByYearAndTypes(Collection<Integer> types, Integer year) {
+        LambdaQueryWrapper<Questionnaire> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Questionnaire::getYear, year).in(Questionnaire::getType, types);
+        return baseMapper.selectList(wrapper);
+    }
 }

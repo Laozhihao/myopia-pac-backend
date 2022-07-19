@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.api.questionnaire.service.QuestionnaireBizService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
@@ -24,8 +25,16 @@ public class QuestionnaireController {
     @Autowired
     private QuestionnaireService questionnaireService;
 
+    @Autowired
+    private QuestionnaireBizService questionnaireBizService;
+
     @GetMapping("/getQuestionnaire/{questionnaireId}")
     public List<QuestionnaireInfoDTO> getQuestionnaire(@PathVariable("questionnaireId") Integer questionnaireId) {
         return questionnaireService.getQuestionnaire(questionnaireId);
+    }
+
+    @GetMapping("/getUserQuestionnaire")
+    public Object getUserQuestionnaire() {
+        return questionnaireBizService.getUserQuestionnaire();
     }
 }

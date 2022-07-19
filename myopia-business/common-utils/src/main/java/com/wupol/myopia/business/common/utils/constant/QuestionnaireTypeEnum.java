@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
+
+import java.util.List;
 
 /**
  * 问卷类型Enum
@@ -9,7 +12,7 @@ import lombok.Getter;
  */
 @Getter
 public enum QuestionnaireTypeEnum {
-    QUESTIONNAIRE_NOTICE(0, "问卷须知"),
+    QUESTIONNAIRE_NOTICE(0, "问卷填写引导、基本资料"),
     AREA_DISTRICT_SCHOOL(1, "地市及区（县）管理部门学校卫生工作调查表"),
     PRIMARY_SECONDARY_SCHOOLS(2, "中小学校开展学校卫生工作情况调查表"),
     PRIMARY_SCHOOL(3, "学生健康状况及影响因素调查表（小学版）"),
@@ -32,5 +35,17 @@ public enum QuestionnaireTypeEnum {
     QuestionnaireTypeEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
+    }
+
+    public static List<Integer> getPrimaryType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), PRIMARY_SCHOOL.getType());
+    }
+
+    public static List<Integer> getMiddleType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), MIDDLE_SCHOOL.getType());
+    }
+
+    public static List<Integer> getUniversityType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), UNIVERSITY_SCHOOL.getType());
     }
 }
