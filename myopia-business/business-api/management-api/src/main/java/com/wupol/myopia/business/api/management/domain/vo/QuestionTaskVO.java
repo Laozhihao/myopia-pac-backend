@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.Date;
 import java.util.List;
