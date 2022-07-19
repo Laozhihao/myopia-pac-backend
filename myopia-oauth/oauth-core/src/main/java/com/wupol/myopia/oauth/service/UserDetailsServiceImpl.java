@@ -5,9 +5,7 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.exception.BusinessServiceRequestException;
 import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
 import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import com.wupol.myopia.oauth.constant.AuthConstant;
@@ -90,21 +88,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             Integer userType = Integer.parseInt(userTypeStr);
             String password = request.getParameter(AuthConstants.PASSWORD);
             // 学校登录
-            ApiResult apiResult;
-            if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
-                apiResult = businessServiceClient.getSchool(username);
-                if (apiResult.getCode() == ResultCode.SUCCESS.getCode()) {
-                    return questionnaireUser2User((QuestionnaireUser) apiResult.getData(), username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+            QuestionnaireUser questionnaireUser;
+            try {
+                if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
+                    questionnaireUser = businessServiceClient.getSchool(username);
+                    return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+                } else {
+                    // 学生登录
+                    questionnaireUser = businessServiceClient.getStudent(username, password);
+                    return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
                 }
-            } else {
-                // 学生登录
-                apiResult = businessServiceClient.getStudent(username, password);
-                if (apiResult.getCode() == ResultCode.SUCCESS.getCode()) {
-                    QuestionnaireUser student = (QuestionnaireUser)apiResult.getData();
-                    return questionnaireUser2User(student, username, userType, Objects.nonNull(student) ? student.getRealName() : null);
-                }
+            } catch (BusinessServiceRequestException exception) {
+                throw exception;
             }
-            throw new BusinessException(apiResult.getMessage());
         }
         User user = userService.getByUsername(username, systemCode);
         if (Objects.isNull(user)) {
