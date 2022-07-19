@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.sdk.client;
 
 import com.wupol.myopia.base.config.feign.BusinessServiceFeignConfig;
-import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,10 +17,11 @@ public interface BusinessServiceClient {
      * 获取学生信息
      *
      * @param credentialNo
+     * @param studentName
      * @return
      */
     @GetMapping("/management/screeningPlan/student/")
-    ApiResult getStudent(@RequestParam("credentialNo") String credentialNo);
+    QuestionnaireUser getStudent(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName);
 
     /**
      * 获取学校信息
@@ -29,6 +30,6 @@ public interface BusinessServiceClient {
      * @return
      */
     @GetMapping("/management/screeningPlan/school/")
-    ApiResult getSchool(@RequestParam("schoolNo") String schoolNo);
+    QuestionnaireUser getSchool(@RequestParam("schoolNo") String schoolNo);
 
 }

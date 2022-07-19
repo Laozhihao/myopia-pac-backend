@@ -8,14 +8,12 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
 import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import com.wupol.myopia.oauth.constant.AuthConstant;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -90,6 +88,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
             String userTypeStr = request.getParameter(AuthConstants.USER_TYPE);
             Integer userType = Integer.parseInt(userTypeStr);
+            String password = request.getParameter(AuthConstants.PASSWORD);
             // 学校登录
             ApiResult apiResult;
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
@@ -99,7 +98,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 }
             } else {
                 // 学生登录
-                apiResult = businessServiceClient.getStudent(username);
+                apiResult = businessServiceClient.getStudent(username, password);
                 if (apiResult.getCode() == ResultCode.SUCCESS.getCode()) {
                     QuestionnaireUser student = (QuestionnaireUser)apiResult.getData();
                     return questionnaireUser2User(student, username, userType, Objects.nonNull(student) ? student.getRealName() : null);

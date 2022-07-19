@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -28,7 +26,6 @@ import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
-import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -59,7 +56,10 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -721,12 +721,9 @@ public class ScreeningPlanController {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
         if (!CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
             //是否有筛查计划
-            List<Integer> studentIds = screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
-            List<ScreeningPlan> list = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().in(ScreeningPlan::getId, studentIds)
-                    .eq(ScreeningPlan::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType())
-                    .orderByDesc(ScreeningPlan::getStartTime));
-            if (CollectionUtil.isNotEmpty(list)) {
-                ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(), studentIds);
+            ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
+                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()));
+            if (Objects.nonNull(student)) {
                 return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
             }
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());

@@ -46,6 +46,11 @@ public interface AuthConstants {
     String USER_TYPE = "user_type";
 
     /**
+     * 密码
+     */
+    String PASSWORD = "password";
+
+    /**
      * 黑名单token前缀
      */
     String TOKEN_BLACKLIST_PREFIX = "auth:token:blacklist:";
