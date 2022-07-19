@@ -49,6 +49,11 @@ public class UserAnswer implements Serializable {
     private Integer questionId;
 
     /**
+     * 问题标题
+     */
+    private String questionTitle;
+
+    /**
      * 用户答案
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
