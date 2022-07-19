@@ -87,17 +87,4 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
     public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList, Integer notificationId) {
         return baseMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList, notificationId);
     }
-
-    /**
-     * 根据机构id获取筛查任务
-     *
-     * @param orgId 机构id
-     */
-    public List<ScreeningTask> getScreeningTaskByOrgId(Integer orgId) {
-        List<ScreeningTaskOrg> taskOrgs = screeningTaskOrgService.getOrgListsByOrgId(orgId);
-        if (CollectionUtils.isEmpty(taskOrgs)) {
-            return Lists.newArrayList();
-        }
-        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningTask>().in(!CollectionUtils.isEmpty(taskOrgs), ScreeningTask::getId, taskOrgs.stream().map(ScreeningTaskOrg::getScreeningTaskId).collect(Collectors.toList())));
-    }
 }
