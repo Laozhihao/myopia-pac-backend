@@ -488,9 +488,4 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
         return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
     }
-
-
-    public List<School> findSchoolByDistrictIds(List<Integer> districtIds){
-        return baseMapper.selectList(new LambdaQueryWrapper<School>().in(!CollectionUtils.isEmpty(districtIds),School::getDistrictId,districtIds));
-    }
 }
