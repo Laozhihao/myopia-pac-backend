@@ -151,8 +151,7 @@ public class QuestionnaireManagerService {
             }
             return questionAreaDTO;
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("获得任务区域失败");
+            log.error("获得任务区域失败",e);
             throw new BusinessException("获得任务区域失败！");
         }
     }
