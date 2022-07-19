@@ -1,24 +1,22 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import java.util.List;
-
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionAttribute;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionAttribute;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
- * 
- *
  * @Author Simple4H
  * @Date 2022-07-06
  */
@@ -29,6 +27,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Question implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 顶层父级的标志Id
+     */
+    public static final int TOP_PARENT_ID  = -1;
 
     /**
      * 主键
