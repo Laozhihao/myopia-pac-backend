@@ -349,7 +349,7 @@ public class ManagerQuestionnaireService {
      * @throws IOException
      */
     private Integer getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
-        if (plan.getEndTime().getTime() >= new Date().getTime()) {
+        if (plan.getEndTime().getTime() <= new Date().getTime()) {
             return 2;
         } else if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
             return 0;
@@ -444,7 +444,7 @@ public class ManagerQuestionnaireService {
             if (Objects.isNull(studentCountMaps.get(item))) {
                 return 0;
             }
-            if (plan.getEndTime().getTime() >= new Date().getTime()) {
+            if (plan.getEndTime().getTime() <= new Date().getTime()) {
                 return 1;
             }
             return 0;
