@@ -3,7 +3,7 @@
 INSERT INTO `oauth_client_details`(`client_id`, `resource_ids`, `client_secret`, `scope`, `authorized_grant_types`, `web_server_redirect_uri`, `authorities`, `access_token_validity`, `refresh_token_validity`, `additional_information`, `autoapprove`)
 VALUES ('8', NULL, '123456', 'all', 'password,refresh_token', NULL, NULL, 86400, 100800, '问卷系统端', NULL);
 
-
+-- 管理后台问卷管理权限
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code)
 VALUES ('906', '获取学校待办列表', 'getQuestionBacklogList', 'get:/management/questionnaire/backlog/list', '0', '0', '6', '900','1'),
        ('905', '获得学校问卷列表', 'getQuestionSchoolList', 'get:/management/questionnaire/schools/list', '0', '0', '5', '900','1'),
