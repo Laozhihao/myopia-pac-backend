@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -27,17 +28,18 @@ public class QuestionnaireBizService {
 
 
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire() {
-        List<Integer> universityType = QuestionnaireTypeEnum.getUniversityType();
+
+        List<QuestionnaireTypeEnum> universityType = QuestionnaireTypeEnum.getUniversityType();
 
         // 获取今年的问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(universityType, DateUtil.getYear(new Date()))
-                .stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
+        Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(universityType.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList()), DateUtil.getYear(new Date())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
 
-        return universityType.stream().map(s->{
+        return universityType.stream().map(s -> {
             UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
-            Questionnaire questionnaire = typeMap.get(s);
+            Questionnaire questionnaire = typeMap.get(s.getType());
             responseDTO.setId(questionnaire.getId());
-            responseDTO.setTitle(questionnaire.getTitle());
+            responseDTO.setTitle(s.getDesc());
+            responseDTO.setMainTitle(QuestionnaireMainTitleEnum.getByType(s.getType()).getMainTitle());
             return responseDTO;
         }).collect(Collectors.toList());
     }

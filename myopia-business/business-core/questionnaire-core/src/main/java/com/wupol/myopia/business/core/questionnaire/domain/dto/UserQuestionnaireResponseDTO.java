@@ -21,4 +21,9 @@ public class UserQuestionnaireResponseDTO {
      * 标题
      */
     private String title;
+
+    /**
+     * 主标题
+     */
+    private String mainTitle;
 }

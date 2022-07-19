@@ -37,15 +37,15 @@ public enum QuestionnaireTypeEnum {
         this.desc = desc;
     }
 
-    public static List<Integer> getPrimaryType() {
-        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), PRIMARY_SCHOOL.getType());
+    public static List<QuestionnaireTypeEnum> getPrimaryType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, PRIMARY_SCHOOL);
     }
 
-    public static List<Integer> getMiddleType() {
-        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), MIDDLE_SCHOOL.getType());
+    public static List<QuestionnaireTypeEnum> getMiddleType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, MIDDLE_SCHOOL);
     }
 
-    public static List<Integer> getUniversityType() {
-        return Lists.newArrayList(QUESTIONNAIRE_NOTICE.getType(), VISION_SPINE.getType(), UNIVERSITY_SCHOOL.getType());
+    public static List<QuestionnaireTypeEnum> getUniversityType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
     }
 }
