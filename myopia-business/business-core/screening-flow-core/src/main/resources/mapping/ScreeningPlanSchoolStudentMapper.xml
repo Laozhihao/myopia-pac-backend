@@ -577,10 +577,8 @@
 
     <select id="getLastByCredentialNoAndScreeningType" resultMap="BaseResultMap">
         SELECT spss.* FROM m_screening_plan_school_student spss
-        LEFT JOIN m_screening_plan sp ON sp.id = spss.screening_plan_id
-        WHERE sp.screening_type = #{screeningType}
-          AND (spss.id_card = #{credentialNo} OR spss.passport = #{credentialNo})
-        ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
+        WHERE  (spss.id_card = #{credentialNo} OR spss.passport = #{credentialNo})
+        ORDER BY  spss.create_time DESC LIMIT 1
     </select>
 
 </mapper>

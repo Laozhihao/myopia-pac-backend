@@ -720,12 +720,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 通过姓名与证件号并指定筛查类型获取信息
+     *
      * @param credentialNo
-     * @param screeningType
      * @return
      */
-    public ScreeningPlanSchoolStudent getLastByCredentialNoAndScreeningType(String credentialNo, Integer screeningType) {
-        return baseMapper.getLastByCredentialNoAndScreeningType(credentialNo, screeningType);
+    public ScreeningPlanSchoolStudent getLastByCredentialNoAndScreeningType(String credentialNo) {
+        return baseMapper.getLastByCredentialNoAndScreeningType(credentialNo);
     }
 
 }

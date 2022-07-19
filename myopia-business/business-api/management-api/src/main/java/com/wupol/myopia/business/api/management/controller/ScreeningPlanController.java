@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -35,6 +38,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
@@ -110,8 +114,7 @@ public class ScreeningPlanController {
     @Autowired
     private ReviewInformService reviewInformService;
     @Autowired
-    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
-
+    private SchoolService schoolService;
     /**
      * 新增
      *
@@ -716,26 +719,39 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student")
-    public QuestionnaireUser getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo) {
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndScreeningType(credentialNo, ScreeningTypeEnum.COMMON_DISEASE.getType());
+    public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo) {
+        //查询该学生
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndScreeningType(credentialNo);
         if (Objects.nonNull(screeningPlanSchoolStudent)) {
-            return new QuestionnaireUser(screeningPlanSchoolStudent.getId(), screeningPlanSchoolStudent.getSchoolId(), screeningPlanSchoolStudent.getStudentName());
+            //是否有筛查计划
+            List<ScreeningPlan> list = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getId, screeningPlanSchoolStudent.getScreeningPlanId())
+                    .eq(ScreeningPlan::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType()));
+            if (CollectionUtil.isNotEmpty(list)) {
+                return ApiResult.success(new QuestionnaireUser(screeningPlanSchoolStudent.getId(), screeningPlanSchoolStudent.getSchoolId(), screeningPlanSchoolStudent.getStudentName()));
+            }
+            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
-        return null;
+        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
     }
 
     /**
      * 获取学校信息
+     *
      * @param schoolNo
      * @return
      */
     @GetMapping("/school")
-    public QuestionnaireUser getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo) {
-        School school = screeningPlanSchoolBizService.getLastBySchoolNoAndScreeningType(schoolNo, ScreeningTypeEnum.COMMON_DISEASE.getType());
+    public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo) {
+        School school = schoolService.getBySchoolNo(schoolNo);
         if (Objects.nonNull(school)) {
-            return new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName());
+            //是否有筛查计划
+            ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
+            if (Objects.nonNull(screeningPlanSchool)) {
+                return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
+            }
+            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
-        return null;
+        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
     }
 
 }

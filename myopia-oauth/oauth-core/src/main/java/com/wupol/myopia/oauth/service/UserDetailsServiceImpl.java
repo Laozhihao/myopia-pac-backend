@@ -5,12 +5,17 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.ResultCode;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
 import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import com.wupol.myopia.oauth.constant.AuthConstant;
 import com.wupol.myopia.oauth.domain.model.Role;
 import com.wupol.myopia.oauth.domain.model.SecurityUserDetails;
 import com.wupol.myopia.oauth.domain.model.User;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -86,13 +91,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String userTypeStr = request.getParameter(AuthConstants.USER_TYPE);
             Integer userType = Integer.parseInt(userTypeStr);
             // 学校登录
+            ApiResult apiResult;
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
-                return questionnaireUser2User(businessServiceClient.getSchool(username), username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+                apiResult = businessServiceClient.getSchool(username);
+                if (apiResult.getCode() == ResultCode.SUCCESS.getCode()) {
+                    return questionnaireUser2User((QuestionnaireUser) apiResult.getData(), username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+                }
             } else {
                 // 学生登录
-                QuestionnaireUser student = businessServiceClient.getStudent(username);
-                return questionnaireUser2User(student, username, userType, Objects.nonNull(student) ? student.getRealName() : null);
+                apiResult = businessServiceClient.getStudent(username);
+                if (apiResult.getCode() == ResultCode.SUCCESS.getCode()) {
+                    QuestionnaireUser student = (QuestionnaireUser)apiResult.getData();
+                    return questionnaireUser2User(student, username, userType, Objects.nonNull(student) ? student.getRealName() : null);
+                }
             }
+            throw new BusinessException(apiResult.getMessage());
         }
         User user = userService.getByUsername(username, systemCode);
         if (Objects.isNull(user)) {
