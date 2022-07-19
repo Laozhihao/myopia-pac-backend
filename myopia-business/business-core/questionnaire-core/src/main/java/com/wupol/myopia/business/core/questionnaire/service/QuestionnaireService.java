@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
@@ -17,7 +16,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfo
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +37,11 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionnaireService extends BaseService<QuestionnaireMapper, Questionnaire> {
 
-    @Autowired
+    @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
+
+    @Resource
+    private QuestionService questionService;
 
     /**
      * 获取问卷列表
@@ -77,13 +78,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetails(), -1);
 
     }
-
-    @Resource
-    private QuestionnaireQuestionService questionnaireQuestionService;
-
-    @Resource
-    private QuestionService questionService;
-
 
     /**
      * 获取问卷问题
