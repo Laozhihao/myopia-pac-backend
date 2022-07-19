@@ -111,10 +111,7 @@ public class QuestionnaireManagementService {
                 return taskItem;
             }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
             return questionTaskVO;
-        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).map(item -> {
-            item.setAnnual(item.getAnnual() + "年度");
-            return item;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).peek(item -> item.setAnnual(item.getAnnual() + "年度")).collect(Collectors.toList());
     }
 
     /**
