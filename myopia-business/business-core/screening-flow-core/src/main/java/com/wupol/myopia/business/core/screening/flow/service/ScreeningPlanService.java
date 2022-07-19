@@ -370,14 +370,4 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 .orderByAsc(ScreeningPlan::getStartTime);
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
-
-    /**
-     * 获得学校Id
-     * @param districtIds
-     * @param taskId
-     * @return
-     */
-    public Set<Integer> getBySchoolIdsAndTaskId(Set<Integer> districtIds, Integer taskId) {
-        return baseMapper.selectSchoolIds(districtIds,taskId);
-    }
 }
