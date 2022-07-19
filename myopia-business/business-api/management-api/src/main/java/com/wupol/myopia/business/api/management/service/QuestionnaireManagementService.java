@@ -114,6 +114,13 @@ public class QuestionnaireManagementService {
         }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).peek(item -> item.setAnnual(item.getAnnual() + "年度")).collect(Collectors.toList());
     }
 
+    /**
+     * 根据taskId 获得有问卷数据的地区
+     *
+     * @param taskId
+     * @param user
+     * @return
+     */
     public QuestionAreaDTO getQuestionTaskAreas(Integer taskId, CurrentUser user) {
         try {
             QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
@@ -256,6 +263,12 @@ public class QuestionnaireManagementService {
         ).stream().map(School::getId).collect(Collectors.toSet());
     }
 
+    /**
+     * 获取问卷的学校列表
+     * @param questionSearchDTO
+     * @return
+     * @throws IOException
+     */
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
@@ -346,6 +359,12 @@ public class QuestionnaireManagementService {
     }
 
 
+    /**
+     * 获取问卷的待办列表
+     * @param questionSearchDTO
+     * @return
+     * @throws IOException
+     */
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
@@ -397,6 +416,13 @@ public class QuestionnaireManagementService {
         return returnPage;
     }
 
+    /**
+     * 获取已经完成的问卷
+     * @param schoolId
+     * @param types
+     * @param taskId
+     * @return
+     */
     private Integer getStudentQuestionEndByType(Integer schoolId, List<Integer> types, Integer taskId) {
         return userQuestionRecordService.count(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getSchoolId, schoolId)
@@ -406,6 +432,13 @@ public class QuestionnaireManagementService {
         );
     }
 
+    /**
+     * 获取问卷完成的学校
+     * @param schoolIds
+     * @param type
+     * @param taskId
+     * @return
+     */
     private Integer getStudentQuestionEndBySchool(Set<Integer> schoolIds, Integer type, Integer taskId) {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return 0;
@@ -418,6 +451,14 @@ public class QuestionnaireManagementService {
         );
     }
 
+    /**
+     * 获得对应类型的问卷完成情况
+     * @param schoolIds
+     * @param taskId
+     * @param schoolPlanMap
+     * @param planMap
+     * @return
+     */
     private Integer getSchoolQuestionEndByType(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
         // 学生总数
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountMaps = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
@@ -436,6 +477,13 @@ public class QuestionnaireManagementService {
         }).collect(Collectors.toList()).stream().mapToInt(item -> item).sum();
     }
 
+    /**
+     * 组装数据
+     * @param schoolIds
+     * @param taskId
+     * @param types
+     * @return
+     */
     private Map<Integer, List<UserQuestionRecord>> getRecordSchoolIdMap(Set<Integer> schoolIds, Integer taskId, List<Integer> types) {
         return userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
                 .in(UserQuestionRecord::getQuestionnaireType, types)
@@ -444,6 +492,12 @@ public class QuestionnaireManagementService {
         ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
     }
 
+    /**
+     * 正则工具
+     * @param soap
+     * @param regx
+     * @return
+     */
     public static List<Integer> getSubUtil(String soap, String regx) {
         List<Integer> list = new ArrayList<>();
         Pattern pattern = Pattern.compile(regx);
