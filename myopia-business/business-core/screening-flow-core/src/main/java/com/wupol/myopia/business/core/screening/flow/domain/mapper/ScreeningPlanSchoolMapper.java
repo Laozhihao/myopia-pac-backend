@@ -51,4 +51,12 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     IPage<ScreeningListResponseDTO> getResponseBySchoolId(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
 
+    /**
+     * 获取指定学校及筛查类型信息
+     * @param schoolId
+     * @param screeningType
+     * @return
+     */
+    ScreeningPlanSchool getLastBySchoolIdAndScreeningType(@Param("schoolId") Integer schoolId, @Param("screeningType") Integer screeningType);
+
 }

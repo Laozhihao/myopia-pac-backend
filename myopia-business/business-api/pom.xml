@@ -5,7 +5,7 @@
     <parent>
         <artifactId>myopia-business</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.4.1</version>
+        <version>MP-2.4.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -22,6 +22,7 @@
         <module>device-api</module>
         <module>school-management-api</module>
         <module>preschool-app-api</module>
+        <module>questionnaire-api</module>
     </modules>
 
 </project>
