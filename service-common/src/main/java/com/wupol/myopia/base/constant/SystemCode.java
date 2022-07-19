@@ -24,7 +24,11 @@ public enum SystemCode {
     /**
      * 虚拟客户端，重写向到HOSPITAL_CLIENT
      */
-    PRESCHOOL_CLIENT(7, "0-6岁客户端"),      
+    PRESCHOOL_CLIENT(7, "0-6岁客户端"),
+    /** 问卷系统 */
+    QUESTIONNAIRE(8, "问卷系统端"),
+
+
     ;
     /**
      * 系统编号

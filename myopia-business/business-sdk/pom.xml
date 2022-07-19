@@ -11,42 +11,4 @@
 
     <artifactId>business-sdk</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>export-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>stat-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>student-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>common-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>hospital-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>device-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
 </project>
