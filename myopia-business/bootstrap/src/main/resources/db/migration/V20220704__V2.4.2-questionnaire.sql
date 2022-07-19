@@ -26,7 +26,7 @@ CREATE TABLE `q_question`
     `options`                json         not null comment '问题的答案选项',
     `same_question_group_id` varchar(128) null comment '相同问题uuid',
     `serial_number`          varchar(15)           default null comment '问题的序号',
-    `pid`                    int          not null comment '父ID，没有上级为-1',
+    `pid`                    int          null comment '父ID，没有上级为-1',
     `icon_name`              varchar(16)  null comment '图标信息',
     `create_time`            timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`            timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
@@ -67,13 +67,14 @@ CREATE TABLE `q_qes_field_mapping`
 
 CREATE TABLE `q_user_answer`
 (
-    `id`               int       not null auto_increment comment '主键',
-    `user_id`          int       not null comment '用户ID',
-    `questionnaire_id` int       not null comment '问卷ID',
-    `question_id`      int       not null comment '问题ID',
-    `answer`           json               default null comment '用户答案',
-    `create_time`      timestamp not null default CURRENT_TIMESTAMP comment '创建时间',
-    `update_time`      timestamp not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+    `id`               int          not null auto_increment comment '主键',
+    `user_id`          int          not null comment '用户ID',
+    `questionnaire_id` int          not null comment '问卷ID',
+    `question_id`      int          not null comment '问题ID',
+    `question_title`   varchar(128) not null comment '问题标题',
+    `answer`           json                  default null comment '用户答案',
+    `create_time`      timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
+    `update_time`      timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     PRIMARY KEY (`id`),
     constraint q_user_answer_user_id_questionnaire_id_question_id_uindex
         unique (user_id, questionnaire_id, question_id)
