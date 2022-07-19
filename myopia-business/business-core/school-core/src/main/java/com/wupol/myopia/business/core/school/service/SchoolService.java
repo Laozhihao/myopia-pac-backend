@@ -487,6 +487,4 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
         return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
     }
-
-
 }
