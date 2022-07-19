@@ -30,8 +30,8 @@ public class QuestionnaireController {
         return questionnaireService.getQuestionnaire(questionnaireId);
     }
 
-    @GetMapping("/getUserQuestionnaire")
-    public List<UserQuestionnaireResponseDTO> getUserQuestionnaire() {
+    @GetMapping("/getStudentQuestionnaire")
+    public List<UserQuestionnaireResponseDTO> getStudentQuestionnaire() {
         return questionnaireBizService.getUserQuestionnaire();
     }
 }
