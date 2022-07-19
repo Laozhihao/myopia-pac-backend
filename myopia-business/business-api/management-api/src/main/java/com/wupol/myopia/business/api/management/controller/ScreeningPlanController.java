@@ -59,10 +59,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -719,15 +716,18 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student")
-    public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo) {
+    public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
         //查询该学生
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndScreeningType(credentialNo);
-        if (Objects.nonNull(screeningPlanSchoolStudent)) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
+        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
             //是否有筛查计划
-            List<ScreeningPlan> list = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getId, screeningPlanSchoolStudent.getScreeningPlanId())
-                    .eq(ScreeningPlan::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType()));
+            List<Integer> studentIds = screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
+            List<ScreeningPlan> list = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().in(ScreeningPlan::getId, studentIds)
+                    .eq(ScreeningPlan::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType())
+                    .orderByDesc(ScreeningPlan::getStartTime));
             if (CollectionUtil.isNotEmpty(list)) {
-                return ApiResult.success(new QuestionnaireUser(screeningPlanSchoolStudent.getId(), screeningPlanSchoolStudent.getSchoolId(), screeningPlanSchoolStudent.getStudentName()));
+                ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(), studentIds);
+                return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
             }
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }

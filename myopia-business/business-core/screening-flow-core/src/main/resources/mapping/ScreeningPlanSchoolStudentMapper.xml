@@ -574,11 +574,23 @@
             #{id}
         </foreach>
     </select>
-
-    <select id="getLastByCredentialNoAndScreeningType" resultMap="BaseResultMap">
-        SELECT spss.* FROM m_screening_plan_school_student spss
-        WHERE  (spss.id_card = #{credentialNo} OR spss.passport = #{credentialNo})
-        ORDER BY  spss.create_time DESC LIMIT 1
+    <select id="getLastByCredentialNoAndStudentName" resultMap="BaseResultMap">
+        SELECT spss.*
+        FROM m_screening_plan_school_student spss
+        WHERE (spss.id_card = #{credentialNo} OR spss.passport = #{credentialNo})
+          and spss.student_name = #{studentName}
     </select>
+    <select id="getLastByCredentialNoAndStudentIds"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent">
+        SELECT spss.* FROM m_screening_plan_school_student spss
+        LEFT JOIN m_screening_plan sp ON sp.id = spss.screening_plan_id
+        WHERE sp.screening_type = #{screeningType}
+        AND sp.id in
+        <foreach collection="studentIds" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
+    </select>
+
 
 </mapper>

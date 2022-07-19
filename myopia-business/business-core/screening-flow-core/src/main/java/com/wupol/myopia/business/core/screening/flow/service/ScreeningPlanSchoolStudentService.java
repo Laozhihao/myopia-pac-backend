@@ -724,8 +724,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param credentialNo
      * @return
      */
-    public ScreeningPlanSchoolStudent getLastByCredentialNoAndScreeningType(String credentialNo) {
-        return baseMapper.getLastByCredentialNoAndScreeningType(credentialNo);
+    public List<ScreeningPlanSchoolStudent> getLastByCredentialNoAndStudentName(String credentialNo, String studentName) {
+        return baseMapper.getLastByCredentialNoAndStudentName(credentialNo, studentName);
     }
 
+    public ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds(Integer type, List<Integer> studentIds) {
+        return baseMapper.getLastByCredentialNoAndStudentIds(type, studentIds);
+    }
 }

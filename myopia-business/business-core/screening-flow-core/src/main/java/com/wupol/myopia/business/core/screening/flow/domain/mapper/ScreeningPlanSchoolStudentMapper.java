@@ -83,5 +83,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
      * @param credentialNo
      * @return
      */
-    ScreeningPlanSchoolStudent getLastByCredentialNoAndScreeningType(@Param("credentialNo") String credentialNo);
+    List<ScreeningPlanSchoolStudent> getLastByCredentialNoAndStudentName(@Param("credentialNo") String credentialNo,@Param("studentName") String studentName);
+
+    ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds( @Param("type") Integer type, @Param("studentIds") List<Integer> studentIds);
 }
