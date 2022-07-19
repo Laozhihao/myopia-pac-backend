@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,19 @@ public class QuestionnaireBizService {
 
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire() {
 
-        List<QuestionnaireTypeEnum> universityType = QuestionnaireTypeEnum.getUniversityType();
+        List<QuestionnaireTypeEnum> typeList = new ArrayList<>();
+
+        typeList = QuestionnaireTypeEnum.getPrimaryType();
+        typeList = QuestionnaireTypeEnum.getMiddleType();
+        typeList = QuestionnaireTypeEnum.getUniversityType();
 
         // 获取今年的问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(universityType.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList()), DateUtil.getYear(new Date())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
+        Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(
+                        typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList()),
+                        DateUtil.getYear(new Date())).stream()
+                .collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
 
-        return universityType.stream().map(s -> {
+        return typeList.stream().map(s -> {
             UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
             Questionnaire questionnaire = typeMap.get(s.getType());
             responseDTO.setId(questionnaire.getId());
