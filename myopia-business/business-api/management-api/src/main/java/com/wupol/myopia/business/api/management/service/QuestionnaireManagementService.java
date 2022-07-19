@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class QuestionnaireManagementService {
     private static final String ID = "\"id\":";
 
-    private static final String ID_REGX = "\"id\":(.*?),";
+    private static final String ID_REGEX = "\"id\":(.*?),";
 
     @Autowired
     private ScreeningTaskService screeningTaskService;
@@ -495,12 +495,12 @@ public class QuestionnaireManagementService {
     /**
      * 正则工具
      * @param soap
-     * @param regx
+     * @param regex
      * @return
      */
-    public static List<Integer> getSubUtil(String soap, String regx) {
+    public static List<Integer> getSubUtil(String soap, String regex) {
         List<Integer> list = new ArrayList<>();
-        Pattern pattern = Pattern.compile(regx);
+        Pattern pattern = Pattern.compile(regex);
         Matcher m = pattern.matcher(soap);
         while (m.find()) {
             list.add(Integer.parseInt(m.group(1)));
@@ -531,6 +531,6 @@ public class QuestionnaireManagementService {
                 baseDistricts = districtService.filterDistrictTree(childDistrictTree, districts);
             }
         }
-        return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), ID_REGX));
+        return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), ID_REGEX));
     }
 }
