@@ -5,7 +5,6 @@ import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.base.exception.BusinessServiceRequestException;
 import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
 import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import com.wupol.myopia.oauth.constant.AuthConstant;
@@ -92,11 +91,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
                 questionnaireUser = businessServiceClient.getSchool(username, password);
                 return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
-            } else {
-                // 学生登录
-                questionnaireUser = businessServiceClient.getStudent(username, password);
-                return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
             }
+            // 学生登录
+            questionnaireUser = businessServiceClient.getStudent(username, password);
+            return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
         }
         User user = userService.getByUsername(username, systemCode);
         if (Objects.isNull(user)) {
@@ -123,21 +121,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         // 问卷系统端
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
-            // 学校登录
-            if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType())) {
-                return Lists.newArrayList(new Role().setRoleType(RoleType.QUESTIONNAIRE_SCHOOL.getType()));
-            } else {
-                // 学生登录
-                return Lists.newArrayList(new Role().setRoleType(RoleType.QUESTIONNAIRE_STUDENT.getType()));
-            }
+            return Lists.newArrayList(new Role().setRoleType(UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType()) ? RoleType.QUESTIONNAIRE_SCHOOL.getType() : RoleType.QUESTIONNAIRE_STUDENT.getType()));
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
-        // 0-6岁系统客户端
-        if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)    // 0-6岁端必须要有0-6角色
+        // 0-6岁端必须要有0-6角色
+        if (SystemCode.PRESCHOOL_CLIENT.getCode().equals(systemCode)
                 && roles.stream().noneMatch(role -> RoleType.PRESCHOOL_DOCTOR.getType().equals(role.getRoleType()))) {
             throw new AuthenticationCredentialsNotFoundException("该账号未分配0-6岁眼检查系统权限!");
-        } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode)  // 眼健康系统必须要有眼健康系统角色
-                && roles.stream().noneMatch(role -> RoleType.RESIDENT_DOCTOR.getType().equals(role.getRoleType()))) { // 医院端
+        } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode)
+                && roles.stream().noneMatch(role -> RoleType.RESIDENT_DOCTOR.getType().equals(role.getRoleType()))) {
+            // 眼健康系统必须要有眼健康系统角色
+            // 医院端
             throw new AuthenticationCredentialsNotFoundException("该账号未分配居民眼健康系统权限!");
         }
         if (CollectionUtils.isEmpty(roles)) {

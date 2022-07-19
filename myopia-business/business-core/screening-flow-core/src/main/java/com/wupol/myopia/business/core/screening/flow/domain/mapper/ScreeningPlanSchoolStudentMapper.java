@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.apache.ibatis.annotations.Param;
 
@@ -78,11 +77,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<ScreeningPlanSchoolStudent> getByNoticeIdsAndSchoolIds(@Param("noticeIds") List<Integer> noticeIds, @Param("schoolIds") List<Integer> schoolIds);
 
-    /**
-     *
-     * @param credentialNo
-     * @return
-     */
     List<ScreeningPlanSchoolStudent> getLastByCredentialNoAndStudentName(@Param("credentialNo") String credentialNo,@Param("studentName") String studentName);
 
     ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds(@Param("screeningType") Integer screeningType, @Param("planId") List<Integer> planId, @Param("studentIds") List<Integer> studentIds);

@@ -742,15 +742,15 @@ public class ScreeningPlanController {
     @GetMapping("/school")
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
         School school = checkPassword(password, schoolNo);
-        if (Objects.nonNull(school)) {
-            //是否有筛查计划
-            ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
-            if (Objects.nonNull(screeningPlanSchool)) {
-                return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
-            }
-            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
+        if (Objects.isNull(school)) {
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
         }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        //是否有筛查计划
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
+        if (Objects.nonNull(screeningPlanSchool)) {
+            return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
+        }
+        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
     }
 
 
