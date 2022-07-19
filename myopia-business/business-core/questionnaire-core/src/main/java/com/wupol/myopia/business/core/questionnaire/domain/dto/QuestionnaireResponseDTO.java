@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +12,25 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class QuestionnaireResponseDTO extends Question {
+public class QuestionnaireResponseDTO {
 
-    @Getter
-    private List<Question> questionList;
+    /**
+     * Id
+     */
+    private Integer Id;
 
+    /**
+     * 标题
+     */
+    private String title;
 
+    /**
+     * 年份
+     */
+    private Integer year;
+
+    /**
+     * 详情
+     */
+    private List<QuestionnaireInfoDTO> detail;
 }

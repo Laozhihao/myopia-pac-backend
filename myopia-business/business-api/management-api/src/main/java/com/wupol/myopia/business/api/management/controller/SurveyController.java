@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
@@ -38,9 +39,8 @@ public class SurveyController {
     }
 
     @GetMapping("detail/{questionnaireId}")
-    public Object getQuestionnaireDetail(@PathVariable("questionnaireId") Integer questionnaireId) {
-        // TODO:
-        return null;
+    public QuestionnaireResponseDTO getQuestionnaireDetail(@PathVariable("questionnaireId") Integer questionnaireId) {
+        return questionnaireService.getDetailByQuestionnaireId(questionnaireId);
     }
 
     @PostMapping("edit")

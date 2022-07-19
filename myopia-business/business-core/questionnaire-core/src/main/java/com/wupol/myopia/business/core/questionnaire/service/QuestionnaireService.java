@@ -1,28 +1,20 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.base.util.BeanCopyUtil;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.JumpIdsDO;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionResponse;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
@@ -180,5 +172,25 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             });
             questionResponse.setOptions(options);
         }
+    }
+
+    /**
+     * 获取问卷信息
+     *
+     * @param id 问卷id
+     *
+     * @return QuestionnaireResponseDTO
+     */
+    public QuestionnaireResponseDTO getDetailByQuestionnaireId(Integer id) {
+        Questionnaire questionnaire = this.getById(id);
+        QuestionnaireResponseDTO responseDTO = new QuestionnaireResponseDTO();
+        if (Objects.isNull(questionnaire)) {
+            return responseDTO;
+        }
+        responseDTO.setId(questionnaire.getId());
+        responseDTO.setTitle(questionnaire.getTitle());
+        responseDTO.setYear(questionnaire.getYear());
+        responseDTO.setDetail(getQuestionnaireInfo(id));
+        return responseDTO;
     }
 }

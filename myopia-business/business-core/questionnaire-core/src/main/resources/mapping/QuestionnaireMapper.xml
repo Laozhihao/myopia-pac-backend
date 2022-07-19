@@ -29,11 +29,4 @@
     <sql id="Base_Column_List">
         id, title, district_id, year, pid, status, qes_url, page_json, create_time, update_time
     </sql>
-
-    <select id="getQuestionnaireResponseById"
-            resultType="com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO">
-        select *
-        from q_questionnaire
-        where id = #{id}
-    </select>
 </mapper>

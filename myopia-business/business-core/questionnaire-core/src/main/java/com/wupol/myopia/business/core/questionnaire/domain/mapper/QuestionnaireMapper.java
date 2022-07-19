@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.mapper;
 
-import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * Mapper接口
@@ -12,7 +10,5 @@ import org.apache.ibatis.annotations.Param;
  * @Date 2022-07-06
  */
 public interface QuestionnaireMapper extends BaseMapper<Questionnaire> {
-
-    QuestionnaireResponseDTO getQuestionnaireResponseById(@Param("id") Integer id);
 
 }
