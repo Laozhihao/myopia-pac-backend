@@ -1,25 +1,20 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Alix
