@@ -722,7 +722,8 @@ public class ScreeningPlanController {
         if (!CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
             //是否有筛查计划
             ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()));
+                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()),
+                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
             if (Objects.nonNull(student)) {
                 return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
             }

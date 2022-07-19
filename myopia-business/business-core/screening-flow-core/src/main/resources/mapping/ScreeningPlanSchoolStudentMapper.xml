@@ -584,9 +584,12 @@
             resultType="com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent">
         SELECT spss.* FROM m_screening_plan_school_student spss
         LEFT JOIN m_screening_plan sp ON sp.id = spss.screening_plan_id
-        WHERE sp.screening_type = #{screeningType}
+        WHERE sp.screening_type = #{screeningType} and spss.student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" separator="," close=")">
+            #{studentId}
+        </foreach>
         AND sp.id in
-        <foreach collection="studentIds" item="id" index="index" open="(" separator="," close=")">
+        <foreach collection="planId" item="id" index="index" open="(" separator="," close=")">
             #{id}
         </foreach>
         ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
