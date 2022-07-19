@@ -290,4 +290,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
     }
+
+    /**
+     * 通过学校标识并指定筛查类型获取信息
+     * @param schoolId
+     * @param screeningType
+     * @return
+     */
+    public ScreeningPlanSchool getLastBySchoolIdAndScreeningType(Integer schoolId, Integer screeningType) {
+        return baseMapper.getLastBySchoolIdAndScreeningType(schoolId, screeningType);
+    }
+
 }

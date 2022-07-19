@@ -718,5 +718,17 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return schoolList.stream().collect(Collectors.toMap(School::getId,School::getDistrictId));
     }
 
+    /**
+     * 通过姓名与证件号并指定筛查类型获取信息
+     *
+     * @param credentialNo
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getLastByCredentialNoAndStudentName(String credentialNo, String studentName) {
+        return baseMapper.getLastByCredentialNoAndStudentName(credentialNo, studentName);
+    }
 
+    public ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds(Integer type, List<Integer> planId, List<Integer> studentId) {
+        return baseMapper.getLastByCredentialNoAndStudentIds(type, planId, studentId);
+    }
 }

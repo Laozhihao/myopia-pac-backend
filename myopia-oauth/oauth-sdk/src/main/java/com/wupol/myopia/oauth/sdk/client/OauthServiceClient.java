@@ -1,8 +1,9 @@
 package com.wupol.myopia.oauth.sdk.client;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.base.config.feign.BusinessServiceCustomDecoder;
+import com.wupol.myopia.base.config.feign.BusinessServiceFeignConfig;
 import com.wupol.myopia.base.domain.UserRequest;
-import com.wupol.myopia.oauth.sdk.config.OauthServiceFeignConfig;
 import com.wupol.myopia.oauth.sdk.domain.request.PermissionDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.RoleDTO;
 import com.wupol.myopia.oauth.sdk.domain.request.RolePermissionDTO;
@@ -18,7 +19,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/11
  **/
-@FeignClient(name = "myopia-oauth", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = OauthServiceFeignConfig.class)
+@FeignClient(name = "myopia-oauth", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = BusinessServiceFeignConfig.class)
 public interface OauthServiceClient {
 
     /**

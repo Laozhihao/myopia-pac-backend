@@ -26,7 +26,7 @@ CREATE TABLE `q_question`
     `options`                json         not null comment '问题的答案选项',
     `same_question_group_id` varchar(128) null comment '相同问题uuid',
     `serial_number`          varchar(15)           default null comment '问题的序号',
-    `pid`                    int          not null comment '父ID，没有上级为-1',
+    `pid`                    int          null comment '父ID，没有上级为-1',
     `icon_name`              varchar(16)  null comment '图标信息',
     `create_time`            timestamp    not null default CURRENT_TIMESTAMP comment '创建时间',
     `update_time`            timestamp    not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
