@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Log4j2
-public class ManagerQuestionnaireService {
+public class QuestionnaireManagerService {
     @Autowired
     private ScreeningTaskService screeningTaskService;
 

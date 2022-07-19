@@ -7,10 +7,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.service.ManagerQuestionnaireService;
-import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.api.management.service.QuestionnaireManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -32,9 +29,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/management/questionnaire")
 @Slf4j
-public class ManagerQuestionnaireController {
+public class QuestionnaireManagerController {
     @Autowired
-    private ManagerQuestionnaireService managerQuestionnaireService;
+    private QuestionnaireManagerService questionnaireManagerService;
 
     /**
      * 获得当前登录人的筛查任务
@@ -44,7 +41,7 @@ public class ManagerQuestionnaireController {
     @GetMapping("/task")
     public List<QuestionTaskVO> getQuestionTask() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return managerQuestionnaireService.getQuestionTaskByUnitId(user);
+        return questionnaireManagerService.getQuestionTaskByUnitId(user);
     }
 
     /**
@@ -55,7 +52,7 @@ public class ManagerQuestionnaireController {
     @GetMapping("/areas")
     public QuestionAreaDTO getQuestionTaskAreas(Integer taskId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return managerQuestionnaireService.getQuestionTaskAreas(taskId, user);
+        return questionnaireManagerService.getQuestionTaskAreas(taskId, user);
     }
 
     /**
@@ -65,7 +62,7 @@ public class ManagerQuestionnaireController {
      */
     @GetMapping("/school")
     public QuestionSchoolVO getQuestionSchool(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
-        return managerQuestionnaireService.getQuestionSchool(taskId, areaId);
+        return questionnaireManagerService.getQuestionSchool(taskId, areaId);
     }
 
     /**
@@ -75,7 +72,7 @@ public class ManagerQuestionnaireController {
      */
     @GetMapping("/backlog")
     public List<QuestionBacklogVO> getQuestionBacklog(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
-        return managerQuestionnaireService.getQuestionBacklog(taskId, areaId);
+        return questionnaireManagerService.getQuestionBacklog(taskId, areaId);
     }
 
 
@@ -86,7 +83,7 @@ public class ManagerQuestionnaireController {
      */
     @GetMapping("/schools/list")
     public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
-        return managerQuestionnaireService.getQuestionSchoolList(questionSearchDTO);
+        return questionnaireManagerService.getQuestionSchoolList(questionSearchDTO);
     }
 
     /**
@@ -96,6 +93,6 @@ public class ManagerQuestionnaireController {
      */
     @GetMapping("/backlog/list")
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
-        return managerQuestionnaireService.getQuestionBacklogList(questionSearchDTO);
+        return questionnaireManagerService.getQuestionBacklogList(questionSearchDTO);
     }
 }
