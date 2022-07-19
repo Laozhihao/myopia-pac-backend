@@ -47,6 +47,10 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class QuestionnaireManagementService {
+    private static final String ID = "\"id\":";
+
+    private static final String ID_REGX = "\"id\":(.*?),";
+
     @Autowired
     private ScreeningTaskService screeningTaskService;
 
@@ -107,10 +111,7 @@ public class QuestionnaireManagementService {
                 return taskItem;
             }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
             return questionTaskVO;
-        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).map(item -> {
-            item.setAnnual(item.getAnnual() + "年度");
-            return item;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).peek(item -> item.setAnnual(item.getAnnual() + "年度")).collect(Collectors.toList());
     }
 
     public QuestionAreaDTO getQuestionTaskAreas(Integer taskId, CurrentUser user) {
@@ -133,7 +134,7 @@ public class QuestionnaireManagementService {
             }
             if (!user.isPlatformAdminUser()) {
                 District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
-                if (JSON.toJSONString(questionAreaDTO.getDistricts()).contains("\"id\":" + parentDistrict.getId())) {
+                if (JSON.toJSONString(questionAreaDTO.getDistricts()).contains(ID + parentDistrict.getId())) {
                     questionAreaDTO.setDefaultAreaId(parentDistrict.getId());
                     questionAreaDTO.setDefaultAreaName(parentDistrict.getName());
                 }
@@ -476,6 +477,6 @@ public class QuestionnaireManagementService {
                 baseDistricts = districtService.filterDistrictTree(childDistrictTree, districts);
             }
         }
-        return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), "\"id\":(.*?),"));
+        return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), ID_REGX));
     }
 }
