@@ -13,6 +13,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -341,21 +342,20 @@ public class QuestionnaireManagementService {
     }
 
     /**
-     * 获得问卷完成学校的个数
+     * 获得问卷完成学校的状态
      *
      * @return
      * @throws IOException
      */
     private Integer getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
         if (plan.getEndTime().getTime() <= System.currentTimeMillis()) {
-            return 2;
+            return QuestionnaireStatusEnum.FINISH.getCode();
         } else if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
-            return 0;
-
+            return QuestionnaireStatusEnum.NOT_START.getCode();
         } else if (!userRecordToStudentEnvironmentMap.get(schoolId).isEmpty()) {
-            return 1;
+            return QuestionnaireStatusEnum.IN_PROGRESS.getCode();
         }
-        return 1;
+        return QuestionnaireStatusEnum.IN_PROGRESS.getCode();
     }
 
 
@@ -427,7 +427,7 @@ public class QuestionnaireManagementService {
         return userQuestionRecordService.count(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getSchoolId, schoolId)
                 .in(!CollectionUtils.isEmpty(types), UserQuestionRecord::getQuestionnaireType, types)
-                .eq(UserQuestionRecord::getStatus, 2)
+                .eq(UserQuestionRecord::getStatus, QuestionnaireStatusEnum.FINISH.getCode())
                 .eq(UserQuestionRecord::getTaskId, taskId)
         );
     }
@@ -446,7 +446,7 @@ public class QuestionnaireManagementService {
         return userQuestionRecordService.count(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getQuestionnaireType, type)
                 .in(!CollectionUtils.isEmpty(schoolIds), UserQuestionRecord::getSchoolId, schoolIds)
-                .eq(UserQuestionRecord::getStatus, 2)
+                .eq(UserQuestionRecord::getStatus, QuestionnaireStatusEnum.FINISH.getCode())
                 .eq(UserQuestionRecord::getTaskId, taskId)
         );
     }
