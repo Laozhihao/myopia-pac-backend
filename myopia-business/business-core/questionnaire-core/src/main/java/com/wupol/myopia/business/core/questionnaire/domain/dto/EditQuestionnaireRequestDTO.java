@@ -24,7 +24,7 @@ public class EditQuestionnaireRequestDTO {
     /**
      * 问题详情
      */
-    private List<Detail> details;
+    private List<Detail> detail;
 
 
     /**
@@ -37,7 +37,7 @@ public class EditQuestionnaireRequestDTO {
         /**
          * 问题Id
          */
-        private Integer questionId;
+        private Integer partId;
 
         /**
          * 自定义问题的序号
@@ -57,8 +57,40 @@ public class EditQuestionnaireRequestDTO {
         /**
          * 孩子节点
          */
-        private List<Detail> details;
+        private List<Detail2> questionList;
+    }
 
+    /**
+     * 问题详情
+     */
+    @Getter
+    @Setter
+    public static class Detail2 {
+
+        /**
+         * 问题Id
+         */
+        private Integer id;
+
+        /**
+         * 自定义问题的序号
+         */
+        private String serialNumber;
+
+        /**
+         * 跳转题目
+         */
+        private JumpIdsDO jumpIds;
+
+        /**
+         * 是否必填
+         */
+        private Boolean required;
+
+        /**
+         * 孩子节点
+         */
+        private List<Detail2> questionList;
     }
 
 

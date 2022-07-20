@@ -43,17 +43,40 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         details.forEach(detail -> {
             QuestionnaireQuestion question = new QuestionnaireQuestion();
             question.setQuestionnaireId(questionnaireId);
-            question.setQuestionId(detail.getQuestionId());
+            question.setQuestionId(detail.getPartId());
             question.setPid(pid);
             question.setSerialNumber(detail.getSerialNumber());
             question.setJumpIds(detail.getJumpIds());
             question.setRequired(detail.getRequired());
             question.setSort(1);
             baseMapper.insert(question);
-            List<EditQuestionnaireRequestDTO.Detail> children = detail.getDetails();
+            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getQuestionList();
             if (CollectionUtil.isNotEmpty(children)) {
-                insert(questionnaireId, children, question.getId());
+                insert2(questionnaireId, children, question.getId());
             }
         });
     }
+
+    private void insert2(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail2> details, Integer pid) {
+        if (CollectionUtil.isEmpty(details)) {
+            return;
+        }
+        details.forEach(detail -> {
+            QuestionnaireQuestion question = new QuestionnaireQuestion();
+            question.setQuestionnaireId(questionnaireId);
+            question.setQuestionId(detail.getId());
+            question.setPid(pid);
+            question.setSerialNumber(detail.getSerialNumber());
+            question.setJumpIds(detail.getJumpIds());
+            question.setRequired(detail.getRequired());
+            question.setSort(1);
+            baseMapper.insert(question);
+            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getQuestionList();
+            if (CollectionUtil.isNotEmpty(children)) {
+                insert2(questionnaireId, children, question.getId());
+            }
+        });
+    }
+
+
 }

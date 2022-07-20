@@ -67,7 +67,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         questionnaireQuestionService.deletedByQuestionnaireId(questionnaireId);
-        questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetails(), -1);
+        questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
 
     }
 
