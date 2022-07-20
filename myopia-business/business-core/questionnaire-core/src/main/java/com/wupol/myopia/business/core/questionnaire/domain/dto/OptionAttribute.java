@@ -42,5 +42,10 @@ public class OptionAttribute {
      */
     private Boolean required;
 
+    /**
+     * 记分题目-分值
+     */
+    private Integer scoreValue;
+
 
 }

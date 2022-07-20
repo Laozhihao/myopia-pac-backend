@@ -28,7 +28,12 @@ public class QuestionAttribute {
     private Boolean onlyTitle;
 
     /**
-     * 是否展示
+     * 是否隐藏
      */
     private Boolean isHidden;
+
+    /**
+     * 是否记分题目
+     */
+    private Boolean isScore;
 }
