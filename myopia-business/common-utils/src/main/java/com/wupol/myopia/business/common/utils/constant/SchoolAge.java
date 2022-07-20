@@ -195,6 +195,6 @@ public enum SchoolAge {
      * @return Boolean
      */
     public static Boolean isUniversity(Integer schoolAge) {
-        return PRIMARY.code.equals(schoolAge);
+        return UNIVERSITY.code.equals(schoolAge);
     }
 }
