@@ -79,7 +79,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param districtIdList 行政区域ids
      * @param notificationId 筛查通知id
      */
-    public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList,Integer notificationId) {
-        return baseMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList,notificationId);
+    public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList, Integer notificationId) {
+        return baseMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList, notificationId);
     }
 }

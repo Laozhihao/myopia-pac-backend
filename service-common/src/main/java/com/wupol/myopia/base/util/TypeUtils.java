@@ -1,4 +1,4 @@
-package com.wupol.myopia.oauth.sdk.util;
+package com.wupol.myopia.base.util;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,4 +66,5 @@ public class TypeUtils {
     private static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
         return new ObjectMapper().getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }
+
 }
