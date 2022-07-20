@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.service.QuestionnaireBizService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -32,6 +34,7 @@ public class QuestionnaireController {
 
     @GetMapping("/getStudentQuestionnaire")
     public List<UserQuestionnaireResponseDTO> getStudentQuestionnaire() {
-        return questionnaireBizService.getUserQuestionnaire();
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return questionnaireBizService.getUserQuestionnaire(user);
     }
 }

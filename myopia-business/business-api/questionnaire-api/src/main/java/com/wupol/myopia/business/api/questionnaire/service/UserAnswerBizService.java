@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
@@ -27,9 +28,14 @@ public class UserAnswerBizService {
     @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
 
-    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId) {
+    /**
+     * 保存答案
+     */
+    public void saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
-        userAnswerService.saveUserAnswer(requestDTO, userId);
+        Integer userId = user.getQuestionnaireUserId();
+        Integer questionnaireUserType = user.getQuestionnaireUserType();
+        userAnswerService.saveUserAnswer(requestDTO, userId, questionnaireUserType);
 
         // 如果是完成的话，简单的校验一下
         if (requestDTO.getIsFinish()) {
@@ -37,7 +43,7 @@ public class UserAnswerBizService {
             // 获取问卷中所有必答问题
             List<Integer> allRequiredQuestionId = questions.stream().filter(s -> Objects.equals(s.getRequired(), Boolean.TRUE)).map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
             // 获取用户所有的答案
-            List<UserAnswer> userAnswer = userAnswerService.getByQuestionnaireId(questionnaireId, userId);
+            List<UserAnswer> userAnswer = userAnswerService.getByQuestionnaireIdAndUserType(questionnaireId, userId, questionnaireUserType);
             List<Integer> answerQuestionId = userAnswer.stream().map(UserAnswer::getQuestionId).collect(Collectors.toList());
             if (answerQuestionId.size() < allRequiredQuestionId.size()) {
                 throw new BusinessException("存在必填项没有填写");

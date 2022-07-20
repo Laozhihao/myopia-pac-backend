@@ -1,9 +1,11 @@
 package com.wupol.myopia.base.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
@@ -125,6 +127,17 @@ public class CurrentUser {
     @JsonIgnore
     public boolean isQuestionnaireStudentUser() {
         return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_STUDENT.getType());
+    }
+
+    @JsonIgnore
+    public Integer getQuestionnaireUserType() {
+        if (isQuestionnaireSchoolUser()) {
+            return QuestionnaireUserType.SCHOOL.getType();
+        }
+        if (isQuestionnaireStudentUser()) {
+            return QuestionnaireUserType.STUDENT.getType();
+        }
+        throw new BusinessException("获取用户类型异常");
     }
 
 }

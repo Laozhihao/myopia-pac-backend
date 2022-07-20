@@ -49,6 +49,11 @@ public class UserAnswer implements Serializable {
     private Integer questionId;
 
     /**
+     * 用户类型 0-学生 1-学校
+     */
+    private Integer userType;
+
+    /**
      * 问题标题
      */
     private String questionTitle;

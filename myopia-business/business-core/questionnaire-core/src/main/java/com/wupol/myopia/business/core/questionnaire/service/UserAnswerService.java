@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
@@ -24,10 +26,10 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireId(questionnaireId, userId);
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
@@ -44,16 +46,16 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * @param userId     用户Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId) {
+    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer userType) {
 
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
         // 先简单处理（最后提交的最新，即最新提交的会覆盖）
-        Map<Integer, Integer> questionMap = getByQuestionnaireId(questionnaireId, userId)
+        Map<Integer, Integer> questionMap = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType)
                 .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
 
-        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap);
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap, userType);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 
@@ -61,11 +63,17 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * 通过问卷Id、用户Id获取答案
      *
      * @param questionnaireId 问卷Id
+     * @param userType        用户类型
      *
      * @return List<UserAnswer>
      */
-    public List<UserAnswer> getByQuestionnaireId(Integer questionnaireId, Integer userId) {
-        return baseMapper.getByQuestionnaireId(questionnaireId, userId);
+    public List<UserAnswer> getByQuestionnaireIdAndUserType(Integer questionnaireId, Integer userId, Integer userType) {
+
+        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
+                .eq(UserAnswer::getUserId, userId)
+                .eq(UserAnswer::getUserType, userType);
+        return baseMapper.selectList(wrapper);
     }
 
     /**
@@ -78,13 +86,14 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * @return List<UserAnswer>
      */
     private List<UserAnswer> convert2UserAnswer(List<UserAnswerDTO.QuestionDTO> list, Integer questionnaireId,
-                                                Integer userId, Map<Integer, Integer> questionMap) {
+                                                Integer userId, Map<Integer, Integer> questionMap, Integer userType) {
         return list.stream().map(s -> {
             UserAnswer userAnswer = new UserAnswer();
             userAnswer.setId(questionMap.getOrDefault(s.getQuestionId(), null));
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
             userAnswer.setQuestionId(s.getQuestionId());
+            userAnswer.setUserType(userType);
             userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
             return userAnswer;

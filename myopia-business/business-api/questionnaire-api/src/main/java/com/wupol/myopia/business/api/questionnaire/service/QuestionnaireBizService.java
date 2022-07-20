@@ -1,18 +1,22 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,14 +31,22 @@ public class QuestionnaireBizService {
     @Resource
     private QuestionnaireService questionnaireService;
 
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
-    public List<UserQuestionnaireResponseDTO> getUserQuestionnaire() {
 
-        List<QuestionnaireTypeEnum> typeList = new ArrayList<>();
+    public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(CurrentUser user) {
 
-        typeList = QuestionnaireTypeEnum.getPrimaryType();
-        typeList = QuestionnaireTypeEnum.getMiddleType();
-        typeList = QuestionnaireTypeEnum.getUniversityType();
+        if (!user.isQuestionnaireStudentUser()) {
+            // 不是筛查学生用户，则抛出异常
+            throw new BusinessException("请确认身份");
+        }
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(user.getQuestionnaireUserId());
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("获取信息异常");
+        }
+
+        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getBySchoolAge(planStudent.getGradeType());
 
         // 获取今年的问卷
         Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(

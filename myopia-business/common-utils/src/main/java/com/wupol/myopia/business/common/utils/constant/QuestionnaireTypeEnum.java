@@ -3,6 +3,7 @@ package com.wupol.myopia.business.common.utils.constant;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,5 +48,25 @@ public enum QuestionnaireTypeEnum {
 
     public static List<QuestionnaireTypeEnum> getUniversityType() {
         return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
+    }
+
+    /**
+     * 通过学龄段获取报告
+     *
+     * @param gradeType 学龄段
+     *
+     * @return List<QuestionnaireTypeEnum>
+     */
+    public static List<QuestionnaireTypeEnum> getBySchoolAge(Integer gradeType) {
+        if (SchoolAge.isPrimary(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, PRIMARY_SCHOOL);
+        }
+        if (SchoolAge.isMiddleSchool(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, MIDDLE_SCHOOL);
+        }
+        if (SchoolAge.isUniversity(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
+        }
+        return new ArrayList<>();
     }
 }
