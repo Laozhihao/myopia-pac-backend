@@ -90,7 +90,7 @@ public class EditQuestionnaireRequestDTO {
         /**
          * 孩子节点
          */
-        private List<Detail2> questionList;
+        private List<Detail2> children;
     }
 
 

@@ -71,7 +71,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setRequired(detail.getRequired());
             question.setSort(1);
             baseMapper.insert(question);
-            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getQuestionList();
+            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getChildren();
             if (CollectionUtil.isNotEmpty(children)) {
                 insert2(questionnaireId, children, question.getId());
             }
