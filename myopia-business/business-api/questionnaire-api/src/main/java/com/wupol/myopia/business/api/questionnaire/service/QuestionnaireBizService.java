@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
@@ -13,10 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,6 +45,9 @@ public class QuestionnaireBizService {
         }
 
         List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getBySchoolAge(planStudent.getGradeType());
+        if (CollectionUtil.isEmpty(typeList)) {
+            return new ArrayList<>();
+        }
 
         // 获取今年的问卷
         Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(
