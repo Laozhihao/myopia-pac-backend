@@ -1,0 +1,25 @@
+package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
+
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * 导出学生视力不良及脊柱弯曲异常影响因素专项调查表
+ *
+ * @author hang.yuan 2022/7/18 11:24
+ */
+@Service
+public class ExportVisionSpineService  implements QuestionnaireExcel {
+    @Override
+    public Integer getType() {
+        return QuestionnaireTypeEnum.VISION_SPINE.getType();
+    }
+
+    @Override
+    public List<List<String>> getHead() {
+        return null;
+    }
+
+}

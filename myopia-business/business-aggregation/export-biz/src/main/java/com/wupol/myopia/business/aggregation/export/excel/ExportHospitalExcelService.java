@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  *
  * @author Simple4H
  */
-@Service("hospitalExcelService")
+@Service(ExportExcelServiceNameConstant.HOSPITAL_EXCEL_SERVICE)
 public class ExportHospitalExcelService extends BaseExportExcelFileService {
 
     @Resource

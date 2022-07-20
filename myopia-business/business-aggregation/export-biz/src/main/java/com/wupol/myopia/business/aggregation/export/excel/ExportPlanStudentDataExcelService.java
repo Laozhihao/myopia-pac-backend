@@ -83,7 +83,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         Integer notificationId = exportCondition.getNotificationId();
         Boolean isKindergarten = exportCondition.getIsKindergarten();
 
-        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+        if (ExportTypeConst.DISTRICT.equals(exportCondition.getExportType())) {
             Integer districtId = exportCondition.getDistrictId();
             List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
             return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds, isKindergarten);
@@ -183,7 +183,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         }
 
         // 班级、区域维度导出
-        if (ExportTypeConst.CLASS.equals(exportType) || ExportTypeConst.District.equals(exportType)) {
+        if (ExportTypeConst.CLASS.equals(exportType) || ExportTypeConst.DISTRICT.equals(exportType)) {
             return makeExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
         }
         return null;
@@ -242,7 +242,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (ExportTypeConst.CLASS.equals(exportType)) {
             return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName());
         }
-        if (ExportTypeConst.District.equals(exportType)) {
+        if (ExportTypeConst.DISTRICT.equals(exportType)) {
             return String.format(PLAN_STUDENT_FILE_NAME, districtService.getById(districtId).getName());
         }
         return "";
@@ -251,7 +251,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         Integer exportType = exportCondition.getExportType();
-        if (ExportTypeConst.District.equals(exportType)) {
+        if (ExportTypeConst.DISTRICT.equals(exportType)) {
             return;
         }
         ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
@@ -287,7 +287,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (ExportTypeConst.CLASS.equals(exportType)) {
             return String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName());
         }
-        if (ExportTypeConst.District.equals(exportType)) {
+        if (ExportTypeConst.DISTRICT.equals(exportType)) {
             return String.format(PLAN_STUDENT_FILE_NAME, districtService.getById(districtId).getName());
         }
         return "";
@@ -302,7 +302,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public void preProcess(ExportCondition exportCondition) {
         Integer screeningType;
         // 如果是区域筛查导出的，取通知的screeningType
-        if (ExportTypeConst.District.equals(exportCondition.getExportType())) {
+        if (ExportTypeConst.DISTRICT.equals(exportCondition.getExportType())) {
             screeningType = screeningNoticeService.getById(exportCondition.getNotificationId()).getScreeningType();
         } else {
             screeningType = screeningPlanService.getById(exportCondition.getPlanId()).getScreeningType();

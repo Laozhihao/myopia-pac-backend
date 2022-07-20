@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RestController
 @RequestMapping("/management/preschool/check")
-@Slf4j
 public class PreschoolCheckRecordController {
 
     @Autowired

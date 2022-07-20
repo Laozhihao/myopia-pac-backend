@@ -72,4 +72,11 @@ public class ExportCondition {
      * 筛查类型
      */
     private Integer screeningType;
+
+    /**
+     * 问卷类型
+     */
+    private List<Integer> questionnaireType;
+
+
 }

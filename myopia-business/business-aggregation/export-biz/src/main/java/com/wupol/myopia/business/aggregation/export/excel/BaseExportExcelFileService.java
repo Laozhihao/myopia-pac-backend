@@ -137,7 +137,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
      * @return java.lang.String
      **/
     public String getFileSaveParentPath() {
-        return Paths.get(excelSavePath, UUID.randomUUID().toString()).toString();
+        return Paths.get(excelSavePath, getUUID()).toString();
     }
 
     /**

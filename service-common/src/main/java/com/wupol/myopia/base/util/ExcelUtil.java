@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
+import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import com.alibaba.excel.write.handler.SheetWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
@@ -187,4 +188,17 @@ public class ExcelUtil {
         return outputFile;
     }
 
+    /**
+     * 导出excel,表头动态生成
+     * @param fileNamePrefix 文件名前缀
+     * @param data 数据
+     * @param head 表头
+     */
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, List<List<String>> head) throws IOException {
+        File outputFile = getOutputFile(fileNamePrefix);
+        ExcelWriterSheetBuilder writerSheetBuilder = EasyExcelFactory.write(outputFile.getAbsolutePath()).sheet();
+        writerSheetBuilder.head(head);
+        writerSheetBuilder.doWrite(data);
+        return outputFile;
+    }
 }
