@@ -38,17 +38,17 @@ public class UserAnswerBizService {
         userAnswerService.saveUserAnswer(requestDTO, userId, questionnaireUserType);
 
         // 如果是完成的话，简单的校验一下
-        if (requestDTO.getIsFinish()) {
-            List<QuestionnaireQuestion> questions = questionnaireQuestionService.getByQuestionnaireId(questionnaireId);
-            // 获取问卷中所有必答问题
-            List<Integer> allRequiredQuestionId = questions.stream().filter(s -> Objects.equals(s.getRequired(), Boolean.TRUE)).map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
-            // 获取用户所有的答案
-            List<UserAnswer> userAnswer = userAnswerService.getByQuestionnaireIdAndUserType(questionnaireId, userId, questionnaireUserType);
-            List<Integer> answerQuestionId = userAnswer.stream().map(UserAnswer::getQuestionId).collect(Collectors.toList());
-            if (answerQuestionId.size() < allRequiredQuestionId.size()) {
-                throw new BusinessException("存在必填项没有填写");
-            }
-        }
+//        if (requestDTO.getIsFinish()) {
+//            List<QuestionnaireQuestion> questions = questionnaireQuestionService.getByQuestionnaireId(questionnaireId);
+//            // 获取问卷中所有必答问题
+//            List<Integer> allRequiredQuestionId = questions.stream().filter(s -> Objects.equals(s.getRequired(), Boolean.TRUE)).map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+//            // 获取用户所有的答案
+//            List<UserAnswer> userAnswer = userAnswerService.getByQuestionnaireIdAndUserType(questionnaireId, userId, questionnaireUserType);
+//            List<Integer> answerQuestionId = userAnswer.stream().map(UserAnswer::getQuestionId).collect(Collectors.toList());
+//            if (answerQuestionId.size() < allRequiredQuestionId.size()) {
+//                throw new BusinessException("存在必填项没有填写");
+//            }
+//        }
 
     }
 }

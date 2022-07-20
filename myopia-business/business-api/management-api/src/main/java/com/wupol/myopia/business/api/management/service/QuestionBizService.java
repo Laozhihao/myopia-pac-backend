@@ -18,6 +18,11 @@ public class QuestionBizService {
     @Resource
     private QuestionService questionService;
 
+    /**
+     * 保存问题
+     *
+     * @param question 问题
+     */
     @Transactional(rollbackFor = Exception.class)
     public void saveQuestion(Question question) {
         //TODO: 选项Id唯一判断
