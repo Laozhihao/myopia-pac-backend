@@ -50,33 +50,11 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setRequired(detail.getRequired());
             question.setSort(1);
             baseMapper.insert(question);
-            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getQuestionList();
-            if (CollectionUtil.isNotEmpty(children)) {
-                insert2(questionnaireId, children, question.getId());
+            List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
+            if (CollectionUtil.isNotEmpty(questionList)) {
+                insert(questionnaireId, questionList, question.getId());
             }
         });
     }
-
-    private void insert2(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail2> details, Integer pid) {
-        if (CollectionUtil.isEmpty(details)) {
-            return;
-        }
-        details.forEach(detail -> {
-            QuestionnaireQuestion question = new QuestionnaireQuestion();
-            question.setQuestionnaireId(questionnaireId);
-            question.setQuestionId(detail.getId());
-            question.setPid(pid);
-            question.setSerialNumber(detail.getSerialNumber());
-            question.setJumpIds(detail.getJumpIds());
-            question.setRequired(detail.getRequired());
-            question.setSort(1);
-            baseMapper.insert(question);
-            List<EditQuestionnaireRequestDTO.Detail2> children = detail.getChildren();
-            if (CollectionUtil.isNotEmpty(children)) {
-                insert2(questionnaireId, children, question.getId());
-            }
-        });
-    }
-
 
 }
