@@ -108,6 +108,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 Question question = questionMap.get(it.getQuestionId());
                 QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
                 questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
+                questionnaireInfoDTO.setPid(it.getPid());
                 List<QuestionResponse> questionList = Lists.newArrayList();
                 //构建此模块下的所有问题
                 questionnaireQuestions.forEach(child -> {
@@ -144,6 +145,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
                 childQuestionResponse.setRequired(it.getRequired());
                 childQuestionResponse.setSerialNumber(it.getSerialNumber());
+                childQuestionResponse.setPid(it.getPid());
                 setJumpIds(childQuestionResponse, jumpIds);
                 List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
