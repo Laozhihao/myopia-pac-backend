@@ -144,9 +144,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 childQuestionResponse.setRequired(it.getRequired());
                 childQuestionResponse.setSerialNumber(it.getSerialNumber());
                 setJumpIds(childQuestionResponse, jumpIds);
-                List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getChildren()) ? questionResponse.getChildren() : new ArrayList<>();
+                List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
-                questionResponse.setChildren(questionResponses);
+                questionResponse.setQuestionList(questionResponses);
                 buildQuestion(childQuestionResponse,it.getId(),childQuestion,questionMap);
             }
         });

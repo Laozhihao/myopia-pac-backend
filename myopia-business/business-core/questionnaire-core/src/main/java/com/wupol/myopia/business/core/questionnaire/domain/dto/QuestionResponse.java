@@ -21,5 +21,5 @@ public class QuestionResponse extends Question implements Serializable {
     private Boolean required;
 
 
-    private List<QuestionResponse> children;
+    private List<QuestionResponse> questionList;
 }
