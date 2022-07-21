@@ -1,11 +1,20 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 题库管理
@@ -25,7 +34,67 @@ public class QuestionBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveQuestion(Question question) {
-        //TODO: 选项Id唯一判断
+
+        // 判断问题是否已经存在
+        Question questionByTitle = questionService.getQuestionByTitle(question.getTitle());
+        if (Objects.nonNull(questionByTitle)) {
+            throw new BusinessException("该问题已经存在");
+        }
+
+        //选项Id唯一判断
+        List<String> optionIdsByQuestion = getOptionIdByQuestion(question);
+        // 集合的交集
+        Collection<String> intersection = CollectionUtil.intersection(optionIdsByQuestion, getAllOptionIds());
+        if (CollectionUtil.isNotEmpty(intersection)) {
+            throw new BusinessException("新问题的选项Id与已有问题的选项Id重复");
+        }
         questionService.save(question);
+    }
+
+    /**
+     * 获取问题的所有选项Id
+     *
+     * @return 选项Id
+     */
+    private List<String> getAllOptionIds() {
+        List<String> addIds = new ArrayList<>();
+        List<Question> allQuestion = questionService.getAllQuestion();
+        allQuestion.forEach(question -> {
+            addIds.addAll(getOptionIdByQuestion(question));
+        });
+        checkDuplicate(addIds);
+        return addIds;
+    }
+
+    private List<String> getOptionIdByQuestion(Question question) {
+        // 获取问题下选项的Id
+        // 获取选项的Id
+        List<Option> options = JSONObject.parseArray(JSONObject.toJSONString(question.getOptions()), Option.class);
+        List<String> optionIds = options.stream().map(Option::getId).collect(Collectors.toList());
+
+        // 获取选项的填空option
+        List<String> ids = options.stream().map(s -> {
+            JSONObject option = s.getOption();
+            if (Objects.nonNull(option)) {
+                return option.getString("id");
+            } else {
+                return StringUtils.EMPTY;
+            }
+        }).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+
+        // 合并两个list
+        return Lists.newArrayList(Iterables.concat(ids, optionIds));
+    }
+
+    /**
+     * 检查是否重复
+     *
+     * @param ids 选项Id
+     */
+    private void checkDuplicate(List<String> ids) {
+        HashSet<String> setIds = new HashSet<>(ids);
+        if (ids.size() > setIds.size()) {
+            throw new BusinessException("选项Id重复");
+        }
     }
 }
