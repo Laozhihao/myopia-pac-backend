@@ -72,9 +72,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream().filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid()).sorted(Comparator.comparing(QuestionnaireQuestion::getSort)).collect(Collectors.toList());
             partLists.forEach(it -> {
                 Question question = questionMap.get(it.getQuestionId());
-                QuestionnaireInfoDTO questionnaireInfoDTO = QuestionnaireInfoDTO.builder()
-                        .partName(question.getTitle())
-                        .partId(question.getId()).build();
+                QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
                 List<QuestionResponse> questionList = Lists.newArrayList();
                 //构建此模块下的所有问题
                 questionnaireQuestions.forEach(child -> {

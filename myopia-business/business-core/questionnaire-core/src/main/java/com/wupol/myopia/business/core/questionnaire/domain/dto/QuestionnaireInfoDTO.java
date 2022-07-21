@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,18 +17,9 @@ import java.util.List;
  */
 @Data
 @Builder
-public class QuestionnaireInfoDTO implements Serializable {
-
-    /**
-     * 父模块名称
-     */
-    private String partName;
-
-    /**
-     * 父模块Id
-     */
-    private Integer partId;
-
+@AllArgsConstructor
+@NoArgsConstructor
+public class QuestionnaireInfoDTO extends Question implements Serializable {
     /**
      * 子模块问题数组
      */
