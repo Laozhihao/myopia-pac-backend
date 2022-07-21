@@ -32,4 +32,11 @@ public interface BusinessServiceClient {
     @GetMapping("/management/screeningPlan/school/")
     QuestionnaireUser getSchool(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password);
 
+    /**
+     * 获取政府信息
+     * @param orgId
+     * @return
+     */
+    @GetMapping("/management/screeningPlan/government/")
+    QuestionnaireUser checkGovernmentLogin(@RequestParam("orgId") Integer orgId);
 }

@@ -723,4 +723,17 @@ public class ScreeningPlanController {
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
         return this.screeningPlanService.getSchoolBySchoolNo(schoolNo,password);
     }
+
+
+
+    /**
+     * 校验政府是否能够登录问卷系统
+     *
+     * @param orgId
+     * @return
+     */
+    @GetMapping("/government")
+    public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
+        return this.screeningPlanService.checkGovernmentLogin(orgId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -20,10 +21,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.AuthConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +46,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
 
     /**
      * 更新筛查学生数量
@@ -258,7 +258,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
     }
@@ -278,11 +278,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param deptId
      */
-    public Set<Integer> getCurrentPlanIds(Integer deptId,Integer channel) {
+    public Set<Integer> getCurrentPlanIds(Integer deptId, Integer channel) {
         List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                .in(!planIds.isEmpty(),ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
@@ -412,14 +412,29 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 校验学校密码
+     *
      * @param password
      * @param schoolNo
      * @return
      */
-    public School checkPassword(String password,String schoolNo){
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD,password)) {
+    public School checkPassword(String password, String schoolNo) {
+        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
             return null;
         }
         return schoolService.getBySchoolNo(schoolNo);
+    }
+
+    /**
+     * 检测政府是否有筛查计划
+     * @param orgId
+     * @return
+     */
+    public ApiResult checkGovernmentLogin(Integer orgId) {
+        List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().eq(ScreeningTask::getGovDeptId, orgId)
+                .eq(ScreeningTask::getScreeningType,ScreeningTypeEnum.COMMON_DISEASE.getType()));
+        if (CollectionUtil.isNotEmpty(screeningTasks)) {
+            return ApiResult.success();
+        }
+        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
     }
 }

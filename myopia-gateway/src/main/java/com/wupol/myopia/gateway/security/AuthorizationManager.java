@@ -75,7 +75,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) || SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode)) {
             return Mono.just(new AuthorizationDecision(true));
         }
-        // 问卷系统 若访问路径不是问卷系统的，不给访问权限 TODO：等后面系统迭代中，有了维护各个端的接口资源权限地方，再打开
+        // 问卷系统 若访问路径不是问卷系统的，不给访问权限
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
             if (pathMatcher.match(QUESTIONNAIRE_REQUEST_MAPPING_REGEX, path)) {
                 return Mono.just(new AuthorizationDecision(true));
