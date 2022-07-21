@@ -2,7 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,9 +18,8 @@ public interface QuestionnaireExcel {
      * @param exportCondition 导出条件
      * @return 文件
      */
-    default File generateExcelFile(ExportCondition exportCondition) {
+    default void generateExcelFile(ExportCondition exportCondition) throws IOException {
 
-        return null;
     }
 
 
@@ -36,7 +35,7 @@ public interface QuestionnaireExcel {
      *
      * @return 表头信息
      */
-    List<List<String>> getHead();
+    List<List<String>> getHead(Integer questionnaireId);
 
 
     /**

@@ -54,34 +54,24 @@ public class QuestionnaireManagementService {
 
     @Autowired
     private ScreeningTaskService screeningTaskService;
-
     @Autowired
     private DistrictBizService districtBizService;
-
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
-
     @Autowired
     private SchoolBizService schoolBizService;
-
     @Autowired
     private DistrictService districtService;
-
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-
     @Autowired
     private SchoolService schoolService;
 
@@ -132,7 +122,7 @@ public class QuestionnaireManagementService {
             //查看该通知所有筛查学校的层级的 地区树
             List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(screeningPlans)) {
-                List<UserQuestionRecord> quests = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>().in(UserQuestionRecord::getPlanId, screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())));
+                List<UserQuestionRecord> quests = userQuestionRecordService.getListByPlanIds(Lists.newArrayList(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())));
                 Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
                 if (!CollectionUtils.isEmpty(districts)) {
                     questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
@@ -532,5 +522,45 @@ public class QuestionnaireManagementService {
             }
         }
         return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), ID_REGEX));
+    }
+
+    /**
+     * 获取有问卷数据的学校
+     *
+     * @param screeningPlanId 筛查计划ID
+     */
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId) {
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            return schoolList.stream().map(school -> new QuestionnaireDataSchoolVO(school.getId(),school.getName())).collect(Collectors.toList());
+        }
+        return Lists.newArrayList();
+    }
+
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType) {
+        QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
+        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(questionnaireTypeEnum -> new QuestionnaireTypeVO.QuestionnaireType(questionnaireTypeEnum.getType(), questionnaireTypeEnum.getDesc())).collect(Collectors.toList());
+        questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
+            List<Integer> typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).collect(Collectors.toList());
+            typeList.removeAll(questionnaireTypes);
+            questionnaireTypeVO.setNoDataList(typeList);
+        }
+        questionnaireTypeVO.setSelectList(Lists.newArrayList(12));
+        switch (exportType){
+            case 11:
+            case 13:
+            case 14:
+            case 15:
+                questionnaireTypeVO.setSelectList(Lists.newArrayList(12));
+                break;
+            default:
+                break;
+        }
+        return questionnaireTypeVO;
     }
 }

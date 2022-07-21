@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
  *
  * @author Simple4H
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 public class QuestionAttribute {

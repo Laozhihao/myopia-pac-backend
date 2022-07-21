@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain;
 
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import lombok.Data;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class ExportQuestionnaireDTO {
     private Integer schoolId;
     /**
      * 问卷类型
+     * {@link QuestionnaireTypeEnum}
      */
     private List<Integer> questionnaireType;
 
@@ -34,4 +36,9 @@ public class ExportQuestionnaireDTO {
      * {@link ExportTypeConst}
      */
     private Integer exportType;
+
+    /**
+     * 筛查机构ID
+     **/
+    private Integer screeningOrgId;
 }

@@ -2,6 +2,9 @@ package com.wupol.myopia.business.common.utils.constant;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * 问卷类型Enum
  *
@@ -32,5 +35,12 @@ public enum QuestionnaireTypeEnum {
     QuestionnaireTypeEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
+    }
+
+    public static QuestionnaireTypeEnum getQuestionnaireType(Integer type){
+        return Arrays.stream(values())
+                .filter(item -> Objects.equals(item.getType(),type))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -19,7 +19,7 @@ public class QuestionnaireInfoBO {
     /**
      * 问卷名称
      */
-    private Integer questionnaireName;
+    private String questionnaireName;
 
     /**
      * 题目
@@ -35,11 +35,11 @@ public class QuestionnaireInfoBO {
         /**
          * 问题名称
          */
-        private Integer questionName;
+        private String questionName;
         /**
          * 问题的序号
          */
-        private Integer questionSerialNumber;
+        private String questionSerialNumber;
 
         /**
          * 子问题
