@@ -80,5 +80,8 @@ public class RecordDetails {
      */
     private String rescreenRatio;
 
-
+    /**
+     * 问卷数据
+     */
+    private String questionnaire;
 }

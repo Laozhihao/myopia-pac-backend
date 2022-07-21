@@ -2,12 +2,16 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
@@ -19,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +44,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     private VisionScreeningResultService visionScreeningResultService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
 
     /**
      * 根据学校ID获取筛查计划的学校
@@ -53,18 +61,18 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 查询计划的学校
      *
      * @param screeningPlanId 计划ID
-     * @param schoolId 学校ID
+     * @param schoolId        学校ID
      * @return ScreeningPlanSchool
      */
     public ScreeningPlanSchool getOneByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId,schoolId);
+        return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
      * 批量更新或新增筛查计划的学校信息
      *
-     * @param screeningPlanId 计划ID
-     * @param screeningOrgId 机构ID
+     * @param screeningPlanId  计划ID
+     * @param screeningOrgId   机构ID
      * @param screeningSchools 筛查计划关联的学校
      */
     public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
@@ -79,7 +87,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     /**
      * 批量更新或新增筛查计划的学校信息
      *
-     * @param screeningPlanId 筛查计划
+     * @param screeningPlanId  筛查计划
      * @param screeningSchools 筛查计划关联的学校
      */
     public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
@@ -104,27 +112,57 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 通过筛查计划ID获取所有关联的学校vo信息
      *
      * @param screeningPlanId 筛查计划ID
-     * @param schoolName 学校名称
+     * @param schoolName      学校名称
      * @return List<ScreeningPlanSchoolDTO>
      */
     public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
-        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
+        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId, schoolName);
         ScreeningPlan screeningPlans = new ScreeningPlan();
         screeningPlans.setId(screeningPlanId);
         ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
+        Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
+                .eq(UserQuestionRecord::getPlanId, screeningPlanId)
+                .notIn(UserQuestionRecord::getQuestionnaireType, Arrays.asList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()))
+        ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+
         // TODO：不在循环内查询数据库
         screeningPlanSchools.forEach(vo -> {
             vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
             vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount());
+            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(), vo.getStudentCount());
             vo.setScreeningProportion(num.equals(BigDecimal.ZERO) ? "0.00%" : num.toString() + "%");
             vo.setScreeningSituation(findSituation(vo.getSchoolId(), screeningPlan));
-            vo.setQuestionnaireStudentCount(0);
-            vo.setQuestionnaireProportion("0.00%");
-            vo.setQuestionnaireSituation(ScreeningPlanSchool.NOT_START);
+            // 完成数
+            // 总数占比
+            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
+                    .isEmpty(schoolMap.get(vo.getSchoolId())) ? new HashMap<>() : schoolMap.get(vo.getSchoolId()).stream().collect(Collectors.groupingBy(UserQuestionRecord::getUserId));
+            vo.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
+            if (vo.getStudentCount() == 0) {
+                vo.setScreeningProportion("0.00%");
+            } else {
+                vo.setQuestionnaireProportion(new DecimalFormat("0.00").format((vo.getQuestionnaireStudentCount() / (float) vo.getStudentCount()) * 100) + "%");
+            }
+            vo.setQuestionnaireSituation(getCountBySchool(screeningPlan, vo.getSchoolId(), schoolMap));
         });
         return screeningPlanSchools;
+    }
+
+    /**
+     * 获得问卷完成学校的状态
+     *
+     * @return
+     * @throws IOException
+     */
+    private String getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
+        if (plan.getEndTime().getTime() <= System.currentTimeMillis()) {
+            return ScreeningPlanSchool.END;
+        } else if (org.springframework.util.CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
+            return ScreeningPlanSchool.NOT_START;
+        } else if (!userRecordToStudentEnvironmentMap.get(schoolId).isEmpty()) {
+            return ScreeningPlanSchool.IN_PROGRESS;
+        }
+        return ScreeningPlanSchool.IN_PROGRESS;
     }
 
     public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {

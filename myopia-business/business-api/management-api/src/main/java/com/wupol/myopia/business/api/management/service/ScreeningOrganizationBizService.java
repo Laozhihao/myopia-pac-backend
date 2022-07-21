@@ -1,12 +1,14 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -21,6 +23,8 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.RecordDetails;
@@ -43,6 +47,7 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -104,6 +111,9 @@ public class ScreeningOrganizationBizService {
 
     @Autowired
     private StatConclusionService statConclusionService;
+
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
 
     /**
      * 保存筛查机构
@@ -219,7 +229,10 @@ public class ScreeningOrganizationBizService {
         } else {
             rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         }
-
+        Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
+                .eq(UserQuestionRecord::getPlanId, planId)
+                .notIn(UserQuestionRecord::getQuestionnaireType, Arrays.asList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()))
+        ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
         // 封装DTO
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
@@ -233,10 +246,18 @@ public class ScreeningOrganizationBizService {
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());
             detail.setPlanTitle(planResponse.getTitle());
+
+            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = com.alibaba.excel.util.CollectionUtils
+                    .isEmpty(schoolMap.get(schoolId)) ? new HashMap<>() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getUserId));
+
+            if (detail.getPlanScreeningNumbers() == 0) {
+                detail.setQuestionnaire("0,0.00%");
+            } else {
+                detail.setQuestionnaire(schoolStudentMap.keySet().size() + "," + new DecimalFormat("0.00").format((schoolStudentMap.keySet().size() / (float) detail.getPlanScreeningNumbers()) * 100) + "%");
+            }
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
             detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
-
             detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
             detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
             detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
@@ -245,6 +266,7 @@ public class ScreeningOrganizationBizService {
         response.setDetails(details);
         planResponse.setItems(response);
     }
+
 
     /**
      * 更新筛查机构

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.alibaba.excel.util.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -155,31 +156,57 @@ public class ScreeningTaskOrgBizService {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
             dto.setName(screeningOrgNameMap.getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
-            // TODO：调查问卷暂时为0
-            dto.setQuestionnaire(getScreeningState(0,0,0,1));
+            List<ScreeningPlanSchool> orgSchools = planSchoolList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toList());
+            Set<Integer> schoolIds = orgSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+            Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
+            Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
+
+            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, screeningTaskId, orgSchoolsMap, planMap));
             // TODO：差评，开发调查问卷模块时，优化该模块：学校进度统计仅返回数量，不拼接文字，减少与展示样式的耦合
             ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
-            if (screeningPlan == null){
-                return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0,0,0,0));
+            if (screeningPlan == null) {
+                return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
             }
-            int total =  Optional.ofNullable(planSchoolCountMap.get(screeningPlan.getId())).map(Long::intValue).orElse(0);
+            int total = Optional.ofNullable(planSchoolCountMap.get(screeningPlan.getId())).map(Long::intValue).orElse(0);
             return dto.setScreeningSchoolNum(total)
                     .setScreeningSituation(findByScreeningSituation(total, Optional.ofNullable(schoolCountMap.get(screeningPlan.getId())).orElse(0), screeningPlan.getEndTime()));
         }).collect(Collectors.toList());
     }
 
-    private String findByScreeningSituation(int total, int screeningCount, Date screeningEndTime) {
-        if (DateUtil.betweenDay(screeningEndTime, new Date()) > 0){
-            return getScreeningState(0,0, total,0);
+    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
+        if (schoolIds.isEmpty()) {
+            return getScreeningState(0, 0, 0, 1);
         }
-        return getScreeningState(total - screeningCount, screeningCount, 0,0);
+        // 学生总数
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentCountMaps = screeningPlanSchoolStudentService.list(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
+                .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
+                .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
+        ).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
+        int end = schoolIds.stream().map(item -> {
+            ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
+            if (Objects.isNull(studentCountMaps.get(item))) {
+                return 0;
+            }
+            if (plan.getEndTime().getTime() <= System.currentTimeMillis()) {
+                return 1;
+            }
+            return 0;
+        }).collect(Collectors.toList()).stream().mapToInt(item -> item).sum();
+        return getScreeningState(schoolIds.size() - end, 0, end, 1);
     }
 
-    private String getScreeningState(int notStart,int underWay,int end,int type){
-        if (type==0){
-            return "未开始/进行中/已结束："+notStart+"/"+underWay+"/"+end;
+    private String findByScreeningSituation(int total, int screeningCount, Date screeningEndTime) {
+        if (DateUtil.betweenDay(screeningEndTime, new Date()) > 0) {
+            return getScreeningState(0, 0, total, 0);
         }
-        return "未开始/已结束："+notStart+"/"+end;
+        return getScreeningState(total - screeningCount, screeningCount, 0, 0);
+    }
+
+    private String getScreeningState(int notStart, int underWay, int end, int type) {
+        if (type == 0) {
+            return "未开始/进行中/已结束：" + notStart + "/" + underWay + "/" + end;
+        }
+        return "未开始/已结束：" + notStart + "/" + end;
     }
 
     /**
