@@ -43,7 +43,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         details.forEach(detail -> {
             QuestionnaireQuestion question = new QuestionnaireQuestion();
             question.setQuestionnaireId(questionnaireId);
-            question.setQuestionId(detail.getPartId());
+            question.setQuestionId(detail.getId());
             question.setPid(pid);
             question.setSerialNumber(detail.getSerialNumber());
             question.setJumpIds(detail.getJumpIds());

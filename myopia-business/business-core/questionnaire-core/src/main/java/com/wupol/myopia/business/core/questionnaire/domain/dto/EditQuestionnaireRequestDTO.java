@@ -37,7 +37,7 @@ public class EditQuestionnaireRequestDTO {
         /**
          * 问题Id
          */
-        private Integer partId;
+        private Integer id;
 
         /**
          * 自定义问题的序号
