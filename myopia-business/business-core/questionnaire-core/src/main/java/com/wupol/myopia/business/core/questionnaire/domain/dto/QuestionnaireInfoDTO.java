@@ -20,6 +20,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionnaireInfoDTO extends Question implements Serializable {
+
+    /**
+     * 扩展id（中间表）
+     */
+    private Integer exId;
+
+    /**
+     * 扩展Pid（中间表）
+     */
+    private Integer exPid;
+
     /**
      * 子模块问题数组
      */

@@ -20,6 +20,16 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private Boolean required;
 
+    /**
+     * 扩展id（中间表）
+     */
+    private Integer exId;
+
+    /**
+     * 扩展Pid（中间表）
+     */
+    private Integer exPid;
+
 
     private List<QuestionResponse> questionList;
 }

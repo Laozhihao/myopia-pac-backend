@@ -108,7 +108,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 Question question = questionMap.get(it.getQuestionId());
                 QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
                 questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
-                questionnaireInfoDTO.setPid(it.getPid());
+                questionnaireInfoDTO.setExId(it.getId());
+                questionnaireInfoDTO.setExPid(it.getPid());
                 List<QuestionResponse> questionList = Lists.newArrayList();
                 //构建此模块下的所有问题
                 questionnaireQuestions.forEach(child -> {
@@ -117,6 +118,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                         QuestionResponse questionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
                         questionResponse.setRequired(child.getRequired());
                         questionResponse.setSerialNumber(child.getSerialNumber());
+                        questionResponse.setExId(child.getId());
+                        questionResponse.setExPid(child.getPid());
                         setJumpIds(questionResponse, child.getJumpIds());
                         buildQuestion(questionResponse, child.getId(), questionnaireQuestions, questionMap);
                         questionList.add(questionResponse);
@@ -145,7 +148,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(createQuestion, QuestionResponse.class);
                 childQuestionResponse.setRequired(it.getRequired());
                 childQuestionResponse.setSerialNumber(it.getSerialNumber());
-                childQuestionResponse.setPid(it.getPid());
+                childQuestionResponse.setExId(it.getId());
+                childQuestionResponse.setExPid(it.getPid());
                 setJumpIds(childQuestionResponse, jumpIds);
                 List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
