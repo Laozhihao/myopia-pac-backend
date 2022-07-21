@@ -426,12 +426,12 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
 
     /**
      * 检测政府是否有筛查计划
+     *
      * @param orgId
      * @return
      */
     public ApiResult checkGovernmentLogin(Integer orgId) {
-        List<ScreeningTask> screeningTasks = screeningTaskService.list(new LambdaQueryWrapper<ScreeningTask>().eq(ScreeningTask::getGovDeptId, orgId)
-                .eq(ScreeningTask::getScreeningType,ScreeningTypeEnum.COMMON_DISEASE.getType()));
+        List<ScreeningTask> screeningTasks = screeningTaskService.listCommonDiseaseByGovDeptId(orgId);
         if (CollectionUtil.isNotEmpty(screeningTasks)) {
             return ApiResult.success();
         }
