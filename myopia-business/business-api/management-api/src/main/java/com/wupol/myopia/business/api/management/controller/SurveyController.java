@@ -62,4 +62,9 @@ public class SurveyController {
     public List<Question> searchQuestion(SearchQuestionRequestDTO requestDTO) {
         return questionService.searchQuestion(requestDTO.getName(), requestDTO.getIsTitle());
     }
+
+    @GetMapping("all")
+    public Object getAll() {
+        return questionBizService.getAllOptionIds();
+    }
 }

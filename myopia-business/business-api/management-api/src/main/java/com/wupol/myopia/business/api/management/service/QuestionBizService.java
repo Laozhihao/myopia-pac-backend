@@ -8,7 +8,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +55,7 @@ public class QuestionBizService {
      *
      * @return 选项Id
      */
-    private List<String> getAllOptionIds() {
+    public List<String> getAllOptionIds() {
         List<String> addIds = new ArrayList<>();
         List<Question> allQuestion = questionService.getAllQuestion();
         allQuestion.forEach(question -> {
@@ -73,14 +72,16 @@ public class QuestionBizService {
         List<String> optionIds = options.stream().map(Option::getId).collect(Collectors.toList());
 
         // 获取选项的填空option
-        List<String> ids = options.stream().map(s -> {
+        List<String> ids = new ArrayList<>();
+        options.forEach(s -> {
             JSONObject option = s.getOption();
             if (Objects.nonNull(option)) {
-                return option.getString("id");
-            } else {
-                return StringUtils.EMPTY;
+                int size = option.size();
+                for (int i = 1; i <= size; i++) {
+                    ids.add(option.getJSONObject(String.valueOf(i)).get("id").toString());
+                }
             }
-        }).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        });
 
         // 合并两个list
         return Lists.newArrayList(Iterables.concat(ids, optionIds));
