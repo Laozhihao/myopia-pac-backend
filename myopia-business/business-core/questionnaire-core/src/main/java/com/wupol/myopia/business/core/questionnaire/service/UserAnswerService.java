@@ -9,6 +9,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * @param userId     用户Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer userType) {
+    public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer userType, Integer recordId) {
 
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
@@ -55,7 +56,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         Map<Integer, Integer> questionMap = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType)
                 .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
 
-        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap, userType);
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap, userType, recordId);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 
@@ -86,18 +87,38 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      * @return List<UserAnswer>
      */
     private List<UserAnswer> convert2UserAnswer(List<UserAnswerDTO.QuestionDTO> list, Integer questionnaireId,
-                                                Integer userId, Map<Integer, Integer> questionMap, Integer userType) {
+                                                Integer userId, Map<Integer, Integer> questionMap, Integer userType, Integer recordId) {
         return list.stream().map(s -> {
             UserAnswer userAnswer = new UserAnswer();
             userAnswer.setId(questionMap.getOrDefault(s.getQuestionId(), null));
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
             userAnswer.setQuestionId(s.getQuestionId());
+            userAnswer.setRecordId(recordId);
             userAnswer.setUserType(userType);
             userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
             return userAnswer;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过问卷Id、用户Id获取答案
+     *
+     * @param questionnaireId 问卷Id
+     * @param userType        用户类型
+     *
+     * @return List<UserAnswer>
+     */
+    public List<UserAnswer> getByQuestionnaireIdAndUserTypeAndQuestionIds(Integer questionnaireId, Integer userId,
+                                                                          Integer userType, Collection<Integer> questionIds) {
+
+        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
+                .eq(UserAnswer::getUserId, userId)
+                .eq(UserAnswer::getUserType, userType)
+                .in(UserAnswer::getQuestionId, questionIds);
+        return baseMapper.selectList(wrapper);
     }
 
 
