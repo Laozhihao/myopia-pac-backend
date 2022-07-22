@@ -170,6 +170,9 @@ public class UserAnswerBizService {
                     if (StringUtils.equals(v, "A011")) {
                         OptionAnswer optionAnswer = new OptionAnswer();
                         optionAnswer.setOptionId(options.get(0).getId());
+                        if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
+                            return;
+                        }
                         optionAnswer.setValue(planStudent.getCommonDiseaseId().substring(planStudent.getCommonDiseaseId().length() - 4));
                         userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
                         userAnswerService.save(userAnswer);
