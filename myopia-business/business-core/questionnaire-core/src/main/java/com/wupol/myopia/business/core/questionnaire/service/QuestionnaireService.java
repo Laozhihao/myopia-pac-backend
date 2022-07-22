@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.questionnaire.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -50,8 +49,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
         //如果没有页面数据，组装问卷数据
         List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId);
-        //todo 将数据存储进pageJson字段
-        //  this.updateById(Questionnaire.builder().pageJson(JSONObject.toJSONString(questionnaireInfo)).id(questionnaireId).build());
+        this.updateById(Questionnaire.builder().pageJson(JSONObject.toJSONString(questionnaireInfo)).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
@@ -63,10 +61,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     protected List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService
-                .list(new LambdaQueryWrapper<QuestionnaireQuestion>()
-                        .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
-                        .orderByAsc(QuestionnaireQuestion::getId));
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
         if (CollectionUtil.isNotEmpty(questionnaireQuestions)) {
             List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
             List<Question> questions = questionService.listByIds(questionIds);
