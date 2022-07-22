@@ -35,6 +35,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Resource
     private QuestionService questionService;
 
+    @Resource
+    private QuestionnaireService questionnaireService;
+
     /**
      * 获取问卷列表
      *
@@ -68,7 +71,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         questionnaireQuestionService.deletedByQuestionnaireId(questionnaireId);
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
-
+        // 更新问卷信息
+        updateTime(questionnaireId);
     }
 
     /**
@@ -216,5 +220,16 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         LambdaQueryWrapper<Questionnaire> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Questionnaire::getYear, year).in(Questionnaire::getType, types);
         return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 更新问卷时间
+     *
+     * @param id id
+     */
+    public void updateTime(Integer id) {
+        Questionnaire questionnaire = getById(id);
+        questionnaire.setUpdateTime(new Date());
+        baseMapper.updateById(questionnaire);
     }
 }
