@@ -15,6 +15,7 @@
                 <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
                 <if test="@Ognl@isNotEmpty(questionnaireId)">and `questionnaire_id` = #{questionnaireId}</if>
                 <if test="@Ognl@isNotEmpty(questionId)">and `question_id` = #{questionId}</if>
+                <if test="@Ognl@isNotEmpty(questionTitle)">and `question_title` = #{questionTitle}</if>
                 <if test="@Ognl@isNotEmpty(answer)">and `answer` = #{answer}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
@@ -24,7 +25,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, questionnaire_id, question_id, answer, create_time, update_time
+        id, user_id, questionnaire_id, question_id, question_title, answer, create_time, update_time
     </sql>
 
 </mapper>
