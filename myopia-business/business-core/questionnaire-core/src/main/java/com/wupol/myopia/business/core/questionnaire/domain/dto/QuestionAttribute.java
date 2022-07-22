@@ -36,4 +36,9 @@ public class QuestionAttribute {
      * 是否记分题目
      */
     private Boolean isScore;
+
+    /**
+     * 前端需要的
+     */
+    private String dataText;
 }
