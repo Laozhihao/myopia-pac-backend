@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 筛查端-记录详情
@@ -84,4 +85,9 @@ public class RecordDetails {
      * 问卷数据
      */
     private String questionnaire;
+
+    /**
+     * 年级详情
+     */
+    private List<GradeQuestionnaireInfo> gradeQuestionnaireInfos;
 }

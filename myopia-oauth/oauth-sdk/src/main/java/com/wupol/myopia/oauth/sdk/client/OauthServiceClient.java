@@ -19,7 +19,7 @@ import java.util.List;
  * @Author HaoHao
  * @Date 2020/12/11
  **/
-@FeignClient(name = "myopia-oauth", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = BusinessServiceFeignConfig.class)
+@FeignClient(name = "myopia-oauth", url = "http://127.0.0.1:8010", decode404 = true, fallbackFactory = OauthServiceFallbackFactory.class, configuration = BusinessServiceFeignConfig.class)
 public interface OauthServiceClient {
 
     /**
@@ -60,6 +60,7 @@ public interface OauthServiceClient {
 
     /**
      * 更新用户名称
+     *
      * @param realName
      * @param byOrgId
      * @param bySystemCode
@@ -73,7 +74,7 @@ public interface OauthServiceClient {
     /**
      * 根据手机号码批量获取用户
      *
-     * @param phones 手机号码集合
+     * @param phones     手机号码集合
      * @param systemCode 系统编号
      * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
      **/
@@ -83,9 +84,9 @@ public interface OauthServiceClient {
     /**
      * 根据手机号码批量获取用户
      *
-     * @param idCards 身份证号码集
+     * @param idCards    身份证号码集
      * @param systemCode 系统编号
-     * @param orgId 机构ID
+     * @param orgId      机构ID
      * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.User>
      **/
     @GetMapping("/oauth/user/batch/idCard")
@@ -121,6 +122,7 @@ public interface OauthServiceClient {
     /**
      * 更新用户<br/>
      * 传手机号时必须有id, systemcode, usertype
+     *
      * @param param 用户数据
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/
@@ -139,7 +141,7 @@ public interface OauthServiceClient {
     /**
      * 重置管理端用户的密码【其他端用户的不适合】
      *
-     * @param userId 用户ID
+     * @param userId   用户ID
      * @param password 密码
      * @return com.wupol.myopia.oauth.sdk.domain.response.User
      **/
@@ -167,7 +169,7 @@ public interface OauthServiceClient {
     /**
      * 移除医院管理员关联的筛查机构管理员角色
      *
-     * @param hospitalId 医院ID
+     * @param hospitalId              医院ID
      * @param associateScreeningOrgId 关联筛查机构ID
      * @return void
      **/
@@ -177,7 +179,7 @@ public interface OauthServiceClient {
     /**
      * 给医院管理员添加关联的筛查机构管理员角色
      *
-     * @param hospitalId 医院ID
+     * @param hospitalId              医院ID
      * @param associateScreeningOrgId 关联筛查机构ID
      * @return void
      **/
@@ -187,7 +189,7 @@ public interface OauthServiceClient {
     /**
      * 更新医院相关用户的角色
      *
-     * @param hospitalId 医院ID
+     * @param hospitalId  医院ID
      * @param serviceType 服务类型
      * @return void
      **/
@@ -237,7 +239,7 @@ public interface OauthServiceClient {
     /**
      * 获取指定行政区下的角色权限树
      *
-     * @param roleId 角色ID
+     * @param roleId       角色ID
      * @param templateType 模板类型
      * @return java.util.List<com.wupol.myopia.oauth.sdk.domain.response.Permission>
      **/
@@ -286,7 +288,7 @@ public interface OauthServiceClient {
     /**
      * 更新模板权限
      *
-     * @param templateType 模板类型
+     * @param templateType      模板类型
      * @param rolePermissionDTO 角色权限
      * @return boolean
      **/
@@ -306,10 +308,10 @@ public interface OauthServiceClient {
     /**
      * 登录
      *
-     * @param clientId 客户端ID
+     * @param clientId     客户端ID
      * @param clientSecret 客户端秘钥
-     * @param username 用户名
-     * @param password 密码
+     * @param username     用户名
+     * @param password     密码
      * @return com.wupol.myopia.base.domain.com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO>
      **/
     @PostMapping("/login")
@@ -335,6 +337,7 @@ public interface OauthServiceClient {
 
     /**
      * 更新机构信息
+     *
      * @param organization
      * @return
      */
@@ -343,6 +346,7 @@ public interface OauthServiceClient {
 
     /**
      * 增加机构信息
+     *
      * @param organization
      * @return
      */

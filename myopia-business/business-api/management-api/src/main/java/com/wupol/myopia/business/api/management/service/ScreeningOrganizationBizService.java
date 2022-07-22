@@ -25,12 +25,13 @@ import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.RecordDetails;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
+import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -114,6 +115,11 @@ public class ScreeningOrganizationBizService {
 
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
+
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private StudentService studentService;
 
     /**
      * 保存筛查机构
@@ -229,10 +235,15 @@ public class ScreeningOrganizationBizService {
         } else {
             rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         }
-        Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getPlanId, planId)
                 .notIn(UserQuestionRecord::getQuestionnaireType, Arrays.asList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()))
-        ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        );
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        Map<Integer, List<Student>> userGradeIdMap = studentService.getByIds(userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toList()))
+                .stream().collect(Collectors.groupingBy(Student::getGradeId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+
         // 封装DTO
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
@@ -261,6 +272,13 @@ public class ScreeningOrganizationBizService {
             detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
             detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
             detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
+            detail.setGradeQuestionnaireInfos(gradeIdMap.get(schoolId).stream().map(grade->{
+                GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
+                questionnaireInfo.setGradeName(grade.getName());
+                questionnaireInfo.setGradeId(grade.getId());
+                questionnaireInfo.setStudentCount(org.springframework.util.CollectionUtils.isEmpty(userGradeIdMap.get(grade.getId())) ? 0 : userGradeIdMap.get(grade.getId()).size());
+                return questionnaireInfo;
+            }).collect(Collectors.toList()));
             details.add(detail);
         });
         response.setDetails(details);

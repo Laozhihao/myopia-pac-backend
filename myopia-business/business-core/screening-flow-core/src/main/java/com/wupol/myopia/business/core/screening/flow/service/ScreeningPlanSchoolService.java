@@ -12,6 +12,11 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
@@ -46,6 +51,10 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private StudentService studentService;
 
     /**
      * 根据学校ID获取筛查计划的学校
@@ -121,10 +130,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         screeningPlans.setId(screeningPlanId);
         ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
-        Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
-                .eq(UserQuestionRecord::getPlanId, screeningPlanId)
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
+                .eq(UserQuestionRecord::getPlanId, screeningPlan.getId())
                 .notIn(UserQuestionRecord::getQuestionnaireType, Arrays.asList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()))
-        ).stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        );
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        Map<Integer, List<Student>> userGradeIdMap = studentService.getByIds(userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toList()))
+                .stream().collect(Collectors.groupingBy(Student::getGradeId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+
 
         // TODO：不在循环内查询数据库
         screeningPlanSchools.forEach(vo -> {
@@ -144,6 +158,13 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
                 vo.setQuestionnaireProportion(new DecimalFormat("0.00").format((vo.getQuestionnaireStudentCount() / (float) vo.getStudentCount()) * 100) + "%");
             }
             vo.setQuestionnaireSituation(getCountBySchool(screeningPlan, vo.getSchoolId(), schoolMap));
+            vo.setGradeQuestionnaireInfos(gradeIdMap.get(vo.getSchoolId()).stream().map(grade->{
+                GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
+                questionnaireInfo.setGradeName(grade.getName());
+                questionnaireInfo.setGradeId(grade.getId());
+                questionnaireInfo.setStudentCount(org.springframework.util.CollectionUtils.isEmpty(userGradeIdMap.get(grade.getId())) ? 0 : userGradeIdMap.get(grade.getId()).size());
+                return questionnaireInfo;
+            }).collect(Collectors.toList()));
         });
         return screeningPlanSchools;
     }
