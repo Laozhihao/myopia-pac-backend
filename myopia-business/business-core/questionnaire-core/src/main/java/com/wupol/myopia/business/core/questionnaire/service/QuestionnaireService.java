@@ -98,14 +98,17 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     protected List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService
-                .list(new LambdaQueryWrapper<QuestionnaireQuestion>().eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId))
-                .stream().sorted(Comparator.comparing(QuestionnaireQuestion::getId)).collect(Collectors.toList());
+                .list(new LambdaQueryWrapper<QuestionnaireQuestion>()
+                        .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
+                        .orderByAsc(QuestionnaireQuestion::getId));
         if (CollectionUtil.isNotEmpty(questionnaireQuestions)) {
             List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
             List<Question> questions = questionService.listByIds(questionIds);
             Map<Integer, Question> questionMap = questions.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
             //过滤出顶层区域
-            List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream().filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid()).sorted(Comparator.comparing(QuestionnaireQuestion::getId)).collect(Collectors.toList());
+            List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream()
+                    .filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid())
+                    .sorted(Comparator.comparing(QuestionnaireQuestion::getId)).collect(Collectors.toList());
             partLists.forEach(it -> {
                 Question question = questionMap.get(it.getQuestionId());
                 QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
