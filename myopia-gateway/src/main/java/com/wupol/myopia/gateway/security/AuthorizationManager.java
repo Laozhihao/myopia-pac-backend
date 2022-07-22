@@ -71,6 +71,10 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) || SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode)) {
             return Mono.just(new AuthorizationDecision(true));
         }
+        // 问卷系统 不进行检验接口访问权限。 TODO：等后面系统迭代中，有了维护各个端的接口资源权限地方，再打开
+        if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
+            return Mono.just(new AuthorizationDecision(true));
+        }
         // 判断接口访问权限
         List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
         if (CollectionUtils.isEmpty(permissions)) {

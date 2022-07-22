@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
@@ -29,6 +30,16 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      */
     public List<ScreeningTaskOrg> getOrgListsByTaskId(Integer screeningTaskId) {
         return baseMapper.getByTaskId(screeningTaskId);
+    }
+
+    /**
+     * 通过机构id获得任务id
+     *
+     * @param orgId 机构id
+     * @return List<ScreeningTaskOrg>
+     */
+    public List<ScreeningTaskOrg> getOrgListsByOrgId(Integer orgId) {
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningTaskOrg>().eq(ScreeningTaskOrg::getScreeningOrgId, orgId));
     }
 
     /**

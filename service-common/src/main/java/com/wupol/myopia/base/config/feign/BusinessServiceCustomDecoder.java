@@ -1,11 +1,11 @@
-package com.wupol.myopia.oauth.sdk.config;
+package com.wupol.myopia.base.config.feign;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
-import com.wupol.myopia.oauth.sdk.exception.OauthServiceRequestException;
-import com.wupol.myopia.oauth.sdk.util.TypeUtils;
+import com.wupol.myopia.base.exception.BusinessServiceRequestException;
+import com.wupol.myopia.base.util.TypeUtils;
 import feign.Response;
 import feign.Util;
 import feign.codec.DecodeException;
@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
  * @date 2020/9/10 11:08
  */
 @Slf4j
-public class OauthServiceCustomDecoder extends Decoder.Default {
+public class BusinessServiceCustomDecoder extends Decoder.Default {
 
     /**
      * 自定义结果处理器
@@ -61,7 +61,7 @@ public class OauthServiceCustomDecoder extends Decoder.Default {
         if (ResultCode.SUCCESS.getCode().equals(code)) {
             return JSONObject.toJSONString(result.getData(), SerializerFeature.WriteMapNullValue);
         } else {
-            throw new OauthServiceRequestException(result.getMessage(), result.getCode());
+            throw new BusinessServiceRequestException(result.getMessage(), result.getCode());
         }
     }
 }
