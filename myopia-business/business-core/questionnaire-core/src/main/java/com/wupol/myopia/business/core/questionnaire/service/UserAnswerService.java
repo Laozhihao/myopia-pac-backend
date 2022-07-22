@@ -52,11 +52,11 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
-        // 先简单处理（最后提交的最新，即最新提交的会覆盖）
-        Map<Integer, Integer> questionMap = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType)
+        // 最后提交的最新，即最新提交的会覆盖
+        Map<Integer, Integer> answerMap = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType)
                 .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
 
-        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, questionMap, userType, recordId);
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, answerMap, userType, recordId);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 
@@ -82,15 +82,15 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @param list            请求参数
      * @param questionnaireId 问卷Id
-     * @param questionMap     存在的答案Map
+     * @param answerMap       存在的答案Map
      *
      * @return List<UserAnswer>
      */
     private List<UserAnswer> convert2UserAnswer(List<UserAnswerDTO.QuestionDTO> list, Integer questionnaireId,
-                                                Integer userId, Map<Integer, Integer> questionMap, Integer userType, Integer recordId) {
+                                                Integer userId, Map<Integer, Integer> answerMap, Integer userType, Integer recordId) {
         return list.stream().map(s -> {
             UserAnswer userAnswer = new UserAnswer();
-            userAnswer.setId(questionMap.getOrDefault(s.getQuestionId(), null));
+            userAnswer.setId(answerMap.getOrDefault(s.getQuestionId(), null));
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
             userAnswer.setQuestionId(s.getQuestionId());
@@ -112,6 +112,21 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      */
     public List<UserAnswer> getByQuestionnaireIdAndUserTypeAndQuestionIds(Integer questionnaireId, Integer userId,
                                                                           Integer userType, Collection<Integer> questionIds) {
+
+        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
+                .eq(UserAnswer::getUserId, userId)
+                .eq(UserAnswer::getUserType, userType)
+                .in(UserAnswer::getQuestionId, questionIds);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 通过问题Id获取答案
+     *
+     * @return List<UserAnswer>
+     */
+    public List<UserAnswer> getByQuestionIds(Integer questionnaireId, Integer userId, Integer userType, Collection<Integer> questionIds) {
 
         LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)

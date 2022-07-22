@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQ
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,6 +56,13 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 insert(questionnaireId, questionList, question.getId());
             }
         });
+    }
+
+    public List<QuestionnaireQuestion> getBySerialNumbers(Integer questionnaireId, Collection<String> serialNumber) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getSerialNumber, serialNumber);
+        return baseMapper.selectList(wrapper);
     }
 
 }
