@@ -35,9 +35,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Resource
     private QuestionService questionService;
 
-    @Resource
-    private QuestionnaireService questionnaireService;
-
     /**
      * 获取问卷列表
      *
