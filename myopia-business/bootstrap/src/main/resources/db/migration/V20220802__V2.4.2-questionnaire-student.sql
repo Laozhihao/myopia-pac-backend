@@ -12,3 +12,5 @@ create unique index index_name
 
 alter table q_user_answer
     modify record_id int null comment '记录表Id';
+
+drop index q_user_answer_user_id_questionnaire_id_question_id_uindex on q_user_answer
