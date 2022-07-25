@@ -58,8 +58,8 @@ public class UserAnswerBizService {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
         if (Objects.nonNull(userAnswerProgress)) {
-            userAnswerProgress.setCurrentSideBar(userAnswerList.getCurrentSideBar());
-            userAnswerProgress.setCurrentStep(userAnswerList.getCurrentStep());
+            userAnswerList.setCurrentSideBar(userAnswerList.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerList.getCurrentStep());
         }
         return userAnswerList;
     }
