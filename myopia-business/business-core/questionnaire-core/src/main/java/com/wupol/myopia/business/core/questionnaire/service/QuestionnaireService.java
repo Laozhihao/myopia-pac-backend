@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -160,6 +160,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
+        childQuestionResponse.setExId(it.getId());
+        childQuestionResponse.setExPid(it.getPid());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
