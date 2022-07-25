@@ -22,7 +22,7 @@ CREATE TABLE `q_user_answer_progress`
     `user_id`          int          not null comment '用户id',
     `user_type`        int          not null comment '用户类型',
     `current_step`     varchar(128) null comment 'currentStep',
-    `current_side_bar` varchar(128) not null comment 'currentSideBar',
+    `current_side_bar` varchar(128) null comment 'currentSideBar',
     `create_time`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
