@@ -381,6 +381,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
+    /**
+     * 根据Id card跟学生姓名 获取学生信息
+     * @param credentialNo
+     * @return
+     */
     public ApiResult getStudentByCredentialNo(String credentialNo, String studentName) {
         //查询该学生
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
@@ -397,6 +402,12 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
     }
 
+    /**
+     * 根据学校编号跟密码 获取学校信息
+     *
+     * @param schoolNo
+     * @return
+     */
     public ApiResult getSchoolBySchoolNo(String schoolNo, String password) {
         School school = checkPassword(password, schoolNo);
         if (Objects.isNull(school)) {
