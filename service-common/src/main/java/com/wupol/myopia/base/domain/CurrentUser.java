@@ -137,7 +137,20 @@ public class CurrentUser {
         if (isQuestionnaireStudentUser()) {
             return QuestionnaireUserType.STUDENT.getType();
         }
+        if (isGovDeptUser()) {
+            return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
+        }
         throw new BusinessException("获取用户类型异常");
+    }
+
+    public Integer getQuestionnaireUserId() {
+        if (isQuestionnaireSchoolUser() || isQuestionnaireStudentUser()) {
+            return questionnaireUserId;
+        }
+        if (isGovDeptUser()) {
+            return id;
+        }
+        throw new BusinessException("获取用户Id异常");
     }
 
 }

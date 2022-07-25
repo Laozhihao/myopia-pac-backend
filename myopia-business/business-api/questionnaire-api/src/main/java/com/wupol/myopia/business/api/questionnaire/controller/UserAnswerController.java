@@ -39,9 +39,9 @@ public class UserAnswerController {
     }
 
     @PostMapping("save")
-    public void saveUserAnswer(@RequestBody UserAnswerDTO requestDTO) {
+    public Boolean saveUserAnswer(@RequestBody UserAnswerDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        userAnswerBizService.saveUserAnswer(requestDTO, user);
+        return userAnswerBizService.saveUserAnswer(requestDTO, user);
     }
 
 }

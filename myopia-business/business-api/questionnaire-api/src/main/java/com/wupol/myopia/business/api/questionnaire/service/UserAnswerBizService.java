@@ -8,8 +8,14 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.*;
-import com.wupol.myopia.business.core.questionnaire.service.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +43,6 @@ public class UserAnswerBizService {
     private UserAnswerService userAnswerService;
 
     @Resource
-    private UserQuestionRecordService userQuestionRecordService;
-
-    @Resource
     private QuestionnaireService questionnaireService;
 
     @Resource
@@ -51,74 +54,36 @@ public class UserAnswerBizService {
     @Resource
     private QuestionService questionService;
 
+    @Resource
+    private UserAnswerFactory userAnswerFactory;
+
     /**
      * 保存答案
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
+    public Boolean saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
         Integer userId = user.getQuestionnaireUserId();
         Integer questionnaireUserType = user.getQuestionnaireUserType();
 
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
         // 更新记录表
-        Integer recordId = saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish());
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish());
 
         // 处理隐藏问题
         hiddenQuestion(questionnaireId, userId, questionnaireUserType, recordId);
 
-        // 先简单处理，先删除，后新增
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionnaireIdAndUserTypeAndQuestionIds(questionnaireId,
-                userId,
-                questionnaireUserType,
-                questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
-
-        if (!CollectionUtils.isEmpty(userAnswerList)) {
-            userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
-        }
+        // 先删除，后新增
+        iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);
 
         // 保存用户答案
-        userAnswerService.saveUserAnswer(requestDTO, userId, questionnaireUserType, recordId);
+        iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
+
+        // 获取用户答题状态
+        return false;
     }
 
-    /**
-     * 更新记录表
-     */
-    private Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish) {
-        if (!user.isQuestionnaireStudentUser()) {
-            return null;
-        }
-        Integer questionnaireUserType = user.getQuestionnaireUserType();
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(user.getQuestionnaireUserId());
-
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), questionnaireUserType, questionnaireId);
-
-        // 如果存在记录，且完成问卷，则更新状态
-        if (Objects.nonNull(userQuestionRecord)) {
-            if (Objects.equals(isFinish, Boolean.TRUE)) {
-                userQuestionRecord.setStatus(2);
-                userQuestionRecordService.updateById(userQuestionRecord);
-            }
-            return userQuestionRecord.getId();
-        }
-
-        // 不存在新增记录
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-        userQuestionRecord = new UserQuestionRecord();
-        userQuestionRecord.setUserId(planStudent.getId());
-        userQuestionRecord.setUserType(questionnaireUserType);
-        userQuestionRecord.setQuestionnaireId(questionnaireId);
-        userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
-        userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
-        userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
-        userQuestionRecord.setSchoolId(planStudent.getSchoolId());
-        userQuestionRecord.setQuestionnaireType(questionnaire.getType());
-        userQuestionRecord.setStudentId(planStudent.getStudentId());
-        userQuestionRecord.setStatus(1);
-        userQuestionRecordService.save(userQuestionRecord);
-        return userQuestionRecord.getId();
-
-    }
 
     /**
      * 隐藏问题
