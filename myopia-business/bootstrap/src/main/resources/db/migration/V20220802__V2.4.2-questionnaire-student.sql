@@ -14,3 +14,17 @@ alter table q_user_answer
     modify record_id int null comment '记录表Id';
 
 drop index q_user_answer_user_id_questionnaire_id_question_id_uindex on q_user_answer
+
+
+CREATE TABLE `q_user_answer_progress`
+(
+    `id`               INT          NOT NULL auto_increment COMMENT '主键',
+    `user_id`          int          not null comment '用户id',
+    `user_type`        int          not null comment '用户类型',
+    `current_step`     varchar(128) null comment 'currentStep',
+    `current_side_bar` varchar(128) not null comment 'currentSideBar',
+    `create_time`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE = INNODB
+  DEFAULT CHARSET = utf8mb4 COMMENT '用户答案进度表';
