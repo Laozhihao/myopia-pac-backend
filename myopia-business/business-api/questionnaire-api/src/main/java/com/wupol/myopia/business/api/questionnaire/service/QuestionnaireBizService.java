@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.questionnaire.service;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -14,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,9 +52,8 @@ public class QuestionnaireBizService {
         }
 
         // 获取今年的问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByYearAndTypes(
-                        typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList()),
-                        DateUtil.getYear(new Date())).stream()
+        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(
+                        typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream()
                 .collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
 
         return typeList.stream().map(s -> {

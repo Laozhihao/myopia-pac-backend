@@ -30,4 +30,18 @@
     <sql id="Base_Column_List">
         id, title, district_id, year, pid, type, status, qes_url, page_json, create_time, update_time
     </sql>
+
+    <select id="getByTypes" resultMap="BaseResultMap">
+        SELECT q1.*
+        FROM q_questionnaire q1
+                 INNER JOIN (SELECT type,
+                                    max(create_time) create_time
+                             FROM q_questionnaire
+                             GROUP BY type) q2 ON q1.type = q2.type
+            AND q1.create_time = q2.create_time
+        where q1.type in
+        <foreach collection="types" item="type" index="index" open="(" close=")" separator=",">
+            #{type}
+        </foreach>
+    </select>
 </mapper>
