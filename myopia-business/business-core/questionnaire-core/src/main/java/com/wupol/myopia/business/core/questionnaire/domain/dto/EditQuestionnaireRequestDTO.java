@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import lombok.Getter;
 import lombok.Setter;
 
