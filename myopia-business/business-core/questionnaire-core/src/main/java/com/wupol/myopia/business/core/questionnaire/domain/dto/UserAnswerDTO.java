@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import lombok.Getter;
 import lombok.Setter;
 

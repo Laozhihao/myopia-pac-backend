@@ -11,6 +11,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 import java.util.List;
 
+import java.util.List;
+
 /**
  * @Author Simple4H
  * @Date 2022-07-06
@@ -65,4 +67,14 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectList(wrapper);
     }
 
+    /**
+     * 通过问卷Id获取QuestionnaireQuestion
+     * @param questionnaireId
+     * @return
+     */
+    public List<QuestionnaireQuestion> listByQuestionnaireId(Integer questionnaireId) {
+        return this.list(new LambdaQueryWrapper<QuestionnaireQuestion>()
+                .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
+                .orderByAsc(QuestionnaireQuestion::getId));
+    }
 }

@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

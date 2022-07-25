@@ -23,7 +23,7 @@ public enum UserType {
 
     QUESTIONNAIRE_STUDENT(0, "问卷系统学生端"),
     QUESTIONNAIRE_SCHOOL(1, "问卷系统学校端"),
-
+    QUESTIONNAIRE_GOVERNMENT(2, "问卷系统政府端"),
     ;
 
     private static final ImmutableMap<Integer, Integer> MANAGEMENT_MULTISYSTEM_USERTYPE_ROLETYPE_MAP;
