@@ -6,7 +6,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import org.apache.commons.lang3.StringUtils;
