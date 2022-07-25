@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -16,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -73,7 +73,7 @@ public class UserAnswerBizService {
                 questionnaireUserType,
                 questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
 
-        if (CollectionUtil.isNotEmpty(userAnswerList)) {
+        if (!CollectionUtils.isEmpty(userAnswerList)) {
             userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
         }
 
@@ -85,38 +85,39 @@ public class UserAnswerBizService {
      * 更新记录表
      */
     private Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish) {
-        if (user.isQuestionnaireStudentUser()) {
-            Integer questionnaireUserType = user.getQuestionnaireUserType();
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(user.getQuestionnaireUserId());
+        if (!user.isQuestionnaireStudentUser()) {
+            return null;
+        }
+        Integer questionnaireUserType = user.getQuestionnaireUserType();
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(user.getQuestionnaireUserId());
 
-            UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), questionnaireUserType, questionnaireId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), questionnaireUserType, questionnaireId);
 
-            // 如果存在记录，且完成问卷，则更新状态
-            if (Objects.nonNull(userQuestionRecord)) {
-                if (Objects.equals(isFinish, Boolean.TRUE)) {
-                    userQuestionRecord.setStatus(2);
-                    userQuestionRecordService.updateById(userQuestionRecord);
-                }
-                return userQuestionRecord.getId();
+        // 如果存在记录，且完成问卷，则更新状态
+        if (Objects.nonNull(userQuestionRecord)) {
+            if (Objects.equals(isFinish, Boolean.TRUE)) {
+                userQuestionRecord.setStatus(2);
+                userQuestionRecordService.updateById(userQuestionRecord);
             }
-
-            // 不存在新增记录
-            Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-            userQuestionRecord = new UserQuestionRecord();
-            userQuestionRecord.setUserId(planStudent.getId());
-            userQuestionRecord.setUserType(questionnaireUserType);
-            userQuestionRecord.setQuestionnaireId(questionnaireId);
-            userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
-            userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
-            userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
-            userQuestionRecord.setSchoolId(planStudent.getSchoolId());
-            userQuestionRecord.setQuestionnaireType(questionnaire.getType());
-            userQuestionRecord.setStudentId(planStudent.getStudentId());
-            userQuestionRecord.setStatus(1);
-            userQuestionRecordService.save(userQuestionRecord);
             return userQuestionRecord.getId();
         }
-        return null;
+
+        // 不存在新增记录
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
+        userQuestionRecord = new UserQuestionRecord();
+        userQuestionRecord.setUserId(planStudent.getId());
+        userQuestionRecord.setUserType(questionnaireUserType);
+        userQuestionRecord.setQuestionnaireId(questionnaireId);
+        userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
+        userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
+        userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
+        userQuestionRecord.setSchoolId(planStudent.getSchoolId());
+        userQuestionRecord.setQuestionnaireType(questionnaire.getType());
+        userQuestionRecord.setStudentId(planStudent.getStudentId());
+        userQuestionRecord.setStatus(1);
+        userQuestionRecordService.save(userQuestionRecord);
+        return userQuestionRecord.getId();
+
     }
 
     /**
@@ -130,14 +131,14 @@ public class UserAnswerBizService {
 
         // 获取问卷中是否存在序号为A01，A011，A02三个问题
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02"));
-        if (CollectionUtil.isEmpty(questionnaireQuestions)) {
+        if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }
 
         // 是否已经存在答案
         List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, questionnaireUserType, questionIds);
-        if (CollectionUtil.isNotEmpty(userAnswers)) {
+        if (!CollectionUtils.isEmpty(userAnswers)) {
             return;
         }
 
@@ -157,39 +158,41 @@ public class UserAnswerBizService {
                     userAnswer.setUserType(questionnaireUserType);
                     userAnswer.setQuestionTitle(question.getTitle());
                     List<Option> options = JSONObject.parseArray(JSONObject.toJSONString(question.getOptions()), Option.class);
-
-                    if (StringUtils.equals(v, "A01")) {
-                        OptionAnswer optionAnswer = new OptionAnswer();
-                        optionAnswer.setOptionId(options.get(0).getId());
-                        optionAnswer.setValue(planStudent.getGradeName());
-                        userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
-                        userAnswerService.save(userAnswer);
-                        return;
-                    }
-
-                    if (StringUtils.equals(v, "A011")) {
-                        OptionAnswer optionAnswer = new OptionAnswer();
-                        optionAnswer.setOptionId(options.get(0).getId());
-                        if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
-                            return;
-                        }
-                        optionAnswer.setValue(planStudent.getCommonDiseaseId().substring(planStudent.getCommonDiseaseId().length() - 4));
-                        userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
-                        userAnswerService.save(userAnswer);
-                        return;
-                    }
-
-                    if (StringUtils.equals(v, "A02")) {
-                        Optional<Option> optionOptional = options.stream().filter(s -> StringUtils.equals(s.getText(), GenderEnum.getName(planStudent.getGender()))).findFirst();
-                        if (optionOptional.isPresent()) {
-                            OptionAnswer optionAnswer = new OptionAnswer();
-                            optionAnswer.setOptionId(optionOptional.get().getId());
-                            userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
-                            userAnswerService.save(userAnswer);
-                        }
-
-                    }
+                    specialHandleAnswer(planStudent, v, userAnswer, options);
                 });
+    }
+
+    private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
+        if (StringUtils.equals(v, "A01")) {
+            OptionAnswer optionAnswer = new OptionAnswer();
+            optionAnswer.setOptionId(options.get(0).getId());
+            optionAnswer.setValue(planStudent.getGradeName());
+            userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+            userAnswerService.save(userAnswer);
+            return;
+        }
+
+        if (StringUtils.equals(v, "A011")) {
+            OptionAnswer optionAnswer = new OptionAnswer();
+            optionAnswer.setOptionId(options.get(0).getId());
+            if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
+                return;
+            }
+            optionAnswer.setValue(planStudent.getCommonDiseaseId().substring(planStudent.getCommonDiseaseId().length() - 4));
+            userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+            userAnswerService.save(userAnswer);
+            return;
+        }
+
+        if (StringUtils.equals(v, "A02")) {
+            Optional<Option> optionOptional = options.stream().filter(s -> StringUtils.equals(s.getText(), GenderEnum.getName(planStudent.getGender()))).findFirst();
+            if (optionOptional.isPresent()) {
+                OptionAnswer optionAnswer = new OptionAnswer();
+                optionAnswer.setOptionId(optionOptional.get().getId());
+                userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+                userAnswerService.save(userAnswer);
+            }
+        }
     }
 
 }

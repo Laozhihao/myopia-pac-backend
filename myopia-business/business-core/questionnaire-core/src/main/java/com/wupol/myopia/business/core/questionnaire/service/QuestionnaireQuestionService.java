@@ -1,12 +1,12 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +38,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
     }
 
     public void insert(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail> details, Integer pid) {
-        if (CollectionUtil.isEmpty(details)) {
+        if (CollectionUtils.isEmpty(details)) {
             return;
         }
         details.forEach(detail -> {
@@ -52,7 +52,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setSort(1);
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
-            if (CollectionUtil.isNotEmpty(questionList)) {
+            if (!CollectionUtils.isEmpty(questionList)) {
                 insert(questionnaireId, questionList, question.getId());
             }
         });
