@@ -76,7 +76,7 @@ public class UserAnswerBizService {
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
         // 更新记录表
-        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish());
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
 
         // 处理隐藏问题
         hiddenQuestion(questionnaireId, userId, questionnaireUserType, recordId);
@@ -91,7 +91,7 @@ public class UserAnswerBizService {
         iUserAnswerService.saveUserProgress(requestDTO, userId);
 
         // 获取用户答题状态
-        return requestDTO.getIsFinish();
+        return iUserAnswerService.getUserAnswerIsFinish(userId);
     }
 
 

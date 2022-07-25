@@ -6,6 +6,9 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserQuestionRe
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @Author Simple4H
  * @Date 2022-07-07
@@ -28,6 +31,23 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         wrapper.eq(UserQuestionRecord::getUserType, userType);
         wrapper.eq(UserQuestionRecord::getQuestionnaireId, questionnaireId);
         return baseMapper.selectOne(wrapper);
+    }
+
+    /**
+     * 获取用户记录表
+     *
+     * @param userId           用户id
+     * @param userType         用户类型
+     * @param questionnaireIds 问卷Ids
+     *
+     * @return UserQuestionRecord
+     */
+    public List<UserQuestionRecord> getUserQuestionRecordList(Integer userId, Integer userType, Collection<Integer> questionnaireIds) {
+        LambdaQueryWrapper<UserQuestionRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserQuestionRecord::getUserId, userId);
+        wrapper.eq(UserQuestionRecord::getUserType, userType);
+        wrapper.in(UserQuestionRecord::getQuestionnaireId, questionnaireIds);
+        return baseMapper.selectList(wrapper);
     }
 
 

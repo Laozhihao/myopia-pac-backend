@@ -45,6 +45,11 @@ public class UserAnswerDTO {
      */
     private String currentSideBar;
 
+    /**
+     * 问卷Ids
+     */
+    private List<Integer> questionnaireIds;
+
     @Getter
     @Setter
     public static class QuestionDTO {
