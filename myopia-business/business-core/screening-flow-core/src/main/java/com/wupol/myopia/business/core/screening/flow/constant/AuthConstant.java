@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.constant;
+package com.wupol.myopia.business.core.screening.flow.constant;
 
 /**
  * @Author wulizhou
