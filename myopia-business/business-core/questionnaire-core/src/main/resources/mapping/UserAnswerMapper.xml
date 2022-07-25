@@ -49,6 +49,8 @@
         delete
         from q_user_answer where user_id = #{userId}
                              and questionnaire_id = #{questionnaireId}
+                             and record_id = #{recordId}
+                             and user_type = #{userType}
                              and question_id in
         <foreach collection="questionIds" open="(" close=")" separator="," item="questionId">
             #{questionId}

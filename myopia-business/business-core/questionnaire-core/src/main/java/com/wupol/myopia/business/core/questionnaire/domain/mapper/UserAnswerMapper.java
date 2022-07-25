@@ -16,6 +16,8 @@ public interface UserAnswerMapper extends BaseMapper<UserAnswer> {
 
     void batchSaveUserAnswer(@Param("userAnswers") List<UserAnswer> userAnswers);
 
-    void deleteBatchByCombinationId(@Param("questionnaireId") Integer questionnaireId, @Param("userId") Integer userId, @Param("questionIds") List<Integer> questionIds);
+    void deleteBatchByCombinationId(@Param("questionnaireId") Integer questionnaireId, @Param("userId") Integer userId,
+                                    @Param("userType") Integer userType, @Param("recordId") Integer recordId,
+                                    @Param("questionIds") List<Integer> questionIds);
 
 }

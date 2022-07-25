@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -52,11 +51,11 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
-        // 最后提交的最新，即最新提交的会覆盖
-        Map<Integer, Integer> answerMap = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType)
-                .stream().collect(Collectors.toMap(UserAnswer::getQuestionId, UserAnswer::getId));
+        // 删除旧答案
+        List<Integer> questionIds = questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList());
+        baseMapper.deleteBatchByCombinationId(questionnaireId, userId, userType, recordId, questionIds);
 
-        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, answerMap, userType, recordId);
+        List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, userType, recordId);
         baseMapper.batchSaveUserAnswer(userAnswers);
     }
 
@@ -82,15 +81,13 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @param list            请求参数
      * @param questionnaireId 问卷Id
-     * @param answerMap       存在的答案Map
      *
      * @return List<UserAnswer>
      */
     private List<UserAnswer> convert2UserAnswer(List<UserAnswerDTO.QuestionDTO> list, Integer questionnaireId,
-                                                Integer userId, Map<Integer, Integer> answerMap, Integer userType, Integer recordId) {
+                                                Integer userId, Integer userType, Integer recordId) {
         return list.stream().map(s -> {
             UserAnswer userAnswer = new UserAnswer();
-            userAnswer.setId(answerMap.getOrDefault(s.getQuestionId(), null));
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
             userAnswer.setQuestionId(s.getQuestionId());
