@@ -34,6 +34,16 @@ public class UserAnswerDTO {
      */
     private List<QuestionDTO> questionList;
 
+    /**
+     * 步骤
+     */
+    private String currentStep;
+
+    /**
+     * 侧边栏
+     */
+    private String currentSideBar;
+
     @Getter
     @Setter
     public static class QuestionDTO {

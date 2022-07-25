@@ -19,4 +19,6 @@ public interface IUserAnswerService {
     void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList);
 
     void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer recordId);
+
+    void saveUserProgress(UserAnswerDTO requestDTO, Integer userId);
 }

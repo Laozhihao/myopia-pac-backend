@@ -21,9 +21,6 @@ public class UserAnswerController {
     @Autowired
     private UserAnswerBizService userAnswerBizService;
 
-    @Autowired
-    private UserAnswerService userAnswerService;
-
 
     /**
      * 获取用户答案
@@ -35,7 +32,7 @@ public class UserAnswerController {
     @GetMapping("list/{questionnaireId}")
     public UserAnswerDTO getUserAnswerList(@PathVariable("questionnaireId") Integer questionnaireId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerService.getUserAnswerList(questionnaireId, user);
+        return userAnswerBizService.getUserAnswerList(questionnaireId, user);
     }
 
     @PostMapping("save")

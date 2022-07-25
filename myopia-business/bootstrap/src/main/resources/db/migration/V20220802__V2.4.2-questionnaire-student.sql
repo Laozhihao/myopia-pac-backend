@@ -13,7 +13,7 @@ create unique index index_name
 alter table q_user_answer
     modify record_id int null comment '记录表Id';
 
-drop index q_user_answer_user_id_questionnaire_id_question_id_uindex on q_user_answer
+drop index q_user_answer_user_id_questionnaire_id_question_id_uindex on q_user_answer;
 
 
 CREATE TABLE `q_user_answer_progress`
@@ -28,3 +28,6 @@ CREATE TABLE `q_user_answer_progress`
     PRIMARY KEY (`id`)
 ) ENGINE = INNODB
   DEFAULT CHARSET = utf8mb4 COMMENT '用户答案进度表';
+
+create index q_user_answer_progress_user_id_user_type_index
+    on q_user_answer_progress (user_id, user_type);

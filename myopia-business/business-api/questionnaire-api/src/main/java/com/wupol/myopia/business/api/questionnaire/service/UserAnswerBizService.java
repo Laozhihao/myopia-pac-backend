@@ -8,14 +8,8 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
+import com.wupol.myopia.business.core.questionnaire.domain.model.*;
+import com.wupol.myopia.business.core.questionnaire.service.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +51,19 @@ public class UserAnswerBizService {
     @Resource
     private UserAnswerFactory userAnswerFactory;
 
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
+
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerProgress.setCurrentSideBar(userAnswerList.getCurrentSideBar());
+            userAnswerProgress.setCurrentStep(userAnswerList.getCurrentStep());
+        }
+        return userAnswerList;
+    }
+
     /**
      * 保存答案
      */
@@ -80,8 +87,11 @@ public class UserAnswerBizService {
         // 保存用户答案
         iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
 
+        // 保存进度
+        iUserAnswerService.saveUserProgress(requestDTO, userId);
+
         // 获取用户答题状态
-        return false;
+        return requestDTO.getIsFinish();
     }
 
 

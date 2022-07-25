@@ -6,8 +6,10 @@ import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -39,6 +41,9 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
 
     @Override
     public Integer getUserType() {
@@ -94,5 +99,19 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer recordId) {
         userAnswerService.saveUserAnswer(requestDTO, userId, getUserType(), recordId);
+    }
+
+    @Override
+    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId) {
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
+
+        if (Objects.isNull(userAnswerProgress)) {
+            userAnswerProgress = new UserAnswerProgress();
+            userAnswerProgress.setUserId(userId);
+            userAnswerProgress.setUserType(getUserType());
+        }
+        userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
+        userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
+        userAnswerProgressService.saveOrUpdate(userAnswerProgress);
     }
 }
