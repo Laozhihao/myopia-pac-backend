@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.questionnaire.domain.dto;
+package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,4 +26,14 @@ public class QuestionAttribute {
      * 是否标题
      */
     private Boolean onlyTitle;
+
+    /**
+     * 是否隐藏
+     */
+    private Boolean isHidden;
+
+    /**
+     * 是否记分题目
+     */
+    private Boolean isScore;
 }
