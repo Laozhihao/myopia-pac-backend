@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.questionnaire.facade;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.HeadBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -14,9 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +37,7 @@ public class QuestionnaireFacade {
     private final QuestionService questionService;
 
     private static final Integer PID = -1;
-    private volatile int depth = 0;
+    private static AtomicInteger depth = new AtomicInteger(0);
 
     public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
@@ -98,8 +101,8 @@ public class QuestionnaireFacade {
         }
     }
 
-    public List<List<String>> getHead(Integer questionnaireId){
-        List<List<String>> headList =Lists.newArrayList();
+    private List<HeadBO> getHeadBO(Integer questionnaireId){
+        List<HeadBO> headList =Lists.newArrayList();
         QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
 
         List<QuestionnaireInfoBO.QuestionBO> questionList = questionnaireInfo.getQuestionList();
@@ -111,22 +114,33 @@ public class QuestionnaireFacade {
                 setHead(questionBOList,strList,headList);
             }
         }
-
-        for (List<String> list : headList) {
-            int size = list.size();
-            if (size < depth){
-                String s = list.get(size - 1);
-                for (int i = 0; i < (depth - size); i++) {
-                    list.add(s);
-                }
-            }
-        }
-
         return headList;
     }
 
+    /**
+     * 获取表头数据
+     * @param questionnaireId 问卷ID
+     */
+    public List<List<String>> getHead(Integer questionnaireId){
+        List<HeadBO> headBOList = getHeadBO(questionnaireId);
+        return headBOList.stream()
+                .map(HeadBO::getQuestionHead)
+                .collect(Collectors.toList());
+    }
 
-    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<List<String>> lists){
+    /**
+     * 获取表头数据的ID的顺序
+     * @param questionnaireId 问卷ID
+     */
+    public List<Integer> getQuestionIdSort(Integer questionnaireId){
+        List<HeadBO> headBOList = getHeadBO(questionnaireId);
+        return headBOList.stream()
+                .sorted(Comparator.comparing(HeadBO::getSort))
+                .map(HeadBO::getLastQuestionId)
+                .collect(Collectors.toList());
+    }
+
+    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<HeadBO> lists){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> cloneList = ObjectUtil.cloneByStream(list);
             cloneList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
@@ -134,10 +148,19 @@ public class QuestionnaireFacade {
             if (CollectionUtil.isNotEmpty(questionBOList)){
                 setHead(questionBOList,cloneList,lists);
             }else{
-                depth = CollectionUtil.max(Lists.newArrayList(depth,cloneList.size()));
-                lists.add(cloneList);
+                Integer depthValue = CollectionUtil.max(Lists.newArrayList(depth.get(),cloneList.size()));
+                depth.set(depthValue);
+                HeadBO headBO = new HeadBO()
+                        .setDepth(depth.get())
+                        .setQuestionDepthList(cloneList)
+                        .setLastQuestionId(questionBO.getQuestionId());
+                lists.add(headBO);
             }
         }
     }
 
+    public List<Integer> getLatestQuestionnaireIds(){
+        List<Questionnaire> questionnaireList = questionnaireService.getLatestData();
+        return questionnaireList.stream().map(Questionnaire::getId).collect(Collectors.toList());
+    }
 }

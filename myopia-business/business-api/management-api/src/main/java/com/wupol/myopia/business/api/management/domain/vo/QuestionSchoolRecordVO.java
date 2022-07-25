@@ -12,7 +12,11 @@ public class QuestionSchoolRecordVO {
     /**
      * 学校Id
      */
-    private String schoolId;
+    private Integer schoolId;
+    /**
+     * 学校编号
+     */
+    private String schoolNo;
 
     /**
      * 学校名称
@@ -53,4 +57,9 @@ public class QuestionSchoolRecordVO {
      * 0：未完成，1：进行中。2：已完成 学生环境填写状态
      */
     private Integer studentEnvironmentSurveyStatus;
+
+    /**
+     * 筛查任务ID
+     */
+    private Integer taskId;
 }

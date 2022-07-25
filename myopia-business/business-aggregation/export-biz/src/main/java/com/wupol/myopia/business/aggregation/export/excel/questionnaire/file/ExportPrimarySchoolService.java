@@ -14,6 +14,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 导出学生健康状况及影响因素调查表（小学版）
@@ -39,21 +41,34 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
     }
 
     @Override
-    public void generateExcelFile(ExportCondition exportCondition) throws IOException {
-        List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireList(exportCondition.getPlanId(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
+    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
+
+        List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireRecordList(exportCondition.getPlanId(), QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             return;
         }
-        for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
+        List<Integer> latestQuestionnaireIds = questionnaireFacade.getLatestQuestionnaireIds();
+
+        Map<Integer, List<UserQuestionRecord>> questionnaireMap = userQuestionRecordList.stream()
+                .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
+                .collect(Collectors.groupingBy(UserQuestionRecord::getQuestionnaireId));
+
+        ExcelDataConditionBO excelDataConditionBO = new ExcelDataConditionBO();
+        excelDataConditionBO.setQuestionnaireType(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
+        excelDataConditionBO.setScreeningPlanId(exportCondition.getPlanId());
+
+        for (Map.Entry<Integer, List<UserQuestionRecord>> entry : questionnaireMap.entrySet()) {
+            excelDataConditionBO.setQuestionnaireId(entry.getKey());
             List dataList = Lists.newArrayList();
-            getExcelData(exportCondition, dataList);
-            ExcelUtil.exportListToExcel(null, dataList, getHead(userQuestionRecord.getQuestionnaireId()));
+            getExcelData(excelDataConditionBO, dataList);
+            ExcelUtil.exportListToExcel(null, dataList, getHead(entry.getKey()));
         }
+
     }
 
     @Override
-    public void getExcelData(ExportCondition exportCondition, List dataList) {
-        List excelData = userAnswerFacade.getExcelData(new ExcelDataConditionBO());
+    public void getExcelData(ExcelDataConditionBO excelDataConditionBO, List dataList) {
+        List excelData = userAnswerFacade.getExcelData(excelDataConditionBO);
         if (!CollectionUtils.isEmpty(excelData)){
             dataList.addAll(excelData);
         }

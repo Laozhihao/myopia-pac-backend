@@ -2,13 +2,8 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.functio
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
-import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 按学校导出类型
@@ -19,7 +14,7 @@ import java.util.List;
 public class SchoolStatisticsExportType implements ExportType {
 
     @Autowired
-    private SchoolService schoolService;
+    private ExportTypeFacade exportTypeFacade;
 
     private static final String KEY = "%s的%s的问卷数据";
     private static final String FILE_EXPORT_EXCEL = "file:export:excel:schoolStatistics:%s-%s-%s-%s";
@@ -32,12 +27,12 @@ public class SchoolStatisticsExportType implements ExportType {
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        return getKey(exportCondition);
+        return exportTypeFacade.getSchoolKey(exportCondition,KEY);
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return getKey(exportCondition);
+        return exportTypeFacade.getSchoolKey(exportCondition,KEY);
     }
 
     @Override
@@ -47,12 +42,5 @@ public class SchoolStatisticsExportType implements ExportType {
                 exportCondition.getPlanId(),
                 exportCondition.getSchoolId(),
                 exportCondition.getQuestionnaireType().get(0));
-    }
-
-    private String getKey(ExportCondition exportCondition){
-        School school = schoolService.getById(exportCondition.getSchoolId());
-        List<Integer> questionnaireType = exportCondition.getQuestionnaireType();
-        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType.get(0));
-        return String.format(KEY,school.getName(),questionnaireTypeEnum.getDesc());
     }
 }

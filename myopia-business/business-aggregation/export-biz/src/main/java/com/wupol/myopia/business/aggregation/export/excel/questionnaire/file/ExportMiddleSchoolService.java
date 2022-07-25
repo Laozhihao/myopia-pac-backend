@@ -1,16 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
-import com.google.common.collect.Lists;
-import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.ExcelDataConditionBO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.facade.UserAnswerFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,23 +35,11 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
     }
 
     @Override
-    public void generateExcelFile(ExportCondition exportCondition) throws IOException {
-        List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireList(exportCondition.getPlanId(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
-        if (CollectionUtils.isEmpty(userQuestionRecordList)){
-            return;
-        }
-        for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
-            List dataList = Lists.newArrayList();
-            getExcelData(exportCondition, dataList);
-            ExcelUtil.exportListToExcel(null, dataList, getHead(userQuestionRecord.getQuestionnaireId()));
-        }
+    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
+
     }
 
     @Override
-    public void getExcelData(ExportCondition exportCondition, List dataList) {
-        List excelData = userAnswerFacade.getExcelData(new ExcelDataConditionBO());
-        if (!CollectionUtils.isEmpty(excelData)){
-            dataList.addAll(excelData);
-        }
+    public void getExcelData(ExcelDataConditionBO excelDataConditionBO, List dataList) {
     }
 }

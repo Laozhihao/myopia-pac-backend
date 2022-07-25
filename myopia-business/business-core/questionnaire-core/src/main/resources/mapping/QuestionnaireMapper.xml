@@ -36,4 +36,9 @@
         from q_questionnaire
         where id = #{id}
     </select>
+
+    <select id="getLatestData" resultMap="BaseResultMap">
+        select * from q_questionnaire
+        where `year` = (select max(`year`) from q_questionnaire)
+    </select>
 </mapper>

@@ -41,4 +41,12 @@ public class ExportQuestionnaireDTO {
      * 筛查机构ID
      **/
     private Integer screeningOrgId;
+    /**
+     * 筛查通知ID
+     */
+    private Integer screeningNoticeId;
+    /**
+     * 筛查任务ID
+     */
+    private Integer taskId;
 }

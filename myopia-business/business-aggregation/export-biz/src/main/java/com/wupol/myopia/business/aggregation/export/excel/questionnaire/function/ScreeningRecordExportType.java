@@ -2,10 +2,6 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.functio
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +16,7 @@ import java.util.Objects;
 public class ScreeningRecordExportType implements ExportType {
 
     @Autowired
-    private SchoolService schoolService;
-    @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
+    private ExportTypeFacade exportTypeFacade;
 
     private static final String ALL_KEY = "%s筛查计划下学生问卷数据";
     private static final String KEY_FOLDER = "%s学生问卷数据";
@@ -37,12 +31,12 @@ public class ScreeningRecordExportType implements ExportType {
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        return getKey(exportCondition,ALL_KEY,SCHOOL_KEY);
+        return exportTypeFacade.getOrgOrSchoolKey(exportCondition,ALL_KEY,SCHOOL_KEY);
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return getKey(exportCondition,KEY_FOLDER,KEY_FOLDER);
+        return exportTypeFacade.getOrgOrSchoolKey(exportCondition,KEY_FOLDER,KEY_FOLDER);
     }
 
     @Override
@@ -55,14 +49,4 @@ public class ScreeningRecordExportType implements ExportType {
         }
     }
 
-    private String getKey(ExportCondition exportCondition,String allKey,String schoolKey){
-        Integer schoolId = exportCondition.getSchoolId();
-        if (Objects.isNull(schoolId)){
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-            return String.format(allKey,screeningOrganization.getName());
-        }else {
-            School school = schoolService.getById(schoolId);
-            return String.format(schoolKey,school.getName());
-        }
-    }
 }

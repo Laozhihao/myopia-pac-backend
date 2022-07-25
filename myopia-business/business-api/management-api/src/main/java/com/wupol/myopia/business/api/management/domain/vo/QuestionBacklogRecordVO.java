@@ -13,7 +13,11 @@ public class QuestionBacklogRecordVO {
     /**
      * 学校Id
      */
-    private String schoolId;
+    private Integer schoolId;
+    /**
+     * 学校编号
+     */
+    private String schoolNo;
 
     /**
      * 学校名称
@@ -49,4 +53,10 @@ public class QuestionBacklogRecordVO {
      * 环境调查表Id，没有返回null
      */
     private Integer environmentalId;
+
+    /**
+     * 筛查任务ID
+     */
+    private Integer taskId;
+
 }

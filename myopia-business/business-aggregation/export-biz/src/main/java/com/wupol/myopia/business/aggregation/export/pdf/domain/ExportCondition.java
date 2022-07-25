@@ -77,6 +77,10 @@ public class ExportCondition {
      * 问卷类型
      */
     private List<Integer> questionnaireType;
+    /**
+     * 筛查任务ID
+     */
+    private Integer taskId;
 
 
 }

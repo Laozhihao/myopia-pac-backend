@@ -48,6 +48,9 @@ public class UserAnswer implements Serializable {
      */
     private Integer questionId;
 
+
+    private Integer recordId;
+
     /**
      * 问题标题
      */

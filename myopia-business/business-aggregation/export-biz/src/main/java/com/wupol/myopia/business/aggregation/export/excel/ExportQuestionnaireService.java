@@ -27,6 +27,8 @@ import java.util.Optional;
 @Service(ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE)
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
+    private static final String ERROR_MSG ="不存在此导出类型:%s";
+
     @Autowired
     private QuestionnaireExcelFacade questionnaireExcelFacade;
 
@@ -44,7 +46,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成excel
-            generateExcelFile(null,null,exportCondition);
+            generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
             File file = compressFile(fileSavePath);
             // 6.上传文件
@@ -53,6 +55,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 8.发送成功通知
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
+            log.info("{}-{}-{}-{}",fileName,parentPath,fileSavePath,noticeKeyContent);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【导出Excel异常】{}", requestData, e);
@@ -78,7 +81,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
                 Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFacade.getQuestionnaireExcelService(questionnaireType);
                 if (questionnaireExcelService.isPresent()) {
                     QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-                    questionnaireExcel.generateExcelFile(exportCondition);
+                    questionnaireExcel.generateExcelFile(exportCondition,fileName);
                 }
             }
         }
@@ -92,7 +95,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             ExportType exportType = exportTypeService.get();
             return exportType.getNoticeKeyContent(exportCondition);
         }
-        throw new BusinessException(String.format("不存在此导出类型:%s",exportCondition.getExportType()));
+        throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
     }
 
     @Override
@@ -102,7 +105,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             ExportType exportType = exportTypeService.get();
             return exportType.getFileName(exportCondition);
         }
-        throw new BusinessException(String.format("不存在此导出类型:%s",exportCondition.getExportType()));
+        throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
     }
 
     @Override
@@ -112,7 +115,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             ExportType exportType = exportTypeService.get();
             return exportType.getLockKey(exportCondition);
         }
-        throw new BusinessException(String.format("不存在此导出类型:%s",exportCondition.getExportType()));
+        throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
     }
 
 
@@ -126,4 +129,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return null;
     }
 
+    @Override
+    public void validateBeforeExport(ExportCondition exportCondition) {
+        // do something validate parameter
+    }
 }

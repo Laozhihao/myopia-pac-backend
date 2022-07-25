@@ -309,7 +309,8 @@ public class QuestionnaireManagementService {
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
             vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getSchoolNo());
+            vo.setSchoolId(item.getId());
+            vo.setSchoolNo(item.getSchoolNo());
             vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
@@ -323,6 +324,7 @@ public class QuestionnaireManagementService {
             ScreeningPlan plan = planMap.get(schoolIdsPlanMap.get(item.getId()).getScreeningPlanId());
             vo.setStudentSpecialSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentSpecialMap));
             vo.setStudentEnvironmentSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentEnvironmentMap));
+            vo.setTaskId(questionSearchDTO.getTaskId());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionSchoolRecordVO> returnPage = new Page<>();
@@ -392,12 +394,14 @@ public class QuestionnaireManagementService {
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
             vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getSchoolNo());
+            vo.setSchoolId(item.getId());
+            vo.setSchoolNo(item.getSchoolNo());
             vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
             vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
             vo.setAreaId(item.getId());
             vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
+            vo.setTaskId(questionSearchDTO.getTaskId());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionBacklogRecordVO> returnPage = new Page<>();
@@ -539,28 +543,62 @@ public class QuestionnaireManagementService {
         return Lists.newArrayList();
     }
 
+    /**
+     * 没数据中没有选中了，选中的是有数据或者默认的
+     *
+     * @param screeningPlanId
+     * @param exportType
+     */
     public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType) {
+        List<Integer> studentTypeList = Lists.newArrayList(3, 4, 5);
+        Integer studentType = 12;
+
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
-        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(questionnaireTypeEnum -> new QuestionnaireTypeVO.QuestionnaireType(questionnaireTypeEnum.getType(), questionnaireTypeEnum.getDesc())).collect(Collectors.toList());
+        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Arrays.stream(QuestionnaireTypeEnum.values())
+                .filter(questionnaireTypeEnum -> !studentTypeList.contains(questionnaireTypeEnum.getType()))
+                .map(questionnaireTypeEnum -> new QuestionnaireTypeVO.QuestionnaireType(questionnaireTypeEnum.getType(), questionnaireTypeEnum.getDesc())).collect(Collectors.toList());
+
+        questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(studentType,"学生健康状况及影响因素调查表"));
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+
+        List<Integer> typeList;
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
-            List<Integer> typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).collect(Collectors.toList());
+            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).collect(Collectors.toList());
             typeList.removeAll(questionnaireTypes);
+            boolean flag=false;
+            Iterator<Integer> it = typeList.iterator();
+            while (it.hasNext()){
+                if (studentTypeList.contains(it.next())){
+                    flag=true;
+                    it.remove();
+                }
+            }
+            if (flag){
+                typeList.add(studentType);
+            }
+            questionnaireTypeVO.setNoDataList(typeList);
+        }else {
+            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).filter(type->!studentTypeList.contains(type)).collect(Collectors.toList());
+            typeList.add(studentType);
+            typeList = Lists.newArrayList(2);
             questionnaireTypeVO.setNoDataList(typeList);
         }
-        questionnaireTypeVO.setSelectList(Lists.newArrayList(12));
-        switch (exportType){
-            case 11:
-            case 13:
-            case 14:
-            case 15:
-                questionnaireTypeVO.setSelectList(Lists.newArrayList(12));
-                break;
-            default:
-                break;
+        questionnaireTypeVO.setSelectList(Lists.newArrayList());
+        if (!typeList.contains(studentType)){
+            switch (exportType){
+                case 11:
+                case 13:
+                case 14:
+                case 15:
+                    questionnaireTypeVO.getSelectList().add(studentType);
+                    break;
+                default:
+                    break;
+            }
         }
+
         return questionnaireTypeVO;
     }
 }

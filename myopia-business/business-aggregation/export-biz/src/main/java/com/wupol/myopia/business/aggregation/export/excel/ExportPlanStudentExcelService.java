@@ -137,7 +137,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
-        // Do nothing validate parameter
+        // do something validate parameter
     }
 
     @Override
