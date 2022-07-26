@@ -721,7 +721,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/school")
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
-        return this.screeningPlanService.getSchoolBySchoolNo(schoolNo,password);
+        return this.screeningPlanStudentBizService.getSchoolBySchoolNo(schoolNo,password);
     }
 
 
