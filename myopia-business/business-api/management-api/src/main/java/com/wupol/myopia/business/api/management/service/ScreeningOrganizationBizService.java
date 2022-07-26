@@ -1,12 +1,14 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
@@ -35,6 +37,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -48,7 +51,6 @@ import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -76,7 +77,7 @@ public class ScreeningOrganizationBizService {
     @Resource
     private ScreeningPlanService screeningPlanService;
     @Resource
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
     @Resource
     private SchoolService schoolService;
     @Resource
@@ -195,7 +196,7 @@ public class ScreeningOrganizationBizService {
         List<RecordDetails> details = new ArrayList<>();
 
         Integer planId = planResponse.getId();
-        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
+        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
         Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
@@ -231,58 +232,85 @@ public class ScreeningOrganizationBizService {
         Map<Integer, List<StatConclusion>> rescreenSchoolMap;
         List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
         if (CollectionUtils.isEmpty(results)) {
-            rescreenSchoolMap = new HashMap<>();
+            rescreenSchoolMap = Maps.newHashMap();
         } else {
             rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         }
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.list(new LambdaQueryWrapper<UserQuestionRecord>()
-                .eq(UserQuestionRecord::getPlanId, planId)
-                .notIn(UserQuestionRecord::getQuestionnaireType, Arrays.asList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()))
-        );
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(planId),Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        Map<Integer, List<Student>> userGradeIdMap = studentService.getByIds(userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toList()))
+        Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
+        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)
                 .stream().collect(Collectors.groupingBy(Student::getGradeId));
-        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
-
-        // 封装DTO
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = !userQuestionRecords.isEmpty() ? schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId)) : Maps.newHashMap();
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
             detail.setSchoolId(schoolId);
             if (null != schoolMaps.get(schoolId)) {
                 detail.setSchoolName(schoolMaps.get(schoolId).getName());
             }
-            detail.setRealScreeningNumbers(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId).size());
+            detail.setRealScreeningNumbers(visionScreeningResultService.count(new VisionScreeningResult().setSchoolId(schoolId).setScreeningOrgId(orgId).setPlanId(planId).setIsDoubleScreen(Boolean.FALSE)));
             detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
             detail.setScreeningPlanId(planId);
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());
             detail.setPlanTitle(planResponse.getTitle());
-
-            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = com.alibaba.excel.util.CollectionUtils
-                    .isEmpty(schoolMap.get(schoolId)) ? new HashMap<>() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getUserId));
-
-            if (detail.getPlanScreeningNumbers() == 0) {
-                detail.setQuestionnaire("0,0.00%");
-            } else {
-                detail.setQuestionnaire(schoolStudentMap.keySet().size() + "," + new DecimalFormat("0.00").format((schoolStudentMap.keySet().size() / (float) detail.getPlanScreeningNumbers()) * 100) + "%");
-            }
+            buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
-            detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
-            detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
-            detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
-            detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
-            detail.setGradeQuestionnaireInfos(gradeIdMap.get(schoolId).stream().map(grade->{
-                GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
-                questionnaireInfo.setGradeName(grade.getName());
-                questionnaireInfo.setGradeId(grade.getId());
-                questionnaireInfo.setStudentCount(org.springframework.util.CollectionUtils.isEmpty(userGradeIdMap.get(grade.getId())) ? 0 : userGradeIdMap.get(grade.getId()).size());
-                return questionnaireInfo;
-            }).collect(Collectors.toList()));
+            buildScreening(detail,planId,schoolId,rescreenSchoolMap);
             details.add(detail);
         });
         response.setDetails(details);
         planResponse.setItems(response);
+    }
+
+    /**
+     * 组装复测数据
+     *
+     * @param detail
+     * @param planId
+     * @param schoolId
+     * @param rescreenSchoolMap
+     * @return
+     */
+    private RecordDetails buildScreening(RecordDetails detail,
+                                         Integer planId,
+                                         Integer schoolId,
+                                         Map<Integer, List<StatConclusion>> rescreenSchoolMap){
+        detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
+        detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
+        detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
+        detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
+        return detail;
+    }
+
+    /**
+     * 组装问卷相关
+     *
+     * @param detail
+     * @param schoolMap
+     * @param schoolId
+     * @return
+     */
+    private RecordDetails buildQuestion(RecordDetails detail,
+                                        Map<Integer, List<UserQuestionRecord>> schoolMap,
+                                        Integer schoolId,
+                                        Map<Integer, List<Student>> userGradeIdMap,
+                                        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap){
+        Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
+                .isEmpty(schoolMap.get(schoolId)) ? Maps.newHashMap() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
+        if (detail.getPlanScreeningNumbers() == 0) {
+            detail.setQuestionnaire("0," + CommonConst.PERCENT_ZERO);
+            detail.setQuestionnaireStudentCount(0);
+        } else {
+            detail.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
+            BigDecimal questionNum = MathUtil.divide(schoolStudentMap.keySet().size(), detail.getPlanScreeningNumbers());
+            detail.setQuestionnaire(schoolStudentMap.keySet().size() + "," + (questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%"));
+        }
+        if (!CollectionUtils.isEmpty(gradeIdMap.get(schoolId)) && detail.getPlanScreeningNumbers() != 0) {
+            detail.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(schoolId, gradeIdMap, userGradeIdMap));
+        }
+        return detail;
     }
 
 

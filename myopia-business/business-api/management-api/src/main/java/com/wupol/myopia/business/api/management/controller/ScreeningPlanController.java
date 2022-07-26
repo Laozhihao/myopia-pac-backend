@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
-import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -19,9 +18,9 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
-import com.wupol.myopia.business.api.management.constant.AuthConstant;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
@@ -31,19 +30,15 @@ import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStude
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
-import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
-import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -86,6 +81,8 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
+    @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private PlanStudentExcelImportService planStudentExcelImportService;
@@ -111,8 +108,6 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ReviewInformService reviewInformService;
-    @Autowired
-    private SchoolService schoolService;
     /**
      * 新增
      *
@@ -213,7 +208,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
     /**
@@ -226,7 +221,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfoWithPlan(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.querySchoolsInfoInPlanHavaStudent(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.querySchoolsInfoInPlanHaveStudent(screeningPlanId, schoolName);
     }
 
     /**
@@ -555,7 +550,7 @@ public class ScreeningPlanController {
     @GetMapping("schools/haveResult/{screeningPlanId}")
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
-        return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getHaveResultSchool(screeningPlanId, schoolName);
     }
 
     /**
@@ -718,19 +713,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student")
     public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
-        //查询该学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
-        if (!CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
-            //是否有筛查计划
-            ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-            if (Objects.nonNull(student)) {
-                return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
-            }
-            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        return this.screeningPlanService.getStudentByCredentialNo(credentialNo,studentName);
     }
 
     /**
@@ -741,29 +724,19 @@ public class ScreeningPlanController {
      */
     @GetMapping("/school")
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
-        School school = checkPassword(password, schoolNo);
-        if (Objects.isNull(school)) {
-            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
-        }
-        //是否有筛查计划
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
-        if (Objects.nonNull(screeningPlanSchool)) {
-            return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
+        return this.screeningPlanService.getSchoolBySchoolNo(schoolNo,password);
     }
 
 
+
     /**
-     * 校验学校密码
-     * @param password
-     * @param schoolNo
+     * 校验政府是否能够登录问卷系统
+     *
+     * @param orgId
      * @return
      */
-    public School checkPassword(String password,String schoolNo){
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD,password)) {
-            return null;
-        }
-        return schoolService.getBySchoolNo(schoolNo);
+    @GetMapping("/government")
+    public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
+        return this.screeningPlanService.checkGovernmentLogin(orgId);
     }
 }
