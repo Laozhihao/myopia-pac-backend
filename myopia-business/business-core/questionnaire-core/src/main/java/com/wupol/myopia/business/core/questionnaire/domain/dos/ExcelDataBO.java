@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.questionnaire.domain.dto;
+package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Data;
 

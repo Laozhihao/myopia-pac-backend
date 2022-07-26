@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.ExcelDataConditionBO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelDataConditionBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.facade.UserAnswerFacade;
@@ -17,7 +15,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

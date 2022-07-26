@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.ExcelDataConditionBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelDataConditionBO;
 
 import java.io.IOException;
 import java.util.List;

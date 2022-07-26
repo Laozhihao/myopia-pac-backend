@@ -2,7 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.ExcelDataConditionBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelDataConditionBO;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.facade.UserAnswerFacade;
 import org.springframework.beans.factory.annotation.Autowired;
