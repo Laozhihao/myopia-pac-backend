@@ -41,4 +41,15 @@ public class UserAnswerController {
         return userAnswerBizService.saveUserAnswer(requestDTO, user);
     }
 
+    @GetMapping("isFinish")
+    public Boolean userAnswerIsFinish() {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.userAnswerIsFinish(user);
+    }
+
+    @GetMapping
+    public void getUserStatus() {
+        CurrentUserUtil.getCurrentUser();
+    }
+
 }
