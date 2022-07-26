@@ -88,7 +88,7 @@ public class UserAnswerBizService {
         iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
 
         // 保存进度
-        iUserAnswerService.saveUserProgress(requestDTO, userId);
+        iUserAnswerService.saveUserProgress(requestDTO, userId, requestDTO.getIsFinish());
 
         // 获取用户答题状态
         return iUserAnswerService.getUserAnswerIsFinish(userId);

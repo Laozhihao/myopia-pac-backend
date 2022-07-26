@@ -38,7 +38,7 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId) {
+    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
 
     }
 

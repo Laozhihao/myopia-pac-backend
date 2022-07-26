@@ -18,15 +18,11 @@ import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -74,8 +70,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
                 // 清空用户答案进度表
                 UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
                 if (Objects.nonNull(userAnswerProgress)) {
-                    userAnswerProgress.setCurrentStep(StringUtils.EMPTY);
-                    userAnswerProgress.setCurrentSideBar(StringUtils.EMPTY);
+                    userAnswerProgress.setCurrentStep(null);
+                    userAnswerProgress.setCurrentSideBar(null);
+                    userAnswerProgress.setUpdateTime(new Date());
+                    userAnswerProgressService.updateById(userAnswerProgress);
                 }
             }
             return userQuestionRecord.getId();
@@ -117,7 +115,11 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId) {
+    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
+        // 完成不需要保存进度
+        if (Objects.equals(isFinish, Boolean.TRUE)) {
+            return;
+        }
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
 
         if (Objects.isNull(userAnswerProgress)) {
