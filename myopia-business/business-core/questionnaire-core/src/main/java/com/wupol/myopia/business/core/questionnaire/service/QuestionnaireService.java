@@ -131,16 +131,18 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param questionResponse
      * @param jumpIdsDO
      */
-    protected void setJumpIds(QuestionResponse questionResponse, JumpIdsDO jumpIdsDO) {
+    protected void setJumpIds(QuestionResponse questionResponse, List<JumpIdsDO> jumpIdsDO) {
         List<Option> options = questionResponse.getOptions();
         if (CollectionUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
             return;
         }
         options = JSONObject.parseArray(JSONObject.toJSONString(options), Option.class);
+        jumpIdsDO = JSONObject.parseArray(JSONObject.toJSONString(jumpIdsDO), JumpIdsDO.class);
+        Map<String, JumpIdsDO> jumpIdsDOMap = jumpIdsDO.stream().collect(Collectors.toMap(JumpIdsDO::getOptionId, Function.identity()));
         options.forEach(option -> {
-            if (option.getId().equals(jumpIdsDO.getOptionId())) {
-                option.setJumpIds(jumpIdsDO.getJumpIds());
-                return;
+            JumpIdsDO result = jumpIdsDOMap.get(option.getId());
+            if (Objects.nonNull(result)) {
+                option.setJumpIds(result.getJumpIds());
             }
         });
         questionResponse.setOptions(options);
