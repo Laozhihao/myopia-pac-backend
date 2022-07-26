@@ -100,25 +100,6 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     }
 
     /**
-     * 通过问卷Id、用户Id获取答案
-     *
-     * @param questionnaireId 问卷Id
-     * @param userType        用户类型
-     *
-     * @return List<UserAnswer>
-     */
-    public List<UserAnswer> getByQuestionnaireIdAndUserTypeAndQuestionIds(Integer questionnaireId, Integer userId,
-                                                                          Integer userType, Collection<Integer> questionIds) {
-
-        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
-                .eq(UserAnswer::getUserId, userId)
-                .eq(UserAnswer::getUserType, userType)
-                .in(UserAnswer::getQuestionId, questionIds);
-        return baseMapper.selectList(wrapper);
-    }
-
-    /**
      * 通过问题Id获取答案
      *
      * @return List<UserAnswer>

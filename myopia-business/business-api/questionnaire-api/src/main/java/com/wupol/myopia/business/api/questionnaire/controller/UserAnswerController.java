@@ -5,7 +5,6 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

@@ -101,7 +101,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public void deletedUserAnswer(Integer questionnaireId, Integer userId,
                                   List<UserAnswerDTO.QuestionDTO> questionList) {
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionnaireIdAndUserTypeAndQuestionIds(questionnaireId,
+        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId,
                 userId,
                 getUserType(),
                 questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
