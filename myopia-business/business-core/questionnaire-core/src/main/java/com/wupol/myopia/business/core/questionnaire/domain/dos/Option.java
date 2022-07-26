@@ -1,15 +1,16 @@
-package com.wupol.myopia.business.core.questionnaire.domain.dto;
+package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 问卷-属性
  *
  * @author Simple4H
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 public class Option {
@@ -25,6 +26,11 @@ public class Option {
     private String text;
 
     /**
+     * 类型
+     */
+    private String type;
+
+    /**
      * 属性
      */
     private OptionAttribute attribute;
@@ -33,4 +39,15 @@ public class Option {
      * 系统序号
      */
     private String serialNumber;
+
+    /**
+     * 跳转题目Id
+     */
+    private List<Integer> jumpIds;
+
+
+    /**
+     * 转换里层的json
+     */
+    private JSONObject option;
 }

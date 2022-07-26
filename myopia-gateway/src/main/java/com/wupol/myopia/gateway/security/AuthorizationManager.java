@@ -35,6 +35,10 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
     @Autowired
     private RedisUtil redisUtil;
+    /**
+     * 问卷系统请求映射正则表达式
+     */
+    public static final String QUESTIONNAIRE_REQUEST_MAPPING_REGEX = "/questionnaire/**";
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
@@ -71,9 +75,13 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode) || SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) || SystemCode.SCHOOL_CLIENT.getCode().equals(systemCode)) {
             return Mono.just(new AuthorizationDecision(true));
         }
-        // 问卷系统 不进行检验接口访问权限。 TODO：等后面系统迭代中，有了维护各个端的接口资源权限地方，再打开
+        // 问卷系统 若访问路径不是问卷系统的，不给访问权限
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
-            return Mono.just(new AuthorizationDecision(true));
+            if (pathMatcher.match(QUESTIONNAIRE_REQUEST_MAPPING_REGEX, path)) {
+                return Mono.just(new AuthorizationDecision(true));
+            } else {
+                return Mono.just(new AuthorizationDecision(false));
+            }
         }
         // 判断接口访问权限
         List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));

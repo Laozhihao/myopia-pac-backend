@@ -17,14 +17,13 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
 
 
     /**
-     * 根据问卷ID获取问卷和问题关系
-     *
-     * @param questionnaireId 问卷ID
+     * 通过问卷Id获取QuestionnaireQuestion
+     * @param questionnaireId
+     * @return
      */
-    public List<QuestionnaireQuestion> listByQuestionnaireId(Integer questionnaireId){
-        LambdaQueryWrapper<QuestionnaireQuestion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(QuestionnaireQuestion::getQuestionnaireId,questionnaireId);
-        return baseMapper.selectList(queryWrapper);
+    public List<QuestionnaireQuestion> listByQuestionnaireId(Integer questionnaireId) {
+        return this.list(new LambdaQueryWrapper<QuestionnaireQuestion>()
+                .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
+                .orderByAsc(QuestionnaireQuestion::getId));
     }
-
 }
