@@ -46,8 +46,12 @@ public class SecurityUserDetails implements UserDetails {
         // 学校端为-QuestionnaireUserId
         if (SystemCode.QUESTIONNAIRE.getCode().equals(user.getSystemCode())) {
             this.userInfo.setQuestionnaireUserId(user.getId());
-            this.userInfo.setId(UserType.QUESTIONNAIRE_STUDENT.getType().equals(user.getUserType()) ?
-                    -user.getId() - 10000000 : -user.getId());
+            //学生跟学校需要set Id
+            if (UserType.QUESTIONNAIRE_STUDENT.getType().equals(user.getUserType())
+                    || UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType())) {
+                this.userInfo.setId(UserType.QUESTIONNAIRE_STUDENT.getType().equals(user.getUserType()) ?
+                        -user.getId() - 10000000 : -user.getId());
+            }
         }
         this.userInfo.setRoleTypes(roles.stream().map(Role::getRoleType).distinct().collect(Collectors.toList()));
         this.userInfo.setClientId(clientId);

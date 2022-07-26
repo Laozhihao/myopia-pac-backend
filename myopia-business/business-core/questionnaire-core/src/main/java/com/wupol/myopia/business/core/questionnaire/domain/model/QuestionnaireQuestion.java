@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -25,6 +25,11 @@ import lombok.experimental.Accessors;
 public class QuestionnaireQuestion implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 顶层父级的标志Id
+     */
+    public static final int TOP_PARENT_ID  = -1;
 
     /**
      * id

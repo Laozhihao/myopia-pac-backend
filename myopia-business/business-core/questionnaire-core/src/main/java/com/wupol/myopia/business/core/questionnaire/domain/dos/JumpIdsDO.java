@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.questionnaire.domain.dto;
+package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +17,7 @@ public class JumpIdsDO {
     /**
      * 选项Id
      */
-    private Integer optionId;
+    private String optionId;
 
     /**
      * 跳转题目Id

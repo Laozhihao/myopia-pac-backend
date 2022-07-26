@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.questionnaire.domain.dto;
+package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +41,11 @@ public class OptionAttribute {
      * 是否必填
      */
     private Boolean required;
+
+    /**
+     * 记分题目-分值
+     */
+    private Integer scoreValue;
 
 
 }
