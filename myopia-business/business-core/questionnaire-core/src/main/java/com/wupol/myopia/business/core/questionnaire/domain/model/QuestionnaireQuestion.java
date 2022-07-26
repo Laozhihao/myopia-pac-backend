@@ -1,6 +1,13 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import lombok.Data;

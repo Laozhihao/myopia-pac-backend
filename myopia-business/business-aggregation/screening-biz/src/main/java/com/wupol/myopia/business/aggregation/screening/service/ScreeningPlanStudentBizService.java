@@ -8,13 +8,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
@@ -33,12 +36,16 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.AuthConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.QuestionnaireUser;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -107,7 +114,8 @@ public class ScreeningPlanStudentBizService {
     private DeletedArchiveService deletedArchiveService;
     @Autowired
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 筛查通知结果页面地址
@@ -510,5 +518,38 @@ public class ScreeningPlanStudentBizService {
         Integer screeningPlanId = screeningPlanSchoolStudent.getScreeningPlanId();
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
+    }
+
+    /**
+     * 根据学校编号跟密码 获取学校信息
+     *
+     * @param schoolNo
+     * @return
+     */
+    public ApiResult getSchoolBySchoolNo(String schoolNo, String password) {
+        School school = checkPassword(password, schoolNo);
+        if (Objects.isNull(school)) {
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        }
+        //是否有筛查计划
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
+        if (Objects.nonNull(screeningPlanSchool)) {
+            return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
+        }
+        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
+    }
+
+    /**
+     * 校验学校密码
+     *
+     * @param password
+     * @param schoolNo
+     * @return
+     */
+    public School checkPassword(String password, String schoolNo) {
+        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
+            return null;
+        }
+        return schoolService.getBySchoolNo(schoolNo);
     }
 }
