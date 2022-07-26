@@ -50,7 +50,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成excel
-            generateExcelFile(fileSavePath,null,exportCondition);
+//            generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
             File file = compressFile(fileSavePath);
             // 6.上传文件
