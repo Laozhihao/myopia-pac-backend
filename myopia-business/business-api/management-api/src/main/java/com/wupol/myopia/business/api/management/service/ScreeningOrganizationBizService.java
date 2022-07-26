@@ -241,7 +241,7 @@ public class ScreeningOrganizationBizService {
         Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
         Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)
                 .stream().collect(Collectors.groupingBy(Student::getGradeId));
-        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = !CollectionUtils.isEmpty(studentIds) ? schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId)) : Maps.newHashMap();
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
             detail.setSchoolId(schoolId);
