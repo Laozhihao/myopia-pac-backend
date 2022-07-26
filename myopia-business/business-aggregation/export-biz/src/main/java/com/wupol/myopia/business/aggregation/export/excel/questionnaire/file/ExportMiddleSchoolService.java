@@ -36,7 +36,7 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
 
     @Override
     public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
-
+        System.out.println("中学版");
     }
 
     @Override

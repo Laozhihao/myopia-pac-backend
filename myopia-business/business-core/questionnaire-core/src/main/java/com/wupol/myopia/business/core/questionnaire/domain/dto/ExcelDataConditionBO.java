@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 获取excel数据条件实体
  *
@@ -20,7 +22,7 @@ public class ExcelDataConditionBO {
     /**
      * 问卷类型
      */
-    private Integer questionnaireType;
+    private List<Integer> questionnaireTypeList;
 
     /**
      * 问卷ID

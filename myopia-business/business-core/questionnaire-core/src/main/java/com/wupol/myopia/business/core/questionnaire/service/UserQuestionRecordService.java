@@ -37,16 +37,4 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         return baseMapper.selectList(queryWrapper);
     }
 
-    /**
-     * 根据对应导出数据条件查询数据
-     *
-     * @param excelDataConditionBO 导出数据条件
-     */
-    public List<UserQuestionRecord> getList(ExcelDataConditionBO excelDataConditionBO){
-        LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserQuestionRecord::getQuestionnaireId,excelDataConditionBO.getQuestionnaireId());
-        queryWrapper.eq(UserQuestionRecord::getQuestionnaireId,excelDataConditionBO.getQuestionnaireType());
-        queryWrapper.eq(UserQuestionRecord::getPlanId,excelDataConditionBO.getScreeningPlanId());
-        return baseMapper.selectList(queryWrapper);
-    }
 }

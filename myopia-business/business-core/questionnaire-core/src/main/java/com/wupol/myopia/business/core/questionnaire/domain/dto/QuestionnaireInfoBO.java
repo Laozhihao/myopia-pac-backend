@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 问卷信息
@@ -28,6 +30,11 @@ public class QuestionnaireInfoBO {
 
     @Data
     public static class QuestionBO{
+
+        /**
+         * 问卷问题关联表ID
+         */
+        private Integer questionnaireQuestionId;
         /**
          * 问题Id
          */
@@ -46,6 +53,13 @@ public class QuestionnaireInfoBO {
          */
         private List<QuestionBO> questionBOList;
 
+
+        public String getQuestionSerialNumber() {
+            if (StrUtil.isBlank(questionSerialNumber)){
+                return StrUtil.EMPTY;
+            }
+            return questionSerialNumber;
+        }
     }
 
 }

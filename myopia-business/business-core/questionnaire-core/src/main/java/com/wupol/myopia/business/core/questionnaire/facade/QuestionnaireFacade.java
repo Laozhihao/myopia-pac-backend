@@ -3,17 +3,21 @@ package com.wupol.myopia.business.core.questionnaire.facade;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.HeadBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -69,6 +73,7 @@ public class QuestionnaireFacade {
         for (QuestionnaireQuestion questionnaireQuestion : questionPidList) {
             QuestionnaireInfoBO.QuestionBO questionBO = new QuestionnaireInfoBO.QuestionBO();
             Question question = questionMap.get(questionnaireQuestion.getQuestionId());
+            questionBO.setQuestionnaireQuestionId(questionnaireQuestion.getId());
             questionBO.setQuestionId(question.getId());
             questionBO.setQuestionName(question.getTitle());
             questionBO.setQuestionSerialNumber(questionnaireQuestion.getSerialNumber());
@@ -153,14 +158,120 @@ public class QuestionnaireFacade {
                 HeadBO headBO = new HeadBO()
                         .setDepth(depth.get())
                         .setQuestionDepthList(cloneList)
-                        .setLastQuestionId(questionBO.getQuestionId());
+                        .setLastQuestionId(questionBO.getQuestionId())
+                        .setSort(questionBO.getQuestionnaireQuestionId());
                 lists.add(headBO);
             }
         }
     }
 
-    public List<Integer> getLatestQuestionnaireIds(){
+    /**
+     * 获取最新问卷ID集合
+     *
+     * @return 问卷集合
+     */
+    public List<Integer> getLatestQuestionnaireIds(List<Integer> questionnaireTypeList){
         List<Questionnaire> questionnaireList = questionnaireService.getLatestData();
-        return questionnaireList.stream().map(Questionnaire::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(questionnaireList)){
+            throw new BusinessException("暂未发现相关问卷");
+        }
+        return questionnaireList.stream()
+                .filter(questionnaire -> questionnaireTypeList.contains(questionnaire.getType()))
+                .map(Questionnaire::getId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取完整问卷
+     *
+     * @param questionnaireTypeEnum 问卷类型
+     */
+    public List<Integer> getQuestionnaireTypeList(QuestionnaireTypeEnum questionnaireTypeEnum){
+        switch (questionnaireTypeEnum){
+            case AREA_DISTRICT_SCHOOL:
+                return getAreaDistrictSchool();
+            case PRIMARY_SECONDARY_SCHOOLS:
+                return getPrimarySecondarySchool();
+            case PRIMARY_SCHOOL:
+                return getPrimarySchool();
+            case MIDDLE_SCHOOL:
+                return getMiddleSchool();
+            case UNIVERSITY_SCHOOL:
+                return getUniversitySchool();
+            case VISION_SPINE:
+                return getVisionSpine();
+            case SCHOOL_ENVIRONMENT:
+                return getSchoolEnvironment();
+            default:
+                break;
+        }
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getAreaDistrictSchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType());
+    }
+
+    /**
+     * 获取中小学校开展学校卫生工作情况调查表问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getPrimarySecondarySchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType());
+    }
+
+    /**
+     * 获取学生健康状况及影响因素调查表（小学版）问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getPrimarySchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
+    }
+
+    /**
+     * 获取学生健康状况及影响因素调查表（中学版）问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getMiddleSchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
+    }
+
+    /**
+     * 获取学生健康状况及影响因素调查表（大学版）问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getUniversitySchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
+    }
+
+    /**
+     * 获取学生视力不良及脊柱弯曲异常影响因素专项调查表问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getVisionSpine(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+    }
+
+
+    /**
+     * 获取学校环境健康影响因素调查表问卷
+     * @return 问卷类型集合
+     */
+    public static List<Integer> getSchoolEnvironment(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
+    }
+
+    public void process(List<UserQuestionRecord> userQuestionRecordList) {
+        List<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).distinct().collect(Collectors.toList());
+        for (Integer questionnaireId : questionnaireIds) {
+            List<List<String>> headList = getHead(questionnaireId);
+            for (List<String> list : headList) {
+                System.out.println(list);
+            }
+        }
     }
 }

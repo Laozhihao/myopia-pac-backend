@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFacade;
@@ -16,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -28,6 +31,8 @@ import java.util.Optional;
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     private static final String ERROR_MSG ="不存在此导出类型:%s";
+    private static final Integer studentType = 12;
+    private static final List<Integer> studentTypeList = Lists.newArrayList(3, 4, 5);
 
     @Autowired
     private QuestionnaireExcelFacade questionnaireExcelFacade;
@@ -48,14 +53,13 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             // 4.生成excel
             generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
-            File file = compressFile(fileSavePath);
+//            File file = compressFile(fileSavePath);
             // 6.上传文件
-            Integer fileId = uploadFile(file);
+//            Integer fileId = uploadFile(file);
             // 7.获取通知的关键内容
-            noticeKeyContent = getNoticeKeyContent(exportCondition);
+//            noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 8.发送成功通知
-            sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
-            log.info("{}-{}-{}-{}",fileName,parentPath,fileSavePath,noticeKeyContent);
+//            sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【导出Excel异常】{}", requestData, e);
@@ -75,17 +79,28 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public File generateExcelFile(String fileName, List data, ExportCondition exportCondition) throws IOException {
+
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtil.isNotEmpty(questionnaireTypeList)){
             for (Integer questionnaireType : questionnaireTypeList) {
-                Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFacade.getQuestionnaireExcelService(questionnaireType);
-                if (questionnaireExcelService.isPresent()) {
-                    QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-                    questionnaireExcel.generateExcelFile(exportCondition,fileName);
+                if (Objects.equals(studentType,questionnaireType)){
+                    for (Integer type : studentTypeList) {
+                        generateExcelFile(fileName, exportCondition, type);
+                    }
+                }else {
+                    generateExcelFile(fileName, exportCondition, questionnaireType);
                 }
             }
         }
         return null;
+    }
+
+    private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
+        Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFacade.getQuestionnaireExcelService(questionnaireType);
+        if (questionnaireExcelService.isPresent()) {
+            QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
+            questionnaireExcel.generateExcelFile(exportCondition,fileName);
+        }
     }
 
     @Override
@@ -132,5 +147,14 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         // do something validate parameter
+    }
+
+    @Override
+    public String getFileSavePath(String parentPath, String fileName) {
+        String fileSavePath = super.getFileSavePath(parentPath, fileName);
+        if(!FileUtil.exist(fileSavePath)){
+            FileUtil.mkdir(fileSavePath);
+        }
+        return fileSavePath;
     }
 }

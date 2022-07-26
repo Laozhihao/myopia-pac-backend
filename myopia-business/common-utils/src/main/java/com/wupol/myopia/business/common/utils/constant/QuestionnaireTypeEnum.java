@@ -13,6 +13,7 @@ import java.util.Objects;
 @Getter
 public enum QuestionnaireTypeEnum {
 
+    QUESTIONNAIRE_NOTICE(0, "问卷填写引导、基本资料"),
     AREA_DISTRICT_SCHOOL(1, "省、地市及区（县）管理部门学校卫生工作调查表"),
     PRIMARY_SECONDARY_SCHOOLS(2, "中小学校开展学校卫生工作情况调查表"),
     PRIMARY_SCHOOL(3, "学生健康状况及影响因素调查表（小学版）"),
@@ -25,7 +26,6 @@ public enum QuestionnaireTypeEnum {
     /**
      * 类型
      **/
-
     private final Integer type;
     /**
      * 描述
@@ -43,4 +43,5 @@ public enum QuestionnaireTypeEnum {
                 .findFirst()
                 .orElse(null);
     }
+
 }
