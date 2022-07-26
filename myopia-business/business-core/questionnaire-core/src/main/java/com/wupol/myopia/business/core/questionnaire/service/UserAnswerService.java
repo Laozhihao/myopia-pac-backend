@@ -29,7 +29,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());

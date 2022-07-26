@@ -61,7 +61,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish, List<Integer> questionnaireIds) {
 
-        Integer userId = user.getQuestionnaireUserId();
+        Integer userId = user.getExQuestionnaireUserId();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), getUserType(), questionnaireId);
 

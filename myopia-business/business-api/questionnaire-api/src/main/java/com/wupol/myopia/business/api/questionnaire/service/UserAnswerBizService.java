@@ -56,7 +56,7 @@ public class UserAnswerBizService {
 
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
@@ -71,7 +71,7 @@ public class UserAnswerBizService {
     public Boolean saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
-        Integer userId = user.getQuestionnaireUserId();
+        Integer userId = user.getExQuestionnaireUserId();
         Integer questionnaireUserType = user.getQuestionnaireUserType();
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
@@ -103,7 +103,7 @@ public class UserAnswerBizService {
      */
     public Boolean userAnswerIsFinish(CurrentUser user) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.getUserAnswerIsFinish(user.getQuestionnaireUserId());
+        return iUserAnswerService.getUserAnswerIsFinish(user.getExQuestionnaireUserId());
     }
 
 

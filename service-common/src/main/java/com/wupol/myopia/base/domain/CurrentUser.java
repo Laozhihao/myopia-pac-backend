@@ -10,6 +10,7 @@ import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -144,8 +145,11 @@ public class CurrentUser {
     }
 
     @JsonIgnore
-    public Integer getQuestionnaireUserId() {
+    public Integer getExQuestionnaireUserId() {
         if (isQuestionnaireSchoolUser() || isQuestionnaireStudentUser()) {
+            if (Objects.isNull(questionnaireUserId)) {
+                throw new BusinessException("获取用户ID异常");
+            }
             return questionnaireUserId;
         }
         if (isGovDeptUser()) {
