@@ -1,6 +1,5 @@
 package com.wupol.myopia.oauth.service;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -133,7 +132,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         // 问卷系统端
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
-            return Lists.newArrayList(new Role().setRoleType(UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType()) ? RoleType.QUESTIONNAIRE_SCHOOL.getType() : RoleType.QUESTIONNAIRE_STUDENT.getType()));
+            return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
         // 0-6岁端必须要有0-6角色
