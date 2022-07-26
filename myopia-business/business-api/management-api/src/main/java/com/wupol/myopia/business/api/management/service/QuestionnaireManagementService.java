@@ -10,6 +10,8 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
@@ -22,7 +24,10 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -75,6 +80,8 @@ public class QuestionnaireManagementService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private QuestionnaireExcelFacade questionnaireExcelFacade;
 
 
     /**
@@ -553,39 +560,39 @@ public class QuestionnaireManagementService {
     public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType) {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
-        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Arrays.stream(QuestionnaireTypeEnum.values())
-                .filter(questionnaireTypeEnum -> !QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireTypeEnum.getType()))
-                .map(questionnaireTypeEnum -> new QuestionnaireTypeVO.QuestionnaireType(questionnaireTypeEnum.getType(), questionnaireTypeEnum.getDesc())).collect(Collectors.toList());
 
-        questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC));
+        Optional<ExportType> exportTypeOptional = questionnaireExcelFacade.getExportTypeService(exportType);
+        if (!exportTypeOptional.isPresent()){
+            throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
+        }
+        ExportType exportTypeService = exportTypeOptional.get();
+        Map<Integer, String> questionnaireTypeMap = exportTypeService.getQuestionnaireType();
+
+        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Lists.newArrayList();
+        List<Integer> typeKeyList = Lists.newArrayList();
+        questionnaireTypeMap.forEach((k,v)->{
+            questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(k,v));
+            typeKeyList.add(k);
+        });
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
+
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
 
-        List<Integer> typeList;
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
-            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).collect(Collectors.toList());
-            typeList.removeAll(questionnaireTypes);
-            boolean flag=false;
-            Iterator<Integer> it = typeList.iterator();
-            while (it.hasNext()){
-                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(it.next())){
-                    flag=true;
-                    it.remove();
+            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
+                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                    return QuestionnaireConstant.STUDENT_TYPE;
                 }
-            }
-            if (flag){
-                typeList.add(QuestionnaireConstant.STUDENT_TYPE);
-            }
-            questionnaireTypeVO.setNoDataList(typeList);
+                return questionnaireType;
+            }).distinct().collect(Collectors.toList());
+            typeKeyList.removeAll(questionnaireTypes);
+            questionnaireTypeVO.setNoDataList(typeKeyList);
         }else {
-            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).filter(type->!QuestionnaireConstant.STUDENT_TYPE_LIST.contains(type)).collect(Collectors.toList());
-            typeList.add(QuestionnaireConstant.STUDENT_TYPE);
-            typeList = Lists.newArrayList(2);
-            questionnaireTypeVO.setNoDataList(typeList);
+            questionnaireTypeVO.setNoDataList(typeKeyList);
         }
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
-        if (!typeList.contains(QuestionnaireConstant.STUDENT_TYPE)){
+        if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE)){
             switch (exportType){
                 case 11:
                 case 13:
