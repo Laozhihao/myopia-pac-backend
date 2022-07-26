@@ -31,3 +31,6 @@ CREATE TABLE `q_user_answer_progress`
 
 create index q_user_answer_progress_user_id_user_type_index
     on q_user_answer_progress (user_id, user_type);
+
+alter table q_questionnaire_question
+    add is_logic boolean null after sort;

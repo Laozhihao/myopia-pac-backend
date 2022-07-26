@@ -48,7 +48,7 @@ public class EditQuestionnaireRequestDTO {
         /**
          * 跳转题目
          */
-        private JumpIdsDO jumpIds;
+        private List<JumpIdsDO> jumpIds;
 
         /**
          * 是否必填

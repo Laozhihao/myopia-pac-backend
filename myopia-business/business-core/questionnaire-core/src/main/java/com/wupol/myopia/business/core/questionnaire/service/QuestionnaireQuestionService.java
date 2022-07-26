@@ -11,8 +11,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 import java.util.List;
 
-import java.util.List;
-
 /**
  * @Author Simple4H
  * @Date 2022-07-06
@@ -77,4 +75,31 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
                 .orderByAsc(QuestionnaireQuestion::getId));
     }
+
+    public List<QuestionnaireQuestion> logicList(Integer questionnaireId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.eq(QuestionnaireQuestion::getIsLogic, Boolean.TRUE);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 通过问卷、问题Id获取
+     *
+     * @return QuestionnaireQuestion
+     */
+    public QuestionnaireQuestion getByQuestionnaireIdAndQuestionId(Integer questionnaireId, Integer questionId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getQuestionId, questionId);
+        return baseMapper.selectOne(wrapper);
+    }
+
+    public List<QuestionnaireQuestion> getByQuestionnaireIdSerialNumber(Integer questionnaireId, String serialNumber) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.like(QuestionnaireQuestion::getSerialNumber, serialNumber);
+        return baseMapper.selectList(wrapper);
+    }
+
 }
