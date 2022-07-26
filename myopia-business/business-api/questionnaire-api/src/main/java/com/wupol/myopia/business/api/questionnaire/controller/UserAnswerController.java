@@ -46,7 +46,7 @@ public class UserAnswerController {
         return userAnswerBizService.userAnswerIsFinish(user);
     }
 
-    @GetMapping
+    @GetMapping("getUserStatus")
     public void getUserStatus() {
         CurrentUserUtil.getCurrentUser();
     }
