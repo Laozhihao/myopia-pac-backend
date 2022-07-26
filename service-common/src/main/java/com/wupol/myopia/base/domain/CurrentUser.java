@@ -118,7 +118,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireSchoolUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_SCHOOL.getType());
+        return UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
     /**
@@ -127,7 +127,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireStudentUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_STUDENT.getType());
+        return UserType.QUESTIONNAIRE_STUDENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
     @JsonIgnore
