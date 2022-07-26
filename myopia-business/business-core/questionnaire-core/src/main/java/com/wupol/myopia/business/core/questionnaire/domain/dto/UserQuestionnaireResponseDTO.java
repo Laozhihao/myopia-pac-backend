@@ -3,21 +3,19 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
- * 问卷返回
+ * 用户问卷DTO
  *
  * @author Simple4H
  */
 @Getter
 @Setter
-public class QuestionnaireResponseDTO {
+public class UserQuestionnaireResponseDTO {
 
     /**
-     * Id
+     * 问卷Id
      */
-    private Integer Id;
+    private Integer id;
 
     /**
      * 标题
@@ -25,12 +23,7 @@ public class QuestionnaireResponseDTO {
     private String title;
 
     /**
-     * 年份
+     * 主标题
      */
-    private Integer year;
-
-    /**
-     * 详情
-     */
-    private List<QuestionnaireInfoDTO> detail;
+    private String mainTitle;
 }

@@ -175,4 +175,26 @@ public enum SchoolAge {
         // 中小学
         return DateFormatUtil.parse("2010-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
     }
+
+    /**
+     * 是否小学生
+     *
+     * @param schoolAge 学龄段
+     *
+     * @return Boolean
+     */
+    public static Boolean isPrimary(Integer schoolAge) {
+        return PRIMARY.code.equals(schoolAge);
+    }
+
+    /**
+     * 是否大学生
+     *
+     * @param schoolAge 学龄段
+     *
+     * @return Boolean
+     */
+    public static Boolean isUniversity(Integer schoolAge) {
+        return UNIVERSITY.code.equals(schoolAge);
+    }
 }

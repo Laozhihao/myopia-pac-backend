@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -10,11 +10,14 @@ import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionResponse;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
@@ -37,6 +40,42 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Resource
     private QuestionService questionService;
 
+    /**
+     * 获取问卷列表
+     *
+     * @param year 年份
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getQuestionnaireList(Integer year) {
+        // 默认今年
+        if (Objects.isNull(year)) {
+            year = DateUtil.getYear(new Date());
+        }
+        return getByYear(year);
+    }
+
+    /**
+     * 通过年份获取
+     *
+     * @param year 年份
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getByYear(Integer year) {
+        LambdaQueryWrapper<Questionnaire> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Questionnaire::getYear, year);
+        return baseMapper.selectList(wrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
+        Integer questionnaireId = requestDTO.getQuestionnaireId();
+        questionnaireQuestionService.deletedByQuestionnaireId(questionnaireId);
+        questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
+        // 更新问卷信息
+        updateTime(questionnaireId);
+    }
 
     /**
      * 获取问卷问题
@@ -123,6 +162,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
+        childQuestionResponse.setExId(it.getId());
+        childQuestionResponse.setExPid(it.getPid());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
@@ -146,6 +187,48 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             }
         });
         questionResponse.setOptions(options);
+    }
+
+    /**
+     * 获取问卷信息
+     *
+     * @param id 问卷id
+     *
+     * @return QuestionnaireResponseDTO
+     */
+    public QuestionnaireResponseDTO getDetailByQuestionnaireId(Integer id) {
+        Questionnaire questionnaire = this.getById(id);
+        QuestionnaireResponseDTO responseDTO = new QuestionnaireResponseDTO();
+        if (Objects.isNull(questionnaire)) {
+            return responseDTO;
+        }
+        responseDTO.setId(questionnaire.getId());
+        responseDTO.setTitle(questionnaire.getTitle());
+        responseDTO.setYear(questionnaire.getYear());
+        responseDTO.setDetail(getQuestionnaireInfo(id));
+        return responseDTO;
+    }
+
+    /**
+     * 通过年份、类型获取
+     *
+     * @param types 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getByTypes(Collection<Integer> types) {
+        return baseMapper.getByTypes(types);
+    }
+
+    /**
+     * 更新问卷时间
+     *
+     * @param id id
+     */
+    public void updateTime(Integer id) {
+        Questionnaire questionnaire = getById(id);
+        questionnaire.setUpdateTime(new Date());
+        baseMapper.updateById(questionnaire);
     }
     /**
      * 获取最新问卷数据

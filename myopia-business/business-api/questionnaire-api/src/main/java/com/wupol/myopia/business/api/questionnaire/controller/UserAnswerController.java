@@ -1,12 +1,13 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
-import com.wupol.myopia.base.controller.BaseController;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Simple4H
@@ -14,7 +15,30 @@ import org.springframework.web.bind.annotation.RestController;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/userAnswer")
-public class UserAnswerController extends BaseController<UserAnswerService, UserAnswer> {
+@RequestMapping("/questionnaire/userAnswer")
+public class UserAnswerController {
+
+    @Autowired
+    private UserAnswerBizService userAnswerBizService;
+
+
+    /**
+     * 获取用户答案
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    @GetMapping("list/{questionnaireId}")
+    public UserAnswerDTO getUserAnswerList(@PathVariable("questionnaireId") Integer questionnaireId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getUserAnswerList(questionnaireId, user);
+    }
+
+    @PostMapping("save")
+    public Boolean saveUserAnswer(@RequestBody UserAnswerDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.saveUserAnswer(requestDTO, user);
+    }
 
 }

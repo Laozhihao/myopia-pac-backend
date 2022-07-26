@@ -16,6 +16,7 @@
                 <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
                 <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
                 <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
                 <if test="@Ognl@isNotEmpty(qesUrl)">and `qes_url` = #{qesUrl}</if>
                 <if test="@Ognl@isNotEmpty(pageJson)">and `page_json` = #{pageJson}</if>
@@ -27,14 +28,21 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, title, district_id, year, pid, status, qes_url, page_json, create_time, update_time
+        id, title, district_id, year, pid, type, status, qes_url, page_json, create_time, update_time
     </sql>
 
-    <select id="getQuestionnaireResponseById"
-            resultType="com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO">
-        select *
-        from q_questionnaire
-        where id = #{id}
+    <select id="getByTypes" resultMap="BaseResultMap">
+        SELECT q1.*
+        FROM q_questionnaire q1
+                 INNER JOIN (SELECT type,
+                                    max(create_time) create_time
+                             FROM q_questionnaire
+                             GROUP BY type) q2 ON q1.type = q2.type
+            AND q1.create_time = q2.create_time
+        where q1.type in
+        <foreach collection="types" item="type" index="index" open="(" close=")" separator=",">
+            #{type}
+        </foreach>
     </select>
 
     <select id="getLatestData" resultMap="BaseResultMap">

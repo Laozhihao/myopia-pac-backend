@@ -73,5 +73,4 @@ public class QuestionnaireQuestion implements Serializable {
      */
     private Boolean required;
 
-
 }

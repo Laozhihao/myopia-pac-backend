@@ -1,9 +1,13 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Objects;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 问卷类型Enum
@@ -12,7 +16,6 @@ import java.util.Objects;
  */
 @Getter
 public enum QuestionnaireTypeEnum {
-
     QUESTIONNAIRE_NOTICE(0, "问卷填写引导、基本资料"),
     AREA_DISTRICT_SCHOOL(1, "省、地市及区（县）管理部门学校卫生工作调查表"),
     PRIMARY_SECONDARY_SCHOOLS(2, "中小学校开展学校卫生工作情况调查表"),
@@ -35,6 +38,38 @@ public enum QuestionnaireTypeEnum {
     QuestionnaireTypeEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
+    }
+
+    public static List<QuestionnaireTypeEnum> getPrimaryType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, PRIMARY_SCHOOL);
+    }
+
+    public static List<QuestionnaireTypeEnum> getMiddleType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, MIDDLE_SCHOOL);
+    }
+
+    public static List<QuestionnaireTypeEnum> getUniversityType() {
+        return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
+    }
+
+    /**
+     * 通过学龄段获取报告
+     *
+     * @param gradeType 学龄段
+     *
+     * @return List<QuestionnaireTypeEnum>
+     */
+    public static List<QuestionnaireTypeEnum> getBySchoolAge(Integer gradeType) {
+        if (SchoolAge.isPrimary(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, PRIMARY_SCHOOL);
+        }
+        if (SchoolAge.isMiddleSchool(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, MIDDLE_SCHOOL);
+        }
+        if (SchoolAge.isUniversity(gradeType)) {
+            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
+        }
+        return new ArrayList<>();
     }
 
     public static QuestionnaireTypeEnum getQuestionnaireType(Integer type){

@@ -11,16 +11,16 @@ import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * 用户答问卷记录表
+ * 用户答案进度表
  *
  * @Author Simple4H
- * @Date 2022-07-07
+ * @Date 2022-07-25
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("q_user_question_record")
-public class UserQuestionRecord implements Serializable {
+@TableName("q_user_answer_progress")
+public class UserAnswerProgress implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,59 +31,24 @@ public class UserQuestionRecord implements Serializable {
     private Integer id;
 
     /**
-     * 用户Id
+     * 用户id
      */
     private Integer userId;
 
     /**
-     * 用户类型 0-学生 1-学校
+     * 用户类型
      */
     private Integer userType;
 
     /**
-     * 问卷Id
+     * currentStep
      */
-    private Integer questionnaireId;
+    private String currentStep;
 
     /**
-     * 计划Id
+     * currentSideBar
      */
-    private Integer planId;
-
-    /**
-     * 任务Id
-     */
-    private Integer taskId;
-
-    /**
-     * 政府Id
-     */
-    private Integer govId;
-
-    /**
-     * 通知Id
-     */
-    private Integer noticeId;
-
-    /**
-     * 学校Id
-     */
-    private Integer schoolId;
-
-    /**
-     * 学生Id
-     */
-    private Integer studentId;
-
-    /**
-     * 问卷类型
-     */
-    private Integer questionnaireType;
-
-    /**
-     * 状态 0-未开始 1-进行中 2-结束
-     */
-    private Integer status;
+    private String currentSideBar;
 
     /**
      * 创建时间
