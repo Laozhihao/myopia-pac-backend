@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.functio
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
+import java.util.Map;
+
 /**
  * 导出类型接口
  *
@@ -36,4 +38,9 @@ public interface ExportType {
      * @param exportCondition 导出条件
      */
     String getLockKey(ExportCondition exportCondition);
+
+    /**
+     * 获取问卷类型
+     */
+    Map<Integer,String> getQuestionnaireType();
 }

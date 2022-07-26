@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HeadBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
@@ -40,7 +41,6 @@ public class QuestionnaireFacade {
     private final QuestionnaireQuestionService questionnaireQuestionService;
     private final QuestionService questionService;
 
-    private static final Integer PID = -1;
     private static AtomicInteger depth = new AtomicInteger(0);
 
     public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
@@ -67,7 +67,7 @@ public class QuestionnaireFacade {
         //问卷和问题关连
         Map<Integer, List<QuestionnaireQuestion>> questionnaireQuestionMap = questionnaireQuestionList.stream().collect(Collectors.groupingBy(QuestionnaireQuestion::getPid));
         //父类
-        List<QuestionnaireQuestion> questionPidList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(questionnaireQuestion.getPid(), PID)).collect(Collectors.toList());
+        List<QuestionnaireQuestion> questionPidList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(questionnaireQuestion.getPid(), QuestionnaireConstant.PID)).collect(Collectors.toList());
 
         List<QuestionnaireInfoBO.QuestionBO> questionBOList = Lists.newArrayList();
         for (QuestionnaireQuestion questionnaireQuestion : questionPidList) {

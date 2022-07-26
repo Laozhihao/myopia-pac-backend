@@ -17,6 +17,7 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -550,15 +551,13 @@ public class QuestionnaireManagementService {
      * @param exportType
      */
     public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType) {
-        List<Integer> studentTypeList = Lists.newArrayList(3, 4, 5);
-        Integer studentType = 12;
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
         List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Arrays.stream(QuestionnaireTypeEnum.values())
-                .filter(questionnaireTypeEnum -> !studentTypeList.contains(questionnaireTypeEnum.getType()))
+                .filter(questionnaireTypeEnum -> !QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireTypeEnum.getType()))
                 .map(questionnaireTypeEnum -> new QuestionnaireTypeVO.QuestionnaireType(questionnaireTypeEnum.getType(), questionnaireTypeEnum.getDesc())).collect(Collectors.toList());
 
-        questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(studentType,"学生健康状况及影响因素调查表"));
+        questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC));
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
 
@@ -570,29 +569,29 @@ public class QuestionnaireManagementService {
             boolean flag=false;
             Iterator<Integer> it = typeList.iterator();
             while (it.hasNext()){
-                if (studentTypeList.contains(it.next())){
+                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(it.next())){
                     flag=true;
                     it.remove();
                 }
             }
             if (flag){
-                typeList.add(studentType);
+                typeList.add(QuestionnaireConstant.STUDENT_TYPE);
             }
             questionnaireTypeVO.setNoDataList(typeList);
         }else {
-            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).filter(type->!studentTypeList.contains(type)).collect(Collectors.toList());
-            typeList.add(studentType);
+            typeList = Arrays.stream(QuestionnaireTypeEnum.values()).map(QuestionnaireTypeEnum::getType).filter(type->!QuestionnaireConstant.STUDENT_TYPE_LIST.contains(type)).collect(Collectors.toList());
+            typeList.add(QuestionnaireConstant.STUDENT_TYPE);
             typeList = Lists.newArrayList(2);
             questionnaireTypeVO.setNoDataList(typeList);
         }
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
-        if (!typeList.contains(studentType)){
+        if (!typeList.contains(QuestionnaireConstant.STUDENT_TYPE)){
             switch (exportType){
                 case 11:
                 case 13:
                 case 14:
                 case 15:
-                    questionnaireTypeVO.getSelectList().add(studentType);
+                    questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
                     break;
                 default:
                     break;

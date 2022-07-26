@@ -5,6 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -49,4 +50,8 @@ public class ScreeningRecordExportType implements ExportType {
         }
     }
 
+    @Override
+    public Map<Integer, String> getQuestionnaireType() {
+        return exportTypeFacade.getQuestionnaireType(getType());
+    }
 }

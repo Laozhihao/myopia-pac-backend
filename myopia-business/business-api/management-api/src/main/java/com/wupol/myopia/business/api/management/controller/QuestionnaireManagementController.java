@@ -12,7 +12,6 @@ import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
-import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -39,9 +38,6 @@ public class QuestionnaireManagementController {
     private QuestionnaireManagementService questionnaireManagementService;
     @Autowired
     private ExportStrategy exportStrategy;
-
-    @Autowired
-    private QuestionnaireFacade questionnaireFacade;
 
     /**
      * 获得当前登录人的筛查任务

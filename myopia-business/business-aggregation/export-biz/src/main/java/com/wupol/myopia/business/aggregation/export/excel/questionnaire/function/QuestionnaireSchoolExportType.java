@@ -5,6 +5,8 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * 问卷管理页面学校导出类型
  *
@@ -42,6 +44,11 @@ public class QuestionnaireSchoolExportType implements ExportType {
                 exportCondition.getPlanId(),
                 exportCondition.getSchoolId(),
                 exportCondition.getQuestionnaireType().get(0));
+    }
+
+    @Override
+    public Map<Integer, String> getQuestionnaireType() {
+        return exportTypeFacade.getQuestionnaireType(getType());
     }
 
 }

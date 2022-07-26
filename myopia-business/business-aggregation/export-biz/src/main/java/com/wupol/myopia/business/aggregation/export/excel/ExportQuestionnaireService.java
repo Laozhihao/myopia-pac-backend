@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,6 @@ import java.util.Optional;
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     private static final String ERROR_MSG ="不存在此导出类型:%s";
-    private static final Integer studentType = 12;
-    private static final List<Integer> studentTypeList = Lists.newArrayList(3, 4, 5);
 
     @Autowired
     private QuestionnaireExcelFacade questionnaireExcelFacade;
@@ -53,13 +52,13 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             // 4.生成excel
             generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
-//            File file = compressFile(fileSavePath);
+            File file = compressFile(fileSavePath);
             // 6.上传文件
-//            Integer fileId = uploadFile(file);
+            Integer fileId = uploadFile(file);
             // 7.获取通知的关键内容
-//            noticeKeyContent = getNoticeKeyContent(exportCondition);
+            noticeKeyContent = getNoticeKeyContent(exportCondition);
             // 8.发送成功通知
-//            sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
+            sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【导出Excel异常】{}", requestData, e);
@@ -83,8 +82,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtil.isNotEmpty(questionnaireTypeList)){
             for (Integer questionnaireType : questionnaireTypeList) {
-                if (Objects.equals(studentType,questionnaireType)){
-                    for (Integer type : studentTypeList) {
+                if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
+                    for (Integer type : QuestionnaireConstant.STUDENT_TYPE_LIST) {
                         generateExcelFile(fileName, exportCondition, type);
                     }
                 }else {
@@ -136,7 +135,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public List getExcelData(ExportCondition exportCondition) {
-        return null;
+        return Lists.newArrayList();
     }
 
     @Override
