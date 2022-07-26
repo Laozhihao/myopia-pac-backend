@@ -143,6 +143,7 @@ public class CurrentUser {
         throw new BusinessException("获取用户类型异常");
     }
 
+    @JsonIgnore
     public Integer getQuestionnaireUserId() {
         if (isQuestionnaireSchoolUser() || isQuestionnaireStudentUser()) {
             return questionnaireUserId;
