@@ -57,8 +57,6 @@ public class Questionnaire implements Serializable {
      */
     private Integer pid;
 
-    private Integer type;
-
     /**
      * 类型
      */

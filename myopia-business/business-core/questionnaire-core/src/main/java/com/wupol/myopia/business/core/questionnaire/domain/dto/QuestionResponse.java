@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @Date 2022/7/11 14:38
  * @Created by limy
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class QuestionResponse extends Question implements Serializable {
 
