@@ -100,7 +100,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
                 .like(QuestionnaireQuestion::getSerialNumber, serialNumber)
-                .ne(QuestionnaireQuestion::getId, questionId);
+                .ne(QuestionnaireQuestion::getQuestionId, questionId);
         return baseMapper.selectList(wrapper);
     }
 
