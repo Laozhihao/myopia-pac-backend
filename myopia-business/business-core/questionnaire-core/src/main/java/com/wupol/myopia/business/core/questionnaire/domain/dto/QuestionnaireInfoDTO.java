@@ -37,6 +37,11 @@ public class QuestionnaireInfoDTO extends Question implements Serializable {
     private Boolean isShowNumber;
 
     /**
+     * 是否逻辑题
+     */
+    private Boolean isLogic;
+
+    /**
      * 子模块问题数组
      */
     private List<QuestionResponse> questionList;

@@ -118,6 +118,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setExPid(it.getPid());
             questionnaireInfoDTO.setIsShowNumber(it.getIsShowNumber());
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
+            questionnaireInfoDTO.setIsLogic(it.getIsLogic());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -167,6 +168,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setExId(it.getId());
         childQuestionResponse.setExPid(it.getPid());
         childQuestionResponse.setIsShowNumber(it.getIsShowNumber());
+        childQuestionResponse.setIsLogic(it.getIsLogic());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }

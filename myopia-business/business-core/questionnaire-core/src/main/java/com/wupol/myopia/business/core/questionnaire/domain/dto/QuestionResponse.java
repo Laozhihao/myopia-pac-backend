@@ -35,6 +35,11 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private Boolean isShowNumber;
 
+    /**
+     * 是否逻辑题
+     */
+    private Boolean isLogic;
+
 
     private List<QuestionResponse> questionList;
 }
