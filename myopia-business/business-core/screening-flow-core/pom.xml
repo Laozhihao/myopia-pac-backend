@@ -17,12 +17,5 @@
             <artifactId>school-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>questionnaire-core</artifactId>
-            <version>MP-2.4.2</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
-
 </project>
