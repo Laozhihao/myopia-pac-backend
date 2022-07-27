@@ -20,7 +20,7 @@ public class QuestionnaireBizService {
 
 
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(CurrentUser user) {
-        IUserAnswerService userAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        IUserAnswerService userAnswerService = userAnswerFactory.getUserAnswerService(0);
         return userAnswerService.getUserQuestionnaire(user.getQuestionnaireUserId());
     }
 }

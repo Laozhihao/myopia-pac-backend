@@ -4,6 +4,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelDataConditionBO;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public interface QuestionnaireExcel {
      *
      * @return 表头信息
      */
-    List<List<String>> getHead(Integer questionnaireId);
+    List<List<String>> getHead(List<Integer> questionnaireIds);
 
 
     /**
@@ -50,5 +51,15 @@ public interface QuestionnaireExcel {
         // do something get excel data
     }
 
+
+    /**
+     * 获取文件保存路径
+     *
+     * @param parentPath 文件父路径
+     * @param fileName   文件名
+     **/
+    default String getFileSavePath(String parentPath, String fileName) {
+        return Paths.get(parentPath, fileName).toString();
+    }
 
 }

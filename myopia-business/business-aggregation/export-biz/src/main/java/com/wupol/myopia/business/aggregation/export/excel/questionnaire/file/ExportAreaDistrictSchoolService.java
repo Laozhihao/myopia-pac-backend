@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFacade;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +23,8 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
     }
 
     @Override
-    public List<List<String>> getHead(Integer questionnaireId) {
-        return questionnaireFacade.getHead(questionnaireId);
+    public List<List<String>> getHead(List<Integer> questionnaireIds) {
+        return questionnaireFacade.getHead(questionnaireIds);
     }
 
 }

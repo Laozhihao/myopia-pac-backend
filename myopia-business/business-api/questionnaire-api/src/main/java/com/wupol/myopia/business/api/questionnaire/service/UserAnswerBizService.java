@@ -140,7 +140,7 @@ public class UserAnswerBizService {
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
         if (StringUtils.equals(v, "A01")) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            optionAnswer.setOptionId(options.get(0).getId());
+            optionAnswer.setOptionId(options.get(0).getOption().getString("id"));
             optionAnswer.setValue(planStudent.getGradeName());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
@@ -149,7 +149,7 @@ public class UserAnswerBizService {
 
         if (StringUtils.equals(v, "A011")) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            optionAnswer.setOptionId(options.get(0).getId());
+            optionAnswer.setOptionId(options.get(0).getOption().getString("id"));
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }

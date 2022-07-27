@@ -140,8 +140,8 @@ public class QuestionnaireManagementController {
      * @param exportType 导出类型
      */
     @GetMapping("/type")
-    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType){
-        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType);
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
+        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
     }
 
 }

@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,4 +45,11 @@ public interface ExportType {
      * 获取问卷类型
      */
     Map<Integer,String> getQuestionnaireType();
+
+
+    default void setQuestionnaireType(ExportCondition exportCondition){}
+
+    default List<Integer> getConditionValue(ExportCondition exportCondition){
+        return UserAnswerFacade.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+    }
 }

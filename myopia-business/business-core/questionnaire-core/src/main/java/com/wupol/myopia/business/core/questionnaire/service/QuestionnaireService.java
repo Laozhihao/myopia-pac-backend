@@ -230,12 +230,5 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionnaire.setUpdateTime(new Date());
         baseMapper.updateById(questionnaire);
     }
-    /**
-     * 获取最新问卷数据
-     *
-     * @return 问卷数据集合
-     */
-    public List<Questionnaire> getLatestData(){
-       return baseMapper.getLatestData();
-    }
+
 }

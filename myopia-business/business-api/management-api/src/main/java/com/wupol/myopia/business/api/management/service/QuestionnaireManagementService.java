@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
@@ -81,7 +81,7 @@ public class QuestionnaireManagementService {
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private QuestionnaireExcelFacade questionnaireExcelFacade;
+    private QuestionnaireExcelFactory questionnaireExcelFactory;
 
 
     /**
@@ -130,8 +130,7 @@ public class QuestionnaireManagementService {
             //查看该通知所有筛查学校的层级的 地区树
             List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(screeningPlans)) {
-                List<UserQuestionRecord> quests = userQuestionRecordService.getListByPlanIds(Lists.newArrayList(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())));
-                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(quests.stream().map(UserQuestionRecord::getPlanId).collect(Collectors.toList()));
+                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
                 if (!CollectionUtils.isEmpty(districts)) {
                     questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
                 } else {
@@ -552,16 +551,17 @@ public class QuestionnaireManagementService {
     }
 
     /**
-     * 没数据中没有选中了，选中的是有数据或者默认的
+     * 没数据中没有选中的，选中的是有数据或者默认的
      *
-     * @param screeningPlanId
-     * @param exportType
+     * @param screeningPlanId 筛查计划ID
+     * @param exportType 导出类型
+     * @param taskId 筛查任务ID
      */
-    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType) {
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId) {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
 
-        Optional<ExportType> exportTypeOptional = questionnaireExcelFacade.getExportTypeService(exportType);
+        Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
         if (!exportTypeOptional.isPresent()){
             throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
         }
@@ -576,21 +576,24 @@ public class QuestionnaireManagementService {
         });
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
 
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+//        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
+//
+//        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+//            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
+//            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
+//                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+//                    return QuestionnaireConstant.STUDENT_TYPE;
+//                }
+//                return questionnaireType;
+//            }).distinct().collect(Collectors.toList());
+//            typeKeyList.removeAll(questionnaireTypes);
+//            questionnaireTypeVO.setNoDataList(typeKeyList);
+//        }else {
+//            questionnaireTypeVO.setNoDataList(typeKeyList);
+//        }
+        typeKeyList.removeAll(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireConstant.STUDENT_TYPE));
+        questionnaireTypeVO.setNoDataList(typeKeyList);
 
-        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
-            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
-                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
-                    return QuestionnaireConstant.STUDENT_TYPE;
-                }
-                return questionnaireType;
-            }).distinct().collect(Collectors.toList());
-            typeKeyList.removeAll(questionnaireTypes);
-            questionnaireTypeVO.setNoDataList(typeKeyList);
-        }else {
-            questionnaireTypeVO.setNoDataList(typeKeyList);
-        }
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
         if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE)){
             switch (exportType){

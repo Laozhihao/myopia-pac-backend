@@ -112,6 +112,15 @@ public class ExcelUtil {
         return outputFile;
     }
 
+    private static File getFile(String fileName) throws IOException {
+        File outputFile = new File(fileName);
+        if (outputFile.exists()) {
+            return outputFile;
+        }
+        createNewFile(outputFile);
+        return outputFile;
+    }
+
     /**
      * 获取输出文件（指定目录）
      *
@@ -200,7 +209,7 @@ public class ExcelUtil {
      * @param head 表头
      */
     public static File exportListToExcel(String fileNamePrefix, List<?> data, List<List<String>> head) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix);
+        File outputFile = getFile(fileNamePrefix);
         ExcelWriterSheetBuilder writerSheetBuilder = EasyExcelFactory.write(outputFile.getAbsolutePath()).sheet();
         writerSheetBuilder.head(head);
         writerSheetBuilder.registerWriteHandler(getHeadStyle());

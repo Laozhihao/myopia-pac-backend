@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,4 +57,10 @@ public class ScreeningRecordExportType implements ExportType {
     public Map<Integer, String> getQuestionnaireType() {
         return exportTypeFacade.getQuestionnaireType(getType());
     }
+
+    @Override
+    public void setQuestionnaireType(ExportCondition exportCondition) {
+        exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(), QuestionnaireConstant.STUDENT_TYPE));
+    }
+
 }

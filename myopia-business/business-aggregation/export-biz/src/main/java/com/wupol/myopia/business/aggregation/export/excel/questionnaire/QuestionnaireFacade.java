@@ -1,20 +1,22 @@
-package com.wupol.myopia.business.core.questionnaire.facade;
+package com.wupol.myopia.business.aggregation.export.excel.questionnaire;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HeadBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,8 +42,9 @@ public class QuestionnaireFacade {
     private final QuestionnaireService questionnaireService;
     private final QuestionnaireQuestionService questionnaireQuestionService;
     private final QuestionService questionService;
+    private final SchoolService schoolService;
 
-    private static AtomicInteger depth = new AtomicInteger(0);
+    private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
 
     public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
@@ -55,8 +58,8 @@ public class QuestionnaireFacade {
     }
 
     public QuestionnaireInfoBO buildQuestionnaireInfo(Questionnaire questionnaire,
-                                                                        List<QuestionnaireQuestion> questionnaireQuestionList,
-                                                                        List<Question> questionList){
+                                                    List<QuestionnaireQuestion> questionnaireQuestionList,
+                                                    List<Question> questionList){
 
         QuestionnaireInfoBO questionnaireInfoBO = new QuestionnaireInfoBO();
         questionnaireInfoBO.setQuestionnaireId(questionnaire.getId());
@@ -89,12 +92,13 @@ public class QuestionnaireFacade {
                              Map<Integer, List<QuestionnaireQuestion>> questionnaireQuestionMap,
                              Map<Integer, Question> questionMap){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionBOList) {
-            List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionMap.get(questionBO.getQuestionId());
+            List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionMap.get(questionBO.getQuestionnaireQuestionId());
             if (CollectionUtil.isNotEmpty(questionnaireQuestions)){
                 List<QuestionnaireInfoBO.QuestionBO> childList = Lists.newArrayList();
                 for (QuestionnaireQuestion questionnaireQuestion : questionnaireQuestions) {
                     QuestionnaireInfoBO.QuestionBO child = new QuestionnaireInfoBO.QuestionBO();
                     Question question = questionMap.get(questionnaireQuestion.getQuestionId());
+                    child.setQuestionnaireQuestionId(questionnaireQuestion.getId());
                     child.setQuestionId(question.getId());
                     child.setQuestionName(question.getTitle());
                     child.setQuestionSerialNumber(questionnaireQuestion.getSerialNumber());
@@ -106,7 +110,7 @@ public class QuestionnaireFacade {
         }
     }
 
-    private List<HeadBO> getHeadBO(Integer questionnaireId){
+    private List<HeadBO> getHeadBO(Integer questionnaireId,AtomicInteger depth){
         List<HeadBO> headList =Lists.newArrayList();
         QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
 
@@ -116,7 +120,9 @@ public class QuestionnaireFacade {
             strList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollectionUtil.isNotEmpty(questionBOList)){
-                setHead(questionBOList,strList,headList);
+                setHead(questionBOList,strList,headList,depth);
+            }else {
+                setHeadBOList(strList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),headList);
             }
         }
         return headList;
@@ -124,10 +130,10 @@ public class QuestionnaireFacade {
 
     /**
      * 获取表头数据
-     * @param questionnaireId 问卷ID
+     * @param questionnaireIds 问卷ID
      */
-    public List<List<String>> getHead(Integer questionnaireId){
-        List<HeadBO> headBOList = getHeadBO(questionnaireId);
+    public List<List<String>> getHead(List<Integer> questionnaireIds){
+        List<HeadBO> headBOList = getHeadList(questionnaireIds);
         return headBOList.stream()
                 .map(HeadBO::getQuestionHead)
                 .collect(Collectors.toList());
@@ -135,34 +141,53 @@ public class QuestionnaireFacade {
 
     /**
      * 获取表头数据的ID的顺序
-     * @param questionnaireId 问卷ID
+     * @param questionnaireIds 问卷ID
      */
-    public List<Integer> getQuestionIdSort(Integer questionnaireId){
-        List<HeadBO> headBOList = getHeadBO(questionnaireId);
+    public List<Integer> getQuestionIdSort(List<Integer> questionnaireIds){
+        List<HeadBO> headBOList = getHeadList(questionnaireIds);
         return headBOList.stream()
                 .sorted(Comparator.comparing(HeadBO::getSort))
                 .map(HeadBO::getLastQuestionId)
                 .collect(Collectors.toList());
     }
 
-    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<HeadBO> lists){
+    private List<HeadBO> getHeadList(List<Integer> questionnaireIds) {
+        List<List<HeadBO>> headList = Lists.newArrayList();
+        AtomicInteger depth = new AtomicInteger(0);
+        questionnaireIds.forEach(questionnaireId -> {
+            List<HeadBO> headBOList = getHeadBO(questionnaireId, depth);
+            headList.add(headBOList);
+        });
+        List<HeadBO> headBOList = Lists.newArrayList();
+        for (List<HeadBO> list : headList) {
+            list.forEach(headBO -> {
+                headBO.setDepth(depth.get());
+                headBOList.add(headBO);
+            });
+        }
+        return headBOList;
+    }
+
+
+    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<HeadBO> lists,AtomicInteger depth){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> cloneList = ObjectUtil.cloneByStream(list);
             cloneList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollectionUtil.isNotEmpty(questionBOList)){
-                setHead(questionBOList,cloneList,lists);
+                setHead(questionBOList,cloneList,lists,depth);
             }else{
-                Integer depthValue = CollectionUtil.max(Lists.newArrayList(depth.get(),cloneList.size()));
-                depth.set(depthValue);
-                HeadBO headBO = new HeadBO()
-                        .setDepth(depth.get())
-                        .setQuestionDepthList(cloneList)
-                        .setLastQuestionId(questionBO.getQuestionId())
-                        .setSort(questionBO.getQuestionnaireQuestionId());
-                lists.add(headBO);
+                depth.set(CollectionUtil.max(Lists.newArrayList(depth.get(),cloneList.size())));
+                setHeadBOList(cloneList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),lists);
             }
         }
+    }
+
+    private void setHeadBOList(List<String> cloneList,Integer lastQuestionId,Integer sort ,List<HeadBO> lists){
+        lists.add(new HeadBO()
+                .setQuestionDepthList(cloneList)
+                .setLastQuestionId(lastQuestionId)
+                .setSort(sort));
     }
 
     /**
@@ -170,15 +195,12 @@ public class QuestionnaireFacade {
      *
      * @return 问卷集合
      */
-    public List<Integer> getLatestQuestionnaireIds(List<Integer> questionnaireTypeList){
-        List<Questionnaire> questionnaireList = questionnaireService.getLatestData();
+    public List<Questionnaire> getLatestQuestionnaire(List<Integer> questionnaireTypeList){
+        List<Questionnaire> questionnaireList = questionnaireService.getByTypes(questionnaireTypeList);
         if (CollectionUtils.isEmpty(questionnaireList)){
-            throw new BusinessException("暂未发现相关问卷");
+            return Lists.newArrayList();
         }
-        return questionnaireList.stream()
-                .filter(questionnaire -> questionnaireTypeList.contains(questionnaire.getType()))
-                .map(Questionnaire::getId)
-                .collect(Collectors.toList());
+        return questionnaireList;
     }
 
     /**
@@ -265,13 +287,36 @@ public class QuestionnaireFacade {
         return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
 
-    public void process(List<UserQuestionRecord> userQuestionRecordList) {
-        List<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).distinct().collect(Collectors.toList());
-        for (Integer questionnaireId : questionnaireIds) {
-            List<List<String>> headList = getHead(questionnaireId);
-            for (List<String> list : headList) {
-                System.out.println(list);
-            }
+
+    /**
+     * 获取隐藏问题集合
+     *
+     * @param questionnaireId 问卷ID
+     */
+    public List<HideQuestionDataBO> getHideQuestionnaireQuestion(Integer questionnaireId) {
+        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
+        questionnaireQuestionList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> StrUtil.isBlank(questionnaireQuestion.getSerialNumber())).collect(Collectors.toList());
+        if (CollectionUtil.isNotEmpty(questionnaireQuestionList)){
+            List<Integer> questionIds = questionnaireQuestionList.stream()
+                    .map(QuestionnaireQuestion::getQuestionId)
+                    .collect(Collectors.toList());
+            List<Question> questionList = questionService.listByIds(questionIds);
+            CollectionUtil.sort(questionList,Comparator.comparing(Question::getId));
+
+           return questionList.stream().map(question -> new HideQuestionDataBO(question.getId())).collect(Collectors.toList());
         }
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 获取excel问卷名称
+     *
+     * @param schoolId 学校ID
+     * @param questionnaireType 问卷类型
+     */
+    public String getExcelFileName(Integer schoolId,Integer questionnaireType){
+        School school = schoolService.getById(schoolId);
+        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
+        return String.format(FILE_NAME,school.getName(),questionnaireTypeEnum.getDesc());
     }
 }

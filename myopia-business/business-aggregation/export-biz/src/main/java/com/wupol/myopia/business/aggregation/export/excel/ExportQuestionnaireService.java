@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -34,7 +34,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     private static final String ERROR_MSG ="不存在此导出类型:%s";
 
     @Autowired
-    private QuestionnaireExcelFacade questionnaireExcelFacade;
+    private QuestionnaireExcelFactory questionnaireExcelFactory;
 
     @Override
     public void export(ExportCondition exportCondition) {
@@ -50,7 +50,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             // 3.获取文件保存路径
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成excel
-//            generateExcelFile(fileSavePath,null,exportCondition);
+            generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
             File file = compressFile(fileSavePath);
             // 6.上传文件
@@ -68,7 +68,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             }
         } finally {
             // 7.删除临时文件
-            deleteTempFile(excelSavePath+parentPath);
+            deleteTempFile(parentPath);
             // 8.释放锁
             unlock(getLockKey(exportCondition));
         }
@@ -95,7 +95,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     }
 
     private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
-        Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFacade.getQuestionnaireExcelService(questionnaireType);
+        Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFactory.getQuestionnaireExcelService(questionnaireType);
         if (questionnaireExcelService.isPresent()) {
             QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
             questionnaireExcel.generateExcelFile(exportCondition,fileName);
@@ -104,7 +104,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFacade.getExportTypeService(exportCondition.getExportType());
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()) {
             ExportType exportType = exportTypeService.get();
             return exportType.getNoticeKeyContent(exportCondition);
@@ -114,7 +114,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFacade.getExportTypeService(exportCondition.getExportType());
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()) {
             ExportType exportType = exportTypeService.get();
             return exportType.getFileName(exportCondition);
@@ -124,12 +124,21 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFacade.getExportTypeService(exportCondition.getExportType());
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()) {
             ExportType exportType = exportTypeService.get();
             return exportType.getLockKey(exportCondition);
         }
         throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
+    }
+
+    @Override
+    public void preProcess(ExportCondition exportCondition) {
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
+        if (exportTypeService.isPresent()) {
+            ExportType exportType = exportTypeService.get();
+            exportType.setQuestionnaireType(exportCondition);
+        }
     }
 
 
@@ -156,4 +165,6 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         }
         return fileSavePath;
     }
+
+
 }
