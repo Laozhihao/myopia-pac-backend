@@ -36,6 +36,10 @@ public class QuestionnaireQuestionBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void editLogic(LogicEditRequestDTO requestDTO) {
+
+        if (Objects.equals(requestDTO.getIsLogic(),Boolean.FALSE)) {
+            return;
+        }
         QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionService.getByQuestionnaireIdAndQuestionId(requestDTO.getQuestionnaireId(), requestDTO.getQuestionId());
         if (Objects.isNull(questionnaireQuestion)) {
             return;

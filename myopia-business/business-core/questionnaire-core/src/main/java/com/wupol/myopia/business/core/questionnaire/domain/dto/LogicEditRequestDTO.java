@@ -29,6 +29,12 @@ public class LogicEditRequestDTO {
     private Integer questionId;
 
     /**
+     * 是否逻辑题
+     */
+    @NotNull(message = "是否逻辑题不能为空")
+    private Boolean isLogic;
+
+    /**
      * 跳转Ids
      */
     private List<JumpIdsDO> jumpIds;
