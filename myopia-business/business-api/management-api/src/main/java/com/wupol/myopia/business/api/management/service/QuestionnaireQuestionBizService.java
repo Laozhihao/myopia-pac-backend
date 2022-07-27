@@ -40,6 +40,9 @@ public class QuestionnaireQuestionBizService {
     public List<QuestionResponse> logicList(Integer questionnaireId) {
         List<QuestionResponse> responses = new ArrayList<>();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.logicList(questionnaireId);
+        if (CollectionUtils.isEmpty(questionnaireQuestions)) {
+            return responses;
+        }
         Map<Integer, Question> questionMaps = questionService.getByIds(questionnaireQuestions.stream()
                         .map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toSet())).stream()
                 .collect(Collectors.toMap(Question::getId, Function.identity()));
