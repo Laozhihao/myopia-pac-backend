@@ -72,6 +72,11 @@ public class QuestionnaireQuestion implements Serializable {
     private Boolean isLogic;
 
     /**
+     * 是否展示题目序号
+     */
+    private Boolean isShowNumber;
+
+    /**
      * 跳转题目
      */
     @TableField(typeHandler = JacksonTypeHandler.class, updateStrategy = FieldStrategy.IGNORED)

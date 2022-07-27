@@ -56,6 +56,11 @@ public class EditQuestionnaireRequestDTO {
         private Boolean required;
 
         /**
+         * 是否展示题目序号
+         */
+        private Boolean isShowNumber;
+
+        /**
          * 孩子节点
          */
         private List<Detail> questionList;

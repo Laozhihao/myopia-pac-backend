@@ -50,6 +50,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setJumpIds(detail.getJumpIds());
             question.setRequired(detail.getRequired());
             question.setSort(1);
+            question.setIsShowNumber(detail.getIsShowNumber());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
             if (!CollectionUtils.isEmpty(questionList)) {

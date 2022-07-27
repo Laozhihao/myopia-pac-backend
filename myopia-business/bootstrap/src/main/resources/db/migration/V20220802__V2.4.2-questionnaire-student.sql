@@ -34,3 +34,6 @@ create index q_user_answer_progress_user_id_user_type_index
 
 alter table q_questionnaire_question
     add is_logic boolean null after sort;
+
+alter table q_questionnaire_question
+    add is_show_number boolean default true not null comment '是否展示题目序号' after jump_ids;

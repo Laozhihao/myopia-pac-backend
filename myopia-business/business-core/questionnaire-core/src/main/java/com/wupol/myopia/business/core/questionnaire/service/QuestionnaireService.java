@@ -116,6 +116,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
             questionnaireInfoDTO.setExId(it.getId());
             questionnaireInfoDTO.setExPid(it.getPid());
+            questionnaireInfoDTO.setIsShowNumber(it.getIsShowNumber());
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
@@ -165,6 +166,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
         childQuestionResponse.setExId(it.getId());
         childQuestionResponse.setExPid(it.getPid());
+        childQuestionResponse.setIsShowNumber(it.getIsShowNumber());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
