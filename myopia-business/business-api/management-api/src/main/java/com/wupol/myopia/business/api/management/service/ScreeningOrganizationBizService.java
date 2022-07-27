@@ -229,18 +229,14 @@ public class ScreeningOrganizationBizService {
         } else {
             response.setStaffCount(0);
         }
-        Map<Integer, List<StatConclusion>> rescreenSchoolMap;
+        // 筛查数据
         List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
-        if (CollectionUtils.isEmpty(results)) {
-            rescreenSchoolMap = Maps.newHashMap();
-        } else {
-            rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        }
+        Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        // 调查问卷数据
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(planId),Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
         Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
-        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)
-                .stream().collect(Collectors.groupingBy(Student::getGradeId));
+        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds).stream().collect(Collectors.groupingBy(Student::getGradeId));
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
@@ -257,7 +253,7 @@ public class ScreeningOrganizationBizService {
             buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
-            buildScreening(detail,planId,schoolId,rescreenSchoolMap);
+            buildReScreening(detail,planId,schoolId,reScreenSchoolMap);
             details.add(detail);
         });
         response.setDetails(details);
@@ -273,10 +269,10 @@ public class ScreeningOrganizationBizService {
      * @param rescreenSchoolMap
      * @return
      */
-    private RecordDetails buildScreening(RecordDetails detail,
-                                         Integer planId,
-                                         Integer schoolId,
-                                         Map<Integer, List<StatConclusion>> rescreenSchoolMap){
+    private RecordDetails buildReScreening(RecordDetails detail,
+                                           Integer planId,
+                                           Integer schoolId,
+                                           Map<Integer, List<StatConclusion>> rescreenSchoolMap){
         detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
         detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
         detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
