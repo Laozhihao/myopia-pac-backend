@@ -96,10 +96,11 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectOne(wrapper);
     }
 
-    public List<QuestionnaireQuestion> getByQuestionnaireIdSerialNumber(Integer questionnaireId, String serialNumber) {
+    public List<QuestionnaireQuestion> getByQuestionnaireIdSerialNumber(Integer questionnaireId, String serialNumber, Integer questionId) {
         LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
-        wrapper.like(QuestionnaireQuestion::getSerialNumber, serialNumber);
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
+                .like(QuestionnaireQuestion::getSerialNumber, serialNumber)
+                .ne(QuestionnaireQuestion::getId, questionId);
         return baseMapper.selectList(wrapper);
     }
 

@@ -85,8 +85,8 @@ public class SurveyController {
     }
 
     @GetMapping("logic/findQuestion")
-    public List<QuestionnaireQuestion> logicFindQuestion(Integer questionnaireId, String serialNumber) {
-        return questionnaireQuestionService.getByQuestionnaireIdSerialNumber(questionnaireId, serialNumber);
+    public List<QuestionnaireQuestion> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {
+        return questionnaireQuestionService.getByQuestionnaireIdSerialNumber(questionnaireId, serialNumber, questionId);
     }
 
     @PostMapping("logic/deleted")
