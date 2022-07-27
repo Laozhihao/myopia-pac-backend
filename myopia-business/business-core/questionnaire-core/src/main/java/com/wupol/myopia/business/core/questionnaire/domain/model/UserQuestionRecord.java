@@ -97,5 +97,8 @@ public class UserQuestionRecord implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
-
+    /**
+     * 学生Id
+     */
+    private Integer studentId;
 }

@@ -662,7 +662,7 @@ public class CommonReportService {
         List<Integer> resultIds = statConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList());
         Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getScreeningPlanSchoolStudentId, Function.identity()));
 
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByIds(resultIds);
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByIdsAndCreateTimeDesc(resultIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 通过学校班级年级分组(只保留小学或者幼儿园，看学校数据)

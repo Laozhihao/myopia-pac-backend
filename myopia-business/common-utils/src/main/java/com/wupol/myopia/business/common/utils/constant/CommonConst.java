@@ -179,4 +179,9 @@ public class CommonConst {
      * 顿号
      */
     public static final String CN_PUNCTUATION_COMMA = "、";
+
+    /**
+     * 为百分之0
+     */
+    public static final String PERCENT_ZERO = "0.00%";
 }

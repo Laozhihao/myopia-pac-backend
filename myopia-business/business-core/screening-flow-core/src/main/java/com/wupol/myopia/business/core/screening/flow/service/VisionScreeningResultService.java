@@ -445,8 +445,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.countScreeningSchoolByTaskId(taskId);
     }
 
-    public List<VisionScreeningResult> getByIds(List<Integer> ids) {
-        return baseMapper.getByIds(ids);
+    /**
+     * 根据ID集获取，并根据创建时间倒序
+     *
+     * @param ids
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult>
+     **/
+    public List<VisionScreeningResult> getByIdsAndCreateTimeDesc(List<Integer> ids) {
+        return baseMapper.getByIdsAndCreateTimeDesc(ids);
     }
 
     public int selectScreeningResultByDistrictIdAndTaskId(List<Integer> districtIds, List<Integer> taskIds) {
