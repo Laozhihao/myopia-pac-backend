@@ -71,7 +71,7 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 是否展示题目序号
      */
-    private Boolean isShowNumber;
+    private Boolean isNotShowNumber;
 
     /**
      * 跳转题目

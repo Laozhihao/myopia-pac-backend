@@ -36,4 +36,4 @@ alter table q_questionnaire_question
     add is_logic boolean null after sort;
 
 alter table q_questionnaire_question
-    add is_show_number boolean default true not null comment '是否展示题目序号' after jump_ids;
+    add is_not_show_number boolean default false not null comment '是否不展示题目序号' after jump_ids;

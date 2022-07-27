@@ -19,7 +19,7 @@
                 <if test="@Ognl@isNotEmpty(sort)">and `sort` = #{sort}</if>
                 <if test="@Ognl@isNotEmpty(isLogic)">and `is_logic` = #{isLogic}</if>
                 <if test="@Ognl@isNotEmpty(jumpIds)">and `jump_ids` = #{jumpIds}</if>
-                <if test="@Ognl@isNotEmpty(isShowNumber)">and `is_show_number` = #{isShowNumber}</if>
+                <if test="@Ognl@isNotEmpty(isNotShowNumber)">and `is_not_show_number` = #{isNotShowNumber}</if>
                 <if test="@Ognl@isNotEmpty(required)">and `required` = #{required}</if>
             </trim>
         </where>
@@ -27,6 +27,6 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,questionnaire_id, question_id, pid, serial_number, sort, is_logic, jump_ids, is_show_number, required
+        id,questionnaire_id, question_id, pid, serial_number, sort, is_logic, jump_ids, is_not_show_number, required
     </sql>
 </mapper>

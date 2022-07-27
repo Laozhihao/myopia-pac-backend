@@ -56,9 +56,9 @@ public class EditQuestionnaireRequestDTO {
         private Boolean required;
 
         /**
-         * 是否展示题目序号
+         * 是否不展示题目序号
          */
-        private Boolean isShowNumber;
+        private Boolean isNotShowNumber;
 
         /**
          * 孩子节点

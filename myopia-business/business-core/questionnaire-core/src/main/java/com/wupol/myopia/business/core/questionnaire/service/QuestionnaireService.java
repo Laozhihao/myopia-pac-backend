@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -116,7 +115,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
             questionnaireInfoDTO.setExId(it.getId());
             questionnaireInfoDTO.setExPid(it.getPid());
-            questionnaireInfoDTO.setIsShowNumber(it.getIsShowNumber());
+            questionnaireInfoDTO.setIsNotShowNumber(it.getIsNotShowNumber());
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
             questionnaireInfoDTO.setIsLogic(it.getIsLogic());
             List<QuestionResponse> questionList = Lists.newArrayList();
@@ -167,7 +166,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
         childQuestionResponse.setExId(it.getId());
         childQuestionResponse.setExPid(it.getPid());
-        childQuestionResponse.setIsShowNumber(it.getIsShowNumber());
+        childQuestionResponse.setIsNotShowNumber(it.getIsNotShowNumber());
         childQuestionResponse.setIsLogic(it.getIsLogic());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;

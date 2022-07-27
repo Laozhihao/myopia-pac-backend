@@ -32,9 +32,9 @@ public class QuestionnaireInfoDTO extends Question implements Serializable {
     private Integer exPid;
 
     /**
-     * 是否展示题目序号
+     * 是否不展示题目序号
      */
-    private Boolean isShowNumber;
+    private Boolean isNotShowNumber;
 
     /**
      * 是否逻辑题
