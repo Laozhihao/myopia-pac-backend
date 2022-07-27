@@ -5,16 +5,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicDeletedRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicEditRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicFindQuestionResponseDTO;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionResponse;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -31,13 +34,28 @@ public class QuestionnaireQuestionBizService {
     @Resource
     private QuestionService questionService;
 
+    @Resource
+    private QuestionnaireService questionnaireService;
+
+    public List<QuestionResponse> logicList(Integer questionnaireId) {
+        List<QuestionResponse> responses = new ArrayList<>();
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.logicList(questionnaireId);
+        Map<Integer, Question> questionMaps = questionService.getByIds(questionnaireQuestions.stream()
+                        .map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toSet())).stream()
+                .collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        questionnaireQuestions.forEach(questionnaireQuestion ->
+                responses.add(questionnaireService.commonBuildQuestion(questionMaps.get(questionnaireQuestion.getQuestionId()), questionnaireQuestion)));
+        return responses;
+    }
+
     /**
      * 设置逻辑题
      */
     @Transactional(rollbackFor = Exception.class)
     public void editLogic(LogicEditRequestDTO requestDTO) {
 
-        if (Objects.equals(requestDTO.getIsLogic(),Boolean.FALSE)) {
+        if (Objects.equals(requestDTO.getIsLogic(), Boolean.FALSE)) {
             return;
         }
         QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionService.getByQuestionnaireIdAndQuestionId(requestDTO.getQuestionnaireId(), requestDTO.getQuestionId());

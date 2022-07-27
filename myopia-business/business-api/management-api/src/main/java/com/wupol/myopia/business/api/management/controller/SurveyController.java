@@ -6,9 +6,7 @@ import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBiz
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -42,9 +40,6 @@ public class SurveyController {
     @Resource
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
 
-    @Resource
-    private QuestionnaireQuestionService questionnaireQuestionService;
-
 
     @GetMapping("list")
     public List<Questionnaire> questionnaireList(Integer year) {
@@ -75,8 +70,8 @@ public class SurveyController {
      * 获取逻辑题目
      */
     @GetMapping("logic/list")
-    public List<QuestionnaireQuestion> logicList(Integer questionnaireId) {
-        return questionnaireQuestionService.logicList(questionnaireId);
+    public List<QuestionResponse> logicList(Integer questionnaireId) {
+        return questionnaireQuestionBizService.logicList(questionnaireId);
     }
 
     @PostMapping("logic/edit")

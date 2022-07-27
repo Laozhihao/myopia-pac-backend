@@ -160,7 +160,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param it
      * @return
      */
-    protected QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
+    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
