@@ -239,13 +239,12 @@
     </select>
 
 
-    <select id="getByIds" resultMap="BaseResultMap">
+    <select id="getByIdsAndCreateTimeDesc" resultMap="BaseResultMap">
         select *
         from m_vision_screening_result where id in
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and is_double_screen = false
         order by create_time desc
     </select>
 

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -423,7 +424,7 @@ public class ScreeningResultStatisticBuilder {
     private void setQuestionnaire(CommonDiseaseScreeningResultStatistic statistic) {
         QuestionnaireDO questionnaireDO = new QuestionnaireDO();
         Integer num=0;
-        String ratio="0.00%";
+        String ratio= CommonConst.PERCENT_ZERO;
         questionnaireDO.setEnvHealthInfluenceQuestionnaireNum(num)
                 .setEnvHealthInfluenceQuestionnaireRatio(ratio)
                 .setSchoolHealthWorkAdministrativeQuestionnaireNum(num)
