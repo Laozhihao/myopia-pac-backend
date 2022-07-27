@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.school.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -239,6 +240,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return List<SchoolGrade>
      */
     public List<SchoolGradeExportDTO> getBySchoolIds(List<Integer> schoolIds) {
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return Lists.newArrayList();
+        }
         return baseMapper.getBySchoolIds(schoolIds);
     }
 
