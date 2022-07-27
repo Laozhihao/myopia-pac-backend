@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -136,8 +134,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (CollectionUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
             return;
         }
-        options = JSONObject.parseArray(JSONObject.toJSONString(options), Option.class);
-        jumpIdsDO = JSONObject.parseArray(JSONObject.toJSONString(jumpIdsDO), JumpIdsDO.class);
         Map<String, JumpIdsDO> jumpIdsDOMap = jumpIdsDO.stream().collect(Collectors.toMap(JumpIdsDO::getOptionId, Function.identity()));
         options.forEach(option -> {
             JumpIdsDO result = jumpIdsDOMap.get(option.getId());
