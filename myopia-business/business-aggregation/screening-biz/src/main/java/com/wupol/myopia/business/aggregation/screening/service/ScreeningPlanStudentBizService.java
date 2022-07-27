@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.MockPlanStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -533,7 +534,7 @@ public class ScreeningPlanStudentBizService {
         }
         //是否有筛查计划
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
-        if (Objects.nonNull(screeningPlanSchool)) {
+        if (Objects.nonNull(screeningPlanSchool) && SchoolEnum.checkNotKindergartenSchool(school.getType())) {
             return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
         }
         return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());

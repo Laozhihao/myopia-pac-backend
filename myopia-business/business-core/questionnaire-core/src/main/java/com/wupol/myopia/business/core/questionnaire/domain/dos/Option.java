@@ -43,7 +43,7 @@ public class Option {
     /**
      * 跳转题目Id
      */
-    private List<Integer> jumpIds;
+    private List<JumpIdsDO.JumpIdsInnerDo> jumpIds;
 
 
     /**

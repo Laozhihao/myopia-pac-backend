@@ -197,4 +197,12 @@ public enum SchoolAge {
     public static Boolean isUniversity(Integer schoolAge) {
         return UNIVERSITY.code.equals(schoolAge);
     }
+
+    /**
+     * 判断是否为幼儿园
+     */
+    public static boolean checkKindergarten(Integer schoolAgeType) {
+        return SchoolAge.KINDERGARTEN.code.equals(schoolAgeType);
+
+    }
 }
