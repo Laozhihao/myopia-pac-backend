@@ -51,4 +51,9 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     public Boolean getUserAnswerIsFinish(Integer userId) {
         return null;
     }
+
+    @Override
+    public String getSchoolName(Integer userId) {
+        return null;
+    }
 }

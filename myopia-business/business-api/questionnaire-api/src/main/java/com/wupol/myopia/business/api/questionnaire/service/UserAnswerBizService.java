@@ -180,4 +180,16 @@ public class UserAnswerBizService {
         }
     }
 
+    /**
+     * 获取学校名称
+     *
+     * @param user 用户
+     *
+     * @return 学校名称
+     */
+    public String getSchoolName(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
+    }
+
 }

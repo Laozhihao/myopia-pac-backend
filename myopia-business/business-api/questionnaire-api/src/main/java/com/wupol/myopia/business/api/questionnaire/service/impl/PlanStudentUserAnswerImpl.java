@@ -97,12 +97,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void deletedUserAnswer(Integer questionnaireId, Integer userId,
-                                  List<UserAnswerDTO.QuestionDTO> questionList) {
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId,
-                userId,
-                getUserType(),
-                questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
+    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
+        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId, userId, getUserType(), questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
 
         if (!CollectionUtils.isEmpty(userAnswerList)) {
             userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
@@ -146,9 +142,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 获取问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(
-                        typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream()
-                .collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
+        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
 
         return typeList.stream().map(s -> {
             UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
@@ -170,6 +164,15 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
         // 多份问卷，状态是统一的
         return Objects.equals(userQuestionRecordList.get(0).getStatus(), 2);
+    }
+
+    @Override
+    public String getSchoolName(Integer userId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("获取信息异常");
+        }
+        return planStudent.getSchoolName();
     }
 
 

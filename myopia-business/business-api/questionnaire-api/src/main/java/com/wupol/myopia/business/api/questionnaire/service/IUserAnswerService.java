@@ -26,4 +26,6 @@ public interface IUserAnswerService {
     List<UserQuestionnaireResponseDTO> getUserQuestionnaire(Integer userId);
 
     Boolean getUserAnswerIsFinish(Integer userId);
+
+    String getSchoolName(Integer userId);
 }
