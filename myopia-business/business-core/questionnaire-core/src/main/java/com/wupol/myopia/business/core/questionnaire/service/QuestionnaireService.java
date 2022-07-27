@@ -184,8 +184,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (CollectionUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
             return;
         }
-        options = JSONObject.parseArray(JSONObject.toJSONString(options), Option.class);
-        jumpIdsDO = JSONObject.parseArray(JSONObject.toJSONString(jumpIdsDO), JumpIdsDO.class);
         Map<String, JumpIdsDO> jumpIdsDOMap = jumpIdsDO.stream().collect(Collectors.toMap(JumpIdsDO::getOptionId, Function.identity()));
         options.forEach(option -> {
             JumpIdsDO result = jumpIdsDOMap.get(option.getId());
