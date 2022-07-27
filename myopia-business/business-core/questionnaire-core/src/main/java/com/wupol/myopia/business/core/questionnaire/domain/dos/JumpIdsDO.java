@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class JumpIdsDO {
+public class JumpIdsDO implements Serializable {
 
     /**
      * 选项Id

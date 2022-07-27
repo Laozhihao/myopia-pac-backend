@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,8 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
         List<Integer> questionnaireTypeList = questionnaireFacade.getQuestionnaireTypeList(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL);
 
-        List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireRecordList(exportCondition, questionnaireTypeList);
+        List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.UNIVERSITY.code);
+        List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireRecordList(exportCondition, questionnaireTypeList,gradeTypeList);
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             return;
         }

@@ -76,13 +76,24 @@ public class UserAnswerFacade {
      * @param exportCondition 导出条件
      * @param questionnaireTypeList 问卷类型集合
      */
-    public List<UserQuestionRecord> getQuestionnaireRecordList(ExportCondition exportCondition, List<Integer> questionnaireTypeList) {
+    public List<UserQuestionRecord> getQuestionnaireRecordList(ExportCondition exportCondition, List<Integer> questionnaireTypeList,List<Integer> gradeTypeList) {
         List<Integer> conditionValue = getConditionValue(exportCondition);
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2));
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            return userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> !Objects.equals(userQuestionRecord.getStatus(),QuestionnaireStatusEnum.NOT_START.getCode()))
-                    .filter(userQuestionRecord ->  questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()))
+            List<UserQuestionRecord> collect = userQuestionRecordList.stream()
+                    .filter(userQuestionRecord -> !Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.NOT_START.getCode()))
+                    .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()))
+                    .collect(Collectors.toList());
+
+            Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
+            List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
+            List<Integer> planStudentIdList = planSchoolStudentList.stream()
+                    .filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()))
+                    .map(ScreeningPlanSchoolStudent::getId)
+                    .collect(Collectors.toList());
+
+            return collect.stream()
+                    .filter(userQuestionRecord -> planStudentIdList.contains(userQuestionRecord.getUserId()))
                     .collect(Collectors.toList());
         }
         return Lists.newArrayList();
