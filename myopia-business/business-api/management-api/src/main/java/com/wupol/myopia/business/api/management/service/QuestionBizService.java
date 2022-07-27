@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Iterables;
@@ -72,7 +71,7 @@ public class QuestionBizService {
     private List<String> getOptionIdByQuestion(Question question) {
         // 获取问题下选项的Id
         // 获取选项的Id
-        List<Option> options = JSON.parseArray(JSON.toJSONString(question.getOptions()), Option.class);
+        List<Option> options = question.getOptions();
         List<String> optionIds = options.stream().map(Option::getId).collect(Collectors.toList());
 
         // 获取选项的填空option

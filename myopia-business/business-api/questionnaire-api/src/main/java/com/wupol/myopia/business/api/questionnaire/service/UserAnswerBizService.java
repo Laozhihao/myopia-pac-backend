@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -144,8 +143,7 @@ public class UserAnswerBizService {
                     userAnswer.setRecordId(recordId);
                     userAnswer.setUserType(questionnaireUserType);
                     userAnswer.setQuestionTitle(question.getTitle());
-                    List<Option> options = JSON.parseArray(JSON.toJSONString(question.getOptions()), Option.class);
-                    specialHandleAnswer(planStudent, v, userAnswer, options);
+                    specialHandleAnswer(planStudent, v, userAnswer, question.getOptions());
                 });
     }
 
