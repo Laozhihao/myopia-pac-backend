@@ -731,7 +731,6 @@ public class ScreeningPlanController {
     }
 
 
-
     /**
      * 校验政府是否能够登录问卷系统
      *
@@ -740,6 +739,6 @@ public class ScreeningPlanController {
      */
     @GetMapping("/government")
     public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
-        return this.screeningPlanService.checkGovernmentLogin(orgId);
+        return this.screeningPlanBizService.checkGovernmentLogin(orgId);
     }
 }

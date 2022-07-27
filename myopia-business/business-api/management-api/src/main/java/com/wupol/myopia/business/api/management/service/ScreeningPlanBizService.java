@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -12,8 +13,10 @@ import com.wupol.myopia.business.core.screening.flow.constant.AuthConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.QuestionnaireUser;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +42,8 @@ public class ScreeningPlanBizService {
     private SchoolService schoolService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
+    @Autowired
+    private ScreeningTaskService screeningTaskService;
     /**
      * 根据学校编号跟密码 获取学校信息
      *
@@ -78,6 +82,21 @@ public class ScreeningPlanBizService {
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
         return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+    }
+
+
+    /**
+     * 检测政府是否有筛查计划
+     *
+     * @param orgId
+     * @return
+     */
+    public ApiResult checkGovernmentLogin(Integer orgId) {
+        List<ScreeningTask> screeningTasks = screeningTaskService.listCommonDiseaseByGovDeptId(orgId);
+        if (CollectionUtil.isNotEmpty(screeningTasks)) {
+            return ApiResult.success();
+        }
+        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
     }
 
     /**
