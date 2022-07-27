@@ -28,6 +28,7 @@ public class JumpIdsDO {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    static
     class JumpIdsInnerDo implements Serializable {
         /**
          * 跳转Id
