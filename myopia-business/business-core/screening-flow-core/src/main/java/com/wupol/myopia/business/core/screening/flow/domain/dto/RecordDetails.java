@@ -1,9 +1,15 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 筛查端-记录详情
@@ -80,5 +86,18 @@ public class RecordDetails {
      */
     private String rescreenRatio;
 
+    /**
+     * 问卷数据
+     */
+    private String questionnaire;
 
+    /**
+     * 问卷数据
+     */
+    private Integer questionnaireStudentCount;
+
+    /**
+     * 年级详情
+     */
+    private List<GradeQuestionnaireInfo> gradeQuestionnaireInfos;
 }

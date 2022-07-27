@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionMapper
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +52,11 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
         return baseMapper.selectList(queryWrapper);
     }
 
+    public List<Question> getByIds(Collection<Integer> ids) {
+        LambdaQueryWrapper<Question> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Question::getId, ids);
+        return baseMapper.selectList(queryWrapper);
+    }
 
 
 }

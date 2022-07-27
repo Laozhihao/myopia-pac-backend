@@ -2,10 +2,15 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserQuestionRecordMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +58,23 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
     }
 
 
+    /**
+     * 根据计划id和type获得问卷数据
+     *
+     * @param planId
+     * @param typesIds
+     * @return
+     */
+    public List<UserQuestionRecord> findRecordByPlanIdAndTypeNotIn(List<Integer> planIds, List<Integer> typesIds) {
+        //TODO：根据planId和userType获取学生问卷记录
+        if (CollectionUtils.isEmpty(planIds)) {
+            return Lists.newArrayList();
+        }
+        return baseMapper.selectList(new LambdaQueryWrapper<UserQuestionRecord>()
+                .in(UserQuestionRecord::getPlanId, planIds)
+                .notIn(UserQuestionRecord::getQuestionnaireType, typesIds)
+        );
+    }
 
     /**
      * 根据筛查计划ID获取用户答问卷记录集合

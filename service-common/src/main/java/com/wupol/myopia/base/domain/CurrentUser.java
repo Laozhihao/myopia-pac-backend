@@ -10,6 +10,7 @@ import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -117,7 +118,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireSchoolUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_SCHOOL.getType());
+        return UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
     /**
@@ -126,7 +127,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireStudentUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_STUDENT.getType());
+        return UserType.QUESTIONNAIRE_STUDENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
     @JsonIgnore
@@ -144,8 +145,11 @@ public class CurrentUser {
     }
 
     @JsonIgnore
-    public Integer getQuestionnaireUserId() {
+    public Integer getExQuestionnaireUserId() {
         if (isQuestionnaireSchoolUser() || isQuestionnaireStudentUser()) {
+            if (Objects.isNull(questionnaireUserId)) {
+                throw new BusinessException("获取用户ID异常");
+            }
             return questionnaireUserId;
         }
         if (isGovDeptUser()) {

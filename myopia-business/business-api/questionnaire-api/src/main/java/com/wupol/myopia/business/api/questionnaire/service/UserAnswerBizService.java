@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -56,7 +55,7 @@ public class UserAnswerBizService {
 
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
@@ -71,7 +70,7 @@ public class UserAnswerBizService {
     public Boolean saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
-        Integer userId = user.getQuestionnaireUserId();
+        Integer userId = user.getExQuestionnaireUserId();
         Integer questionnaireUserType = user.getQuestionnaireUserType();
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
@@ -88,10 +87,22 @@ public class UserAnswerBizService {
         iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
 
         // 保存进度
-        iUserAnswerService.saveUserProgress(requestDTO, userId);
+        iUserAnswerService.saveUserProgress(requestDTO, userId, requestDTO.getIsFinish());
 
         // 获取用户答题状态
         return iUserAnswerService.getUserAnswerIsFinish(userId);
+    }
+
+    /**
+     * 是否完成问卷
+     *
+     * @param user 用户
+     *
+     * @return Boolean
+     */
+    public Boolean userAnswerIsFinish(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getUserAnswerIsFinish(user.getExQuestionnaireUserId());
     }
 
 
@@ -132,8 +143,7 @@ public class UserAnswerBizService {
                     userAnswer.setRecordId(recordId);
                     userAnswer.setUserType(questionnaireUserType);
                     userAnswer.setQuestionTitle(question.getTitle());
-                    List<Option> options = JSONObject.parseArray(JSONObject.toJSONString(question.getOptions()), Option.class);
-                    specialHandleAnswer(planStudent, v, userAnswer, options);
+                    specialHandleAnswer(planStudent, v, userAnswer, question.getOptions());
                 });
     }
 
@@ -168,6 +178,18 @@ public class UserAnswerBizService {
                 userAnswerService.save(userAnswer);
             }
         }
+    }
+
+    /**
+     * 获取学校名称
+     *
+     * @param user 用户
+     *
+     * @return 学校名称
+     */
+    public String getSchoolName(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
     }
 
 }

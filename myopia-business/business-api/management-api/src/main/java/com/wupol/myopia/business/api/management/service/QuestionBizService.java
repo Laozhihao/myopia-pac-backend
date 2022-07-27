@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Iterables;
@@ -48,8 +48,8 @@ public class QuestionBizService {
         //选项Id唯一判断
         List<String> optionIdsByQuestion = getOptionIdByQuestion(question);
         // 集合的交集
-        Collection<String> intersection = CollectionUtil.intersection(optionIdsByQuestion, getAllOptionIds());
-        if (CollectionUtil.isNotEmpty(intersection)) {
+        Collection<String> intersection = CollUtil.intersection(optionIdsByQuestion, getAllOptionIds());
+        if (CollUtil.isNotEmpty(intersection)) {
             throw new BusinessException("新问题的选项Id与已有问题的选项Id重复");
         }
         questionService.save(question);
@@ -71,7 +71,7 @@ public class QuestionBizService {
     private List<String> getOptionIdByQuestion(Question question) {
         // 获取问题下选项的Id
         // 获取选项的Id
-        List<Option> options = JSONObject.parseArray(JSONObject.toJSONString(question.getOptions()), Option.class);
+        List<Option> options = question.getOptions();
         List<String> optionIds = options.stream().map(Option::getId).collect(Collectors.toList());
 
         // 获取选项的填空option

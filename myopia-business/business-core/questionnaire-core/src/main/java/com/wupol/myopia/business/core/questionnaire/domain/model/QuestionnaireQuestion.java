@@ -1,20 +1,20 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.JumpIdsDoHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * 
- *
  * @Author Simple4H
  * @Date 2022-07-06
  */
@@ -29,7 +29,7 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 顶层父级的标志Id
      */
-    public static final int TOP_PARENT_ID  = -1;
+    public static final int TOP_PARENT_ID = -1;
 
     /**
      * id
@@ -63,10 +63,21 @@ public class QuestionnaireQuestion implements Serializable {
     private Integer sort;
 
     /**
+     * 是否逻辑题
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isLogic;
+
+    /**
+     * 是否展示题目序号
+     */
+    private Boolean isNotShowNumber;
+
+    /**
      * 跳转题目
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private JumpIdsDO jumpIds;
+    @TableField(typeHandler = JumpIdsDoHandler.class, updateStrategy = FieldStrategy.IGNORED)
+    private List<JumpIdsDO> jumpIds;
 
     /**
      * 是否必填

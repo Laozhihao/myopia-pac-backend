@@ -32,6 +32,16 @@ public class QuestionnaireInfoDTO extends Question implements Serializable {
     private Integer exPid;
 
     /**
+     * 是否不展示题目序号
+     */
+    private Boolean isNotShowNumber;
+
+    /**
+     * 是否逻辑题
+     */
+    private Boolean isLogic;
+
+    /**
      * 子模块问题数组
      */
     private List<QuestionResponse> questionList;

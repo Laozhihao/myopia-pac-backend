@@ -2,9 +2,8 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.service.QuestionBizService;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.SearchQuestionRequestDTO;
+import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
@@ -38,6 +37,10 @@ public class SurveyController {
     @Resource
     private QuestionBizService questionBizService;
 
+    @Resource
+    private QuestionnaireQuestionBizService questionnaireQuestionBizService;
+
+
     @GetMapping("list")
     public List<Questionnaire> questionnaireList(Integer year) {
         return questionnaireService.getQuestionnaireList(year);
@@ -61,6 +64,29 @@ public class SurveyController {
     @GetMapping("/question/search")
     public List<Question> searchQuestion(SearchQuestionRequestDTO requestDTO) {
         return questionService.searchQuestion(requestDTO.getName(), requestDTO.getIsTitle());
+    }
+
+    /**
+     * 获取逻辑题目
+     */
+    @GetMapping("logic/list")
+    public List<QuestionResponse> logicList(Integer questionnaireId) {
+        return questionnaireQuestionBizService.logicList(questionnaireId);
+    }
+
+    @PostMapping("logic/edit")
+    public void editLogic(@RequestBody LogicEditRequestDTO requestDTO) {
+        questionnaireQuestionBizService.editLogic(requestDTO);
+    }
+
+    @GetMapping("logic/findQuestion")
+    public List<LogicFindQuestionResponseDTO> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {
+        return questionnaireQuestionBizService.logicFindQuestion(questionnaireId, serialNumber, questionId);
+    }
+
+    @PostMapping("logic/deleted")
+    public void editDeleted(@RequestBody LogicDeletedRequestDTO requestDTO) {
+        questionnaireQuestionBizService.editDeleted(requestDTO);
     }
 
     @GetMapping("all")

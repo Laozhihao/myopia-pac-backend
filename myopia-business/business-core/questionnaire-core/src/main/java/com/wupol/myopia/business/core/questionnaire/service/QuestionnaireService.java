@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -116,6 +115,11 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         partLists.forEach(it -> {
             Question question = questionMap.get(it.getQuestionId());
             QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
+            questionnaireInfoDTO.setExId(it.getId());
+            questionnaireInfoDTO.setExPid(it.getPid());
+            questionnaireInfoDTO.setIsNotShowNumber(it.getIsNotShowNumber());
+            questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
+            questionnaireInfoDTO.setIsLogic(it.getIsLogic());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -158,12 +162,14 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param it
      * @return
      */
-    protected QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
+    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
         childQuestionResponse.setExId(it.getId());
         childQuestionResponse.setExPid(it.getPid());
+        childQuestionResponse.setIsNotShowNumber(it.getIsNotShowNumber());
+        childQuestionResponse.setIsLogic(it.getIsLogic());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
@@ -174,16 +180,16 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param questionResponse
      * @param jumpIdsDO
      */
-    protected void setJumpIds(QuestionResponse questionResponse, JumpIdsDO jumpIdsDO) {
+    protected void setJumpIds(QuestionResponse questionResponse, List<JumpIdsDO> jumpIdsDO) {
         List<Option> options = questionResponse.getOptions();
         if (CollectionUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
             return;
         }
-        options = JSONObject.parseArray(JSONObject.toJSONString(options), Option.class);
+        Map<String, JumpIdsDO> jumpIdsDOMap = jumpIdsDO.stream().collect(Collectors.toMap(JumpIdsDO::getOptionId, Function.identity()));
         options.forEach(option -> {
-            if (option.getId().equals(jumpIdsDO.getOptionId())) {
-                option.setJumpIds(jumpIdsDO.getJumpIds());
-                return;
+            JumpIdsDO result = jumpIdsDOMap.get(option.getId());
+            if (Objects.nonNull(result)) {
+                option.setJumpIds(result.getJumpIds());
             }
         });
         questionResponse.setOptions(options);

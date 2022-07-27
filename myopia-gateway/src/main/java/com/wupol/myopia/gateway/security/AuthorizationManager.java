@@ -40,6 +40,11 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
      */
     public static final String QUESTIONNAIRE_REQUEST_MAPPING_REGEX = "/questionnaire/**";
 
+    /**
+     * 退出登陆路径
+     */
+    public static final String AUTH_EXIT_PATH = "/auth/exit";
+
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
@@ -77,7 +82,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         }
         // 问卷系统 若访问路径不是问卷系统的，不给访问权限
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
-            if (pathMatcher.match(QUESTIONNAIRE_REQUEST_MAPPING_REGEX, path)) {
+            if (pathMatcher.match(QUESTIONNAIRE_REQUEST_MAPPING_REGEX, path) || path.contains(AUTH_EXIT_PATH)) {
                 return Mono.just(new AuthorizationDecision(true));
             } else {
                 return Mono.just(new AuthorizationDecision(false));

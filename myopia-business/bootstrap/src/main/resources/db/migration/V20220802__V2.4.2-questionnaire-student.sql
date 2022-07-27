@@ -31,3 +31,9 @@ CREATE TABLE `q_user_answer_progress`
 
 create index q_user_answer_progress_user_id_user_type_index
     on q_user_answer_progress (user_id, user_type);
+
+alter table q_questionnaire_question
+    add is_logic boolean null after sort;
+
+alter table q_questionnaire_question
+    add is_not_show_number boolean default false not null comment '是否不展示题目序号' after jump_ids;

@@ -18,15 +18,11 @@ import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -61,7 +57,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish, List<Integer> questionnaireIds) {
 
-        Integer userId = user.getQuestionnaireUserId();
+        Integer userId = user.getExQuestionnaireUserId();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), getUserType(), questionnaireId);
 
@@ -74,8 +70,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
                 // 清空用户答案进度表
                 UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
                 if (Objects.nonNull(userAnswerProgress)) {
-                    userAnswerProgress.setCurrentStep(StringUtils.EMPTY);
-                    userAnswerProgress.setCurrentSideBar(StringUtils.EMPTY);
+                    userAnswerProgress.setCurrentStep(null);
+                    userAnswerProgress.setCurrentSideBar(null);
+                    userAnswerProgress.setUpdateTime(new Date());
+                    userAnswerProgressService.updateById(userAnswerProgress);
                 }
             }
             return userQuestionRecord.getId();
@@ -99,12 +97,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void deletedUserAnswer(Integer questionnaireId, Integer userId,
-                                  List<UserAnswerDTO.QuestionDTO> questionList) {
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionnaireIdAndUserTypeAndQuestionIds(questionnaireId,
-                userId,
-                getUserType(),
-                questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
+    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
+        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId, userId, getUserType(), questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
 
         if (!CollectionUtils.isEmpty(userAnswerList)) {
             userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
@@ -117,7 +111,11 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId) {
+    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
+        // 完成不需要保存进度
+        if (Objects.equals(isFinish, Boolean.TRUE)) {
+            return;
+        }
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
 
         if (Objects.isNull(userAnswerProgress)) {
@@ -144,9 +142,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 获取问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(
-                        typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream()
-                .collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
+        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
 
         return typeList.stream().map(s -> {
             UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
@@ -168,6 +164,15 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
         // 多份问卷，状态是统一的
         return Objects.equals(userQuestionRecordList.get(0).getStatus(), 2);
+    }
+
+    @Override
+    public String getSchoolName(Integer userId) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("获取信息异常");
+        }
+        return planStudent.getSchoolName();
     }
 
 

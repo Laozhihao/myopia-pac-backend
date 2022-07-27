@@ -1,27 +1,21 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
-import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.constant.AuthConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,10 +38,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
-    @Autowired
-    private SchoolService schoolService;
-    @Autowired
-    private ScreeningTaskService screeningTaskService;
 
     /**
      * 更新筛查学生数量
@@ -379,73 +369,5 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, ids)
                 .orderByAsc(ScreeningPlan::getStartTime);
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
-    }
-
-    /**
-     * 根据Id card跟学生姓名 获取学生信息
-     * @param credentialNo
-     * @return
-     */
-    public ApiResult getStudentByCredentialNo(String credentialNo, String studentName) {
-        //查询该学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
-        if (!org.springframework.util.CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
-            //是否有筛查计划
-            ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-            if (Objects.nonNull(student)) {
-                return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
-            }
-            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
-    }
-
-    /**
-     * 根据学校编号跟密码 获取学校信息
-     *
-     * @param schoolNo
-     * @return
-     */
-    public ApiResult getSchoolBySchoolNo(String schoolNo, String password) {
-        School school = checkPassword(password, schoolNo);
-        if (Objects.isNull(school)) {
-            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
-        }
-        //是否有筛查计划
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
-        if (Objects.nonNull(screeningPlanSchool)) {
-            return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
-    }
-
-    /**
-     * 校验学校密码
-     *
-     * @param password
-     * @param schoolNo
-     * @return
-     */
-    public School checkPassword(String password, String schoolNo) {
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
-            return null;
-        }
-        return schoolService.getBySchoolNo(schoolNo);
-    }
-
-    /**
-     * 检测政府是否有筛查计划
-     *
-     * @param orgId
-     * @return
-     */
-    public ApiResult checkGovernmentLogin(Integer orgId) {
-        List<ScreeningTask> screeningTasks = screeningTaskService.listCommonDiseaseByGovDeptId(orgId);
-        if (CollectionUtil.isNotEmpty(screeningTasks)) {
-            return ApiResult.success();
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
     }
 }

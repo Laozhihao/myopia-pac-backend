@@ -21,6 +21,6 @@ public class QuestionnaireBizService {
 
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(CurrentUser user) {
         IUserAnswerService userAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return userAnswerService.getUserQuestionnaire(user.getQuestionnaireUserId());
+        return userAnswerService.getUserQuestionnaire(user.getExQuestionnaireUserId());
     }
 }

@@ -34,7 +34,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getQuestionnaireUserId(), user.getQuestionnaireUserType());
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
@@ -102,25 +102,6 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             userAnswer.setAnswer(s.getAnswer());
             return userAnswer;
         }).collect(Collectors.toList());
-    }
-
-    /**
-     * 通过问卷Id、用户Id获取答案
-     *
-     * @param questionnaireId 问卷Id
-     * @param userType        用户类型
-     *
-     * @return List<UserAnswer>
-     */
-    public List<UserAnswer> getByQuestionnaireIdAndUserTypeAndQuestionIds(Integer questionnaireId, Integer userId,
-                                                                          Integer userType, Collection<Integer> questionIds) {
-
-        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
-                .eq(UserAnswer::getUserId, userId)
-                .eq(UserAnswer::getUserType, userType)
-                .in(UserAnswer::getQuestionId, questionIds);
-        return baseMapper.selectList(wrapper);
     }
 
     /**

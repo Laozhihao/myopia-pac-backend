@@ -1,9 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,11 +42,13 @@ public class UserAnswerProgress implements Serializable {
     /**
      * currentStep
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String currentStep;
 
     /**
      * currentSideBar
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String currentSideBar;
 
     /**

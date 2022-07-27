@@ -11,8 +11,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 import java.util.List;
 
-import java.util.List;
-
 /**
  * @Author Simple4H
  * @Date 2022-07-06
@@ -52,6 +50,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setJumpIds(detail.getJumpIds());
             question.setRequired(detail.getRequired());
             question.setSort(1);
+            question.setIsNotShowNumber(detail.getIsNotShowNumber());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
             if (!CollectionUtils.isEmpty(questionList)) {
@@ -77,4 +76,32 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
                 .orderByAsc(QuestionnaireQuestion::getId));
     }
+
+    public List<QuestionnaireQuestion> logicList(Integer questionnaireId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.eq(QuestionnaireQuestion::getIsLogic, Boolean.TRUE);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 通过问卷、问题Id获取
+     *
+     * @return QuestionnaireQuestion
+     */
+    public QuestionnaireQuestion getByQuestionnaireIdAndQuestionId(Integer questionnaireId, Integer questionId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getQuestionId, questionId);
+        return baseMapper.selectOne(wrapper);
+    }
+
+    public List<QuestionnaireQuestion> getByQuestionnaireIdSerialNumber(Integer questionnaireId, String serialNumber, Integer questionId) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
+                .like(QuestionnaireQuestion::getSerialNumber, serialNumber)
+                .ne(QuestionnaireQuestion::getQuestionId, questionId);
+        return baseMapper.selectList(wrapper);
+    }
+
 }

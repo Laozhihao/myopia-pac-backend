@@ -21,9 +21,11 @@ public interface IUserAnswerService {
 
     void saveUserAnswer(UserAnswerDTO requestDTO, Integer userId, Integer recordId);
 
-    void saveUserProgress(UserAnswerDTO requestDTO, Integer userId);
+    void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish);
 
     List<UserQuestionnaireResponseDTO> getUserQuestionnaire(Integer userId);
 
     Boolean getUserAnswerIsFinish(Integer userId);
+
+    String getSchoolName(Integer userId);
 }

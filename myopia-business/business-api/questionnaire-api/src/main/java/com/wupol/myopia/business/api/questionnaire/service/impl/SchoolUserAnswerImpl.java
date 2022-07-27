@@ -38,7 +38,7 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId) {
+    public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
 
     }
 
@@ -49,6 +49,11 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public Boolean getUserAnswerIsFinish(Integer userId) {
+        return null;
+    }
+
+    @Override
+    public String getSchoolName(Integer userId) {
         return null;
     }
 }

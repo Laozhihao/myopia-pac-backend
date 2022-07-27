@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
@@ -25,6 +26,7 @@ import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
+import com.wupol.myopia.business.api.management.service.ScreeningPlanBiz2Service;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -80,6 +82,8 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Autowired
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
+    @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private PlanStudentExcelImportService planStudentExcelImportService;
@@ -105,6 +109,8 @@ public class ScreeningPlanController {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ReviewInformService reviewInformService;
+    @Autowired
+    private ScreeningPlanBiz2Service screeningPlanBiz2Service;
     /**
      * 新增
      *
@@ -205,7 +211,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
     /**
@@ -218,7 +224,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfoWithPlan(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.querySchoolsInfoInPlanHavaStudent(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.querySchoolsInfoInPlanHaveStudent(screeningPlanId, schoolName);
     }
 
     /**
@@ -547,7 +553,7 @@ public class ScreeningPlanController {
     @GetMapping("schools/haveResult/{screeningPlanId}")
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
-        return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getHaveResultSchool(screeningPlanId, schoolName);
     }
 
     /**
@@ -710,7 +716,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student")
     public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
-        return this.screeningPlanService.getStudentByCredentialNo(credentialNo,studentName);
+        return this.screeningPlanBiz2Service.getStudentByCredentialNo(credentialNo,studentName);
     }
 
     /**
@@ -721,9 +727,8 @@ public class ScreeningPlanController {
      */
     @GetMapping("/school")
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
-        return this.screeningPlanService.getSchoolBySchoolNo(schoolNo,password);
+        return this.screeningPlanBiz2Service.getSchoolBySchoolNo(schoolNo,password);
     }
-
 
 
     /**
@@ -734,6 +739,6 @@ public class ScreeningPlanController {
      */
     @GetMapping("/government")
     public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
-        return this.screeningPlanService.checkGovernmentLogin(orgId);
+        return this.screeningPlanBiz2Service.checkGovernmentLogin(orgId);
     }
 }
