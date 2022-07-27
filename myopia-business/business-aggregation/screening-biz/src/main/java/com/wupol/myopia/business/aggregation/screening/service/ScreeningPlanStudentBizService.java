@@ -115,8 +115,7 @@ public class ScreeningPlanStudentBizService {
     private DeletedArchiveService deletedArchiveService;
     @Autowired
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-    @Autowired
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
+
 
     /**
      * 筛查通知结果页面地址
@@ -521,36 +520,4 @@ public class ScreeningPlanStudentBizService {
         return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 
-    /**
-     * 根据学校编号跟密码 获取学校信息
-     *
-     * @param schoolNo
-     * @return
-     */
-    public ApiResult getSchoolBySchoolNo(String schoolNo, String password) {
-        School school = checkPassword(password, schoolNo);
-        if (Objects.isNull(school)) {
-            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
-        }
-        //是否有筛查计划
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
-        if (Objects.nonNull(screeningPlanSchool) && SchoolEnum.checkNotKindergartenSchool(school.getType())) {
-            return ApiResult.success(new QuestionnaireUser(school.getId(), school.getGovDeptId(), school.getName()));
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
-    }
-
-    /**
-     * 校验学校密码
-     *
-     * @param password
-     * @param schoolNo
-     * @return
-     */
-    public School checkPassword(String password, String schoolNo) {
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
-            return null;
-        }
-        return schoolService.getBySchoolNo(schoolNo);
-    }
 }

@@ -22,13 +22,13 @@ public class JumpIdsDO {
     /**
      * 跳转题目Id
      */
-    private List<JumpIdsInnerDo> jumpIds;
+    private List<JumpIdItem> jumpIds;
 
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    class JumpIdsInnerDo implements Serializable {
+    class JumpIdItem implements Serializable {
         /**
          * 跳转Id
          */

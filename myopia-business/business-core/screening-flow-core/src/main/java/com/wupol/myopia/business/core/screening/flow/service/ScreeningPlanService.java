@@ -377,26 +377,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return baseMapper.selectList(screeningPlanLambdaQueryWrapper);
     }
 
-    /**
-     * 根据Id card跟学生姓名 获取学生信息
-     * @param credentialNo
-     * @return
-     */
-    public ApiResult getStudentByCredentialNo(String credentialNo, String studentName) {
-        //查询该学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
-        if (!org.springframework.util.CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
-            //是否有筛查计划
-            ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-            if (Objects.nonNull(student) && !(SchoolAge.checkKindergarten(student.getGradeType()))) {
-                return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
-            }
-            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
-        }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
-    }
+
 
 
 
