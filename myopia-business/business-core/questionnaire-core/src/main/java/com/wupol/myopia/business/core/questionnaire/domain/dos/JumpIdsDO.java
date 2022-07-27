@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,6 +26,8 @@ public class JumpIdsDO {
 
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     class JumpIdsInnerDo implements Serializable {
         /**
          * 跳转Id
@@ -37,6 +37,6 @@ public class JumpIdsDO {
         /**
          * 描述
          */
-        private String title;
+        private String serialNumber;
     }
 }
