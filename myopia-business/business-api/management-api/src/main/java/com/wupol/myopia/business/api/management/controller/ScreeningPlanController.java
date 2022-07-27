@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
@@ -79,6 +80,8 @@ public class ScreeningPlanController {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Autowired
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
@@ -205,7 +208,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfo(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, schoolName);
     }
 
     /**
@@ -218,7 +221,7 @@ public class ScreeningPlanController {
     public List<ScreeningPlanSchoolDTO> querySchoolsInfoWithPlan(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolService.querySchoolsInfoInPlanHavaStudent(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.querySchoolsInfoInPlanHaveStudent(screeningPlanId, schoolName);
     }
 
     /**
@@ -547,7 +550,7 @@ public class ScreeningPlanController {
     @GetMapping("schools/haveResult/{screeningPlanId}")
     public List<ScreeningPlanSchoolDTO> getHaveResultSchool(@PathVariable Integer screeningPlanId, String schoolName) {
         // 任务状态判断
-        return screeningPlanSchoolService.getHaveResultSchool(screeningPlanId, schoolName);
+        return screeningPlanSchoolBizService.getHaveResultSchool(screeningPlanId, schoolName);
     }
 
     /**

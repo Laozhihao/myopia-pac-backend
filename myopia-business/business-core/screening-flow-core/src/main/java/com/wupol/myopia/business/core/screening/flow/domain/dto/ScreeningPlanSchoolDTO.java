@@ -4,6 +4,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 筛查计划学校
  * @author Alix
@@ -42,7 +44,8 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
     private String questionnaireSituation;
 
 
-
-
-
+    /**
+     * 年级详情
+     */
+    private List<GradeQuestionnaireInfo> gradeQuestionnaireInfos;
 }

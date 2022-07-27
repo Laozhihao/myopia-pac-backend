@@ -2,6 +2,7 @@ package com.wupol.myopia.business.common.utils.util;
 
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -83,7 +84,7 @@ public class MathUtil {
 
     public String ratio(Integer numerator, Integer denominator,DecimalFormat df) {
         if(ObjectsUtil.hasNull(numerator,denominator,df)){
-            return "0.00%";
+            return CommonConst.PERCENT_ZERO;
         }
         if (numerator == 0 ||denominator == 0) {
             return df.format(new BigDecimal("0"));

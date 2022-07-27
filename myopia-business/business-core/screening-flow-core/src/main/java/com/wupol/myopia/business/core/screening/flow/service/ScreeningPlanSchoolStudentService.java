@@ -731,4 +731,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds(Integer type, List<Integer> planId, List<Integer> studentId) {
         return baseMapper.getLastByCredentialNoAndStudentIds(type, planId, studentId);
     }
+
+    /**
+     * 根据taskid 和schoolid 获得学生
+     *
+     * @param taskId
+     * @param schoolIds
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> findStudentByTaskIdAndSchoolsIds(Integer taskId, Set<Integer> schoolIds) {
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlanSchoolStudent>()
+                .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
+                .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
+        );
+    }
 }
