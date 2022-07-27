@@ -300,7 +300,7 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)
                 .stream().collect(Collectors.groupingBy(Student::getGradeId));
         Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(Lists.newArrayList(schoolMap.keySet())).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(Lists.newArrayList(schoolPlanMap.keySet())).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         return screeningPlanSchools.stream().map(vo -> {
             ScreeningPlanSchoolDTO schoolDTO = new ScreeningPlanSchoolDTO();
