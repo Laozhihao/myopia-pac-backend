@@ -46,11 +46,11 @@ public class DeviceUploadDataController {
     public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto) {
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
+        } catch (BusinessException e) {
+            log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
+            return DeviceUploadResult.error(e.getMessage());
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
-            if (e instanceof BusinessException) {
-                return DeviceUploadResult.failure(e.getMessage());
-            }
             return DeviceUploadResult.FAILURE;
         }
         return DeviceUploadResult.SUCCESS;
