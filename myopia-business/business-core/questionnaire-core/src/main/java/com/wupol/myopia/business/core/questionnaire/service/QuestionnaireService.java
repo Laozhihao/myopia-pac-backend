@@ -236,4 +236,18 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionnaire.setUpdateTime(new Date());
         baseMapper.updateById(questionnaire);
     }
+
+    /**
+     * 通过类型获取
+     *
+     * @param type 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public Questionnaire getByType(Integer type) {
+        LambdaQueryWrapper<Questionnaire> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Questionnaire::getType, type)
+                .orderByAsc(Questionnaire::getCreateTime);
+        return baseMapper.selectOne(queryWrapper);
+    }
 }

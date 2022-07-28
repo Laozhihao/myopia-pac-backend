@@ -114,5 +114,21 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         return baseMapper.selectList(wrapper);
     }
 
+    /**
+     * 通过问题Id获取答案
+     *
+     * @return List<UserAnswer>
+     */
+    public List<UserAnswer> getByQuestionIds(Integer questionnaireId, Integer userId, Integer userType, Integer recordId, Collection<Integer> questionIds) {
+
+        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
+                .eq(UserAnswer::getUserId, userId)
+                .eq(UserAnswer::getUserType, userType)
+                .in(UserAnswer::getQuestionId, questionIds)
+                .eq(UserAnswer::getRecordId, recordId);
+        return baseMapper.selectList(wrapper);
+    }
+
 
 }
