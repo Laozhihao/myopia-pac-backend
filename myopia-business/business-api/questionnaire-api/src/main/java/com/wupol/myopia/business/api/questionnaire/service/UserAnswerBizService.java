@@ -230,7 +230,7 @@ public class UserAnswerBizService {
             userQuestionRecord = new UserQuestionRecord();
             userQuestionRecord.setUserId(userId);
             userQuestionRecord.setUserType(userType);
-            userQuestionRecord.setQuestionnaireId(questionnaireId);
+            userQuestionRecord.setQuestionnaireId(questionnaire.getId());
             userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
             userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
             userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
