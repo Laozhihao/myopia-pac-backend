@@ -46,6 +46,10 @@ public class QuestionnaireFacade {
 
     private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
 
+    /**
+     * 获取问卷信息（问卷+问题）
+     * @param questionnaireId 问卷ID
+     */
     public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
@@ -57,6 +61,13 @@ public class QuestionnaireFacade {
         return null;
     }
 
+    /**
+     * 构建问卷信息（问卷+问题）
+     *
+     * @param questionnaire 问卷
+     * @param questionnaireQuestionList 问卷问题关联集合
+     * @param questionList 问题集合
+     */
     public QuestionnaireInfoBO buildQuestionnaireInfo(Questionnaire questionnaire,
                                                     List<QuestionnaireQuestion> questionnaireQuestionList,
                                                     List<Question> questionList){
@@ -67,7 +78,7 @@ public class QuestionnaireFacade {
 
         //问题
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
-        //问卷和问题关连
+        //问卷和问题关联
         Map<Integer, List<QuestionnaireQuestion>> questionnaireQuestionMap = questionnaireQuestionList.stream().collect(Collectors.groupingBy(QuestionnaireQuestion::getPid));
         //父类
         List<QuestionnaireQuestion> questionPidList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(questionnaireQuestion.getPid(), QuestionnaireConstant.PID)).collect(Collectors.toList());
@@ -88,6 +99,12 @@ public class QuestionnaireFacade {
         return questionnaireInfoBO;
     }
 
+    /**
+     * 递归设置问题
+     * @param questionBOList 父类问题集合
+     * @param questionnaireQuestionMap 问卷问题关联集合
+     * @param questionMap 问题集合
+     */
     private void setQuestion(List<QuestionnaireInfoBO.QuestionBO> questionBOList,
                              Map<Integer, List<QuestionnaireQuestion>> questionnaireQuestionMap,
                              Map<Integer, Question> questionMap){
@@ -110,6 +127,11 @@ public class QuestionnaireFacade {
         }
     }
 
+    /**
+     * 获取头信息对象集合
+     * @param questionnaireId 问卷ID
+     * @param depth 问题深度
+     */
     private List<HeadBO> getHeadBO(Integer questionnaireId,AtomicInteger depth){
         List<HeadBO> headList =Lists.newArrayList();
         QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
@@ -129,8 +151,8 @@ public class QuestionnaireFacade {
     }
 
     /**
-     * 获取表头数据
-     * @param questionnaireIds 问卷ID
+     * 获取Excel表头信息
+     * @param questionnaireIds 问卷ID集合
      */
     public List<List<String>> getHead(List<Integer> questionnaireIds){
         List<HeadBO> headBOList = getHeadList(questionnaireIds);
@@ -140,8 +162,8 @@ public class QuestionnaireFacade {
     }
 
     /**
-     * 获取表头数据的ID的顺序
-     * @param questionnaireIds 问卷ID
+     * 获取Excel表头信息的顺序
+     * @param questionnaireIds 问卷ID集合
      */
     public List<Integer> getQuestionIdSort(List<Integer> questionnaireIds){
         List<HeadBO> headBOList = getHeadList(questionnaireIds);
@@ -151,6 +173,10 @@ public class QuestionnaireFacade {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取Excel表头信息对象集合
+     * @param questionnaireIds 问卷ID集合
+     */
     private List<HeadBO> getHeadList(List<Integer> questionnaireIds) {
         List<List<HeadBO>> headList = Lists.newArrayList();
         AtomicInteger depth = new AtomicInteger(0);
@@ -168,7 +194,13 @@ public class QuestionnaireFacade {
         return headBOList;
     }
 
-
+    /**
+     * 递归设置Excel表头数据
+     * @param questionList 问题集合
+     * @param list 表头数据集合
+     * @param lists 收集表头信息集合
+     * @param depth 深度
+     */
     private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<HeadBO> lists,AtomicInteger depth){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> cloneList = ObjectUtil.cloneByStream(list);
@@ -183,6 +215,13 @@ public class QuestionnaireFacade {
         }
     }
 
+    /**
+     * 设Excel头信息对象
+     * @param cloneList 头信息集合
+     * @param lastQuestionId 最深的问题ID
+     * @param sort 排序
+     * @param lists 收集表头信息集合
+     */
     private void setHeadBOList(List<String> cloneList,Integer lastQuestionId,Integer sort ,List<HeadBO> lists){
         lists.add(new HeadBO()
                 .setQuestionDepthList(cloneList)

@@ -23,12 +23,20 @@ public class QuestionnaireExcelFactory {
     @Autowired
     private List<ExportType> typeList;
 
+    /**
+     * 获取问卷类型实例
+     * @param questionnaireType 问卷类型
+     */
     public Optional<QuestionnaireExcel> getQuestionnaireExcelService(Integer questionnaireType){
         return excelList.stream()
                 .filter(service -> Objects.equals(service.getType(),questionnaireType))
                 .findFirst();
     }
 
+    /**
+     * 获取导出类型实例
+     * @param exportType 导出类型
+     */
     public Optional<ExportType> getExportTypeService(Integer exportType){
         return typeList.stream()
                 .filter(service -> Objects.equals(service.getType(),exportType))

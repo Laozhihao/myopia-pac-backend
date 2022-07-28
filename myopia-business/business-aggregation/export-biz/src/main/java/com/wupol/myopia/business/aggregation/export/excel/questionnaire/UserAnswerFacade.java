@@ -54,6 +54,10 @@ public class UserAnswerFacade {
     private static final String  CHECKBOX = "checkbox";
 
 
+    /**
+     * 获取条件值（通知ID,任务ID,计划ID）
+     * @param exportCondition 导出条件
+     */
     private List<Integer> getConditionValue(ExportCondition exportCondition){
         Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()){
@@ -63,6 +67,12 @@ public class UserAnswerFacade {
         return defaultValue(null,null,null);
     }
 
+    /**
+     * 获取条件值的默认值
+     * @param noticeId 通知ID
+     * @param taskId 任务ID
+     * @param planId 计划ID
+     */
     public static List<Integer> defaultValue(Integer noticeId,Integer taskId,Integer planId) {
         ArrayList<Integer> list = new ArrayList<>();
         list.add(noticeId);
@@ -132,6 +142,7 @@ public class UserAnswerFacade {
                     List<ExcelStudentDataBO.AnswerDataBO> answerDataBOList = hideQuestionDataProcess(userQuestionRecord.getUserId(),fillDate,hideQuestionDataBOList);
                     excelStudentDataBO.setDataList(answerDataBOList);
                 }
+                //处理非隐藏数据
                 List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecord.getId());
                 if (CollectionUtil.isNotEmpty(userAnswers)){
                     Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
@@ -149,6 +160,12 @@ public class UserAnswerFacade {
 
     }
 
+    /**
+     * 隐藏问卷数据处理
+     * @param planStudentId 计划学生ID
+     * @param fillDate 填写日期
+     * @param hideQuestionDataBOList 隐藏问题数据集合
+     */
     private List<ExcelStudentDataBO.AnswerDataBO> hideQuestionDataProcess(Integer planStudentId ,Date fillDate,
                                                                           List<HideQuestionDataBO> hideQuestionDataBOList){
         List<ExcelStudentDataBO.AnswerDataBO> answerDataBOList =Lists.newArrayList();
@@ -200,6 +217,11 @@ public class UserAnswerFacade {
         return answerDataBOList;
     }
 
+    /**
+     * 获取答案数据
+     * @param userAnswerList 用户答案数据集合
+     * @param questionMap 问题集合
+     */
     private ExcelStudentDataBO.AnswerDataBO getAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap){
         ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
         UserAnswer userAnswer = userAnswerList.get(0);
@@ -209,7 +231,6 @@ public class UserAnswerFacade {
         List<Option> options = JSONObject.parseArray(JSONObject.toJSONString(question.getOptions()), Option.class);
         if (options.size() == 1){
             Option questionOption = options.get(0);
-
             Map<String,OptionAnswer> optionAnswerMap = userAnswerList.stream().flatMap(answer->{
                 List<OptionAnswer> answerList = JSONObject.parseArray(JSONObject.toJSONString(answer.getAnswer()), OptionAnswer.class);
                 return answerList.stream();
@@ -242,6 +263,7 @@ public class UserAnswerFacade {
             }
 
         }else {
+            //处理
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
             if (Objects.equals(question.getType(), CHECKBOX)) {
                 setAnswerData(answerDataBO, userAnswer, optionMap);
@@ -253,6 +275,12 @@ public class UserAnswerFacade {
         return answerDataBO;
     }
 
+    /**
+     * 设置单选、多选、单选+输入框、多选+输入框
+     * @param answerDataBO  处理后的答案数据
+     * @param userAnswer 用户答案
+     * @param optionMap 选项集合
+     */
     private void setAnswerData(ExcelStudentDataBO.AnswerDataBO answerDataBO, UserAnswer userAnswer, Map<String, Option> optionMap) {
         List<OptionAnswer> optionAnswerList = JSONObject.parseArray(JSONObject.toJSONString(userAnswer.getAnswer()), OptionAnswer.class);
         List<String> answerList = Lists.newArrayList();
@@ -274,7 +302,12 @@ public class UserAnswerFacade {
         answerDataBO.setAnswer(CollectionUtil.join(answerList," "));
     }
 
-
+    /**
+     * 获取导出Excel的数据
+     * @param userQuestionRecordList 用户问卷记录集合
+     * @param questionnaireIds 问卷ID集合
+     * @param questionnaireId 隐藏问题问卷ID
+     */
     public List getData(List<UserQuestionRecord> userQuestionRecordList,
                          List<Integer> questionnaireIds,Integer questionnaireId){
         List<ExcelStudentDataBO> excelStudentDataBOList = Lists.newArrayList();
