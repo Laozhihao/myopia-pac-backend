@@ -22,7 +22,7 @@ public enum QuestionnaireTypeEnum {
     VISION_SPINE(6, "学生视力不良及脊柱弯曲异常影响因素专项调查表"),
     SCHOOL_ENVIRONMENT(7, "学校环境健康影响因素调查表"),
 
-    VISION_SPINE_NOTICE(8, "学校环境健康影响因素调查表");
+    VISION_SPINE_NOTICE(8, "脊柱弯曲-个人信息");
 
     /**
      * 类型
