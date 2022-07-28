@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.questionnaire.domain.dos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 问卷-属性
  *
@@ -10,8 +12,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class QuestionAttribute {
+public class QuestionAttribute implements Serializable {
 
+    private static final long serialVersionUID = -3508337043252065027L;
     /**
      * 是否必填
      */

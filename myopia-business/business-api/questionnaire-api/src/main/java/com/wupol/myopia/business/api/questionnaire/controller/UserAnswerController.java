@@ -14,7 +14,6 @@ import javax.annotation.Resource;
  * @author Simple4H
  */
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/questionnaire/userAnswer")
 public class UserAnswerController {

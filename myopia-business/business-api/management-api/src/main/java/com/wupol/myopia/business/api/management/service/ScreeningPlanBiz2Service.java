@@ -107,7 +107,7 @@ public class ScreeningPlanBiz2Service {
      * @return
      */
     public School checkPassword(String password, String schoolNo) {
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
+        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_SECRET, password)) {
             return null;
         }
         return schoolService.getBySchoolNo(schoolNo);

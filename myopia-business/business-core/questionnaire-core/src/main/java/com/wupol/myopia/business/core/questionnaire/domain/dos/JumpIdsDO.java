@@ -12,8 +12,9 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class JumpIdsDO {
+public class JumpIdsDO implements Serializable{
 
+    private static final long serialVersionUID = 3469839273420851595L;
     /**
      * 选项Id
      */
@@ -30,6 +31,7 @@ public class JumpIdsDO {
     @NoArgsConstructor
     static
     class JumpIdItem implements Serializable {
+        private static final long serialVersionUID = 6565382409227766658L;
         /**
          * 跳转Id
          */

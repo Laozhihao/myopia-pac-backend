@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 public class QuestionResponse extends Question implements Serializable {
 
+    private static final long serialVersionUID = 3390658266197220844L;
     /**
      * 是否必填
      */
