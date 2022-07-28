@@ -186,7 +186,6 @@ public class ScreeningTaskOrgBizService {
             Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
 
             dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, screeningTaskId, orgSchoolsMap, planMap));
-            // TODO：差评，开发调查问卷模块时，优化该模块：学校进度统计仅返回数量，不拼接文字，减少与展示样式的耦合
             ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             if (screeningPlan == null) {
                 return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
@@ -207,11 +206,21 @@ public class ScreeningTaskOrgBizService {
      * @return
      */
     private String findQuestionnaireBySchool(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
-        if (schoolIds.isEmpty()) {
-            return getScreeningState(0, 0, 0, 1);
-        }
-        int end = getQuestionnaireBySchoolStudentCount(schoolIds, taskId, schoolPlanMap, planMap);
-        return getScreeningState(schoolIds.size() - end, 0, end, 1);
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(planMap.keySet()), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        List<String> schoolStatus = schoolIds.stream().map(item->{
+            if(!Objects.isNull(schoolPlanMap.get(item))){
+                ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
+                if(!Objects.isNull(plan)){
+                    return screeningPlanSchoolBizService.getCountBySchool(plan, item, schoolMap);
+                }
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        long notStart = schoolStatus.stream().filter(ScreeningPlanSchool.NOT_START::equals).count();
+        long underWay = schoolStatus.stream().filter(ScreeningPlanSchool.IN_PROGRESS::equals).count();
+        long end = schoolStatus.stream().filter(ScreeningPlanSchool.END::equals).count();
+        return getScreeningState((int) notStart, (int) underWay, (int) end, 0);
     }
 
     /**
@@ -314,7 +323,7 @@ public class ScreeningTaskOrgBizService {
                 schoolDTO.setScreeningProportion(num.toString() + "%");
             }
             schoolDTO.setScreeningSituation(screeningPlanSchoolBizService.findSituation(vo.getSchoolId(), screeningPlan));
-            buildQuestionDto(schoolDTO, vo, schoolPlanMap, screeningPlan, planMap, userGradeIdMap, gradeIdMap, schoolMap);
+            buildQuestionDto(schoolDTO, vo, screeningPlan, userGradeIdMap, gradeIdMap, schoolMap);
             return schoolDTO;
         }).collect(Collectors.toList());
     }
@@ -326,14 +335,12 @@ public class ScreeningTaskOrgBizService {
      */
     public ScreeningPlanSchoolDTO buildQuestionDto(ScreeningPlanSchoolDTO schoolDTO,
                                                    ScreeningPlanSchool vo,
-                                                   Map<Integer, ScreeningPlanSchool> schoolPlanMap,
                                                    ScreeningPlan screeningPlan,
-                                                   Map<Integer, ScreeningPlan> planMap,
                                                    Map<Integer, List<Student>> userGradeIdMap,
                                                    Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
                                                    Map<Integer, List<UserQuestionRecord>> schoolMap){
-        Integer end = getQuestionnaireBySchoolStudentCount(Sets.newHashSet(vo.getSchoolId()), screeningPlan.getScreeningTaskId(), schoolPlanMap, planMap);
-        schoolDTO.setQuestionnaireStudentCount(end);
+        Integer questionnaireStudentCount = CollectionUtils.isEmpty(schoolMap.get(vo.getSchoolId())) ? 0 : schoolMap.get(vo.getSchoolId()).stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet()).size();
+        schoolDTO.setQuestionnaireStudentCount(questionnaireStudentCount);
         if (schoolDTO.getStudentCount() == BigDecimal.ZERO.intValue()) {
             schoolDTO.setQuestionnaireProportion(CommonConst.PERCENT_ZERO);
         } else {
