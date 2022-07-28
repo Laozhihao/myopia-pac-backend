@@ -1,16 +1,17 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.JumpIdsDoHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * 
@@ -65,8 +66,8 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 跳转题目
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private JumpIdsDO jumpIds;
+    @TableField(typeHandler = JumpIdsDoHandler.class)
+    private List<JumpIdsDO> jumpIds;
 
     /**
      * 是否必填

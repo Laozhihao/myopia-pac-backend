@@ -83,15 +83,14 @@ public class ScreeningPlanSchoolBizService {
 
         // TODO：不在循环内查询数据库
         screeningPlanSchools.forEach(vo -> {
-            vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
+            vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), 0L).intValue());
             vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
             BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(), vo.getStudentCount());
             vo.setScreeningProportion(num.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : num.toString() + "%");
             vo.setScreeningSituation(findSituation(vo.getSchoolId(), screeningPlan));
             // 完成数
             // 总数占比
-            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
-                    .isEmpty(schoolMap.get(vo.getSchoolId())) ? new HashMap<>() : schoolMap.get(vo.getSchoolId()).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
+            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils.isEmpty(schoolMap.get(vo.getSchoolId())) ? Maps.newHashMap() : schoolMap.get(vo.getSchoolId()).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
             vo.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
             if (vo.getStudentCount() == 0) {
                 vo.setQuestionnaireProportion(CommonConst.PERCENT_ZERO);

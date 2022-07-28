@@ -24,8 +24,8 @@
 ## 项目目录结构与说明
 ### 目录结构
 - myopia-pac-backend  --- 根目录，聚合所有微服务
-    - service-common  --- 服务公共模块
-    - myopia-business --- 核心业务服务
+    - service-common        --- 服务公共模块
+    - myopia-business       --- 核心业务服务
         - bootstrap                 --- 启动模块
         - business-aggregation      --- 中间聚合层模块
         - business-api              --- 业务api层
@@ -35,6 +35,7 @@
             - management-api            --- 综合管理平台api
             - parent-api                --- 家长端api
             - preschool-app-api         --- 0~6岁APP api
+            - questionnaire-api         --- 调查问卷系统 api
             - school-management-api     --- 学校管理平台api
             - screening-app-api         --- 筛查APP api
         - business-core             --- 基础业务功能层
@@ -43,15 +44,18 @@
             - government-core           --- 政府相关模块
             - hospital-core             --- 医院相关模块
             - parent-core               --- 家长相关模块
+            - questionnaire-core        --- 调查问卷系统模块
             - school-core               --- 学校相关模块
             - school-management-core    --- 学校管理平台相关模块
             - screening-flow-core       --- 筛查相关模块
             - screening-organization-core   --- 筛查机构相关模块
             - stat-core                 --- 统计相关模块
             - system-core               --- 系统设置相关模块
+        - business-sdk              --- 核心业务服务SDK模块
         - common-utils              --- 公共工具模块
-    - myopia-gateway  --- 网关服务
-    - myopia-oauth    --- 授权中心服务
+    - myopia-gateway        --- 网关服务
+    - myopia-migrate-data   --- 数据迁移服务
+    - myopia-oauth          --- 授权中心服务
         - oauth-core                --- 核心功能模块
         - oauth-sdk                 --- SDK模块
     
@@ -188,16 +192,31 @@ docker-compose -f docker-compose-nacos-cluster.yml up -d
 
 ## 开发规范约定
 ### 团队Java代码规范
-https://git.vistel.cn/web/web-toolkits/java-coding-guide
+https://git.vistel.cn/web/web-toolkits/java-coding-guide【要求熟读】
 ### 命名
 - 政府部门：gov_dept、筛查机构：screening_org、两者统称：org
 - Redis缓存key值命名，采用冒号来分类，为了方便维护和便于Redis可视化工具中排查问题。格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符
 ### Mybatis-plus 使用
 - 避免在代码里拼接SQL，难以维护
 - 避免使用QueryWrapper()拼接查询参数（除了在BaseService.java中封装底层方法），难以维护
-- 建议尽量使用Mybatis-plus提供的基础api，或在xxxMapper.xml中编写统一维护SQL、字段
-### myopia-business 的 common 模块内容
+- 建议优先使用Mybatis-plus提供的基础api，或在xxxMapper.xml中编写统一维护SQL、字段
+### myopia-business 的 common-utils 模块内容
 - 不包含controller层，通过service层对外提供服务
 - 不依赖其他模块，作为公共底层模块
-- 遵循自上而下调用原则，仅被业务层调用，common模块不能调用业务层
+- 遵循自上而下调用原则，仅被业务层调用，common-utils模块不能调用业务层
 - 抽取服务(功能)放到common层时，前提条件为：该服务(功能)会被至少两个2业务模块使用到
+### myopia-business 中 api、aggregation、core 各层说明
+- api层：处理具体业务逻辑，为前端返回视图数据
+    - 一般，一个端一个api模块，初步隔离业务领域，尽量保持模块是低耦合高内聚
+    - 如果多个api模块存在相同逻辑代码，则下放到aggregation或core层复用
+    - 为了方便权限拦截和gateway路由，同个api模块的接口url前缀保持一致，例如管理端的接口url都是以“/management”开头，不同api模块的前缀不能一样
+- aggregation层：存放多个api模块会用到的共同业务逻辑
+    - 如果仅有一个api模块才用到的业务逻辑，请不要下放到aggregation层
+- core层：操作数据库，只提供基础的、复用性高的功能，例如纯粹的增删改查
+    - 尽量避免与具体的定制化的业务耦合，这种情况可考虑放到api层
+    - 不同core模块的表，不能连表查询。例如：select * from m_parent, m_student 【m_parent属于parent-core，m_student属于school-core】
+    - 同时依赖不同core模块的表的数据，则在上层处理，例如：在api层分步查询不同core的数据后再聚合数据
+- 特别注意：避免出现循环依赖问题，同层之间的不同module不能依赖调用。例如：在parent-core中调用school-core的服务、在parent-api中使用school-api的service类
+### 其他
+- controller中仅做简单的数据校验或业务处理，以及返回的ApiResult控制，只包含api类型method，其他统一移到service中，例如校验的数据的method等
+- 管理端新增接口（也就是management-api中，其他端不需要），需要在oauth服务中写SQL通过flyway插入数据库

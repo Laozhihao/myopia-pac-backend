@@ -16,10 +16,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.domain.model.WarningMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -45,9 +45,8 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * 最小次数
      */
     private static final int MIN_TIMES = 1;
-    @Autowired
-    private WarningMsgMapper warningMsgMapper;
-    @Autowired
+
+    @Resource
     private VistelToolsService vistelToolsService;
 
     /**
@@ -56,7 +55,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
      * @return
      */
     public List<WarningMsg> needNoticeMsg() {
-        return warningMsgMapper.selectNeedToNotice(null,DateUtil.getDayOfYear(new Date(),0), STATUS_READY_TO_SEND);
+        return baseMapper.selectNeedToNotice(null,DateUtil.getDayOfYear(new Date(),0), STATUS_READY_TO_SEND);
     }
 
     /**
@@ -90,7 +89,7 @@ public class WarningMsgService extends BaseService<WarningMsgMapper, WarningMsg>
             return;
         }
         //找出明天所有待发送的短信
-        List<WarningMsg> warningMsgs = warningMsgMapper.selectNeedToNotice(studentId,DateUtil.getDayOfYear(new Date(),1),STATUS_READY_TO_SEND);
+        List<WarningMsg> warningMsgs = baseMapper.selectNeedToNotice(studentId,DateUtil.getDayOfYear(new Date(),1),STATUS_READY_TO_SEND);
         if (CollectionUtils.isEmpty(warningMsgs)) {
             //明天没有数据
             return;

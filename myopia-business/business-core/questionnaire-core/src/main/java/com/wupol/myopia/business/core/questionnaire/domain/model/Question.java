@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionAttribute;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.OptionHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -58,7 +59,7 @@ public class Question implements Serializable {
     /**
      * 问题的答案选项
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(typeHandler = OptionHandler.class)
     private List<Option> options;
 
     /**
