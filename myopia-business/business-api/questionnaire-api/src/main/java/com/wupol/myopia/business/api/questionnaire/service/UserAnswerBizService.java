@@ -84,8 +84,6 @@ public class UserAnswerBizService {
         // 更新记录表
         Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
 
-        // 处理隐藏问题
-        hiddenQuestion(questionnaireId, userId, questionnaireUserType, recordId);
 
         // 先删除，后新增
         iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);
@@ -95,6 +93,9 @@ public class UserAnswerBizService {
 
         // 保存进度
         iUserAnswerService.saveUserProgress(requestDTO, userId, requestDTO.getIsFinish());
+
+        // 处理隐藏问题
+        hiddenQuestion(questionnaireId, userId, questionnaireUserType, recordId);
 
         // 获取用户答题状态
         return iUserAnswerService.getUserAnswerIsFinish(userId);
@@ -154,7 +155,7 @@ public class UserAnswerBizService {
                 });
 
         // 处理脊柱弯曲学生基本信息
-        abc(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
+        addvisionSpineNotice(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
@@ -204,9 +205,16 @@ public class UserAnswerBizService {
         return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
     }
 
-    private void abc(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+    private void addvisionSpineNotice(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+
+        // 获取最新问卷
+        Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+        if (Objects.isNull(questionnaire)) {
+            return;
+        }
+
         // 需要插入到脊柱问卷的编号
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02", "A04"));
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), Lists.newArrayList("A01", "A011", "A02", "A03", "A04"));
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }
@@ -214,12 +222,6 @@ public class UserAnswerBizService {
         // 获取答案
         List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, recordId, questionIds);
         if (CollectionUtils.isEmpty(userAnswers)) {
-            return;
-        }
-
-        // 获取最新问卷
-        Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
-        if (Objects.isNull(questionnaire)) {
             return;
         }
 
