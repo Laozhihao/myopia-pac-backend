@@ -68,7 +68,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Transactional(rollbackFor = Exception.class)
     public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
-        questionnaireQuestionService.deletedByQuestionnaireId(questionnaireId);
+        questionnaireQuestionService.remove(new QuestionnaireQuestion().setQuestionnaireId(questionnaireId));
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
         // 更新问卷信息
         updateTime(questionnaireId);

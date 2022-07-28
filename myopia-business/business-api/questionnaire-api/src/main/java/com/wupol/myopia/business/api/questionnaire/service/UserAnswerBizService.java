@@ -55,7 +55,10 @@ public class UserAnswerBizService {
 
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(user.getExQuestionnaireUserId())
+                        .setUserType(user.getQuestionnaireUserType()));
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());

@@ -39,11 +39,14 @@ public class QuestionnaireQuestionBizService {
 
     public List<QuestionResponse> logicList(Integer questionnaireId) {
         List<QuestionResponse> responses = new ArrayList<>();
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.logicList(questionnaireId);
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.findByList(
+                new QuestionnaireQuestion()
+                        .setQuestionnaireId(questionnaireId)
+                        .setIsLogic(Boolean.TRUE));
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return responses;
         }
-        Map<Integer, Question> questionMaps = questionService.getByIds(questionnaireQuestions.stream()
+        Map<Integer, Question> questionMaps = questionService.listByIds(questionnaireQuestions.stream()
                         .map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toSet())).stream()
                 .collect(Collectors.toMap(Question::getId, Function.identity()));
 
@@ -91,7 +94,7 @@ public class QuestionnaireQuestionBizService {
         }
 
         Set<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toSet());
-        Map<Integer, String> questionTitleMap = questionService.getByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Question::getTitle));
+        Map<Integer, String> questionTitleMap = questionService.listByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Question::getTitle));
         questionnaireQuestions.forEach(questionnaireQuestion -> {
             LogicFindQuestionResponseDTO responseDTO = new LogicFindQuestionResponseDTO();
             BeanUtils.copyProperties(questionnaireQuestion, responseDTO);

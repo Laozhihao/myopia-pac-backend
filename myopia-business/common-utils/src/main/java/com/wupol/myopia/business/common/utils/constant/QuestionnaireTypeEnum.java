@@ -20,8 +20,7 @@ public enum QuestionnaireTypeEnum {
     MIDDLE_SCHOOL(4, "学生健康状况及影响因素调查表（中学版）"),
     UNIVERSITY_SCHOOL(5, "学生健康状况及影响因素调查表（大学版）"),
     VISION_SPINE(6, "学生视力不良及脊柱弯曲异常影响因素专项调查表"),
-    SCHOOL_ENVIRONMENT(7, "学校环境健康影响因素调查表"),
-    ;
+    SCHOOL_ENVIRONMENT(7, "学校环境健康影响因素调查表");
 
     /**
      * 类型
@@ -58,14 +57,14 @@ public enum QuestionnaireTypeEnum {
      * @return List<QuestionnaireTypeEnum>
      */
     public static List<QuestionnaireTypeEnum> getBySchoolAge(Integer gradeType) {
-        if (SchoolAge.isPrimary(gradeType)) {
-            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, PRIMARY_SCHOOL);
+        if (Boolean.TRUE.equals(SchoolAge.isPrimary(gradeType))) {
+            return getPrimaryType();
         }
-        if (SchoolAge.isMiddleSchool(gradeType)) {
-            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, MIDDLE_SCHOOL);
+        if (Boolean.TRUE.equals(SchoolAge.isMiddleSchool(gradeType))) {
+            return getMiddleType();
         }
-        if (SchoolAge.isUniversity(gradeType)) {
-            return Lists.newArrayList(QUESTIONNAIRE_NOTICE, VISION_SPINE, UNIVERSITY_SCHOOL);
+        if (Boolean.TRUE.equals(SchoolAge.isUniversity(gradeType))) {
+            return getUniversityType();
         }
         return new ArrayList<>();
     }

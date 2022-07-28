@@ -24,23 +24,6 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
     /**
      * 获取用户记录表
      *
-     * @param userId          用户id
-     * @param userType        用户类型
-     * @param questionnaireId 问卷Id
-     *
-     * @return UserQuestionRecord
-     */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId) {
-        LambdaQueryWrapper<UserQuestionRecord> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserQuestionRecord::getUserId, userId);
-        wrapper.eq(UserQuestionRecord::getUserType, userType);
-        wrapper.eq(UserQuestionRecord::getQuestionnaireId, questionnaireId);
-        return baseMapper.selectOne(wrapper);
-    }
-
-    /**
-     * 获取用户记录表
-     *
      * @param userId           用户id
      * @param userType         用户类型
      * @param questionnaireIds 问卷Ids
@@ -59,7 +42,6 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
     /**
      * 根据计划id和type获得问卷数据
      *
-     * @param planId
      * @param typesIds
      * @return
      */

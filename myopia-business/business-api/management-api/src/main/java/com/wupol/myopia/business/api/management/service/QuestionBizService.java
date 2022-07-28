@@ -40,7 +40,7 @@ public class QuestionBizService {
 
 
         // 判断问题是否已经存在
-        Question questionByTitle = questionService.getQuestionByTitle(question.getTitle());
+        Question questionByTitle = questionService.findOne(new Question().setTitle(question.getTitle()));
         if (Objects.nonNull(questionByTitle)) {
             throw new BusinessException("该问题已经存在");
         }

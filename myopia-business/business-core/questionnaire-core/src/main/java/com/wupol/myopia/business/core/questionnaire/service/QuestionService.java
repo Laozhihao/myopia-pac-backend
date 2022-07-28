@@ -33,15 +33,6 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
     }
 
     /**
-     * 通过标题获取问题
-     */
-    public Question getQuestionByTitle(String title) {
-        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Question::getTitle, title);
-        return baseMapper.selectOne(wrapper);
-    }
-
-    /**
      * 获取所有问题
      *
      * @return List<Question>
@@ -51,12 +42,4 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
         queryWrapper.ne(Question::getType, "title");
         return baseMapper.selectList(queryWrapper);
     }
-
-    public List<Question> getByIds(Collection<Integer> ids) {
-        LambdaQueryWrapper<Question> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(Question::getId, ids);
-        return baseMapper.selectList(queryWrapper);
-    }
-
-
 }

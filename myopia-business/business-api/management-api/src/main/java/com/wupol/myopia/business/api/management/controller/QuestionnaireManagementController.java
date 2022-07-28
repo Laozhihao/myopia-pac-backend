@@ -7,12 +7,19 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
+import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,8 +36,20 @@ import java.util.List;
 @RequestMapping("/management/questionnaire")
 @Slf4j
 public class QuestionnaireManagementController {
-    @Autowired
+    @Resource
     private QuestionnaireManagementService questionnaireManagementService;
+
+    @Resource
+    private QuestionnaireService questionnaireService;
+
+    @Resource
+    private QuestionService questionService;
+
+    @Resource
+    private QuestionBizService questionBizService;
+
+    @Resource
+    private QuestionnaireQuestionBizService questionnaireQuestionBizService;
 
     /**
      * 获得当前登录人的筛查任务
@@ -93,5 +112,58 @@ public class QuestionnaireManagementController {
     @GetMapping("/backlog/list")
     public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
         return questionnaireManagementService.getQuestionBacklogList(questionSearchDTO);
+    }
+
+    @GetMapping("list")
+    public List<Questionnaire> questionnaireList(Integer year) {
+        return questionnaireService.getQuestionnaireList(year);
+    }
+
+    @GetMapping("detail/{questionnaireId}")
+    public QuestionnaireResponseDTO getQuestionnaireDetail(@PathVariable("questionnaireId") Integer questionnaireId) {
+        return questionnaireService.getDetailByQuestionnaireId(questionnaireId);
+    }
+
+    @PostMapping("edit")
+    public void editQuestionnaire(@RequestBody EditQuestionnaireRequestDTO requestDTO) {
+        questionnaireService.editQuestionnaire(requestDTO);
+    }
+
+    @PostMapping("/question/save")
+    public void saveQuestion(@RequestBody Question question) {
+        questionBizService.saveQuestion(question);
+    }
+
+    @GetMapping("/question/search")
+    public List<Question> searchQuestion(SearchQuestionRequestDTO requestDTO) {
+        return questionService.searchQuestion(requestDTO.getName(), requestDTO.getIsTitle());
+    }
+
+    /**
+     * 获取逻辑题目
+     */
+    @GetMapping("logic/list")
+    public List<QuestionResponse> logicList(Integer questionnaireId) {
+        return questionnaireQuestionBizService.logicList(questionnaireId);
+    }
+
+    @PostMapping("logic/edit")
+    public void editLogic(@RequestBody LogicEditRequestDTO requestDTO) {
+        questionnaireQuestionBizService.editLogic(requestDTO);
+    }
+
+    @GetMapping("logic/findQuestion")
+    public List<LogicFindQuestionResponseDTO> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {
+        return questionnaireQuestionBizService.logicFindQuestion(questionnaireId, serialNumber, questionId);
+    }
+
+    @PostMapping("logic/deleted")
+    public void editDeleted(@RequestBody LogicDeletedRequestDTO requestDTO) {
+        questionnaireQuestionBizService.editDeleted(requestDTO);
+    }
+
+    @GetMapping("all")
+    public Object getAll() {
+        return questionBizService.getAllOptionIds();
     }
 }
