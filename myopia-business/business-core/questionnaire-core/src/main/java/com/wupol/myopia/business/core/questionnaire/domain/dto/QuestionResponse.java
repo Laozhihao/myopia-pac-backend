@@ -42,7 +42,9 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private Boolean isLogic;
 
-
+    /**
+     * 跳转Id
+     */
     private List<JumpIdsDO> jumpIds;
 
 

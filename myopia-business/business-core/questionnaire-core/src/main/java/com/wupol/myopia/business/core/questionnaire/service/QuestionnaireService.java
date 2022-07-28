@@ -118,6 +118,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setIsNotShowNumber(it.getIsNotShowNumber());
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
             questionnaireInfoDTO.setIsLogic(it.getIsLogic());
+            questionnaireInfoDTO.setJumpIds(it.getJumpIds());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
