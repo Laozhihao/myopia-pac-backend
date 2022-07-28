@@ -9,6 +9,6 @@ public interface AuthConstant {
     /**
      * 问卷系统学校端密码
      */
-    String QUESTIONNAIRE_SCHOOL_PASSWORD = "QM958628";
+    String QUESTIONNAIRE_SCHOOL_SECRET = "QM958628";
 
 }

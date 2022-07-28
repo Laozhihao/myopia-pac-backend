@@ -91,7 +91,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             QuestionnaireUser questionnaireUser;
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
                 questionnaireUser = businessServiceClient.getSchool(username, password);
-                return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+                return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_SECRET);
             }else if(UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType)){
                 //政府登录
                 User user = userService.getByUsername(username, SystemCode.MANAGEMENT_CLIENT.getCode());

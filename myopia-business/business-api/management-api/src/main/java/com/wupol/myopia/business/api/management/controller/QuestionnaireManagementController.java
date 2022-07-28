@@ -25,7 +25,6 @@ import java.util.List;
  */
 @Validated
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/management/questionnaire")
 @Slf4j

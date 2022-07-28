@@ -175,4 +175,12 @@ public enum SchoolAge {
         // 中小学
         return DateFormatUtil.parse("2010-1-1", DateFormatUtil.FORMAT_ONLY_DATE);
     }
+
+    /**
+     * 判断是否为幼儿园
+     */
+    public static boolean checkKindergarten(Integer schoolAgeType) {
+        return SchoolAge.KINDERGARTEN.code.equals(schoolAgeType);
+
+    }
 }

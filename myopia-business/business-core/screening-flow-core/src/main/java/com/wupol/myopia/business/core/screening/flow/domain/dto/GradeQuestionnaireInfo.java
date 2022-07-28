@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,8 @@ import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
-public class GradeQuestionnaireInfo {
+public class GradeQuestionnaireInfo implements Serializable {
+    private static final long serialVersionUID = -5197795030214492033L;
     /**
      * 年级id
      */
