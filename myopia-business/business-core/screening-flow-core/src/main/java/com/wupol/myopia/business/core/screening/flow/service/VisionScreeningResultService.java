@@ -310,7 +310,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return;
         }
         // 设置常见病ID
-        if (!ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType())) {
+        if (ScreeningTypeEnum.isCommonDiseaseScreeningType(plan.getScreeningType())) {
             planStudents.forEach(x -> x.setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(x.getSchoolDistrictId(), x.getSchoolId(), x.getGradeId(), x.getStudentId(), plan.getStartTime())));
         }
         // 新增或更新筛查计划学生
