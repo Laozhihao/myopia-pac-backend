@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  *
  * @author hang.yuan 2022/7/20 11:26
  */
+@Slf4j
 @Service
 public class ExportMiddleSchoolService implements QuestionnaireExcel{
 
@@ -51,6 +53,7 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code);
         List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireRecordList(exportCondition, questionnaireTypeList,gradeTypeList);
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getDesc());
             return;
         }
 

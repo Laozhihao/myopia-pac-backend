@@ -54,6 +54,7 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code);
         List<UserQuestionRecord> userQuestionRecordList = userAnswerFacade.getQuestionnaireRecordList(exportCondition, questionnaireTypeList,gradeTypeList);
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getDesc());
             return;
         }
 
