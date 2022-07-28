@@ -10,6 +10,7 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
+import com.alibaba.excel.write.style.column.SimpleColumnWidthStyleStrategy;
 import com.google.common.collect.Lists;
 import com.vistel.Interface.util.ZipUtil;
 import lombok.experimental.UtilityClass;
@@ -213,19 +214,29 @@ public class ExcelUtil {
         ExcelWriterSheetBuilder writerSheetBuilder = EasyExcelFactory.write(outputFile.getAbsolutePath()).sheet();
         writerSheetBuilder.head(head);
         writerSheetBuilder.registerWriteHandler(getHeadStyle());
+        writerSheetBuilder.registerWriteHandler(new SimpleColumnWidthStyleStrategy(10));
         writerSheetBuilder.doWrite(data);
         return outputFile;
     }
 
     private HorizontalCellStyleStrategy getHeadStyle(){
         WriteCellStyle headWriteCellStyle = new WriteCellStyle();
+
         headWriteCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
         WriteFont headWriteFont = new WriteFont();
         headWriteFont.setFontName("宋体");
         headWriteFont.setFontHeightInPoints((short)14);
         headWriteFont.setBold(false);
         headWriteCellStyle.setWriteFont(headWriteFont);
-        return new HorizontalCellStyleStrategy(headWriteCellStyle, Lists.newArrayList());
+
+        WriteCellStyle contentWriteCellStyle = new WriteCellStyle();
+        headWriteCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        WriteFont contentWriteFont = new WriteFont();
+        contentWriteFont.setFontName("宋体");
+        contentWriteFont.setFontHeightInPoints((short)12);
+        contentWriteFont.setBold(false);
+        headWriteCellStyle.setWriteFont(contentWriteFont);
+        return new HorizontalCellStyleStrategy(headWriteCellStyle, Lists.newArrayList(contentWriteCellStyle));
     }
 
 }
