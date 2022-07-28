@@ -34,7 +34,7 @@ public abstract class ArrayTypeHandler<T> extends JacksonTypeHandler {
             ObjectReader reader = LIST_OBJECT_MAPPER.readerFor(specificType());
             return reader.readValue(json);
         } catch (IOException e) {
-            throw new BusinessException("类型转换异常");
+            throw new BusinessException("转换异常");
         }
     }
 

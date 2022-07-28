@@ -11,8 +11,7 @@ import lombok.Getter;
 public enum QuestionnaireUserType {
     STUDENT(0, "学生"),
     SCHOOL(1, "学校"),
-    GOVERNMENT_DEPARTMENT(2, "政府部门"),
-    ;
+    GOVERNMENT_DEPARTMENT(2, "政府部门");
 
     /**
      * 类型

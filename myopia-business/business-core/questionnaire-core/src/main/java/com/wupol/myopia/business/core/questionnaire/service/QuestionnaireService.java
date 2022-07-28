@@ -70,7 +70,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Transactional(rollbackFor = Exception.class)
     public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
-        questionnaireQuestionService.deletedByQuestionnaireId(questionnaireId);
+        questionnaireQuestionService.remove(new QuestionnaireQuestion().setQuestionnaireId(questionnaireId));
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
         // 更新问卷信息
         updateTime(questionnaireId);
@@ -120,6 +120,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setIsNotShowNumber(it.getIsNotShowNumber());
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
             questionnaireInfoDTO.setIsLogic(it.getIsLogic());
+            questionnaireInfoDTO.setJumpIds(it.getJumpIds());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -237,4 +238,17 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         baseMapper.updateById(questionnaire);
     }
 
+    /**
+     * 通过类型获取
+     *
+     * @param type 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public Questionnaire getByType(Integer type) {
+        LambdaQueryWrapper<Questionnaire> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Questionnaire::getType, type)
+                .orderByAsc(Questionnaire::getCreateTime);
+        return baseMapper.selectOne(queryWrapper);
+    }
 }

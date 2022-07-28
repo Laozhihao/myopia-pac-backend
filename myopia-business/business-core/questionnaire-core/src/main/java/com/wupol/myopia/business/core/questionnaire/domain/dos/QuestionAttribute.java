@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 问卷-属性
  *
@@ -12,8 +14,9 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class QuestionAttribute {
+public class QuestionAttribute implements Serializable {
 
+    private static final long serialVersionUID = -3508337043252065027L;
     /**
      * 是否必填
      */

@@ -18,25 +18,6 @@ import java.util.List;
 @Service
 public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuestionMapper, QuestionnaireQuestion> {
 
-    /**
-     * 通过questionnaireId获取
-     *
-     * @param questionnaireId 问卷Id
-     *
-     * @return List<QuestionnaireQuestion>
-     */
-    public List<QuestionnaireQuestion> getByQuestionnaireId(Integer questionnaireId) {
-        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
-        return baseMapper.selectList(wrapper);
-    }
-
-    public void deletedByQuestionnaireId(Integer questionnaireId) {
-        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
-        baseMapper.delete(wrapper);
-    }
-
     public void insert(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail> details, Integer pid) {
         if (CollectionUtils.isEmpty(details)) {
             return;
@@ -47,10 +28,11 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setQuestionId(detail.getId());
             question.setPid(pid);
             question.setSerialNumber(detail.getSerialNumber());
-            question.setJumpIds(detail.getJumpIds());
             question.setRequired(detail.getRequired());
             question.setSort(1);
             question.setIsNotShowNumber(detail.getIsNotShowNumber());
+            question.setJumpIds(detail.getJumpIds());
+            question.setIsLogic(detail.getIsLogic());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
             if (!CollectionUtils.isEmpty(questionList)) {
@@ -68,20 +50,15 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
 
     /**
      * 通过问卷Id获取QuestionnaireQuestion
+     *
      * @param questionnaireId
+     *
      * @return
      */
     public List<QuestionnaireQuestion> listByQuestionnaireId(Integer questionnaireId) {
         return this.list(new LambdaQueryWrapper<QuestionnaireQuestion>()
                 .eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
                 .orderByAsc(QuestionnaireQuestion::getId));
-    }
-
-    public List<QuestionnaireQuestion> logicList(Integer questionnaireId) {
-        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
-        wrapper.eq(QuestionnaireQuestion::getIsLogic, Boolean.TRUE);
-        return baseMapper.selectList(wrapper);
     }
 
     /**
@@ -102,6 +79,10 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .like(QuestionnaireQuestion::getSerialNumber, serialNumber)
                 .ne(QuestionnaireQuestion::getQuestionId, questionId);
         return baseMapper.selectList(wrapper);
+    }
+
+    public void deletedLogic(Integer questionnaireId, Integer questionId) {
+        baseMapper.deletedLogic(questionnaireId, questionId);
     }
 
 }

@@ -17,8 +17,7 @@ public enum QuestionnaireMainTitleEnum {
     VISION(QuestionnaireTypeEnum.VISION_SPINE.getType(), "视力调查问卷"),
     PRIMARY_STUDENT(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), "健康调查问卷"),
     MIDDLE_STUDENT(QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), "健康调查问卷"),
-    UNIVERSITY_STUDENT(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType(), "健康调查问卷"),
-    ;
+    UNIVERSITY_STUDENT(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType(), "健康调查问卷");
 
 
     /**

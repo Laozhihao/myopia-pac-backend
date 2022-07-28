@@ -54,9 +54,15 @@ public class UserAnswerBizService {
     @Resource
     private UserAnswerProgressService userAnswerProgressService;
 
+    @Resource
+    private UserQuestionRecordService userQuestionRecordService;
+
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(user.getExQuestionnaireUserId())
+                        .setUserType(user.getQuestionnaireUserType()));
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
@@ -146,6 +152,9 @@ public class UserAnswerBizService {
                     userAnswer.setQuestionTitle(question.getTitle());
                     specialHandleAnswer(planStudent, v, userAnswer, question.getOptions());
                 });
+
+        // 处理脊柱弯曲学生基本信息
+        abc(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
@@ -193,6 +202,59 @@ public class UserAnswerBizService {
     public String getSchoolName(CurrentUser user) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
         return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
+    }
+
+    private void abc(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+        // 需要插入到脊柱问卷的编号
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02", "A04"));
+        if (CollectionUtils.isEmpty(questionnaireQuestions)) {
+            return;
+        }
+        List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        // 获取答案
+        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, recordId, questionIds);
+        if (CollectionUtils.isEmpty(userAnswers)) {
+            return;
+        }
+
+        // 获取最新问卷
+        Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+        if (Objects.isNull(questionnaire)) {
+            return;
+        }
+
+        // 新增record表
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
+                new UserQuestionRecord()
+                        .setUserId(planStudent.getId())
+                        .setUserType(userType)
+                        .setQuestionnaireId(questionnaire.getId()));
+        if (Objects.isNull(userQuestionRecord)) {
+            userQuestionRecord = new UserQuestionRecord();
+            userQuestionRecord.setUserId(userId);
+            userQuestionRecord.setUserType(userType);
+            userQuestionRecord.setQuestionnaireId(questionnaire.getId());
+            userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
+            userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
+            userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
+            userQuestionRecord.setSchoolId(planStudent.getSchoolId());
+            userQuestionRecord.setStudentId(planStudent.getStudentId());
+            userQuestionRecord.setQuestionnaireType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+            userQuestionRecord.setStatus(1);
+            userQuestionRecordService.save(userQuestionRecord);
+        }
+
+        // 问题是否已经存在
+        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, userQuestionRecord.getId(), questionIds))) {
+            return;
+        }
+
+        for (UserAnswer userAnswer : userAnswers) {
+            userAnswer.setId(null);
+            userAnswer.setQuestionnaireId(questionnaire.getId());
+            userAnswer.setRecordId(userQuestionRecord.getId());
+        }
+        userAnswerService.saveBatch(userAnswers);
     }
 
 }

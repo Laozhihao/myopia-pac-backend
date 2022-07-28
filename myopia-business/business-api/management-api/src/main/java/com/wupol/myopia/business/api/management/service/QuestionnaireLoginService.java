@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ScreeningPlanBiz2Service {
+public class QuestionnaireLoginService {
 
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
@@ -107,7 +107,7 @@ public class ScreeningPlanBiz2Service {
      * @return
      */
     public School checkPassword(String password, String schoolNo) {
-        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD, password)) {
+        if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_SECRET, password)) {
             return null;
         }
         return schoolService.getBySchoolNo(schoolNo);

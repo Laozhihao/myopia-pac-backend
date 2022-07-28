@@ -18,6 +18,7 @@ import java.util.List;
 @Data
 public class QuestionResponse extends Question implements Serializable {
 
+    private static final long serialVersionUID = 3390658266197220844L;
     /**
      * 是否必填
      */
@@ -43,8 +44,10 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private Boolean isLogic;
 
-
-    private JumpIdsDO jumpIds;
+    /**
+     * 跳转Id
+     */
+    private List<JumpIdsDO> jumpIds;
 
 
     private List<QuestionResponse> questionList;

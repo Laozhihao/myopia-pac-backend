@@ -59,7 +59,11 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
         Integer userId = user.getExQuestionnaireUserId();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(planStudent.getId(), getUserType(), questionnaireId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
+                new UserQuestionRecord()
+                        .setUserId(planStudent.getId())
+                        .setUserType(getUserType())
+                        .setQuestionnaireId(questionnaireId));
 
         // 如果存在记录，且完成问卷，则更新状态
         if (Objects.nonNull(userQuestionRecord)) {
@@ -68,7 +72,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
                 userQuestionRecordList.forEach(item -> item.setStatus(2));
                 userQuestionRecordService.updateBatchById(userQuestionRecordList);
                 // 清空用户答案进度表
-                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
+                UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                        new UserAnswerProgress()
+                                .setUserId(user.getExQuestionnaireUserId())
+                                .setUserType(user.getQuestionnaireUserType()));
                 if (Objects.nonNull(userAnswerProgress)) {
                     userAnswerProgress.setCurrentStep(null);
                     userAnswerProgress.setCurrentSideBar(null);
@@ -116,7 +123,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             return;
         }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgress(userId, getUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(userId)
+                        .setUserType(getUserType()));
 
         if (Objects.isNull(userAnswerProgress)) {
             userAnswerProgress = new UserAnswerProgress();

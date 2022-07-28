@@ -46,11 +46,6 @@ public class EditQuestionnaireRequestDTO {
         private String serialNumber;
 
         /**
-         * 跳转题目
-         */
-        private List<JumpIdsDO> jumpIds;
-
-        /**
          * 是否必填
          */
         private Boolean required;
@@ -59,6 +54,16 @@ public class EditQuestionnaireRequestDTO {
          * 是否不展示题目序号
          */
         private Boolean isNotShowNumber;
+
+        /**
+         * 是否逻辑题
+         */
+        private Boolean isLogic;
+
+        /**
+         * 跳转题目
+         */
+        private List<JumpIdsDO> jumpIds;
 
         /**
          * 孩子节点
