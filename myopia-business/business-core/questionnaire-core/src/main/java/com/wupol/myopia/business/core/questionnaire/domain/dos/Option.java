@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,8 +14,9 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class Option {
+public class Option implements Serializable {
 
+    private static final long serialVersionUID = 8172911895182556183L;
     /**
      * id
      */

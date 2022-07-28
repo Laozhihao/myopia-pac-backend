@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Simple4H
  */
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/userAnswer")
 public class UserAnswerController extends BaseController<UserAnswerService, UserAnswer> {

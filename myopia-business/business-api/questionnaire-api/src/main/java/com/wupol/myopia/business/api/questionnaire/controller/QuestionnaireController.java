@@ -14,7 +14,6 @@ import java.util.List;
  * @author Simple4H
  */
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/questionnaire")
 public class QuestionnaireController extends BaseController<QuestionnaireService, Questionnaire> {
