@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ScreeningPlanBiz2Service {
+public class QuestionnaireLoginService {
 
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;

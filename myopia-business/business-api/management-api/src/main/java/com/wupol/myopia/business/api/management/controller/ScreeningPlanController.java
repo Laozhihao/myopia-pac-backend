@@ -26,7 +26,7 @@ import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
-import com.wupol.myopia.business.api.management.service.ScreeningPlanBiz2Service;
+import com.wupol.myopia.business.api.management.service.QuestionnaireLoginService;
 import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -110,7 +110,7 @@ public class ScreeningPlanController {
     @Autowired
     private ReviewInformService reviewInformService;
     @Autowired
-    private ScreeningPlanBiz2Service screeningPlanBiz2Service;
+    private QuestionnaireLoginService questionnaireLoginService;
     /**
      * 新增
      *
@@ -716,7 +716,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/student")
     public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
-        return this.screeningPlanBiz2Service.getStudentByCredentialNo(credentialNo,studentName);
+        return this.questionnaireLoginService.getStudentByCredentialNo(credentialNo,studentName);
     }
 
     /**
@@ -727,7 +727,7 @@ public class ScreeningPlanController {
      */
     @GetMapping("/school")
     public ApiResult getSchoolBySchoolNo(@RequestParam("schoolNo") String schoolNo, @RequestParam("password") String password) {
-        return this.screeningPlanBiz2Service.getSchoolBySchoolNo(schoolNo,password);
+        return this.questionnaireLoginService.getSchoolBySchoolNo(schoolNo,password);
     }
 
 
@@ -739,6 +739,6 @@ public class ScreeningPlanController {
      */
     @GetMapping("/government")
     public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
-        return this.screeningPlanBiz2Service.checkGovernmentLogin(orgId);
+        return this.questionnaireLoginService.checkGovernmentLogin(orgId);
     }
 }
