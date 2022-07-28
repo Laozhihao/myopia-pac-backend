@@ -40,7 +40,7 @@ public class ExcelStudentDataBO {
         if (CollectionUtils.isEmpty(dataList)){
             return Maps.newHashMap();
         }
-        return dataList.stream().collect(Collectors.toMap(AnswerDataBO::getQuestionId,AnswerDataBO::getAnswer));
+        return dataList.stream().collect(Collectors.toMap(AnswerDataBO::getQuestionId,AnswerDataBO::getAnswer,(a1,a2)->a2));
     }
 
 

@@ -219,7 +219,6 @@ public class UserAnswerFacade {
 
                 JSONObject option = questionOption.getOption();
                 if (Objects.nonNull(option) && option.size() > 0 ){
-                    //radio和input组合
                     String answer = questionOption.getText();
                     for (Map.Entry<String, Object> entry : option.entrySet()) {
                         JSONObject value = (JSONObject) entry.getValue();
@@ -234,64 +233,47 @@ public class UserAnswerFacade {
                 }
             }
             else if (Objects.equals(question.getType(), INPUT)) {
-                JSONObject option = questionOption.getOption();
-                if (Objects.nonNull(option) && option.size() > 0 ){
-                    String answer = questionOption.getText();
-                    for (Map.Entry<String, Object> entry : option.entrySet()) {
-                        JSONObject value = (JSONObject) entry.getValue();
-                        OptionAnswer optionAnswer = optionAnswerMap.get(value.getString(ID));
-                        if (Objects.nonNull(optionAnswer)){
-                            answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), optionAnswer.getValue());
-                        }
-                    }
-                    answerDataBO.setAnswer(answer);
-                }else {
-                    answerDataBO.setAnswer(questionOption.getText());
-                }
+                List<String> valueList = userAnswerList.stream().flatMap(answer -> {
+                    List<OptionAnswer> answerList = JSONObject.parseArray(JSONObject.toJSONString(answer.getAnswer()), OptionAnswer.class);
+                    return answerList.stream();
+                }).map(OptionAnswer::getValue).collect(Collectors.toList());
+
+                answerDataBO.setAnswer(CollectionUtil.join(valueList,"、"));
             }
 
         }else {
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
             if (Objects.equals(question.getType(), CHECKBOX)) {
-                List<OptionAnswer> optionAnswerList = JSONObject.parseArray(JSONObject.toJSONString(userAnswer.getAnswer()), OptionAnswer.class);
-                List<String> answerList =Lists.newArrayList();
-                for (OptionAnswer optionAnswer : optionAnswerList) {
-                    Option questionOption = optionMap.get(optionAnswer.getOptionId());
-                    JSONObject option = questionOption.getOption();
-                    if (Objects.nonNull(option) && option.size() > 0 ){
-                        //checkbox和input组合
-                        String answer = questionOption.getText();
-                        for (Map.Entry<String, Object> entry : option.entrySet()) {
-                            answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), optionAnswer.getValue());
-                        }
-                        answerList.add(answer);
-                    }else {
-                        //checkbox
-                        answerList.add(questionOption.getText());
-                    }
-                }
-                answerDataBO.setAnswer(CollectionUtil.join(answerList," "));
+                setAnswerData(answerDataBO, userAnswer, optionMap);
             }
             else if (Objects.equals(question.getType(), RADIO)) {
-                List<OptionAnswer> optionAnswerList = JSONObject.parseArray(JSONObject.toJSONString(userAnswer.getAnswer()), OptionAnswer.class);
-                OptionAnswer optionAnswer = optionAnswerList.get(0);
-                Option questionOption = optionMap.get(optionAnswer.getOptionId());
-                JSONObject option = questionOption.getOption();
-                if (Objects.nonNull(option) && option.size() > 0 ){
-                    //radio和input组合
-                    String answer = questionOption.getText();
-                    for (Map.Entry<String, Object> entry : option.entrySet()) {
-                        answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), optionAnswer.getValue());
-                    }
-                    answerDataBO.setAnswer(answer);
-                }else {
-                    //radio
-                    answerDataBO.setAnswer(questionOption.getText());
-                }
+                setAnswerData(answerDataBO,userAnswer,optionMap);
             }
         }
         return answerDataBO;
     }
+
+    private void setAnswerData(ExcelStudentDataBO.AnswerDataBO answerDataBO, UserAnswer userAnswer, Map<String, Option> optionMap) {
+        List<OptionAnswer> optionAnswerList = JSONObject.parseArray(JSONObject.toJSONString(userAnswer.getAnswer()), OptionAnswer.class);
+        List<String> answerList = Lists.newArrayList();
+        for (OptionAnswer optionAnswer : optionAnswerList) {
+            Option questionOption = optionMap.get(optionAnswer.getOptionId());
+            JSONObject option = questionOption.getOption();
+            if (Objects.nonNull(option) && option.size() > 0 ){
+                // checkbox/radio 和input组合
+                String answer = questionOption.getText();
+                for (Map.Entry<String, Object> entry : option.entrySet()) {
+                    answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY));
+                }
+                answerList.add(answer);
+            }else {
+                //checkbox/radio
+                answerList.add(questionOption.getText());
+            }
+        }
+        answerDataBO.setAnswer(CollectionUtil.join(answerList," "));
+    }
+
 
     public List getData(List<UserQuestionRecord> userQuestionRecordList,
                          List<Integer> questionnaireIds,Integer questionnaireId){
