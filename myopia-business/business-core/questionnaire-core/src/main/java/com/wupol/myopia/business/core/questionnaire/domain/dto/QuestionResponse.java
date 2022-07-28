@@ -43,7 +43,7 @@ public class QuestionResponse extends Question implements Serializable {
     private Boolean isLogic;
 
 
-    private JumpIdsDO jumpIds;
+    private List<JumpIdsDO> jumpIds;
 
 
     private List<QuestionResponse> questionList;
