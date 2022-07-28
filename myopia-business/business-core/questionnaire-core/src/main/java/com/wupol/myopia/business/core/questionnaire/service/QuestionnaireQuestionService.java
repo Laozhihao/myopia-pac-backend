@@ -47,7 +47,6 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setQuestionId(detail.getId());
             question.setPid(pid);
             question.setSerialNumber(detail.getSerialNumber());
-            question.setJumpIds(detail.getJumpIds());
             question.setRequired(detail.getRequired());
             question.setSort(1);
             question.setIsNotShowNumber(detail.getIsNotShowNumber());
@@ -68,7 +67,9 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
 
     /**
      * 通过问卷Id获取QuestionnaireQuestion
+     *
      * @param questionnaireId
+     *
      * @return
      */
     public List<QuestionnaireQuestion> listByQuestionnaireId(Integer questionnaireId) {
@@ -102,6 +103,10 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .like(QuestionnaireQuestion::getSerialNumber, serialNumber)
                 .ne(QuestionnaireQuestion::getQuestionId, questionId);
         return baseMapper.selectList(wrapper);
+    }
+
+    public void deletedLogic(Integer questionnaireId, Integer questionId) {
+        baseMapper.deletedLogic(questionnaireId, questionId);
     }
 
 }

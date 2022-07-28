@@ -72,13 +72,14 @@ public class QuestionnaireQuestionBizService {
 
     @Transactional(rollbackFor = Exception.class)
     public void editDeleted(LogicDeletedRequestDTO requestDTO) {
-        QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionService.getByQuestionnaireIdAndQuestionId(requestDTO.getQuestionnaireId(), requestDTO.getQuestionId());
+        Integer questionnaireId = requestDTO.getQuestionnaireId();
+        Integer questionId = requestDTO.getQuestionId();
+
+        QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionService.getByQuestionnaireIdAndQuestionId(questionnaireId, questionId);
         if (Objects.isNull(questionnaireQuestion)) {
             throw new BusinessException("问题异常！");
         }
-        questionnaireQuestion.setIsLogic(null);
-        questionnaireQuestion.setJumpIds(null);
-        questionnaireQuestionService.updateById(questionnaireQuestion);
+        questionnaireQuestionService.deletedLogic(questionnaireId, questionId);
     }
 
     public List<LogicFindQuestionResponseDTO> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {

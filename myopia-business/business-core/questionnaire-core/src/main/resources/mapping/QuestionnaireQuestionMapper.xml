@@ -29,4 +29,12 @@
     <sql id="Base_Column_List">
         id,questionnaire_id, question_id, pid, serial_number, sort, is_logic, jump_ids, is_not_show_number, required
     </sql>
+
+    <update id="deletedLogic">
+        update q_questionnaire_question
+        set is_logic = null,
+            jump_ids = null
+        where questionnaire_id = #{questionnaireId}
+          and question_id = #{questionId}
+    </update>
 </mapper>

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
-import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,11 +43,6 @@ public class EditQuestionnaireRequestDTO {
          * 自定义问题的序号
          */
         private String serialNumber;
-
-        /**
-         * 跳转题目
-         */
-        private List<JumpIdsDO> jumpIds;
 
         /**
          * 是否必填

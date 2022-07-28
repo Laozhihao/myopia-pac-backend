@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -65,7 +64,6 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 是否逻辑题
      */
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Boolean isLogic;
 
     /**
@@ -76,7 +74,7 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * 跳转题目
      */
-    @TableField(typeHandler = JumpIdsDoHandler.class, updateStrategy = FieldStrategy.IGNORED)
+    @TableField(typeHandler = JumpIdsDoHandler.class)
     private List<JumpIdsDO> jumpIds;
 
     /**
