@@ -11,7 +11,7 @@ public interface ArtificialStatusConstant {
     /**
      * 人造数据
      */
-    int Artificial = 1;
+    int ARTIFICIAL = 1;
     /**
      * 真实数据
      *

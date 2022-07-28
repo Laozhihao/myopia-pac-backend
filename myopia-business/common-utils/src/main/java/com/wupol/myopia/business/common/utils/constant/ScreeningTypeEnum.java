@@ -55,4 +55,14 @@ public enum ScreeningTypeEnum {
         return ScreeningTypeEnum.VISION.getType().equals(screeningType);
     }
 
+    /**
+     * 是否为常见病筛查类型
+     *
+     * @param screeningType 筛查类型
+     * @return boolean
+     **/
+    public static boolean isCommonDiseaseScreeningType(Integer screeningType) {
+        return ScreeningTypeEnum.COMMON_DISEASE.getType().equals(screeningType);
+    }
+
 }

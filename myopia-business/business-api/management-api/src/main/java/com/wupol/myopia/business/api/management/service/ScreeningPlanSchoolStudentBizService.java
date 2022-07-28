@@ -132,7 +132,7 @@ public class ScreeningPlanSchoolStudentBizService {
     private void mockPlanStudent(Integer studentTotal, School school, ScreeningPlan plan,
                                  MockStudentRequestDTO.GradeItem schoolGrade, MockStudentRequestDTO.ClassItem schoolClass,
                                  List<Student> mockStudentList, List<ScreeningPlanSchoolStudent> mockPlanStudentList) {
-        boolean isVisionScreening = ScreeningTypeEnum.isVisionScreeningType(plan.getScreeningType());
+        boolean isCommonDiseaseScreening = ScreeningTypeEnum.isCommonDiseaseScreeningType(plan.getScreeningType());
         for (int i = 0; i < studentTotal; i++) {
             ScreeningPlanSchoolStudent planSchoolStudent = new ScreeningPlanSchoolStudent();
             planSchoolStudent.setSrcScreeningNoticeId(plan.getSrcScreeningNoticeId());
@@ -155,9 +155,9 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setGender(GenderEnum.MALE.type);
             planSchoolStudent.setStudentAge(DateUtil.ageOfNow(birthday));
             planSchoolStudent.setStudentName(mockStudentList.get(i).getName());
-            planSchoolStudent.setArtificial(ArtificialStatusConstant.Artificial);
+            planSchoolStudent.setArtificial(ArtificialStatusConstant.ARTIFICIAL);
             planSchoolStudent.setScreeningCode(Long.valueOf(mockStudentList.get(i).getName()));
-            planSchoolStudent.setCommonDiseaseId(isVisionScreening ? null : studentCommonDiseaseIdService.getStudentCommonDiseaseId(school.getDistrictId(), school.getId(), schoolGrade.getGradeId(), planSchoolStudent.getStudentId(), plan.getStartTime()));
+            planSchoolStudent.setCommonDiseaseId(isCommonDiseaseScreening ? studentCommonDiseaseIdService.getStudentCommonDiseaseId(school.getDistrictId(), school.getId(), schoolGrade.getGradeId(), planSchoolStudent.getStudentId(), plan.getStartTime()) : null);
             mockPlanStudentList.add(planSchoolStudent);
         }
         screeningPlanSchoolStudentService.batchUpdateOrSave(mockPlanStudentList);
