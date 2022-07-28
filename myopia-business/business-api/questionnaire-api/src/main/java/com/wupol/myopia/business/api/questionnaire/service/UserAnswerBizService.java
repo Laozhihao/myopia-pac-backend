@@ -153,7 +153,7 @@ public class UserAnswerBizService {
                 });
 
         // 处理脊柱弯曲学生基本信息
-        abc(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
+        addvisionSpineNotice(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
@@ -201,7 +201,7 @@ public class UserAnswerBizService {
         return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
     }
 
-    private void abc(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+    private void addvisionSpineNotice(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
         // 需要插入到脊柱问卷的编号
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02", "A04"));
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
