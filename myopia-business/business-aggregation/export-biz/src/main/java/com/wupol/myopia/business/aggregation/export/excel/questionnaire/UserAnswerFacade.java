@@ -4,13 +4,16 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
@@ -18,6 +21,8 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.constant.AreaTypeEnum;
+import com.wupol.myopia.business.core.school.constant.MonitorTypeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -172,34 +177,34 @@ public class UserAnswerFacade {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         School school = schoolService.getById(screeningPlanSchoolStudent.getSchoolId());
+        List<District> districtList = JSON.parseObject(school.getDistrictDetail(), new TypeReference<List<District>>(){});
 
         for (int i = 0; i < hideQuestionDataBOList.size(); i++) {
             ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
             answerDataBO.setQuestionId(hideQuestionDataBOList.get(i).getQuestionId());
-            String districtAreaCode = school.getDistrictAreaCode().toString();
             switch (i){
                 case 0:
                     answerDataBO.setAnswer(screeningPlanSchoolStudent.getCommonDiseaseId());
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 1:
-                    answerDataBO.setAnswer(districtAreaCode.substring(0,2));
+                    answerDataBO.setAnswer(getDistrictName(districtList,0));
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 2:
-                    answerDataBO.setAnswer(districtAreaCode.substring(2,4));
+                    answerDataBO.setAnswer(getDistrictName(districtList,1));
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 3:
-                    answerDataBO.setAnswer(Optional.ofNullable(school.getAreaType()).map(Object::toString).orElse(StrUtil.EMPTY));
+                    answerDataBO.setAnswer(Optional.ofNullable(school.getAreaType()).map(type-> Optional.ofNullable(AreaTypeEnum.get(type)).map(AreaTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 4:
-                    answerDataBO.setAnswer(districtAreaCode.substring(4,6));
+                    answerDataBO.setAnswer(getDistrictName(districtList,2));
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 5:
-                    answerDataBO.setAnswer(Optional.ofNullable(school.getMonitorType()).map(Object::toString).orElse(StrUtil.EMPTY));
+                    answerDataBO.setAnswer(Optional.ofNullable(school.getMonitorType()).map(type-> Optional.ofNullable(MonitorTypeEnum.get(type)).map(MonitorTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
                     answerDataBOList.add(answerDataBO);
                     break;
                 case 6:
@@ -215,6 +220,10 @@ public class UserAnswerFacade {
             }
         }
         return answerDataBOList;
+    }
+
+    private static String getDistrictName(List<District> districtList ,Integer index){
+        return CollectionUtil.isNotEmpty(districtList) ? districtList.get(index).getName():StrUtil.EMPTY;
     }
 
     /**
@@ -266,10 +275,10 @@ public class UserAnswerFacade {
             //处理
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
             if (Objects.equals(question.getType(), CHECKBOX)) {
-                setAnswerData(answerDataBO, userAnswer, optionMap);
+                setAnswerData(answerDataBO, userAnswerList, optionMap);
             }
             else if (Objects.equals(question.getType(), RADIO)) {
-                setAnswerData(answerDataBO,userAnswer,optionMap);
+                setAnswerData(answerDataBO,userAnswerList,optionMap);
             }
         }
         return answerDataBO;
@@ -278,20 +287,33 @@ public class UserAnswerFacade {
     /**
      * 设置单选、多选、单选+输入框、多选+输入框
      * @param answerDataBO  处理后的答案数据
-     * @param userAnswer 用户答案
+     * @param userAnswerList 用户答案
      * @param optionMap 选项集合
      */
-    private void setAnswerData(ExcelStudentDataBO.AnswerDataBO answerDataBO, UserAnswer userAnswer, Map<String, Option> optionMap) {
-        List<OptionAnswer> optionAnswerList = JSONObject.parseArray(JSONObject.toJSONString(userAnswer.getAnswer()), OptionAnswer.class);
+    private void setAnswerData(ExcelStudentDataBO.AnswerDataBO answerDataBO, List<UserAnswer> userAnswerList, Map<String, Option> optionMap) {
+        Map<String,OptionAnswer> optionAnswerMap = userAnswerList.stream().flatMap(answer->{
+            List<OptionAnswer> answerList = JSONObject.parseArray(JSONObject.toJSONString(answer.getAnswer()), OptionAnswer.class);
+            return answerList.stream();
+        }).collect(Collectors.toMap(OptionAnswer::getOptionId,Function.identity()));
+
+        List<OptionAnswer> optionAnswerList = userAnswerList.stream().flatMap(answer->{
+            List<OptionAnswer> answerList = JSONObject.parseArray(JSONObject.toJSONString(answer.getAnswer()), OptionAnswer.class);
+            return answerList.stream();
+        }).collect(Collectors.toList());
         List<String> answerList = Lists.newArrayList();
         for (OptionAnswer optionAnswer : optionAnswerList) {
             Option questionOption = optionMap.get(optionAnswer.getOptionId());
+            if (Objects.isNull(questionOption)){
+                continue;
+            }
             JSONObject option = questionOption.getOption();
             if (Objects.nonNull(option) && option.size() > 0 ){
                 // checkbox/radio 和input组合
                 String answer = questionOption.getText();
                 for (Map.Entry<String, Object> entry : option.entrySet()) {
-                    answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY));
+                    JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(entry.getValue()), JSONObject.class);
+                    OptionAnswer input = optionAnswerMap.get(json.getString("id"));
+                    answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(input.getValue()).orElse(StrUtil.EMPTY));
                 }
                 answerList.add(answer);
             }else {
