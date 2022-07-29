@@ -116,26 +116,57 @@ public class QuestionnaireManagementController {
         return questionnaireManagementService.getQuestionBacklogList(questionSearchDTO);
     }
 
+    /**
+     * 获取问卷列表
+     *
+     * @param year 年份
+     *
+     * @return 问卷列表
+     */
     @GetMapping("list")
     public List<Questionnaire> questionnaireList(Integer year) {
         return questionnaireService.getQuestionnaireList(year);
     }
 
+    /**
+     * 获取问卷详情
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return 问卷详情
+     */
     @GetMapping("detail/{questionnaireId}")
     public QuestionnaireResponseDTO getQuestionnaireDetail(@PathVariable("questionnaireId") Integer questionnaireId) {
         return questionnaireService.getDetailByQuestionnaireId(questionnaireId);
     }
 
+    /**
+     * 问卷编辑
+     *
+     * @param requestDTO requestDTO
+     */
     @PostMapping("edit")
     public void editQuestionnaire(@RequestBody EditQuestionnaireRequestDTO requestDTO) {
         questionnaireService.editQuestionnaire(requestDTO);
     }
 
+    /**
+     * 保存问题
+     *
+     * @param question 问题
+     */
     @PostMapping("/question/save")
     public void saveQuestion(@RequestBody Question question) {
         questionBizService.saveQuestion(question);
     }
 
+    /**
+     * 问题查询
+     *
+     * @param requestDTO 请求入参
+     *
+     * @return 问题列表
+     */
     @GetMapping("/question/search")
     public List<Question> searchQuestion(SearchQuestionRequestDTO requestDTO) {
         return questionService.searchQuestion(requestDTO.getName(), requestDTO.getIsTitle());
@@ -149,27 +180,40 @@ public class QuestionnaireManagementController {
         return questionnaireQuestionBizService.logicList(questionnaireId);
     }
 
+    /**
+     * 逻辑题编辑
+     *
+     * @param requestDTO 请求入参
+     */
     @PostMapping("logic/edit")
     public void editLogic(@RequestBody LogicEditRequestDTO requestDTO) {
         questionnaireQuestionBizService.editLogic(requestDTO);
     }
 
+    /**
+     * 查找逻辑题
+     *
+     * @param questionnaireId 问卷Id
+     * @param serialNumber    序号
+     * @param questionId      问题Id
+     *
+     * @return 逻辑题
+     */
     @GetMapping("logic/findQuestion")
     public List<LogicFindQuestionResponseDTO> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {
         return questionnaireQuestionBizService.logicFindQuestion(questionnaireId, serialNumber, questionId);
     }
 
+    /**
+     * 删除逻辑
+     *
+     * @param requestDTO 请求入参
+     */
     @PostMapping("logic/deleted")
     public void editDeleted(@RequestBody LogicDeletedRequestDTO requestDTO) {
         questionnaireQuestionBizService.editDeleted(requestDTO);
     }
-
-    @GetMapping("all")
-    public Object getAll() {
-        return questionBizService.getAllOptionIds();
-    }
-
-
+    
     /**
      * 导出问卷数据
      *

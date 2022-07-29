@@ -35,23 +35,37 @@ public class UserAnswerController {
         return userAnswerBizService.getUserAnswerList(questionnaireId, user);
     }
 
+    /**
+     * 保存用户答案
+     */
     @PostMapping("save")
     public Boolean saveUserAnswer(@RequestBody UserAnswerDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return userAnswerBizService.saveUserAnswer(requestDTO, user);
     }
 
+    /**
+     * 是否完成问卷
+     */
     @GetMapping("isFinish")
     public Boolean userAnswerIsFinish() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return userAnswerBizService.userAnswerIsFinish(user);
     }
 
+    /**
+     * 获取用户状态
+     */
     @GetMapping("getUserStatus")
     public void getUserStatus() {
         CurrentUserUtil.getCurrentUser();
     }
 
+    /**
+     * 获取学校名称
+     *
+     * @return 学校名称
+     */
     @GetMapping("getSchoolName")
     public ApiResult<String> getSchoolName() {
         return ApiResult.success(userAnswerBizService.getSchoolName(CurrentUserUtil.getCurrentUser()));
