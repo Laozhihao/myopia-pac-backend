@@ -161,6 +161,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setExPid(it.getPid());
         childQuestionResponse.setIsNotShowNumber(it.getIsNotShowNumber());
         childQuestionResponse.setIsLogic(it.getIsLogic());
+        childQuestionResponse.setJumpIds(it.getJumpIds());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
