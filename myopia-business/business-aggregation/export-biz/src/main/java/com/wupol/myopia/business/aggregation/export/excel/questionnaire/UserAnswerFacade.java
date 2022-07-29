@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 用户问卷答案
@@ -95,10 +96,17 @@ public class UserAnswerFacade {
         List<Integer> conditionValue = getConditionValue(exportCondition);
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2));
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            List<UserQuestionRecord> collect = userQuestionRecordList.stream()
+            Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
                     .filter(userQuestionRecord -> !Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.NOT_START.getCode()))
-                    .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()))
-                    .collect(Collectors.toList());
+                    .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()));
+            List<UserQuestionRecord> collect;
+            if (Objects.nonNull(exportCondition.getSchoolId())){
+                collect = userQuestionRecordStream
+                        .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getSchoolId(),exportCondition.getSchoolId()))
+                        .collect(Collectors.toList());
+            } else {
+                collect = userQuestionRecordStream.collect(Collectors.toList());
+            }
 
             Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
