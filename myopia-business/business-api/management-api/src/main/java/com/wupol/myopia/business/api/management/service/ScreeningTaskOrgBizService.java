@@ -175,6 +175,8 @@ public class ScreeningTaskOrgBizService {
         // 统计筛查中的学校数量
         List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultService.countScreeningSchoolByTaskId(screeningTaskId);
         Map<Integer, Integer> schoolCountMap = screeningSchoolCountList.stream().collect(Collectors.toMap(ScreeningSchoolCount::getPlanId, ScreeningSchoolCount::getSchoolCount));
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+
         return orgVoLists.stream().map(orgVo -> {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
@@ -184,7 +186,8 @@ public class ScreeningTaskOrgBizService {
             Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
             Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
 
-            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap));
+            List<UserQuestionRecord> planUserQuestionRecords = userQuestionRecords.stream().filter(item -> planMap.containsKey(item.getPlanId())).collect(Collectors.toList());
+            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap,planUserQuestionRecords));
             ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             if (screeningPlan == null) {
                 return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
@@ -203,10 +206,8 @@ public class ScreeningTaskOrgBizService {
      * @param planMap
      * @return
      */
-    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(planMap.keySet()), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap,List<UserQuestionRecord> userQuestionRecords) {
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-
         List<String> schoolStatus = schoolIds.stream().filter(item -> {
             if (Objects.nonNull(schoolPlanMap.get(item))) {
                 ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
