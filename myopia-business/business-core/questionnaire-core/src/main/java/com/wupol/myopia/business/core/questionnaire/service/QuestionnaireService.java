@@ -51,20 +51,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (Objects.isNull(year)) {
             year = DateUtil.getYear(new Date());
         }
-        return getByYear(year);
-    }
-
-    /**
-     * 通过年份获取
-     *
-     * @param year 年份
-     *
-     * @return List<Questionnaire>
-     */
-    public List<Questionnaire> getByYear(Integer year) {
-        LambdaQueryWrapper<Questionnaire> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Questionnaire::getYear, year);
-        return baseMapper.selectList(wrapper);
+        return findByList(new Questionnaire().setYear(year));
     }
 
     @Transactional(rollbackFor = Exception.class)
