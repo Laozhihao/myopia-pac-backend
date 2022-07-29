@@ -54,7 +54,7 @@ public class UserAnswerBizService {
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
         // 更新记录表
-        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, user, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
 
         // 先删除，后新增
         iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);

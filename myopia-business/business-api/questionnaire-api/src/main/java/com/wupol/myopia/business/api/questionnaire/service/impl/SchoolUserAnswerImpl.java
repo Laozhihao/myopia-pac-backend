@@ -23,7 +23,7 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
         return null;
     }
 

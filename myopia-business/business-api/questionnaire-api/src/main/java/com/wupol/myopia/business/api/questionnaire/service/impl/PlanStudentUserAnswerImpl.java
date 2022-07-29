@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.questionnaire.service.impl;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -62,9 +61,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, CurrentUser user, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
 
-        Integer userId = user.getExQuestionnaireUserId();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
                 new UserQuestionRecord()
@@ -81,8 +79,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
                 // 清空用户答案进度表
                 UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
                         new UserAnswerProgress()
-                                .setUserId(user.getExQuestionnaireUserId())
-                                .setUserType(user.getQuestionnaireUserType()));
+                                .setUserId(userId)
+                                .setUserType(getUserType()));
                 if (Objects.nonNull(userAnswerProgress)) {
                     userAnswerProgress.setCurrentStep(null);
                     userAnswerProgress.setCurrentSideBar(null);
