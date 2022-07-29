@@ -2,8 +2,10 @@ package com.wupol.myopia.business.api.questionnaire.service;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
@@ -17,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -154,7 +153,7 @@ public class UserAnswerBizService {
                 });
 
         // 处理脊柱弯曲学生基本信息
-        addvisionSpineNotice(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
+        addVisionSpineNotice(planStudent, questionnaireId, userId, questionnaireUserType, recordId);
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
@@ -202,7 +201,7 @@ public class UserAnswerBizService {
         return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
     }
 
-    private void addvisionSpineNotice(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+    private void addVisionSpineNotice(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
 
         // 获取最新问卷
         Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
@@ -211,7 +210,7 @@ public class UserAnswerBizService {
         }
 
         // 需要插入到脊柱问卷的编号
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), Lists.newArrayList("A01", "A011", "A02", "A03", "A04"));
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), CommonConst.VISION_SPINE_NOTICE);
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }
@@ -239,7 +238,7 @@ public class UserAnswerBizService {
             userQuestionRecord.setSchoolId(planStudent.getSchoolId());
             userQuestionRecord.setStudentId(planStudent.getStudentId());
             userQuestionRecord.setQuestionnaireType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
-            userQuestionRecord.setStatus(1);
+            userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
             userQuestionRecordService.save(userQuestionRecord);
         }
 

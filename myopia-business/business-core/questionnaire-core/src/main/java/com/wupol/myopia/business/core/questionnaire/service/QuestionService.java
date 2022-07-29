@@ -2,11 +2,11 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
     public List<Question> searchQuestion(String name, Boolean isTitle) {
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(Question::getTitle, name)
-                .eq(Objects.equals(isTitle, Boolean.TRUE), Question::getType, "title");
+                .eq(Objects.equals(isTitle, Boolean.TRUE), Question::getType, QuestionTypeEnum.TITLE.getType());
         return baseMapper.selectList(wrapper);
     }
 
@@ -39,7 +39,7 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
      */
     public List<Question> getAllQuestion() {
         LambdaQueryWrapper<Question> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.ne(Question::getType, "title");
+        queryWrapper.ne(Question::getType, QuestionTypeEnum.TITLE.getType());
         return baseMapper.selectList(queryWrapper);
     }
 }

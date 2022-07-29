@@ -6,6 +6,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -69,7 +70,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         if (Objects.nonNull(userQuestionRecord)) {
             if (Objects.equals(isFinish, Boolean.TRUE)) {
                 List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(planStudent.getId(), getUserType(), questionnaireIds);
-                userQuestionRecordList.forEach(item -> item.setStatus(2));
+                userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
                 userQuestionRecordService.updateBatchById(userQuestionRecordList);
                 // 清空用户答案进度表
                 UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
@@ -98,7 +99,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord.setSchoolId(planStudent.getSchoolId());
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
         userQuestionRecord.setStudentId(planStudent.getStudentId());
-        userQuestionRecord.setStatus(1);
+        userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();
     }
@@ -173,7 +174,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             return false;
         }
         // 多份问卷，状态是统一的
-        return Objects.equals(userQuestionRecordList.get(0).getStatus(), 2);
+        return Objects.equals(userQuestionRecordList.get(0).getStatus(), UserQuestionRecordEnum.FINISH.getType());
     }
 
     @Override
