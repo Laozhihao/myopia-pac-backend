@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -166,5 +168,11 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return fileSavePath;
     }
 
-
+    @Override
+    public File compressFile(String fileSavePath) {
+        File srcFile = FileUtil.file(fileSavePath);
+        final File zipFile = FileUtil.file(FileUtil.file(srcFile).getParentFile(), FileUtil.mainName(srcFile) + ".zip");
+        // 将本目录也压缩
+        return ZipUtil.zip(zipFile, CharsetUtil.defaultCharset(), true, srcFile);
+    }
 }

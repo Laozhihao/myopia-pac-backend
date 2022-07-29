@@ -10,7 +10,6 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
-import com.alibaba.excel.write.style.column.SimpleColumnWidthStyleStrategy;
 import com.google.common.collect.Lists;
 import com.vistel.Interface.util.ZipUtil;
 import lombok.experimental.UtilityClass;
@@ -214,7 +213,6 @@ public class ExcelUtil {
         ExcelWriterSheetBuilder writerSheetBuilder = EasyExcelFactory.write(outputFile.getAbsolutePath()).sheet();
         writerSheetBuilder.head(head);
         writerSheetBuilder.registerWriteHandler(getHeadStyle());
-        writerSheetBuilder.registerWriteHandler(new SimpleColumnWidthStyleStrategy(10));
         writerSheetBuilder.doWrite(data);
         return outputFile;
     }

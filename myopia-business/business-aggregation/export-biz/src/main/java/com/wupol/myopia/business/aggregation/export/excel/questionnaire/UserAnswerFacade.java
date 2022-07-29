@@ -129,6 +129,11 @@ public class UserAnswerFacade {
         }
 
         List<Integer> recordIds = userQuestionRecordList.stream().map(UserQuestionRecord::getId).collect(Collectors.toList());
+
+        //记分问题ID
+        List<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toList());
+        List<Integer> scoreQuestionIds = questionnaireFacade.getScoreQuestionIds(questionnaireIds);
+
         List<UserAnswer> userAnswerList = userAnswerService.getListByRecordIds(recordIds);
         Map<Integer, List<UserAnswer>> userAnswerMap = userAnswerList.stream().collect(Collectors.groupingBy(UserAnswer::getRecordId));
 
@@ -141,8 +146,10 @@ public class UserAnswerFacade {
             ExcelStudentDataBO excelStudentDataBO = new ExcelStudentDataBO();
             excelStudentDataBO.setStudentId(studentId);
             Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
+
             for (UserQuestionRecord userQuestionRecord : recordList) {
-                if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())){
+                if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
+                        || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
                     //处理隐藏数据（学生和学校数据）
                     List<ExcelStudentDataBO.AnswerDataBO> answerDataBOList = hideQuestionDataProcess(userQuestionRecord.getUserId(),fillDate,hideQuestionDataBOList);
                     excelStudentDataBO.setDataList(answerDataBOList);
@@ -151,12 +158,35 @@ public class UserAnswerFacade {
                 List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecord.getId());
                 if (CollectionUtil.isNotEmpty(userAnswers)){
                     Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
-                    List<ExcelStudentDataBO.AnswerDataBO> collect =Lists.newArrayList();
-                    questionUserAnswerMap.forEach((questionId,list)-> collect.add(getAnswerData(list,questionMap)));
+                    List<ExcelStudentDataBO.AnswerDataBO> answerList =Lists.newArrayList();
+                    List<ExcelStudentDataBO.AnswerDataBO> scoreAnswerList =Lists.newArrayList();
+
+                    questionUserAnswerMap.forEach((questionId,list)-> {
+                        ExcelStudentDataBO.AnswerDataBO answerData = getAnswerData(list, questionMap);
+                        answerList.add(answerData);
+                        if (scoreQuestionIds.contains(questionId)){
+                            scoreAnswerList.add(answerData);
+                        }
+                    });
+
+                    if (CollectionUtil.isNotEmpty(scoreAnswerList)){
+                        int totalScore = scoreAnswerList.stream()
+                                .map(answerDataBO -> {
+                                    Question question = questionMap.get(answerDataBO.getQuestionId());
+                                    return question.getOptions().stream()
+                                            .filter(option -> Objects.equals(option.getText(), answerDataBO.getAnswer()))
+                                            .findFirst().orElse(null);
+                                })
+                                .filter(Objects::nonNull)
+                                .map(Option::getScoreValue)
+                                .filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+                        answerList.add(new ExcelStudentDataBO.AnswerDataBO(-1,String.valueOf(totalScore)));
+                    }
+
                     if (Objects.isNull(excelStudentDataBO.getDataList())) {
-                        excelStudentDataBO.setDataList(collect);
+                        excelStudentDataBO.setDataList(answerList);
                     }else {
-                        excelStudentDataBO.getDataList().addAll(collect);
+                        excelStudentDataBO.getDataList().addAll(answerList);
                     }
                 }
             }
@@ -254,7 +284,7 @@ public class UserAnswerFacade {
                         JSONObject value = (JSONObject) entry.getValue();
                         OptionAnswer optionAnswer = optionAnswerMap.get(value.getString(ID));
                         if (Objects.nonNull(optionAnswer)){
-                            answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), optionAnswer.getValue());
+                            answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY));
                         }
                     }
                     answerDataBO.setAnswer(answer);
@@ -266,7 +296,7 @@ public class UserAnswerFacade {
                 List<String> valueList = userAnswerList.stream().flatMap(answer -> {
                     List<OptionAnswer> answerList = JSONObject.parseArray(JSONObject.toJSONString(answer.getAnswer()), OptionAnswer.class);
                     return answerList.stream();
-                }).map(OptionAnswer::getValue).collect(Collectors.toList());
+                }).map(optionAnswer -> Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY)).collect(Collectors.toList());
 
                 answerDataBO.setAnswer(CollectionUtil.join(valueList,"、"));
             }
@@ -274,11 +304,8 @@ public class UserAnswerFacade {
         }else {
             //处理
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
-            if (Objects.equals(question.getType(), CHECKBOX)) {
+            if (Objects.equals(question.getType(), CHECKBOX) || Objects.equals(question.getType(), RADIO)) {
                 setAnswerData(answerDataBO, userAnswerList, optionMap);
-            }
-            else if (Objects.equals(question.getType(), RADIO)) {
-                setAnswerData(answerDataBO,userAnswerList,optionMap);
             }
         }
         return answerDataBO;

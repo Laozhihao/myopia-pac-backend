@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class ExcelStudentDataBO {
      */
     private List<AnswerDataBO> dataList;
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Data
     public static class AnswerDataBO{
         /**
@@ -34,6 +38,7 @@ public class ExcelStudentDataBO {
          * 答案
          */
         private String answer;
+
     }
 
     public Map<Integer,String> getAnswerDataMap(){

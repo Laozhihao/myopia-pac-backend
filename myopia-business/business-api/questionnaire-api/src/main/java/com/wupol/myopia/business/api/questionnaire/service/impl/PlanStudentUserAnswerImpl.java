@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -235,7 +236,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
         if (StringUtils.equals(v, "A01")) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            optionAnswer.setOptionId(options.get(0).getId());
+            JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
+            optionAnswer.setOptionId(json.getString("id"));
             optionAnswer.setValue(planStudent.getGradeName());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
@@ -244,7 +246,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
         if (StringUtils.equals(v, "A011")) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            optionAnswer.setOptionId(options.get(0).getId());
+            JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
+            optionAnswer.setOptionId(json.getString("id"));
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }

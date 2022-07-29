@@ -62,19 +62,22 @@ public class ExportVisionSpineService  implements QuestionnaireExcel {
         if (CollectionUtils.isEmpty(questionnaireList)){
             return;
         }
-        // QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE 类型的问卷ID
+        // QuestionnaireTypeEnum.VISION_SPINE_NOTICE 类型的问卷ID
         Integer questionnaireId = questionnaireList.stream()
-                .filter(questionnaire -> Objects.equals(questionnaire.getType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType()))
+                .filter(questionnaire -> Objects.equals(questionnaire.getType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType()))
                 .findFirst().map(Questionnaire::getId).orElse(null);
 
-        List<Integer> latestQuestionnaireIds =  questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType)).map(Questionnaire::getId).collect(Collectors.toList());
+        List<Integer> latestQuestionnaireIds =  questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
         Map<Integer, List<UserQuestionRecord>> schoolRecordMap = userQuestionRecordList.stream()
                 .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
-        Map<Integer,List> dataMap= Maps.newHashMap();
 
+        //先获取excel表头信息，取到记分问题
+        List<List<String>> head = getHead(latestQuestionnaireIds);
+
+        Map<Integer,List> dataMap= Maps.newHashMap();
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
             dataMap.put(entry.getKey(), userAnswerFacade.getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
         }
@@ -82,8 +85,10 @@ public class ExportVisionSpineService  implements QuestionnaireExcel {
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
             String excelFileName = questionnaireFacade.getExcelFileName(entry.getKey(), getType());
             String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, dataMap.get(entry.getKey()), getHead(latestQuestionnaireIds));
+            ExcelUtil.exportListToExcel(file, dataMap.get(entry.getKey()), head);
         }
+
+        questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
 
     }
 

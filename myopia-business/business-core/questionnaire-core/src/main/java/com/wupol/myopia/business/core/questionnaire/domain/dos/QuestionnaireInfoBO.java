@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 问卷信息
@@ -47,11 +46,17 @@ public class QuestionnaireInfoBO {
          * 问题的序号
          */
         private String questionSerialNumber;
+        /**
+         * 是否记分题
+         */
+        private Boolean isScore;
 
         /**
          * 子问题
          */
         private List<QuestionBO> questionBOList;
+
+
 
 
         public String getQuestionSerialNumber() {

@@ -42,18 +42,14 @@ import java.util.List;
 public class QuestionnaireManagementController {
     @Resource
     private QuestionnaireManagementService questionnaireManagementService;
-    @Autowired
+    @Resource
     private ExportStrategy exportStrategy;
-
     @Resource
     private QuestionnaireService questionnaireService;
-
     @Resource
     private QuestionService questionService;
-
     @Resource
     private QuestionBizService questionBizService;
-
     @Resource
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
 

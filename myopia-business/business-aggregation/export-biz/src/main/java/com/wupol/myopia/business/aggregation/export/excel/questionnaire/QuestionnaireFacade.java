@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HeadBO;
@@ -22,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,7 +42,10 @@ public class QuestionnaireFacade {
     private final QuestionService questionService;
     private final SchoolService schoolService;
 
+    private Map<Integer,List<Integer>> scoreMap = Maps.newConcurrentMap();
+
     private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
+    private static final String TOTAL_SCORE="总分";
 
     /**
      * 获取问卷信息（问卷+问题）
@@ -91,6 +92,7 @@ public class QuestionnaireFacade {
             questionBO.setQuestionId(question.getId());
             questionBO.setQuestionName(question.getTitle());
             questionBO.setQuestionSerialNumber(questionnaireQuestion.getSerialNumber());
+            questionBO.setIsScore(question.getAttribute().getIsScore());
             questionBOList.add(questionBO);
         }
 
@@ -119,6 +121,7 @@ public class QuestionnaireFacade {
                     child.setQuestionId(question.getId());
                     child.setQuestionName(question.getTitle());
                     child.setQuestionSerialNumber(questionnaireQuestion.getSerialNumber());
+                    child.setIsScore(question.getAttribute().getIsScore());
                     childList.add(child);
                 }
                 questionBO.setQuestionBOList(childList);
@@ -140,11 +143,21 @@ public class QuestionnaireFacade {
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> strList=Lists.newArrayList();
             strList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+            List<String> scoreList=Lists.newArrayList();
+            if (Objects.equals(questionBO.getIsScore(),Boolean.TRUE)){
+                scoreList =Lists.newArrayList();
+                scoreList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+                scoreMap.put(questionnaireId,Lists.newArrayList(questionBO.getQuestionId()));
+            }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollectionUtil.isNotEmpty(questionBOList)){
-                setHead(questionBOList,strList,headList,depth);
+                setHead(questionBOList,strList,headList,depth,scoreList,questionnaireId);
             }else {
                 setHeadBOList(strList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),headList);
+            }
+            if (!CollectionUtils.isEmpty(scoreList)){
+                scoreList.add(TOTAL_SCORE);
+                setHeadBOList(scoreList,-1,null,headList);
             }
         }
         return headList;
@@ -168,7 +181,6 @@ public class QuestionnaireFacade {
     public List<Integer> getQuestionIdSort(List<Integer> questionnaireIds){
         List<HeadBO> headBOList = getHeadList(questionnaireIds);
         return headBOList.stream()
-                .sorted(Comparator.comparing(HeadBO::getSort))
                 .map(HeadBO::getLastQuestionId)
                 .collect(Collectors.toList());
     }
@@ -200,14 +212,25 @@ public class QuestionnaireFacade {
      * @param list 表头数据集合
      * @param lists 收集表头信息集合
      * @param depth 深度
+     * @param scoreList 记分项
+     * @param questionnaireId 问卷ID
      */
-    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList ,List<String> list,List<HeadBO> lists,AtomicInteger depth){
+    private void setHead(List<QuestionnaireInfoBO.QuestionBO> questionList,List<String> list,
+                         List<HeadBO> lists,AtomicInteger depth,List<String> scoreList,
+                         Integer questionnaireId){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> cloneList = ObjectUtil.cloneByStream(list);
             cloneList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+            if (CollectionUtil.isNotEmpty(scoreMap.get(questionnaireId))){
+                scoreMap.get(questionnaireId).add(questionBO.getQuestionId());
+            }
+
+            if (Objects.equals(questionBO.getIsScore(),Boolean.TRUE)){
+                scoreList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+            }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollectionUtil.isNotEmpty(questionBOList)){
-                setHead(questionBOList,cloneList,lists,depth);
+                setHead(questionBOList,cloneList,lists,depth,scoreList,questionnaireId);
             }else{
                 depth.set(CollectionUtil.max(Lists.newArrayList(depth.get(),cloneList.size())));
                 setHeadBOList(cloneList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),lists);
@@ -314,7 +337,7 @@ public class QuestionnaireFacade {
      * @return 问卷类型集合
      */
     public static List<Integer> getVisionSpine(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        return Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
     }
 
 
@@ -358,4 +381,30 @@ public class QuestionnaireFacade {
         QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
         return String.format(FILE_NAME,school.getName(),questionnaireTypeEnum.getDesc());
     }
+
+
+    /**
+     * 获取计算分值问题ID集合
+     *
+     * @param questionnaireIds 问卷ID
+     */
+    public List<Integer> getScoreQuestionIds(List<Integer> questionnaireIds) {
+        List<Integer> questionIds = Lists.newArrayList();
+        if (CollectionUtil.isNotEmpty(questionnaireIds)){
+            questionnaireIds.forEach(id-> Optional.ofNullable(scoreMap.get(id)).ifPresent(questionIds::addAll));
+        }
+        return questionIds;
+    }
+
+    /**
+     * 移除计算分值问题ID集合
+     *
+     * @param questionnaireIds 问卷ID集合
+     */
+    public void removeScoreQuestionId(List<Integer> questionnaireIds) {
+        if (CollectionUtil.isNotEmpty(questionnaireIds)){
+            questionnaireIds.forEach(id-> scoreMap.put(id,Lists.newArrayList()));
+        }
+    }
+
 }

@@ -71,8 +71,11 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
-        Map<Integer,List> dataMap= Maps.newHashMap();
 
+        //先获取excel表头信息，取到记分问题
+        List<List<String>> head = getHead(latestQuestionnaireIds);
+
+        Map<Integer,List> dataMap= Maps.newHashMap();
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
             dataMap.put(entry.getKey(), userAnswerFacade.getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
         }
@@ -80,8 +83,10 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
             String excelFileName = questionnaireFacade.getExcelFileName(entry.getKey(), getType());
             String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, dataMap.get(entry.getKey()), getHead(latestQuestionnaireIds));
+            ExcelUtil.exportListToExcel(file, dataMap.get(entry.getKey()), head);
         }
+
+        questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
 
     }
 
