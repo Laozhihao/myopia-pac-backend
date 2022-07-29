@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -210,8 +211,7 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
         List<String> schoolStatus = schoolIds.stream().filter(item -> {
             if (Objects.nonNull(schoolPlanMap.get(item))) {
-                ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
-                return Objects.nonNull(plan);
+                return Objects.nonNull(planMap.get(schoolPlanMap.get(item).getScreeningPlanId()));
             }
             return false;
         }).map(schoolId -> {
@@ -219,10 +219,21 @@ public class ScreeningTaskOrgBizService {
             return screeningPlanSchoolBizService.getCountBySchool(plan, schoolId, schoolMap);
         }).collect(Collectors.toList());
 
-        long notStart = schoolStatus.stream().filter(ScreeningPlanSchool.NOT_START::equals).count();
-        long underWay = schoolStatus.stream().filter(ScreeningPlanSchool.IN_PROGRESS::equals).count();
-        long end = schoolStatus.stream().filter(ScreeningPlanSchool.END::equals).count();
-        return getScreeningState((int) notStart, (int) underWay, (int) end, 0);
+        AtomicInteger notStart = new AtomicInteger(0);
+        AtomicInteger underWay = new AtomicInteger(0);
+        AtomicInteger end = new AtomicInteger(0);
+        schoolStatus.forEach(item->{
+            if(ScreeningPlanSchool.NOT_START.equals(item)){
+                notStart.addAndGet(1);
+            }
+            if(ScreeningPlanSchool.END.equals(item)){
+                end.addAndGet(1);
+            }
+            if(ScreeningPlanSchool.IN_PROGRESS.equals(item)){
+                underWay.addAndGet(1);
+            }
+        });
+        return getScreeningState(notStart.get(), underWay.get(), end.get(), 0);
     }
 
     /**
