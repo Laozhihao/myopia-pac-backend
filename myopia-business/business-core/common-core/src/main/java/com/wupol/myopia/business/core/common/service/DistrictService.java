@@ -505,15 +505,29 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return com.wupol.myopia.business.management.domain.model.District
      **/
     public District getDistrictByCode(Long districtCode) {
+        return getDistrictByCode(districtCode,Boolean.TRUE);
+    }
+
+    /**
+     * 根据code获取行政区域
+     *
+     * @param districtCode 行政区域code
+     * @param isSelect 是否查询
+     * @return 行政区域
+     **/
+    public District getDistrictByCode(Long districtCode,boolean isSelect) {
         Assert.notNull(districtCode, "行政区域code为空");
         String codeStr = String.valueOf(districtCode);
         Object districtCache = redisUtil.hget(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr);
         if (Objects.nonNull(districtCache)) {
             return JSON.parseObject(JSON.toJSONString(districtCache), District.class);
         }
-        District district = findOne(new District().setCode(districtCode));
-        redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
-        return district;
+        if (isSelect){
+            District district = findOne(new District().setCode(districtCode));
+            redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
+            return district;
+        }
+        return null;
     }
 
     /**

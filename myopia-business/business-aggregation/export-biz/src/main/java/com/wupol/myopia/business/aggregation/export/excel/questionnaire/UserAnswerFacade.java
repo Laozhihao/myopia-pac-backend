@@ -4,17 +4,20 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelStudentDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
@@ -49,6 +52,7 @@ public class UserAnswerFacade {
     private final UserAnswerService userAnswerService;
     private final QuestionService questionService;
     private final SchoolService schoolService;
+    private final DistrictService districtService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final QuestionnaireFacade questionnaireFacade;
     private final QuestionnaireExcelFactory questionnaireExcelFactory;
@@ -215,7 +219,7 @@ public class UserAnswerFacade {
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         School school = schoolService.getById(screeningPlanSchoolStudent.getSchoolId());
-        List<District> districtList = JSON.parseObject(school.getDistrictDetail(), new TypeReference<List<District>>(){});
+        List<String> districtList = getParseDistrict(school.getDistrictAreaCode());
 
         for (int i = 0; i < hideQuestionDataBOList.size(); i++) {
             ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
@@ -260,8 +264,27 @@ public class UserAnswerFacade {
         return answerDataBOList;
     }
 
-    private static String getDistrictName(List<District> districtList ,Integer index){
-        return CollectionUtil.isNotEmpty(districtList) ? districtList.get(index).getName():StrUtil.EMPTY;
+    private List<String> getParseDistrict(Long districtAreaCode){
+        if (Objects.isNull(districtAreaCode)){
+            return Lists.newArrayList();
+        }
+        String code = districtAreaCode.toString();
+        Map<Long,String> codeMap = Maps.newLinkedHashMap();
+        codeMap.put(Long.parseLong(code.substring(0, 2))*10000000,"");
+        codeMap.put(Long.parseLong(code.substring(0, 4))*100000,"");
+        codeMap.put(Long.parseLong(code.substring(0, 6))*1000,"");
+        codeMap.forEach((k,v)->{
+            District district = districtService.getDistrictByCode(k, Boolean.FALSE);
+            if (Objects.nonNull(district)){
+                codeMap.put(k,district.getName());
+            }
+        });
+
+        return Lists.newArrayList(codeMap.values());
+    }
+
+    private static String getDistrictName(List<String> districtList ,Integer index){
+        return CollectionUtil.isNotEmpty(districtList) ? districtList.get(index):StrUtil.EMPTY;
     }
 
     /**
