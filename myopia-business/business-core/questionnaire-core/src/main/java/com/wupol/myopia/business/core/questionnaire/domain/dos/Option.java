@@ -47,6 +47,10 @@ public class Option implements Serializable {
      */
     private List<JumpIdsDO.JumpIdItem> jumpIds;
 
+    /**
+     * 记分题目-分值
+     */
+    private Integer scoreValue;
 
     /**
      * 转换里层的json
