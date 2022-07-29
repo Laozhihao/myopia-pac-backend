@@ -184,7 +184,7 @@ public class ScreeningTaskOrgBizService {
             Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
             Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
 
-            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, screeningTaskId, orgSchoolsMap, planMap));
+            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap));
             ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             if (screeningPlan == null) {
                 return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
@@ -199,23 +199,25 @@ public class ScreeningTaskOrgBizService {
      * 获得问卷情况学生的百分比
      *
      * @param schoolIds
-     * @param taskId
      * @param schoolPlanMap
      * @param planMap
      * @return
      */
-    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
+    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(planMap.keySet()), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        List<String> schoolStatus = schoolIds.stream().map(item->{
-            if(!Objects.isNull(schoolPlanMap.get(item))){
+
+        List<String> schoolStatus = schoolIds.stream().filter(item -> {
+            if (!Objects.isNull(schoolPlanMap.get(item))) {
                 ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
-                if(!Objects.isNull(plan)){
-                    return screeningPlanSchoolBizService.getCountBySchool(plan, item, schoolMap);
-                }
+                return !Objects.isNull(plan);
             }
-            return null;
+            return false;
+        }).map(schoolId -> {
+            ScreeningPlan plan = planMap.get(schoolPlanMap.get(schoolId).getScreeningPlanId());
+            return screeningPlanSchoolBizService.getCountBySchool(plan, schoolId, schoolMap);
         }).filter(Objects::nonNull).collect(Collectors.toList());
+
         long notStart = schoolStatus.stream().filter(ScreeningPlanSchool.NOT_START::equals).count();
         long underWay = schoolStatus.stream().filter(ScreeningPlanSchool.IN_PROGRESS::equals).count();
         long end = schoolStatus.stream().filter(ScreeningPlanSchool.END::equals).count();
