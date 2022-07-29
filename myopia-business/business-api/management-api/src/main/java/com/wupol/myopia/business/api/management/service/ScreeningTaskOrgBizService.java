@@ -217,7 +217,7 @@ public class ScreeningTaskOrgBizService {
         }).map(schoolId -> {
             ScreeningPlan plan = planMap.get(schoolPlanMap.get(schoolId).getScreeningPlanId());
             return screeningPlanSchoolBizService.getCountBySchool(plan, schoolId, schoolMap);
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).collect(Collectors.toList());
 
         long notStart = schoolStatus.stream().filter(ScreeningPlanSchool.NOT_START::equals).count();
         long underWay = schoolStatus.stream().filter(ScreeningPlanSchool.IN_PROGRESS::equals).count();
