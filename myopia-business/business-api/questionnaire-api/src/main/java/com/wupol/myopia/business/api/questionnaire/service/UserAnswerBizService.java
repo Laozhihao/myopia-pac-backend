@@ -29,6 +29,9 @@ public class UserAnswerBizService {
     @Resource
     private UserAnswerProgressService userAnswerProgressService;
 
+    /**
+     * 获取用户答案
+     */
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
