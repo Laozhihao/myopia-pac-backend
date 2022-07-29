@@ -553,23 +553,21 @@ public class QuestionnaireManagementService {
         });
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
 
-//        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
-//
-//        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-//            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
-//            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
-//                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
-//                    return QuestionnaireConstant.STUDENT_TYPE;
-//                }
-//                return questionnaireType;
-//            }).distinct().collect(Collectors.toList());
-//            typeKeyList.removeAll(questionnaireTypes);
-//            questionnaireTypeVO.setNoDataList(typeKeyList);
-//        }else {
-//            questionnaireTypeVO.setNoDataList(typeKeyList);
-//        }
-        typeKeyList.removeAll(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireConstant.STUDENT_TYPE));
-        questionnaireTypeVO.setNoDataList(typeKeyList);
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
+
+        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
+            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
+                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                    return QuestionnaireConstant.STUDENT_TYPE;
+                }
+                return questionnaireType;
+            }).distinct().collect(Collectors.toList());
+            typeKeyList.removeAll(questionnaireTypes);
+            questionnaireTypeVO.setNoDataList(typeKeyList);
+        }else {
+            questionnaireTypeVO.setNoDataList(typeKeyList);
+        }
 
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
         if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE)){
