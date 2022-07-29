@@ -208,9 +208,9 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
         List<String> schoolStatus = schoolIds.stream().filter(item -> {
-            if (!Objects.isNull(schoolPlanMap.get(item))) {
+            if (Objects.nonNull(schoolPlanMap.get(item))) {
                 ScreeningPlan plan = planMap.get(schoolPlanMap.get(item).getScreeningPlanId());
-                return !Objects.isNull(plan);
+                return Objects.nonNull(plan);
             }
             return false;
         }).map(schoolId -> {
