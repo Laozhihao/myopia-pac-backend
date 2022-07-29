@@ -18,6 +18,9 @@ import java.util.List;
 @Service
 public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuestionMapper, QuestionnaireQuestion> {
 
+    /**
+     * 插入题目
+     */
     public void insert(Integer questionnaireId, List<EditQuestionnaireRequestDTO.Detail> details, Integer pid) {
         if (CollectionUtils.isEmpty(details)) {
             return;
@@ -41,6 +44,9 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         });
     }
 
+    /**
+     * 通过序号获取问题
+     */
     public List<QuestionnaireQuestion> getBySerialNumbers(Integer questionnaireId, Collection<String> serialNumber) {
         LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
@@ -73,6 +79,9 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectOne(wrapper);
     }
 
+    /**
+     * 查询问题列表
+     */
     public List<QuestionnaireQuestion> getByQuestionnaireIdSerialNumber(Integer questionnaireId, String serialNumber, Integer questionId) {
         LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId)
@@ -81,6 +90,9 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectList(wrapper);
     }
 
+    /**
+     * 删除逻辑
+     */
     public void deletedLogic(Integer questionnaireId, Integer questionId) {
         baseMapper.deletedLogic(questionnaireId, questionId);
     }

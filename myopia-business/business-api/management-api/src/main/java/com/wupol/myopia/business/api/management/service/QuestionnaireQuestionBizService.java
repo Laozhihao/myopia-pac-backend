@@ -37,6 +37,13 @@ public class QuestionnaireQuestionBizService {
     @Resource
     private QuestionnaireService questionnaireService;
 
+    /**
+     * 逻辑题列表
+     *
+     * @param questionnaireId 问卷id
+     *
+     * @return 逻辑题列表
+     */
     public List<QuestionResponse> logicList(Integer questionnaireId) {
         List<QuestionResponse> responses = new ArrayList<>();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.findByList(
@@ -73,6 +80,9 @@ public class QuestionnaireQuestionBizService {
         questionnaireQuestionService.updateById(questionnaireQuestion);
     }
 
+    /**
+     * 删除逻辑题
+     */
     @Transactional(rollbackFor = Exception.class)
     public void editDeleted(LogicDeletedRequestDTO requestDTO) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
@@ -85,6 +95,9 @@ public class QuestionnaireQuestionBizService {
         questionnaireQuestionService.deletedLogic(questionnaireId, questionId);
     }
 
+    /**
+     * 查询逻辑题
+     */
     public List<LogicFindQuestionResponseDTO> logicFindQuestion(Integer questionnaireId, String serialNumber, Integer questionId) {
         List<LogicFindQuestionResponseDTO> response = new ArrayList<>();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getByQuestionnaireIdSerialNumber(questionnaireId, serialNumber, questionId);

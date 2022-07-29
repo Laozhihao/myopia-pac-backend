@@ -52,6 +52,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         return findByList(new Questionnaire().setYear(year));
     }
 
+    /**
+     * 编辑问卷
+     */
     @Transactional(rollbackFor = Exception.class)
     public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
         Integer questionnaireId = requestDTO.getQuestionnaireId();
