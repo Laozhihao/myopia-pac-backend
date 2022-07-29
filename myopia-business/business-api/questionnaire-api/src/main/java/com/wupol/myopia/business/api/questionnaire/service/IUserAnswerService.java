@@ -28,4 +28,6 @@ public interface IUserAnswerService {
     Boolean getUserAnswerIsFinish(Integer userId);
 
     String getSchoolName(Integer userId);
+
+    void hiddenQuestion(Integer questionnaireId, Integer userId, Integer recordId);
 }

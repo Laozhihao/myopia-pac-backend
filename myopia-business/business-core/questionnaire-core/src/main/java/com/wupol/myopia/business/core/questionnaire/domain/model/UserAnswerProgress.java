@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
+import cn.hutool.core.date.DatePattern;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.util.Date;
@@ -54,13 +55,13 @@ public class UserAnswerProgress implements Serializable {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN)
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN)
     private Date updateTime;
 
 

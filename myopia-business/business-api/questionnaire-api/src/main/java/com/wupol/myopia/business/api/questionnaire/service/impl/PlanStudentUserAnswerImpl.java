@@ -1,24 +1,24 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
-import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.questionnaire.domain.model.*;
+import com.wupol.myopia.business.core.questionnaire.service.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -49,6 +49,12 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private UserAnswerProgressService userAnswerProgressService;
+
+    @Resource
+    private QuestionnaireQuestionService questionnaireQuestionService;
+
+    @Resource
+    private QuestionService questionService;
 
     @Override
     public Integer getUserType() {
@@ -184,6 +190,135 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             throw new BusinessException("获取信息异常");
         }
         return planStudent.getSchoolName();
+    }
+
+    @Override
+    public void hiddenQuestion(Integer questionnaireId, Integer userId, Integer recordId) {
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
+        if (!Objects.equals(questionnaire.getType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())) {
+            return;
+        }
+
+        // 获取问卷中是否存在序号为A01，A011，A02三个问题
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02"));
+        if (CollectionUtils.isEmpty(questionnaireQuestions)) {
+            return;
+        }
+
+        // 是否已经存在答案
+        List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, getUserType(), questionIds);
+        if (!CollectionUtils.isEmpty(userAnswers)) {
+            return;
+        }
+
+        // 不存在则添加答案
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
+        Map<Integer, Question> questionMap = questionService.listByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        questionnaireQuestions.stream()
+                .collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, QuestionnaireQuestion::getSerialNumber))
+                .forEach((k, v) -> {
+                    Question question = questionMap.get(k);
+                    UserAnswer userAnswer = new UserAnswer();
+                    userAnswer.setUserId(userId);
+                    userAnswer.setQuestionnaireId(questionnaireId);
+                    userAnswer.setQuestionId(question.getId());
+                    userAnswer.setRecordId(recordId);
+                    userAnswer.setUserType(getUserType());
+                    userAnswer.setQuestionTitle(question.getTitle());
+                    specialHandleAnswer(planStudent, v, userAnswer, question.getOptions());
+                });
+
+        // 处理脊柱弯曲学生基本信息
+        addVisionSpineNotice(planStudent, questionnaireId, userId, getUserType(), recordId);
+    }
+
+    private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
+        if (StringUtils.equals(v, "A01")) {
+            OptionAnswer optionAnswer = new OptionAnswer();
+            optionAnswer.setOptionId(options.get(0).getId());
+            optionAnswer.setValue(planStudent.getGradeName());
+            userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+            userAnswerService.save(userAnswer);
+            return;
+        }
+
+        if (StringUtils.equals(v, "A011")) {
+            OptionAnswer optionAnswer = new OptionAnswer();
+            optionAnswer.setOptionId(options.get(0).getId());
+            if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
+                return;
+            }
+            optionAnswer.setValue(planStudent.getCommonDiseaseId().substring(planStudent.getCommonDiseaseId().length() - 4));
+            userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+            userAnswerService.save(userAnswer);
+            return;
+        }
+
+        if (StringUtils.equals(v, "A02")) {
+            Optional<Option> optionOptional = options.stream().filter(s -> StringUtils.equals(s.getText(), GenderEnum.getName(planStudent.getGender()))).findFirst();
+            if (optionOptional.isPresent()) {
+                OptionAnswer optionAnswer = new OptionAnswer();
+                optionAnswer.setOptionId(optionOptional.get().getId());
+                userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
+                userAnswerService.save(userAnswer);
+            }
+        }
+    }
+
+    private void addVisionSpineNotice(ScreeningPlanSchoolStudent planStudent, Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+
+        // 获取最新问卷
+        Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+        if (Objects.isNull(questionnaire)) {
+            return;
+        }
+
+        // 需要插入到脊柱问卷的编号
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), CommonConst.VISION_SPINE_NOTICE);
+        if (CollectionUtils.isEmpty(questionnaireQuestions)) {
+            return;
+        }
+        List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        // 获取答案
+        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, recordId, questionIds);
+        if (CollectionUtils.isEmpty(userAnswers)) {
+            return;
+        }
+
+        // 新增record表
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
+                new UserQuestionRecord()
+                        .setUserId(planStudent.getId())
+                        .setUserType(userType)
+                        .setQuestionnaireId(questionnaire.getId()));
+        if (Objects.isNull(userQuestionRecord)) {
+            userQuestionRecord = new UserQuestionRecord();
+            userQuestionRecord.setUserId(userId);
+            userQuestionRecord.setUserType(userType);
+            userQuestionRecord.setQuestionnaireId(questionnaire.getId());
+            userQuestionRecord.setPlanId(planStudent.getScreeningPlanId());
+            userQuestionRecord.setTaskId(planStudent.getScreeningTaskId());
+            userQuestionRecord.setNoticeId(planStudent.getSrcScreeningNoticeId());
+            userQuestionRecord.setSchoolId(planStudent.getSchoolId());
+            userQuestionRecord.setStudentId(planStudent.getStudentId());
+            userQuestionRecord.setQuestionnaireType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+            userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
+            userQuestionRecordService.save(userQuestionRecord);
+        }
+
+        // 问题是否已经存在
+        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, userQuestionRecord.getId(), questionIds))) {
+            return;
+        }
+
+        for (UserAnswer userAnswer : userAnswers) {
+            userAnswer.setId(null);
+            userAnswer.setQuestionnaireId(questionnaire.getId());
+            userAnswer.setRecordId(userQuestionRecord.getId());
+        }
+        userAnswerService.saveBatch(userAnswers);
     }
 
 

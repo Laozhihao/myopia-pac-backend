@@ -56,4 +56,9 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     public String getSchoolName(Integer userId) {
         return null;
     }
+
+    @Override
+    public void hiddenQuestion(Integer questionnaireId, Integer userId, Integer recordId) {
+
+    }
 }
