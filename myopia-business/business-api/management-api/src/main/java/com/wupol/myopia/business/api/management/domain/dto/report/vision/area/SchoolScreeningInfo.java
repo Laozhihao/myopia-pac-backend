@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.CountAndProportion;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.PrimaryOverall;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.StackedChart;

@@ -587,7 +587,7 @@ public class StatService {
         }
 
         long wearingGlassesNum = rescreenConclusions.stream().filter(x -> x.getGlassesType() > 0).count();
-        long withoutGlassesNum = rescreenConclusions.stream().filter(x -> !(x.getGlassesType() > 0)).count();
+        long withoutGlassesNum = rescreenConclusions.stream().filter(x -> x.getGlassesType() <= 0).count();
         long rescreenItemNum = rescreenConclusions.stream().map(StatConclusion::getRescreenItemNum).filter(Objects::nonNull).mapToLong(Integer::longValue).sum();
 
         RescreenStat.RescreenStatBuilder builder = RescreenStat.builder();
@@ -690,14 +690,6 @@ public class StatService {
         return Math.round(num * 10000) / 100f;
     }
 
-    /**
-     * 保留2位小数
-     * @param num
-     * @return
-     */
-    private Float round2Digits(Double num) {
-        return Math.round(num * 100) / 100f;
-    }
 
     /**
      * 构造分类统计数据
@@ -1324,7 +1316,7 @@ public class StatService {
         // 获取初筛数据
         List<Integer> planStudentIdList = reScreenResults.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         List<VisionScreeningResult> firstResult = visionScreeningResultService.getFirstByPlanStudentIds(planStudentIdList);
-        Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentService.getByIds(planStudentIdList).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
+
         Map<Integer, VisionScreeningResult> screeningResultMap = firstResult.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         // 获取计划学生的commonDiseasesCode

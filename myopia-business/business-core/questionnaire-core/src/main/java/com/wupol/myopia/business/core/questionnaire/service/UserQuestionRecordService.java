@@ -2,15 +2,11 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserQuestionRecordMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 import java.util.Collection;
 import java.util.List;

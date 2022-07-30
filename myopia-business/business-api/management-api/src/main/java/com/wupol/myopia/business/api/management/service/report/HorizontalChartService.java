@@ -278,7 +278,7 @@ public class HorizontalChartService {
     }
 
     private <T extends CommonTable> List<T> setHorizontalChartXName(List<T> t, HorizontalChart horizontalChart, Boolean isAge) {
-        if (isAge) {
+        if (Objects.equals(Boolean.TRUE,isAge)) {
             t = t.stream().filter(s -> s.getValidCount() != 0L).collect(Collectors.toList());
             horizontalChart.setX(t.stream().map(T::getName).collect(Collectors.toList()));
         } else {

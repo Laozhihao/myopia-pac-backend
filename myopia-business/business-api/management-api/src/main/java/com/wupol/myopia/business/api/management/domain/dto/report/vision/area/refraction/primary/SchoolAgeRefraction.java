@@ -20,7 +20,7 @@ public class SchoolAgeRefraction {
     /**
      * 信息
      */
-    public Info info;
+    private Info info;
 
     /**
      * 不同学龄屈光表格

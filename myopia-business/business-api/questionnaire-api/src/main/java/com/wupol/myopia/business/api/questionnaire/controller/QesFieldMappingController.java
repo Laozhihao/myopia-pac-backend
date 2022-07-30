@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.service.QesFieldMappingFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;

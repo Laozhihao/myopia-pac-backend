@@ -2,9 +2,6 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
-import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
@@ -15,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import java.util.List;
 
 /**
  * @author Simple4H

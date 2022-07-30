@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -109,7 +110,7 @@ public class ScreeningKindergartenReportService {
         GradeLowVision gradeLowVision = new GradeLowVision();
         List<GradeLowVision.Table> gradeLowVisionTable = kindergartenReportTableService.gradeLowVisionTable(statConclusions, total);
         gradeLowVision.setTables(Lists.newArrayList(gradeLowVisionTable));
-        if (commonReportService.isShowInfo(gradeLowVisionTable, true)) {
+        if (Objects.equals(Boolean.TRUE,commonReportService.isShowInfo(gradeLowVisionTable, true))) {
             gradeLowVision.setGradeLowVisionChart(horizontalChartService.kLowVisionGenderChart(statConclusions));
             gradeLowVision.setInfo(getGradeLowVisionInfo(statConclusions, gradeLowVisionTable, total));
         }
@@ -125,7 +126,7 @@ public class ScreeningKindergartenReportService {
         GradeRefractive gradeRefractive = new GradeRefractive();
         List<GradeRefractive.Table> gradeTables = kindergartenReportTableService.gradeRefractiveTables(statConclusions, total);
         gradeRefractive.setTables(Lists.newArrayList(gradeTables));
-        if (commonReportService.isShowInfo(gradeTables, true)) {
+        if (Objects.equals(Boolean.TRUE,commonReportService.isShowInfo(gradeTables, true))) {
             gradeRefractive.setGradeRefractiveChart(horizontalChartService.kGradeRefractive(statConclusions));
             gradeRefractive.setInfo(getGradeRefractiveInfo(statConclusions, gradeTables, total));
         }
@@ -139,7 +140,7 @@ public class ScreeningKindergartenReportService {
         GradeWarning gradeWarning = new GradeWarning();
         List<GradeWarning.Table> gradeWarningTable = kindergartenReportTableService.kindergartenGradeWarningTable(statConclusions, total);
         gradeWarning.setTables(Lists.newArrayList(gradeWarningTable));
-        if (commonReportService.isShowInfo(gradeWarningTable, true)) {
+        if (Objects.equals(Boolean.TRUE,commonReportService.isShowInfo(gradeWarningTable, true))) {
             gradeWarning.setGradeWarningChart(horizontalChartService.kGradeWarning(statConclusions));
             gradeWarning.setInfo(getGradeWarning(statConclusions, gradeWarningTable, total));
         }

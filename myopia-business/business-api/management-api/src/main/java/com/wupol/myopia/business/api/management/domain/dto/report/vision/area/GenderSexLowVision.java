@@ -24,7 +24,7 @@ public class GenderSexLowVision {
     /**
      * 幼儿园饼图
      */
-    private PieChart KindergartenGenderPieChart;
+    private PieChart kindergartenGenderPieChart;
 
     /**
      * 小学饼图
