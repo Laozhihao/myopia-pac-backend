@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.util;
 
+import cn.hutool.core.io.FileUtil;
 import com.wupol.myopia.base.util.IOUtils;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
  * @author hang.yuan 2022/7/19 10:38
  */
 @Slf4j
+@UtilityClass
 public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
@@ -109,9 +112,7 @@ public class EpiDataUtil {
         // 把两个List数据合并成txt所需要的指定的格式
         List<String> list = new ArrayList<>();
         list.add(String.join(";", headerList));
-        dataList.forEach(itemList -> {
-            list.add(String.join(";", itemList));
-        });
+        dataList.forEach(itemList -> list.add(String.join(";", itemList)));
 
         // 先从数据转成txt文件，再转到rec文件
         boolean isSuccess;
@@ -122,7 +123,7 @@ public class EpiDataUtil {
         isSuccess = txt2Rec(txtPath, qesPath, recPath);
         // 生成成功，删除txt文件
         if (isSuccess) {
-            new File(txtPath).delete();
+            FileUtil.del(txtPath);
         }
         return isSuccess;
     }
