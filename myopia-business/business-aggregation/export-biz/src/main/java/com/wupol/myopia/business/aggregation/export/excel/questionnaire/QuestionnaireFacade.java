@@ -16,7 +16,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQu
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,8 +256,8 @@ public class QuestionnaireFacade {
      *
      * @return 问卷集合
      */
-    public List<Questionnaire> getLatestQuestionnaire(List<Integer> questionnaireTypeList){
-        List<Questionnaire> questionnaireList = questionnaireService.getByTypes(questionnaireTypeList);
+    public List<Questionnaire> getLatestQuestionnaire(QuestionnaireTypeEnum questionnaireTypeEnum){
+        List<Questionnaire> questionnaireList = questionnaireService.getByTypes(getQuestionnaireTypeList(questionnaireTypeEnum));
         if (CollectionUtils.isEmpty(questionnaireList)){
             return Lists.newArrayList();
         }
@@ -370,17 +369,7 @@ public class QuestionnaireFacade {
         return Lists.newArrayList();
     }
 
-    /**
-     * 获取excel问卷名称
-     *
-     * @param schoolId 学校ID
-     * @param questionnaireType 问卷类型
-     */
-    public String getExcelFileName(Integer schoolId,Integer questionnaireType){
-        School school = schoolService.getById(schoolId);
-        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
-        return String.format(FILE_NAME,school.getName(),questionnaireTypeEnum.getDesc());
-    }
+
 
 
     /**

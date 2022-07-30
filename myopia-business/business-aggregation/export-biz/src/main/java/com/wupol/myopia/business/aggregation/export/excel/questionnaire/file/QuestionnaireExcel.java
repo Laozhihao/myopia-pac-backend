@@ -33,24 +33,6 @@ public interface QuestionnaireExcel {
      */
     Integer getType();
 
-    /**
-     * 表头信息
-     *
-     * @return 表头信息
-     */
-    List<List<String>> getHead(List<Integer> questionnaireIds);
-
-
-    /**
-     * 获取导出数据
-     *
-     * @param excelDataConditionBO 导出条件
-     * @param dataList 数据集合
-     */
-    default void getExcelData(ExcelDataConditionBO excelDataConditionBO, List dataList) {
-        // do something get excel data
-    }
-
 
     /**
      * 获取文件保存路径

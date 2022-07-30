@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -19,6 +20,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataB
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
@@ -31,6 +33,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +47,7 @@ import java.util.stream.Stream;
  *
  * @author hang.yuan 2022/7/21 19:50
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class UserAnswerFacade {
@@ -62,6 +66,7 @@ public class UserAnswerFacade {
     private static final String  RADIO = "radio";
     private static final String  INPUT = "input";
     private static final String  CHECKBOX = "checkbox";
+    private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
 
 
     /**
@@ -371,6 +376,9 @@ public class UserAnswerFacade {
                 for (Map.Entry<String, Object> entry : option.entrySet()) {
                     JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(entry.getValue()), JSONObject.class);
                     OptionAnswer input = optionAnswerMap.get(json.getString("id"));
+                    if (Objects.isNull(input)){
+                        continue;
+                    }
                     answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(input.getValue()).orElse(StrUtil.EMPTY));
                 }
                 answerList.add(answer);
@@ -388,7 +396,7 @@ public class UserAnswerFacade {
      * @param questionnaireIds 问卷ID集合
      * @param questionnaireId 隐藏问题问卷ID
      */
-    public List getData(List<UserQuestionRecord> userQuestionRecordList,
+    public List<List<String>> getData(List<UserQuestionRecord> userQuestionRecordList,
                          List<Integer> questionnaireIds,Integer questionnaireId){
         List<ExcelStudentDataBO> excelStudentDataBOList = Lists.newArrayList();
         List<HideQuestionDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestion(questionnaireId);
@@ -399,5 +407,80 @@ public class UserAnswerFacade {
             return questionIds.stream().map(answerDataMap::get).collect(Collectors.toList());
         }).collect(Collectors.toList());
     }
+    /**
+     * 获取excel问卷名称
+     *
+     * @param schoolId 学校ID
+     * @param questionnaireType 问卷类型
+     */
+    public String getExcelFileName(Integer schoolId,Integer questionnaireType){
+        School school = schoolService.getById(schoolId);
+        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
+        return String.format(FILE_NAME,school.getName(),questionnaireTypeEnum.getDesc());
+    }
+
+
+    /**
+     * 获取学生类型的Excel数据
+     * @param mainBodyType 主问卷类型
+     * @param baseInfoType 基础信息问卷类型
+     * @param gradeTypeList 学龄集合
+     * @param exportCondition 导出条件
+     */
+    public GenerateExcelDataBO generateStudentTypeExcelData(QuestionnaireTypeEnum mainBodyType, QuestionnaireTypeEnum baseInfoType,
+                                                            List<Integer> gradeTypeList, ExportCondition exportCondition){
+        //根据问卷类型获取问卷集合
+        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
+        if (CollectionUtil.isEmpty(questionnaireList)){
+            log.warn("暂无此问卷类型：{}",mainBodyType.getDesc());
+            return null;
+        }
+
+        //获取用户问卷记录
+        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), gradeTypeList);
+        if (CollectionUtil.isEmpty(userQuestionRecordList)){
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),mainBodyType.getDesc());
+            return null;
+        }
+
+        //获取学生类型问卷的 基础信息部分问卷ID
+        Integer questionnaireId = questionnaireList.stream()
+                .filter(questionnaire -> Objects.equals(questionnaire.getType(), baseInfoType.getType()))
+                .findFirst().map(Questionnaire::getId).orElse(null);
+
+        List<Integer> latestQuestionnaireIds =  questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
+        Map<Integer, List<UserQuestionRecord>> schoolRecordMap = userQuestionRecordList.stream()
+                .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
+                .sorted(Comparator.comparing(UserQuestionRecord::getId))
+                .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+
+
+        return getHeadAndData(latestQuestionnaireIds,questionnaireId,schoolRecordMap);
+
+    }
+
+    /**
+     * 获取excel头信息和数据
+     * @param latestQuestionnaireIds 最新问卷ID集合
+     * @param questionnaireId 问卷基础部分对应的问卷ID
+     * @param schoolRecordMap 学校对应用户记录集合
+     */
+    public GenerateExcelDataBO getHeadAndData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap){
+        GenerateExcelDataBO generateExcelDataBO = new GenerateExcelDataBO();
+        List<List<String>> head = questionnaireFacade.getHead(latestQuestionnaireIds);
+
+        Map<Integer,List<List<String>>> dataMap= Maps.newHashMap();
+        for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
+            dataMap.put(entry.getKey(), getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
+        }
+
+        generateExcelDataBO.setHead(head);
+        generateExcelDataBO.setDataMap(dataMap);
+
+        //根据问卷ID集合，移除计算分值问题ID
+        questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
+        return generateExcelDataBO;
+    }
+
 
 }
