@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Simple4H
  */
 @ResponseResultBody
-@CrossOrigin
 @RestController
 @RequestMapping("/qesFieldMapping")
 public class QesFieldMappingController  {
