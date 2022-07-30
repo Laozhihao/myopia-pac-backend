@@ -24,6 +24,7 @@ public interface ExportType {
      * 通知内容
      *
      * @param exportCondition 导出条件
+     * @return 通知内容
      */
     String getNoticeKeyContent(ExportCondition exportCondition);
 
@@ -31,6 +32,7 @@ public interface ExportType {
      * 文件名称
      *
      * @param exportCondition 导出条件
+     * @return 文件名称
      */
     String getFileName(ExportCondition exportCondition);
 
@@ -38,17 +40,27 @@ public interface ExportType {
      *  锁值
      *
      * @param exportCondition 导出条件
+     * @return 锁值
      */
     String getLockKey(ExportCondition exportCondition);
 
     /**
      * 获取问卷类型
+     * @return 获取问卷类型
      */
     Map<Integer,String> getQuestionnaireType();
 
-
+    /**
+     * 设置问卷类型
+     * @param exportCondition 导出条件
+     */
     default void setQuestionnaireType(ExportCondition exportCondition){}
 
+    /**
+     * 获取条件值
+     * @param exportCondition 导出条件
+     * @return 获取条件值
+     */
     default List<Integer> getConditionValue(ExportCondition exportCondition){
         return UserAnswerFacade.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
     }

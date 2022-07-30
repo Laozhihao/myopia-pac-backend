@@ -42,7 +42,7 @@ public class DeviceUploadResult {
      * @param message 失败消息
      * @return
      */
-    public static DeviceUploadResult failure(String message) {
+    public static DeviceUploadResult fail(String message) {
         return new DeviceUploadResult(true,message,null);
     }
 
