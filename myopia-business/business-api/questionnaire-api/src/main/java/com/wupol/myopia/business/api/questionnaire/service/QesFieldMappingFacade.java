@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
-import com.wupol.myopia.business.core.common.util.S3Utils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,10 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class QesFieldMappingFacade {
 
-    @Autowired
-    private S3Utils s3Utils;
-
+    /**
+     * 保存qes文件
+     * @param file 文件流
+     */
     public void saveQes(MultipartFile file) {
-
+        //do save thing
     }
 }
