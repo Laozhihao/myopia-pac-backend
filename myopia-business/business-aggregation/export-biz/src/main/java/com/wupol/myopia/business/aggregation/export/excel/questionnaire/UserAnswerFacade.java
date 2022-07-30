@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CollectionUtils;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.excel.ExportQuestionnaireService;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -66,7 +68,7 @@ public class UserAnswerFacade {
     private static final String  RADIO = "radio";
     private static final String  INPUT = "input";
     private static final String  CHECKBOX = "checkbox";
-    private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
+    private static final String  FILE_NAME="%s的%s的问卷数据.xlsx";
 
 
     /**
@@ -482,5 +484,17 @@ public class UserAnswerFacade {
         return generateExcelDataBO;
     }
 
-
+    /**
+     * 获取文件夹地址集合
+     * @param exportCondition 导出条件
+     * @param fileName 文件地址路径
+     */
+    public List<String> getFolder(ExportCondition exportCondition,String fileName) {
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
+        if (exportTypeService.isPresent()) {
+            ExportType exportType = exportTypeService.get();
+            return exportType.getFolder(exportCondition,fileName);
+        }
+        throw new BusinessException(String.format(ExportQuestionnaireService.ERROR_MSG,exportCondition.getExportType()));
+    }
 }

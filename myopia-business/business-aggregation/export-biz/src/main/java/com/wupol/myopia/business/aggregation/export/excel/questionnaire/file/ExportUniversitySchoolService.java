@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 导出学生健康状况及影响因素调查表（大学版）
@@ -39,6 +40,10 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.UNIVERSITY.code);
 
         GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.MIDDLE_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition);
+        if (Objects.isNull(generateExcelDataBO)){
+            return;
+        }
+
         Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
         for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
             String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());

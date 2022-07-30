@@ -5,6 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +20,7 @@ public class QuestionnairePageExportType implements ExportType {
     private ExportTypeFacade exportTypeFacade;
 
     private static final String KEY = "%s的%s的问卷数据";
+    private static final String DISTRICT_SCHOOL = "%s各学校问卷数据";
     private static final String FILE_EXPORT_EXCEL = "file:export:excel:questionnairePage:%s-%s-%s-%s";
 
     @Override
@@ -48,5 +50,10 @@ public class QuestionnairePageExportType implements ExportType {
     @Override
     public Map<Integer, String> getQuestionnaireType() {
         return exportTypeFacade.getQuestionnaireType(getType());
+    }
+
+    @Override
+    public List<String> getFolder(ExportCondition exportCondition, String fileName) {
+        return exportTypeFacade.getDistrictFolder(exportCondition,fileName,DISTRICT_SCHOOL);
     }
 }

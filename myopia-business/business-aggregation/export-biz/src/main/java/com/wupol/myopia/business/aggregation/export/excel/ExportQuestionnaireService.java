@@ -33,7 +33,7 @@ import java.util.Optional;
 @Service(ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE)
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
-    private static final String ERROR_MSG ="不存在此导出类型:%s";
+    public static final String ERROR_MSG ="不存在此导出类型:%s";
 
     @Autowired
     private QuestionnaireExcelFactory questionnaireExcelFactory;

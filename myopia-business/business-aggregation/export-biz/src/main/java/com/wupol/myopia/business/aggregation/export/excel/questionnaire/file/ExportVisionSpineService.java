@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 导出学生视力不良及脊柱弯曲异常影响因素专项调查表
@@ -39,6 +40,9 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code,SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code,SchoolAge.UNIVERSITY.code);
 
         GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.VISION_SPINE, QuestionnaireTypeEnum.VISION_SPINE_NOTICE, gradeTypeList, exportCondition);
+        if (Objects.isNull(generateExcelDataBO)){
+            return;
+        }
 
         Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
         for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {

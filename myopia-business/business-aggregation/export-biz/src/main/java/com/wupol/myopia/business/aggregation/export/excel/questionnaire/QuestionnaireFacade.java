@@ -16,7 +16,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQu
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,11 +38,9 @@ public class QuestionnaireFacade {
     private final QuestionnaireService questionnaireService;
     private final QuestionnaireQuestionService questionnaireQuestionService;
     private final QuestionService questionService;
-    private final SchoolService schoolService;
 
     private Map<Integer,List<Integer>> scoreMap = Maps.newConcurrentMap();
 
-    private static final String FILE_NAME="%s的%s的问卷数据.xlsx";
     private static final String TOTAL_SCORE="总分";
 
     /**

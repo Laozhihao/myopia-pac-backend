@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import cn.hutool.core.io.FileUtil;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
@@ -35,6 +37,17 @@ public interface ExportType {
      * @return 文件名称
      */
     String getFileName(ExportCondition exportCondition);
+
+    /**
+     * 获取文件夹
+     * @param exportCondition 导出条件
+     * @param fileName 文件路径
+     */
+    default List<String> getFolder(ExportCondition exportCondition,String fileName){
+        List<String> folderList = Lists.newArrayList();
+        ExportTypeFacade.mkFolder(fileName, folderList, FileUtil.mainName(FileUtil.newFile(fileName)));
+        return folderList;
+    }
 
     /**
      *  锁值

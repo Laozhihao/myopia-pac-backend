@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;

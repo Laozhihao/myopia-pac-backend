@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import cn.hutool.core.io.FileUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,11 +44,24 @@ public class ExportTypeFacade {
     }
 
     /**
+     * 获取区域学校Key
+     * @param districtId 区域ID
+     * @param key 格式化Key
+     */
+    public String getDistrictKey(Integer districtId,String key){
+        String districtName = districtService.getDistrictNameByDistrictId(districtId);
+        return String.format(key,districtName);
+    }
+
+    /**
      * 获取学校Key
      * @param exportCondition 导出条件
      */
     public String getSchoolKey(ExportCondition exportCondition,String key){
         School school = schoolService.getById(exportCondition.getSchoolId());
+        if (Objects.isNull(school)){
+            throw new BusinessException(String.format("学校不存在: id:%s",exportCondition.getSchoolId()));
+        }
         return getKey(exportCondition, key, school.getName());
     }
 
@@ -119,5 +136,30 @@ public class ExportTypeFacade {
                 break;
         }
         return typeMap;
+    }
+
+    public List<String> getDistrictFolder(ExportCondition exportCondition, String fileName,String key){
+        List<String> folderList = Lists.newArrayList();
+        mkFolder(fileName, folderList, FileUtil.mainName(FileUtil.newFile(fileName)));
+        //按地区时多生成一个学校文件夹
+        if (Objects.nonNull(exportCondition.getDistrictId()) ){
+            String districtSchoolKey = getDistrictKey(exportCondition.getDistrictId(), key);
+            mkFolder(fileName, folderList, districtSchoolKey);
+        }
+        return folderList;
+    }
+
+    /**
+     * 创建文件夹
+     * @param filePath 文件路径
+     * @param folderList 收集文件夹地址集合
+     * @param fileName 文件夹名称
+     */
+    public static void mkFolder(String filePath, List<String> folderList, String fileName) {
+        String fileSavePath = Paths.get(filePath, fileName).toString();
+        if (!FileUtil.exist(fileSavePath)) {
+            FileUtil.mkdir(fileSavePath);
+        }
+        folderList.add(fileSavePath);
     }
 }
