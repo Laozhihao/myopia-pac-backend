@@ -58,9 +58,9 @@ public class ScreeningRecordExportType implements ExportType {
         return exportTypeFacade.getQuestionnaireType(getType());
     }
 
+
     @Override
-    public void setQuestionnaireType(ExportCondition exportCondition) {
+    public void preProcess(ExportCondition exportCondition) {
         exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(), QuestionnaireConstant.STUDENT_TYPE));
     }
-
 }

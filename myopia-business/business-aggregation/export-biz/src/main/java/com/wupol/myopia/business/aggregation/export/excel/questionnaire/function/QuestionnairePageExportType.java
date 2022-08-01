@@ -5,7 +5,6 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +52,7 @@ public class QuestionnairePageExportType implements ExportType {
     }
 
     @Override
-    public List<String> getFolder(ExportCondition exportCondition, String fileName) {
-        return exportTypeFacade.getDistrictFolder(exportCondition,fileName,DISTRICT_SCHOOL);
+    public String getDistrictKey(Integer districtId) {
+        return exportTypeFacade.getDistrictKey(districtId,DISTRICT_SCHOOL);
     }
 }

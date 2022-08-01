@@ -39,7 +39,7 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
 
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.UNIVERSITY.code);
 
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.MIDDLE_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition);
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition,Boolean.TRUE);
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }

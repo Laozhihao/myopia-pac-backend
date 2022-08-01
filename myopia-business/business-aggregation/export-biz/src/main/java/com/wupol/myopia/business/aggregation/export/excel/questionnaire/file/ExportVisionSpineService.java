@@ -39,7 +39,7 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
 
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code,SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code,SchoolAge.UNIVERSITY.code);
 
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.VISION_SPINE, QuestionnaireTypeEnum.VISION_SPINE_NOTICE, gradeTypeList, exportCondition);
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.VISION_SPINE, QuestionnaireTypeEnum.VISION_SPINE_NOTICE, gradeTypeList, exportCondition,Boolean.FALSE);
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }

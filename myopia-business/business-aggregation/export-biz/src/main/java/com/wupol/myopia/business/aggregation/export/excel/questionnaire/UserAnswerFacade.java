@@ -8,8 +8,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.aggregation.export.excel.ExportQuestionnaireService;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -430,7 +428,7 @@ public class UserAnswerFacade {
      * @param exportCondition 导出条件
      */
     public GenerateExcelDataBO generateStudentTypeExcelData(QuestionnaireTypeEnum mainBodyType, QuestionnaireTypeEnum baseInfoType,
-                                                            List<Integer> gradeTypeList, ExportCondition exportCondition){
+                                                            List<Integer> gradeTypeList, ExportCondition exportCondition,Boolean isAsc){
         //根据问卷类型获取问卷集合
         List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
         if (CollectionUtil.isEmpty(questionnaireList)){
@@ -450,12 +448,18 @@ public class UserAnswerFacade {
                 .filter(questionnaire -> Objects.equals(questionnaire.getType(), baseInfoType.getType()))
                 .findFirst().map(Questionnaire::getId).orElse(null);
 
-        List<Integer> latestQuestionnaireIds =  questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
+        List<Integer> latestQuestionnaireIds;
+
+        if (Objects.equals(Boolean.TRUE,isAsc)){
+            latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType)).map(Questionnaire::getId).collect(Collectors.toList());
+        }else {
+            latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
+        }
+
         Map<Integer, List<UserQuestionRecord>> schoolRecordMap = userQuestionRecordList.stream()
                 .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-
 
         return getHeadAndData(latestQuestionnaireIds,questionnaireId,schoolRecordMap);
 
@@ -484,17 +488,4 @@ public class UserAnswerFacade {
         return generateExcelDataBO;
     }
 
-    /**
-     * 获取文件夹地址集合
-     * @param exportCondition 导出条件
-     * @param fileName 文件地址路径
-     */
-    public List<String> getFolder(ExportCondition exportCondition,String fileName) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
-        if (exportTypeService.isPresent()) {
-            ExportType exportType = exportTypeService.get();
-            return exportType.getFolder(exportCondition,fileName);
-        }
-        throw new BusinessException(String.format(ExportQuestionnaireService.ERROR_MSG,exportCondition.getExportType()));
-    }
 }

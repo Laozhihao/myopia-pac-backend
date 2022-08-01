@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ import java.util.Optional;
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     public static final String ERROR_MSG ="不存在此导出类型:%s";
+
+    private static List<Integer> schoolQuestionnaireType = Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE, QuestionnaireTypeEnum.VISION_SPINE.getType());
 
     @Autowired
     private QuestionnaireExcelFactory questionnaireExcelFactory;
@@ -84,16 +87,39 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtil.isNotEmpty(questionnaireTypeList)){
             for (Integer questionnaireType : questionnaireTypeList) {
+
                 if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
+                    String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
                     for (Integer type : QuestionnaireConstant.STUDENT_TYPE_LIST) {
-                        generateExcelFile(fileName, exportCondition, type);
+                        generateExcelFile(filePath, exportCondition, type);
                     }
                 }else {
-                    generateExcelFile(fileName, exportCondition, questionnaireType);
+                    generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * 根据地区导出数据时，获取地区的各个学校问卷数据文件夹名称
+     *
+     * @param questionnaireType 问卷类型
+     * @param exportType 导出类型
+     * @param districtId 地区ID
+     * @param fileName 文件路径
+     */
+    private String getFileName(Integer questionnaireType,Integer exportType,Integer districtId,String fileName){
+        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(districtId)){
+            Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
+            if (exportTypeOptional.isPresent()) {
+                ExportType exportTypeService = exportTypeOptional.get();
+                String districtKey = exportTypeService.getDistrictKey(districtId);
+                return getFileSavePath(fileName,districtKey);
+            }
+            throw new BusinessException(String.format(ExportQuestionnaireService.ERROR_MSG,exportType));
+        }
+        return fileName;
     }
 
     private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
@@ -139,7 +165,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()) {
             ExportType exportType = exportTypeService.get();
-            exportType.setQuestionnaireType(exportCondition);
+            exportType.preProcess(exportCondition);
         }
     }
 

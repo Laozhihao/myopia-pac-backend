@@ -37,7 +37,7 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
     public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
 
         List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code);
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.PRIMARY_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition);
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.PRIMARY_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition,Boolean.TRUE);
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }

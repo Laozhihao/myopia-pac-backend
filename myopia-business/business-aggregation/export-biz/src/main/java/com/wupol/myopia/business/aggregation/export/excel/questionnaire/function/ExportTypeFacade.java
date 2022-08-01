@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
-import cn.hutool.core.io.FileUtil;
-import com.google.common.collect.Lists;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,6 +48,9 @@ public class ExportTypeFacade {
      */
     public String getDistrictKey(Integer districtId,String key){
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
+        if (StrUtil.isBlank(districtName)){
+            throw new BusinessException(String.format("区域不存在: id:%s",districtId));
+        }
         return String.format(key,districtName);
     }
 
@@ -64,6 +65,8 @@ public class ExportTypeFacade {
         }
         return getKey(exportCondition, key, school.getName());
     }
+
+
 
     /**
      * 共同Key
@@ -138,28 +141,4 @@ public class ExportTypeFacade {
         return typeMap;
     }
 
-    public List<String> getDistrictFolder(ExportCondition exportCondition, String fileName,String key){
-        List<String> folderList = Lists.newArrayList();
-        mkFolder(fileName, folderList, FileUtil.mainName(FileUtil.newFile(fileName)));
-        //按地区时多生成一个学校文件夹
-        if (Objects.nonNull(exportCondition.getDistrictId()) ){
-            String districtSchoolKey = getDistrictKey(exportCondition.getDistrictId(), key);
-            mkFolder(fileName, folderList, districtSchoolKey);
-        }
-        return folderList;
-    }
-
-    /**
-     * 创建文件夹
-     * @param filePath 文件路径
-     * @param folderList 收集文件夹地址集合
-     * @param fileName 文件夹名称
-     */
-    public static void mkFolder(String filePath, List<String> folderList, String fileName) {
-        String fileSavePath = Paths.get(filePath, fileName).toString();
-        if (!FileUtil.exist(fileSavePath)) {
-            FileUtil.mkdir(fileSavePath);
-        }
-        folderList.add(fileSavePath);
-    }
 }
