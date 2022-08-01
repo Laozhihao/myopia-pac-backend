@@ -38,4 +38,9 @@ public class QuestRecordVO {
      * 筛查机构id，没有返回null
      */
     private Integer orgId;
+
+    /**
+     * 筛查任务Id
+     */
+    private Integer taskId;
 }

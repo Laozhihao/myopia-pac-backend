@@ -315,7 +315,7 @@ public class QuestionnaireManagementService {
 
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
-            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap), vo);
+            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
             vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             vo.setIsSchoolSurveyDown(!CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())));
             vo.setIsStudentEnvironmentSurveyDown(!CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(item.getId())));
@@ -404,7 +404,7 @@ public class QuestionnaireManagementService {
 
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
-            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap), vo);
+            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
@@ -421,7 +421,7 @@ public class QuestionnaireManagementService {
      * @param orgIdMap
      * @return
      */
-    private QuestRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap) {
+    private QuestRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
         QuestRecordVO vo = new QuestRecordVO();
         vo.setSchoolName(item.getName());
         vo.setSchoolId(item.getSchoolNo());
@@ -429,6 +429,7 @@ public class QuestionnaireManagementService {
         vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
         vo.setAreaId(item.getId());
         vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
+        vo.setTaskId(taskId);
         return vo;
     }
 
