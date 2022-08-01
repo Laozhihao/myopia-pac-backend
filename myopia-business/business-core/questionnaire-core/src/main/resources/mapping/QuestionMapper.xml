@@ -15,6 +15,7 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
                 <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(subTitle)">and `sub_title` = #{subTitle}</if>
                 <if test="@Ognl@isNotEmpty(attribute)">and `attribute` = #{attribute}</if>
                 <if test="@Ognl@isNotEmpty(options)">and `options` = #{options}</if>
                 <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
@@ -29,6 +30,6 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, type, title, attribute, options, serial_number, pid, same_question_group_id, icon_name, create_time, update_time
+        id, type, title, sub_title, attribute, options, serial_number, pid, same_question_group_id, icon_name, create_time, update_time
     </sql>
 </mapper>

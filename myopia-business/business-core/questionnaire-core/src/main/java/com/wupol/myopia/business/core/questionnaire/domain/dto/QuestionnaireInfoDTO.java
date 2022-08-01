@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,32 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionnaireInfoDTO extends Question implements Serializable {
+
+    /**
+     * 扩展id（中间表）
+     */
+    private Integer exId;
+
+    /**
+     * 扩展Pid（中间表）
+     */
+    private Integer exPid;
+
+    /**
+     * 是否不展示题目序号
+     */
+    private Boolean isNotShowNumber;
+
+    /**
+     * 是否逻辑题
+     */
+    private Boolean isLogic;
+
+    /**
+     * 跳转Id
+     */
+    private List<JumpIdsDO> jumpIds;
+
     /**
      * 子模块问题数组
      */

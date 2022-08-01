@@ -177,6 +177,28 @@ public enum SchoolAge {
     }
 
     /**
+     * 是否小学生
+     *
+     * @param schoolAge 学龄段
+     *
+     * @return Boolean
+     */
+    public static Boolean isPrimary(Integer schoolAge) {
+        return PRIMARY.code.equals(schoolAge);
+    }
+
+    /**
+     * 是否大学生
+     *
+     * @param schoolAge 学龄段
+     *
+     * @return Boolean
+     */
+    public static Boolean isUniversity(Integer schoolAge) {
+        return UNIVERSITY.code.equals(schoolAge);
+    }
+
+    /**
      * 判断是否为幼儿园
      */
     public static boolean checkKindergarten(Integer schoolAgeType) {

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.OptionAnswerHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -49,6 +50,16 @@ public class UserAnswer implements Serializable {
     private Integer questionId;
 
     /**
+     * 记录表Id
+     */
+    private Integer recordId;
+
+    /**
+     * 用户类型 0-学生 1-学校
+     */
+    private Integer userType;
+
+    /**
      * 问题标题
      */
     private String questionTitle;
@@ -56,7 +67,7 @@ public class UserAnswer implements Serializable {
     /**
      * 用户答案
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(typeHandler = OptionAnswerHandler.class)
     private List<OptionAnswer> answer;
 
     /**

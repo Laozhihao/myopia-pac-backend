@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -8,11 +9,14 @@ import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionResponse;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
@@ -33,6 +37,32 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     @Resource
     private QuestionService questionService;
 
+    /**
+     * 获取问卷列表
+     *
+     * @param year 年份
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getQuestionnaireList(Integer year) {
+        // 默认今年
+        if (Objects.isNull(year)) {
+            year = DateUtil.getYear(new Date());
+        }
+        return findByList(new Questionnaire().setYear(year));
+    }
+
+    /**
+     * 编辑问卷
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void editQuestionnaire(EditQuestionnaireRequestDTO requestDTO) {
+        Integer questionnaireId = requestDTO.getQuestionnaireId();
+        questionnaireQuestionService.remove(new QuestionnaireQuestion().setQuestionnaireId(questionnaireId));
+        questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
+        // 更新问卷信息
+        updateTime(questionnaireId);
+    }
 
     /**
      * 获取问卷问题
@@ -73,6 +103,12 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         partLists.forEach(it -> {
             Question question = questionMap.get(it.getQuestionId());
             QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
+            questionnaireInfoDTO.setExId(it.getId());
+            questionnaireInfoDTO.setExPid(it.getPid());
+            questionnaireInfoDTO.setIsNotShowNumber(it.getIsNotShowNumber());
+            questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
+            questionnaireInfoDTO.setIsLogic(it.getIsLogic());
+            questionnaireInfoDTO.setJumpIds(it.getJumpIds());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -115,10 +151,15 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param it
      * @return
      */
-    protected QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
+    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
+        childQuestionResponse.setExId(it.getId());
+        childQuestionResponse.setExPid(it.getPid());
+        childQuestionResponse.setIsNotShowNumber(it.getIsNotShowNumber());
+        childQuestionResponse.setIsLogic(it.getIsLogic());
+        childQuestionResponse.setJumpIds(it.getJumpIds());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         return childQuestionResponse;
     }
@@ -142,5 +183,61 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             }
         });
         questionResponse.setOptions(options);
+    }
+
+    /**
+     * 获取问卷信息
+     *
+     * @param id 问卷id
+     *
+     * @return QuestionnaireResponseDTO
+     */
+    public QuestionnaireResponseDTO getDetailByQuestionnaireId(Integer id) {
+        Questionnaire questionnaire = this.getById(id);
+        QuestionnaireResponseDTO responseDTO = new QuestionnaireResponseDTO();
+        if (Objects.isNull(questionnaire)) {
+            return responseDTO;
+        }
+        responseDTO.setId(questionnaire.getId());
+        responseDTO.setTitle(questionnaire.getTitle());
+        responseDTO.setYear(questionnaire.getYear());
+        responseDTO.setDetail(getQuestionnaireInfo(id));
+        return responseDTO;
+    }
+
+    /**
+     * 通过年份、类型获取
+     *
+     * @param types 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public List<Questionnaire> getByTypes(Collection<Integer> types) {
+        return baseMapper.getByTypes(types);
+    }
+
+    /**
+     * 更新问卷时间
+     *
+     * @param id id
+     */
+    public void updateTime(Integer id) {
+        Questionnaire questionnaire = getById(id);
+        questionnaire.setUpdateTime(new Date());
+        baseMapper.updateById(questionnaire);
+    }
+
+    /**
+     * 通过类型获取
+     *
+     * @param type 类型
+     *
+     * @return List<Questionnaire>
+     */
+    public Questionnaire getByType(Integer type) {
+        LambdaQueryWrapper<Questionnaire> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Questionnaire::getType, type)
+                .orderByAsc(Questionnaire::getCreateTime);
+        return baseMapper.selectOne(queryWrapper);
     }
 }

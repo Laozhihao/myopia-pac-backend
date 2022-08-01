@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -33,6 +35,8 @@ public class ScreeningPlanBizService {
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
 
     /**
      * 从学生中插入
@@ -74,6 +78,10 @@ public class ScreeningPlanBizService {
                 .setStudentSituation(SerializationUtil.serializeWithoutException(student))
                 .setStudentNo(student.getSno())
                 .setScreeningCode(screeningCode);
+        // 设置常见病ID
+        if (ScreeningTypeEnum.isCommonDiseaseScreeningType(currentPlan.getScreeningType())) {
+            screeningPlanSchoolStudent.setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(schoolDistrictId, schoolId, student.getGradeId(), student.getClassId(), currentPlan.getStartTime()));
+        }
         screeningPlanSchoolStudentService.save(screeningPlanSchoolStudent);
         screeningPlanService.updateStudentNumbers(currentUser.getId(), currentPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(currentPlan.getId()));
     }

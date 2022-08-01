@@ -51,6 +51,11 @@ public class Question implements Serializable {
     private String title;
 
     /**
+     * 副标题
+     */
+    private String subTitle;
+
+    /**
      * 问题属性
      */
     @TableField(typeHandler = JacksonTypeHandler.class)

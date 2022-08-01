@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-public abstract class ArrayTypeHandler<T extends Object> extends JacksonTypeHandler {
+public abstract class ArrayTypeHandler<T> extends JacksonTypeHandler {
 
     private static final ObjectMapper LIST_OBJECT_MAPPER = Jackson2ObjectMapperBuilder
             .json()
