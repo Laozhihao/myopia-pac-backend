@@ -58,6 +58,11 @@ public class Questionnaire implements Serializable {
     private Integer pid;
 
     /**
+     * 类型
+     */
+    private Integer type;
+
+    /**
      * 问卷状态 0-未开始 1-进行中 2-结束
      */
     private Integer status;

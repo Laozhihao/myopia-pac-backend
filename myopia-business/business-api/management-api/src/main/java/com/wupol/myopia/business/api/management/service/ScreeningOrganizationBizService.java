@@ -292,16 +292,16 @@ public class ScreeningOrganizationBizService {
                                         Map<Integer, List<UserQuestionRecord>> schoolMap,
                                         Integer schoolId,
                                         Map<Integer, List<Student>> userGradeIdMap,
-                                        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap){
+                                        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap) {
         Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
                 .isEmpty(schoolMap.get(schoolId)) ? Maps.newHashMap() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
         if (detail.getPlanScreeningNumbers() == 0) {
-            detail.setQuestionnaire("0," + CommonConst.PERCENT_ZERO);
+            detail.setQuestionnaire("0" + CommonConst.CH_COMMA + CommonConst.PERCENT_ZERO);
             detail.setQuestionnaireStudentCount(0);
         } else {
             detail.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
             BigDecimal questionNum = MathUtil.divide(schoolStudentMap.keySet().size(), detail.getPlanScreeningNumbers());
-            detail.setQuestionnaire(schoolStudentMap.keySet().size() + "," + (questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%"));
+            detail.setQuestionnaire(schoolStudentMap.keySet().size() + CommonConst.CH_COMMA + (questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%"));
         }
         if (!CollectionUtils.isEmpty(gradeIdMap.get(schoolId)) && detail.getPlanScreeningNumbers() != 0) {
             detail.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(schoolId, gradeIdMap, userGradeIdMap));

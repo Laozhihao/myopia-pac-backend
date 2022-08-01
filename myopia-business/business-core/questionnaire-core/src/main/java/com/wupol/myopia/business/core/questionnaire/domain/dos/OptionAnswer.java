@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 选项答案
@@ -22,7 +21,7 @@ public class OptionAnswer implements Serializable {
     private String optionId;
 
     /**
-     * 文本值
+     * 文本
      */
     private String text;
 
@@ -30,9 +29,4 @@ public class OptionAnswer implements Serializable {
      * 填空值
      */
     private String value;
-
-    /**
-     * 填空题
-     */
-    private List<OptionAnswer> children;
 }
