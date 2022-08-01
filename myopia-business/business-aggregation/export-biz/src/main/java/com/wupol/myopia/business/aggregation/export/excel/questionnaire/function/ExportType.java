@@ -62,7 +62,8 @@ public interface ExportType {
      * 前置处理
      * @param exportCondition 导出条件
      */
-    default void preProcess(ExportCondition exportCondition){}
+    default void preProcess(ExportCondition exportCondition){
+    }
 
     /**
      * 获取条件值

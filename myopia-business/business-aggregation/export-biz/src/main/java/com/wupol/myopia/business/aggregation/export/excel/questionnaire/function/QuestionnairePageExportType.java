@@ -55,4 +55,9 @@ public class QuestionnairePageExportType implements ExportType {
     public String getDistrictKey(Integer districtId) {
         return exportTypeFacade.getDistrictKey(districtId,DISTRICT_SCHOOL);
     }
+
+    @Override
+    public void preProcess(ExportCondition exportCondition) {
+        ExportTypeFacade.checkDistrictId(exportCondition);
+    }
 }

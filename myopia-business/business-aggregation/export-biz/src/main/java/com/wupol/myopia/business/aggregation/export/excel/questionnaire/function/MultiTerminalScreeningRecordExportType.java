@@ -51,4 +51,8 @@ public class MultiTerminalScreeningRecordExportType implements ExportType {
         return exportTypeFacade.getQuestionnaireType(getType());
     }
 
+    @Override
+    public void preProcess(ExportCondition exportCondition) {
+        ExportTypeFacade.checkSchoolId(exportCondition);
+    }
 }

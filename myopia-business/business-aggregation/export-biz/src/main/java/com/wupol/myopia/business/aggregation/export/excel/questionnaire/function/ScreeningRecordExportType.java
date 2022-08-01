@@ -7,6 +7,7 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +24,6 @@ public class ScreeningRecordExportType implements ExportType {
     private ExportTypeFacade exportTypeFacade;
 
     private static final String ALL_KEY = "%s筛查计划下学生问卷数据";
-    private static final String KEY_FOLDER = "%s学生问卷数据";
     private static final String SCHOOL_KEY = "%s学生问卷数据";
     private static final String FILE_EXPORT_EXCEL_ALL = "file:export:excel:screeningRecordAll:%s-%s";
     private static final String FILE_EXPORT_EXCEL_SCHOOL = "file:export:excel:screeningRecordSchool:%s-%s-%s";
@@ -40,7 +40,7 @@ public class ScreeningRecordExportType implements ExportType {
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return exportTypeFacade.getOrgOrSchoolKey(exportCondition,KEY_FOLDER,KEY_FOLDER);
+        return exportTypeFacade.getOrgOrSchoolKey(exportCondition,SCHOOL_KEY,SCHOOL_KEY);
     }
 
     @Override
@@ -61,6 +61,12 @@ public class ScreeningRecordExportType implements ExportType {
 
     @Override
     public void preProcess(ExportCondition exportCondition) {
+        ExportTypeFacade.checkNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        if (Objects.isNull(exportCondition.getSchoolId())){
+            //导出计划下的
+            Assert.notNull(exportCondition.getScreeningOrgId(),"机构ID不能为空");
+        }
+
         exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(), QuestionnaireConstant.STUDENT_TYPE));
     }
 }

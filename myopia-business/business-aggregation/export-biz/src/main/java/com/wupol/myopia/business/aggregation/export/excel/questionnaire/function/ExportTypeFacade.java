@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.functio
 
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -139,6 +141,36 @@ public class ExportTypeFacade {
                 break;
         }
         return typeMap;
+    }
+
+    /**
+     * 检查筛查通知ID、筛查任务ID、筛查计划ID不能都为空
+     * @param noticeId 筛查通知ID
+     * @param taskId 筛查任务ID
+     * @param planId 筛查计划ID
+     */
+    public static void checkNoticeIdOrTaskIdOrPlanId(Integer noticeId ,Integer taskId,Integer planId ){
+        if (ObjectsUtil.allNull(noticeId,taskId,planId)){
+            throw new BusinessException("筛查通知ID、筛查任务ID、筛查计划ID不能都为空");
+        }
+    }
+
+    /**
+     * 检查学校ID
+     * @param exportCondition 导出条件
+     */
+    public static void checkSchoolId(ExportCondition exportCondition){
+        checkNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        Assert.notNull(exportCondition.getSchoolId(),"学校ID不能为空");
+    }
+
+    /**
+     * 检查区域ID
+     * @param exportCondition 导出条件
+     */
+    public static void checkDistrictId(ExportCondition exportCondition){
+        checkNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        Assert.notNull(exportCondition.getDistrictId(),"区域ID不能为空");
     }
 
 }
