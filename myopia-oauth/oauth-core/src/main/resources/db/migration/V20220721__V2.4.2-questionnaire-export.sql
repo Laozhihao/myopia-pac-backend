@@ -22,4 +22,6 @@ VALUES
         (939, '按学校-问卷数据', 'exportSchoolQuestionnaire', 'post:/management/questionnaire/export', 0, 0, 1, 30, 1),
         (940, '按学校-获取问卷类型', 'schoolQuestionnaireType', 'get:/management/questionnaire/type', 0, 0, 1, 30, 1),
 
-        (941, '多端学校管理筛查记录-问卷数据', 'exportMultiTerminalSchool', 'post:/management/questionnaire/export', 0, 0, 1, 9, 1);
+        (941, '多端学校管理筛查记录-问卷数据', 'exportMultiTerminalSchool', 'post:/management/questionnaire/export', 0, 0, 1, 9, 1),
+
+        (952, '问卷数据', 'exportPlatformOrgQuestionnaire', 'post:/management/questionnaire/export', 0, 0, 1, 5, 1);
