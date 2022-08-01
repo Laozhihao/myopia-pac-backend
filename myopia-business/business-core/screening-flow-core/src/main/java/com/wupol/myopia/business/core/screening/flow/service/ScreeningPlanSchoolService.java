@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
@@ -10,6 +11,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListRes
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -236,4 +238,10 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper.getLastBySchoolIdAndScreeningType(schoolId, screeningType);
     }
 
+    public List<ScreeningPlanSchool> getPlansByPlanIdsAndSchoolNameLike(List<ScreeningPlan> plans,String schoolName){
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlanSchool>()
+                .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
+                .like(Objects.nonNull(schoolName), ScreeningPlanSchool::getSchoolName, schoolName)
+                .orderByDesc(ScreeningPlanSchool::getCreateTime));
+    }
 }
