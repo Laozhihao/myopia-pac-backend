@@ -22,4 +22,9 @@ public class QuestionBacklogRecordVO extends QuestRecordVO {
      * 环境调查表Id，没有返回null
      */
     private Integer environmentalId;
+
+    /**
+     * 学校填写状态
+     */
+    private Boolean isSchoolSurveyDown;
 }

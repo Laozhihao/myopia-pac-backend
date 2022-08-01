@@ -405,6 +405,7 @@ public class QuestionnaireManagementService {
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
             BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
+            vo.setIsSchoolSurveyDown(!CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
