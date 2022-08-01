@@ -187,7 +187,7 @@ public class StudentDataService {
         planSchoolStudent.setGender(GenderEnum.MALE.type);
         planSchoolStudent.setStudentAge(DateUtil.ageOfNow(birthday));
         planSchoolStudent.setStudentName(student.getName());
-        planSchoolStudent.setArtificial(ArtificialStatusConstant.Artificial);
+        planSchoolStudent.setArtificial(ArtificialStatusConstant.ARTIFICIAL);
         planSchoolStudent.setScreeningCode(screeningCode);
         screeningPlanSchoolStudentService.save(planSchoolStudent);
         // 更新筛查计划学生总数
