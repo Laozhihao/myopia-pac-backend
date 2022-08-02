@@ -282,20 +282,15 @@ public class QuestionnaireManagementService {
         if (CollectionUtils.isEmpty(plans)) {
             return new Page<>();
         }
-
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(questionSearchDTO.getTaskId(), questionSearchDTO.getAreaId(), plans);
         if (CollectionUtils.isEmpty(districtIds)) {
             return new Page<>();
         }
-
-        List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>()
-                .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
-                .like(Objects.nonNull(questionSearchDTO.getSchoolName()), ScreeningPlanSchool::getSchoolName, questionSearchDTO.getSchoolName())
-                .orderByDesc(ScreeningPlanSchool::getCreateTime));
+        List<ScreeningPlanSchool> searchPage = screeningPlanSchoolService.getPlansByPlanIdsAndSchoolNameLike(plans,questionSearchDTO.getSchoolName());
         if (CollectionUtils.isEmpty(searchPage)) {
             return new Page<>();
         }
-        List<Integer> orgIds = searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> orgIds = getOrgIds(searchPage);
         Map<Integer, ScreeningOrganization> orgIdMap = screeningOrganizationService.getByIds(orgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, screeningOrganization -> screeningOrganization));
         Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
 
@@ -320,13 +315,11 @@ public class QuestionnaireManagementService {
 
         List<QuestionSchoolRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionSchoolRecordVO vo = new QuestionSchoolRecordVO();
-            vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getSchoolNo());
-            vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
-            vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(item.getId());
-            vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
+            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
             vo.setSchoolSurveyStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
+            vo.setIsSchoolSurveyDown(!CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())));
+            vo.setIsStudentEnvironmentSurveyDown(!CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(item.getId())));
+            vo.setIsStudentSpecialSurveyDown(!CollectionUtils.isEmpty(userRecordToStudentSpecialMap.get(item.getId())));
             if (Objects.isNull(studentCountIdMap.get(item.getId()))) {
                 vo.setStudentSpecialSurveyStatus(0);
                 vo.setStudentEnvironmentSurveyStatus(0);
@@ -360,6 +353,14 @@ public class QuestionnaireManagementService {
         return QuestionnaireStatusEnum.IN_PROGRESS.getCode();
     }
 
+    /**
+     * 获得机构ID
+     * @param searchPage
+     * @return
+     */
+    private List<Integer> getOrgIds(List<ScreeningPlanSchool> searchPage){
+        return searchPage.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toList());
+    }
 
     /**
      * 获取问卷的待办列表
@@ -403,12 +404,8 @@ public class QuestionnaireManagementService {
 
         List<QuestionBacklogRecordVO> records = resultPage.getRecords().stream().map(item -> {
             QuestionBacklogRecordVO vo = new QuestionBacklogRecordVO();
-            vo.setSchoolName(item.getName());
-            vo.setSchoolId(item.getSchoolNo());
-            vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
-            vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-            vo.setAreaId(item.getId());
-            vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
+            BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
+            vo.setIsSchoolSurveyDown(!CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
             return vo;
         }).collect(Collectors.toList());
@@ -416,6 +413,25 @@ public class QuestionnaireManagementService {
         BeanUtils.copyProperties(resultPage, returnPage);
         returnPage.setRecords(records);
         return returnPage;
+    }
+
+    /**
+     * 组装列表的返回值
+     * @param item
+     * @param schoolIdsPlanMap
+     * @param orgIdMap
+     * @return
+     */
+    private QuestionRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
+        QuestionRecordVO vo = new QuestionRecordVO();
+        vo.setSchoolName(item.getName());
+        vo.setSchoolId(item.getSchoolNo());
+        vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
+        vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
+        vo.setAreaId(item.getId());
+        vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
+        vo.setTaskId(taskId);
+        return vo;
     }
 
     /**
