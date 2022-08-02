@@ -37,6 +37,11 @@ public class JumpIdsDO implements Serializable{
         private Integer jumpId;
 
         /**
+         * 类型
+         */
+        private String type;
+
+        /**
          * 描述
          */
         private String serialNumber;
