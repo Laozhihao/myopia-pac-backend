@@ -15,6 +15,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -86,6 +87,7 @@ public class QuestionnaireManagementService {
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
 
+    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
 
     /**
      * 根据机构id获得所有任务
@@ -98,22 +100,45 @@ public class QuestionnaireManagementService {
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
-
         Map<Integer, Set<ScreeningTask>> yearTaskMap = getYears(screeningTasks);
-        return yearTaskMap.entrySet().stream().map(item -> {
-            QuestionTaskVO questionTaskVO = new QuestionTaskVO();
-            questionTaskVO.setAnnual(item.getKey() + "");
-            questionTaskVO.setTasks(item.getValue().stream().map(it2 -> {
-                QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
-                taskItem.setTaskId(it2.getId());
-                taskItem.setTaskTitle(it2.getTitle());
-                taskItem.setScreeningEndTime(it2.getEndTime());
-                taskItem.setScreeningStartTime(it2.getStartTime());
-                taskItem.setCreateTime(it2.getCreateTime());
-                return taskItem;
-            }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
-            return questionTaskVO;
-        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).peek(item -> item.setAnnual(item.getAnnual() + "年度")).collect(Collectors.toList());
+        return yearTaskMap.entrySet().stream()
+                .map(this::buildQuestionTaskVO)
+                .sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed())
+                .map(this::setAnnualInfo).collect(Collectors.toList());
+    }
+
+    /**
+     * 年度信息补全
+     * @param item
+     */
+    private QuestionTaskVO setAnnualInfo(QuestionTaskVO item){
+        item.setAnnual(item.getAnnual() + "年度");
+        return item;
+    }
+
+    /**
+     * 构建筛查任务 筛查任务
+     * @param item
+     */
+    private QuestionTaskVO buildQuestionTaskVO(Map.Entry<Integer, Set<ScreeningTask>> item){
+        QuestionTaskVO questionTaskVO = new QuestionTaskVO();
+        questionTaskVO.setAnnual(item.getKey() + "");
+        questionTaskVO.setTasks(item.getValue().stream().map(this::buildItem).sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
+        return questionTaskVO;
+    }
+
+    /**
+     * 构建筛查任务项目
+     * @param it2
+     */
+    private QuestionTaskVO.Item buildItem(ScreeningTask it2){
+        QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
+        taskItem.setTaskId(it2.getId());
+        taskItem.setTaskTitle(it2.getTitle());
+        taskItem.setScreeningEndTime(it2.getEndTime());
+        taskItem.setScreeningStartTime(it2.getStartTime());
+        taskItem.setCreateTime(it2.getCreateTime());
+        return taskItem;
     }
 
     /**
@@ -326,7 +351,6 @@ public class QuestionnaireManagementService {
             ScreeningPlan plan = planMap.get(schoolIdsPlanMap.get(item.getId()).getScreeningPlanId());
             vo.setStudentSpecialSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentSpecialMap));
             vo.setStudentEnvironmentSurveyStatus(getCountBySchool(plan, item.getId(), userRecordToStudentEnvironmentMap));
-            vo.setTaskId(questionSearchDTO.getTaskId());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionSchoolRecordVO> returnPage = new Page<>();
@@ -406,7 +430,6 @@ public class QuestionnaireManagementService {
             BeanUtils.copyProperties(buildRecordVO(item, schoolIdsPlanMap, orgIdMap, questionSearchDTO.getTaskId()), vo);
             vo.setIsSchoolSurveyDown(!CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())));
             vo.setEnvironmentalStatus(CollectionUtils.isEmpty(userRecordToSchoolMap.get(item.getId())) ? 0 : userRecordToSchoolMap.get(item.getId()).get(0).getStatus());
-            vo.setTaskId(questionSearchDTO.getTaskId());
             return vo;
         }).collect(Collectors.toList());
         Page<QuestionBacklogRecordVO> returnPage = new Page<>();
@@ -425,7 +448,8 @@ public class QuestionnaireManagementService {
     private QuestionRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
         QuestionRecordVO vo = new QuestionRecordVO();
         vo.setSchoolName(item.getName());
-        vo.setSchoolId(item.getSchoolNo());
+        vo.setSchoolId(item.getId());
+        vo.setSchoolNo(item.getSchoolNo());
         vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
         vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
         vo.setAreaId(item.getId());
@@ -570,13 +594,7 @@ public class QuestionnaireManagementService {
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            List<Integer> questionnaireTypes = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireType).distinct().collect(Collectors.toList());
-            questionnaireTypes = questionnaireTypes.stream().map(questionnaireType -> {
-                if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
-                    return QuestionnaireConstant.STUDENT_TYPE;
-                }
-                return questionnaireType;
-            }).distinct().collect(Collectors.toList());
+            List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
             typeKeyList.removeAll(questionnaireTypes);
             questionnaireTypeVO.setNoDataList(typeKeyList);
         }else {
@@ -584,19 +602,27 @@ public class QuestionnaireManagementService {
         }
 
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
-        if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE)){
-            switch (exportType){
-                case 11:
-                case 13:
-                case 14:
-                case 15:
-                    questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
-                    break;
-                default:
-                    break;
-            }
+        if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE) && exportTypeList.contains(exportType)){
+            questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
         }
 
         return questionnaireTypeVO;
+    }
+
+    /**
+     * 获取问卷类型
+     * @param userQuestionRecordList 用户问卷记录集合
+     */
+    private List<Integer> getQuestionnaireTypes(List<UserQuestionRecord> userQuestionRecordList){
+        return userQuestionRecordList.stream()
+                .map(UserQuestionRecord::getQuestionnaireType)
+                .distinct()
+                .map(questionnaireType -> {
+                    if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                        return QuestionnaireConstant.STUDENT_TYPE;
+                    }
+                    return questionnaireType;
+                })
+                .distinct().collect(Collectors.toList());
     }
 }
