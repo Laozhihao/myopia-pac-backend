@@ -5,12 +5,9 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,13 +35,23 @@ public class GradeQuestionnaireInfo implements Serializable {
      */
     private Integer studentCount;
 
-    public static List<GradeQuestionnaireInfo> buildGradeInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> finalGradeIdMap, Map<Integer, List<Student>> finalUserGradeIdMap){
-        return finalGradeIdMap.get(schoolId).stream().map(grade -> {
-            GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
-            questionnaireInfo.setGradeName(grade.getName());
-            questionnaireInfo.setGradeId(grade.getId());
-            questionnaireInfo.setStudentCount(CollectionUtils.isEmpty(finalUserGradeIdMap.get(grade.getId())) ? 0 : finalUserGradeIdMap.get(grade.getId()).size());
-            return questionnaireInfo;
-        }).sorted(Comparator.comparing((GradeQuestionnaireInfo gradeInfo) -> Integer.valueOf(GradeCodeEnum.getByName(gradeInfo.getGradeName()).getCode()))).collect(Collectors.toList());
+    public static List<GradeQuestionnaireInfo> buildGradeInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
+                                                              Map<Integer, List<Student>> userGradeIdMap,Boolean isTotal){
+        List<GradeQuestionnaireInfo> collect = gradeIdMap.get(schoolId).stream()
+                .map(grade -> {
+                    GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
+                    questionnaireInfo.setGradeName(grade.getName());
+                    questionnaireInfo.setGradeId(grade.getId());
+                    questionnaireInfo.setStudentCount(Optional.ofNullable(userGradeIdMap.get(grade.getId())).map(List::size).orElse(0));
+                    return questionnaireInfo;
+                })
+                .sorted(Comparator.comparing(gradeInfo -> Integer.valueOf(GradeCodeEnum.getByName(gradeInfo.getGradeName()).getCode())))
+                .collect(Collectors.toList());
+
+        if (Objects.equals(Boolean.TRUE,isTotal)){
+            int sum = collect.stream().mapToInt(GradeQuestionnaireInfo::getStudentCount).sum();
+            collect.add(new GradeQuestionnaireInfo().setGradeName("合计").setStudentCount(sum));
+        }
+        return collect;
     }
 }
