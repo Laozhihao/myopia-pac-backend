@@ -327,7 +327,7 @@ public class ScreeningTaskOrgBizService {
         dto.setName(screeningOrgNameMap.getOrDefault(screeningTaskOrg.getScreeningOrgId(), StringUtils.EMPTY));
         ScreeningPlan plan = planGroupByOrgIdMap.get(screeningTaskOrg.getScreeningOrgId());
         if (plan != null) {
-            Map<Integer, Long> schoolIdStudentCountMap = schoolStudentCountMap.get(plan.getId());
+            Map<Integer, Long> schoolIdStudentCountMap = schoolStudentCountMap.getOrDefault(plan.getId(),Collections.emptyMap());
             List<ScreeningPlanSchool> screeningPlanSchools = planSchoolGroupByPlanIdMap.get(plan.getId());
             if (!CollectionUtils.isEmpty(screeningPlanSchools)) {
                 dto.setScreeningPlanSchools(getScreeningPlanSchools(planRecordMap.getOrDefault(plan.getId(),Lists.newArrayList()), screeningPlanSchools, schoolIdStudentCountMap, plan));
