@@ -142,8 +142,8 @@ public class UserAnswerFacade {
      * @param excelStudentDataBOList 收集excel导出学生数据集合
      */
     private void dataProcess(List<UserQuestionRecord> userQuestionRecordList,
-                            List<HideQuestionDataBO> hideQuestionDataBOList,
-                            List<ExcelStudentDataBO> excelStudentDataBOList) {
+                             List<HideQuestionDataBO> hideQuestionDataBOList,
+                             List<ExcelStudentDataBO> excelStudentDataBOList) {
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             return;
         }
@@ -479,7 +479,7 @@ public class UserAnswerFacade {
      * @param questionnaireId 隐藏问题问卷ID
      */
     public List<List<String>> getData(List<UserQuestionRecord> userQuestionRecordList,
-                         List<Integer> questionnaireIds,Integer questionnaireId){
+                                      List<Integer> questionnaireIds,Integer questionnaireId){
         List<ExcelStudentDataBO> excelStudentDataBOList = Lists.newArrayList();
         List<HideQuestionDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestion(questionnaireId);
         dataProcess(userQuestionRecordList,hideQuestionDataBOList, excelStudentDataBOList);
