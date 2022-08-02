@@ -42,17 +42,16 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
     /**
      * 根据计划id和type获得问卷数据
      *
-     * @param typesIds
+     * @param userType
      * @return
      */
-    public List<UserQuestionRecord> findRecordByPlanIdAndTypeNotIn(List<Integer> planIds, List<Integer> typesIds) {
-        //TODO：根据planId和userType获取学生问卷记录
+    public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType) {
         if (CollectionUtils.isEmpty(planIds)) {
             return Lists.newArrayList();
         }
         return baseMapper.selectList(new LambdaQueryWrapper<UserQuestionRecord>()
                 .in(UserQuestionRecord::getPlanId, planIds)
-                .notIn(UserQuestionRecord::getQuestionnaireType, typesIds)
+                .notIn(UserQuestionRecord::getUserType, userType)
         );
     }
 }

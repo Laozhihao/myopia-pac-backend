@@ -8,7 +8,7 @@ import lombok.Data;
  * @author xz 2022 08 01 12:30
  */
 @Data
-public class QuestRecordVO {
+public class QuestionRecordVO {
     /**
      * 学校Id
      */

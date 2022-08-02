@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class QuestionBacklogRecordVO extends QuestRecordVO {
+public class QuestionBacklogRecordVO extends QuestionRecordVO {
     /**
      * 环境调查表状态，0：未完成，1：进行中。2：已完成
      */

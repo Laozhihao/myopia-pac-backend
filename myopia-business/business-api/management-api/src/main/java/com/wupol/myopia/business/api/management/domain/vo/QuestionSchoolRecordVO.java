@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class QuestionSchoolRecordVO extends QuestRecordVO{
+public class QuestionSchoolRecordVO extends QuestionRecordVO {
     /**
      * 0：未完成，1：进行中。2：已完成 学校填写状态
      */

@@ -422,8 +422,8 @@ public class QuestionnaireManagementService {
      * @param orgIdMap
      * @return
      */
-    private QuestRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
-        QuestRecordVO vo = new QuestRecordVO();
+    private QuestionRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
+        QuestionRecordVO vo = new QuestionRecordVO();
         vo.setSchoolName(item.getName());
         vo.setSchoolId(item.getSchoolNo());
         vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
