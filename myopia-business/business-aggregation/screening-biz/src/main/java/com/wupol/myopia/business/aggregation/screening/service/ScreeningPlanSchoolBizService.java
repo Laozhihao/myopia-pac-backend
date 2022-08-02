@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
@@ -100,7 +99,7 @@ public class ScreeningPlanSchoolBizService {
             }
             vo.setQuestionnaireSituation(getCountBySchool(screeningPlan, vo.getSchoolId(), schoolMap));
             if (!CollectionUtils.isEmpty(gradeIdMap.get(vo.getSchoolId())) && vo.getStudentCount() != 0) {
-                vo.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(vo.getSchoolId(), gradeIdMap, userGradeIdMap));
+                vo.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(vo.getSchoolId(), gradeIdMap, userGradeIdMap,Boolean.TRUE));
             }
         });
         return screeningPlanSchools;

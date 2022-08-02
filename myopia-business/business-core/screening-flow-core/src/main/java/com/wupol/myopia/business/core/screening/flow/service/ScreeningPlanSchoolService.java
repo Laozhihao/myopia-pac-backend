@@ -95,6 +95,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     /**
      * 根据计划id和学校名获得计划
+     * TODO: 此方法根据筛查计划ID和学校名称模糊查询
      *
      * @param screeningPlanId
      * @param schoolName
