@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -169,6 +170,24 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public Map<Integer, Long> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
         return getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
     }
+
+    /**
+     * 根据计划ID集合批量获取学校ID的学生数Map
+     *
+     * @param screeningPlanIds 筛查计划ID集合
+     * @return
+     */
+    public Map<Integer, Map<Integer, Long>> getSchoolStudentCountByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getByScreeningPlanIds(screeningPlanIds);
+        Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
+        Map<Integer, Map<Integer, Long>> map = Maps.newHashMap();
+        planSchoolStudentMap.forEach((screeningPlanId,planSchoolStudentList)->{
+            Map<Integer, Long> collect = planSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+            map.put(screeningPlanId,collect);
+        });
+        return map;
+    }
+
 
     /**
      * 获取学校筛查学生数
