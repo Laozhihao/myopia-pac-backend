@@ -107,11 +107,13 @@ public class QuestionnaireQuestionBizService {
         }
 
         Set<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toSet());
-        Map<Integer, String> questionTitleMap = questionService.listByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Question::getTitle));
+        Map<Integer, Question> questionTitleMap = questionService.listByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Function.identity()));
         questionnaireQuestions.forEach(questionnaireQuestion -> {
             LogicFindQuestionResponseDTO responseDTO = new LogicFindQuestionResponseDTO();
             BeanUtils.copyProperties(questionnaireQuestion, responseDTO);
-            responseDTO.setTitle(questionTitleMap.get(questionnaireQuestion.getQuestionId()));
+            Question question = questionTitleMap.get(questionnaireQuestion.getQuestionId());
+            responseDTO.setTitle(question.getTitle());
+            responseDTO.setType(question.getType());
             response.add(responseDTO);
         });
         return response;

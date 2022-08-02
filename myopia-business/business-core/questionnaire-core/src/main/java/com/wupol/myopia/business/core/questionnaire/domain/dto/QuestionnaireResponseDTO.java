@@ -17,7 +17,7 @@ public class QuestionnaireResponseDTO {
     /**
      * Id
      */
-    private Integer Id;
+    private Integer id;
 
     /**
      * 标题

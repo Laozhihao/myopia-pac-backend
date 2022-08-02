@@ -248,7 +248,8 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }
-            optionAnswer.setValue(planStudent.getCommonDiseaseId().substring(planStudent.getCommonDiseaseId().length() - 4));
+            // 这里的编码可能会改变，所以为空，导出问卷的时候动态生成
+            optionAnswer.setValue(StringUtils.EMPTY);
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
             return;

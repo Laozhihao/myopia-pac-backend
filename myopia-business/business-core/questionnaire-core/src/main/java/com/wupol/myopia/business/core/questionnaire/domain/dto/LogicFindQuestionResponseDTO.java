@@ -19,4 +19,9 @@ public class LogicFindQuestionResponseDTO extends QuestionnaireQuestion {
      * 标题
      */
     private String title;
+
+    /**
+     * 类型
+     */
+    private String type;
 }
