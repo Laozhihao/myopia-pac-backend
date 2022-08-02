@@ -85,19 +85,20 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public File generateExcelFile(String fileName, List data, ExportCondition exportCondition) throws IOException {
 
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
-        if (CollectionUtil.isNotEmpty(questionnaireTypeList)){
-            for (Integer questionnaireType : questionnaireTypeList) {
-
-                if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
-                    String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
-                    for (Integer type : QuestionnaireConstant.STUDENT_TYPE_LIST) {
-                        generateExcelFile(filePath, exportCondition, type);
-                    }
-                }else {
-                    generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
+        if (CollectionUtil.isEmpty(questionnaireTypeList)){
+            return null;
+        }
+        for (Integer questionnaireType : questionnaireTypeList) {
+            if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
+                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
+                for (Integer type : QuestionnaireConstant.STUDENT_TYPE_LIST) {
+                    generateExcelFile(filePath, exportCondition, type);
                 }
+            }else {
+                generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
             }
         }
+
         return null;
     }
 
