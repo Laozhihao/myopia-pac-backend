@@ -150,20 +150,23 @@ public class UserAnswerFacade {
 
         List<Integer> recordIds = userQuestionRecordList.stream().map(UserQuestionRecord::getId).collect(Collectors.toList());
 
-        //记分问题ID
         List<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toList());
+        //记分问题ID
         List<Integer> scoreQuestionIds = questionnaireFacade.getScoreQuestionIds(questionnaireIds);
 
         List<UserAnswer> userAnswerList = userAnswerService.getListByRecordIds(recordIds);
+        //用户记录ID对应大答案集合
         Map<Integer, List<UserAnswer>> userAnswerMap = userAnswerList.stream().collect(Collectors.groupingBy(UserAnswer::getRecordId));
 
         Set<Integer> questionIds = userAnswerList.stream().map(UserAnswer::getQuestionId).collect(Collectors.toSet());
         List<Question> questionList = questionService.listByIds(questionIds);
+        //问题ID对应的问题集合
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
-
-        Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
-
+        //学生ID对应学生信息（年级和编码4位）集合
         Map<Integer, TwoTuple<String,String>> studentInfoMap = getStudentInfoMap(userQuestionRecordList);
+
+        //学生ID对应的问卷记录信息集合
+        Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
 
         studentMap.forEach((studentId,recordList)->{
             ExcelStudentDataBO excelStudentDataBO = new ExcelStudentDataBO();
@@ -185,6 +188,10 @@ public class UserAnswerFacade {
 
     }
 
+    /**
+     * 获取学生信息(年级和编码4位)
+     * @param userQuestionRecordList 用户问卷记录集合
+     */
     private Map<Integer, TwoTuple<String,String>> getStudentInfoMap(List<UserQuestionRecord> userQuestionRecordList) {
         Set<Integer> planStudentIds = userQuestionRecordList.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
@@ -205,6 +212,7 @@ public class UserAnswerFacade {
      * @param questionMap 问题集合
      * @param excelStudentDataBO 导出excel数据对象
      * @param userQuestionRecordId 用户问卷记录ID
+     * @param tuple 学生信息(年级和编码4位)
      */
     private void questionDataProcess(List<Integer> scoreQuestionIds, Map<Integer, List<UserAnswer>> userAnswerMap, Map<Integer, Question> questionMap, ExcelStudentDataBO excelStudentDataBO, Integer userQuestionRecordId,TwoTuple<String, String> tuple) {
         List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecordId);
@@ -219,7 +227,7 @@ public class UserAnswerFacade {
                     scoreAnswerList.add(answerData);
                 }
             });
-
+            //计算分数
             calculateScore(questionMap, answerList, scoreAnswerList);
 
             if (Objects.isNull(excelStudentDataBO.getDataList())) {
@@ -345,6 +353,7 @@ public class UserAnswerFacade {
      * 获取答案数据
      * @param userAnswerList 用户答案数据集合
      * @param questionMap 问题集合
+     * @param tuple 学生信息(年级和编码4位)
      */
     private ExcelStudentDataBO.AnswerDataBO getAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap,TwoTuple<String, String> tuple){
         ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
@@ -371,6 +380,7 @@ public class UserAnswerFacade {
      * @param answerDataBO 用户答案数据
      * @param question 问题
      * @param options 问题选项
+     * @param tuple 学生信息(年级和编码4位)
      */
     private void setDataInputType(List<UserAnswer> userAnswerList, ExcelStudentDataBO.AnswerDataBO answerDataBO, Question question, List<Option> options,TwoTuple<String, String> tuple) {
         Option questionOption = options.get(0);
@@ -508,6 +518,7 @@ public class UserAnswerFacade {
      * @param baseInfoType 基础信息问卷类型
      * @param gradeTypeList 学龄集合
      * @param exportCondition 导出条件
+     * @param isAsc 是否顺序
      */
     public GenerateExcelDataBO generateStudentTypeExcelData(QuestionnaireTypeEnum mainBodyType, QuestionnaireTypeEnum baseInfoType,
                                                             List<Integer> gradeTypeList, ExportCondition exportCondition,Boolean isAsc){
