@@ -76,7 +76,7 @@ create table q_user_answer
     questionnaire_id int                                 not null comment '问卷ID',
     question_id      int                                 not null comment '问题ID',
     record_id        int                                 null comment '记录表Id',
-    user_type        int                                 not null comment '用户类型 0-学生 1-学校',
+    user_type        int                                 not null comment '用户类型 0-学生 1-学校 2-政府',
     question_title   varchar(128)                        null,
     answer           json                                null comment '用户答案',
     create_time      timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -106,7 +106,7 @@ create table q_user_question_record
     id                 int auto_increment comment '主键'
         primary key,
     user_id            int                                 not null comment '用户端Id',
-    user_type          int                                 null comment '0-学生 1-学校',
+    user_type          int                                 null comment '0-学生 1-学校 2-政府',
     questionnaire_id   int                                 not null comment '问卷Id',
     plan_id            int                                 null comment '计划Id',
     task_id            int                                 null comment '任务Id',
