@@ -49,7 +49,7 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         }
         return baseMapper.selectList(new LambdaQueryWrapper<UserQuestionRecord>()
                 .in(UserQuestionRecord::getPlanId, planIds)
-                .notIn(UserQuestionRecord::getUserType, userType)
+                .eq(UserQuestionRecord::getUserType, userType)
         );
     }
 
