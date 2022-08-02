@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -116,15 +115,6 @@ public class ExportExcelService  {
      */
     private static File generateExcelFile(String fileName, InputStream templateInputStream, List<?> data) throws IOException {
         return ExcelUtil.exportListToExcel(fileName, templateInputStream,data);
-    }
-
-    /**
-     * 获取模板文件
-     *
-     * @param templateFileName 模板名称
-     */
-    private static String getTemplateFile(String templateFileName){
-        return FileUtil.getAbsolutePath(String.format("classpath:excel/%s.xlsx",templateFileName));
     }
 
     /**

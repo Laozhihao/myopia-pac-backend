@@ -146,7 +146,7 @@ public class ScreeningStudentQueryDTO extends StudentExtraDTO {
         screeningStudentQueryDTO.setPlanIds(mockPlanStudentQueryDTO.getScreeningPlanIds())
                 .setStartScreeningTime(mockPlanStudentQueryDTO.getStartScreeningTime())
                 .setEndScreeningTime(endScreeningTime)
-                .setArtificial(ArtificialStatusConstant.Artificial)
+                .setArtificial(ArtificialStatusConstant.ARTIFICIAL)
                 .setSnoLike(mockPlanStudentQueryDTO.getSnoLike())
                 .setNameLike(mockPlanStudentQueryDTO.getNameLike())
                 .setPhoneLike(mockPlanStudentQueryDTO.getPhoneLike())

@@ -2,24 +2,21 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,10 +31,6 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
 
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
-    private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
     /**
      * 根据学校ID获取筛查计划的学校
@@ -53,18 +46,18 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * 查询计划的学校
      *
      * @param screeningPlanId 计划ID
-     * @param schoolId 学校ID
+     * @param schoolId        学校ID
      * @return ScreeningPlanSchool
      */
     public ScreeningPlanSchool getOneByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId,schoolId);
+        return baseMapper.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
     }
 
     /**
      * 批量更新或新增筛查计划的学校信息
      *
-     * @param screeningPlanId 计划ID
-     * @param screeningOrgId 机构ID
+     * @param screeningPlanId  计划ID
+     * @param screeningOrgId   机构ID
      * @param screeningSchools 筛查计划关联的学校
      */
     public void saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
@@ -79,7 +72,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     /**
      * 批量更新或新增筛查计划的学校信息
      *
-     * @param screeningPlanId 筛查计划
+     * @param screeningPlanId  筛查计划
      * @param screeningSchools 筛查计划关联的学校
      */
     public void saveOrUpdateBatchByPlanId(Integer screeningPlanId, Integer screeningOrgId, List<ScreeningPlanSchool> screeningSchools) {
@@ -101,57 +94,16 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
-     * 通过筛查计划ID获取所有关联的学校vo信息
+     * 根据计划id和学校名获得计划
      *
-     * @param screeningPlanId 筛查计划ID
-     * @param schoolName 学校名称
-     * @return List<ScreeningPlanSchoolDTO>
+     * @param screeningPlanId
+     * @param schoolName
+     * @return
      */
-    public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
-        List<ScreeningPlanSchoolDTO> screeningPlanSchools = baseMapper.selectVoListByPlanId(screeningPlanId,schoolName);
-        ScreeningPlan screeningPlans = new ScreeningPlan();
-        screeningPlans.setId(screeningPlanId);
-        ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
-        Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
-        // TODO：不在循环内查询数据库
-        screeningPlanSchools.forEach(vo -> {
-            vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), (long) 0).intValue());
-            vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(),vo.getStudentCount());
-            vo.setScreeningProportion(num.equals(BigDecimal.ZERO) ? "0.00%" : num.toString() + "%");
-            vo.setScreeningSituation(findSituation(vo.getSchoolId(), screeningPlan));
-            vo.setQuestionnaireStudentCount(0);
-            vo.setQuestionnaireProportion("0.00%");
-            vo.setQuestionnaireSituation(ScreeningPlanSchool.NOT_START);
-        });
-        return screeningPlanSchools;
+    public List<ScreeningPlanSchoolDTO> getScreeningPlanSchools(Integer screeningPlanId, String schoolName){
+        return baseMapper.selectVoListByPlanId(screeningPlanId, schoolName);
     }
 
-    public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(), new Date()) > 0){
-            return ScreeningPlanSchool.END;
-        }
-        int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(schoolId));
-        return count > 0 ? ScreeningPlanSchool.IN_PROGRESS : ScreeningPlanSchool.NOT_START;
-    }
-
-    /**
-     * 查询筛查计划下有学生数据的学校
-     *
-     * @param screeningPlanId 筛查计划ID
-     * @param schoolName 学校名称
-     * @return List<ScreeningPlanSchoolDTO>
-     */
-    public List<ScreeningPlanSchoolDTO> querySchoolsInfoInPlanHavaStudent(Integer screeningPlanId, String schoolName) {
-        List<ScreeningPlanSchoolDTO> screeningPlanSchools = getSchoolVoListsByPlanId(screeningPlanId,schoolName);
-
-        List<Integer> schoolIds = screeningPlanSchoolStudentService.findSchoolIdsByPlanId(screeningPlanId);
-
-        if (CollectionUtils.isEmpty(schoolIds)) {
-            return new ArrayList<>();
-        }
-        return screeningPlanSchools.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
-    }
 
     /**
      * 删除筛查计划中，除了指定学校ID的其它学校信息
@@ -275,21 +227,6 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
     }
 
-    /**
-     * 通过筛查计划ID获取所有关联的学校vo信息(有筛查数据)
-     *
-     * @param screeningPlanId 筛查计划ID
-     * @param schoolName      学校名称
-     * @return List<ScreeningPlanSchoolDTO>
-     */
-    public List<ScreeningPlanSchoolDTO> getHaveResultSchool(Integer screeningPlanId, String schoolName) {
-        List<ScreeningPlanSchoolDTO> schoolList = getSchoolVoListsByPlanId(screeningPlanId, schoolName);
-        List<Integer> schoolIds = visionScreeningResultService.getBySchoolIdPlanId(screeningPlanId);
-        if (CollectionUtils.isEmpty(schoolIds)) {
-            return new ArrayList<>();
-        }
-        return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
-    }
 
     /**
      * 通过学校标识并指定筛查类型获取信息
@@ -301,4 +238,10 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
         return baseMapper.getLastBySchoolIdAndScreeningType(schoolId, screeningType);
     }
 
+    public List<ScreeningPlanSchool> getPlansByPlanIdsAndSchoolNameLike(List<ScreeningPlan> plans,String schoolName){
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlanSchool>()
+                .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
+                .like(Objects.nonNull(schoolName), ScreeningPlanSchool::getSchoolName, schoolName)
+                .orderByDesc(ScreeningPlanSchool::getCreateTime));
+    }
 }

@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 /**
  * 常量类
@@ -179,4 +182,14 @@ public class CommonConst {
      * 顿号
      */
     public static final String CN_PUNCTUATION_COMMA = "、";
+
+    /**
+     * 为百分之0
+     */
+    public static final String PERCENT_ZERO = "0.00%";
+
+    /**
+     * 需要插入脊柱个人信息的序号
+     */
+    public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList("A01", "A011", "A02", "A03", "A04");
 }

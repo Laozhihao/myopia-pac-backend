@@ -378,24 +378,24 @@ public class ScreeningResultUtil {
     public static List<BiometricItems> packageBiometricResult(BiometricDataDO date, OtherEyeDiseasesDO diseasesDO) {
         List<BiometricItems> items = new ArrayList<>();
         // 房水深度AD
-        BiometricItems ADItems = packageADItem(date);
-        items.add(ADItems);
+        BiometricItems adItem = packageADItem(date);
+        items.add(adItem);
 
         // 眼轴AL
-        BiometricItems ALItems = packageALItem(date);
-        items.add(ALItems);
+        BiometricItems alItem = packageALItem(date);
+        items.add(alItem);
 
         // 角膜中央厚度CCT
-        BiometricItems CCTItems = packageCCTItem(date);
-        items.add(CCTItems);
+        BiometricItems cctItem = packageCCTItem(date);
+        items.add(cctItem);
 
         // 状体厚度LT
-        BiometricItems LTItems = packageLTItem(date);
-        items.add(LTItems);
+        BiometricItems ltItem = packageLTItem(date);
+        items.add(ltItem);
 
         // 角膜白到白距离WTW
-        BiometricItems WTWItems = packageWTWItem(date);
-        items.add(WTWItems);
+        BiometricItems wtwItem = packageWTWItem(date);
+        items.add(wtwItem);
 
         items.add(packageEyeDiseases(diseasesDO));
         return items;
@@ -716,7 +716,7 @@ public class ScreeningResultUtil {
             // 远视
             HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
+            if (Objects.equals(Boolean.TRUE,StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age))) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
@@ -752,7 +752,7 @@ public class ScreeningResultUtil {
         if (Objects.isNull(lowVision)){
             return null;
         }
-        if (lowVision) {
+        if (Objects.equals(Boolean.TRUE,lowVision)) {
             return ParentReportConst.NAKED_LOW;
         }
         return ParentReportConst.NAKED_NORMAL;
@@ -1552,7 +1552,6 @@ public class ScreeningResultUtil {
      * @return TwoTuple<BigDecimal, BigDecimal>
      */
     private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl) {
-        //TODO:??
         BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
         BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);
         return new TwoTuple<>(leftSe, rightSe);

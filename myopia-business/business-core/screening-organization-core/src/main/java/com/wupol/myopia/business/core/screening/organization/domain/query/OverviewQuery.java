@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.organization.domain.query;
 
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,6 +14,7 @@ import java.util.Objects;
  * @Author wulizhou
  * @Date 2022/2/22 18:05
  */
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 @Accessors(chain = true)

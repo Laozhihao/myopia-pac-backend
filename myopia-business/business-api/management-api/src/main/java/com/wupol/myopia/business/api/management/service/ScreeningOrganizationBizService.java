@@ -2,11 +2,16 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -21,15 +26,19 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.RecordDetails;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
+import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -51,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,7 +78,7 @@ public class ScreeningOrganizationBizService {
     @Resource
     private ScreeningPlanService screeningPlanService;
     @Resource
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
     @Resource
     private SchoolService schoolService;
     @Resource
@@ -104,6 +114,14 @@ public class ScreeningOrganizationBizService {
 
     @Autowired
     private StatConclusionService statConclusionService;
+
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
+
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private StudentService studentService;
 
     /**
      * 保存筛查机构
@@ -179,7 +197,7 @@ public class ScreeningOrganizationBizService {
         List<RecordDetails> details = new ArrayList<>();
 
         Integer planId = planResponse.getId();
-        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
+        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
         Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
@@ -212,39 +230,86 @@ public class ScreeningOrganizationBizService {
         } else {
             response.setStaffCount(0);
         }
-        Map<Integer, List<StatConclusion>> rescreenSchoolMap;
+        // 筛查数据
         List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
-        if (CollectionUtils.isEmpty(results)) {
-            rescreenSchoolMap = new HashMap<>();
-        } else {
-            rescreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        }
-
-        // 封装DTO
+        Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        // 调查问卷数据
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType());
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
+        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds).stream().collect(Collectors.groupingBy(Student::getGradeId));
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
             detail.setSchoolId(schoolId);
             if (null != schoolMaps.get(schoolId)) {
                 detail.setSchoolName(schoolMaps.get(schoolId).getName());
             }
-            detail.setRealScreeningNumbers(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId).size());
+            detail.setRealScreeningNumbers(visionScreeningResultService.count(new VisionScreeningResult().setSchoolId(schoolId).setScreeningOrgId(orgId).setPlanId(planId).setIsDoubleScreen(Boolean.FALSE)));
             detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
             detail.setScreeningPlanId(planId);
             detail.setStartTime(planResponse.getStartTime());
             detail.setEndTime(planResponse.getEndTime());
             detail.setPlanTitle(planResponse.getTitle());
+            buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
             detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
             detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
-            detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
-
-            detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
-            detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
-            detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
+            buildReScreening(detail,planId,schoolId,reScreenSchoolMap);
             details.add(detail);
         });
         response.setDetails(details);
         planResponse.setItems(response);
     }
+
+    /**
+     * 组装复测数据
+     *
+     * @param detail
+     * @param planId
+     * @param schoolId
+     * @param rescreenSchoolMap
+     * @return
+     */
+    private RecordDetails buildReScreening(RecordDetails detail,
+                                           Integer planId,
+                                           Integer schoolId,
+                                           Map<Integer, List<StatConclusion>> rescreenSchoolMap){
+        detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
+        detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
+        detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
+        detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
+        return detail;
+    }
+
+    /**
+     * 组装问卷相关
+     *
+     * @param detail
+     * @param schoolMap
+     * @param schoolId
+     * @return
+     */
+    private RecordDetails buildQuestion(RecordDetails detail,
+                                        Map<Integer, List<UserQuestionRecord>> schoolMap,
+                                        Integer schoolId,
+                                        Map<Integer, List<Student>> userGradeIdMap,
+                                        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap) {
+        Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
+                .isEmpty(schoolMap.get(schoolId)) ? Maps.newHashMap() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
+        if (detail.getPlanScreeningNumbers() == 0) {
+            detail.setQuestionnaire("0" + CommonConst.CH_COMMA + CommonConst.PERCENT_ZERO);
+            detail.setQuestionnaireStudentCount(0);
+        } else {
+            detail.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
+            BigDecimal questionNum = MathUtil.divide(schoolStudentMap.keySet().size(), detail.getPlanScreeningNumbers());
+            detail.setQuestionnaire(schoolStudentMap.keySet().size() + CommonConst.CH_COMMA + (questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%"));
+        }
+        if (!CollectionUtils.isEmpty(gradeIdMap.get(schoolId)) && detail.getPlanScreeningNumbers() != 0) {
+            detail.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(schoolId, gradeIdMap, userGradeIdMap));
+        }
+        return detail;
+    }
+
 
     /**
      * 更新筛查机构

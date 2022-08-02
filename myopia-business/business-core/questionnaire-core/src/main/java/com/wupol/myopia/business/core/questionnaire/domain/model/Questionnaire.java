@@ -1,15 +1,18 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -18,6 +21,9 @@ import java.util.Date;
  * @Date 2022-07-06
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName(value = "q_questionnaire", autoResultMap = true)
@@ -52,6 +58,11 @@ public class Questionnaire implements Serializable {
     private Integer pid;
 
     /**
+     * 类型
+     */
+    private Integer type;
+
+    /**
      * 问卷状态 0-未开始 1-进行中 2-结束
      */
     private Integer status;
@@ -64,7 +75,8 @@ public class Questionnaire implements Serializable {
     /**
      * 页面json数据
      */
-    private String pageJson;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<QuestionnaireInfoDTO> pageJson;
 
     /**
      * 创建时间

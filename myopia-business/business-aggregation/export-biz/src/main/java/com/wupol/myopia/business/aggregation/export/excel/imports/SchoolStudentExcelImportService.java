@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.domain.SchoolStudentImportEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
@@ -60,6 +60,9 @@ public class SchoolStudentExcelImportService {
     @Resource
     private SchoolStudentService schoolStudentService;
 
+    private static final String ERROR_MSG = "在系统中重复";
+    private static final Integer PASSPORT_LENGTH = 7;
+
     /**
      * 导入学校学生
      * <p>
@@ -81,11 +84,24 @@ public class SchoolStudentExcelImportService {
         // 收集身份证号码、学号
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-        List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).peek(passport -> {
-            if (passport.length() < 7) {
-                throw new BusinessException("护照" + passport + "异常");
-            }
-        }).collect(Collectors.toList());
+
+
+        //处理护照异常
+        List<String> errorList = listMap.stream()
+                .map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
+                .filter(Objects::nonNull)
+                .filter(passport -> passport.length() < PASSPORT_LENGTH)
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(errorList)){
+            throw new BusinessException(String.format("护照异常:%s",errorList));
+        }
+
+        //护照正常的
+        List<String> passports = listMap.stream()
+                .map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
@@ -221,16 +237,16 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("学号或身份证为空");
         }
         if (Objects.nonNull(snoMap.get(sno))) {
-            throw new BusinessException("学号" + sno + "在系统中重复");
+            throw new BusinessException("学号" + sno + ERROR_MSG);
         }
         if (Objects.nonNull(idCard) && Objects.nonNull(idCardMap.get(idCard))) {
-            throw new BusinessException("身份证" + idCard + "在系统中重复");
+            throw new BusinessException("身份证" + idCard + ERROR_MSG);
         }
         if (StringUtils.isBlank(gradeName)) {
             throw new BusinessException("身份证" + idCard + "年级不能为空");
         }
         if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
-            throw new BusinessException("护照" + passport + "在系统中重复");
+            throw new BusinessException("护照" + passport + ERROR_MSG);
         }
     }
 

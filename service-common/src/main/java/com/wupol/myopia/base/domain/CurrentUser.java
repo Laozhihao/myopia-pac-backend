@@ -1,13 +1,16 @@
 package com.wupol.myopia.base.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -115,7 +118,7 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireSchoolUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_SCHOOL.getType());
+        return UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
     /**
@@ -124,7 +127,35 @@ public class CurrentUser {
      */
     @JsonIgnore
     public boolean isQuestionnaireStudentUser() {
-        return !CollectionUtils.isEmpty(roleTypes) && roleTypes.contains(RoleType.QUESTIONNAIRE_STUDENT.getType());
+        return UserType.QUESTIONNAIRE_STUDENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
+    }
+
+    @JsonIgnore
+    public Integer getQuestionnaireUserType() {
+        if (isQuestionnaireSchoolUser()) {
+            return QuestionnaireUserType.SCHOOL.getType();
+        }
+        if (isQuestionnaireStudentUser()) {
+            return QuestionnaireUserType.STUDENT.getType();
+        }
+        if (isGovDeptUser()) {
+            return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
+        }
+        throw new BusinessException("获取用户类型异常");
+    }
+
+    @JsonIgnore
+    public Integer getExQuestionnaireUserId() {
+        if (isQuestionnaireSchoolUser() || isQuestionnaireStudentUser()) {
+            if (Objects.isNull(questionnaireUserId)) {
+                throw new BusinessException("获取用户ID异常");
+            }
+            return questionnaireUserId;
+        }
+        if (isGovDeptUser()) {
+            return id;
+        }
+        throw new BusinessException("获取用户Id异常");
     }
 
 }

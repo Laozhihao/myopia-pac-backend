@@ -511,4 +511,5 @@ public class ScreeningPlanStudentBizService {
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
+
 }

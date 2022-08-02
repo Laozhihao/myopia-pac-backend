@@ -1,10 +1,11 @@
 package com.wupol.myopia.oauth.service;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.AuthConstants;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.ResultCode;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.sdk.client.BusinessServiceClient;
 import com.wupol.myopia.business.sdk.domain.response.QuestionnaireUser;
 import com.wupol.myopia.oauth.constant.AuthConstant;
@@ -90,7 +91,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             QuestionnaireUser questionnaireUser;
             if (UserType.QUESTIONNAIRE_SCHOOL.getType().equals(userType)) {
                 questionnaireUser = businessServiceClient.getSchool(username, password);
-                return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_PASSWORD);
+                return questionnaireUser2User(questionnaireUser, username, userType, AuthConstant.QUESTIONNAIRE_SCHOOL_SECRET);
+            }else if(UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType)){
+                //政府登录
+                User user = userService.getByUsername(username, SystemCode.MANAGEMENT_CLIENT.getCode());
+                if (Objects.isNull(user)) {
+                    throw new BusinessException(ResultCode.DATA_STUDENT_NOT_EXIST.getMessage(),ResultCode.DATA_STUDENT_NOT_EXIST.getCode());
+                }
+                businessServiceClient.checkGovernmentLogin(user.getOrgId());
+                user.setSystemCode(SystemCode.QUESTIONNAIRE.getCode());
+                user.setUserType(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
+                return user;
             }
             // 学生登录
             questionnaireUser = businessServiceClient.getStudent(username, password);
@@ -121,7 +132,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         // 问卷系统端
         if (SystemCode.QUESTIONNAIRE.getCode().equals(systemCode)) {
-            return Lists.newArrayList(new Role().setRoleType(UserType.QUESTIONNAIRE_SCHOOL.getType().equals(user.getUserType()) ? RoleType.QUESTIONNAIRE_SCHOOL.getType() : RoleType.QUESTIONNAIRE_STUDENT.getType()));
+            return Collections.emptyList();
         }
         List<Role> roles = roleService.getUsableRoleByUserId(user.getId(), systemCode, user.getUserType());
         // 0-6岁端必须要有0-6角色

@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  *
  * @author Simple4H
  */
-@Service("planStudentExcelService")
+@Service(ExportExcelServiceNameConstant.PLAN_STUDENT_SERVICE)
 public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Resource
@@ -136,7 +137,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
-        // Do nothing validate parameter
+        // do something validate parameter
     }
 
     @Override
