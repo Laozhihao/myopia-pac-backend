@@ -60,7 +60,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
     private Set<Integer> preProcess(ExportCondition exportCondition) {
         Set<Integer> sets = Sets.newHashSet();
         //区域预处理
-        if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.District)){
+        if (Objects.equals(exportCondition.getExportType(),ExportTypeConst.DISTRICT)){
             sets.add(ScreeningTypeEnum.VISION.getType());
             sets.add(ScreeningTypeEnum.COMMON_DISEASE.getType());
             return sets;
@@ -199,7 +199,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
 
     private String getCommonName(ExportCondition exportCondition,Boolean isFile){
-        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)){
+        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.DISTRICT)){
             String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
             if (Objects.equals(isFile,Boolean.TRUE)) {
                 return Objects.equals(exportCondition.getScreeningType(),ScreeningTypeEnum.VISION.getType())?districtName+FILE_VISION_SUFFIX:districtName+FILE_COMMON_DISEASE_SUFFIX;

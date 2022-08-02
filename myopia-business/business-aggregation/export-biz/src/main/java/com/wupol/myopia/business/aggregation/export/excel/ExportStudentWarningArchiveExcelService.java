@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.domain.StudentWarningArchive;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/10/22
  **/
-@Service("studentWarningArchiveExcelService")
+@Service(ExportExcelServiceNameConstant.STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE)
 public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFileService {
 
     private static final String DESK_AND_CHAIR_TYPE_SUGGEST = "%scm。课桌：%s，建议桌面高：%d。课椅：%s，建议座面高：%d。";

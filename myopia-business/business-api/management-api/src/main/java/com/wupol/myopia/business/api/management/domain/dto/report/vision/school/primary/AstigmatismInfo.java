@@ -65,7 +65,7 @@ public class AstigmatismInfo {
         /**
          * 散光
          */
-        private CountAndProportion Astigmatism;
+        private CountAndProportion astigmatism;
 
     }
 }

@@ -4,6 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.domain.ExportQuestionnaireDTO;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
@@ -38,16 +42,14 @@ import java.util.List;
 public class QuestionnaireManagementController {
     @Resource
     private QuestionnaireManagementService questionnaireManagementService;
-
+    @Resource
+    private ExportStrategy exportStrategy;
     @Resource
     private QuestionnaireService questionnaireService;
-
     @Resource
     private QuestionService questionService;
-
     @Resource
     private QuestionBizService questionBizService;
-
     @Resource
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
 
@@ -211,4 +213,46 @@ public class QuestionnaireManagementController {
     public void editDeleted(@RequestBody LogicDeletedRequestDTO requestDTO) {
         questionnaireQuestionBizService.editDeleted(requestDTO);
     }
+
+    /**
+     * 导出问卷数据
+     *
+     * @param exportQuestionnaireDTO 导出问卷参数
+     */
+    @PostMapping("/export")
+    public void exportQuestionnaire(@RequestBody ExportQuestionnaireDTO exportQuestionnaireDTO) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(currentUser.getId())
+                .setPlanId(exportQuestionnaireDTO.getScreeningPlanId())
+                .setDistrictId(exportQuestionnaireDTO.getDistrictId())
+                .setSchoolId(exportQuestionnaireDTO.getSchoolId())
+                .setExportType(exportQuestionnaireDTO.getExportType())
+                .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
+                .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
+                .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
+                .setTaskId(exportQuestionnaireDTO.getTaskId());
+
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
+    }
+
+    /**
+     * 获取有问卷数据的学校
+     * @param screeningPlanId
+     */
+    @GetMapping("/dataSchool")
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId){
+        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId);
+    }
+
+    /**
+     * 获取问卷类型
+     * @param screeningPlanId 筛查计划ID
+     * @param exportType 导出类型
+     */
+    @GetMapping("/type")
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
+        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
+    }
+
 }

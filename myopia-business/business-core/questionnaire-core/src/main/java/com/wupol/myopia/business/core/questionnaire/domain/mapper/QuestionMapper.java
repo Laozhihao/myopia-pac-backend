@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.mapper;
 
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 
 /**
  * Mapper接口

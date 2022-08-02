@@ -3,12 +3,18 @@ package com.wupol.myopia.base.util;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
+import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import com.alibaba.excel.write.handler.SheetWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.metadata.style.WriteFont;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
+import com.google.common.collect.Lists;
 import com.vistel.Interface.util.ZipUtil;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,6 +112,15 @@ public class ExcelUtil {
         return outputFile;
     }
 
+    private static File getFile(String fileName) throws IOException {
+        File outputFile = new File(fileName);
+        if (outputFile.exists()) {
+            return outputFile;
+        }
+        createNewFile(outputFile);
+        return outputFile;
+    }
+
     /**
      * 获取输出文件（指定目录）
      *
@@ -185,6 +200,41 @@ public class ExcelUtil {
         excelWriter.fill(data, fillConfig, writeSheet);
         excelWriter.finish();
         return outputFile;
+    }
+
+    /**
+     * 导出excel,表头动态生成
+     * @param fileNamePrefix 文件名前缀
+     * @param data 数据
+     * @param head 表头
+     */
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, List<List<String>> head) throws IOException {
+        File outputFile = getFile(fileNamePrefix);
+        ExcelWriterSheetBuilder writerSheetBuilder = EasyExcelFactory.write(outputFile.getAbsolutePath()).sheet();
+        writerSheetBuilder.head(head);
+        writerSheetBuilder.registerWriteHandler(getHeadStyle());
+        writerSheetBuilder.doWrite(data);
+        return outputFile;
+    }
+
+    private HorizontalCellStyleStrategy getHeadStyle(){
+        WriteCellStyle headWriteCellStyle = new WriteCellStyle();
+
+        headWriteCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        WriteFont headWriteFont = new WriteFont();
+        headWriteFont.setFontName("宋体");
+        headWriteFont.setFontHeightInPoints((short)14);
+        headWriteFont.setBold(false);
+        headWriteCellStyle.setWriteFont(headWriteFont);
+
+        WriteCellStyle contentWriteCellStyle = new WriteCellStyle();
+        headWriteCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        WriteFont contentWriteFont = new WriteFont();
+        contentWriteFont.setFontName("宋体");
+        contentWriteFont.setFontHeightInPoints((short)12);
+        contentWriteFont.setBold(false);
+        headWriteCellStyle.setWriteFont(contentWriteFont);
+        return new HorizontalCellStyleStrategy(headWriteCellStyle, Lists.newArrayList(contentWriteCellStyle));
     }
 
 }

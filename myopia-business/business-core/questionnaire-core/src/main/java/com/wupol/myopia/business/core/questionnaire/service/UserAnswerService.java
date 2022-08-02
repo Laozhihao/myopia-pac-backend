@@ -131,4 +131,14 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     }
 
 
+    /**
+     * 根据记录ID集合 批量查询用户答案
+     * @param recordIds 记录ID集合
+     */
+    public List<UserAnswer> getListByRecordIds(List<Integer> recordIds){
+        LambdaQueryWrapper<UserAnswer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(UserAnswer::getRecordId,recordIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
 }

@@ -1,4 +1,6 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.constant;
+
+import lombok.Getter;
 
 /**
  * 筛查人员导出实体
@@ -26,22 +28,16 @@ public enum SchoolStudentImportEnum {
     /**
      * 列标
      **/
+    @Getter
     private final Integer index;
     /**
      * 名称
      **/
+    @Getter
     private final String name;
 
     SchoolStudentImportEnum(Integer index, String name) {
         this.index = index;
         this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Integer getIndex() {
-        return index;
     }
 }

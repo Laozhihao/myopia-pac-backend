@@ -19,7 +19,7 @@ public class SchoolAgeRefractive {
     /**
      * 信息
      */
-    public Info info;
+    private Info info;
 
     /**
      * 学龄段图表

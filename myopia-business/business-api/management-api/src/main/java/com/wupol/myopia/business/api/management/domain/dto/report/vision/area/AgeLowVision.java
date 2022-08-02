@@ -25,7 +25,7 @@ public class AgeLowVision {
     /**
      * 信息
      */
-    public Info info;
+    private Info info;
 
     /**
      * 图表

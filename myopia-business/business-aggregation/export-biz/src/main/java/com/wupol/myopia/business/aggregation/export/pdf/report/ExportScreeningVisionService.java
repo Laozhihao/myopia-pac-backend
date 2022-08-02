@@ -61,7 +61,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.District)) {
+        if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.DISTRICT)) {
             String districtName = districtService.getDistrictNameByDistrictId(exportCondition.getDistrictId());
             return districtName + EXPORT_FILE_NAME;
         }

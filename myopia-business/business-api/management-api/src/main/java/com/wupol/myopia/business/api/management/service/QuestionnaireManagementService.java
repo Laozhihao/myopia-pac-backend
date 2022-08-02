@@ -10,18 +10,25 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -54,40 +61,33 @@ public class QuestionnaireManagementService {
 
     @Autowired
     private ScreeningTaskService screeningTaskService;
-
     @Autowired
     private DistrictBizService districtBizService;
-
     @Autowired
     private ManagementScreeningPlanBizService managementScreeningPlanBizService;
-
     @Autowired
     private SchoolBizService schoolBizService;
-
     @Autowired
     private DistrictService districtService;
-
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private QuestionnaireExcelFactory questionnaireExcelFactory;
 
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
 
+    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
 
     /**
      * 根据机构id获得所有任务
@@ -100,22 +100,45 @@ public class QuestionnaireManagementService {
         if (CollectionUtils.isEmpty(screeningTasks)) {
             return Lists.newArrayList();
         }
-
         Map<Integer, Set<ScreeningTask>> yearTaskMap = getYears(screeningTasks);
-        return yearTaskMap.entrySet().stream().map(item -> {
-            QuestionTaskVO questionTaskVO = new QuestionTaskVO();
-            questionTaskVO.setAnnual(item.getKey() + "");
-            questionTaskVO.setTasks(item.getValue().stream().map(it2 -> {
-                QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
-                taskItem.setTaskId(it2.getId());
-                taskItem.setTaskTitle(it2.getTitle());
-                taskItem.setScreeningEndTime(it2.getEndTime());
-                taskItem.setScreeningStartTime(it2.getStartTime());
-                taskItem.setCreateTime(it2.getCreateTime());
-                return taskItem;
-            }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
-            return questionTaskVO;
-        }).collect(Collectors.toList()).stream().sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed()).peek(item -> item.setAnnual(item.getAnnual() + "年度")).collect(Collectors.toList());
+        return yearTaskMap.entrySet().stream()
+                .map(this::buildQuestionTaskVO)
+                .sorted(Comparator.comparing(QuestionTaskVO::getAnnual).reversed())
+                .map(this::setAnnualInfo).collect(Collectors.toList());
+    }
+
+    /**
+     * 年度信息补全
+     * @param item
+     */
+    private QuestionTaskVO setAnnualInfo(QuestionTaskVO item){
+        item.setAnnual(item.getAnnual() + "年度");
+        return item;
+    }
+
+    /**
+     * 构建筛查任务 筛查任务
+     * @param item
+     */
+    private QuestionTaskVO buildQuestionTaskVO(Map.Entry<Integer, Set<ScreeningTask>> item){
+        QuestionTaskVO questionTaskVO = new QuestionTaskVO();
+        questionTaskVO.setAnnual(item.getKey() + "");
+        questionTaskVO.setTasks(item.getValue().stream().map(this::buildItem).sorted(Comparator.comparing(QuestionTaskVO.Item::getCreateTime).reversed()).collect(Collectors.toList()));
+        return questionTaskVO;
+    }
+
+    /**
+     * 构建筛查任务项目
+     * @param it2
+     */
+    private QuestionTaskVO.Item buildItem(ScreeningTask it2){
+        QuestionTaskVO.Item taskItem = new QuestionTaskVO.Item();
+        taskItem.setTaskId(it2.getId());
+        taskItem.setTaskTitle(it2.getTitle());
+        taskItem.setScreeningEndTime(it2.getEndTime());
+        taskItem.setScreeningStartTime(it2.getStartTime());
+        taskItem.setCreateTime(it2.getCreateTime());
+        return taskItem;
     }
 
     /**
@@ -425,7 +448,8 @@ public class QuestionnaireManagementService {
     private QuestionRecordVO buildRecordVO(School item, Map<Integer, ScreeningPlanSchool> schoolIdsPlanMap, Map<Integer, ScreeningOrganization> orgIdMap, Integer taskId) {
         QuestionRecordVO vo = new QuestionRecordVO();
         vo.setSchoolName(item.getName());
-        vo.setSchoolId(item.getSchoolNo());
+        vo.setSchoolId(item.getId());
+        vo.setSchoolNo(item.getSchoolNo());
         vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
         vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
         vo.setAreaId(item.getId());
@@ -524,5 +548,81 @@ public class QuestionnaireManagementService {
             }
         }
         return Sets.newHashSet(getSubUtil(JSON.toJSONString(baseDistricts), ID_REGEX));
+    }
+
+    /**
+     * 获取有问卷数据的学校
+     *
+     * @param screeningPlanId 筛查计划ID
+     */
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId) {
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            return schoolList.stream().map(school -> new QuestionnaireDataSchoolVO(school.getId(),school.getName())).collect(Collectors.toList());
+        }
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 没数据中没有选中的，选中的是有数据或者默认的
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param exportType 导出类型
+     * @param taskId 筛查任务ID
+     */
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId) {
+
+        QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
+
+        Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
+        if (!exportTypeOptional.isPresent()){
+            throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
+        }
+        ExportType exportTypeService = exportTypeOptional.get();
+        Map<Integer, String> questionnaireTypeMap = exportTypeService.getQuestionnaireType();
+
+        List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Lists.newArrayList();
+        List<Integer> typeKeyList = Lists.newArrayList();
+        questionnaireTypeMap.forEach((k,v)->{
+            questionnaireTypeList.add(new QuestionnaireTypeVO.QuestionnaireType(k,v));
+            typeKeyList.add(k);
+        });
+        questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
+
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
+
+        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
+            typeKeyList.removeAll(questionnaireTypes);
+            questionnaireTypeVO.setNoDataList(typeKeyList);
+        }else {
+            questionnaireTypeVO.setNoDataList(typeKeyList);
+        }
+
+        questionnaireTypeVO.setSelectList(Lists.newArrayList());
+        if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE) && exportTypeList.contains(exportType)){
+            questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
+        }
+
+        return questionnaireTypeVO;
+    }
+
+    /**
+     * 获取问卷类型
+     * @param userQuestionRecordList 用户问卷记录集合
+     */
+    private List<Integer> getQuestionnaireTypes(List<UserQuestionRecord> userQuestionRecordList){
+        return userQuestionRecordList.stream()
+                .map(UserQuestionRecord::getQuestionnaireType)
+                .distinct()
+                .map(questionnaireType -> {
+                    if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                        return QuestionnaireConstant.STUDENT_TYPE;
+                    }
+                    return questionnaireType;
+                })
+                .distinct().collect(Collectors.toList());
     }
 }

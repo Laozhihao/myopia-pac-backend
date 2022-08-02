@@ -507,7 +507,7 @@ public class CommonReportService {
         WarningSituation.GradeWarningInfo gradeWarning = new WarningSituation.GradeWarningInfo();
         List<WarningTable> collect;
 
-        if (isArea) {
+        if (Objects.equals(Boolean.TRUE,isArea)) {
             gradeWarning.setTables(Lists.newArrayList(tables));
             collect = tables.stream().filter(s -> schoolAgeList().contains(s.getName())).collect(Collectors.toList());
             gradeWarning.setGradeWarningChart(portraitChartService.warningChart(collect));
@@ -516,7 +516,7 @@ public class CommonReportService {
             collect = tables.stream().filter(s -> GradeCodeEnum.getAllName().contains(s.getName())).collect(Collectors.toList());
             gradeWarning.setGradeWarningChart(portraitChartService.warningChart2(collect));
         }
-        if (isShowInfo(collect, false)) {
+        if (Objects.equals(Boolean.TRUE,isShowInfo(collect, false))) {
             WarningSituation.Info info = new WarningSituation.Info();
             info.setZero(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getZeroWarningProportion())));
             info.setOne(highLowProportionService.getHighLow(warningTables, s -> Float.valueOf(s.getOneWarningProportion())));
@@ -532,7 +532,7 @@ public class CommonReportService {
     public PrimaryOverall getAreaPrimaryOverall(List<PrimaryScreeningInfoTable> tables, List<StatConclusion> statConclusions, Long total) {
         PrimaryOverall primary = new PrimaryOverall();
         primary.setTables(Lists.newArrayList(tables));
-        if (isShowInfo(tables, false)) {
+        if (Objects.equals(Boolean.TRUE,isShowInfo(tables, false))) {
             primary.setCharts(stackedChartService.getOverallChart(tables, statConclusions, total));
         }
         return primary;
@@ -566,7 +566,7 @@ public class CommonReportService {
         outline.setEndDate(plan.getEndTime());
         outline.setGradeTotal(statConclusions.stream().map(StatConclusion::getSchoolGradeCode).distinct().count());
         outline.setClassTotal(countClass(statConclusions));
-        if (isK) {
+        if (Objects.equals(Boolean.TRUE,isK)) {
             outline.setStudentTotal(screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(plan.getId(), school.getId()).stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.code)).count());
         } else {
             outline.setStudentTotal(screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(plan.getId(), school.getId()).stream().filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.code)).count());
@@ -626,7 +626,7 @@ public class CommonReportService {
     private HistoryRefractive getHistoryRefractive(List<RefractiveTable> kHistoryRefractiveTable) {
         HistoryRefractive historyRefractive = new HistoryRefractive();
         historyRefractive.setTables(Lists.newArrayList(kHistoryRefractiveTable));
-        if (isShowInfo(kHistoryRefractiveTable, false)) {
+        if (Objects.equals(Boolean.TRUE,isShowInfo(kHistoryRefractiveTable, false))) {
             HistoryRefractive.Info info = new HistoryRefractive.Info();
             info.setLowVisionProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getLowVisionProportion));
             info.setInsufficientProportion(getConvertRatio(kHistoryRefractiveTable, RefractiveTable::getInsufficientProportion));
@@ -668,7 +668,7 @@ public class CommonReportService {
         // 通过学校班级年级分组(只保留小学或者幼儿园，看学校数据)
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(school.getId());
         Predicate<SchoolGrade> schoolGradePredicate;
-        if (isk) {
+        if (Objects.equals(Boolean.TRUE,isk)) {
             schoolGradePredicate = s -> GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
         } else {
             schoolGradePredicate = s -> !GradeCodeEnum.kindergartenSchoolCode().contains(s.getGradeCode());
@@ -717,7 +717,7 @@ public class CommonReportService {
         table.setSe(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSE(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSE(result))));
         table.setVisionInfo(statConclusion.getIsLowVision());
         if (Objects.nonNull(statConclusion.getId())) {
-            if (isk) {
+            if (Objects.equals(Boolean.TRUE,isk)) {
                 table.setRefractiveInfo(kindergartenVisionAnalyze(statConclusion.getIsRefractiveError(), statConclusion.getWarningLevel(), result));
             } else {
                 table.setRefractiveInfo(primaryVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
@@ -836,7 +836,7 @@ public class CommonReportService {
         if (Objects.isNull(isK)) {
             statMap = districtList.stream().collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
         } else {
-            if (isK) {
+            if (Objects.equals(Boolean.TRUE,isK)) {
                 statMap = districtList.stream()
                         .filter(grade -> GradeCodeEnum.kindergartenSchoolCode().contains(grade.getSchoolGradeCode()))
                         .collect(Collectors.groupingBy(StatConclusion::getSrcScreeningNoticeId));
@@ -866,7 +866,7 @@ public class CommonReportService {
         List<ScreeningPlan> planList = screeningPlanService.getByIdsOrderByStartTime(planIds);
         Map<Integer, List<StatConclusion>> statMap;
 
-        if (isK) {
+        if (Objects.equals(Boolean.TRUE,isK)) {
             statMap = getKList(statConclusionService.getByScreeningPlanIds(planIds)).stream().collect(Collectors.groupingBy(StatConclusion::getPlanId));
         } else {
             statMap = getPList(statConclusionService.getByScreeningPlanIds(planIds)).stream().collect(Collectors.groupingBy(StatConclusion::getPlanId));
@@ -898,7 +898,7 @@ public class CommonReportService {
 
     public <T> Boolean isShowInfo(List<T> t, Boolean haveTotal) {
         int i = 1;
-        if (haveTotal) {
+        if (Objects.equals(haveTotal,Boolean.TRUE)) {
             i = 2;
         }
         return !CollectionUtils.isEmpty(t) && t.size() > i;

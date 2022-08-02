@@ -3,6 +3,9 @@ package com.wupol.myopia.business.common.utils.constant;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +30,6 @@ public enum QuestionnaireTypeEnum {
     /**
      * 类型
      **/
-
     private final Integer type;
     /**
      * 描述
@@ -70,4 +72,12 @@ public enum QuestionnaireTypeEnum {
         }
         return new ArrayList<>();
     }
+
+    public static QuestionnaireTypeEnum getQuestionnaireType(Integer type){
+        return Arrays.stream(values())
+                .filter(item -> Objects.equals(item.getType(),type))
+                .findFirst()
+                .orElse(null);
+    }
+
 }
