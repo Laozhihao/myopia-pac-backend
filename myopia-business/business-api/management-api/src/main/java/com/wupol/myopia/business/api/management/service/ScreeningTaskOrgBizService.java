@@ -4,6 +4,7 @@ import com.alibaba.excel.util.StringUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
@@ -36,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -175,6 +177,8 @@ public class ScreeningTaskOrgBizService {
         // 统计筛查中的学校数量
         List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultService.countScreeningSchoolByTaskId(screeningTaskId);
         Map<Integer, Integer> schoolCountMap = screeningSchoolCountList.stream().collect(Collectors.toMap(ScreeningSchoolCount::getPlanId, ScreeningSchoolCount::getSchoolCount));
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())), QuestionnaireUserType.STUDENT.getType());
+
         return orgVoLists.stream().map(orgVo -> {
             ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
             BeanUtils.copyProperties(orgVo, dto);
@@ -184,8 +188,8 @@ public class ScreeningTaskOrgBizService {
             Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
             Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
 
-            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, screeningTaskId, orgSchoolsMap, planMap));
-            // TODO：差评，开发调查问卷模块时，优化该模块：学校进度统计仅返回数量，不拼接文字，减少与展示样式的耦合
+            List<UserQuestionRecord> planUserQuestionRecords = userQuestionRecords.stream().filter(item -> planMap.containsKey(item.getPlanId())).collect(Collectors.toList());
+            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap,planUserQuestionRecords));
             ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
             if (screeningPlan == null) {
                 return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
@@ -200,17 +204,37 @@ public class ScreeningTaskOrgBizService {
      * 获得问卷情况学生的百分比
      *
      * @param schoolIds
-     * @param taskId
      * @param schoolPlanMap
      * @param planMap
      * @return
      */
-    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Integer taskId, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap) {
-        if (schoolIds.isEmpty()) {
-            return getScreeningState(0, 0, 0, 1);
-        }
-        int end = getQuestionnaireBySchoolStudentCount(schoolIds, taskId, schoolPlanMap, planMap);
-        return getScreeningState(schoolIds.size() - end, 0, end, 1);
+    private String findQuestionnaireBySchool(Set<Integer> schoolIds, Map<Integer, ScreeningPlanSchool> schoolPlanMap, Map<Integer, ScreeningPlan> planMap,List<UserQuestionRecord> userQuestionRecords) {
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        List<String> schoolStatus = schoolIds.stream().filter(item -> {
+            if (Objects.nonNull(schoolPlanMap.get(item))) {
+                return Objects.nonNull(planMap.get(schoolPlanMap.get(item).getScreeningPlanId()));
+            }
+            return false;
+        }).map(schoolId -> {
+            ScreeningPlan plan = planMap.get(schoolPlanMap.get(schoolId).getScreeningPlanId());
+            return screeningPlanSchoolBizService.getCountBySchool(plan, schoolId, schoolMap);
+        }).collect(Collectors.toList());
+
+        AtomicInteger notStart = new AtomicInteger(0);
+        AtomicInteger underWay = new AtomicInteger(0);
+        AtomicInteger end = new AtomicInteger(0);
+        schoolStatus.forEach(item->{
+            if(ScreeningPlanSchool.NOT_START.equals(item)){
+                notStart.addAndGet(1);
+            }
+            if(ScreeningPlanSchool.END.equals(item)){
+                end.addAndGet(1);
+            }
+            if(ScreeningPlanSchool.IN_PROGRESS.equals(item)){
+                underWay.addAndGet(1);
+            }
+        });
+        return getScreeningState(notStart.get(), underWay.get(), end.get(), 0);
     }
 
     /**
@@ -269,7 +293,7 @@ public class ScreeningTaskOrgBizService {
         // 批量获取筛查学校信息
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         Map<Integer, List<ScreeningPlanSchool>> planSchoolGroupByPlanIdMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId));
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()),QuestionnaireUserType.STUDENT.getType());
         Map<Integer, List<UserQuestionRecord>> planRecords = userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getPlanId));
 
 
@@ -313,7 +337,7 @@ public class ScreeningTaskOrgBizService {
                 schoolDTO.setScreeningProportion(num.toString() + "%");
             }
             schoolDTO.setScreeningSituation(screeningPlanSchoolBizService.findSituation(vo.getSchoolId(), screeningPlan));
-            buildQuestionDto(schoolDTO, vo, schoolPlanMap, screeningPlan, planMap, userGradeIdMap, gradeIdMap, schoolMap);
+            buildQuestionDto(schoolDTO, vo, screeningPlan, userGradeIdMap, gradeIdMap, schoolMap);
             return schoolDTO;
         }).collect(Collectors.toList());
     }
@@ -325,14 +349,12 @@ public class ScreeningTaskOrgBizService {
      */
     public ScreeningPlanSchoolDTO buildQuestionDto(ScreeningPlanSchoolDTO schoolDTO,
                                                    ScreeningPlanSchool vo,
-                                                   Map<Integer, ScreeningPlanSchool> schoolPlanMap,
                                                    ScreeningPlan screeningPlan,
-                                                   Map<Integer, ScreeningPlan> planMap,
                                                    Map<Integer, List<Student>> userGradeIdMap,
                                                    Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
                                                    Map<Integer, List<UserQuestionRecord>> schoolMap){
-        Integer end = getQuestionnaireBySchoolStudentCount(Sets.newHashSet(vo.getSchoolId()), screeningPlan.getScreeningTaskId(), schoolPlanMap, planMap);
-        schoolDTO.setQuestionnaireStudentCount(end);
+        Integer questionnaireStudentCount = CollectionUtils.isEmpty(schoolMap.get(vo.getSchoolId())) ? 0 : schoolMap.get(vo.getSchoolId()).stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet()).size();
+        schoolDTO.setQuestionnaireStudentCount(questionnaireStudentCount);
         if (schoolDTO.getStudentCount() == BigDecimal.ZERO.intValue()) {
             schoolDTO.setQuestionnaireProportion(CommonConst.PERCENT_ZERO);
         } else {

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -73,7 +74,7 @@ public class ScreeningPlanSchoolBizService {
         screeningPlans.setId(screeningPlanId);
         ScreeningPlan screeningPlan = screeningPlanService.findOne(screeningPlans);
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndTypeNotIn(Lists.newArrayList(screeningPlanId), Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(), QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()));
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType());
         Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
         Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
         Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)

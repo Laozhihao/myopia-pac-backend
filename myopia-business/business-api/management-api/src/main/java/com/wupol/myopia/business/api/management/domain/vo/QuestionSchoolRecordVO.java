@@ -1,48 +1,18 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * 问卷学校填写情况
  *
- * @author xz 2022 07 06 12:30
+ * @author xz 2022 08 01 12:30
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class QuestionSchoolRecordVO {
-    /**
-     * 学校Id
-     */
-    private Integer schoolId;
-    /**
-     * 学校编号
-     */
-    private String schoolNo;
-
-    /**
-     * 学校名称
-     */
-    private String schoolName;
-
-    /**
-     * 区域id
-     */
-    private Integer areaId;
-
-    /**
-     * 区域名称
-     */
-    private String areaName;
-
-    /**
-     * 筛查机构名称，没有返回null
-     */
-    private String orgName;
-
-    /**
-     * 筛查机构id，没有返回null
-     */
-    private Integer orgId;
-
+@Accessors(chain = true)
+public class QuestionSchoolRecordVO extends QuestionRecordVO {
     /**
      * 0：未完成，1：进行中。2：已完成 学校填写状态
      */
@@ -59,7 +29,17 @@ public class QuestionSchoolRecordVO {
     private Integer studentEnvironmentSurveyStatus;
 
     /**
-     * 筛查任务ID
+     * 学校填写状态
      */
-    private Integer taskId;
+    private Boolean isSchoolSurveyDown;
+
+    /**
+     * 学生专项填写状态
+     */
+    private Boolean isStudentSpecialSurveyDown;
+
+    /**
+     * 学生环境填写状态
+     */
+    private Boolean isStudentEnvironmentSurveyDown;
 }
