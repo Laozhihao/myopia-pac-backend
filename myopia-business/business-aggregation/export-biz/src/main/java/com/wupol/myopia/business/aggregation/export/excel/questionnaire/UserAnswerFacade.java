@@ -7,7 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.framework.core.util.CollectionUtils;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -37,7 +37,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -122,10 +124,26 @@ public class UserAnswerFacade {
 
             Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
-            List<Integer> planStudentIdList = planSchoolStudentList.stream()
-                    .filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()))
-                    .map(ScreeningPlanSchoolStudent::getId)
-                    .collect(Collectors.toList());
+
+
+
+            Set<Integer> districtIdList = Sets.newHashSet();
+            if(Objects.nonNull(exportCondition.getDistrictId())){
+                try {
+                    Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(exportCondition.getDistrictId());
+                    districtIdList.addAll(districtIds);
+                } catch (IOException e) {
+                    log.error("获取行政区域失败: districtId={}",exportCondition.getDistrictId());
+                }
+                districtIdList.add(exportCondition.getDistrictId());
+            }
+
+            Stream<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentStream = planSchoolStudentList.stream().filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()));
+            //有数据过滤
+            if (!CollectionUtils.isEmpty(districtIdList)){
+                screeningPlanSchoolStudentStream = screeningPlanSchoolStudentStream.filter(planSchoolStudent-> districtIdList.contains(planSchoolStudent.getSchoolDistrictId()));
+            }
+            List<Integer> planStudentIdList = screeningPlanSchoolStudentStream .map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
 
             return collect.stream()
                     .filter(userQuestionRecord -> planStudentIdList.contains(userQuestionRecord.getUserId()))
