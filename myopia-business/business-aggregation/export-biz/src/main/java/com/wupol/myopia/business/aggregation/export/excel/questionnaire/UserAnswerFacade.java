@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.constant.AreaTypeEnum;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.MonitorTypeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -39,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -125,17 +125,13 @@ public class UserAnswerFacade {
             Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
 
-
-
             Set<Integer> districtIdList = Sets.newHashSet();
             if(Objects.nonNull(exportCondition.getDistrictId())){
-                try {
-                    Set<Integer> districtIds = districtService.getChildDistrictIdsByDistrictId(exportCondition.getDistrictId());
-                    districtIdList.addAll(districtIds);
-                } catch (IOException e) {
-                    log.error("获取行政区域失败: districtId={}",exportCondition.getDistrictId());
+                List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+                districtIdList.addAll(districtIds);
+                if (!districtIds.contains(exportCondition.getDistrictId())){
+                    districtIdList.add(exportCondition.getDistrictId());
                 }
-                districtIdList.add(exportCondition.getDistrictId());
             }
 
             Stream<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentStream = planSchoolStudentList.stream().filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()));
@@ -191,6 +187,7 @@ public class UserAnswerFacade {
             excelStudentDataBO.setStudentId(studentId);
             Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
             TwoTuple<String, String> tuple = studentInfoMap.get(studentId);
+            excelStudentDataBO.setGradeCode(GradeCodeEnum.getByName(tuple.getFirst()).getCode());
             for (UserQuestionRecord userQuestionRecord : recordList) {
                 if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                         || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
@@ -512,6 +509,7 @@ public class UserAnswerFacade {
         List<HideQuestionDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestion(questionnaireId);
         dataProcess(userQuestionRecordList,hideQuestionDataBOList, excelStudentDataBOList);
         List<Integer> questionIds = questionnaireFacade.getQuestionIdSort(questionnaireIds);
+        CollectionUtil.sort(excelStudentDataBOList,Comparator.comparing(ExcelStudentDataBO::getGradeCode));
         return excelStudentDataBOList.stream().map(excelStudentDataBO -> {
             Map<Integer, String> answerDataMap = excelStudentDataBO.getAnswerDataMap();
             return questionIds.stream().map(answerDataMap::get).collect(Collectors.toList());
