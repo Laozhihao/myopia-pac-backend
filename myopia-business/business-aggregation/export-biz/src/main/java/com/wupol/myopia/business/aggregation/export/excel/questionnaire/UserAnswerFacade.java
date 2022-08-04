@@ -111,7 +111,7 @@ public class UserAnswerFacade {
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2));
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> !Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.NOT_START.getCode()))
+                    .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode()))
                     .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()));
             List<UserQuestionRecord> collect;
             if (Objects.nonNull(exportCondition.getSchoolId())){

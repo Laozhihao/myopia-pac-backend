@@ -598,6 +598,7 @@ public class QuestionnaireManagementService {
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            userQuestionRecordList = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode())).collect(Collectors.toList());
             List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
             typeKeyList.removeAll(questionnaireTypes);
             questionnaireTypeVO.setNoDataList(typeKeyList);
