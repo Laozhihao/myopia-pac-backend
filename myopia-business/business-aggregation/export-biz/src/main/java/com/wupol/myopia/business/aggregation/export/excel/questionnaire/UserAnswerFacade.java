@@ -122,6 +122,10 @@ public class UserAnswerFacade {
                 collect = userQuestionRecordStream.collect(Collectors.toList());
             }
 
+            if (CollectionUtils.isEmpty(collect)){
+                return Lists.newArrayList();
+            }
+
             Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
 
