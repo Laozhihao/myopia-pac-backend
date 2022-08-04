@@ -14,7 +14,6 @@ import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount;
@@ -341,12 +340,12 @@ public class ScreeningTaskOrgBizService {
 
         Set<Integer> schoolIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
 
-        Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
+        Set<Integer> planStudentIds = userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
 
         //班级ID对应学生集合
-        Map<Integer, List<Student>> userGradeIdMap =  Maps.newHashMap();
-        if (!CollectionUtils.isEmpty(studentIds)){
-            Map<Integer, List<Student>> collect = studentService.getByIds(studentIds).stream().collect(Collectors.groupingBy(Student::getGradeId));
+        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap =  Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(planStudentIds)){
+            Map<Integer, List<ScreeningPlanSchoolStudent>> collect = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
             userGradeIdMap.putAll(collect);
         }
         //学校ID对应用户问卷记录集合
@@ -368,7 +367,7 @@ public class ScreeningTaskOrgBizService {
      */
     private ScreeningPlanSchoolDTO buildScreeningPlanSchoolDTO(ScreeningPlanSchool screeningPlanSchool,ScreeningPlan screeningPlan,
                                                                Map<Integer, Long> schoolIdStudentCountMap,
-                                                               Map<Integer, List<Student>> userGradeIdMap,
+                                                               Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                                                Map<Integer, List<UserQuestionRecord>> schoolMap,
                                                                Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap){
         ScreeningPlanSchoolDTO schoolDTO = new ScreeningPlanSchoolDTO();
@@ -394,7 +393,7 @@ public class ScreeningTaskOrgBizService {
     public ScreeningPlanSchoolDTO buildQuestionDto(ScreeningPlanSchoolDTO schoolDTO,
                                                    ScreeningPlanSchool screeningPlanSchool,
                                                    ScreeningPlan screeningPlan,
-                                                   Map<Integer, List<Student>> userGradeIdMap,
+                                                   Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                                    Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
                                                    Map<Integer, List<UserQuestionRecord>> schoolMap){
 
