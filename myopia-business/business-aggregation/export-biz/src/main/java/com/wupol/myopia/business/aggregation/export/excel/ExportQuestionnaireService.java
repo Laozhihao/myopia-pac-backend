@@ -2,7 +2,6 @@ package com.wupol.myopia.business.aggregation.export.excel;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
@@ -15,6 +14,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
@@ -237,7 +237,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public File compressFile(String fileSavePath) {
         File srcFile = FileUtil.file(fileSavePath);
         //压缩时查看父文件或父文件夹以下是否有文件，没文件时直接返回
-        if (Objects.equals(Boolean.FALSE,includeFiles(srcFile))) {
+        if (Objects.equals(Boolean.FALSE, FileUtils.includeFiles(srcFile))) {
             return null;
         }
         final File zipFile = FileUtil.file(FileUtil.file(srcFile).getParentFile(), FileUtil.mainName(srcFile) + ".zip");
@@ -245,40 +245,4 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return ZipUtil.zip(zipFile, CharsetUtil.defaultCharset(), true, srcFile);
     }
 
-    /**
-     * 是否包含文件
-     * @param srcFile 父文件或父文件夹
-     */
-    private Boolean includeFiles(File srcFile){
-        if (Objects.isNull(srcFile)){
-            return Boolean.FALSE;
-        }
-        if (srcFile.isFile()) {
-            return Boolean.TRUE;
-        }
-        List<File> fileList =Lists.newArrayList();
-        getFileList(srcFile,fileList);
-        return !CollectionUtils.isEmpty(fileList);
-    }
-
-    /**
-     * 获取文件递归
-     * @param srcFile 父文件或父文件夹
-     */
-    public void getFileList(File srcFile,List<File> fileList) {
-        if (srcFile.isFile()){
-            fileList.add(srcFile);
-        }
-        File[] files = srcFile.listFiles();
-        if (ArrayUtil.isEmpty(files)) {
-            return;
-        }
-        for (File file : files) {
-            if (file.isDirectory()){
-                getFileList(file,fileList);
-            }else {
-                fileList.add(file);
-            }
-        }
-    }
 }
