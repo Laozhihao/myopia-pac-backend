@@ -15,6 +15,9 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 导出问卷数据
@@ -42,6 +47,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Autowired
     private QuestionnaireExcelFactory questionnaireExcelFactory;
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
 
     @Override
     public void export(ExportCondition exportCondition) {
@@ -187,7 +194,34 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
-        // do something validate parameter
+        this.preProcess(exportCondition);
+
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+
+        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType()));
+
+        List<Integer> questionnaireType = exportCondition.getQuestionnaireType();
+        if (!CollectionUtils.isEmpty(questionnaireType)){
+            userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> {
+                boolean contains = questionnaireType.contains(userQuestionRecord.getQuestionnaireType());
+                boolean studentType = questionnaireType.contains(QuestionnaireConstant.STUDENT_TYPE)
+                        && QuestionnaireConstant.STUDENT_TYPE_LIST.contains(userQuestionRecord.getQuestionnaireType());
+                return contains || studentType;
+            });
+        }
+
+        if (Objects.nonNull(exportCondition.getSchoolId())){
+            userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getSchoolId(),exportCondition.getSchoolId()));
+        }
+
+        userQuestionRecordList = userQuestionRecordStream.collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+
     }
 
     @Override
