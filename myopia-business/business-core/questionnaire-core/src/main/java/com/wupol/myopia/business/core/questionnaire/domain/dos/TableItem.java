@@ -28,5 +28,10 @@ public class TableItem implements Serializable {
      * 类型
      */
     private String type;
+
+    /**
+     * 下拉key
+     */
+    private String dropSelectKey;
 }
 
