@@ -13,9 +13,9 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
-import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -196,12 +196,12 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public void validateBeforeExport(ExportCondition exportCondition) {
         this.preProcess(exportCondition);
 
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId(), QuestionnaireStatusEnum.FINISH.getCode());
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             throw new BusinessException("暂无数据");
         }
 
-        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType()));
+        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream();
 
         List<Integer> questionnaireType = exportCondition.getQuestionnaireType();
         if (!CollectionUtils.isEmpty(questionnaireType)){

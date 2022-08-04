@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @Date 2021/01/25
  **/
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {

@@ -108,10 +108,9 @@ public class UserAnswerFacade {
      */
     public List<UserQuestionRecord> getQuestionnaireRecordList(ExportCondition exportCondition, List<Integer> questionnaireTypeList,List<Integer> gradeTypeList) {
         List<Integer> conditionValue = getConditionValue(exportCondition);
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2));
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2),QuestionnaireStatusEnum.FINISH.getCode());
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode()))
                     .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()));
             List<UserQuestionRecord> collect;
             if (Objects.nonNull(exportCondition.getSchoolId())){
