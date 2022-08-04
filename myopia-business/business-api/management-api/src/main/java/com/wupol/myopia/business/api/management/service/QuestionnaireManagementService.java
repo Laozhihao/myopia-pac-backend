@@ -562,9 +562,12 @@ public class QuestionnaireManagementService {
      * @param screeningPlanId 筛查计划ID
      */
     public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId) {
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId);
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(schoolIds)){
+                return Lists.newArrayList();
+            }
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
             return schoolList.stream().map(school -> new QuestionnaireDataSchoolVO(school.getId(),school.getName())).collect(Collectors.toList());
         }
@@ -597,10 +600,9 @@ public class QuestionnaireManagementService {
         });
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
 
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId);
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            userQuestionRecordList = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode())).collect(Collectors.toList());
             List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
             typeKeyList.removeAll(questionnaireTypes);
             questionnaireTypeVO.setNoDataList(typeKeyList);
