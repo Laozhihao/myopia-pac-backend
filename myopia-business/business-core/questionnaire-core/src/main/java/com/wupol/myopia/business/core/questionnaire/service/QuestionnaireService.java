@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -17,7 +16,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireM
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
-import com.wupol.myopia.business.core.questionnaire.util.DropSelectUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -275,13 +273,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private static void setInfectiousDiseaseTable(List<InfectiousDiseaseTable> tableList, List<TableItem> item, String name) {
         InfectiousDiseaseTable infectiousDiseaseTable = new InfectiousDiseaseTable();
         infectiousDiseaseTable.setName(QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + name);
-        if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE)) {
-            infectiousDiseaseTable.setDropSelect(DropSelectUtil.one());
-        }
-        if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO)) {
-            infectiousDiseaseTable.setDropSelect(DropSelectUtil.two());
-        }
-
         List<List<TableItem>> lists = Lists.partition(item.stream().filter(s -> !StringUtils.equals(s.getName(), name)).collect(Collectors.toList()), 2);
         List<InfectiousDiseaseTable.Detail> collect = lists.stream().map(s -> {
             InfectiousDiseaseTable.Detail detail1 = new InfectiousDiseaseTable.Detail();

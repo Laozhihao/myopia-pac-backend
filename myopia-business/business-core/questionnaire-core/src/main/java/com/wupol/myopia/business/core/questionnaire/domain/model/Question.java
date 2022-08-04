@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionAttribute;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Table;
@@ -94,7 +93,6 @@ public class Question implements Serializable {
      * 表格
      */
     @TableField(typeHandler = TableHandler.class)
-    @JsonIgnore
     private List<Table> tableJson;
 
     /**

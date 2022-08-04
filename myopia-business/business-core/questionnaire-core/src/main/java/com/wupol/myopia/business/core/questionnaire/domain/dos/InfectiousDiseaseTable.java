@@ -21,11 +21,6 @@ public class InfectiousDiseaseTable implements Serializable {
     private String name;
 
     /**
-     * 下拉选项
-     */
-    private List<DropSelect> dropSelect;
-
-    /**
      * 表格
      */
     private List<Detail> details;
