@@ -1,20 +1,24 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
+import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionResponse;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
-import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import com.wupol.myopia.business.core.questionnaire.util.DropSelectUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -23,8 +27,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import java.util.List;
 
 /**
  * @Author Simple4H
@@ -74,12 +76,12 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     public List<QuestionnaireInfoDTO> getQuestionnaire(Integer questionnaireId) {
         Questionnaire questionnaire = this.getById(questionnaireId);
         Assert.notNull(questionnaire, "问卷不存在！");
-        if (CollectionUtil.isNotEmpty(questionnaire.getPageJson())) {
-            return questionnaire.getPageJson();
-        }
+//        if (CollectionUtil.isNotEmpty(questionnaire.getPageJson())) {
+//            return questionnaire.getPageJson();
+//        }
         //如果没有页面数据，组装问卷数据
         List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId);
-        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
+//        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
@@ -92,7 +94,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     protected List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
-        if (CollectionUtil.isEmpty(questionnaireQuestions)) {
+        if (CollUtil.isEmpty(questionnaireQuestions)) {
             return Collections.emptyList();
         }
         List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
@@ -139,7 +141,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             if (pid.equals(it.getPid())) {
                 Question question = questionMap.get(it.getQuestionId());
                 QuestionResponse childQuestionResponse = commonBuildQuestion(question, it);
-                List<QuestionResponse> questionResponses = CollectionUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
+                List<QuestionResponse> questionResponses = CollUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
                 questionResponse.setQuestionList(questionResponses);
                 buildQuestion(childQuestionResponse, it.getId(), childQuestion, questionMap);
@@ -163,6 +165,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsLogic(it.getIsLogic());
         childQuestionResponse.setJumpIds(it.getJumpIds());
         setJumpIds(childQuestionResponse, it.getJumpIds());
+        if (StringUtils.equals(question.getType(), "infectious-disease-table")) {
+            setTable(childQuestionResponse, question.getTableJson());
+        }
         return childQuestionResponse;
     }
 
@@ -174,7 +179,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     protected void setJumpIds(QuestionResponse questionResponse, List<JumpIdsDO> jumpIdsDO) {
         List<Option> options = questionResponse.getOptions();
-        if (CollectionUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
+        if (CollUtil.isEmpty(options) || Objects.isNull(jumpIdsDO)) {
             return;
         }
         Map<String, JumpIdsDO> jumpIdsDOMap = jumpIdsDO.stream().collect(Collectors.toMap(JumpIdsDO::getOptionId, Function.identity()));
@@ -242,4 +247,49 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 .orderByAsc(Questionnaire::getCreateTime);
         return baseMapper.selectOne(queryWrapper);
     }
+
+    /**
+     * 表格
+     *
+     * @param questionResponse 返回值
+     * @param tables           表格
+     */
+    private void setTable(QuestionResponse questionResponse, List<Table> tables) {
+        List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
+        for (Table t : tables) {
+            List<TableItem> item = t.getItem();
+            String name = item.get(0).getName();
+            if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE)) {
+                setInfectiousDiseaseTable(tableList, item, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE);
+            }
+            if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO)) {
+                setInfectiousDiseaseTable(tableList, item, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO);
+            }
+        }
+        questionResponse.setInfectiousDiseaseTable(tableList);
+    }
+
+    /**
+     * 设置疾病表格
+     */
+    private static void setInfectiousDiseaseTable(List<InfectiousDiseaseTable> tableList, List<TableItem> item, String name) {
+        InfectiousDiseaseTable infectiousDiseaseTable = new InfectiousDiseaseTable();
+        infectiousDiseaseTable.setName(QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + name);
+        if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE)) {
+            infectiousDiseaseTable.setDropSelect(DropSelectUtil.one());
+        }
+        if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO)) {
+            infectiousDiseaseTable.setDropSelect(DropSelectUtil.two());
+        }
+
+        List<List<TableItem>> lists = Lists.partition(item.stream().filter(s -> !StringUtils.equals(s.getName(), name)).collect(Collectors.toList()), 2);
+        List<InfectiousDiseaseTable.Detail> collect = lists.stream().map(s -> {
+            InfectiousDiseaseTable.Detail detail1 = new InfectiousDiseaseTable.Detail();
+            detail1.setTableItems(s);
+            return detail1;
+        }).collect(Collectors.toList());
+        infectiousDiseaseTable.setDetails(collect);
+        tableList.add(infectiousDiseaseTable);
+    }
+
 }

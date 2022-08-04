@@ -6,9 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionAttribute;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.Table;
 import com.wupol.myopia.business.core.questionnaire.domain.handle.OptionHandler;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.TableHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -86,6 +89,13 @@ public class Question implements Serializable {
      * 图标描述-前端需要
      */
     private String iconName;
+
+    /**
+     * 表格
+     */
+    @TableField(typeHandler = TableHandler.class)
+    @JsonIgnore
+    private List<Table> tableJson;
 
     /**
      * 创建时间

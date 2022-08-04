@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.wupol.myopia.business.core.questionnaire.domain.dos.InfectiousDiseaseTable;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Data;
@@ -49,6 +50,14 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private List<JumpIdsDO> jumpIds;
 
+    /**
+     * 传染病表格
+     */
+    private List<InfectiousDiseaseTable> infectiousDiseaseTable;
 
+
+    /**
+     * 题目
+     */
     private List<QuestionResponse> questionList;
 }
