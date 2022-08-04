@@ -256,7 +256,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         if (srcFile.isFile()) {
             return Boolean.TRUE;
         }
-        List<File> fileList = getFileList(srcFile);
+        List<File> fileList =Lists.newArrayList();
+        getFileList(srcFile,fileList);
         return !CollectionUtils.isEmpty(fileList);
     }
 
@@ -264,25 +265,20 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      * 获取文件递归
      * @param srcFile 父文件或父文件夹
      */
-    public List<File> getFileList(File srcFile) {
-        List<File> fileList = Lists.newArrayList();
-        if (Objects.isNull(srcFile)){
-            return fileList;
-        }
+    public void getFileList(File srcFile,List<File> fileList) {
         if (srcFile.isFile()){
             fileList.add(srcFile);
         }
         File[] files = srcFile.listFiles();
         if (ArrayUtil.isEmpty(files)) {
-            return fileList;
+            return;
         }
         for (File file : files) {
             if (file.isDirectory()){
-                getFileList(file);
+                getFileList(file,fileList);
             }else {
                 fileList.add(file);
             }
         }
-        return fileList;
     }
 }
