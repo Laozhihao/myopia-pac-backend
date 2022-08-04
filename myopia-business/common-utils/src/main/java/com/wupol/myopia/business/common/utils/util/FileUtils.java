@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.excel.EasyExcel;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -101,4 +103,40 @@ public final class FileUtils {
         return Paths.get(savePath, UUID.randomUUID().toString()).toString();
     }
 
+    /**
+     * 是否包含文件
+     * @param srcFile 父文件或父文件夹
+     */
+    public static Boolean includeFiles(File srcFile){
+        if (Objects.isNull(srcFile)){
+            return Boolean.FALSE;
+        }
+        if (srcFile.isFile()) {
+            return Boolean.TRUE;
+        }
+        List<File> fileList = Lists.newArrayList();
+        getFileList(srcFile,fileList);
+        return !CollectionUtils.isEmpty(fileList);
+    }
+
+    /**
+     * 获取文件递归
+     * @param srcFile 父文件或父文件夹
+     */
+    public static void getFileList(File srcFile,List<File> fileList) {
+        if (srcFile.isFile()){
+            fileList.add(srcFile);
+        }
+        File[] files = srcFile.listFiles();
+        if (ArrayUtil.isEmpty(files)) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()){
+                getFileList(file,fileList);
+            }else {
+                fileList.add(file);
+            }
+        }
+    }
 }
