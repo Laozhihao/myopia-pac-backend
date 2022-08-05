@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.util;
 
 import cn.hutool.core.io.FileUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -28,23 +29,9 @@ public class EpiDataUtil {
     /**
      * qes文件解析为txt文件
      *
-     * @param multipartFile qes文件流
+     * @param qesFilePath qes文件地址
      * @param txtFilePath txt文件地址
      */
-    public static void qesToTxt(MultipartFile multipartFile, String txtFilePath){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream(),GBK));
-             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txtFilePath), GBK))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                bw.write(line);
-                bw.newLine();
-            }
-        }catch (IOException e){
-            log.error("【QES转TXT异常】", e);
-            Thread.currentThread().interrupt();
-        }
-    }
-
     public static void qesToTxt(String qesFilePath, String txtFilePath){
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(qesFilePath),GBK));
              BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(txtFilePath), GBK))) {
@@ -56,6 +43,7 @@ public class EpiDataUtil {
         }catch (IOException e){
             log.error("【QES转TXT异常】", e);
             Thread.currentThread().interrupt();
+            throw new BusinessException("QES文件解析异常");
         }
     }
 
@@ -74,6 +62,7 @@ public class EpiDataUtil {
         }catch (IOException e){
             log.error("【QES解析变量异常】", e);
             Thread.currentThread().interrupt();
+            throw new BusinessException("QES解析变量异常");
         }
 
     }
@@ -106,7 +95,7 @@ public class EpiDataUtil {
         String txtPath = epiDataPath + System.currentTimeMillis() + ".txt";
         File epiDataDirectory = new File(epiDataPath);
         if (!epiDataDirectory.exists()){
-            epiDataDirectory.mkdirs();
+            FileUtil.mkdir(epiDataDirectory);
         }
 
         // 把两个List数据合并成txt所需要的指定的格式
