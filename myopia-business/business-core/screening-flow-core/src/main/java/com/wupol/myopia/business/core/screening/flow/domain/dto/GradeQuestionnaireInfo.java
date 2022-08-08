@@ -2,7 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
-import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -36,7 +36,7 @@ public class GradeQuestionnaireInfo implements Serializable {
     private Integer studentCount;
 
     public static List<GradeQuestionnaireInfo> buildGradeInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
-                                                              Map<Integer, List<Student>> userGradeIdMap,Boolean isTotal){
+                                                              Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap, Boolean isTotal){
         List<GradeQuestionnaireInfo> collect = gradeIdMap.get(schoolId).stream()
                 .map(grade -> {
                     GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();

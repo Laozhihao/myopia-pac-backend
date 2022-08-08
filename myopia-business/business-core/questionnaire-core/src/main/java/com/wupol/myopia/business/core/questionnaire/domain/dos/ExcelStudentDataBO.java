@@ -21,6 +21,12 @@ public class ExcelStudentDataBO {
      * 学生ID
      */
     private Integer studentId;
+
+    /**
+     * 年级编码
+     */
+    private String gradeCode;
+
     /**
      * 学生数据集合
      */

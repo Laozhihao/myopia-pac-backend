@@ -12,11 +12,16 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -24,6 +29,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 导出问卷数据
@@ -40,6 +47,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Autowired
     private QuestionnaireExcelFactory questionnaireExcelFactory;
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
 
     @Override
     public void export(ExportCondition exportCondition) {
@@ -58,6 +67,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             generateExcelFile(fileSavePath,null,exportCondition);
             // 5.压缩文件
             File file = compressFile(fileSavePath);
+            // 没有文件直接返回
+            if (Objects.isNull(file)){return;}
             // 6.上传文件
             Integer fileId = uploadFile(file);
             // 7.获取通知的关键内容
@@ -183,7 +194,34 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
-        // do something validate parameter
+        this.preProcess(exportCondition);
+
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId(), QuestionnaireStatusEnum.FINISH.getCode());
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+
+        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream();
+
+        List<Integer> questionnaireType = exportCondition.getQuestionnaireType();
+        if (!CollectionUtils.isEmpty(questionnaireType)){
+            userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> {
+                boolean contains = questionnaireType.contains(userQuestionRecord.getQuestionnaireType());
+                boolean studentType = questionnaireType.contains(QuestionnaireConstant.STUDENT_TYPE)
+                        && QuestionnaireConstant.STUDENT_TYPE_LIST.contains(userQuestionRecord.getQuestionnaireType());
+                return contains || studentType;
+            });
+        }
+
+        if (Objects.nonNull(exportCondition.getSchoolId())){
+            userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getSchoolId(),exportCondition.getSchoolId()));
+        }
+
+        userQuestionRecordList = userQuestionRecordStream.collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+
     }
 
     @Override
@@ -198,8 +236,13 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Override
     public File compressFile(String fileSavePath) {
         File srcFile = FileUtil.file(fileSavePath);
+        //压缩时查看父文件或父文件夹以下是否有文件，没文件时直接返回
+        if (Objects.equals(Boolean.FALSE, FileUtils.includeFiles(srcFile))) {
+            return null;
+        }
         final File zipFile = FileUtil.file(FileUtil.file(srcFile).getParentFile(), FileUtil.mainName(srcFile) + ".zip");
         // 将本目录也压缩
         return ZipUtil.zip(zipFile, CharsetUtil.defaultCharset(), true, srcFile);
     }
+
 }

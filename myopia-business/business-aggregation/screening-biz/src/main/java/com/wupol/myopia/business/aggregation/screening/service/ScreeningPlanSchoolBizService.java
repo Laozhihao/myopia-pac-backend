@@ -5,17 +5,18 @@ import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -71,14 +72,13 @@ public class ScreeningPlanSchoolBizService {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = screeningPlanSchoolService.getScreeningPlanSchools(screeningPlanId, schoolName);
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(screeningPlanId));
+
+        //学校ID对应的学生数集合
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType());
-        Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
-        Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds)
-                .stream().collect(Collectors.groupingBy(Student::getGradeId));
-
-        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList())).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        Map<Integer, List<UserQuestionRecord>> schoolMap = getSchoolMap(userQuestionRecords);
+        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = getGradeStudentMap(userQuestionRecords);
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = getGradeMap(screeningPlanSchools);
 
         // TODO：不在循环内查询数据库
         screeningPlanSchools.forEach(vo -> {
@@ -103,6 +103,60 @@ public class ScreeningPlanSchoolBizService {
             }
         });
         return screeningPlanSchools;
+    }
+
+    /**
+     * 获取学校ID对应的年级集合
+     *
+     * @param screeningPlanSchoolList 筛查计划关联的学校集合
+     */
+    private Map<Integer, List<SchoolGradeExportDTO>> getGradeMap(List<ScreeningPlanSchoolDTO> screeningPlanSchoolList){
+        Map<Integer, List<SchoolGradeExportDTO>> gradeMap =Maps.newHashMap();
+        if (CollectionUtils.isEmpty(screeningPlanSchoolList)){
+            return gradeMap;
+        }
+        Set<Integer> schoolIds = screeningPlanSchoolList.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(schoolIds)){
+            return schoolGradeService.getBySchoolIds(Lists.newArrayList(schoolIds)).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+        }
+        return gradeMap;
+    }
+
+    /**
+     * 获取年级ID对应的学生集合
+     * @param userQuestionRecords 用户问卷记录集合
+     */
+    private Map<Integer, List<ScreeningPlanSchoolStudent>> getGradeStudentMap(List<UserQuestionRecord> userQuestionRecords){
+        Map<Integer, List<ScreeningPlanSchoolStudent>> gradeStudentMap =Maps.newHashMap();
+        if (CollectionUtils.isEmpty(userQuestionRecords)){
+            return gradeStudentMap;
+        }
+        List<UserQuestionRecord> finishList = userQuestionRecords.stream()
+                .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(finishList)){
+            return gradeStudentMap;
+        }
+        Set<Integer> planStudentIds = userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
+        return screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
+    }
+
+    /**
+     * 获取学校ID对应的用户问卷记录集合
+     * @param userQuestionRecords 用户问卷记录集合
+     */
+    private Map<Integer, List<UserQuestionRecord>> getSchoolMap(List<UserQuestionRecord> userQuestionRecords){
+        Map<Integer, List<UserQuestionRecord>> schoolMap =Maps.newHashMap();
+        if (CollectionUtils.isEmpty(userQuestionRecords)){
+            return schoolMap;
+        }
+        List<UserQuestionRecord> finishList = userQuestionRecords.stream()
+                .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.FINISH.getCode()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(finishList)){
+            return schoolMap;
+        }
+        return userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
     }
 
     /**
