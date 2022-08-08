@@ -34,11 +34,17 @@ public class QuestionnaireConstant {
      */
     public static final Integer PID = -1;
 
+    /**
+     * 传染病表格
+     */
+    public static final String INFECTIOUS_DISEASE_TITLE = "infectious-disease-title";
+
 
     /**
      *传染病
      */
     public static final String INFECTIOUS_DISEASE_PREFIX = "传染病-";
+
     /**
      * 甲乙类
      */
@@ -48,4 +54,10 @@ public class QuestionnaireConstant {
      * 丙类
      */
     public static final String INFECTIOUS_DISEASE_TWO = "丙类";
+
+    /**
+     * 学校教室环境卫生
+     */
+    public static final String SCHOOL_CLASSROOM_TITLE = "school-classroom-title";
+
 }

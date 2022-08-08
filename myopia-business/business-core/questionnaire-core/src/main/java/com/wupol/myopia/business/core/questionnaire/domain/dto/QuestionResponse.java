@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.ClassroomItemTable;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.InfectiousDiseaseTable;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.SchoolTeacherTable;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -53,7 +56,20 @@ public class QuestionResponse extends Question implements Serializable {
     /**
      * 传染病表格
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<InfectiousDiseaseTable> infectiousDiseaseTable;
+
+    /**
+     * 学校教室环境卫生表格
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ClassroomItemTable> classroomItemTables;
+
+    /**
+     * 学校教师
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<SchoolTeacherTable> schoolTeacherTables;
 
 
     /**

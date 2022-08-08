@@ -6,7 +6,6 @@
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.Question">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="attribute" property="attribute"/>
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="options" property="options"/>
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="table_json" property="tableJson"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -23,7 +22,6 @@
                 <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
                 <if test="@Ognl@isNotEmpty(sameQuestionGroupId)">and `same_question_group_id` = #{sameQuestionGroupId}</if>
                 <if test="@Ognl@isNotEmpty(iconName)">and `icon_name` = #{iconName}</if>
-                <if test="@Ognl@isNotEmpty(tableJson)">and `table_json` = #{tableJson}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
             </trim>
@@ -32,6 +30,6 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, type, title, sub_title, attribute, options, serial_number, pid, same_question_group_id, icon_name, table_json, create_time, update_time
+        id, type, title, sub_title, attribute, options, serial_number, pid, same_question_group_id, icon_name, create_time, update_time
     </sql>
 </mapper>

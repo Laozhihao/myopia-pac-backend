@@ -58,7 +58,7 @@ public class QuestionnaireQuestionBizService {
                 .collect(Collectors.toMap(Question::getId, Function.identity()));
 
         questionnaireQuestions.forEach(questionnaireQuestion ->
-                responses.add(questionnaireService.commonBuildQuestion(questionMaps.get(questionnaireQuestion.getQuestionId()), questionnaireQuestion)));
+                responses.add(questionnaireService.commonBuildQuestion(questionMaps.get(questionnaireQuestion.getQuestionId()), questionnaireQuestion, questionMaps)));
         return responses;
     }
 

@@ -36,4 +36,9 @@ public class QuestionnaireController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return questionnaireBizService.getUserQuestionnaire(user);
     }
+
+    @GetMapping("/getDropSelect/{key}")
+    public Object getDropSelectKey(@PathVariable("key") String key) {
+        return null;
+    }
 }

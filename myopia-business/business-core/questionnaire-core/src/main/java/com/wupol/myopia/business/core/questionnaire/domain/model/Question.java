@@ -8,9 +8,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionAttribute;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.Table;
 import com.wupol.myopia.business.core.questionnaire.domain.handle.OptionHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.handle.TableHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -34,7 +32,7 @@ public class Question implements Serializable {
     /**
      * 顶层父级的标志Id
      */
-    public static final int TOP_PARENT_ID  = -1;
+    public static final int TOP_PARENT_ID = -1;
 
     /**
      * 主键
@@ -88,12 +86,6 @@ public class Question implements Serializable {
      * 图标描述-前端需要
      */
     private String iconName;
-
-    /**
-     * 表格
-     */
-    @TableField(typeHandler = TableHandler.class)
-    private List<Table> tableJson;
 
     /**
      * 创建时间

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
@@ -116,7 +117,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireQuestions.forEach(child -> {
                 if (it.getId().equals(child.getPid())) {
                     Question childQuestion = questionMap.get(child.getQuestionId());
-                    QuestionResponse questionResponse = commonBuildQuestion(childQuestion, child);
+                    QuestionResponse questionResponse = commonBuildQuestion(childQuestion, child, questionMap);
                     buildQuestion(questionResponse, child.getId(), questionnaireQuestions, questionMap);
                     questionList.add(questionResponse);
                 }
@@ -138,7 +139,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestion.forEach(it -> {
             if (pid.equals(it.getPid())) {
                 Question question = questionMap.get(it.getQuestionId());
-                QuestionResponse childQuestionResponse = commonBuildQuestion(question, it);
+                QuestionResponse childQuestionResponse = commonBuildQuestion(question, it, questionMap);
                 List<QuestionResponse> questionResponses = CollUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
                 questionResponse.setQuestionList(questionResponses);
@@ -153,7 +154,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param it
      * @return
      */
-    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it) {
+    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
@@ -163,8 +164,11 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsLogic(it.getIsLogic());
         childQuestionResponse.setJumpIds(it.getJumpIds());
         setJumpIds(childQuestionResponse, it.getJumpIds());
-        if (StringUtils.equals(question.getType(), "infectious-disease-table")) {
-            setTable(childQuestionResponse, question.getTableJson());
+        if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
+            setTable2(childQuestionResponse, it);
+        }
+        if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE)) {
+            setTable3(childQuestionResponse, it, questionMap);
         }
         return childQuestionResponse;
     }
@@ -250,37 +254,87 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * 表格
      *
      * @param questionResponse 返回值
-     * @param tables           表格
      */
-    private void setTable(QuestionResponse questionResponse, List<Table> tables) {
+    private void setTable2(QuestionResponse questionResponse, QuestionnaireQuestion it) {
         List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
-        for (Table t : tables) {
-            List<TableItem> item = t.getItem();
-            String name = item.get(0).getName();
-            if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE)) {
-                setInfectiousDiseaseTable(tableList, item, QuestionnaireConstant.INFECTIOUS_DISEASE_ONE);
-            }
-            if (StringUtils.equals(name, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO)) {
-                setInfectiousDiseaseTable(tableList, item, QuestionnaireConstant.INFECTIOUS_DISEASE_TWO);
-            }
-        }
+        List<QuestionnaireQuestion> temp = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        QuestionnaireQuestion q1 = temp.get(0);
+        tableList.add(getInfectiousDiseaseTable(q1, QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + QuestionnaireConstant.INFECTIOUS_DISEASE_ONE));
+        QuestionnaireQuestion q2 = temp.get(1);
+        tableList.add(getInfectiousDiseaseTable(q2, QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + QuestionnaireConstant.INFECTIOUS_DISEASE_TWO));
         questionResponse.setInfectiousDiseaseTable(tableList);
     }
 
     /**
-     * 设置疾病表格
+     * 传染病表格
      */
-    private static void setInfectiousDiseaseTable(List<InfectiousDiseaseTable> tableList, List<TableItem> item, String name) {
-        InfectiousDiseaseTable infectiousDiseaseTable = new InfectiousDiseaseTable();
-        infectiousDiseaseTable.setName(QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + name);
-        List<List<TableItem>> lists = Lists.partition(item.stream().filter(s -> !StringUtils.equals(s.getName(), name)).collect(Collectors.toList()), 2);
-        List<InfectiousDiseaseTable.Detail> collect = lists.stream().map(s -> {
-            InfectiousDiseaseTable.Detail detail1 = new InfectiousDiseaseTable.Detail();
-            detail1.setTableItems(s);
-            return detail1;
+    private InfectiousDiseaseTable getInfectiousDiseaseTable(QuestionnaireQuestion q1, String name) {
+        InfectiousDiseaseTable table = new InfectiousDiseaseTable();
+        table.setName(name);
+
+        List<QuestionnaireQuestion> questionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(q1.getQuestionnaireId()).setPid(q1.getId()));
+        List<Integer> questionIds = questionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        List<Question> questions = questionService.listByIds(questionIds);
+        List<InfectiousDiseaseTable.Detail> collect = questions.stream().map(s -> {
+            InfectiousDiseaseTable.Detail detail = new InfectiousDiseaseTable.Detail();
+            List<Option> options = s.getOptions();
+            detail.setTableItems(options.stream().map(y -> {
+                JSONObject option = y.getOption();
+                return getTableItem((LinkedHashMap<String, Object>) option.get(String.valueOf(1)));
+            }).collect(Collectors.toList()));
+            return detail;
         }).collect(Collectors.toList());
-        infectiousDiseaseTable.setDetails(collect);
-        tableList.add(infectiousDiseaseTable);
+        table.setDetails(collect);
+        return table;
+    }
+
+    /**
+     * 表格
+     *
+     * @param questionResponse 返回值
+     */
+    private void setTable3(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
+        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        List<ClassroomItemTable> tables = questionnaireQuestionList.stream().map(s -> {
+            ClassroomItemTable table = new ClassroomItemTable();
+            table.setName(questionMap.get(s.getQuestionId()).getTitle());
+            List<QuestionnaireQuestion> nextList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(s.getQuestionnaireId()).setPid(s.getId()));
+            List<ClassroomItemTable.Detail> collect = nextList.stream().map(y -> {
+                List<TableItem> tableItems = new ArrayList<>();
+                Question question = questionMap.get(y.getQuestionId());
+                Option option = question.getOptions().get(0);
+                String text = option.getText();
+                String[] split = text.split("-");
+                JSONObject jsonObject = option.getOption();
+                for (int i = 1; i <= jsonObject.size(); i++) {
+                    LinkedHashMap<String, Object> o = (LinkedHashMap<String, Object>) jsonObject.get(i);
+                    TableItem tableItem = new TableItem();
+                    tableItem.setId(String.valueOf(o.get("id")));
+                    if (i > 1) {
+                        tableItem.setName(StringUtils.substringAfter(split[i - 1], "}"));
+                    } else {
+                        tableItem.setName(split[i - 1]);
+                    }
+
+                    tableItem.setType(String.valueOf(o.get("dataType")));
+                    tableItems.add(tableItem);
+                }
+                return new ClassroomItemTable.Detail(tableItems);
+            }).collect(Collectors.toList());
+            table.setDetails(collect);
+            return table;
+        }).collect(Collectors.toList());
+
+        questionResponse.setClassroomItemTables(tables);
+    }
+
+    private TableItem getTableItem(LinkedHashMap<String, Object> hashMap) {
+        TableItem item = new TableItem();
+        item.setId(String.valueOf(hashMap.get("id")));
+//                item.setName();
+//                item.setType();
+        item.setDropSelectKey(String.valueOf(hashMap.get("dropSelectKey")));
+        return item;
     }
 
 }
