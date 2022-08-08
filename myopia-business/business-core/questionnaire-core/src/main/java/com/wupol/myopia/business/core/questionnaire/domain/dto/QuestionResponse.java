@@ -1,10 +1,9 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.ClassroomItemTable;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.InfectiousDiseaseTable;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.SchoolTeacherTable;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.QesNumberDoHandler;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -66,14 +65,25 @@ public class QuestionResponse extends Question implements Serializable {
     private List<ClassroomItemTable> classroomItemTables;
 
     /**
+     * 题目
+     */
+    private List<QuestionResponse> questionList;
+
+    /**
      * 学校教师
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<SchoolTeacherTable> schoolTeacherTables;
 
+    /**
+     * 是否隐藏
+     */
+    private Boolean isHidden;
 
     /**
-     * 题目
+     * qes序号
      */
-    private List<QuestionResponse> questionList;
+    @TableField(typeHandler = QesNumberDoHandler.class)
+    private List<QesSerialNumberDO> qesSerialNumber;
+
 }

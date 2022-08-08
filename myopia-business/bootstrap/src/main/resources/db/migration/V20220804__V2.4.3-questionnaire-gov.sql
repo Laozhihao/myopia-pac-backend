@@ -1,2 +1,5 @@
-alter table q_question
-    add table_json json null comment '表格JSON' after icon_name;
+alter table q_questionnaire_question
+    add is_hidden boolean null comment '是否隐藏';
+
+alter table q_questionnaire_question
+    add qes_serial_number json null comment 'qes字段序号';

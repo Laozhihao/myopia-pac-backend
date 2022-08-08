@@ -5,6 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion">
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="jump_ids" property="jumpIds"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="qes_serial_number" property="qesSerialNumber"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -21,13 +22,15 @@
                 <if test="@Ognl@isNotEmpty(jumpIds)">and `jump_ids` = #{jumpIds}</if>
                 <if test="@Ognl@isNotEmpty(isNotShowNumber)">and `is_not_show_number` = #{isNotShowNumber}</if>
                 <if test="@Ognl@isNotEmpty(required)">and `required` = #{required}</if>
+                <if test="@Ognl@isNotEmpty(isHidden)">and `is_hidden` = #{isHidden}</if>
+                <if test="@Ognl@isNotEmpty(qesSerialNumber)">and `qes_serial_number` = #{qesSerialNumber}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,questionnaire_id, question_id, pid, serial_number, sort, is_logic, jump_ids, is_not_show_number, required
+        id,questionnaire_id, question_id, pid, serial_number, sort, is_logic, jump_ids, is_not_show_number, required, is_hidden, qes_serial_number
     </sql>
 
     <update id="deletedLogic">
