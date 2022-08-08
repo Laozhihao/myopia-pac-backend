@@ -53,6 +53,11 @@ public class QuestionResponse extends Question implements Serializable {
     private List<JumpIdsDO> jumpIds;
 
     /**
+     * 题目
+     */
+    private List<QuestionResponse> questionList;
+
+    /**
      * 传染病表格
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -63,11 +68,6 @@ public class QuestionResponse extends Question implements Serializable {
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ClassroomItemTable> classroomItemTables;
-
-    /**
-     * 题目
-     */
-    private List<QuestionResponse> questionList;
 
     /**
      * 学校教师

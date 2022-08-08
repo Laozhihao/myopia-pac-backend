@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -28,8 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Author Simple4H
- * @Date 2022-07-06
+ * @author Simple4H
  */
 @Service
 public class QuestionnaireService extends BaseService<QuestionnaireMapper, Questionnaire> {
@@ -70,7 +70,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     /**
      * 获取问卷问题
      *
-     * @param questionnaireId
+     * @param questionnaireId 问卷Id
      */
     public List<QuestionnaireInfoDTO> getQuestionnaire(Integer questionnaireId) {
         Questionnaire questionnaire = this.getById(questionnaireId);
@@ -88,7 +88,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     /**
      * 组装问卷问题数据
      *
-     * @return
+     * @return List<QuestionnaireInfoDTO>
      */
     protected List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
@@ -112,6 +112,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setSerialNumber(it.getSerialNumber());
             questionnaireInfoDTO.setIsLogic(it.getIsLogic());
             questionnaireInfoDTO.setJumpIds(it.getJumpIds());
+            questionnaireInfoDTO.setIsHidden(it.getIsHidden());
+            questionnaireInfoDTO.setRequired(it.getRequired());
+            questionnaireInfoDTO.setQesSerialNumber(it.getQesSerialNumber());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -131,9 +134,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     /**
      * 设置问题层级关系
      *
-     * @param pid
-     * @param childQuestion
-     * @param questionMap
+     * @param pid           父Pid
+     * @param childQuestion 孩子问题
+     * @param questionMap   问题Map
      */
     protected void buildQuestion(QuestionResponse questionResponse, Integer pid, List<QuestionnaireQuestion> childQuestion, Map<Integer, Question> questionMap) {
         childQuestion.forEach(it -> {
@@ -150,9 +153,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
 
     /***
      * 封装问题公共逻辑块
-     * @param question
-     * @param it
-     * @return
+     * @param question 问题
+     * @param it 问卷中间表
+     * @return QuestionResponse
      */
     public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
@@ -163,12 +166,17 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsNotShowNumber(it.getIsNotShowNumber());
         childQuestionResponse.setIsLogic(it.getIsLogic());
         childQuestionResponse.setJumpIds(it.getJumpIds());
+        childQuestionResponse.setIsHidden(it.getIsHidden());
+        childQuestionResponse.setQesSerialNumber(it.getQesSerialNumber());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
-            setTable2(childQuestionResponse, it);
+            setInfectiousDiseaseTitle(childQuestionResponse, it);
         }
         if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE)) {
-            setTable3(childQuestionResponse, it, questionMap);
+            setSchoolClassroom(childQuestionResponse, it, questionMap);
+        }
+        if (StringUtils.equals(question.getType(), QuestionnaireConstant.TEACHER_TABLE)) {
+            setSchoolTeacher(childQuestionResponse, it, questionMap);
         }
         return childQuestionResponse;
     }
@@ -176,8 +184,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     /**
      * 封装跳转Id
      *
-     * @param questionResponse
-     * @param jumpIdsDO
+     * @param questionResponse 返回
+     * @param jumpIdsDO        跳转题
      */
     protected void setJumpIds(QuestionResponse questionResponse, List<JumpIdsDO> jumpIdsDO) {
         List<Option> options = questionResponse.getOptions();
@@ -255,7 +263,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      *
      * @param questionResponse 返回值
      */
-    private void setTable2(QuestionResponse questionResponse, QuestionnaireQuestion it) {
+    private void setInfectiousDiseaseTitle(QuestionResponse questionResponse, QuestionnaireQuestion it) {
         List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
         List<QuestionnaireQuestion> temp = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
         QuestionnaireQuestion q1 = temp.get(0);
@@ -280,7 +288,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             List<Option> options = s.getOptions();
             detail.setTableItems(options.stream().map(y -> {
                 JSONObject option = y.getOption();
-                return getTableItem((LinkedHashMap<String, Object>) option.get(String.valueOf(1)));
+                return getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(1))), JSONObject.class));
             }).collect(Collectors.toList()));
             return detail;
         }).collect(Collectors.toList());
@@ -293,7 +301,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      *
      * @param questionResponse 返回值
      */
-    private void setTable3(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
+    private void setSchoolClassroom(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
         List<ClassroomItemTable> tables = questionnaireQuestionList.stream().map(s -> {
             ClassroomItemTable table = new ClassroomItemTable();
@@ -307,7 +315,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 String[] split = text.split("-");
                 JSONObject jsonObject = option.getOption();
                 for (int i = 1; i <= jsonObject.size(); i++) {
-                    LinkedHashMap<String, Object> o = (LinkedHashMap<String, Object>) jsonObject.get(i);
+                    JSONObject o = JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class);
                     TableItem tableItem = new TableItem();
                     tableItem.setId(String.valueOf(o.get("id")));
                     if (i > 1) {
@@ -315,7 +323,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                     } else {
                         tableItem.setName(split[i - 1]);
                     }
-
                     tableItem.setType(String.valueOf(o.get("dataType")));
                     tableItems.add(tableItem);
                 }
@@ -328,12 +335,34 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionResponse.setClassroomItemTables(tables);
     }
 
-    private TableItem getTableItem(LinkedHashMap<String, Object> hashMap) {
+    /**
+     * 表格
+     *
+     * @param questionResponse 返回值
+     */
+    private void setSchoolTeacher(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
+        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        List<SchoolTeacherTable> collect = questionnaireQuestionList.stream().map(s -> {
+            SchoolTeacherTable table = new SchoolTeacherTable();
+
+            Question question = questionMap.get(s.getQuestionId());
+            JSONObject option = question.getOptions().get(0).getOption();
+            List<TableItem> tableItems = new ArrayList<>();
+            for (int i = 1; i <= option.size(); i++) {
+                tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class)));
+            }
+            table.setInfo(tableItems);
+            return table;
+        }).collect(Collectors.toList());
+        questionResponse.setSchoolTeacherTables(collect);
+    }
+
+    private TableItem getTableItem(JSONObject json) {
         TableItem item = new TableItem();
-        item.setId(String.valueOf(hashMap.get("id")));
+        item.setId(String.valueOf(json.getString("id")));
 //                item.setName();
-//                item.setType();
-        item.setDropSelectKey(String.valueOf(hashMap.get("dropSelectKey")));
+        item.setType(String.valueOf(json.get("dataType")));
+        item.setDropSelectKey(String.valueOf(json.getString("dropSelectKey")));
         return item;
     }
 

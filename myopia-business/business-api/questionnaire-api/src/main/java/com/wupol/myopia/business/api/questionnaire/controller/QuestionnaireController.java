@@ -4,6 +4,8 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.service.QuestionnaireBizService;
+import com.wupol.myopia.business.core.questionnaire.constant.DropSelectEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.DropSelect;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
@@ -37,8 +39,15 @@ public class QuestionnaireController {
         return questionnaireBizService.getUserQuestionnaire(user);
     }
 
+    /**
+     * 通过key获取下拉值
+     *
+     * @param key key
+     *
+     * @return List<DropSelect>
+     */
     @GetMapping("/getDropSelect/{key}")
-    public Object getDropSelectKey(@PathVariable("key") String key) {
-        return null;
+    public List<DropSelect> getDropSelectKey(@PathVariable("key") String key) {
+        return DropSelectEnum.getSelect(key);
     }
 }

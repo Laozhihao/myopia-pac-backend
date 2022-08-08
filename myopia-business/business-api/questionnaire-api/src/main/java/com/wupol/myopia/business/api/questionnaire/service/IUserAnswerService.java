@@ -83,7 +83,7 @@ public interface IUserAnswerService {
      *
      * @return 学校名称
      */
-    String getSchoolName(Integer userId);
+    String getUserName(Integer userId);
 
     /**
      * 设置隐藏题目

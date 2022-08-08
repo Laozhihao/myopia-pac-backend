@@ -60,4 +60,9 @@ public class QuestionnaireConstant {
      */
     public static final String SCHOOL_CLASSROOM_TITLE = "school-classroom-title";
 
+    /**
+     * 学校教师
+     */
+    public static final String TEACHER_TABLE = "teacher-table";
+
 }

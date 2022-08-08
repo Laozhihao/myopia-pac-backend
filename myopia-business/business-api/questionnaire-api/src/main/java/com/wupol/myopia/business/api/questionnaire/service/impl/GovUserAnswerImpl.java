@@ -4,7 +4,8 @@ import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -14,22 +15,21 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * 学校
+ * 政府部门
  *
  * @author Simple4H
  */
 @Service
-public class SchoolUserAnswerImpl implements IUserAnswerService {
+public class GovUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private UserAnswerService userAnswerService;
@@ -44,14 +44,14 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     private CommonUserAnswerImpl commonUserAnswer;
 
     @Resource
-    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    private GovDeptService govDeptService;
 
     @Resource
     private ScreeningPlanService screeningPlanService;
 
     @Override
     public Integer getUserType() {
-        return QuestionnaireUserType.SCHOOL.getType();
+        return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
     }
 
     @Override
@@ -64,22 +64,18 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
         }
 
         // 不存在新增记录
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType());
-        Integer screeningPlanId = screeningPlanSchool.getScreeningPlanId();
-        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-
+        ScreeningPlan govDept = screeningPlanService.getOneByGovDept(userId);
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
         userQuestionRecord.setUserId(userId);
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
-
-        userQuestionRecord.setPlanId(screeningPlanId);
-        userQuestionRecord.setTaskId(plan.getScreeningTaskId());
-        userQuestionRecord.setNoticeId(plan.getSrcScreeningNoticeId());
+        userQuestionRecord.setPlanId(govDept.getId());
+        userQuestionRecord.setStudentId(null);
+        userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
+        userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
         userQuestionRecord.setSchoolId(userId);
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
-        userQuestionRecord.setStudentId(null);
         userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();
@@ -102,7 +98,7 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(Integer userId) {
-        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getSchoolQuestionnaireType();
+        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getGovQuestionnaireType();
         return commonUserAnswer.getUserQuestionnaire(typeList);
     }
 
@@ -113,10 +109,10 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public String getUserName(Integer userId) {
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType());
-        if (Objects.isNull(screeningPlanSchool)) {
+        GovDept govDept = govDeptService.getById(userId);
+        if (Objects.isNull(govDept)) {
             throw new BusinessException("获取信息异常");
         }
-        return screeningPlanSchool.getSchoolName();
+        return govDept.getName();
     }
 }

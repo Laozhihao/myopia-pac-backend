@@ -86,6 +86,11 @@ public class UserQuestionRecord implements Serializable {
     private Integer status;
 
     /**
+     * 汇总类型 1-汇总
+     */
+    private Integer recordType;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

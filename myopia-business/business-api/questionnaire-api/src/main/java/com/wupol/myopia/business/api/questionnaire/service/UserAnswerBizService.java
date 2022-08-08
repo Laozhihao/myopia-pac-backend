@@ -96,7 +96,7 @@ public class UserAnswerBizService {
      */
     public String getSchoolName(CurrentUser user) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.getSchoolName(user.getExQuestionnaireUserId());
+        return iUserAnswerService.getUserName(user.getExQuestionnaireUserId());
     }
 
 }

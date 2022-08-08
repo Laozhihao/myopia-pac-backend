@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesSerialNumberDO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +47,21 @@ public class QuestionnaireInfoDTO extends Question implements Serializable {
      * 跳转Id
      */
     private List<JumpIdsDO> jumpIds;
+
+    /**
+     * 是否必填
+     */
+    private Boolean required;
+
+    /**
+     * 是否隐藏
+     */
+    private Boolean isHidden;
+
+    /**
+     * qes
+     */
+    private List<QesSerialNumberDO> qesSerialNumber;
 
     /**
      * 子模块问题数组
