@@ -7,7 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.framework.core.util.CollectionUtils;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.constant.AreaTypeEnum;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.MonitorTypeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -37,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -106,10 +108,9 @@ public class UserAnswerFacade {
      */
     public List<UserQuestionRecord> getQuestionnaireRecordList(ExportCondition exportCondition, List<Integer> questionnaireTypeList,List<Integer> gradeTypeList) {
         List<Integer> conditionValue = getConditionValue(exportCondition);
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2));
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2),QuestionnaireStatusEnum.FINISH.getCode());
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> !Objects.equals(userQuestionRecord.getStatus(), QuestionnaireStatusEnum.NOT_START.getCode()))
                     .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()));
             List<UserQuestionRecord> collect;
             if (Objects.nonNull(exportCondition.getSchoolId())){
@@ -120,12 +121,28 @@ public class UserAnswerFacade {
                 collect = userQuestionRecordStream.collect(Collectors.toList());
             }
 
+            if (CollectionUtils.isEmpty(collect)){
+                return Lists.newArrayList();
+            }
+
             Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
-            List<Integer> planStudentIdList = planSchoolStudentList.stream()
-                    .filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()))
-                    .map(ScreeningPlanSchoolStudent::getId)
-                    .collect(Collectors.toList());
+
+            Set<Integer> districtIdList = Sets.newHashSet();
+            if(Objects.nonNull(exportCondition.getDistrictId())){
+                List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
+                districtIdList.addAll(districtIds);
+                if (!districtIds.contains(exportCondition.getDistrictId())){
+                    districtIdList.add(exportCondition.getDistrictId());
+                }
+            }
+
+            Stream<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentStream = planSchoolStudentList.stream().filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()));
+            //有数据过滤
+            if (!CollectionUtils.isEmpty(districtIdList)){
+                screeningPlanSchoolStudentStream = screeningPlanSchoolStudentStream.filter(planSchoolStudent-> districtIdList.contains(planSchoolStudent.getSchoolDistrictId()));
+            }
+            List<Integer> planStudentIdList = screeningPlanSchoolStudentStream .map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
 
             return collect.stream()
                     .filter(userQuestionRecord -> planStudentIdList.contains(userQuestionRecord.getUserId()))
@@ -173,6 +190,7 @@ public class UserAnswerFacade {
             excelStudentDataBO.setStudentId(studentId);
             Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
             TwoTuple<String, String> tuple = studentInfoMap.get(studentId);
+            excelStudentDataBO.setGradeCode(GradeCodeEnum.getByName(tuple.getFirst()).getCode());
             for (UserQuestionRecord userQuestionRecord : recordList) {
                 if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                         || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
@@ -494,6 +512,7 @@ public class UserAnswerFacade {
         List<HideQuestionDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestion(questionnaireId);
         dataProcess(userQuestionRecordList,hideQuestionDataBOList, excelStudentDataBOList);
         List<Integer> questionIds = questionnaireFacade.getQuestionIdSort(questionnaireIds);
+        CollectionUtil.sort(excelStudentDataBOList,Comparator.comparing(ExcelStudentDataBO::getGradeCode));
         return excelStudentDataBOList.stream().map(excelStudentDataBO -> {
             Map<Integer, String> answerDataMap = excelStudentDataBO.getAnswerDataMap();
             return questionIds.stream().map(answerDataMap::get).collect(Collectors.toList());

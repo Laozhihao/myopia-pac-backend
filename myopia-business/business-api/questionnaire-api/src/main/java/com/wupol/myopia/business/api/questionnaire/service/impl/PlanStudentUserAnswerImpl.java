@@ -74,6 +74,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         // 如果存在记录，且完成问卷，则更新状态
         if (Objects.nonNull(userQuestionRecord)) {
             if (Objects.equals(isFinish, Boolean.TRUE)) {
+                Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+                if (Objects.nonNull(questionnaire)){
+                    questionnaireIds.add(questionnaire.getId());
+                }
                 List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(planStudent.getId(), getUserType(), questionnaireIds);
                 userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
                 userQuestionRecordService.updateBatchById(userQuestionRecordList);

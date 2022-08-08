@@ -29,15 +29,10 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -120,7 +115,8 @@ public class ScreeningOrganizationBizService {
     @Autowired
     private SchoolGradeService schoolGradeService;
     @Autowired
-    private StudentService studentService;
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
 
     /**
      * 保存筛查机构
@@ -234,9 +230,12 @@ public class ScreeningOrganizationBizService {
         Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         // 调查问卷数据
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType());
+
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        Set<Integer> studentIds = userQuestionRecords.stream().map(UserQuestionRecord::getStudentId).collect(Collectors.toSet());
-        Map<Integer, List<Student>> userGradeIdMap = CollectionUtils.isEmpty(studentIds) ? Maps.newHashMap() : studentService.getByIds(studentIds).stream().collect(Collectors.groupingBy(Student::getGradeId));
+
+        Set<Integer> planStudentIds = userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
+        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = CollectionUtils.isEmpty(planStudentIds) ? Maps.newHashMap() : screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
+
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
         schoolIds.forEach(schoolId -> {
             RecordDetails detail = new RecordDetails();
@@ -291,7 +290,7 @@ public class ScreeningOrganizationBizService {
     private RecordDetails buildQuestion(RecordDetails detail,
                                         Map<Integer, List<UserQuestionRecord>> schoolMap,
                                         Integer schoolId,
-                                        Map<Integer, List<Student>> userGradeIdMap,
+                                        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap) {
         Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
                 .isEmpty(schoolMap.get(schoolId)) ? Maps.newHashMap() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
