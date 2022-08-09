@@ -37,7 +37,7 @@ public class QuestionnaireConstant {
     /**
      * 传染病表格
      */
-    public static final String INFECTIOUS_DISEASE_TITLE = "infectious-disease-title";
+    public static final String INFECTIOUS_DISEASE_TITLE = "infectious-disease-table";
 
 
     /**
@@ -58,7 +58,7 @@ public class QuestionnaireConstant {
     /**
      * 学校教室环境卫生
      */
-    public static final String SCHOOL_CLASSROOM_TITLE = "school-classroom-title";
+    public static final String SCHOOL_CLASSROOM_TITLE = "school-classroom-table";
 
     /**
      * 学校教师
