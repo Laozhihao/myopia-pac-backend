@@ -65,6 +65,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
         // 更新问卷信息
         updateTime(questionnaireId);
+        // 删除问卷中的page_json
+        Questionnaire questionnaire = getById(questionnaireId);
+        questionnaire.setPageJson(null);
+        updateById(questionnaire);
     }
 
     /**
@@ -75,12 +79,12 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     public List<QuestionnaireInfoDTO> getQuestionnaire(Integer questionnaireId) {
         Questionnaire questionnaire = this.getById(questionnaireId);
         Assert.notNull(questionnaire, "问卷不存在！");
-//        if (CollectionUtil.isNotEmpty(questionnaire.getPageJson())) {
-//            return questionnaire.getPageJson();
-//        }
+        if (CollUtil.isNotEmpty(questionnaire.getPageJson())) {
+            return questionnaire.getPageJson();
+        }
         //如果没有页面数据，组装问卷数据
         List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId);
-//        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
+        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
