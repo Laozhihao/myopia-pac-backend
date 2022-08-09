@@ -104,9 +104,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         List<Question> questions = questionService.listByIds(questionIds);
         Map<Integer, Question> questionMap = questions.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
         //过滤出顶层区域
-        List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream()
-                .filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid())
-                .sorted(Comparator.comparing(QuestionnaireQuestion::getSort)).collect(Collectors.toList());
+        List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream().filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid()).sorted(Comparator.comparing(QuestionnaireQuestion::getSort)).collect(Collectors.toList());
         partLists.forEach(it -> {
             Question question = questionMap.get(it.getQuestionId());
             QuestionnaireInfoDTO questionnaireInfoDTO = BeanCopyUtil.copyBeanPropertise(question, QuestionnaireInfoDTO.class);
@@ -257,8 +255,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     public Questionnaire getByType(Integer type) {
         LambdaQueryWrapper<Questionnaire> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Questionnaire::getType, type)
-                .orderByAsc(Questionnaire::getCreateTime);
+        queryWrapper.eq(Questionnaire::getType, type).orderByAsc(Questionnaire::getCreateTime);
         return baseMapper.selectOne(queryWrapper);
     }
 
@@ -292,7 +289,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             List<Option> options = s.getOptions();
             detail.setTableItems(options.stream().map(y -> {
                 JSONObject option = y.getOption();
-                return getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(1))), JSONObject.class));
+                return getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(1))), JSONObject.class), new TableItem());
             }).collect(Collectors.toList()));
             return detail;
         }).collect(Collectors.toList());
@@ -319,16 +316,13 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 String[] split = text.split("-");
                 JSONObject jsonObject = option.getOption();
                 for (int i = 1; i <= jsonObject.size(); i++) {
-                    JSONObject o = JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class);
                     TableItem tableItem = new TableItem();
-                    tableItem.setId(String.valueOf(o.get("id")));
                     if (i > 1) {
                         tableItem.setName(StringUtils.substringAfter(split[i - 1], "}"));
                     } else {
                         tableItem.setName(split[i - 1]);
                     }
-                    tableItem.setType(String.valueOf(o.get("dataType")));
-                    tableItems.add(tableItem);
+                    tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class), tableItem));
                 }
                 return new ClassroomItemTable.Detail(tableItems);
             }).collect(Collectors.toList());
@@ -353,7 +347,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             JSONObject option = question.getOptions().get(0).getOption();
             List<TableItem> tableItems = new ArrayList<>();
             for (int i = 1; i <= option.size(); i++) {
-                tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class)));
+                tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem()));
             }
             table.setInfo(tableItems);
             return table;
@@ -361,10 +355,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionResponse.setSchoolTeacherTables(collect);
     }
 
-    private TableItem getTableItem(JSONObject json) {
-        TableItem item = new TableItem();
+    private TableItem getTableItem(JSONObject json, TableItem item) {
         item.setId(String.valueOf(json.getString("id")));
-//                item.setName();
         item.setType(String.valueOf(json.get("dataType")));
         item.setDropSelectKey(String.valueOf(json.getString("dropSelectKey")));
         return item;
