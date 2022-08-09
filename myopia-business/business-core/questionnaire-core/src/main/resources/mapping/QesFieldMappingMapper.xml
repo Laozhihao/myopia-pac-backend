@@ -11,9 +11,11 @@
         <where>
             <trim prefixOverrides="and">
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
-                <if test="@Ognl@isNotEmpty(questionnaireId)">and `questionnaire_id` = #{questionnaireId}</if>
+                <if test="@Ognl@isNotEmpty(qesId)">and `qes_id` = #{qesId}</if>
+                <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
                 <if test="@Ognl@isNotEmpty(qesField)">and `qes_field` = #{qesField}</if>
                 <if test="@Ognl@isNotEmpty(systemField)">and `system_field` = #{systemField}</if>
+                <if test="@Ognl@isNotEmpty(optionId)">and `option_id` = #{optionId}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
             </trim>
@@ -22,7 +24,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, questionnaire_id, qes_field, system_field, create_time, update_time
+        id,qes_id, year, qes_field, system_field,option_id, create_time, update_time
     </sql>
 
 </mapper>

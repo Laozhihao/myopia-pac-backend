@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -17,6 +19,7 @@ import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBiz
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +55,9 @@ public class QuestionnaireManagementController {
     private QuestionBizService questionBizService;
     @Resource
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
+
+    @Resource
+    private QuestionnaireFacade questionnaireFacade;
 
     /**
      * 获得当前登录人的筛查任务
@@ -253,6 +259,16 @@ public class QuestionnaireManagementController {
     @GetMapping("/type")
     public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
         return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
+    }
+
+    @GetMapping("/test")
+    public void head(Integer[] questionnaireIds ){
+        if (ArrayUtil.isNotEmpty(questionnaireIds)){
+            List<List<String>> head = questionnaireFacade.getHead(Lists.newArrayList(questionnaireIds));
+            for (List<String> list : head) {
+                System.out.println(list);
+            }
+        }
     }
 
 }

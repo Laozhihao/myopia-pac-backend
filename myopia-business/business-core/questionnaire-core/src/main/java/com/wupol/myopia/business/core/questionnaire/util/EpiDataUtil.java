@@ -5,7 +5,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
     private static final String  PARAMETER = "\\{([^}]*)\\}";
-    private static final String EPIC = "EpiC.exe";
+    private static final String  EPIC = "EpiC.exe";
 
     /**
      * qes文件解析为txt文件
@@ -50,11 +49,11 @@ public class EpiDataUtil {
     /**
      * qes文件解析变量
      *
-     * @param multipartFile qes文件流
+     * @param qesFilePath qes文件地址
      * @param variableList qes文件中变量集合
      */
-    public static void qesToVariable(MultipartFile multipartFile, List<String> variableList){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream(),GBK))) {
+    public static void qesToVariable(String qesFilePath, List<String> variableList){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(qesFilePath),GBK))) {
             String line;
             while ((line = br.readLine()) != null) {
                 regularMatch(line,variableList);
@@ -84,11 +83,10 @@ public class EpiDataUtil {
 
     /**
      * 把数据导出成rec文件.
-     * @param qesPath       qes文件的路径，用于与txt合并生成带qes数据的rec文件
+     * @param qesPath       qes文件的路径，用于与txt合并生成带数据的rec文件
      * @param recPath       rec文件的路径
      * @param headerList    rec文件的头模版的属性
      * @param dataList      需要导出的数据
-     * @return
      */
     public static boolean exportRecFile(String qesPath, String recPath, List<String> headerList, List<List<String>> dataList) {
         String epiDataPath = IOUtils.getTempSubPath("EpiData");
@@ -118,7 +116,11 @@ public class EpiDataUtil {
     }
 
 
-    /** 把内容写到指定的txt文件 */
+    /**
+     * 把内容写到指定的txt文件
+     * @param list 写入内容集合
+     * @param filePath 写入文件地址
+     */
     private static boolean createTxt(List<String> list, String filePath) {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), GBK))) {
             for (String data : list) {
@@ -133,7 +135,12 @@ public class EpiDataUtil {
         }
     }
 
-    /** txt文件转rec文件 */
+    /**
+     * txt文件转rec文件
+     * @param txtPath txt文件地址
+     * @param qesPath qes文件地址
+     * @param recPath rec文件地址
+     */
     private static boolean txt2Rec(String txtPath, String qesPath, String recPath) {
         String[] cmd = { EPIC, "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=dd/mm/yyyy" };
         log.info("[START]-[txt convert to rec] {}, {}", txtPath, recPath);
