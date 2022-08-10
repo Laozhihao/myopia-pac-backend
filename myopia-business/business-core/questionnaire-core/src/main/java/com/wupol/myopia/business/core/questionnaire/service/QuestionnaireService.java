@@ -118,6 +118,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setJumpIds(it.getJumpIds());
             questionnaireInfoDTO.setIsHidden(it.getIsHidden());
             questionnaireInfoDTO.setRequired(it.getRequired());
+            questionnaireInfoDTO.setQesData(it.getQesData());
             List<QuestionResponse> questionList = Lists.newArrayList();
             List<QuestionnaireQuestion> collect;
 

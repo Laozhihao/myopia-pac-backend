@@ -59,6 +59,11 @@ public class QuestionnaireInfoDTO extends Question implements Serializable {
     private Boolean isHidden;
 
     /**
+     * qes信息
+     */
+    private List<QesDataDO> qesData;
+
+    /**
      * 子模块问题数组
      */
     private List<QuestionResponse> questionList;
