@@ -120,22 +120,5 @@ public class QuestionnaireQuestionBizService {
         return response;
     }
 
-    /**
-     * 设置qes数据
-     *
-     * @param questionnaireId 问卷Id
-     * @param questionId      问题Id
-     * @param qesData         qes文件
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void setQesData(Integer questionnaireId, Integer questionId, List<QesDataDO> qesData) {
-        QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionService.getByQuestionnaireIdAndQuestionId(questionnaireId, questionId);
-        if (Objects.isNull(questionnaireQuestion)) {
-            throw new BusinessException("问题异常！");
-        }
-        questionnaireQuestion.setQesData(qesData);
-        questionnaireQuestionService.updateById(questionnaireQuestion);
-    }
-
 
 }

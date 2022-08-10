@@ -267,18 +267,4 @@ public class QuestionnaireManagementController {
         return SelectKeyEnum.getList();
     }
 
-    /**
-     * 设置qes数据
-     *
-     * @param questionnaireId 问卷Id
-     * @param questionId      问题Id
-     * @param qesData         qes文件
-     */
-    @PutMapping("setQesData/{questionnaireId}/{questionId}")
-    public void setQesData(@PathVariable("questionnaireId") Integer questionnaireId,
-                           @PathVariable("questionId") Integer questionId,
-                           @RequestBody List<QesDataDO> qesData) {
-        questionnaireQuestionBizService.setQesData(questionnaireId, questionId, qesData);
-    }
-
 }
