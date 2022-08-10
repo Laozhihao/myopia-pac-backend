@@ -72,6 +72,11 @@ public class EditQuestionnaireRequestDTO {
         private List<Detail> questionList;
 
         /**
+         * 是否隐藏
+         */
+        private Boolean isHidden;
+
+        /**
          * qes内容
          */
         private List<QesDataDO> qesData;
