@@ -42,11 +42,6 @@ public class VisionScreeningResultDTO extends VisionScreeningResult {
     private BigDecimal rightSE;
 
     /**
-     * 计划ID
-     */
-    private Integer planId;
-
-    /**
      * 计划标题
      */
     private String planTitle;
