@@ -33,5 +33,10 @@ public class TableItem implements Serializable {
      * 下拉key
      */
     private String dropSelectKey;
+
+    /**
+     * 问题Id
+     */
+    private Integer questionId;
 }
 

@@ -15,6 +15,7 @@ import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
 import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -264,6 +265,20 @@ public class QuestionnaireManagementController {
     @GetMapping("select/list")
     public List<SelectKeyEnum.SelectKey> getSelectList() {
         return SelectKeyEnum.getList();
+    }
+
+    /**
+     * 设置qes数据
+     *
+     * @param questionnaireId 问卷Id
+     * @param questionId      问题Id
+     * @param qesData         qes文件
+     */
+    @PutMapping("setQesData/{questionnaireId}/{questionId}")
+    public void setQesData(@PathVariable("questionnaireId") Integer questionnaireId,
+                           @PathVariable("questionId") Integer questionId,
+                           @RequestBody List<QesDataDO> qesData) {
+        questionnaireQuestionBizService.setQesData(questionnaireId, questionId, qesData);
     }
 
 }

@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
@@ -83,8 +84,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             return questionnaire.getPageJson();
         }
         //如果没有页面数据，组装问卷数据
-        List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId);
-        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
+        List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId, false);
+//        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
@@ -94,7 +95,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      *
      * @return List<QuestionnaireInfoDTO>
      */
-    protected List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId) {
+    public List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId, Boolean isShowAll) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
         if (CollUtil.isEmpty(questionnaireQuestions)) {
@@ -220,7 +221,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         responseDTO.setId(questionnaire.getId());
         responseDTO.setTitle(questionnaire.getTitle());
         responseDTO.setYear(questionnaire.getYear());
-        responseDTO.setDetail(getQuestionnaireInfo(id));
+        responseDTO.setDetail(getQuestionnaireInfo(id, true));
         return responseDTO;
     }
 
@@ -284,12 +285,12 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         List<QuestionnaireQuestion> questionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(q1.getQuestionnaireId()).setPid(q1.getId()));
         List<Integer> questionIds = questionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         List<Question> questions = questionService.listByIds(questionIds);
-        List<InfectiousDiseaseTable.Detail> collect = questions.stream().map(s -> {
+        List<InfectiousDiseaseTable.Detail> collect = questions.stream().map(question -> {
             InfectiousDiseaseTable.Detail detail = new InfectiousDiseaseTable.Detail();
-            List<Option> options = s.getOptions();
+            List<Option> options = question.getOptions();
             detail.setTableItems(options.stream().map(y -> {
                 JSONObject option = y.getOption();
-                return getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(1))), JSONObject.class), new TableItem());
+                return getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(1))), JSONObject.class), new TableItem(), question.getId());
             }).collect(Collectors.toList()));
             return detail;
         }).collect(Collectors.toList());
@@ -322,7 +323,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                     } else {
                         tableItem.setName(split[i - 1]);
                     }
-                    tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class), tableItem));
+                    tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class), tableItem, question.getId()));
                 }
                 return new ClassroomItemTable.Detail(tableItems);
             }).collect(Collectors.toList());
@@ -347,7 +348,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             JSONObject option = question.getOptions().get(0).getOption();
             List<TableItem> tableItems = new ArrayList<>();
             for (int i = 1; i <= option.size(); i++) {
-                tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem()));
+                tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem(), question.getId()));
             }
             table.setInfo(tableItems);
             return table;
@@ -355,20 +356,21 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionResponse.setSchoolTeacherTables(collect);
     }
 
-    private TableItem getTableItem(JSONObject json, TableItem item) {
+    private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
         item.setId(String.valueOf(json.getString("id")));
         item.setType(String.valueOf(json.get("dataType")));
         item.setDropSelectKey(String.valueOf(json.getString("dropSelectKey")));
+        item.setQuestionId(questionId);
         return item;
     }
 
 
-    /**
-     * 封装qes问卷
-     *
-     * @param questionResponse 返回
-     * @param qesData          qes信息
-     */
+//    /**
+//     * 封装qes问卷
+//     *
+//     * @param questionResponse 返回
+//     * @param qesData          qes信息
+//     */
 //    private void setQesData(QuestionResponse questionResponse, List<QesDataDO> qesData) {
 //        List<Option> options = questionResponse.getOptions();
 //        if (CollUtil.isEmpty(options) || Objects.isNull(qesData)) {
@@ -385,5 +387,14 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
 //        });
 //        questionResponse.setOptions(options);
 //    }
+
+    private List<Integer> tableQuestionIds(Integer questionnaireId) {
+        ArrayList<String> tableTypes = Lists.newArrayList(QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE, QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE, QuestionnaireConstant.TEACHER_TABLE);
+        List<Question> questions = questionService.getByTypes(tableTypes);
+        List<Integer> questionIds = questions.stream().map(Question::getId).collect(Collectors.toList());
+        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.getByQuestionnaireIdAndQuestionIds(questionnaireId, questionIds);
+        List<QuestionnaireQuestion> byPids = questionnaireQuestionService.getByPids(questionnaireQuestionList.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList()));
+        return byPids.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList());
+    }
 
 }

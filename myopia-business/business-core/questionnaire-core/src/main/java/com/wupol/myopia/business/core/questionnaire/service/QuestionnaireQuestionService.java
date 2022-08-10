@@ -109,4 +109,13 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         return baseMapper.selectList(wrapper);
     }
 
+    /**
+     * 通过Pid获取
+     */
+    public List<QuestionnaireQuestion> getByPids(List<Integer> pids) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(QuestionnaireQuestion::getPid, pids);
+        return baseMapper.selectList(wrapper);
+    }
+
 }
