@@ -94,7 +94,6 @@ public class QuestionnaireQuestion implements Serializable {
      * qes序号
      */
     @TableField(typeHandler = QesDataDoHandler.class)
-    @JsonIgnore
     private List<QesDataDO> qesData;
 
 }

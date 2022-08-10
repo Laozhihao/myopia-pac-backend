@@ -57,18 +57,18 @@ public class Option implements Serializable {
      */
     private JSONObject option;
 
-    /**
-     * qes序号
-     */
-    private String qesSerialNumber;
-
-    /**
-     * 展示序号
-     */
-    private String showSerialNumber;
-
-    /**
-     * qes字段
-     */
-    private String qesField;
+//    /**
+//     * qes序号
+//     */
+//    private String qesSerialNumber;
+//
+//    /**
+//     * 展示序号
+//     */
+//    private String showSerialNumber;
+//
+//    /**
+//     * qes字段
+//     */
+//    private String qesField;
 }

@@ -80,4 +80,9 @@ public class QuestionResponse extends Question implements Serializable {
      */
     private Boolean isHidden;
 
+    /**
+     * qes信息
+     */
+    private List<QesDataDO> qesData;
+
 }
