@@ -32,7 +32,7 @@ public class Question implements Serializable {
     /**
      * 顶层父级的标志Id
      */
-    public static final int TOP_PARENT_ID  = -1;
+    public static final int TOP_PARENT_ID = -1;
 
     /**
      * 主键

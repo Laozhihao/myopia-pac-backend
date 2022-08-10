@@ -33,4 +33,36 @@ public class QuestionnaireConstant {
      * 父ID值
      */
     public static final Integer PID = -1;
+
+    /**
+     * 传染病表格
+     */
+    public static final String INFECTIOUS_DISEASE_TITLE = "infectious-disease-table";
+
+
+    /**
+     *传染病
+     */
+    public static final String INFECTIOUS_DISEASE_PREFIX = "传染病-";
+
+    /**
+     * 甲乙类
+     */
+    public static final String INFECTIOUS_DISEASE_ONE = "甲乙类";
+
+    /**
+     * 丙类
+     */
+    public static final String INFECTIOUS_DISEASE_TWO = "丙类";
+
+    /**
+     * 学校教室环境卫生
+     */
+    public static final String SCHOOL_CLASSROOM_TITLE = "school-classroom-table";
+
+    /**
+     * 学校教师
+     */
+    public static final String TEACHER_TABLE = "teacher-table";
+
 }

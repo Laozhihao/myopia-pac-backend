@@ -45,5 +45,10 @@ public class OptionAttribute implements Serializable {
      */
     private Boolean required;
 
+    /**
+     * 小数位
+     */
+    private Integer range;
+
 
 }

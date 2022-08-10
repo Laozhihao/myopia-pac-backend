@@ -3,11 +3,10 @@ package com.wupol.myopia.business.common.utils.constant;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 问卷类型Enum
@@ -60,7 +59,7 @@ public enum QuestionnaireTypeEnum {
      *
      * @return List<QuestionnaireTypeEnum>
      */
-    public static List<QuestionnaireTypeEnum> getBySchoolAge(Integer gradeType) {
+    public static List<QuestionnaireTypeEnum> getStudentQuestionnaireBySchoolAge(Integer gradeType) {
         if (Boolean.TRUE.equals(SchoolAge.isPrimary(gradeType))) {
             return getPrimaryType();
         }
@@ -73,11 +72,29 @@ public enum QuestionnaireTypeEnum {
         return new ArrayList<>();
     }
 
-    public static QuestionnaireTypeEnum getQuestionnaireType(Integer type){
+    public static QuestionnaireTypeEnum getQuestionnaireType(Integer type) {
         return Arrays.stream(values())
-                .filter(item -> Objects.equals(item.getType(),type))
+                .filter(item -> Objects.equals(item.getType(), type))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * 获取学校问卷
+     *
+     * @return List<QuestionnaireTypeEnum>
+     */
+    public static List<QuestionnaireTypeEnum> getSchoolQuestionnaireType() {
+        return Lists.newArrayList(PRIMARY_SECONDARY_SCHOOLS);
+    }
+
+    /**
+     * 获取政府问卷
+     *
+     * @return List<QuestionnaireTypeEnum>
+     */
+    public static List<QuestionnaireTypeEnum> getGovQuestionnaireType() {
+        return Lists.newArrayList(AREA_DISTRICT_SCHOOL, SCHOOL_ENVIRONMENT);
     }
 
 }

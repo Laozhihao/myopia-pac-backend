@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicDeletedRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicEditRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.LogicFindQuestionResponseDTO;
@@ -58,7 +59,7 @@ public class QuestionnaireQuestionBizService {
                 .collect(Collectors.toMap(Question::getId, Function.identity()));
 
         questionnaireQuestions.forEach(questionnaireQuestion ->
-                responses.add(questionnaireService.commonBuildQuestion(questionMaps.get(questionnaireQuestion.getQuestionId()), questionnaireQuestion)));
+                responses.add(questionnaireService.commonBuildQuestion(questionMaps.get(questionnaireQuestion.getQuestionId()), questionnaireQuestion, questionMaps)));
         return responses;
     }
 

@@ -153,7 +153,7 @@ public class CurrentUser {
             return questionnaireUserId;
         }
         if (isGovDeptUser()) {
-            return id;
+            return orgId;
         }
         throw new BusinessException("获取用户Id异常");
     }

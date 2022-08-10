@@ -109,4 +109,20 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 获取用户记录表
+     *
+     * @param userId          用户id
+     * @param userType        用户类型
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserQuestionRecord
+     */
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId) {
+        return findOne(new UserQuestionRecord()
+                .setUserId(userId)
+                .setUserType(userType)
+                .setQuestionnaireId(questionnaireId));
+    }
+
 }

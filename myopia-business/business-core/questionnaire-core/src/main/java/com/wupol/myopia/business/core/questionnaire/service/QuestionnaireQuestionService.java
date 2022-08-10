@@ -36,6 +36,8 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setIsNotShowNumber(detail.getIsNotShowNumber());
             question.setJumpIds(detail.getJumpIds());
             question.setIsLogic(detail.getIsLogic());
+            question.setQesData(detail.getQesData());
+            question.setIsHidden(detail.getIsHidden());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
             if (!CollectionUtils.isEmpty(questionList)) {
@@ -95,6 +97,27 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
      */
     public void deletedLogic(Integer questionnaireId, Integer questionId) {
         baseMapper.deletedLogic(questionnaireId, questionId);
+    }
+
+    /**
+     * 通过问卷、问题Id获取
+     *
+     * @return QuestionnaireQuestion
+     */
+    public List<QuestionnaireQuestion> getByQuestionnaireIdAndQuestionIds(Integer questionnaireId, List<Integer> questionIds) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getQuestionId, questionIds);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 通过Pid获取
+     */
+    public List<QuestionnaireQuestion> getByPids(List<Integer> pids) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(QuestionnaireQuestion::getPid, pids);
+        return baseMapper.selectList(wrapper);
     }
 
 }
