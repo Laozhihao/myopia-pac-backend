@@ -167,12 +167,12 @@ public class ScreeningOrganizationBizService {
      *
      * @param request 分页入参
      * @param orgId   机构ID
+     * @param currentUser   当前登录用户
      * @return {@link IPage}
      */
-    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId) {
-
+    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser());
         List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;

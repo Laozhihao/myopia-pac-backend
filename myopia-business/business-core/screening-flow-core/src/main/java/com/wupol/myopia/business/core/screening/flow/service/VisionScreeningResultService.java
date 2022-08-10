@@ -62,10 +62,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * 通过StudentId获取筛查结果
      *
      * @param studentId id
-     * @return List<ScreeningResult>
+     * @param needFilterAbolishPlan 是否需要过滤作废的计划
+     * @return IPage<VisionScreeningResultDTO>
      */
-    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
+    public IPage<VisionScreeningResultDTO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId, boolean needFilterAbolishPlan) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId, needFilterAbolishPlan);
     }
 
 

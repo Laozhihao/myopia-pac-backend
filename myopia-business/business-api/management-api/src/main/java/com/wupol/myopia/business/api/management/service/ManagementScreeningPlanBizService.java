@@ -60,7 +60,6 @@ public class ManagementScreeningPlanBizService {
      * @return
      */
     public IPage<ScreeningPlanPageDTO> getPage(ScreeningPlanQueryDTO query, PageRequest pageRequest) {
-        Page<ScreeningPlan> page = (Page<ScreeningPlan>) pageRequest.toPage();
         if (StringUtils.isNotBlank(query.getCreatorNameLike()) && screeningRelatedFacade.initCreateUserIdsAndReturnIsEmpty(query)) {
             return new Page<>();
         }
@@ -73,7 +72,7 @@ public class ManagementScreeningPlanBizService {
             }
             query.setScreeningOrgIds(orgIds);
         }
-        IPage<ScreeningPlanPageDTO> screeningPlanIPage = screeningPlanService.selectPageByQuery(page, query);
+        IPage<ScreeningPlanPageDTO> screeningPlanIPage = screeningPlanService.selectPageByQuery(pageRequest.toPage(), query);
         // 设置创建人、地址、部门名称及机构名称
         List<Integer> allGovDeptIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlanPageDTO::getGovDeptId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));

@@ -40,4 +40,19 @@ public class VisionScreeningResultDTO extends VisionScreeningResult {
      * 等效球镜(右眼)
      */
     private BigDecimal rightSE;
+
+    /**
+     * 计划ID
+     */
+    private Integer planId;
+
+    /**
+     * 计划标题
+     */
+    private String planTitle;
+
+    /**
+     * 筛查计划--发布状态 （0-未发布、1-已发布、2-作废）
+     */
+    private Integer releaseStatus;
 }

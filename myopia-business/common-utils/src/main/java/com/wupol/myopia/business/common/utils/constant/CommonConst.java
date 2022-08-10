@@ -59,6 +59,11 @@ public class CommonConst {
     public final Integer STATUS_RELEASE = 1;
 
     /**
+     * 筛查 作废
+     */
+    public final Integer STATUS_ABOLISH = 2;
+
+    /**
      * 筛查表默认ID
      */
     public final Integer DEFAULT_ID = 0;

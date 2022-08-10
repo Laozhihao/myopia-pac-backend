@@ -111,6 +111,9 @@ public class ScreeningPlanController {
     private ReviewInformService reviewInformService;
     @Autowired
     private QuestionnaireLoginService questionnaireLoginService;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+
     /**
      * 新增
      *
@@ -198,6 +201,7 @@ public class ScreeningPlanController {
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             query.setScreeningOrgId(user.getScreeningOrgId());
         }
+        query.setNeedFilterAbolishPlan(!user.isPlatformAdminUser());
         return managementScreeningPlanBizService.getPage(query, page);
     }
 
@@ -740,5 +744,41 @@ public class ScreeningPlanController {
     @GetMapping("/government")
     public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
         return this.questionnaireLoginService.checkGovernmentLogin(orgId);
+    }
+
+    /**
+     * 作废计划
+     *
+     * @param planId 筛查计划ID
+     * @return void
+     **/
+    @PutMapping("/abolish/{planId}")
+    public void abolishScreeningPlan(@PathVariable("planId") Integer planId) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(planId);
+        Assert.isTrue(Objects.nonNull(screeningPlan) && !CommonConst.STATUS_ABOLISH.equals(screeningPlan.getReleaseStatus()), "无效筛查计划");
+        // 1.身份校验，仅平台管理员可以作废计划
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Assert.isTrue(currentUser.isPlatformAdminUser(), "无操作权限，请联系平台管理员");
+        // 2.更新计划状态为作废状态
+        screeningPlanService.updateById(new ScreeningPlan().setId(planId).setReleaseStatus(CommonConst.STATUS_ABOLISH));
+        // 3.筛查通知状态变更未创建
+        if (Objects.nonNull(screeningPlan.getSrcScreeningNoticeId())) {
+            screeningNoticeDeptOrgService.updateById(new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setAcceptOrgId(screeningPlan.getScreeningOrgId()).setOperationStatus(CommonConst.STATUS_NOTICE_READ), currentUser.getId());
+        }
+    }
+
+    /**
+     * 删除计划学校
+     *
+     * @param planId    计划ID
+     * @param schoolId  学校ID
+     * @return void
+     **/
+    @DeleteMapping("/school/{planId}/{schoolId}")
+    public void deletePlanSchool(@PathVariable("planId") Integer planId, @PathVariable("schoolId") Integer schoolId) {
+        int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId));
+        Assert.isTrue(count > 0, "该学校已有筛查数据，不可删除！");
+        screeningPlanSchoolService.remove(new ScreeningPlanSchool().setScreeningPlanId(planId).setSchoolId(schoolId));
+        screeningPlanSchoolStudentService.remove(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(schoolId));
     }
 }

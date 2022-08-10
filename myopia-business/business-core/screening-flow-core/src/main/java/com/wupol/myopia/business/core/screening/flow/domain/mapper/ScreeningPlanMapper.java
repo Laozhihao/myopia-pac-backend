@@ -21,11 +21,11 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
 
-    IPage<ScreeningPlanPageDTO> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQueryDTO query);
+    IPage<ScreeningPlanPageDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningPlanQueryDTO query);
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
 
-    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId);
+    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
     List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
 

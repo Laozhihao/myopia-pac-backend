@@ -75,7 +75,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return updateById(entity);
     }
 
-    public IPage<ScreeningPlanPageDTO> selectPageByQuery(Page<ScreeningPlan> page, ScreeningPlanQueryDTO query) {
+    public IPage<ScreeningPlanPageDTO> selectPageByQuery(Page<?> page, ScreeningPlanQueryDTO query) {
         return baseMapper.selectPageByQuery(page, query);
     }
 
@@ -189,10 +189,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param pageRequest 分页请求
      * @param orgId       机构ID
+     * @param needFilterAbolishPlan   需要排除作废的计划
      * @return IPage<ScreeningTaskResponse>
      */
-    public IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(PageRequest pageRequest, Integer orgId) {
-        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId);
+    public IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(PageRequest pageRequest, Integer orgId, boolean needFilterAbolishPlan) {
+        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId, needFilterAbolishPlan);
     }
 
     /**

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import org.apache.ibatis.annotations.Param;
 
@@ -55,7 +56,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<VisionScreeningResult> getFirstByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
-    IPage<VisionScreeningResult> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId);
+    IPage<VisionScreeningResultDTO> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
     List<ScreeningSchoolCount> countScreeningSchoolByTaskId(@Param("taskId") Integer taskId);
 
