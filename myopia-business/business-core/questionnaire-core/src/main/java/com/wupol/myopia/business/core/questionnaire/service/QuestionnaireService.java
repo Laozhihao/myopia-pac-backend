@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
@@ -104,6 +103,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         List<Question> questions = questionService.listByIds(questionIds);
         Map<Integer, Question> questionMap = questions.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
+        List<Integer> tableQuestionIds = tableQuestionIds(questionnaireId, isShowAll);
         //过滤出顶层区域
         List<QuestionnaireQuestion> partLists = questionnaireQuestions.stream().filter(it -> QuestionnaireQuestion.TOP_PARENT_ID == it.getPid()).sorted(Comparator.comparing(QuestionnaireQuestion::getSort)).collect(Collectors.toList());
         partLists.forEach(it -> {
@@ -118,12 +119,19 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setIsHidden(it.getIsHidden());
             questionnaireInfoDTO.setRequired(it.getRequired());
             List<QuestionResponse> questionList = Lists.newArrayList();
+            List<QuestionnaireQuestion> collect;
+
+            if (Boolean.FALSE.equals(isShowAll)) {
+                collect = questionnaireQuestions.stream().filter(s -> !tableQuestionIds.contains(s.getId())).collect(Collectors.toList());
+            } else {
+                collect = questionnaireQuestions;
+            }
             //构建此模块下的所有问题
-            questionnaireQuestions.forEach(child -> {
+            collect.forEach(child -> {
                 if (it.getId().equals(child.getPid())) {
                     Question childQuestion = questionMap.get(child.getQuestionId());
                     QuestionResponse questionResponse = commonBuildQuestion(childQuestion, child, questionMap);
-                    buildQuestion(questionResponse, child.getId(), questionnaireQuestions, questionMap);
+                    buildQuestion(questionResponse, child.getId(), collect, questionMap);
                     questionList.add(questionResponse);
                 }
             });
@@ -388,13 +396,32 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
 //        questionResponse.setOptions(options);
 //    }
 
-    private List<Integer> tableQuestionIds(Integer questionnaireId) {
+    /**
+     * 需要过滤的题目
+     */
+    private List<Integer> tableQuestionIds(Integer questionnaireId, Boolean isShowAll) {
+        if (Boolean.TRUE.equals(isShowAll)) {
+            return new ArrayList<>();
+        }
         ArrayList<String> tableTypes = Lists.newArrayList(QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE, QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE, QuestionnaireConstant.TEACHER_TABLE);
         List<Question> questions = questionService.getByTypes(tableTypes);
         List<Integer> questionIds = questions.stream().map(Question::getId).collect(Collectors.toList());
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.getByQuestionnaireIdAndQuestionIds(questionnaireId, questionIds);
-        List<QuestionnaireQuestion> byPids = questionnaireQuestionService.getByPids(questionnaireQuestionList.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList()));
-        return byPids.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList());
+        List<Integer> ids = questionnaireQuestionList.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList());
+        return getAllFilterId(ids, new ArrayList<>());
+    }
+
+    /**
+     * 获取需要过滤的Id
+     */
+    private List<Integer> getAllFilterId(List<Integer> ids, List<Integer> result) {
+        List<QuestionnaireQuestion> byPids = questionnaireQuestionService.getByPids(ids);
+        List<Integer> temp = byPids.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList());
+        result.addAll(temp);
+        if (CollUtil.isNotEmpty(temp)) {
+            getAllFilterId(temp, result);
+        }
+        return result;
     }
 
 }
