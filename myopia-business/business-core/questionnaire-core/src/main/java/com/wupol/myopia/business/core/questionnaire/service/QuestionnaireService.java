@@ -116,7 +116,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setJumpIds(it.getJumpIds());
             questionnaireInfoDTO.setIsHidden(it.getIsHidden());
             questionnaireInfoDTO.setRequired(it.getRequired());
-            questionnaireInfoDTO.setQesSerialNumber(it.getQesSerialNumber());
             List<QuestionResponse> questionList = Lists.newArrayList();
             //构建此模块下的所有问题
             questionnaireQuestions.forEach(child -> {
@@ -169,8 +168,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsLogic(it.getIsLogic());
         childQuestionResponse.setJumpIds(it.getJumpIds());
         childQuestionResponse.setIsHidden(it.getIsHidden());
-        childQuestionResponse.setQesSerialNumber(it.getQesSerialNumber());
         setJumpIds(childQuestionResponse, it.getJumpIds());
+        setQesData(childQuestionResponse, it.getQesData());
         if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
             setInfectiousDiseaseTitle(childQuestionResponse, it);
         }
@@ -199,6 +198,29 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             JumpIdsDO result = jumpIdsDOMap.get(option.getId());
             if (Objects.nonNull(result)) {
                 option.setJumpIds(result.getJumpIds());
+            }
+        });
+        questionResponse.setOptions(options);
+    }
+
+    /**
+     * 封装qes问卷
+     *
+     * @param questionResponse 返回
+     * @param qesData          qes信息
+     */
+    private void setQesData(QuestionResponse questionResponse, List<QesDataDO> qesData) {
+        List<Option> options = questionResponse.getOptions();
+        if (CollUtil.isEmpty(options) || Objects.isNull(qesData)) {
+            return;
+        }
+        Map<String, QesDataDO> qesDataMap = qesData.stream().collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
+        options.forEach(option -> {
+            QesDataDO result = qesDataMap.get(option.getId());
+            if (Objects.nonNull(result)) {
+                option.setQesSerialNumber(result.getQesSerialNumber());
+                option.setShowSerialNumber(result.getShowSerialNumber());
+                option.setQesField(result.getQesField());
             }
         });
         questionResponse.setOptions(options);

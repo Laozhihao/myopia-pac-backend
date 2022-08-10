@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QesSerialNumberDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.handle.JumpIdsDoHandler;
-import com.wupol.myopia.business.core.questionnaire.domain.handle.QesNumberDoHandler;
+import com.wupol.myopia.business.core.questionnaire.domain.handle.QesDataDoHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -92,7 +93,8 @@ public class QuestionnaireQuestion implements Serializable {
     /**
      * qes序号
      */
-    @TableField(typeHandler = QesNumberDoHandler.class)
-    private List<QesSerialNumberDO> qesSerialNumber;
+    @TableField(typeHandler = QesDataDoHandler.class)
+    @JsonIgnore
+    private List<QesDataDO> qesData;
 
 }

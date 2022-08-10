@@ -97,4 +97,16 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
         baseMapper.deletedLogic(questionnaireId, questionId);
     }
 
+    /**
+     * 通过问卷、问题Id获取
+     *
+     * @return QuestionnaireQuestion
+     */
+    public List<QuestionnaireQuestion> getByQuestionnaireIdAndQuestionIds(Integer questionnaireId, List<Integer> questionIds) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getQuestionId, questionIds);
+        return baseMapper.selectList(wrapper);
+    }
+
 }

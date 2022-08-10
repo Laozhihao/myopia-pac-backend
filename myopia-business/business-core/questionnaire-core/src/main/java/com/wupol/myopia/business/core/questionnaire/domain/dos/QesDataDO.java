@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
-public class QesSerialNumberDO implements Serializable {
+public class QesDataDO implements Serializable {
 
     /**
      * 选项Id
@@ -23,4 +23,14 @@ public class QesSerialNumberDO implements Serializable {
      * qes序号
      */
     private String qesSerialNumber;
+
+    /**
+     * 展示序号
+     */
+    private String showSerialNumber;
+
+    /**
+     * qes字段
+     */
+    private String qesField;
 }
