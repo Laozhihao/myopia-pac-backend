@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.constant;
 
-import lombok.AllArgsConstructor;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.SelectDropResponseDTO;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,23 +38,24 @@ public enum SelectKeyEnum {
         this.desc = desc;
     }
 
+    /**
+     * 获取下拉key
+     */
     public static List<SelectKey> getList() {
         return Arrays.stream(SelectKeyEnum.values()).map(s -> new SelectKey(s.getKey(), s.getDesc())).collect(Collectors.toList());
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SelectKey {
-        /**
-         * key
-         **/
-        private String key;
-
-        /**
-         * 描述
-         **/
-        private String desc;
+    /**
+     * 获取下拉key-详情
+     */
+    public static List<SelectDropResponseDTO> getSelectDropResponseDTO() {
+        List<SelectKey> list = getList();
+        return list.stream().map(s->{
+            SelectDropResponseDTO responseDTO = new SelectDropResponseDTO();
+            responseDTO.setKey(s.getKey());
+            responseDTO.setDesc(s.getDesc());
+            responseDTO.setDropSelects(DropSelectEnum.getSelect(s.getKey()));
+            return responseDTO;
+        }).collect(Collectors.toList());
     }
 }

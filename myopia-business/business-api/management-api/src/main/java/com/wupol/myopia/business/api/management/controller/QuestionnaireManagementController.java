@@ -263,8 +263,8 @@ public class QuestionnaireManagementController {
      * @return key
      */
     @GetMapping("select/list")
-    public List<SelectKeyEnum.SelectKey> getSelectList() {
-        return SelectKeyEnum.getList();
+    public List<SelectDropResponseDTO> getSelectList() {
+        return SelectKeyEnum.getSelectDropResponseDTO();
     }
 
 }
