@@ -197,7 +197,7 @@ public class ScreeningOrganizationBizService {
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
-        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
+        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime(), planResponse.getReleaseStatus()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
