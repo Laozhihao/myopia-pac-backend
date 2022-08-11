@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -182,7 +181,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsHidden(it.getIsHidden());
         childQuestionResponse.setQesData(it.getQesData());
         setJumpIds(childQuestionResponse, it.getJumpIds());
-//        setQesData(childQuestionResponse, it.getQesData());
         if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
             setInfectiousDiseaseTitle(childQuestionResponse, it);
         }
@@ -367,37 +365,23 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         questionResponse.setSchoolTeacherTables(collect);
     }
 
+    /**
+     * 获取表格详情
+     *
+     * @param json       json
+     * @param item       item
+     * @param questionId 问题Id
+     *
+     * @return TableItem
+     */
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
-        item.setId(String.valueOf(json.getString("id")));
-        item.setType(String.valueOf(json.get("dataType")));
-        item.setDropSelectKey(String.valueOf(json.getString("dropSelectKey")));
+        item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
+        item.setType(String.valueOf(json.get(QuestionnaireConstant.DATA_TYPE)));
+        item.setDropSelectKey(String.valueOf(json.getString(QuestionnaireConstant.DROP_SELECT_KEY)));
         item.setQuestionId(questionId);
+        item.setRequired(json.getBoolean(QuestionnaireConstant.REQUIRED));
         return item;
     }
-
-
-//    /**
-//     * 封装qes问卷
-//     *
-//     * @param questionResponse 返回
-//     * @param qesData          qes信息
-//     */
-//    private void setQesData(QuestionResponse questionResponse, List<QesDataDO> qesData) {
-//        List<Option> options = questionResponse.getOptions();
-//        if (CollUtil.isEmpty(options) || Objects.isNull(qesData)) {
-//            return;
-//        }
-//        Map<String, QesDataDO> qesDataMap = qesData.stream().collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
-//        options.forEach(option -> {
-//            QesDataDO result = qesDataMap.get(option.getId());
-//            if (Objects.nonNull(result)) {
-//                option.setQesSerialNumber(result.getQesSerialNumber());
-//                option.setShowSerialNumber(result.getShowSerialNumber());
-//                option.setQesField(result.getQesField());
-//            }
-//        });
-//        questionResponse.setOptions(options);
-//    }
 
     /**
      * 需要过滤的题目

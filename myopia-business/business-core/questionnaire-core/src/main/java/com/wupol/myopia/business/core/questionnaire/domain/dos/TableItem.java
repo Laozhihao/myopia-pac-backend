@@ -38,5 +38,10 @@ public class TableItem implements Serializable {
      * 问题Id
      */
     private Integer questionId;
+
+    /**
+     * 是否必填
+     */
+    private Boolean required;
 }
 

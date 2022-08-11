@@ -65,4 +65,24 @@ public class QuestionnaireConstant {
      */
     public static final String TEACHER_TABLE = "teacher-table";
 
+    /**
+     * id
+     */
+    public static final String ID = "id";
+
+    /**
+     * 数据类型
+     */
+    public static final String DATA_TYPE = "dataType";
+
+    /**
+     * 下拉key
+     */
+    public static final String DROP_SELECT_KEY = "dropSelectKey";
+
+    /**
+     * 是否必填
+     */
+    public static final String REQUIRED = "required";
+
 }
