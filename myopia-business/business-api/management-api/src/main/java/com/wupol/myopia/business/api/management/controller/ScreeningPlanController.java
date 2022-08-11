@@ -113,6 +113,8 @@ public class ScreeningPlanController {
     private QuestionnaireLoginService questionnaireLoginService;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
 
     /**
      * 新增
@@ -762,8 +764,10 @@ public class ScreeningPlanController {
         // 2.更新计划状态为作废状态
         screeningPlanService.updateById(new ScreeningPlan().setId(planId).setReleaseStatus(CommonConst.STATUS_ABOLISH));
         // 3.筛查通知状态变更未创建
-        if (Objects.nonNull(screeningPlan.getSrcScreeningNoticeId())) {
-            screeningNoticeDeptOrgService.updateById(new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setAcceptOrgId(screeningPlan.getScreeningOrgId()).setOperationStatus(CommonConst.STATUS_NOTICE_READ), currentUser.getId());
+        if (Objects.nonNull(screeningPlan.getScreeningTaskId())) {
+            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
+            ScreeningNoticeDeptOrg screeningNoticeDeptOrg = new ScreeningNoticeDeptOrg().setOperationStatus(CommonConst.STATUS_NOTICE_READ).setOperatorId(currentUser.getId()).setScreeningTaskPlanId(0);
+            screeningNoticeDeptOrgService.update(screeningNoticeDeptOrg, new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setAcceptOrgId(screeningPlan.getScreeningOrgId()));
         }
     }
 
