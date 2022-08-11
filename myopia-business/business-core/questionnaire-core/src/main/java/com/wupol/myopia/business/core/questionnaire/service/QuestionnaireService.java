@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -437,8 +438,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (StringUtils.isBlank(str)) {
             return str;
         }
-        if (StringUtils.contains(str, "*")) {
-            return StringUtils.substringAfter(str, "*");
+        if (StringUtils.contains(str, "||")) {
+            return StringUtils.substringAfter(str, "||");
         }
         return str;
     }
