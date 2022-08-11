@@ -47,6 +47,7 @@ public class QuestionBizService {
 
         //选项Id唯一判断
         List<String> optionIdsByQuestion = getOptionIdByQuestion(question);
+        checkDuplicate(optionIdsByQuestion);
         // 集合的交集
         Collection<String> intersection = CollUtil.intersection(optionIdsByQuestion, getAllOptionIds());
         if (CollUtil.isNotEmpty(intersection)) {
