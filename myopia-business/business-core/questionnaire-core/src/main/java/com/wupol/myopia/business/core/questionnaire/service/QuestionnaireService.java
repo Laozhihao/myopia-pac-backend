@@ -170,6 +170,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
+        childQuestionResponse.setTitle(specialTitleProcess(childQuestionResponse.getTitle()));
         childQuestionResponse.setRequired(it.getRequired());
         childQuestionResponse.setSerialNumber(it.getSerialNumber());
         childQuestionResponse.setExId(it.getId());
@@ -423,6 +424,23 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             getAllFilterId(temp, result);
         }
         return result;
+    }
+
+    /**
+     * 特殊标题处理
+     *
+     * @param str 字符
+     *
+     * @return 字符
+     */
+    private String specialTitleProcess(String str) {
+        if (StringUtils.isBlank(str)) {
+            return str;
+        }
+        if (StringUtils.contains(str, "*")) {
+            return StringUtils.substringAfter(str, "*");
+        }
+        return str;
     }
 
 }
