@@ -171,6 +171,6 @@
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
         </foreach>
-        and release_status == 1
+        and release_status = 1
     </select>
 </mapper>
