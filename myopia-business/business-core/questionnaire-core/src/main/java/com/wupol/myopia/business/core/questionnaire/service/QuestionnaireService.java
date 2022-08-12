@@ -183,7 +183,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsHidden(it.getIsHidden());
         childQuestionResponse.setQesData(it.getQesData());
         setJumpIds(childQuestionResponse, it.getJumpIds());
-        if (isShowTable) {
+        if (Boolean.TRUE.equals(isShowTable)) {
             if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
                 setInfectiousDiseaseTitle(childQuestionResponse, it);
             }
