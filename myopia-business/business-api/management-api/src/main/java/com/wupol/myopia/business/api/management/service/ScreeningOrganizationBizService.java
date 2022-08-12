@@ -409,7 +409,7 @@ public class ScreeningOrganizationBizService {
 
         // 筛查次数
         List<ScreeningPlan> planLists = screeningPlanService
-                .getByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
+                .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
                         .collect(Collectors.toList()));
         Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
                 .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));

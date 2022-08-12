@@ -207,13 +207,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 通过orgIds获取计划
+     * 通过orgIds获取发布的计划
      *
      * @param orgIds 机构Ids
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getByOrgIds(List<Integer> orgIds) {
-        return baseMapper.getByOrgIds(orgIds);
+    public List<ScreeningPlan> getReleasePlanByOrgIds(List<Integer> orgIds) {
+        return baseMapper.getReleasePlanByOrgIds(orgIds);
     }
 
     /**

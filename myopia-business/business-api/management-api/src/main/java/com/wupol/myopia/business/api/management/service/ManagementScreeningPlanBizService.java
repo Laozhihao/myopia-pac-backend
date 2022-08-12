@@ -98,17 +98,18 @@ public class ManagementScreeningPlanBizService {
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId()))) || user.isPlatformAdminUser()) {
             screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
         }
-        return this.getScreeningPlanByNoticeIdsAndUser(screeningNoticeIds, user);
+        return this.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(screeningNoticeIds, null, user);
     }
 
     /**
      * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
      *
-     * @param noticeIds
-     * @param user
+     * @param noticeIds 通知ID集
+     * @param taskIds   任务ID集
+     * @param user      当前用户
      * @return
      */
-    public List<ScreeningPlan> getScreeningPlanByNoticeIdsAndUser(Set<Integer> noticeIds, CurrentUser user) {
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdsOrTaskIdsAndUser(Set<Integer> noticeIds, Set<Integer> taskIds, CurrentUser user) {
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
@@ -117,11 +118,16 @@ public class ManagementScreeningPlanBizService {
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
-        if (CollectionUtils.isEmpty(noticeIds)) {
+        if (CollectionUtils.isEmpty(noticeIds) && CollectionUtils.isEmpty(taskIds)) {
             return Collections.emptyList();
         }
-        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return screeningPlanService.list(screeningPlanLambdaQueryWrapper);
+        if (!CollectionUtils.isEmpty(noticeIds)) {
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds);
+        }
+        if (!CollectionUtils.isEmpty(taskIds)) {
+            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningTaskId, taskIds);
+        }
+        return screeningPlanService.list(screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE));
     }
 
     /**
@@ -137,30 +143,7 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> noticeSet = new HashSet<>();
         noticeSet.add(noticeId);
-        return getScreeningPlanByNoticeIdsAndUser(noticeSet, user);
-    }
-
-    /**
-     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
-     *
-     * @param taskIds
-     * @param user
-     * @return
-     */
-    public List<ScreeningPlan> getScreeningPlanByTaskIdsAndUser(Set<Integer> taskIds, CurrentUser user) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
-        } else if (user.isGovDeptUser()) {
-            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
-            allGovDeptIds.add(user.getOrgId());
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
-        }
-        if (CollectionUtils.isEmpty(taskIds)) {
-            return Collections.emptyList();
-        }
-        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningTaskId, taskIds).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        return screeningPlanService.list(screeningPlanLambdaQueryWrapper);
+        return getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user);
     }
 
     /**
@@ -174,7 +157,7 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> taskSet = new HashSet<>();
         taskSet.add(taskId);
-        return getScreeningPlanByTaskIdsAndUser(taskSet, user);
+        return getScreeningPlanByNoticeIdsOrTaskIdsAndUser(null, taskSet, user);
     }
 
 }
