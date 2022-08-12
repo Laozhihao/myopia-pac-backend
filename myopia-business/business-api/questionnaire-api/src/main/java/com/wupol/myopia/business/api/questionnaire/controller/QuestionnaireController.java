@@ -33,6 +33,11 @@ public class QuestionnaireController {
         return questionnaireService.getQuestionnaire(questionnaireId);
     }
 
+    /**
+     * 获取学生问卷
+     *
+     * @return 学生问卷
+     */
     @GetMapping("/getStudentQuestionnaire")
     public List<UserQuestionnaireResponseDTO> getStudentQuestionnaire() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
