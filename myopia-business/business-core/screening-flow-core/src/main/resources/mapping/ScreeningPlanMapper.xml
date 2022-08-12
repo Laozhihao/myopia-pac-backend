@@ -65,8 +65,13 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and msp.release_status = 1
-                order by msp.create_time desc
+        <if test="needFilterAbolishPlan">
+            and msp.release_status = 1
+        </if>
+        <if test="!needFilterAbolishPlan">
+            and msp.release_status in (1, 2)
+        </if>
+        order by msp.create_time desc
     </select>
 
     <select id="selectPageByQuery" resultMap="ScreeningPlanPageDTOMap" parameterType="java.util.Map">
