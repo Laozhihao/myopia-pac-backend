@@ -164,12 +164,13 @@
           and release_status != 2
     </select>
 
-    <select id="getByOrgIds" resultMap="BaseResultMap">
+    <select id="getReleasePlanByOrgIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan where screening_org_id in
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
         </foreach>
+        and release_status == 1
     </select>
 </mapper>
