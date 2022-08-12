@@ -83,7 +83,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             return questionnaire.getPageJson();
         }
         //如果没有页面数据，组装问卷数据
-        List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId, false);
+        List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId, false, true);
 //        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
@@ -94,7 +94,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      *
      * @return List<QuestionnaireInfoDTO>
      */
-    public List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId, Boolean isShowAll) {
+    public List<QuestionnaireInfoDTO> getQuestionnaireInfo(Integer questionnaireId, Boolean isShowAll, Boolean isShowTable) {
         ArrayList<QuestionnaireInfoDTO> infoDTOS = Lists.newArrayList();
         List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
         if (CollUtil.isEmpty(questionnaireQuestions)) {
@@ -131,8 +131,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             collect.forEach(child -> {
                 if (it.getId().equals(child.getPid())) {
                     Question childQuestion = questionMap.get(child.getQuestionId());
-                    QuestionResponse questionResponse = commonBuildQuestion(childQuestion, child, questionMap);
-                    buildQuestion(questionResponse, child.getId(), collect, questionMap);
+                    QuestionResponse questionResponse = commonBuildQuestion(childQuestion, child, questionMap, isShowTable);
+                    buildQuestion(questionResponse, child.getId(), collect, questionMap, isShowTable);
                     questionList.add(questionResponse);
                 }
             });
@@ -149,15 +149,16 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @param childQuestion 孩子问题
      * @param questionMap   问题Map
      */
-    protected void buildQuestion(QuestionResponse questionResponse, Integer pid, List<QuestionnaireQuestion> childQuestion, Map<Integer, Question> questionMap) {
+    protected void buildQuestion(QuestionResponse questionResponse, Integer pid, List<QuestionnaireQuestion> childQuestion,
+                                 Map<Integer, Question> questionMap, Boolean isShowTable) {
         childQuestion.forEach(it -> {
             if (pid.equals(it.getPid())) {
                 Question question = questionMap.get(it.getQuestionId());
-                QuestionResponse childQuestionResponse = commonBuildQuestion(question, it, questionMap);
+                QuestionResponse childQuestionResponse = commonBuildQuestion(question, it, questionMap, isShowTable);
                 List<QuestionResponse> questionResponses = CollUtil.isNotEmpty(questionResponse.getQuestionList()) ? questionResponse.getQuestionList() : new ArrayList<>();
                 questionResponses.add(childQuestionResponse);
                 questionResponse.setQuestionList(questionResponses);
-                buildQuestion(childQuestionResponse, it.getId(), childQuestion, questionMap);
+                buildQuestion(childQuestionResponse, it.getId(), childQuestion, questionMap, isShowTable);
             }
         });
     }
@@ -166,9 +167,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * 封装问题公共逻辑块
      * @param question 问题
      * @param it 问卷中间表
+     * @param isShowTable 是否展示表格
      * @return QuestionResponse
      */
-    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
+    public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap, Boolean isShowTable) {
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setTitle(specialTitleProcess(childQuestionResponse.getTitle()));
         childQuestionResponse.setRequired(it.getRequired());
@@ -181,15 +183,18 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setIsHidden(it.getIsHidden());
         childQuestionResponse.setQesData(it.getQesData());
         setJumpIds(childQuestionResponse, it.getJumpIds());
-        if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
-            setInfectiousDiseaseTitle(childQuestionResponse, it);
+        if (isShowTable) {
+            if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {
+                setInfectiousDiseaseTitle(childQuestionResponse, it);
+            }
+            if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE)) {
+                setSchoolClassroom(childQuestionResponse, it, questionMap);
+            }
+            if (StringUtils.equals(question.getType(), QuestionnaireConstant.TEACHER_TABLE)) {
+                setSchoolTeacher(childQuestionResponse, it, questionMap);
+            }
         }
-        if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE)) {
-            setSchoolClassroom(childQuestionResponse, it, questionMap);
-        }
-        if (StringUtils.equals(question.getType(), QuestionnaireConstant.TEACHER_TABLE)) {
-            setSchoolTeacher(childQuestionResponse, it, questionMap);
-        }
+
         return childQuestionResponse;
     }
 
@@ -230,7 +235,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         responseDTO.setId(questionnaire.getId());
         responseDTO.setTitle(questionnaire.getTitle());
         responseDTO.setYear(questionnaire.getYear());
-        responseDTO.setDetail(getQuestionnaireInfo(id, true));
+        responseDTO.setDetail(getQuestionnaireInfo(id, true, false));
         return responseDTO;
     }
 
