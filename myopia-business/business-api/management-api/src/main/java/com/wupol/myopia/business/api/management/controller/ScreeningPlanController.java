@@ -781,7 +781,7 @@ public class ScreeningPlanController {
     @DeleteMapping("/school/{planId}/{schoolId}")
     public void deletePlanSchool(@PathVariable("planId") Integer planId, @PathVariable("schoolId") Integer schoolId) {
         int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId));
-        Assert.isTrue(count > 0, "该学校已有筛查数据，不可删除！");
+        Assert.isTrue(count <= 0, "该学校已有筛查数据，不可删除！");
         screeningPlanSchoolService.remove(new ScreeningPlanSchool().setScreeningPlanId(planId).setSchoolId(schoolId));
         screeningPlanSchoolStudentService.remove(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(schoolId));
     }
