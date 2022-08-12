@@ -277,7 +277,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private void setInfectiousDiseaseTitle(QuestionResponse questionResponse, QuestionnaireQuestion it) {
         List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
         List<QuestionnaireQuestion> temp = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
-        if (CollUtil.isEmpty(temp)) {
+        if (CollUtil.isEmpty(temp) || temp.size() <= 2) {
             return;
         }
         QuestionnaireQuestion q1 = temp.get(0);
@@ -296,6 +296,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
 
         List<QuestionnaireQuestion> questionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(q1.getQuestionnaireId()).setPid(q1.getId()));
         List<Integer> questionIds = questionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(questionIds)) {
+            return table;
+        }
         List<Question> questions = questionService.listByIds(questionIds);
         List<InfectiousDiseaseTable.Detail> collect = questions.stream().map(question -> {
             InfectiousDiseaseTable.Detail detail = new InfectiousDiseaseTable.Detail();
