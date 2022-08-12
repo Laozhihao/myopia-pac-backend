@@ -277,6 +277,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private void setInfectiousDiseaseTitle(QuestionResponse questionResponse, QuestionnaireQuestion it) {
         List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
         List<QuestionnaireQuestion> temp = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        if (CollUtil.isEmpty(temp)) {
+            return;
+        }
         QuestionnaireQuestion q1 = temp.get(0);
         tableList.add(getInfectiousDiseaseTable(q1, QuestionnaireConstant.INFECTIOUS_DISEASE_PREFIX + QuestionnaireConstant.INFECTIOUS_DISEASE_ONE));
         QuestionnaireQuestion q2 = temp.get(1);
@@ -314,6 +317,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     private void setSchoolClassroom(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        if (CollUtil.isEmpty(questionnaireQuestionList)) {
+            return;
+        }
         List<ClassroomItemTable> tables = questionnaireQuestionList.stream().map(s -> {
             ClassroomItemTable table = new ClassroomItemTable();
             table.setName(questionMap.get(s.getQuestionId()).getTitle());
@@ -350,6 +356,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     private void setSchoolTeacher(QuestionResponse questionResponse, QuestionnaireQuestion it, Map<Integer, Question> questionMap) {
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
+        if (CollUtil.isEmpty(questionnaireQuestionList)) {
+            return;
+        }
         List<SchoolTeacherTable> collect = questionnaireQuestionList.stream().map(s -> {
             SchoolTeacherTable table = new SchoolTeacherTable();
 
