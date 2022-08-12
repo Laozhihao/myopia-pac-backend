@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -9,6 +10,7 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -36,7 +38,7 @@ public class QuestionBizService {
     @Transactional(rollbackFor = Exception.class)
     public void saveQuestion(Question question) {
 
-//        question.setTitle(StringUtils.deleteWhitespace(CharMatcher.javaIsoControl().removeFrom(question.getTitle())));
+        question.setTitle(StringUtils.deleteWhitespace(CharMatcher.javaIsoControl().removeFrom(question.getTitle())));
 
 
         // 判断问题是否已经存在
