@@ -42,5 +42,5 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     Integer countByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 
-    List<ScreeningPlan> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
+    List<ScreeningPlan> getReleasePlanByOrgIds(@Param("orgIds") List<Integer> orgIds);
 }

@@ -103,7 +103,7 @@ public class StatSchoolService {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
         return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
     }
     private List<Integer> getSchoolType(boolean isKindergarten) {
@@ -336,7 +336,7 @@ public class StatSchoolService {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
         return getStatisticByPlanIdsAndSchoolId(screeningPlans, schoolId);
     }
 
