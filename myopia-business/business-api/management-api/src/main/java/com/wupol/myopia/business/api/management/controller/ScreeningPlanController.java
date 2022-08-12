@@ -764,7 +764,7 @@ public class ScreeningPlanController {
         // 2.更新计划状态为作废状态
         screeningPlanService.updateById(new ScreeningPlan().setId(planId).setReleaseStatus(CommonConst.STATUS_ABOLISH));
         // 3.筛查通知状态变更未创建
-        if (Objects.nonNull(screeningPlan.getScreeningTaskId())) {
+        if (Objects.nonNull(screeningPlan.getScreeningTaskId()) && screeningPlan.getScreeningTaskId() != 0) {
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
             ScreeningNoticeDeptOrg screeningNoticeDeptOrg = new ScreeningNoticeDeptOrg().setOperationStatus(CommonConst.STATUS_NOTICE_READ).setOperatorId(currentUser.getId()).setScreeningTaskPlanId(0);
             screeningNoticeDeptOrgService.update(screeningNoticeDeptOrg, new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setAcceptOrgId(screeningPlan.getScreeningOrgId()));
@@ -781,7 +781,7 @@ public class ScreeningPlanController {
     @DeleteMapping("/school/{planId}/{schoolId}")
     public void deletePlanSchool(@PathVariable("planId") Integer planId, @PathVariable("schoolId") Integer schoolId) {
         int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId));
-        Assert.isTrue(count > 0, "该学校已有筛查数据，不可删除！");
+        Assert.isTrue(count <= 0, "该学校已有筛查数据，不可删除！");
         screeningPlanSchoolService.remove(new ScreeningPlanSchool().setScreeningPlanId(planId).setSchoolId(schoolId));
         screeningPlanSchoolStudentService.remove(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(schoolId));
     }
