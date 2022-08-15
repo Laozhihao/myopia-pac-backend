@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -48,5 +50,26 @@ public class TableItem implements Serializable {
      * 前端标识
      */
     private Integer frontMark;
+
+    /**
+     * 构建成前端需要的option
+     */
+    private Option option;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Option implements Serializable{
+
+        private Integer maxLimit;
+
+        private Integer minLimit;
+
+        private Integer length;
+
+        private Integer range;
+
+    }
 }
 

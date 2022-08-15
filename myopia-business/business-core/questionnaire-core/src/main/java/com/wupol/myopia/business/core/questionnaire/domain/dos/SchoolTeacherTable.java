@@ -17,5 +17,5 @@ public class SchoolTeacherTable implements Serializable {
     /**
      * 表格项
      */
-    private List<TableItem> info;
+    private List<TableItem> tableItems;
 }
