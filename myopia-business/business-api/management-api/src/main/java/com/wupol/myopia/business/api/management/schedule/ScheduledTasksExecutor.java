@@ -181,11 +181,12 @@ public class ScheduledTasksExecutor {
      * @param yesterdayScreeningPlanIds
      */
     public void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
-        List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
-        List<DistrictVisionStatistic> districtVisionStatistics = new ArrayList<>();
+        // TODO：验证没用上，则干掉
+//        List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
+//        List<DistrictVisionStatistic> districtVisionStatistics = new ArrayList<>();
         List<SchoolVisionStatistic> schoolVisionStatistics = new ArrayList<>();
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
-        genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
+//        genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);
         schoolMonitorStatisticService.batchSaveOrUpdate(schoolMonitorStatistics);
