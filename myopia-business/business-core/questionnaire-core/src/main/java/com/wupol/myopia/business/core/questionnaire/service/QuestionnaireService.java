@@ -314,7 +314,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             }).collect(Collectors.toList()));
             return detail;
         }).collect(Collectors.toList());
-        table.setDetails(collect);
+        table.setTableItems(collect);
         return table;
     }
 
@@ -350,7 +350,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 }
                 return new ClassroomItemTable.Detail(tableItems);
             }).collect(Collectors.toList());
-            table.setDetails(collect);
+            table.setTableItems(collect);
             return table;
         }).collect(Collectors.toList());
 
@@ -376,7 +376,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             for (int i = 1; i <= option.size(); i++) {
                 tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem(), question.getId()));
             }
-            table.setInfo(tableItems);
+            table.setTableItems(tableItems);
             return table;
         }).collect(Collectors.toList());
         questionResponse.setSchoolTeacherTables(collect);
@@ -398,6 +398,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         item.setQuestionId(questionId);
         item.setRequired(json.getBoolean(QuestionnaireConstant.REQUIRED));
         item.setFrontMark(-1);
+        item.setOption(new TableItem.Option(json.getInteger(QuestionnaireConstant.MAX_LIMIT),
+                json.getInteger(QuestionnaireConstant.MIN_LIMIT),
+                json.getInteger(QuestionnaireConstant.RANGE),
+                json.getInteger(QuestionnaireConstant.LENGTH)));
         return item;
     }
 

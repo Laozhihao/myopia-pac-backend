@@ -85,4 +85,24 @@ public class QuestionnaireConstant {
      */
     public static final String REQUIRED = "required";
 
+    /**
+     * maxLimit
+     */
+    public static final String MAX_LIMIT = "maxLimit";
+
+    /**
+     * minLimit
+     */
+    public static final String MIN_LIMIT = "minLimit";
+
+    /**
+     * range
+     */
+    public static final String RANGE = "range";
+
+    /**
+     * length
+     */
+    public static final String LENGTH = "length";
+
 }

@@ -25,7 +25,7 @@ public class ClassroomItemTable implements Serializable {
     /**
      * 详情
      */
-    private List<Detail> details;
+    private List<Detail> tableItems;
 
     @Getter
     @Setter
@@ -36,7 +36,7 @@ public class ClassroomItemTable implements Serializable {
         /**
          * 表格项
          */
-        private List<TableItem> info;
+        private List<TableItem> tableItems;
     }
 
 }

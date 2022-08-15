@@ -23,7 +23,7 @@ public class InfectiousDiseaseTable implements Serializable {
     /**
      * 表格
      */
-    private List<Detail> details;
+    private List<Detail> tableItems;
 
     @Getter
     @Setter
