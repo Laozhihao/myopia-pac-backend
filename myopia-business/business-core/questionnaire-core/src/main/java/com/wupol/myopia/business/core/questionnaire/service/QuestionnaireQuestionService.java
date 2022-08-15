@@ -1,15 +1,19 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author Simple4H
@@ -36,7 +40,12 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setIsNotShowNumber(detail.getIsNotShowNumber());
             question.setJumpIds(detail.getJumpIds());
             question.setIsLogic(detail.getIsLogic());
-            question.setQesData(detail.getQesData());
+            List<QesDataDO> qesData = detail.getQesData();
+            if (!CollectionUtils.isEmpty(qesData) &&
+                    qesData.stream().map(QesDataDO::getOptionId).filter(StringUtils::isNotBlank).count() != qesData.size()) {
+                throw new BusinessException("选项Id异常");
+            }
+            question.setQesData(qesData);
             question.setIsHidden(detail.getIsHidden());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
