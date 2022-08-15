@@ -130,6 +130,16 @@ public class CurrentUser {
         return UserType.QUESTIONNAIRE_STUDENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
+    /**
+     * 是否政府用户
+     * @return
+     */
+    @JsonIgnore
+    public boolean isQuestionnaireGovUser() {
+        return UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
+    }
+
+
     @JsonIgnore
     public Integer getQuestionnaireUserType() {
         if (isQuestionnaireSchoolUser()) {
@@ -138,7 +148,7 @@ public class CurrentUser {
         if (isQuestionnaireStudentUser()) {
             return QuestionnaireUserType.STUDENT.getType();
         }
-        if (isGovDeptUser()) {
+        if (isQuestionnaireGovUser()) {
             return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
         }
         throw new BusinessException("获取用户类型异常");
@@ -152,7 +162,7 @@ public class CurrentUser {
             }
             return questionnaireUserId;
         }
-        if (isGovDeptUser()) {
+        if (isQuestionnaireGovUser()) {
             return orgId;
         }
         throw new BusinessException("获取用户Id异常");
