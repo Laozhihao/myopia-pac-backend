@@ -314,7 +314,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             }).collect(Collectors.toList()));
             return detail;
         }).collect(Collectors.toList());
-        table.setDetails(collect);
+        table.setTableItems(collect);
         return table;
     }
 
@@ -350,7 +350,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 }
                 return new ClassroomItemTable.Detail(tableItems);
             }).collect(Collectors.toList());
-            table.setDetails(collect);
+            table.setTableItems(collect);
             return table;
         }).collect(Collectors.toList());
 
