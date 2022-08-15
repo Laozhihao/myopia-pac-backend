@@ -1,14 +1,18 @@
 package com.wupol.myopia.business.core.questionnaire.util;
 
 import cn.hutool.core.io.FileUtil;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +27,8 @@ public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
     private static final String  PARAMETER = "\\{([^}]*)\\}";
-    private static final String  EPIC = "EpiC.exe";
+    private static final String  EPIC = "/app/EpiC.exe";
+    private static final String  TXT_TO_REC_MSG = "【TXT转REC异常】";
 
     /**
      * qes文件解析为txt文件
@@ -90,7 +95,7 @@ public class EpiDataUtil {
      */
     public static boolean exportRecFile(String qesPath, String recPath, List<String> headerList, List<List<String>> dataList) {
         String epiDataPath = IOUtils.getTempSubPath("EpiData");
-        String txtPath = epiDataPath + System.currentTimeMillis() + ".txt";
+        String txtPath = Paths.get(epiDataPath,System.currentTimeMillis() + ".txt").toString();
         File epiDataDirectory = new File(epiDataPath);
         if (!epiDataDirectory.exists()){
             FileUtil.mkdir(epiDataDirectory);
@@ -102,8 +107,7 @@ public class EpiDataUtil {
         dataList.forEach(itemList -> list.add(String.join(";", itemList)));
 
         // 先从数据转成txt文件，再转到rec文件
-        boolean isSuccess;
-        isSuccess = createTxt(list, txtPath);
+        boolean isSuccess = createTxt(list, txtPath);
         if (!isSuccess) {
             return false;
         }
@@ -142,15 +146,26 @@ public class EpiDataUtil {
      * @param recPath rec文件地址
      */
     private static boolean txt2Rec(String txtPath, String qesPath, String recPath) {
-        String[] cmd = { EPIC, "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=dd/mm/yyyy" };
+        List<String> mainCmdList = Lists.newArrayList();
+        if (Objects.equals(windowsSystem(),Boolean.TRUE)){
+            mainCmdList.add(EPIC);
+        }else {
+            mainCmdList.add("wine");
+            mainCmdList.add(EPIC);
+        }
+        List<String> otherCmdList= Lists.newArrayList( "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=dd/mm/yyyy" );
+        mainCmdList.addAll(otherCmdList);
+        String[] cmd = mainCmdList.toArray(new String[]{});
+
         log.info("[START]-[txt convert to rec] {}, {}", txtPath, recPath);
+        log.info("execute command : {}", Arrays.toString(cmd));
         Process process;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
             processBuilder.redirectErrorStream(true);
             process = processBuilder.start();
         } catch (IOException e) {
-            log.error("【TXT转REC异常】", e);
+            log.error(TXT_TO_REC_MSG, e);
             return false;
         }
 
@@ -159,7 +174,7 @@ public class EpiDataUtil {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains("Error")) {
-                    log.error("【TXT转REC异常】：" + line);
+                    log.error(TXT_TO_REC_MSG+"：" + line);
                     process.destroy();
                     return false;
                 }
@@ -167,9 +182,18 @@ public class EpiDataUtil {
             return true;
 
         } catch (IOException e) {
-            log.error("【TXT转REC异常】", e);
+            log.error(TXT_TO_REC_MSG, e);
             Thread.currentThread().interrupt();
             return false;
         }
     }
+
+    /**
+     * 判断是否windows系统
+     */
+    private static Boolean windowsSystem(){
+        String system = System.getProperty("os.name").toLowerCase();
+        return !Objects.equals("mac", system) && !Objects.equals("linux", system);
+    }
+
 }

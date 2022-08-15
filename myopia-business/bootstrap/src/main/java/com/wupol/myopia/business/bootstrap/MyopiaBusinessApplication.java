@@ -20,6 +20,7 @@ public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        System.setProperty("java.io.tmpdir","/tmp");
         SpringApplication.run(MyopiaBusinessApplication.class, args);
     }
 

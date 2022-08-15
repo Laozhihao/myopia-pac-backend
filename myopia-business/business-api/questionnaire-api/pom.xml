@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>common-core</artifactId>
+            <artifactId>government-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -29,4 +29,19 @@ public class OptionAnswer implements Serializable {
      * 填空值
      */
     private String value;
+
+    /**
+     * qes序号
+     */
+    private String qesSerialNumber;
+
+    /**
+     * 展示序号
+     */
+    private String showSerialNumber;
+
+    /**
+     * qes字段
+     */
+    private String qesField;
 }

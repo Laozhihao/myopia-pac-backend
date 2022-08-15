@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,10 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
 
+    @Value("classpath:excel/ExportAreaDistrictSchoolTemplate.xlsx")
+    private Resource exportAreaDistrictSchoolTemplate;
+
     @Override
     public Integer getType() {
         return QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType();
     }
-
 
 }

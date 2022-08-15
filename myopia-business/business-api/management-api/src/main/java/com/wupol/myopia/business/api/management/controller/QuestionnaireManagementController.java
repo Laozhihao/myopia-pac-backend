@@ -16,6 +16,7 @@ import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
+import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -259,6 +261,16 @@ public class QuestionnaireManagementController {
     @GetMapping("/type")
     public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
         return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
+    }
+
+    /**
+     * 获取下拉key
+     *
+     * @return key
+     */
+    @GetMapping("select/list")
+    public List<SelectDropResponseDTO> getSelectList() {
+        return SelectKeyEnum.getSelectDropResponseDTO();
     }
 
     @GetMapping("/test")

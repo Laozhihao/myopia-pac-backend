@@ -42,4 +42,15 @@ public class QuestionService extends BaseService<QuestionMapper, Question> {
         queryWrapper.ne(Question::getType, QuestionTypeEnum.TITLE.getType());
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 通过类型获取问题
+     *
+     * @return List<Question>
+     */
+    public List<Question> getByTypes(List<String> types) {
+        LambdaQueryWrapper<Question> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Question::getType, types);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

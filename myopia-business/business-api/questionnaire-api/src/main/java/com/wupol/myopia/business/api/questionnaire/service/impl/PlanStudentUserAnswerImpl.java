@@ -48,13 +48,13 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     @Resource
-    private UserAnswerProgressService userAnswerProgressService;
-
-    @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
 
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private CommonUserAnswerImpl commonUserAnswer;
 
     @Override
     public Integer getUserType() {
@@ -64,37 +64,16 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
 
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
-                new UserQuestionRecord()
-                        .setUserId(planStudent.getId())
-                        .setUserType(getUserType())
-                        .setQuestionnaireId(questionnaireId));
-
         // 如果存在记录，且完成问卷，则更新状态
-        if (Objects.nonNull(userQuestionRecord)) {
-            if (Objects.equals(isFinish, Boolean.TRUE)) {
-                List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(planStudent.getId(), getUserType(), questionnaireIds);
-                userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
-                userQuestionRecordService.updateBatchById(userQuestionRecordList);
-                // 清空用户答案进度表
-                UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                        new UserAnswerProgress()
-                                .setUserId(userId)
-                                .setUserType(getUserType()));
-                if (Objects.nonNull(userAnswerProgress)) {
-                    userAnswerProgress.setCurrentStep(null);
-                    userAnswerProgress.setCurrentSideBar(null);
-                    userAnswerProgress.setUpdateTime(new Date());
-                    userAnswerProgressService.updateById(userAnswerProgress);
-                }
-            }
-            return userQuestionRecord.getId();
+        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());
+        if (Objects.nonNull(recordId)) {
+            return recordId;
         }
 
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         // 不存在新增记录
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-        userQuestionRecord = new UserQuestionRecord();
+        UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
         userQuestionRecord.setUserId(planStudent.getId());
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
@@ -111,11 +90,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId, userId, getUserType(), questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
-
-        if (!CollectionUtils.isEmpty(userAnswerList)) {
-            userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
-        }
+        commonUserAnswer.deletedUserAnswer(questionList, questionnaireId, userId, getUserType());
     }
 
     @Override
@@ -125,23 +100,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
-        // 完成不需要保存进度
-        if (Objects.equals(isFinish, Boolean.TRUE)) {
-            return;
-        }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                new UserAnswerProgress()
-                        .setUserId(userId)
-                        .setUserType(getUserType()));
-
-        if (Objects.isNull(userAnswerProgress)) {
-            userAnswerProgress = new UserAnswerProgress();
-            userAnswerProgress.setUserId(userId);
-            userAnswerProgress.setUserType(getUserType());
-        }
-        userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
-        userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
-        userAnswerProgressService.saveOrUpdate(userAnswerProgress);
+        commonUserAnswer.saveUserProgress(isFinish, userId, getUserType(), requestDTO);
     }
 
     @Override
@@ -152,38 +111,17 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             throw new BusinessException("获取信息异常");
         }
 
-        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getBySchoolAge(planStudent.getGradeType());
-        if (CollectionUtils.isEmpty(typeList)) {
-            return new ArrayList<>();
-        }
-
-        // 获取问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
-
-        return typeList.stream().map(s -> {
-            UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
-            Questionnaire questionnaire = typeMap.get(s.getType());
-            responseDTO.setId(questionnaire.getId());
-            responseDTO.setTitle(s.getDesc());
-            responseDTO.setMainTitle(QuestionnaireMainTitleEnum.getByType(s.getType()).getMainTitle());
-            return responseDTO;
-        }).collect(Collectors.toList());
+        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getStudentQuestionnaireBySchoolAge(planStudent.getGradeType());
+        return commonUserAnswer.getUserQuestionnaire(typeList);
     }
 
     @Override
     public Boolean getUserAnswerIsFinish(Integer userId) {
-        List<UserQuestionnaireResponseDTO> userQuestionnaire = getUserQuestionnaire(userId);
-        List<Integer> questionnaireIds = userQuestionnaire.stream().map(UserQuestionnaireResponseDTO::getId).collect(Collectors.toList());
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(userId, getUserType(), questionnaireIds);
-        if (CollectionUtils.isEmpty(userQuestionRecordList)) {
-            return false;
-        }
-        // 多份问卷，状态是统一的
-        return Objects.equals(userQuestionRecordList.get(0).getStatus(), UserQuestionRecordEnum.FINISH.getType());
+        return commonUserAnswer.getUserAnswerIsFinish(getUserQuestionnaire(userId), userId, getUserType());
     }
 
     @Override
-    public String getSchoolName(Integer userId) {
+    public String getUserName(Integer userId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         if (Objects.isNull(planStudent)) {
             throw new BusinessException("获取信息异常");

@@ -9,15 +9,17 @@ ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
 COPY . .
-COPY ./myopia-rec/config/environment/* /build/myopia-rec/src/main/resources/
+COPY ./myopia-rec/rec-server/config/environment/* /build/myopia-rec/rec-server/src/main/resources/
 
 RUN --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
 # application
-FROM openjdk:8-jre-alpine
-WORKDIR /app
-EXPOSE 8080
+FROM wupol/epic-jdk:1.0
 
-COPY --from=app-builder /build/myopia-rec/target/myopia-migrate-data.jar /app/
+WORKDIR /app
+RUN mkdir -p /app/file
+EXPOSE 8040
+
+COPY --from=app-builder /build/myopia-rec/rec-server/target/myopia-rec.jar /app/
 CMD ["java", "-jar", "/app/myopia-rec.jar"]

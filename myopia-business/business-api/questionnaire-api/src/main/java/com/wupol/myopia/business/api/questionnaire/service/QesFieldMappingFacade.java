@@ -53,7 +53,7 @@ public class QesFieldMappingFacade {
             FileUtils.copyURLToFile(new URL(qesUrl), new File(qesSavePath));
             EpiDataUtil.qesToVariable(qesSavePath,variableList);
         } catch (IOException e) {
-            throw new BusinessException("生成区域报告PDF文件异常", e);
+            throw new BusinessException("生成QES文件异常", e);
         }finally {
             FileUtil.del(qesSavePath);
         }

@@ -3,14 +3,21 @@ package com.wupol.myopia.business.core.questionnaire.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
+import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +25,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer> {
+
+    @Resource
+    private QuestionnaireQuestionService questionnaireQuestionService;
 
     /**
      * 获取用户答案
@@ -51,12 +61,41 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
 
+        handleQesData(questionnaireId, questionList);
+
         // 删除旧答案
         List<Integer> questionIds = questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList());
         baseMapper.deleteBatchByCombinationId(questionnaireId, userId, userType, recordId, questionIds);
 
         List<UserAnswer> userAnswers = convert2UserAnswer(questionList, questionnaireId, userId, userType, recordId);
         baseMapper.batchSaveUserAnswer(userAnswers);
+    }
+
+    /**
+     * 处理qes信息
+     *
+     * @param questionnaireId 问卷Id
+     * @param questionList    问题答案列表
+     */
+    private void handleQesData(Integer questionnaireId, List<UserAnswerDTO.QuestionDTO> questionList) {
+
+        List<Integer> questionIds = questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList());
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getByQuestionnaireIdAndQuestionIds(questionnaireId, questionIds);
+        Map<String, QesDataDO> qesDataMap = questionnaireQuestions.stream()
+                .map(QuestionnaireQuestion::getQesData).flatMap(Collection::stream)
+                .collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
+
+        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer)
+                .flatMap(Collection::stream).collect(Collectors.toList());
+
+        answerList.forEach(answer -> {
+            QesDataDO qesDataDOS = qesDataMap.get(answer.getOptionId());
+            if (Objects.nonNull(qesDataDOS)) {
+                answer.setQesField(qesDataDOS.getQesField());
+                answer.setShowSerialNumber(qesDataDOS.getShowSerialNumber());
+                answer.setQesSerialNumber(qesDataDOS.getQesSerialNumber());
+            }
+        });
     }
 
     /**
@@ -133,11 +172,12 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
 
     /**
      * 根据记录ID集合 批量查询用户答案
+     *
      * @param recordIds 记录ID集合
      */
-    public List<UserAnswer> getListByRecordIds(List<Integer> recordIds){
+    public List<UserAnswer> getListByRecordIds(List<Integer> recordIds) {
         LambdaQueryWrapper<UserAnswer> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(UserAnswer::getRecordId,recordIds);
+        queryWrapper.in(UserAnswer::getRecordId, recordIds);
         return baseMapper.selectList(queryWrapper);
     }
 

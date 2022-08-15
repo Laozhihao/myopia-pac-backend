@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
 import com.wupol.myopia.business.core.questionnaire.domain.dos.JumpIdsDO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -69,6 +70,16 @@ public class EditQuestionnaireRequestDTO {
          * 孩子节点
          */
         private List<Detail> questionList;
+
+        /**
+         * 是否隐藏
+         */
+        private Boolean isHidden;
+
+        /**
+         * qes内容
+         */
+        private List<QesDataDO> qesData;
     }
 
 

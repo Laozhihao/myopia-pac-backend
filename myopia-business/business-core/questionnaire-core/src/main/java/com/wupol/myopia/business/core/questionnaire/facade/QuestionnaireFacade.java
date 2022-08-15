@@ -1,16 +1,16 @@
 package com.wupol.myopia.business.core.questionnaire.facade;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.HeadBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireAndQuestionBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
@@ -20,7 +20,6 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,29 +46,16 @@ public class QuestionnaireFacade {
      * 获取问卷信息（问卷+问题）
      * @param questionnaireId 问卷ID
      */
-    public QuestionnaireInfoBO getQuestionnaireInfoBO(Integer questionnaireId){
+    public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
-        if (CollectionUtil.isNotEmpty(questionnaireQuestionList)){
-            List<Integer> questionIds = questionnaireQuestionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
-            List<Question> questionList = questionService.listByIds(questionIds);
-            return QuestionnaireInfoBuilder.buildQuestionnaireInfoBO(questionnaire,questionnaireQuestionList,questionList);
+        if (CollUtil.isEmpty(questionnaireQuestionList)){
+            return null;
         }
-        return null;
+        List<Integer> questionIds = questionnaireQuestionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
+        List<Question> questionList = questionService.listByIds(questionIds);
+        return QuestionnaireInfoBuilder.buildQuestionnaireInfo(questionnaire,questionnaireQuestionList,questionList);
     }
-
-    public QuestionnaireAndQuestionBO getQuestionnaireInfo(Integer questionnaireId){
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
-        if (CollectionUtil.isNotEmpty(questionnaireQuestionList)){
-            List<Integer> questionIds = questionnaireQuestionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
-            List<Question> questionList = questionService.listByIds(questionIds);
-            return QuestionnaireInfoBuilder.buildQuestionnaireAndQuestionBO(questionnaire,questionnaireQuestionList,questionList);
-        }
-        return null;
-    }
-
-
 
 
     /**
@@ -79,30 +65,208 @@ public class QuestionnaireFacade {
      */
     private List<HeadBO> getHeadBO(Integer questionnaireId,AtomicInteger depth){
         List<HeadBO> headList =Lists.newArrayList();
-        QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfoBO(questionnaireId);
+        QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
 
         List<QuestionnaireInfoBO.QuestionBO> questionList = questionnaireInfo.getQuestionList();
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> strList=Lists.newArrayList();
-            strList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+            strList.add(questionBO.getQuestionSerialNumber()+getTitle(questionBO.getTitle()));
             List<String> scoreList=Lists.newArrayList();
             if (Objects.equals(questionBO.getIsScore(),Boolean.TRUE)){
                 scoreList =Lists.newArrayList();
-                scoreList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
-                scoreMap.put(questionnaireId,Lists.newArrayList(questionBO.getQuestionId()));
+                scoreList.add(questionBO.getQuestionSerialNumber()+getTitle(questionBO.getTitle()));
+                scoreMap.put(questionnaireId,Lists.newArrayList(questionBO.getId()));
             }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
-            if (CollectionUtil.isNotEmpty(questionBOList)){
+            if (CollUtil.isNotEmpty(questionBOList)){
                 setHead(questionBOList,strList,headList,depth,scoreList,questionnaireId);
             }else {
-                setHeadBOList(strList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),headList);
+                setHeadBOList(strList,questionBO.getId(),questionBO.getQuestionnaireQuestionId(),headList);
             }
-            if (!CollectionUtils.isEmpty(scoreList)){
+            if (CollUtil.isNotEmpty(scoreList)){
                 scoreList.add(TOTAL_SCORE);
                 setHeadBOList(scoreList,-1,null,headList);
             }
         }
         return headList;
+    }
+
+    public List<String> excelHeadInfo(Integer questionnaireId){
+        QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
+        List<QuestionnaireInfoBO.QuestionBO> questionList = questionnaireInfo.getQuestionList();
+        List<ExcelInfoBO> excelInfoBOList = Lists.newArrayList();
+        printInfo(questionList, excelInfoBOList);
+
+        List<String> excelDataFieldList = Lists.newArrayList();
+        for (ExcelInfoBO excelInfoBO : excelInfoBOList) {
+            setData(excelInfoBO,excelDataFieldList);
+        }
+        return excelDataFieldList;
+    }
+
+    private void setData(ExcelInfoBO excelInfoBO, List<String> excelDataFieldList){
+        QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getType(excelInfoBO.getType());
+        List<String> qesFields = excelInfoBO.getQesFields();
+        switch (questionTypeEnum){
+            case INPUT:
+            case RADIO:
+            case CHECKBOX:
+                excelDataFieldList.addAll(getExcelDataList(qesFields));
+                break;
+            case RADIO_INPUT:
+            case CHECKBOX_INPUT:
+                excelDataFieldList.add(setDataInfo(qesFields.get(0)));
+                break;
+            case TITLE:
+            default:
+                break;
+        }
+    }
+
+    private List<String> getExcelDataList(List<String> qesFields){
+        if (CollUtil.isEmpty(qesFields)){
+            return Lists.newArrayList();
+        }
+        List<String> headList =Lists.newArrayList();
+        for (int i = 0; i < qesFields.size(); i++) {
+            headList.add(setDataInfo(qesFields.get(i)));
+        }
+        return headList;
+    }
+    private String setDataInfo(String qesField){
+        return String.format("{.%s}",qesField);
+    }
+
+    private void printInfo(List<QuestionnaireInfoBO.QuestionBO> questionList,List<ExcelInfoBO> excelInfoBOList) {
+        if (CollUtil.isEmpty(questionList)) {
+            return;
+        }
+
+        for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
+            ExcelInfoBO excelInfoBO = new ExcelInfoBO();
+            excelInfoBO.setType(questionBO.getType());
+            QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getType(questionBO.getType());
+            if (Objects.nonNull(questionTypeEnum)){
+                switch (questionTypeEnum){
+                    case INPUT:
+                        inputData(questionBO,excelInfoBO);
+                        break;
+                    case RADIO:
+                    case CHECKBOX:
+                        radioAndCheckboxData(questionBO,excelInfoBO);
+                        break;
+                    case RADIO_INPUT:
+                    case CHECKBOX_INPUT:
+                        radioAndCheckboxInputData(questionBO,excelInfoBO);
+                        break;
+                    case TITLE:
+                    default:
+                        break;
+                }
+            }
+            excelInfoBOList.add(excelInfoBO);
+            printInfo(questionBO.getQuestionBOList(), excelInfoBOList);
+        }
+    }
+
+    /**
+     * 输入框
+     * @param questionBO 问题对象
+     * @param excelInfoBO excel信息对象
+     */
+    private void inputData(QuestionnaireInfoBO.QuestionBO questionBO,ExcelInfoBO excelInfoBO) {
+        List<QesDataDO> qesDataList = questionBO.getQesData();
+        if (CollUtil.isNotEmpty(qesDataList)){
+            List<String> qesFields = qesDataList.stream().map(QesDataDO::getQesField).distinct().collect(Collectors.toList());
+            excelInfoBO.setQesFields(qesFields);
+        }
+
+        Option option = questionBO.getOptions().get(0);
+        if (Objects.nonNull(option)){
+            JSONObject options = option.getOption();
+            if (Objects.nonNull(options)){
+                List<String> optionIds = options.values().stream().map(value -> {
+                    JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(value), JSONObject.class);
+                    return jsonObject.getString("id");
+                }).collect(Collectors.toList());
+                excelInfoBO.setOptionIds(optionIds);
+            }
+
+        }
+
+    }
+
+    /**
+     * 单选或者多选加输入框
+     * @param questionBO 问题对象
+     * @param excelInfoBO excel信息对象
+     */
+    private void radioAndCheckboxInputData(QuestionnaireInfoBO.QuestionBO questionBO,ExcelInfoBO excelInfoBO) {
+
+        List<QesDataDO> qesDataList = questionBO.getQesData();
+        if (CollUtil.isNotEmpty(qesDataList)){
+            List<String> qesFields = qesDataList.stream().map(QesDataDO::getQesField).distinct().collect(Collectors.toList());
+            excelInfoBO.setQesFields(qesFields);
+        }
+
+        List<Option> optionList = questionBO.getOptions();
+        if (CollUtil.isNotEmpty(optionList)){
+            List<String> optionIds = optionList.stream().map(Option::getId).collect(Collectors.toList());
+            excelInfoBO.setOptionIds(optionIds);
+
+            Map<String,List<QesDataDO>> subInputMap = Maps.newHashMap();
+            for (Option option : optionList) {
+                if (Objects.isNull(option.getOption()) || option.getOption().isEmpty()){
+                    continue;
+                }
+
+                JSONObject options = option.getOption();
+                if (Objects.nonNull(options)){
+                    List<QesDataDO> qesDataDOList = options.values().stream().map(value -> {
+                        QesDataDO qesDataDO = new QesDataDO();
+                        JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(value), JSONObject.class);
+                        qesDataDO.setOptionId(jsonObject.getString("id"));
+                        return qesDataDO;
+                    }).collect(Collectors.toList());
+                    excelInfoBO.setOptionIds(optionIds);
+                    subInputMap.put(option.getId(),qesDataDOList);
+                }
+
+            }
+            excelInfoBO.setSubInputMap(subInputMap);
+        }
+    }
+
+    /**
+     * 单选或者多选
+     * @param questionBO 问题对象
+     * @param excelInfoBO excel信息对象
+     */
+    private void radioAndCheckboxData(QuestionnaireInfoBO.QuestionBO questionBO,ExcelInfoBO excelInfoBO) {
+        List<QesDataDO> qesDataList = questionBO.getQesData();
+        if (CollUtil.isNotEmpty(qesDataList)){
+            List<String> qesFields = qesDataList.stream().map(QesDataDO::getQesField).distinct().collect(Collectors.toList());
+            excelInfoBO.setQesFields(qesFields);
+        }
+
+        List<Option> optionList = questionBO.getOptions();
+        if (CollUtil.isNotEmpty(optionList)){
+            List<String> optionIds = optionList.stream().map(Option::getId).collect(Collectors.toList());
+            excelInfoBO.setOptionIds(optionIds);
+        }
+    }
+
+
+    /**
+     * 问题中标题部分去除
+     * @param title 问题标题
+     */
+    private static String getTitle(String title){
+        if (StrUtil.isNotBlank(title) && title.contains("||")){
+            String[] split = title.split("\\|\\|");
+            return split[1];
+        }
+        return title;
     }
 
     /**
@@ -162,20 +326,20 @@ public class QuestionnaireFacade {
                          Integer questionnaireId){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
             List<String> cloneList = ObjectUtil.cloneByStream(list);
-            cloneList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
-            if (CollectionUtil.isNotEmpty(scoreMap.get(questionnaireId))){
-                scoreMap.get(questionnaireId).add(questionBO.getQuestionId());
+            cloneList.add(questionBO.getQuestionSerialNumber()+getTitle(questionBO.getTitle()));
+            if (CollUtil.isNotEmpty(scoreMap.get(questionnaireId))){
+                scoreMap.get(questionnaireId).add(questionBO.getId());
             }
 
             if (Objects.equals(questionBO.getIsScore(),Boolean.TRUE)){
-                scoreList.add(questionBO.getQuestionSerialNumber()+questionBO.getQuestionName());
+                scoreList.add(questionBO.getQuestionSerialNumber()+getTitle(questionBO.getTitle()));
             }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
-            if (CollectionUtil.isNotEmpty(questionBOList)){
+            if (CollUtil.isNotEmpty(questionBOList)){
                 setHead(questionBOList,cloneList,lists,depth,scoreList,questionnaireId);
             }else{
-                depth.set(CollectionUtil.max(Lists.newArrayList(depth.get(),cloneList.size())));
-                setHeadBOList(cloneList,questionBO.getQuestionId(),questionBO.getQuestionnaireQuestionId(),lists);
+                depth.set(CollUtil.max(Lists.newArrayList(depth.get(),cloneList.size())));
+                setHeadBOList(cloneList,questionBO.getId(),questionBO.getQuestionnaireQuestionId(),lists);
             }
         }
     }
@@ -201,7 +365,7 @@ public class QuestionnaireFacade {
      */
     public List<Questionnaire> getLatestQuestionnaire(QuestionnaireTypeEnum questionnaireTypeEnum){
         List<Questionnaire> questionnaireList = questionnaireService.getByTypes(getQuestionnaireTypeList(questionnaireTypeEnum));
-        if (CollectionUtils.isEmpty(questionnaireList)){
+        if (CollUtil.isEmpty(questionnaireList)){
             return Lists.newArrayList();
         }
         return questionnaireList;
@@ -299,13 +463,13 @@ public class QuestionnaireFacade {
      */
     public List<HideQuestionDataBO> getHideQuestionnaireQuestion(Integer questionnaireId) {
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
-        questionnaireQuestionList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> StrUtil.isBlank(questionnaireQuestion.getSerialNumber())).collect(Collectors.toList());
-        if (CollectionUtil.isNotEmpty(questionnaireQuestionList)){
+        questionnaireQuestionList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(Boolean.TRUE,questionnaireQuestion.getIsHidden())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(questionnaireQuestionList)){
             List<Integer> questionIds = questionnaireQuestionList.stream()
                     .map(QuestionnaireQuestion::getQuestionId)
                     .collect(Collectors.toList());
             List<Question> questionList = questionService.listByIds(questionIds);
-            CollectionUtil.sort(questionList,Comparator.comparing(Question::getId));
+            CollUtil.sort(questionList,Comparator.comparing(Question::getId));
 
            return questionList.stream().map(question -> new HideQuestionDataBO(question.getId())).collect(Collectors.toList());
         }
@@ -322,7 +486,7 @@ public class QuestionnaireFacade {
      */
     public List<Integer> getScoreQuestionIds(List<Integer> questionnaireIds) {
         List<Integer> questionIds = Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(questionnaireIds)){
+        if (CollUtil.isNotEmpty(questionnaireIds)){
             questionnaireIds.forEach(id-> Optional.ofNullable(scoreMap.get(id)).ifPresent(questionIds::addAll));
         }
         return questionIds;
@@ -334,7 +498,7 @@ public class QuestionnaireFacade {
      * @param questionnaireIds 问卷ID集合
      */
     public void removeScoreQuestionId(List<Integer> questionnaireIds) {
-        if (CollectionUtil.isNotEmpty(questionnaireIds)){
+        if (CollUtil.isNotEmpty(questionnaireIds)){
             questionnaireIds.forEach(id-> scoreMap.put(id,Lists.newArrayList()));
         }
     }

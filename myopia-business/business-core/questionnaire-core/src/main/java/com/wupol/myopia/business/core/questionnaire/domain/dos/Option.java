@@ -54,4 +54,19 @@ public class Option implements Serializable {
      * 转换里层的json
      */
     private JSONObject option;
+
+//    /**
+//     * qes序号
+//     */
+//    private String qesSerialNumber;
+//
+//    /**
+//     * 展示序号
+//     */
+//    private String showSerialNumber;
+//
+//    /**
+//     * qes字段
+//     */
+//    private String qesField;
 }
