@@ -43,5 +43,10 @@ public class TableItem implements Serializable {
      * 是否必填
      */
     private Boolean required;
+
+    /**
+     * 前端标识
+     */
+    private Integer frontMark;
 }
 

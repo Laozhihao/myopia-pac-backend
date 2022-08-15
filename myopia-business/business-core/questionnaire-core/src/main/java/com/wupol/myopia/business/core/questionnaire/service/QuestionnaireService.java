@@ -397,6 +397,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         item.setDropSelectKey(String.valueOf(json.getString(QuestionnaireConstant.DROP_SELECT_KEY)));
         item.setQuestionId(questionId);
         item.setRequired(json.getBoolean(QuestionnaireConstant.REQUIRED));
+        item.setFrontMark(-1);
         return item;
     }
 
