@@ -79,7 +79,7 @@ public class CommonUserAnswerImpl {
             totalRecord.setRecordType(1);
             totalRecord.setCreateTime(new Date());
             totalRecord.setUpdateTime(new Date());
-
+            userQuestionRecordService.save(totalRecord);
         }
         return userQuestionRecord.getId();
     }
