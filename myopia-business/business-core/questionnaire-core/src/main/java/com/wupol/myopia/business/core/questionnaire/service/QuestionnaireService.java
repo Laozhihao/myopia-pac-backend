@@ -282,7 +282,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private void setInfectiousDiseaseTitle(QuestionResponse questionResponse, QuestionnaireQuestion it) {
         List<InfectiousDiseaseTable> tableList = Lists.newArrayList();
         List<QuestionnaireQuestion> temp = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(it.getQuestionnaireId()).setPid(it.getId()));
-        if (CollUtil.isEmpty(temp) || temp.size() <= 2) {
+        if (CollUtil.isEmpty(temp) || temp.size() < 2) {
             return;
         }
         QuestionnaireQuestion q1 = temp.get(0);
