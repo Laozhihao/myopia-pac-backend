@@ -23,6 +23,11 @@ public class ClassroomItemTable implements Serializable {
     private String name;
 
     /**
+     * 问题Id
+     */
+    private Integer questionId;
+
+    /**
      * 详情
      */
     private List<Info> tableItems;
