@@ -32,11 +32,6 @@ public class TableItem implements Serializable {
     private String type;
 
     /**
-     * 数据类型
-     */
-    private String dataType;
-
-    /**
      * 下拉key
      */
     private String dropSelectKey;
@@ -74,6 +69,11 @@ public class TableItem implements Serializable {
         private Integer length;
 
         private Integer range;
+
+        /**
+         * 数据类型
+         */
+        private String dataType;
 
     }
 }
