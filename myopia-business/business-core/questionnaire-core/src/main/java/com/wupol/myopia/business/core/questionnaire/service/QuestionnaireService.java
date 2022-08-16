@@ -401,7 +401,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
         item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
-        item.setType("input");
+        item.setType(json.getString(QuestionnaireConstant.DATA_TYPE));
+        if (!StringUtils.equals(item.getType(), "select")) {
+            item.setType("input");
+        }
         item.setDropSelectKey(String.valueOf(json.getString(QuestionnaireConstant.DROP_SELECT_KEY)));
         item.setQuestionId(questionId);
         item.setRequired(json.getBoolean(QuestionnaireConstant.REQUIRED));
