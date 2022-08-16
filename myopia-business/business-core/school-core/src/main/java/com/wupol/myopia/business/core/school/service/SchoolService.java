@@ -487,4 +487,19 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
         return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
     }
+
+    /**
+     * 通过名字和区域Id获取
+     *
+     * @param name        名称
+     * @param districtIds 区域
+     *
+     * @return 学校
+     */
+    public List<School> getByNameAndDistrictIds(String name, Collection<Integer> districtIds) {
+        LambdaQueryWrapper<School> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(StringUtils.isNotBlank(name), School::getName, name)
+                .in(School::getDistrictId, districtIds);
+        return baseMapper.selectList(wrapper);
+    }
 }

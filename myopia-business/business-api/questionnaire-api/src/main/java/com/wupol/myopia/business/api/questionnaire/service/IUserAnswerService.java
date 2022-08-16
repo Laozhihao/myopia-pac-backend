@@ -21,6 +21,10 @@ public interface IUserAnswerService {
 
     /**
      * 保存用户问卷记录
+     * <p>
+     * 存在一个问题，如果首次提交答案，并且isFinish是true的话，会遗漏一条汇总的数据<br/>
+     * 明年的保存汇总数据会出现问题（重复）
+     * </p>
      *
      * @param questionnaireId  问卷ID
      * @param userId           用户Id
