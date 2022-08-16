@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author Simple4H
@@ -41,9 +42,11 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setJumpIds(detail.getJumpIds());
             question.setIsLogic(detail.getIsLogic());
             List<QesDataDO> qesData = detail.getQesData();
-            if (!CollectionUtils.isEmpty(qesData) &&
-                    qesData.stream().map(QesDataDO::getOptionId).filter(StringUtils::isNotBlank).count() != qesData.size()) {
-                throw new BusinessException("选项Id异常");
+            if (!CollectionUtils.isEmpty(qesData)) {
+                if (qesData.stream().map(QesDataDO::getOptionId).filter(StringUtils::isNotBlank).count() != qesData.size()) {
+                    throw new BusinessException("选项Id异常");
+                }
+                detail.setQesData(qesData.stream().filter(s -> !StringUtils.equals(s.getQesField(), "QM")).collect(Collectors.toList()));
             }
             question.setQesData(qesData);
             question.setIsHidden(detail.getIsHidden());
