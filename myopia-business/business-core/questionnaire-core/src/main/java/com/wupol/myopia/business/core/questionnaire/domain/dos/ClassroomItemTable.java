@@ -23,6 +23,11 @@ public class ClassroomItemTable implements Serializable {
     private String name;
 
     /**
+     * 问题Id
+     */
+    private Integer questionId;
+
+    /**
      * 详情
      */
     private List<Info> tableItems;
@@ -31,7 +36,7 @@ public class ClassroomItemTable implements Serializable {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Info implements Serializable{
+    public static class Info implements Serializable {
         /**
          * 详情
          */
@@ -42,7 +47,12 @@ public class ClassroomItemTable implements Serializable {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Detail implements Serializable{
+    public static class Detail implements Serializable {
+
+        /**
+         * 名称
+         */
+        private String name;
 
         /**
          * 表格项
