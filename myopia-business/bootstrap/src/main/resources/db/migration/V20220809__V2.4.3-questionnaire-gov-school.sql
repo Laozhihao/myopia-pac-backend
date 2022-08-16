@@ -7,6 +7,9 @@ alter table q_questionnaire_question
 alter table q_user_question_record
     add record_type int null comment '汇总类型 1-汇总' after status;
 
+alter table q_question
+    add mapping_key varchar(32) null comment '前端映射key' after icon_name;
+
 -- 筛查机构表，新增筛查类型配置字段
 ALTER TABLE `m_screening_organization`
     ADD COLUMN `screening_type_config` varchar(10) COMMENT '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';
