@@ -71,4 +71,17 @@ public class UserAnswerController {
         return ApiResult.success(userAnswerBizService.getSchoolName(CurrentUserUtil.getCurrentUser()));
     }
 
+    /**
+     * 问卷是否完成
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    @GetMapping("isFinish/{questionnaireId}")
+    public Boolean questionnaireIsFinish(@PathVariable("questionnaireId") Integer questionnaireId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user);
+    }
+
 }

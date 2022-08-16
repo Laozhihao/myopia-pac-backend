@@ -119,4 +119,14 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
         }
         return screeningPlanSchool.getSchoolName();
     }
+
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    @Override
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+    }
 }

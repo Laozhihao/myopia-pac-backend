@@ -99,4 +99,14 @@ public class UserAnswerBizService {
         return iUserAnswerService.getUserName(user.getExQuestionnaireUserId());
     }
 
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId);
+    }
+
 }

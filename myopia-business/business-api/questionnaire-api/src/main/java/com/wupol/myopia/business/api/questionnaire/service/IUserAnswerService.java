@@ -94,4 +94,16 @@ public interface IUserAnswerService {
      */
     default void hiddenQuestion(Integer questionnaireId, Integer userId, Integer recordId) {
     }
+
+    /**
+     * 问卷是否完成
+     *
+     * @param userId          用户Id
+     * @param questionnaireId 问卷Id
+     *
+     * @return 是否完成
+     */
+    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+        return false;
+    }
 }

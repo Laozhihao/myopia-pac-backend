@@ -154,6 +154,18 @@ public class CommonUserAnswerImpl {
             responseDTO.setMainTitle(QuestionnaireMainTitleEnum.getByType(s.getType()).getMainTitle());
             return responseDTO;
         }).collect(Collectors.toList());
+    }
 
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    public Boolean questionnaireIsFinish(Integer userId, Integer userType, Integer questionnaireId) {
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId);
+        if (Objects.isNull(userQuestionRecord)) {
+            return false;
+        }
+        return Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType());
     }
 }

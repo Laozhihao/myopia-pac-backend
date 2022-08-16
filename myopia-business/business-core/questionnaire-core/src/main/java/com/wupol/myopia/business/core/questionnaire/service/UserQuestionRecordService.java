@@ -41,6 +41,7 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      * 根据计划id和type获得问卷数据
      *
      * @param userType
+     *
      * @return
      */
     public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType) {
@@ -55,57 +56,62 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
 
     /**
      * 根据筛查计划ID获取用户答问卷记录集合
+     *
      * @param planId 计划ID
      * @param status 状态
      */
-    public List<UserQuestionRecord> getListByPlanId(Integer planId,Integer status){
-        return getListByNoticeIdOrTaskIdOrPlanId(null,null,planId, status);
+    public List<UserQuestionRecord> getListByPlanId(Integer planId, Integer status) {
+        return getListByNoticeIdOrTaskIdOrPlanId(null, null, planId, status);
     }
 
     /**
      * 根据筛查通知ID获取用户答问卷记录集合
+     *
      * @param noticeId 通知ID
-     * @param status 状态
+     * @param status   状态
      */
-    public List<UserQuestionRecord> getListByNoticeId(Integer noticeId,Integer status){
-        return getListByNoticeIdOrTaskIdOrPlanId(noticeId,null,null,status);
+    public List<UserQuestionRecord> getListByNoticeId(Integer noticeId, Integer status) {
+        return getListByNoticeIdOrTaskIdOrPlanId(noticeId, null, null, status);
     }
 
     /**
      * 根据筛查任务ID获取用户答问卷记录集合
+     *
      * @param taskId 任务ID
      * @param status 状态
      */
-    public List<UserQuestionRecord> getListByTaskId(Integer taskId,Integer status){
-        return getListByNoticeIdOrTaskIdOrPlanId(null,taskId,null,status);
+    public List<UserQuestionRecord> getListByTaskId(Integer taskId, Integer status) {
+        return getListByNoticeIdOrTaskIdOrPlanId(null, taskId, null, status);
     }
 
     /**
      * 根据筛查通知ID或筛查任务ID或筛查计划ID 和状态 获取用户答问卷记录集合
+     *
      * @param noticeId 通知ID
-     * @param taskId 任务ID
-     * @param planId 计划ID
-     * @param status 状态
+     * @param taskId   任务ID
+     * @param planId   计划ID
+     * @param status   状态
      */
-    public List<UserQuestionRecord> getListByNoticeIdOrTaskIdOrPlanId(Integer noticeId,Integer taskId,Integer planId,Integer status){
+    public List<UserQuestionRecord> getListByNoticeIdOrTaskIdOrPlanId(Integer noticeId, Integer taskId, Integer planId, Integer status) {
         LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
-        Optional.ofNullable(noticeId).ifPresent(id->queryWrapper.eq(UserQuestionRecord::getNoticeId,noticeId));
-        Optional.ofNullable(taskId).ifPresent(id->queryWrapper.eq(UserQuestionRecord::getTaskId,taskId));
-        Optional.ofNullable(planId).ifPresent(id->queryWrapper.eq(UserQuestionRecord::getPlanId,planId));
+        Optional.ofNullable(noticeId).ifPresent(id -> queryWrapper.eq(UserQuestionRecord::getNoticeId, noticeId));
+        Optional.ofNullable(taskId).ifPresent(id -> queryWrapper.eq(UserQuestionRecord::getTaskId, taskId));
+        Optional.ofNullable(planId).ifPresent(id -> queryWrapper.eq(UserQuestionRecord::getPlanId, planId));
         if (queryWrapper.isEmptyOfWhere()) {
             return Lists.newArrayList();
         }
-        Optional.ofNullable(status).ifPresent(s->queryWrapper.eq(UserQuestionRecord::getStatus,status));
+        Optional.ofNullable(status).ifPresent(s -> queryWrapper.eq(UserQuestionRecord::getStatus, status));
         return baseMapper.selectList(queryWrapper);
     }
 
     /**
      * 根据筛查ID集合批量获取用户答问卷记录集合
+     *
      * @param planIds 筛查ID集合
      */
-    public List<UserQuestionRecord> getListByPlanIds(List<Integer> planIds){
+    public List<UserQuestionRecord> getListByPlanIds(List<Integer> planIds) {
         LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(UserQuestionRecord::getPlanId,planIds);
+        queryWrapper.in(UserQuestionRecord::getPlanId, planIds);
         return baseMapper.selectList(queryWrapper);
     }
 
