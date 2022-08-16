@@ -119,6 +119,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             questionnaireInfoDTO.setIsHidden(it.getIsHidden());
             questionnaireInfoDTO.setRequired(it.getRequired());
             questionnaireInfoDTO.setQesData(it.getQesData());
+            questionnaireInfoDTO.setMappingKey(question.getMappingKey());
             List<QuestionResponse> questionList = Lists.newArrayList();
             List<QuestionnaireQuestion> collect;
 
@@ -182,6 +183,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         childQuestionResponse.setJumpIds(it.getJumpIds());
         childQuestionResponse.setIsHidden(it.getIsHidden());
         childQuestionResponse.setQesData(it.getQesData());
+        childQuestionResponse.setMappingKey(question.getMappingKey());
         setJumpIds(childQuestionResponse, it.getJumpIds());
         if (Boolean.TRUE.equals(isShowTable)) {
             if (StringUtils.equals(question.getType(), QuestionnaireConstant.INFECTIOUS_DISEASE_TITLE)) {

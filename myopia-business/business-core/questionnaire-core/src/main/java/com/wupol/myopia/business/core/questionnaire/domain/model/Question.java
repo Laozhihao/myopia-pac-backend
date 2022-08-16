@@ -88,6 +88,11 @@ public class Question implements Serializable {
     private String iconName;
 
     /**
+     * 前端映射key
+     */
+    private String mappingKey;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
