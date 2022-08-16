@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,9 +73,10 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord.setStudentId(null);
         userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
         userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
+        userQuestionRecord.setGovId(userId);
         userQuestionRecord.setSchoolId(userId);
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
-        userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
+        userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();
     }
@@ -114,5 +114,15 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             throw new BusinessException("获取信息异常");
         }
         return govDept.getName();
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    @Override
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
     }
 }
