@@ -430,6 +430,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * 获取需要过滤的Id
      */
     private List<Integer> getAllFilterId(List<Integer> ids, List<Integer> result) {
+        if (CollUtil.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
         List<QuestionnaireQuestion> byPids = questionnaireQuestionService.getByPids(ids);
         List<Integer> temp = byPids.stream().map(QuestionnaireQuestion::getId).collect(Collectors.toList());
         result.addAll(temp);
