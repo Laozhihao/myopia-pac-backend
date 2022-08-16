@@ -30,6 +30,10 @@ public class QuestionnaireQes implements Serializable {
     private Integer id;
 
     /**
+     * 区域ID
+     */
+    private Integer districtId;
+    /**
      * 年份
      */
     private Integer year;

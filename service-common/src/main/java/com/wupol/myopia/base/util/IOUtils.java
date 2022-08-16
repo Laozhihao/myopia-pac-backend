@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import cn.hutool.core.io.FileUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 
@@ -16,7 +17,7 @@ public class IOUtils {
         String tmpdir = getTempPath();
         String subDirStr = tmpdir + File.separator + sub;
         File subDirFile = new File(subDirStr);
-        subDirFile.mkdirs();
+        FileUtil.mkdir(subDirFile);
         return subDirStr;
     }
 

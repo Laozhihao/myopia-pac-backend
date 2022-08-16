@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.common.service;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
@@ -142,7 +141,7 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
      * @param fileExtensions 解析后保存文件的扩展名称
      */
     public String parseSavePath(String srcFilePath,String fileExtensions){
-        String fileName = FileUtil.mainName(srcFilePath)+ StrUtil.DOT+fileExtensions;
+        String fileName = FileUtil.mainName(srcFilePath)+fileExtensions;
         String savePath = uploadConfig.getSavePath();
         return Paths.get(savePath, fileName).toString();
     }

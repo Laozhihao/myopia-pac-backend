@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QesFieldMapping;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QesFieldMappingService;
@@ -38,17 +41,30 @@ public class QesFieldMappingFacade {
     private final QuestionnaireQesService questionnaireQesService;
     private final QesFieldMappingService qesFieldMappingService;
 
-    @Value("${file.temp.save-path}")
-    public String fileSavePath;
 
+    /**
+     * 根据qes管理ID保存qes字段映射
+     * @param qesId qes管理ID
+     */
     public void saveQesFieldMapping(Integer qesId) {
         QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
         if (Objects.isNull(questionnaireQes.getQesFileId())){
             return;
         }
+        saveQesFieldMapping(questionnaireQes);
+    }
+
+    /**
+     * 保存qes字段映射
+     * @param questionnaireQes 问卷qes管理对象
+     */
+    public void saveQesFieldMapping(QuestionnaireQes questionnaireQes) {
+        if (Objects.isNull(questionnaireQes) || Objects.isNull(questionnaireQes.getQesFileId())){
+            return;
+        }
         String qesUrl = resourceFileService.getResourcePath(questionnaireQes.getQesFileId());
         List<String> variableList = Lists.newArrayList();
-        String qesSavePath = getSavePath();
+        String qesSavePath = getQesTmpSavePath();
         try {
             FileUtils.copyURLToFile(new URL(qesUrl), new File(qesSavePath));
             EpiDataUtil.qesToVariable(qesSavePath,variableList);
@@ -61,21 +77,32 @@ public class QesFieldMappingFacade {
         if (CollectionUtils.isEmpty(variableList)){
             return;
         }
+
+        qesFieldMappingService.remove(new QesFieldMapping().setQesId(questionnaireQes.getId()));
+
         List<QesFieldMapping> qesFieldMappingList = variableList.stream().map(variable -> buildQesFieldMapping(variable, questionnaireQes)).collect(Collectors.toList());
         qesFieldMappingService.saveBatch(qesFieldMappingList);
-
     }
 
-    private String getSavePath(){
-        return Paths.get(fileSavePath, UUID.randomUUID().toString()+".qes").toString();
+    /**
+     * 获取qes文件临时保存路径
+     */
+    private String getQesTmpSavePath(){
+        String epiDataPath = IOUtils.getTempSubPath(QuestionnaireConstant.EPI_DATA_FOLDER);
+        return Paths.get(epiDataPath, UUID.randomUUID().toString()+QuestionnaireConstant.getQesExtension()).toString();
     }
 
 
+    /**
+     * 构建qes字段映射对象
+     * @param variable qes字段变量
+     * @param questionnaireQes 问卷qes管理对象
+     */
     private QesFieldMapping buildQesFieldMapping(String variable,QuestionnaireQes questionnaireQes){
         QesFieldMapping qesFieldMapping = new QesFieldMapping();
         qesFieldMapping.setQesId(questionnaireQes.getId());
         qesFieldMapping.setYear(questionnaireQes.getYear());
-        String qesField = variable.replace("{", "").replace("}", "");
+        String qesField = variable.replace(StrUtil.DELIM_START, StrUtil.EMPTY).replace(StrUtil.DELIM_END, StrUtil.EMPTY);
         qesFieldMapping.setQesField(qesField);
         return qesFieldMapping;
     }

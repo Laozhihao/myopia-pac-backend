@@ -17,8 +17,6 @@ import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
 import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
-import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -26,7 +24,6 @@ import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -275,12 +272,37 @@ public class QuestionnaireManagementController {
         return SelectKeyEnum.getSelectDropResponseDTO();
     }
 
+
+    /**
+     * 导出Rec文件
+     *
+     * @param exportQuestionnaireDTO 导出问卷参数
+     */
+    @PostMapping("/rec/export")
+    public void exportRec(@RequestBody ExportQuestionnaireDTO exportQuestionnaireDTO) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(currentUser.getId())
+                .setPlanId(exportQuestionnaireDTO.getScreeningPlanId())
+                .setDistrictId(exportQuestionnaireDTO.getDistrictId())
+                .setSchoolId(exportQuestionnaireDTO.getSchoolId())
+                .setExportType(exportQuestionnaireDTO.getExportType())
+                .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
+                .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
+                .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
+                .setTaskId(exportQuestionnaireDTO.getTaskId());
+
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_REC_SERVICE);
+    }
+
+
+
     @GetMapping("/test")
     public void head(Integer[] questionnaireIds ){
         if (ArrayUtil.isNotEmpty(questionnaireIds)){
             List<List<String>> head = questionnaireFacade.getHead(Lists.newArrayList(questionnaireIds));
             for (List<String> list : head) {
-                System.out.println(list);
+                log.info(list.toString());
             }
         }
     }

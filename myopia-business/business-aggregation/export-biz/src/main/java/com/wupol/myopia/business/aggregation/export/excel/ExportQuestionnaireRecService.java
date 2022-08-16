@@ -35,8 +35,8 @@ import java.util.stream.Stream;
  * @author hang.yuan 2022/7/20 11:18
  */
 @Slf4j
-@Service(ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE)
-public class ExportQuestionnaireService extends BaseExportExcelFileService {
+@Service(ExportExcelServiceNameConstant.QUESTIONNAIRE_REC_SERVICE)
+public class ExportQuestionnaireRecService extends BaseExportExcelFileService {
 
     public static final String ERROR_MSG ="不存在此导出类型:%s";
 
@@ -120,7 +120,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
                 String districtKey = exportTypeService.getDistrictKey(districtId);
                 return getFileSavePath(fileName,districtKey);
             }
-            throw new BusinessException(String.format(ExportQuestionnaireService.ERROR_MSG,exportType));
+            throw new BusinessException(String.format(ExportQuestionnaireRecService.ERROR_MSG,exportType));
         }
         return fileName;
     }

@@ -31,4 +31,9 @@ public class QuestionnaireQesDTO {
      * 问卷描述
      */
     private String description;
+
+    /**
+     * 区域ID
+     */
+    private Integer districtId;
 }

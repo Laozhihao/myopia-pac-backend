@@ -17,13 +17,18 @@ public class QuestionnaireTypeVO {
      */
     private List<QuestionnaireType> questionnaireTypeList;
     /**
-     * 选择中问卷类型
+     * 选中的问卷类型集合
      */
     private List<Integer> selectList;
     /**
-     * 暂无数据的
+     * 暂无数据的集合
      */
     private List<Integer> noDataList;
+    /**
+     * qes未上传集合
+     */
+    private List<Integer> noQesList;
+
 
     @Data
     @AllArgsConstructor

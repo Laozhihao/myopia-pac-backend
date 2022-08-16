@@ -22,6 +22,8 @@ public class QuestionnaireQesService extends BaseService<QuestionnaireQesMapper,
      * @param year 年份
      */
     public List<QuestionnaireQes> listByYear(Integer year){
-        return baseMapper.selectList(new LambdaQueryWrapper<QuestionnaireQes>().eq(QuestionnaireQes::getYear,year));
+        LambdaQueryWrapper<QuestionnaireQes> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(QuestionnaireQes::getYear,year);
+        return baseMapper.selectList(queryWrapper);
     }
 }

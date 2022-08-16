@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.questionnaire.domain.vo.QuestionnaireQesVO;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
@@ -37,6 +38,7 @@ public class QuestionnaireQesFacade {
     private final QuestionnaireQesService questionnaireQesService;
     private final ResourceFileService resourceFileService;
     private final S3Utils s3Utils;
+    private final QesFieldMappingFacade qesFieldMappingFacade;
 
     /**
      * 创建问卷模板
@@ -45,6 +47,9 @@ public class QuestionnaireQesFacade {
      */
     @Transactional(rollbackFor = Exception.class)
     public void save(QuestionnaireQesDTO questionnaireQesDTO) {
+        if (Objects.isNull(questionnaireQesDTO.getDistrictId())){
+            questionnaireQesDTO.setDistrictId(-1);
+        }
         if (Objects.nonNull(questionnaireQesDTO.getId())) {
             QuestionnaireQes questionnaireQes = questionnaireQesService.getById(questionnaireQesDTO.getId());
             BeanUtil.copyProperties(questionnaireQesDTO,questionnaireQes);
@@ -62,15 +67,18 @@ public class QuestionnaireQesFacade {
      * @param qesId qes问卷管理ID
      */
     public void uploadQes(MultipartFile file, Integer qesId) {
-        String qesPath = resourceFileService.checkFileAndSaveToLocal(file, "QES");
+        String qesPath = resourceFileService.checkFileAndSaveToLocal(file, QuestionnaireConstant.QES);
         QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
         //解析qes文件
-        String parseSavePath = resourceFileService.parseSavePath(qesPath, "txt");
+        String parseSavePath = resourceFileService.parseSavePath(qesPath, QuestionnaireConstant.TXT);
         EpiDataUtil.qesToTxt(qesPath,parseSavePath);
         //上传
         uploadQesFile(qesPath, questionnaireQes,Boolean.TRUE);
         uploadQesFile(parseSavePath, questionnaireQes,Boolean.FALSE);
         questionnaireQesService.updateById(questionnaireQes);
+
+        //保存qes字段映射
+        qesFieldMappingFacade.saveQesFieldMapping(questionnaireQes);
     }
 
 

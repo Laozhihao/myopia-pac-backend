@@ -55,4 +55,15 @@ public class QuestionnaireController {
     public List<DropSelect> getDropSelectKey(@PathVariable("key") String key) {
         return DropSelectEnum.getSelect(key);
     }
+
+
+    /**
+     * 问卷关联qes字段映射
+     * @param questionnaireId 问卷ID
+     * @param qesId qes管理ID
+     */
+    @GetMapping("addQesFieldMapping")
+    public void addQesFieldMapping(@RequestParam Integer questionnaireId, @RequestParam Integer qesId){
+        questionnaireBizService.saveQuestionnaireQesField(questionnaireId,qesId);
+    }
 }

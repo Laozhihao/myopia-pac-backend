@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,7 +23,11 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -87,6 +92,10 @@ public class QuestionnaireManagementService {
 
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
+    @Autowired
+    private QuestionnaireService questionnaireService;
+    @Autowired
+    private QuestionnaireQesService questionnaireQesService;
 
     private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
 
@@ -602,20 +611,51 @@ public class QuestionnaireManagementService {
 
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
 
+
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
+            List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
+
+            questionnaireTypeVO.setNoQesList(getNoQesList(questionnaireList));
+
             List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
             typeKeyList.removeAll(questionnaireTypes);
-            questionnaireTypeVO.setNoDataList(typeKeyList);
-        }else {
-            questionnaireTypeVO.setNoDataList(typeKeyList);
         }
-
+        questionnaireTypeVO.setNoDataList(typeKeyList);
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
+
+
         if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE) && exportTypeList.contains(exportType)){
             questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
         }
 
+
         return questionnaireTypeVO;
+    }
+
+    /**
+     * 获取没有qes文件的问卷类型
+     * @param questionnaireList 问卷集合
+     */
+    private List<Integer> getNoQesList(List<Questionnaire> questionnaireList) {
+
+        Set<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Integer, Boolean> qesMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(qesMap)){
+            List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.listByIds(qesIds);
+            Map<Integer, Boolean> collect = questionnaireQesList.stream().collect(Collectors.toMap(QuestionnaireQes::getId, questionnaireQes -> Objects.nonNull(questionnaireQes.getQesFileId())));
+            qesMap.putAll(collect);
+        }
+
+        return questionnaireList.stream()
+                        .filter(questionnaire -> Objects.equals(Boolean.FALSE, qesMap.getOrDefault(questionnaire.getQesId(),Boolean.FALSE)))
+                        .map(questionnaire -> {
+                            if (QuestionnaireConstant.getStudentTypeList().contains(questionnaire.getType())) {
+                                return QuestionnaireConstant.STUDENT_TYPE;
+                            }
+                            return questionnaire.getType();
+                        })
+                        .distinct().collect(Collectors.toList());
     }
 
     /**
@@ -627,11 +667,12 @@ public class QuestionnaireManagementService {
                 .map(UserQuestionRecord::getQuestionnaireType)
                 .distinct()
                 .map(questionnaireType -> {
-                    if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                    if (QuestionnaireConstant.getStudentTypeList().contains(questionnaireType)) {
                         return QuestionnaireConstant.STUDENT_TYPE;
                     }
                     return questionnaireType;
                 })
                 .distinct().collect(Collectors.toList());
     }
+
 }

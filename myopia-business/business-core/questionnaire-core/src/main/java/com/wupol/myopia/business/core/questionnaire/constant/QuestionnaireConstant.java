@@ -27,7 +27,11 @@ public class QuestionnaireConstant {
     /**
      * 问卷类型学生类型集合
      */
-    public static final List<Integer> STUDENT_TYPE_LIST = Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
+    protected static final List<Integer> STUDENT_TYPE_LIST = Lists.newArrayList(QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(), QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(), QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
+
+    public static List<Integer> getStudentTypeList(){
+        return STUDENT_TYPE_LIST;
+    }
 
     /**
      * 父ID值
@@ -104,5 +108,28 @@ public class QuestionnaireConstant {
      * length
      */
     public static final String LENGTH = "length";
+
+
+    /**
+     * 临时文件夹名称
+     */
+    public static final String EPI_DATA_FOLDER = "EpiData";
+    /**
+     * qes文件扩展名
+     */
+    public static final String QES = "qes";
+
+    public static String getQesExtension(){
+        return "."+QES;
+    }
+
+    /**
+     * rec文件扩展名
+     */
+    public static final String REC = ".rec";
+    /**
+     * TXT文件扩展名
+     */
+    public static final String TXT = ".txt";
 
 }
