@@ -332,6 +332,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             ClassroomItemTable table = new ClassroomItemTable();
             table.setName(questionMap.get(s.getQuestionId()).getTitle());
             List<QuestionnaireQuestion> nextList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(s.getQuestionnaireId()).setPid(s.getId()));
+
             List<ClassroomItemTable.Detail> collect = nextList.stream().map(y -> {
                 List<TableItem> tableItems = new ArrayList<>();
                 Question question = questionMap.get(y.getQuestionId());
@@ -350,7 +351,11 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 }
                 return new ClassroomItemTable.Detail(tableItems);
             }).collect(Collectors.toList());
-            table.setTableItems(collect);
+
+            List<ClassroomItemTable.Info> result = Lists.partition(collect, 3).stream()
+                    .map(ClassroomItemTable.Info::new).collect(Collectors.toList());
+
+            table.setTableItems(result);
             return table;
         }).collect(Collectors.toList());
 

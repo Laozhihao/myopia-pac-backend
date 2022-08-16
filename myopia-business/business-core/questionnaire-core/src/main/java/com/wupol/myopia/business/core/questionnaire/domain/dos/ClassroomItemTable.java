@@ -25,7 +25,18 @@ public class ClassroomItemTable implements Serializable {
     /**
      * 详情
      */
-    private List<Detail> tableItems;
+    private List<Info> tableItems;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Info implements Serializable{
+        /**
+         * 详情
+         */
+        private List<Detail> tableItems;
+    }
 
     @Getter
     @Setter
