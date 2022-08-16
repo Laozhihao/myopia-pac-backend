@@ -643,12 +643,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过行政id获取行政名称
      *
      * @param ids 行政id
-     * @return Map<Integer, String>
+     * @return Map<Integer, District>
      */
-    public Map<Integer, String> getByIds(List<Integer> ids) {
+    public Map<Integer, District> getByIds(List<Integer> ids) {
         List<District> districts = baseMapper.selectList(new QueryWrapper<District>().in("id", ids));
         return districts.stream()
-                .collect(Collectors.toMap(District::getId, District::getName));
+                .collect(Collectors.toMap(District::getId, Function.identity()));
     }
 
     /**
