@@ -835,4 +835,16 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         return new TwoTuple<>(getTopDistrictName(district.getParentCode()), district.getName());
     }
+
+    /**
+     * 获取当前节点前的数结构
+     *
+     * @param code code
+     *
+     * @return
+     */
+    public List<District> districtCodeToTree(Long code) {
+        return districtListToTree(getDistrictPositionDetail(code), 100000000L);
+    }
+
 }

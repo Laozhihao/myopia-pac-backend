@@ -148,7 +148,8 @@ public class UserAnswerBizService {
         return schoolList.stream().map(s -> {
             SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
             responseDTO.setName(s.getName());
-            District district = districtMap.get(s.getDistrictId());
+            Integer schoolDistrictId = s.getDistrictId();
+            District district = districtMap.get(schoolDistrictId);
             if (Objects.isNull(district)) {
                 return responseDTO;
             }
@@ -158,6 +159,7 @@ public class UserAnswerBizService {
             responseDTO.setAreaNo(code.substring(4, 6));
             responseDTO.setAreaType(s.getAreaType());
             responseDTO.setMonitorType(s.getMonitorType());
+            responseDTO.setDistrict(districtService.districtCodeToTree(district.getCode()));
             return responseDTO;
         }).collect(Collectors.toList());
     }
