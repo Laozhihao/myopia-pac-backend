@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -135,12 +136,7 @@ public class UserAnswerBizService {
      * 获取学校
      */
     public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
-        if (!user.isQuestionnaireGovUser()) {
-            throw new BusinessException("政府身份异常!");
-        }
-        Integer orgId = user.getExQuestionnaireUserId();
-        GovDept govDept = govDeptService.getById(orgId);
-        Integer districtId = govDept.getDistrictId();
+        Integer districtId = getUserDistrictId(user);
         List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
         if (CollectionUtils.isEmpty(schoolList)) {
             return new ArrayList<>();
@@ -150,7 +146,7 @@ public class UserAnswerBizService {
     }
 
     /**
-     * 政府获取行政区域
+     * 获取行政区域
      *
      * @return List<District>
      */
@@ -203,6 +199,25 @@ public class UserAnswerBizService {
         }
         responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
         return responseDTO;
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     */
+    public List<District> govNextDistrict(CurrentUser user) {
+        Integer districtId = getUserDistrictId(user);
+        return districtService.getAreaTree(districtId);
+    }
+
+    private Integer getUserDistrictId(CurrentUser user) {
+        if (!user.isQuestionnaireGovUser()) {
+            throw new BusinessException("政府身份异常!");
+        }
+        Integer orgId = user.getExQuestionnaireUserId();
+        GovDept govDept = govDeptService.getById(orgId);
+        return govDept.getDistrictId();
     }
 
 }
