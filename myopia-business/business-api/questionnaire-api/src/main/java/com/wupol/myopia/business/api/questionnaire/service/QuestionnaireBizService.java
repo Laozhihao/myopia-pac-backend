@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -44,12 +45,12 @@ public class QuestionnaireBizService {
 
     /**
      * 保存问卷与qes之间关系和保存qes字段映射关系
-     * @param questionnaireId 问卷ID
+     * @param questionnaireIds 问卷ID集合
      * @param qesId qes管理ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void saveQuestionnaireQesField(Integer questionnaireId,Integer qesId){
-        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
+    public void saveQuestionnaireQesField(List<Integer> questionnaireIds,Integer qesId){
+        List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireIds(questionnaireIds);
         if (CollUtil.isNotEmpty(questionnaireQuestionList)){
             Map<String, List<QesDataDO>> qesDataMap = questionnaireQuestionList.stream()
                     .filter(questionBO -> CollUtil.isNotEmpty(questionBO.getQesData()))
@@ -68,9 +69,9 @@ public class QuestionnaireBizService {
                 });
             }
             qesFieldMappingService.updateBatchById(qesFieldMappingList);
-            Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-            questionnaire.setQesId(qesId);
-            questionnaireService.updateById(questionnaire);
+            List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
+            questionnaireList.forEach(questionnaire -> questionnaire.setQesId(qesId));
+            questionnaireService.updateBatchById(questionnaireList);
         }
     }
 }

@@ -78,6 +78,12 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .orderByAsc(QuestionnaireQuestion::getId));
     }
 
+    public List<QuestionnaireQuestion> listByQuestionnaireIds(List<Integer> questionnaireIds) {
+        LambdaQueryWrapper<QuestionnaireQuestion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(QuestionnaireQuestion::getQuestionnaireId,questionnaireIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 通过问卷、问题Id获取
      *

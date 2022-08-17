@@ -25,7 +25,7 @@ public class QuestionnaireTypeVO {
      */
     private List<Integer> noDataList;
     /**
-     * qes未上传集合
+     * 无qes文件集合
      */
     private List<Integer> noQesList;
 

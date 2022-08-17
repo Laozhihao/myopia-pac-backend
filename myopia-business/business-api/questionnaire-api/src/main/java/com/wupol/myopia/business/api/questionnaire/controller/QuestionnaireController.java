@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -59,11 +60,11 @@ public class QuestionnaireController {
 
     /**
      * 问卷关联qes字段映射
-     * @param questionnaireId 问卷ID
+     * @param questionnaireIds 问卷ID
      * @param qesId qes管理ID
      */
     @GetMapping("addQesFieldMapping")
-    public void addQesFieldMapping(@RequestParam Integer questionnaireId, @RequestParam Integer qesId){
-        questionnaireBizService.saveQuestionnaireQesField(questionnaireId,qesId);
+    public void addQesFieldMapping(@RequestParam Integer[] questionnaireIds, @RequestParam Integer qesId){
+        questionnaireBizService.saveQuestionnaireQesField(Lists.newArrayList(questionnaireIds),qesId);
     }
 }

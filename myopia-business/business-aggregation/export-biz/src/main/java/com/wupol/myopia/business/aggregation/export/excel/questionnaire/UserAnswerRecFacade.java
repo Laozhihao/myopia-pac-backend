@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -18,14 +18,8 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelStudentDataBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
@@ -56,7 +50,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class UserAnswerFacade {
+public class UserAnswerRecFacade {
 
     private final UserQuestionRecordService userQuestionRecordService;
     private final UserAnswerService userAnswerService;
@@ -156,57 +150,44 @@ public class UserAnswerFacade {
 
     }
 
-    /**
-     * excel导出数据处理
-     *
-     * @param userQuestionRecordList 用户问答记录集合
-     * @param hideQuestionDataBOList 隐藏问题数据集合
-     * @param excelStudentDataBOList 收集excel导出学生数据集合
-     */
-    private void dataProcess(List<UserQuestionRecord> userQuestionRecordList,
-                             List<HideQuestionDataBO> hideQuestionDataBOList,
-                             List<ExcelStudentDataBO> excelStudentDataBOList) {
+
+    private void recDataProcess(List<UserQuestionRecord> userQuestionRecordList,
+                                List<HideQuestionDataBO> hideQuestionDataBOList,
+                                List<RecDataBO> recDataBOList) {
+
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             return;
         }
 
         List<Integer> recordIds = userQuestionRecordList.stream().map(UserQuestionRecord::getId).collect(Collectors.toList());
-
-        List<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toList());
-        //记分问题ID
-        List<Integer> scoreQuestionIds = questionnaireFacade.getScoreQuestionIds(questionnaireIds);
-
         List<UserAnswer> userAnswerList = userAnswerService.getListByRecordIds(recordIds);
+
         //用户记录ID对应答案集合
         Map<Integer, List<UserAnswer>> userAnswerMap = userAnswerList.stream().collect(Collectors.groupingBy(UserAnswer::getRecordId));
+
 
         Set<Integer> questionIds = userAnswerList.stream().map(UserAnswer::getQuestionId).collect(Collectors.toSet());
         List<Question> questionList = questionService.listByIds(questionIds);
         //问题ID对应的问题集合
         Map<Integer, Question> questionMap = questionList.stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+
         //学生ID对应学生信息（年级和编码4位）集合
         Map<Integer, TwoTuple<String,String>> studentInfoMap = getStudentInfoMap(userQuestionRecordList);
+
 
         //学生ID对应的问卷记录信息集合
         Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
 
         studentMap.forEach((studentId,recordList)->{
-            ExcelStudentDataBO excelStudentDataBO = new ExcelStudentDataBO();
-            excelStudentDataBO.setStudentId(studentId);
-            Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
+            RecDataBO recDataBO = new RecDataBO();
+            recDataBO.setStudentId(studentId);
             TwoTuple<String, String> tuple = studentInfoMap.get(studentId);
-            excelStudentDataBO.setGradeCode(GradeCodeEnum.getByName(tuple.getFirst()).getCode());
+            recDataBO.setGradeCode(GradeCodeEnum.getByName(tuple.getFirst()).getCode());
             for (UserQuestionRecord userQuestionRecord : recordList) {
-                if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
-                        || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
-                    //处理隐藏数据（学生和学校数据）
-                    List<ExcelStudentDataBO.AnswerDataBO> answerDataBOList = hideQuestionDataProcess(userQuestionRecord.getUserId(),fillDate,hideQuestionDataBOList);
-                    excelStudentDataBO.setDataList(answerDataBOList);
-                }
                 //处理非隐藏数据
-                questionDataProcess(scoreQuestionIds, userAnswerMap, questionMap, excelStudentDataBO, userQuestionRecord.getId(),tuple);
+                questionRecDataProcess(userAnswerMap, questionMap, recDataBO, userQuestionRecord.getId(),tuple);
             }
-            excelStudentDataBOList.add(excelStudentDataBO);
+            recDataBOList.add(recDataBO);
         });
 
     }
@@ -230,33 +211,25 @@ public class UserAnswerFacade {
 
     /**
      * 处理非隐藏数据
-     * @param scoreQuestionIds 记分数问题ID集合
      * @param userAnswerMap 用户答案集合
      * @param questionMap 问题集合
-     * @param excelStudentDataBO 导出excel数据对象
+     * @param recDataBO 导出excel数据对象
      * @param userQuestionRecordId 用户问卷记录ID
      * @param tuple 学生信息(年级和编码4位)
      */
-    private void questionDataProcess(List<Integer> scoreQuestionIds, Map<Integer, List<UserAnswer>> userAnswerMap, Map<Integer, Question> questionMap, ExcelStudentDataBO excelStudentDataBO, Integer userQuestionRecordId,TwoTuple<String, String> tuple) {
+    private void questionRecDataProcess(Map<Integer, List<UserAnswer>> userAnswerMap, Map<Integer, Question> questionMap, RecDataBO recDataBO, Integer userQuestionRecordId,TwoTuple<String, String> tuple) {
         List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecordId);
         if (CollUtil.isNotEmpty(userAnswers)){
             Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
-            List<ExcelStudentDataBO.AnswerDataBO> answerList = Lists.newArrayList();
-            List<ExcelStudentDataBO.AnswerDataBO> scoreAnswerList =Lists.newArrayList();
+            List<RecDataBO.RecAnswerDataBO> answerList = Lists.newArrayList();
             questionUserAnswerMap.forEach((questionId,list)-> {
-                ExcelStudentDataBO.AnswerDataBO answerData = getAnswerData(list, questionMap,tuple);
-                answerList.add(answerData);
-                if (scoreQuestionIds.contains(questionId)){
-                    scoreAnswerList.add(answerData);
-                }
+                RecDataBO.RecAnswerDataBO recAnswerDataBO = getRecAnswerData(list, questionMap,tuple);
+                answerList.add(recAnswerDataBO);
             });
-            //计算分数
-            calculateScore(questionMap, answerList, scoreAnswerList);
-
-            if (Objects.isNull(excelStudentDataBO.getDataList())) {
-                excelStudentDataBO.setDataList(answerList);
+            if (Objects.isNull(recDataBO.getRecAnswerDataBOList())) {
+                recDataBO.setRecAnswerDataBOList(answerList);
             }else {
-                excelStudentDataBO.getDataList().addAll(answerList);
+                recDataBO.getRecAnswerDataBOList().addAll(answerList);
             }
         }
     }
@@ -298,8 +271,17 @@ public class UserAnswerFacade {
         List<String> districtList = getParseDistrict(school.getDistrictAreaCode());
 
         for (int i = 0; i < hideQuestionDataBOList.size(); i++) {
+            HideQuestionDataBO hideQuestionDataBO = hideQuestionDataBOList.get(i);
             ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
-            answerDataBO.setQuestionId(hideQuestionDataBOList.get(i).getQuestionId());
+            answerDataBO.setQuestionId(hideQuestionDataBO.getQuestionId());
+            List<QesDataDO> qesDataList = hideQuestionDataBO.getQesData();
+            if (CollUtil.isNotEmpty(qesDataList)){
+                qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
+                List<String> qesFields = qesDataList.stream().map(QesDataDO::getQesField).distinct().collect(Collectors.toList());
+                List<String> optionIds = qesDataList.stream().map(QesDataDO::getOptionId).collect(Collectors.toList());
+                answerDataBO.setOptionId(CollUtil.join(optionIds,","));
+                answerDataBO.setQesField(CollUtil.join(qesFields,","));
+            }
             switch (i){
                 case 0:
                     answerDataBO.setAnswer(screeningPlanSchoolStudent.getCommonDiseaseId());
@@ -378,53 +360,53 @@ public class UserAnswerFacade {
      * @param questionMap 问题集合
      * @param tuple 学生信息(年级和编码4位)
      */
-    private ExcelStudentDataBO.AnswerDataBO getAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap,TwoTuple<String, String> tuple){
-        ExcelStudentDataBO.AnswerDataBO answerDataBO = new ExcelStudentDataBO.AnswerDataBO();
+    private RecDataBO.RecAnswerDataBO getRecAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap,TwoTuple<String, String> tuple){
+        RecDataBO.RecAnswerDataBO recAnswerDataBO = new RecDataBO.RecAnswerDataBO();
         UserAnswer userAnswer = userAnswerList.get(0);
-        answerDataBO.setQuestionId(userAnswer.getQuestionId());
+        recAnswerDataBO.setQuestionId(userAnswer.getQuestionId());
         Question question = questionMap.get(userAnswer.getQuestionId());
 
         List<Option> options = JSON.parseArray(JSON.toJSONString(question.getOptions()), Option.class);
         if (options.size() == 1){
-            setDataInputType(userAnswerList, answerDataBO, question, options,tuple);
+            setDataInputType(userAnswerList, recAnswerDataBO, question, options,tuple);
         }else {
             //处理 多选或者单选
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
             if (Objects.equals(question.getType(), CHECKBOX) || Objects.equals(question.getType(), RADIO)) {
-                setAnswerData(answerDataBO, userAnswerList, optionMap);
+                setAnswerData(recAnswerDataBO, userAnswerList, optionMap);
             }
         }
-        return answerDataBO;
+        return recAnswerDataBO;
     }
 
     /**
      * 根据输入框类型设置答案
      * @param userAnswerList 用户答案集合
-     * @param answerDataBO 用户答案数据
+     * @param recAnswerDataBO 用户答案数据
      * @param question 问题
      * @param options 问题选项
      * @param tuple 学生信息(年级和编码4位)
      */
-    private void setDataInputType(List<UserAnswer> userAnswerList, ExcelStudentDataBO.AnswerDataBO answerDataBO, Question question, List<Option> options,TwoTuple<String, String> tuple) {
+    private void setDataInputType(List<UserAnswer> userAnswerList,RecDataBO.RecAnswerDataBO  recAnswerDataBO, Question question, List<Option> options,TwoTuple<String, String> tuple) {
         Option questionOption = options.get(0);
         Map<String, OptionAnswer> optionAnswerMap = getStreamByOptionAnswerList(userAnswerList).collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity()));
         if (Objects.equals(question.getType(), RADIO)) {
             JSONObject option = questionOption.getOption();
             if (Objects.nonNull(option) && option.size() > 0 ){
-                setRadioAnswer(answerDataBO, questionOption, optionAnswerMap, option);
+                setRadioAnswer(recAnswerDataBO, questionOption, optionAnswerMap, option);
                 if (Objects.equals(question.getTitle(),GRADE)){
-                    answerDataBO.setAnswer(Optional.ofNullable(tuple).map(TwoTuple::getFirst).orElse(StrUtil.EMPTY));
+                    recAnswerDataBO.setRecAnswer(Optional.ofNullable(tuple).map(TwoTuple::getFirst).orElse(StrUtil.EMPTY));
                 }
                 if (Objects.equals(question.getTitle(),CODE)){
-                    answerDataBO.setAnswer(Optional.ofNullable(tuple).map(TwoTuple::getSecond).orElse(StrUtil.EMPTY));
+                    recAnswerDataBO.setRecAnswer(Optional.ofNullable(tuple).map(TwoTuple::getSecond).orElse(StrUtil.EMPTY));
                 }
             }else {
-                answerDataBO.setAnswer(questionOption.getText());
+                recAnswerDataBO.setRecAnswer(questionOption.getText());
             }
         }
         else if (Objects.equals(question.getType(), INPUT)) {
             List<String> valueList = getStreamByOptionAnswerList(userAnswerList).map(optionAnswer -> Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY)).collect(Collectors.toList());
-            answerDataBO.setAnswer(CollUtil.join(valueList,"、"));
+            recAnswerDataBO.setRecAnswer(CollUtil.join(valueList,"、"));
         }
     }
 
@@ -446,7 +428,7 @@ public class UserAnswerFacade {
      * @param optionAnswerMap 问题答案集合
      * @param option 问题里面的操作
      */
-    private void setRadioAnswer(ExcelStudentDataBO.AnswerDataBO answerDataBO, Option questionOption, Map<String, OptionAnswer> optionAnswerMap, JSONObject option) {
+    private void setRadioAnswer(RecDataBO.RecAnswerDataBO answerDataBO, Option questionOption, Map<String, OptionAnswer> optionAnswerMap, JSONObject option) {
         String answer = questionOption.getText();
         for (Map.Entry<String, Object> entry : option.entrySet()) {
             JSONObject value = (JSONObject) entry.getValue();
@@ -455,16 +437,16 @@ public class UserAnswerFacade {
                 answer = answer.replace(String.format(PLACEHOLDER, entry.getKey()), Optional.ofNullable(optionAnswer.getValue()).orElse(StrUtil.EMPTY));
             }
         }
-        answerDataBO.setAnswer(answer);
+        answerDataBO.setRecAnswer(answer);
     }
 
     /**
      * 设置单选、多选、单选+输入框、多选+输入框
-     * @param answerDataBO  处理后的答案数据
+     * @param recAnswerDataBO  处理后的答案数据
      * @param userAnswerList 用户答案
      * @param optionMap 选项集合
      */
-    private void setAnswerData(ExcelStudentDataBO.AnswerDataBO answerDataBO, List<UserAnswer> userAnswerList, Map<String, Option> optionMap) {
+    private void setAnswerData(RecDataBO.RecAnswerDataBO recAnswerDataBO, List<UserAnswer> userAnswerList, Map<String, Option> optionMap) {
         Map<String,OptionAnswer> optionAnswerMap = getStreamByOptionAnswerList(userAnswerList).collect(Collectors.toMap(OptionAnswer::getOptionId,Function.identity()));
         List<OptionAnswer> optionAnswerList = getStreamByOptionAnswerList(userAnswerList).collect(Collectors.toList());
         List<String> answerList = Lists.newArrayList();
@@ -482,7 +464,7 @@ public class UserAnswerFacade {
                 answerList.add(questionOption.getText());
             }
         }
-        answerDataBO.setAnswer(CollUtil.join(answerList," "));
+        recAnswerDataBO.setRecAnswer(CollUtil.join(answerList," "));
     }
 
     /**
@@ -511,18 +493,24 @@ public class UserAnswerFacade {
      * @param questionnaireIds 问卷ID集合
      * @param questionnaireId 隐藏问题问卷ID
      */
-    public List<List<String>> getData(List<UserQuestionRecord> userQuestionRecordList,
+    public List<Map<String,String>> getRecData(List<UserQuestionRecord> userQuestionRecordList,
                                       List<Integer> questionnaireIds,Integer questionnaireId){
-        List<ExcelStudentDataBO> excelStudentDataBOList = Lists.newArrayList();
+        List<RecDataBO> recDataBOList = Lists.newArrayList();
         List<HideQuestionDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestion(questionnaireId);
-        dataProcess(userQuestionRecordList,hideQuestionDataBOList, excelStudentDataBOList);
-        List<Integer> questionIds = questionnaireFacade.getQuestionIdSort(questionnaireIds);
-        CollUtil.sort(excelStudentDataBOList,Comparator.comparing(ExcelStudentDataBO::getGradeCode));
-        return excelStudentDataBOList.stream().map(excelStudentDataBO -> {
-            Map<Integer, String> answerDataMap = excelStudentDataBO.getAnswerDataMap();
-            return questionIds.stream().map(answerDataMap::get).collect(Collectors.toList());
-        }).collect(Collectors.toList());
+        recDataProcess(userQuestionRecordList,hideQuestionDataBOList, recDataBOList);
+        List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(questionnaireIds);
+        CollUtil.sort(recDataBOList,Comparator.comparing(RecDataBO::getGradeCode));
+        for (RecDataBO recDataBO : recDataBOList) {
+            List<RecDataBO.RecAnswerDataBO> dataList = recDataBO.getRecAnswerDataBOList();
+            for (RecDataBO.RecAnswerDataBO answerDataBO : dataList) {
+                System.out.println(answerDataBO);
+            }
+        }
+
+        return Lists.newArrayList();
     }
+
+
     /**
      * 获取excel问卷名称
      *
@@ -537,29 +525,29 @@ public class UserAnswerFacade {
 
 
     /**
-     * 获取学生类型的Excel数据
+     * 获取rec数据
      * @param generateDataCondition 生成数据条件
      */
-    public GenerateExcelDataBO generateStudentTypeExcelData(GenerateDataCondition generateDataCondition){
+    public GenerateRecDataBO generateRecData(GenerateDataCondition generateDataCondition){
         QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
         ExportCondition exportCondition = generateDataCondition.getExportCondition();
         //根据问卷类型获取问卷集合
         List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
         if (CollUtil.isEmpty(questionnaireList)){
-            log.warn("暂无此问卷类型：{}", mainBodyType.getDesc());
+            log.warn("暂无此问卷类型：{}",mainBodyType.getDesc());
             return null;
         }
 
         //获取用户问卷记录
         List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), generateDataCondition.getGradeTypeList());
         if (CollUtil.isEmpty(userQuestionRecordList)){
-            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getTaskId(), mainBodyType.getDesc());
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),mainBodyType.getDesc());
             return null;
         }
 
         //获取学生类型问卷的 基础信息部分问卷ID
         Integer questionnaireId = questionnaireList.stream()
-                .filter(questionnaire -> Objects.equals(questionnaire.getType(),generateDataCondition.getBaseInfoType().getType()))
+                .filter(questionnaire -> Objects.equals(questionnaire.getType(), generateDataCondition.getBaseInfoType().getType()))
                 .findFirst().map(Questionnaire::getId).orElse(null);
 
         List<Integer> latestQuestionnaireIds;
@@ -575,7 +563,7 @@ public class UserAnswerFacade {
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
-        return getHeadAndData(latestQuestionnaireIds,questionnaireId,schoolRecordMap);
+        return getRecData(latestQuestionnaireIds,questionnaireId,schoolRecordMap);
 
     }
 
@@ -585,20 +573,14 @@ public class UserAnswerFacade {
      * @param questionnaireId 问卷基础部分对应的问卷ID
      * @param schoolRecordMap 学校对应用户记录集合
      */
-    public GenerateExcelDataBO getHeadAndData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap){
-        GenerateExcelDataBO generateExcelDataBO = new GenerateExcelDataBO();
-        List<List<String>> head = questionnaireFacade.getHead(latestQuestionnaireIds);
+    public GenerateRecDataBO getRecData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap){
+        GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
 
-        Map<Integer,List<List<String>>> dataMap= Maps.newHashMap();
+        Map<Integer,List<Map<String,String>>> dataMap= Maps.newHashMap();
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
-            dataMap.put(entry.getKey(), getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
+            dataMap.put(entry.getKey(), getRecData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
         }
 
-        generateExcelDataBO.setHead(head);
-        generateExcelDataBO.setDataMap(dataMap);
-
-        //根据问卷ID集合，移除计算分值问题ID
-        questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
-        return generateExcelDataBO;
+        return generateRecDataBO;
     }
 }

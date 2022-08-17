@@ -2,6 +2,8 @@ package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 隐藏问题数据实体
  *
@@ -14,6 +16,10 @@ public class HideQuestionDataBO {
      * 问题ID
      */
     private Integer questionId;
+    /**
+     * qes数据
+     */
+    private List<QesDataDO> qesData;
 
     /**
      * ID

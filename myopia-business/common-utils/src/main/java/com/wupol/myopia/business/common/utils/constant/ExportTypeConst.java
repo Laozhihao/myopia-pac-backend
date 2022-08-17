@@ -82,8 +82,8 @@ public final class ExportTypeConst {
     public static final Integer SCHOOL_STATISTICS_REC = 17;
 
     /**
-     * 多端管理-筛查机构管理-筛查记录【rec文件】
+     * 工作台->机构筛查记录【rec文件】
      */
-    public static final Integer MULTI_TERMINAL_ORG_SCREENING_RECORD_REC = 18;
+    public static final Integer SCREENING_RECORD_REC = 18;
 
 }

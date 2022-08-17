@@ -9,20 +9,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.QesFieldMapping;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQuestionService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.questionnaire.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +38,7 @@ public class QuestionnaireFacade {
     private final QuestionnaireService questionnaireService;
     private final QuestionnaireQuestionService questionnaireQuestionService;
     private final QuestionService questionService;
+    private final QesFieldMappingService qesFieldMappingService;
 
     private Map<Integer,List<Integer>> scoreMap = Maps.newConcurrentMap();
 
@@ -291,6 +293,18 @@ public class QuestionnaireFacade {
                 .collect(Collectors.toList());
     }
 
+    public List<QesFieldMapping> getQesFieldMappingList(List<Integer> questionnaireIds){
+        List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
+        if (CollUtil.isEmpty(questionnaireList)){
+            return Lists.newArrayList();
+        }
+        List<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(qesIds)){
+            return Lists.newArrayList();
+        }
+        return qesFieldMappingService.listByQesId(qesIds.get(0));
+    }
+
     /**
      * 获取Excel表头信息对象集合
      * @param questionnaireIds 问卷ID集合
@@ -364,7 +378,11 @@ public class QuestionnaireFacade {
      * @return 问卷集合
      */
     public List<Questionnaire> getLatestQuestionnaire(QuestionnaireTypeEnum questionnaireTypeEnum){
-        List<Questionnaire> questionnaireList = questionnaireService.getByTypes(getQuestionnaireTypeList(questionnaireTypeEnum));
+        List<Integer> questionnaireTypeList = getQuestionnaireTypeList(questionnaireTypeEnum);
+        if (CollUtil.isEmpty(questionnaireTypeList)){
+            return Lists.newArrayList();
+        }
+        List<Questionnaire> questionnaireList = questionnaireService.getByTypes(questionnaireTypeList);
         if (CollUtil.isEmpty(questionnaireList)){
             return Lists.newArrayList();
         }
@@ -379,80 +397,23 @@ public class QuestionnaireFacade {
     public List<Integer> getQuestionnaireTypeList(QuestionnaireTypeEnum questionnaireTypeEnum){
         switch (questionnaireTypeEnum){
             case AREA_DISTRICT_SCHOOL:
-                return getAreaDistrictSchool();
+                return QuestionnaireConstant.getAreaDistrictSchool();
             case PRIMARY_SECONDARY_SCHOOLS:
-                return getPrimarySecondarySchool();
+                return QuestionnaireConstant.getPrimarySecondarySchool();
             case PRIMARY_SCHOOL:
-                return getPrimarySchool();
+                return QuestionnaireConstant.getPrimarySchool();
             case MIDDLE_SCHOOL:
-                return getMiddleSchool();
+                return QuestionnaireConstant.getMiddleSchool();
             case UNIVERSITY_SCHOOL:
-                return getUniversitySchool();
+                return QuestionnaireConstant.getUniversitySchool();
             case VISION_SPINE:
-                return getVisionSpine();
+                return QuestionnaireConstant.getVisionSpine();
             case SCHOOL_ENVIRONMENT:
-                return getSchoolEnvironment();
+                return QuestionnaireConstant.getSchoolEnvironment();
             default:
                 break;
         }
         return Lists.newArrayList();
-    }
-
-    /**
-     * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getAreaDistrictSchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType());
-    }
-
-    /**
-     * 获取中小学校开展学校卫生工作情况调查表问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getPrimarySecondarySchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType());
-    }
-
-    /**
-     * 获取学生健康状况及影响因素调查表（小学版）问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getPrimarySchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
-    }
-
-    /**
-     * 获取学生健康状况及影响因素调查表（中学版）问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getMiddleSchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
-    }
-
-    /**
-     * 获取学生健康状况及影响因素调查表（大学版）问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getUniversitySchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
-    }
-
-    /**
-     * 获取学生视力不良及脊柱弯曲异常影响因素专项调查表问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getVisionSpine(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
-    }
-
-
-    /**
-     * 获取学校环境健康影响因素调查表问卷
-     * @return 问卷类型集合
-     */
-    public static List<Integer> getSchoolEnvironment(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
 
 
@@ -468,10 +429,18 @@ public class QuestionnaireFacade {
             List<Integer> questionIds = questionnaireQuestionList.stream()
                     .map(QuestionnaireQuestion::getQuestionId)
                     .collect(Collectors.toList());
+            Map<Integer, QuestionnaireQuestion> questionnaireQuestionMap = questionnaireQuestionList.stream().collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, Function.identity()));
             List<Question> questionList = questionService.listByIds(questionIds);
             CollUtil.sort(questionList,Comparator.comparing(Question::getId));
 
-           return questionList.stream().map(question -> new HideQuestionDataBO(question.getId())).collect(Collectors.toList());
+           return questionList.stream().map(question -> {
+               HideQuestionDataBO hideQuestionDataBO = new HideQuestionDataBO(question.getId());
+               QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionMap.get(question.getId());
+               if (Objects.nonNull(questionnaireQuestion)){
+                   hideQuestionDataBO.setQesData(questionnaireQuestion.getQesData());
+               }
+               return hideQuestionDataBO;
+           }).collect(Collectors.toList());
         }
         return Lists.newArrayList();
     }

@@ -6,6 +6,7 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCon
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerRecFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -29,6 +30,8 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
 
     @Autowired
     private UserAnswerFacade userAnswerFacade;
+    @Autowired
+    private UserAnswerRecFacade userAnswerRecFacade;
 
 
     @Override
@@ -55,10 +58,12 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
-        GenerateRecDataBO generateRecDataBO = userAnswerFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
+
+        GenerateRecDataBO generateRecDataBO = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
         if (Objects.isNull(generateRecDataBO)){
             return;
         }
+        System.out.println(generateRecDataBO);
     }
 
     @Override
