@@ -140,7 +140,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public List<District> getDistrict(Integer userId, Integer schoolId) {
+    public List<District> getDistrict(Integer schoolId) {
         School school = schoolService.getById(schoolId);
         District district = districtService.getById(school.getDistrictId());
 
@@ -160,7 +160,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             // 获取上级的数据
             List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
             // 合并
-            return getDistricts(districts, parentCode);
+            return getDistricts(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
         }
         return new ArrayList<>();
     }
