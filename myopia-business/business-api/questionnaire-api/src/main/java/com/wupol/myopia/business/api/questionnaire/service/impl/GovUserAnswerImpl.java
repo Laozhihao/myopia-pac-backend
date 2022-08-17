@@ -145,49 +145,21 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         District district = districtService.getById(school.getDistrictId());
 
         // 获取父节点
-        List<District> districts = getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
-
-        Integer level = getLevel(districts, district.getCode(), 1);
+        List<District> districts = districtService.getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
+        Integer level = districtService.getLevel(districts, district.getCode(), 1);
 
         if (level <= 3) {
             // 获取同级的数据
             List<District> parentCode = districtService.getByParentCode(district.getParentCode());
             // 合并
-            return getDistricts(districts, parentCode);
+            return districtService.getDistricts(districts, parentCode);
         }
-
         if (level == 4) {
             // 获取上级的数据
             List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
             // 合并
-            return getDistricts(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+            return districtService.getDistricts(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
         }
         return new ArrayList<>();
-    }
-
-    private List<District> getDistricts(List<District> districts, List<District> parentCode) {
-        List<District> result = Lists.newArrayList(Iterables.concat(parentCode, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))),
-                ArrayList::new));
-        result.forEach(s->s.setChild(null));
-        return districtService.districtListToTree(result, 100000000L);
-    }
-
-
-    private Integer getLevel(List<District> list, Long code, Integer level) {
-        District district = list.get(0);
-        if (Objects.equals(district.getCode(), code)) {
-            return level;
-        }
-        level = level + 1;
-        return getLevel(district.getChild(), code, level);
-    }
-
-    private List<District> getAllDistrict(List<District> list, List<District> result) {
-        if (CollectionUtils.isEmpty(list)) {
-            return result;
-        }
-        result.addAll(list);
-        list.forEach(l -> getAllDistrict(l.getChild(), result));
-        return result;
     }
 }

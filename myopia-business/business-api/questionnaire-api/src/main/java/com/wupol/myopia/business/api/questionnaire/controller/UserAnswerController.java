@@ -118,4 +118,10 @@ public class UserAnswerController {
         return userAnswerBizService.getSchoolInfo(currentUser);
     }
 
+    @GetMapping("gov/nextDistrict")
+    public List<District> govNextDistrict() {
+        return userAnswerBizService.govNextDistrict(CurrentUserUtil.getCurrentUser());
+
+    }
+
 }
