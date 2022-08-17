@@ -154,9 +154,9 @@ public class UserAnswerBizService {
      *
      * @return List<District>
      */
-    public List<District> getDistrict(CurrentUser user) {
+    public List<District> getDistrict(CurrentUser user, Integer schoolId) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.getDistrict(user.getExQuestionnaireUserId());
+        return iUserAnswerService.getDistrict(user.getExQuestionnaireUserId(), schoolId);
     }
 
     /**

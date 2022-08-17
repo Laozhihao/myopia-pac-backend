@@ -102,9 +102,9 @@ public class UserAnswerController {
      * @return List<District>
      */
     @GetMapping("getDistrict")
-    public List<District> getDistrict() {
+    public List<District> getDistrict(Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.getDistrict(user);
+        return userAnswerBizService.getDistrict(user, schoolId);
     }
 
     /**

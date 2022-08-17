@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.common.service;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -349,7 +350,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @author hang.yuan
      * @date 2022/4/2
      */
-    private List<District> districtListToTree(List<District> list,Long parentCode){
+    public List<District> districtListToTree(List<District> list, Long parentCode){
         Map<Long,District> map = new HashMap<>();
         List<District> rootList = new ArrayList<>();
         for (District district : list) {
@@ -845,6 +846,19 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public List<District> districtCodeToTree(Long code) {
         return districtListToTree(getDistrictPositionDetail(code), 100000000L);
+    }
+
+    /**
+     * 根据code查地址
+     *
+     * @param parentCode code
+     *
+     * @return List<District>
+     */
+    public List<District> getByParentCode(Long parentCode) {
+        LambdaQueryWrapper<District> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(District::getParentCode, parentCode);
+        return baseMapper.selectList(wrapper);
     }
 
 }

@@ -7,7 +7,6 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -140,15 +139,5 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     @Override
     public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
         return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
-    }
-
-    @Override
-    public List<District> getDistrict(Integer userId) {
-        School school = schoolService.getById(userId);
-        try {
-            return districtService.getSpecificDistrictTree(school.getDistrictId());
-        } catch (IOException e) {
-            throw new BusinessException("获取区域信息异常");
-        }
     }
 }
