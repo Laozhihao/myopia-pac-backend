@@ -172,6 +172,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @return QuestionResponse
      */
     public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap, Boolean isShowTable) {
+        List<Option> options = question.getOptions();
+        options.forEach(o-> o.setText(specialTitleProcess(o.getText())));
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setTitle(specialTitleProcess(childQuestionResponse.getTitle()));
         childQuestionResponse.setRequired(it.getRequired());
