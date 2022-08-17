@@ -97,7 +97,7 @@ public class QuestionnaireManagementService {
     @Autowired
     private QuestionnaireQesService questionnaireQesService;
 
-    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
+    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS_EXCEL,ExportTypeConst.SCHOOL_STATISTICS_EXCEL,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
 
     /**
      * 根据机构id获得所有任务

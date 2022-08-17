@@ -142,10 +142,10 @@ public class ExportQuestionnaireRecService extends BaseExportExcelFileService {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
                 String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
                 for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
-                    generateExcelFile(filePath, exportCondition, type);
+                    generateFile(filePath, exportCondition, type);
                 }
             }else {
-                generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
+                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
             }
         }
         return null;
@@ -157,11 +157,11 @@ public class ExportQuestionnaireRecService extends BaseExportExcelFileService {
      * @param exportCondition 导出条件
      * @param questionnaireType 问卷类型
      */
-    private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
+    private void generateFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
         Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFactory.getQuestionnaireExcelService(questionnaireType);
         if (questionnaireExcelService.isPresent()) {
             QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-            questionnaireExcel.generateExcelFile(exportCondition,fileName);
+            questionnaireExcel.generateFile(exportCondition,fileName,QuestionnaireConstant.REC_FILE);
         }
     }
 

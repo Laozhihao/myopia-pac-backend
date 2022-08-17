@@ -9,7 +9,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -535,36 +537,33 @@ public class UserAnswerFacade {
 
     /**
      * 获取学生类型的Excel数据
-     * @param mainBodyType 主问卷类型
-     * @param baseInfoType 基础信息问卷类型
-     * @param gradeTypeList 学龄集合
-     * @param exportCondition 导出条件
-     * @param isAsc 是否顺序
+     * @param generateDataCondition 生成数据条件
      */
-    public GenerateExcelDataBO generateStudentTypeExcelData(QuestionnaireTypeEnum mainBodyType, QuestionnaireTypeEnum baseInfoType,
-                                                            List<Integer> gradeTypeList, ExportCondition exportCondition,Boolean isAsc){
+    public GenerateExcelDataBO generateStudentTypeExcelData(GenerateDataCondition generateDataCondition){
+        QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
+        ExportCondition exportCondition = generateDataCondition.getExportCondition();
         //根据问卷类型获取问卷集合
         List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
         if (CollUtil.isEmpty(questionnaireList)){
-            log.warn("暂无此问卷类型：{}",mainBodyType.getDesc());
+            log.warn("暂无此问卷类型：{}", mainBodyType.getDesc());
             return null;
         }
 
         //获取用户问卷记录
-        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), gradeTypeList);
+        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), generateDataCondition.getGradeTypeList());
         if (CollUtil.isEmpty(userQuestionRecordList)){
-            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),mainBodyType.getDesc());
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getTaskId(), mainBodyType.getDesc());
             return null;
         }
 
         //获取学生类型问卷的 基础信息部分问卷ID
         Integer questionnaireId = questionnaireList.stream()
-                .filter(questionnaire -> Objects.equals(questionnaire.getType(), baseInfoType.getType()))
+                .filter(questionnaire -> Objects.equals(questionnaire.getType(),generateDataCondition.getBaseInfoType().getType()))
                 .findFirst().map(Questionnaire::getId).orElse(null);
 
         List<Integer> latestQuestionnaireIds;
 
-        if (Objects.equals(Boolean.TRUE,isAsc)){
+        if (Objects.equals(Boolean.TRUE,generateDataCondition.getIsAsc())){
             latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType)).map(Questionnaire::getId).collect(Collectors.toList());
         }else {
             latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
@@ -602,4 +601,65 @@ public class UserAnswerFacade {
         return generateExcelDataBO;
     }
 
+    /**
+     * 获取rec数据
+     * @param generateDataCondition 生成数据条件
+     */
+    public GenerateRecDataBO generateRecData(GenerateDataCondition generateDataCondition){
+        QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
+        ExportCondition exportCondition = generateDataCondition.getExportCondition();
+        //根据问卷类型获取问卷集合
+        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
+        if (CollUtil.isEmpty(questionnaireList)){
+            log.warn("暂无此问卷类型：{}",mainBodyType.getDesc());
+            return null;
+        }
+
+        //获取用户问卷记录
+        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), generateDataCondition.getGradeTypeList());
+        if (CollUtil.isEmpty(userQuestionRecordList)){
+            log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),mainBodyType.getDesc());
+            return null;
+        }
+
+        //获取学生类型问卷的 基础信息部分问卷ID
+        Integer questionnaireId = questionnaireList.stream()
+                .filter(questionnaire -> Objects.equals(questionnaire.getType(), generateDataCondition.getBaseInfoType().getType()))
+                .findFirst().map(Questionnaire::getId).orElse(null);
+
+        List<Integer> latestQuestionnaireIds;
+
+        if (Objects.equals(Boolean.TRUE,generateDataCondition.getIsAsc())){
+            latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType)).map(Questionnaire::getId).collect(Collectors.toList());
+        }else {
+            latestQuestionnaireIds = questionnaireList.stream().sorted(Comparator.comparing(Questionnaire::getType).reversed()).map(Questionnaire::getId).collect(Collectors.toList());
+        }
+
+        Map<Integer, List<UserQuestionRecord>> schoolRecordMap = userQuestionRecordList.stream()
+                .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
+                .sorted(Comparator.comparing(UserQuestionRecord::getId))
+                .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+
+        return getRecData(latestQuestionnaireIds,questionnaireId,schoolRecordMap);
+
+    }
+
+    /**
+     * 获取excel头信息和数据
+     * @param latestQuestionnaireIds 最新问卷ID集合
+     * @param questionnaireId 问卷基础部分对应的问卷ID
+     * @param schoolRecordMap 学校对应用户记录集合
+     */
+    public GenerateRecDataBO getRecData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap){
+        GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
+
+        Map<Integer,List<List<String>>> dataMap= Maps.newHashMap();
+        for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
+            dataMap.put(entry.getKey(), getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
+        }
+
+        //根据问卷ID集合，移除计算分值问题ID
+        questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
+        return generateRecDataBO;
+    }
 }

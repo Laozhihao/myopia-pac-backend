@@ -2,7 +2,9 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -28,6 +30,7 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     @Autowired
     private UserAnswerFacade userAnswerFacade;
 
+
     @Override
     public Integer getType() {
         return QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType();
@@ -35,11 +38,9 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
 
 
     @Override
-    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
+    public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
 
-        List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.UNIVERSITY.code);
-
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition,Boolean.TRUE);
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }
@@ -52,4 +53,21 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
         }
     }
 
+    @Override
+    public void generateRecFile(ExportCondition exportCondition, String fileName) {
+        GenerateRecDataBO generateRecDataBO = userAnswerFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
+        if (Objects.isNull(generateRecDataBO)){
+            return;
+        }
+    }
+
+    @Override
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition,Boolean isAsc){
+        return new GenerateDataCondition()
+                .setMainBodyType(QuestionnaireTypeEnum.UNIVERSITY_SCHOOL)
+                .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
+                .setGradeTypeList(Lists.newArrayList(SchoolAge.UNIVERSITY.code))
+                .setExportCondition(exportCondition)
+                .setIsAsc(isAsc);
+    }
 }

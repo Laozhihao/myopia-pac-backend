@@ -2,6 +2,7 @@ package com.wupol.myopia.business.common.utils.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.EasyExcelFactory;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
@@ -46,7 +47,7 @@ public final class FileUtils {
         }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         try {
-            List<Map<Integer, String>> listMap = EasyExcel.read(fileName).sheet().doReadSync();
+            List<Map<Integer, String>> listMap = EasyExcelFactory.read(fileName).sheet().doReadSync();
             if (!CollectionUtils.isEmpty(listMap)) {
                 listMap.remove(0);
             }
@@ -70,28 +71,23 @@ public final class FileUtils {
         if (!parentFile.exists() && !parentFile.mkdirs()) {
             log.error("创建文件夹失败");
         }
-        FileOutputStream fileOutputStream = null;
-        try {
+
+        try(FileOutputStream fos = new FileOutputStream(savePath)){
+
             if (!file.exists() && !file.createNewFile()) {
                 log.error("创建文件失败");
             }
-
             URL url = new URL(fileUrl);
-            URLConnection conn = url.openConnection();
-            InputStream inputStream = conn.getInputStream();
-            fileOutputStream = new FileOutputStream(savePath);
+            InputStream inputStream= url.openConnection().getInputStream();
             int byteRead;
             byte[] buffer = new byte[1024];
             while ((byteRead = inputStream.read(buffer)) != -1) {
-                fileOutputStream.write(buffer, 0, byteRead);
+                fos.write(buffer, 0, byteRead);
             }
-        } catch (IOException e) {
+        }catch (IOException e){
             throw new BusinessException("创建文件异常");
-        } finally {
-            if (Objects.nonNull(fileOutputStream)) {
-                fileOutputStream.close();
-            }
         }
+
     }
 
     /**

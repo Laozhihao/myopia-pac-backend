@@ -161,7 +161,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFactory.getQuestionnaireExcelService(questionnaireType);
         if (questionnaireExcelService.isPresent()) {
             QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-            questionnaireExcel.generateExcelFile(exportCondition,fileName);
+            questionnaireExcel.generateFile(exportCondition,fileName,QuestionnaireConstant.EXCEL_FILE);
         }
     }
 

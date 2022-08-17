@@ -8,34 +8,33 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
- * 按区域统计导出类型
+ * 按学校统计导出类型
  *
  * @author hang.yuan 2022/7/20 14:34
  */
 @Service
-public class DistrictStatisticsExportType implements ExportType {
+public class SchoolStatisticsExcelExportType implements ExportType {
 
     @Autowired
     private ExportTypeFacade exportTypeFacade;
 
     private static final String KEY = "%s的%s的问卷数据";
-    private static final String DISTRICT_SCHOOL = "%s各学校问卷数据";
-    private static final String FILE_EXPORT_EXCEL = "file:export:excel:districtStatistics:%s-%s-%s-%s";
+    private static final String FILE_EXPORT_EXCEL = "file:export:excel:schoolStatisticsExcel:%s-%s-%s-%s";
 
 
     @Override
     public Integer getType() {
-        return ExportTypeConst.DISTRICT_STATISTICS;
+        return ExportTypeConst.SCHOOL_STATISTICS_EXCEL;
     }
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        return exportTypeFacade.getDistrictKey(exportCondition,KEY);
+        return exportTypeFacade.getSchoolKey(exportCondition,KEY);
     }
 
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return exportTypeFacade.getDistrictKey(exportCondition,KEY);
+        return exportTypeFacade.getSchoolKey(exportCondition,KEY);
     }
 
     @Override
@@ -43,7 +42,7 @@ public class DistrictStatisticsExportType implements ExportType {
         return String.format(FILE_EXPORT_EXCEL,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
-                exportCondition.getDistrictId(),
+                exportCondition.getSchoolId(),
                 exportCondition.getQuestionnaireType().get(0));
     }
 
@@ -52,14 +51,8 @@ public class DistrictStatisticsExportType implements ExportType {
         return exportTypeFacade.getQuestionnaireType(getType());
     }
 
-
-    @Override
-    public String getDistrictKey(Integer districtId) {
-        return exportTypeFacade.getDistrictKey(districtId,DISTRICT_SCHOOL);
-    }
-
     @Override
     public void preProcess(ExportCondition exportCondition) {
-        ExportTypeFacade.checkDistrictId(exportCondition);
+        ExportTypeFacade.checkSchoolId(exportCondition);
     }
 }

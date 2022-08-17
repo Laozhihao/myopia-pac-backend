@@ -132,4 +132,10 @@ public class QuestionnaireConstant {
      */
     public static final String TXT = ".txt";
 
+    /**
+     * 文件类型
+     */
+    public static final String EXCEL_FILE = "excel";
+    public static final String REC_FILE = "rec";
+
 }

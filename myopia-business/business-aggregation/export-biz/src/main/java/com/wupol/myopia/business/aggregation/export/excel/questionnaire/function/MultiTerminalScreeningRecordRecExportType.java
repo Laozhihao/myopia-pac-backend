@@ -8,23 +8,23 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
- * 多端学校筛查记录excel导出类型
+ * 多端筛查机构筛查记录rec导出类型
  *
  * @author hang.yuan 2022/7/20 14:35
  */
 @Service
-public class MultiTerminalScreeningRecordExportType implements ExportType {
+public class MultiTerminalScreeningRecordRecExportType implements ExportType {
 
     @Autowired
     private ExportTypeFacade exportTypeFacade;
 
     private static final String KEY = "%s的%s的问卷数据";
-    private static final String FILE_EXPORT_EXCEL = "file:export:excel:multiTerminalSchoolScreeningRecord:%s-%s-%s-%s";
+    private static final String FILE_EXPORT_EXCEL = "file:export:excel:multiTerminalOrgScreeningRecord:%s-%s-%s-%s";
 
 
     @Override
     public Integer getType() {
-        return ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL;
+        return ExportTypeConst.MULTI_TERMINAL_ORG_SCREENING_RECORD_REC;
     }
 
     @Override
