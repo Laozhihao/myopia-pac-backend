@@ -119,7 +119,7 @@ public interface IUserAnswerService {
      * @return List<District>
      *
      */
-    default List<District> getDistrict(Integer userId,Integer schoolId) {
+    default List<District> getDistrict(Integer schoolId) {
         return new ArrayList<>();
     }
 }
