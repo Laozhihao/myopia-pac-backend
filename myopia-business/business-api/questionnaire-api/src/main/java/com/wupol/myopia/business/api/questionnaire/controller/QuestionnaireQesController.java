@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 问卷QES文件管理
@@ -61,7 +62,7 @@ public class QuestionnaireQesController {
      * @param year 年份
      */
     @GetMapping("/list")
-    public List<QuestionnaireQesVO> list(@RequestParam Integer year){
+    public Map<Integer,List<QuestionnaireQesVO>> list(@RequestParam(required = false) Integer year){
         return questionnaireQesFacade.list(year);
     }
 }
