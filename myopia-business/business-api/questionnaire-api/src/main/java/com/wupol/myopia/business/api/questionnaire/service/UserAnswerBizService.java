@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -135,7 +136,7 @@ public class UserAnswerBizService {
      */
     public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
         if (!user.isQuestionnaireGovUser()) {
-            throw new BusinessException("身份异常!");
+            throw new BusinessException("政府身份异常!");
         }
         Integer orgId = user.getExQuestionnaireUserId();
         GovDept govDept = govDeptService.getById(orgId);
@@ -145,23 +146,61 @@ public class UserAnswerBizService {
             return new ArrayList<>();
         }
         Map<Integer, District> districtMap = districtService.getByIds(schoolList.stream().map(School::getDistrictId).collect(Collectors.toList()));
-        return schoolList.stream().map(s -> {
-            SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
-            responseDTO.setName(s.getName());
-            Integer schoolDistrictId = s.getDistrictId();
-            District district = districtMap.get(schoolDistrictId);
-            if (Objects.isNull(district)) {
-                return responseDTO;
-            }
-            String code = String.valueOf(district.getCode());
-            responseDTO.setProvinceNo(code.substring(0, 2));
-            responseDTO.setCityNo(code.substring(2, 4));
-            responseDTO.setAreaNo(code.substring(4, 6));
-            responseDTO.setAreaType(s.getAreaType());
-            responseDTO.setMonitorType(s.getMonitorType());
-            responseDTO.setDistrict(districtService.districtCodeToTree(district.getCode()));
+        return schoolList.stream().map(s -> generateSchoolResponse(s, districtMap.get(s.getDistrictId()))).collect(Collectors.toList());
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     *
+     * @throws IOException IOException
+     */
+    public List<District> getDistrict(CurrentUser user) throws IOException {
+        if (!user.isQuestionnaireGovUser()) {
+            throw new BusinessException("身份异常!");
+        }
+        Integer orgId = user.getExQuestionnaireUserId();
+        GovDept govDept = govDeptService.getById(orgId);
+        Integer districtId = govDept.getDistrictId();
+        return districtService.getSpecificDistrictTree(districtId);
+    }
+
+    /**
+     * 获取学校信息
+     *
+     * @param user 用户
+     *
+     * @return SchoolListResponseDTO
+     */
+    public SchoolListResponseDTO getSchoolInfo(CurrentUser user) {
+        if (!user.isQuestionnaireSchoolUser()) {
+            throw new BusinessException("身份异常!");
+        }
+        School school = schoolService.getById(user.getExQuestionnaireUserId());
+        if (Objects.isNull(school)) {
+            throw new BusinessException("数据异常!");
+        }
+        return generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+    }
+
+    /**
+     * 生成学校信息
+     */
+    private SchoolListResponseDTO generateSchoolResponse(School school, District district) {
+        SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
+        responseDTO.setName(school.getName());
+        if (Objects.isNull(district)) {
             return responseDTO;
-        }).collect(Collectors.toList());
+        }
+        String code = String.valueOf(district.getCode());
+        responseDTO.setProvinceNo(code.substring(0, 2));
+        responseDTO.setCityNo(code.substring(2, 4));
+        responseDTO.setAreaNo(code.substring(4, 6));
+        responseDTO.setAreaType(school.getAreaType());
+        responseDTO.setMonitorType(school.getMonitorType());
+        responseDTO.setDistrict(districtService.districtCodeToTree(district.getCode()));
+        return responseDTO;
     }
 
 }
