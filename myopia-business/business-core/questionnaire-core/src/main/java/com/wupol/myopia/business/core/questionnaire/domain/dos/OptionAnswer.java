@@ -44,4 +44,9 @@ public class OptionAnswer implements Serializable {
      * qes字段
      */
     private String qesField;
+
+    /**
+     * 前端需要-类型
+     */
+    private String type;
 }
