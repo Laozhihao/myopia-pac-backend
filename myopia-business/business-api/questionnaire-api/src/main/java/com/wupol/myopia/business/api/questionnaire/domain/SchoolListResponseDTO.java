@@ -16,6 +16,11 @@ import java.util.List;
 public class SchoolListResponseDTO {
 
     /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
      * 学校名称
      */
     private String name;

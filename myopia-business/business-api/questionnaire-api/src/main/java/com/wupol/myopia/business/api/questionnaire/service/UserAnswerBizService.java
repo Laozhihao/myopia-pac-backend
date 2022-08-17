@@ -182,6 +182,7 @@ public class UserAnswerBizService {
      */
     private SchoolListResponseDTO generateSchoolResponse(School school, District district) {
         SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
+        responseDTO.setSchoolId(school.getId());
         responseDTO.setName(school.getName());
         if (Objects.isNull(district)) {
             return responseDTO;
