@@ -18,6 +18,8 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,9 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private DistrictService districtService;
+
+    @Resource
+    private SchoolService schoolService;
 
     @Override
     public Integer getUserType() {
@@ -136,8 +141,8 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public List<District> getDistrict(Integer userId, Integer schoolId) {
-        GovDept govDept = govDeptService.getById(userId);
-        District district = districtService.getById(govDept.getDistrictId());
+        School school = schoolService.getById(schoolId);
+        District district = districtService.getById(school.getDistrictId());
 
         // 获取父节点
         List<District> districts = getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
