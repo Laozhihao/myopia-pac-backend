@@ -6,10 +6,12 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
 import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -90,9 +92,33 @@ public class UserAnswerController {
      * 获取学校
      */
     @GetMapping("schoolList")
-    public List<SchoolListResponseDTO> getSchooList(String name) {
+    public List<SchoolListResponseDTO> getSchoolList(String name) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return userAnswerBizService.getSchoolList(name, currentUser);
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     *
+     * @throws IOException IOException
+     */
+    @GetMapping("gov/getDistrict")
+    public List<District> getDistrict() throws IOException {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getDistrict(user);
+    }
+
+    /**
+     * 获取学校信息
+     *
+     * @return SchoolListResponseDTO
+     */
+    @GetMapping("getSchoolInfo")
+    public SchoolListResponseDTO getSchoolInfo() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getSchoolInfo(currentUser);
     }
 
 }
