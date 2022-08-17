@@ -4,6 +4,8 @@ import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
@@ -19,6 +21,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,6 +50,9 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private DistrictService districtService;
 
     @Override
     public Integer getUserType() {
@@ -124,5 +130,15 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
         return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+    }
+
+    @Override
+    public List<District> getDistrict(Integer userId) {
+        GovDept govDept = govDeptService.getById(userId);
+        try {
+            return districtService.getSpecificDistrictTree(govDept.getDistrictId());
+        } catch (IOException e) {
+            throw new BusinessException("获取区域信息异常");
+        }
     }
 }

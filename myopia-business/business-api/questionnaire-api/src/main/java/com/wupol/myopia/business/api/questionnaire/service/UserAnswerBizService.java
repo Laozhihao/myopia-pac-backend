@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -153,17 +152,10 @@ public class UserAnswerBizService {
      * 政府获取行政区域
      *
      * @return List<District>
-     *
-     * @throws IOException IOException
      */
-    public List<District> getDistrict(CurrentUser user) throws IOException {
-        if (!user.isQuestionnaireGovUser()) {
-            throw new BusinessException("身份异常!");
-        }
-        Integer orgId = user.getExQuestionnaireUserId();
-        GovDept govDept = govDeptService.getById(orgId);
-        Integer districtId = govDept.getDistrictId();
-        return districtService.getSpecificDistrictTree(districtId);
+    public List<District> getDistrict(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getDistrict(user.getExQuestionnaireUserId());
     }
 
     /**

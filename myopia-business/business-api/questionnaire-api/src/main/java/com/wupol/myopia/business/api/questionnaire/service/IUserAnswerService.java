@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -109,5 +111,15 @@ public interface IUserAnswerService {
      */
     default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
         return false;
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     *
+     */
+    default List<District> getDistrict(Integer userId) {
+        return new ArrayList<>();
     }
 }
