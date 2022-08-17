@@ -3,7 +3,7 @@ package com.wupol.myopia.business.api.questionnaire.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.questionnaire.domain.dto.QuestionnaireQesDTO;
-import com.wupol.myopia.business.api.questionnaire.domain.vo.QuestionnaireQesVO;
+import com.wupol.myopia.business.api.questionnaire.domain.vo.QuestionnaireQesListVO;
 import com.wupol.myopia.business.api.questionnaire.service.QuestionnaireQesFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 问卷QES文件管理
@@ -62,7 +60,7 @@ public class QuestionnaireQesController {
      * @param year 年份
      */
     @GetMapping("/list")
-    public Map<Integer,List<QuestionnaireQesVO>> list(@RequestParam(required = false) Integer year){
+    public QuestionnaireQesListVO list(@RequestParam(required = false) Integer year){
         return questionnaireQesFacade.list(year);
     }
 }

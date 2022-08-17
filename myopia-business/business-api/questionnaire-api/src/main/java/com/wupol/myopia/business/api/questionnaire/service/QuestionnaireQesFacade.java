@@ -2,14 +2,13 @@ package com.wupol.myopia.business.api.questionnaire.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.domain.dto.QuestionnaireQesDTO;
+import com.wupol.myopia.business.api.questionnaire.domain.vo.QuestionnaireQesListVO;
 import com.wupol.myopia.business.api.questionnaire.domain.vo.QuestionnaireQesVO;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -132,24 +131,32 @@ public class QuestionnaireQesFacade {
      * 根据年份查询问卷模板QES集合
      * @param year 年份
      */
-    public Map<Integer,List<QuestionnaireQesVO>> list(Integer year) {
-
-        //根据年份获取
-        if (Objects.nonNull(year)){
-            List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.listByYear(year);
-            return getDataMap(year,questionnaireQesList);
-        }
+    public QuestionnaireQesListVO list(Integer year) {
+        QuestionnaireQesListVO questionnaireQesListVO = new QuestionnaireQesListVO();
+        questionnaireQesListVO.setDataMap(Maps.newHashMap());
 
         List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.list();
         if (CollectionUtils.isEmpty(questionnaireQesList)){
-            return Maps.newHashMap();
+            return questionnaireQesListVO;
         }
+
+        List<Integer> yearList = questionnaireQesList.stream().sorted(Comparator.comparing(QuestionnaireQes::getYear)).map(QuestionnaireQes::getYear).collect(Collectors.toList());
+        questionnaireQesListVO.setYearList(yearList);
+
+        //根据年份获取
+        if (Objects.nonNull(year)){
+            questionnaireQesList = questionnaireQesList.stream().filter(questionnaireQes -> Objects.equals(questionnaireQes.getYear(),year)).collect(Collectors.toList());
+            questionnaireQesListVO.setDataMap(getDataMap(year,questionnaireQesList));
+            return questionnaireQesListVO;
+        }
+
 
         Map<Integer, List<QuestionnaireQes>> questionnaireQesMap = questionnaireQesList.stream().collect(Collectors.groupingBy(QuestionnaireQes::getYear));
         //没有年获取今年的
         List<QuestionnaireQes> todayYearList = questionnaireQesMap.get(getTodayYear());
         if (CollUtil.isNotEmpty(todayYearList)){
-            return getDataMap(getTodayYear(),todayYearList);
+            questionnaireQesListVO.setDataMap(getDataMap(getTodayYear(),todayYearList));
+            return questionnaireQesListVO;
         }
 
         //没有今年的，获取第一个
@@ -162,7 +169,8 @@ public class QuestionnaireQesFacade {
                 flag=false;
             }
         }
-        return dataMap;
+        questionnaireQesListVO.setDataMap(dataMap);
+        return questionnaireQesListVO;
     }
 
     private Map<Integer, List<QuestionnaireQesVO>> getDataMap(Integer year,List<QuestionnaireQes> questionnaireQesList) {
