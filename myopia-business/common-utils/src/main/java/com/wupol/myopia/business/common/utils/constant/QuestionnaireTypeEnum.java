@@ -94,7 +94,7 @@ public enum QuestionnaireTypeEnum {
      * @return List<QuestionnaireTypeEnum>
      */
     public static List<QuestionnaireTypeEnum> getGovQuestionnaireType() {
-        return Lists.newArrayList(AREA_DISTRICT_SCHOOL, SCHOOL_ENVIRONMENT);
+        return Lists.newArrayList(SCHOOL_ENVIRONMENT, AREA_DISTRICT_SCHOOL);
     }
 
 }
