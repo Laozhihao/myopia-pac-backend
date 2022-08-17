@@ -47,13 +47,13 @@ public class DistrictController extends BaseController<DistrictService, District
     }
 
     /**
-     * 获取指定行政区域的下级区域
+     * 获取指定行政区域的
      *
      * @param code 行政区域编号不能为空
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/child/{code}")
-    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) throws IOException {
+    public List<District> getChildDistrict(@PathVariable @NotNull(message = "行政区域编号不能为空") Long code) {
         return baseService.getChildDistrictByParentIdPriorityCache(code);
     }
     /**

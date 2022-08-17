@@ -58,6 +58,8 @@ public class StudentExcelImportService {
     @Resource
     private CommonImportService commonImportService;
 
+    private static final Integer PASSPORT_LENGTH = 7;
+
 
     /**
      * 导入学生
@@ -92,12 +94,20 @@ public class StudentExcelImportService {
         // 收集身份证号码
         List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
 
+        List<String> errorList = listMap.stream()
+                .map(s -> s.get(9 - offset))
+                .filter(Objects::nonNull)
+                .filter(passport -> passport.length() < PASSPORT_LENGTH)
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(errorList)){
+            throw new BusinessException(String.format("护照异常:%s",errorList));
+        }
+
         // 收集护照
-        List<String> passports = listMap.stream().map(s -> s.get(9 - offset)).filter(Objects::nonNull).peek(passport -> {
-            if (passport.length() < 7) {
-                throw new BusinessException("护照" + passport + "异常");
-            }
-        }).collect(Collectors.toList());
+        List<String> passports = listMap.stream()
+                .map(s -> s.get(9 - offset))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         // 数据预校验
         preCheckStudent(schools, idCards);

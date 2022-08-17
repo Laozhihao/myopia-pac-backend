@@ -12,15 +12,21 @@ public class BizMsgConstant {
 
     public final String SAVE_DIRECTORY_EMPTY = "文件保存目录路径为空";
 
-    public final String NOTICE_ID_IS_EMPTY = "筛查通知ID为空";
+    public final String DISTRICT_ID_IS_NULL = "行政区域ID为空";
 
-    public final String PLAN_ID_IS_EMPTY = "筛查计划ID为空";
+    public final String NOTICE_ID_IS_NULL = "筛查通知ID为空";
 
-    public final String SCHOOL_ID_IS_EMPTY = "学校ID为空";
+    public final String PLAN_ID_IS_NULL = "筛查计划ID为空";
 
-    public final String CLASS_ID_IS_EMPTY = "班级计划ID为空";
+    public final String SCHOOL_ID_IS_NULL = "学校ID为空";
 
-    public final String GRADE_ID_IS_EMPTY = "年级计划ID为空";
+    public final String CLASS_ID_IS_NULL = "班级计划ID为空";
+
+    public final String GRADE_ID_IS_NULL = "年级计划ID为空";
+    
+    public final String STUDENT_ID_IS_BLANK = "学生ID为空";
+
+    public final String EXPORT_TYPE_IS_NULL = "导出类型为空";
 
     public final String VALIDATION_START_TIME_ERROR = "筛查开始时间不能早于今天";
 

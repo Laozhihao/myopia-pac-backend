@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -54,7 +55,7 @@ public class Html2PdfService {
      * @param uuid     uuid
      */
     public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String uuid) {
-        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid, Boolean.TRUE);
         return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -83,6 +84,18 @@ public class Html2PdfService {
     }
 
     /**
+     * 同步生成PDF (视力分析或者常见病5份大报告专用)
+     *
+     * @param url      文件URL
+     * @param fileName 文件名，如：123.pdf
+     * @return PdfResponseDTO
+     */
+    public PdfResponseDTO syncGeneratorPdfSpecial(String url, String fileName) {
+        return syncGeneratorPdfSpecial(url, fileName, UUID.randomUUID().toString());
+    }
+
+
+    /**
      * 同步生成PDF
      *
      * @param url      文件URL
@@ -98,6 +111,21 @@ public class Html2PdfService {
     }
 
     /**
+     * 同步生成PDF (视力分析或者常见病5份大报告专用)
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @param uuid     uuid
+     * @return PdfResponseDTO
+     */
+    public PdfResponseDTO syncGeneratorPdfSpecial(String url, String fileName, String uuid) {
+        log.info("【同步生成PDF,专用方法】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
+        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid,Boolean.TRUE);
+        log.info("【请求node-js服务,专用方法】：{}", JSONObject.toJSONString(request));
+        return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
+    }
+
+    /**
      * 生成请求参数
      *
      * @param url      文件URL
@@ -106,6 +134,19 @@ public class Html2PdfService {
      * @return HttpEntity<String>
      */
     private HttpEntity<String> getStringHttpEntity(String url, String fileName, String uuid) {
+        return getStringHttpEntity(url,fileName,uuid,Boolean.FALSE);
+    }
+
+    /**
+     * 生成请求参数
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @param uuid     uuid
+     * @param report   是否是视力分析或者常见病5份大报告
+     * @return HttpEntity<String>
+     */
+    private HttpEntity<String> getStringHttpEntity(String url, String fileName, String uuid,Boolean report) {
         PdfRequestDTO requestDTO = new PdfRequestDTO();
         requestDTO.setUrl(url);
         requestDTO.setOutput(fileName);
@@ -119,10 +160,17 @@ public class Html2PdfService {
 
         PdfRequestDTO.Config config = new PdfRequestDTO.Config();
         config.setSize("a4");
-        config.setDisplayHeaderFooter(true);
         config.setHeaderTemplate("<div></div>");
-        config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
         config.setMargin("{ \"bottom\": \"10cm\"}");
+        if (Objects.equals(report,Boolean.TRUE)){
+            config.setDisplayHeaderFooter(true);
+            config.setFooterTemplate("<div style='font-size: 8px; text-align: right; width: 95%;'><span>致远青眸-儿童青少年近视防控平台</span> <span class='pageNumber' style='display: inline-block; margin-left: 5px'></span> - <span class='totalPages'></span></div>");
+            config.setSelector(".layout");
+            config.setTimeout(180000);
+        }else {
+            config.setDisplayHeaderFooter(false);
+            config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
+        }
         requestDTO.setConfig(config);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);

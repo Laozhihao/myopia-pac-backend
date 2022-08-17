@@ -45,12 +45,12 @@ public class DeviceUploadDataController {
     @PostMapping(value = "vs/uploadData", params = "v=1")
     public DeviceUploadResult uploadDeviceData(@Valid @RequestBody DeviceUploadDTO deviceUploadDto) {
         try {
-            deviceUploadDataService.uploadDeviceData(deviceUploadDto,"1");
+            deviceUploadDataService.uploadDeviceData(deviceUploadDto);
+        } catch (BusinessException e) {
+            log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
+            return DeviceUploadResult.error(e.getMessage());
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
-            if (e instanceof BusinessException) {
-                return DeviceUploadResult.FAILURE(e.getMessage());
-            }
             return DeviceUploadResult.FAILURE;
         }
         return DeviceUploadResult.SUCCESS;
@@ -60,7 +60,7 @@ public class DeviceUploadDataController {
     @PostMapping("/device/uploadData")
     public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
-        deviceDataService.uploadDate(requestDTO,"1");
+        deviceDataService.uploadDate(requestDTO);
         return ApiResult.success();
     }
 
@@ -73,7 +73,7 @@ public class DeviceUploadDataController {
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
         log.info("Data:{}", JSONObject.toJSONString(requestDTO));
-        return deviceUploadDataService.bodyFatScaleUpload(requestDTO,"1");
+        return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
     }
 
     /**
@@ -96,7 +96,7 @@ public class DeviceUploadDataController {
      */
     @PostMapping("fkr710/upload")
     public ApiResult frkUpload(@RequestBody FkrRequestDTO requestDTO) {
-        fkrDataService.uploadData(requestDTO, "1");
+        fkrDataService.uploadData(requestDTO);
         return ApiResult.success();
     }
 

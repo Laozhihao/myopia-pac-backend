@@ -7,7 +7,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -20,13 +19,13 @@ import java.util.Set;
  */
 public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
-    IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids);
+    IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
-    IPage<ScreeningPlanPageDTO> selectPageByQuery(@Param("page") Page<ScreeningPlan> page, @Param("param") ScreeningPlanQueryDTO query);
+    IPage<ScreeningPlanPageDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningPlanQueryDTO query);
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
 
-    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId);
+    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
     List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
 
@@ -43,9 +42,5 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     Integer countByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);
 
-    List<ScreeningPlan> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
-
-    List<ScreeningPlan> getByIds(@Param("ids") Collection<Integer> ids);
-
-    ScreeningPlan getPlanByTaskId(@Param("screeningTaskId") Integer screeningTaskId,@Param("screeningOrgId")Integer screeningOrgId);
+    List<ScreeningPlan> getReleasePlanByOrgIds(@Param("orgIds") List<Integer> orgIds);
 }

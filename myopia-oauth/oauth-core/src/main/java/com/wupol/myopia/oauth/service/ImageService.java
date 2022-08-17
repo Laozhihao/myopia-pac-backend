@@ -1,6 +1,7 @@
 package com.wupol.myopia.oauth.service;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 
 /**
  * 图片处理
@@ -44,8 +44,8 @@ public class ImageService {
      * @param imageId 图片ID
      */
     public CaptchaImageVO getVerifyImage(Integer imageId){
-        if (Objects.isNull(imageId) || imageId < 0 || imageId > 992){
-            imageId = new Random().nextInt(992);
+        if (Objects.isNull(imageId) || imageId <= 0 || imageId > 992){
+            imageId = RandomUtil.randomInt(1,993);
         }
         CaptchaImageVO captchaImageVO = new CaptchaImageVO();
         String image = image(imageId);

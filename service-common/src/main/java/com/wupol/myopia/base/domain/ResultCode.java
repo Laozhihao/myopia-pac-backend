@@ -29,6 +29,10 @@ public enum ResultCode {
     DATA_UPLOAD_PLAN_STUDENT_ERROR(6001, "筛查学生异常"),
     DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR(6002, "学生筛查机构匹配异常"),
 
+    DATA_STUDENT_NOT_EXIST(7001,"账号密码错误，请重新操作！"),
+    DATA_STUDENT_PLAN_NOT_EXIST(7002,"暂不需要填写问卷")
+
+
     ;
 
     /** 业务异常码 */

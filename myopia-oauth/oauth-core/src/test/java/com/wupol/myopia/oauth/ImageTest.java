@@ -4,6 +4,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Base64;
 import java.util.Objects;
@@ -15,7 +17,7 @@ import java.util.Objects;
  */
 public class ImageTest {
 
-    //@Test
+    @Test
     public void getImage() {
         Integer imageId=1;
         String url ="https://picsum.photos/300/150/?image=%s";
@@ -26,5 +28,6 @@ public class ImageTest {
             byte[] bytes = execute.bodyBytes();
             System.out.println(Base64.getEncoder().encodeToString(bytes));
         }
+        Assert.assertTrue(true);
     }
 }

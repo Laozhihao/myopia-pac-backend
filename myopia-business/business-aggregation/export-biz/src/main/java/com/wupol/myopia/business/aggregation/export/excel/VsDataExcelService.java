@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.CheckModeEnum;
@@ -27,7 +28,7 @@ import java.util.Objects;
  * @author tastyb
  */
 @Log4j2
-@Service("vsDataExcelService")
+@Service(ExportExcelServiceNameConstant.VS_DATA_EXCEL_SERVICE)
 public class VsDataExcelService extends BaseExportExcelFileService {
 
     @Autowired

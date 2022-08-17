@@ -7,10 +7,9 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * 统计结果流转实体
+ * 结果统计流转实体
  *
  * @author hang.yuan 2022/4/18 18:08
  */

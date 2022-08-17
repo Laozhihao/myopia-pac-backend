@@ -4,7 +4,7 @@
     <parent>
         <artifactId>myopia-pac-backend</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.4.0</version>
+        <version>MP-2.4.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-migrate-data</artifactId>
@@ -15,15 +15,38 @@
         <!-- business SDK -->
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>business-sdk</artifactId>
+            <artifactId>export-biz</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <!-- 排除 logging 日志依赖，否则会导致log4j与logback冲突 -->
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>stat-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>student-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>hospital-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>device-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-biz</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- 多数据源 -->
         <dependency>

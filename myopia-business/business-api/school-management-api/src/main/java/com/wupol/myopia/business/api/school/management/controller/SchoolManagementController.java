@@ -214,9 +214,7 @@ public class SchoolManagementController {
     @GetMapping("/screeningPlan/students/{screeningPlanId}/{schoolId}/{gradeId}/{classId}")
     public List<ScreeningPlanSchoolStudent> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId,
                                                             @PathVariable Integer gradeId, @PathVariable Integer classId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,
-                gradeId, classId);
-        return screeningPlanSchoolStudents;
+        return screeningPlanSchoolStudentService.getByPlanIdAndSchoolIdAndGradeIdAndClassId(screeningPlanId, schoolId,gradeId, classId);
     }
 
     /**

@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportSe
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -148,8 +149,8 @@ public class VisionScreeningController {
      */
     @GetMapping("statStudents/list")
     public IPage<StudentTrackWarningResponseDTO> queryStudentInfos(PageRequest pageRequest, @Valid StudentTrackWarningRequestDTO requestDTO) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return visionScreeningService.getTrackList(pageRequest, requestDTO, currentUser.getOrgId());
+//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return visionScreeningService.getTrackList(pageRequest, requestDTO, 340);
     }
 
     /**
@@ -196,6 +197,7 @@ public class VisionScreeningController {
     @GetMapping("/plan/export")
     public Object getScreeningPlanExportData(Integer planId) throws IOException, UtilException {
 
+        // TODO：复用ExportPlanStudentDataExcelService导出逻辑
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         Integer schoolId = currentUser.getOrgId();
 
@@ -233,6 +235,7 @@ public class VisionScreeningController {
                 .setNotificationId(screeningNoticeId)
                 .setPlanId(planId)
                 .setSchoolId(currentUser.getOrgId())
+                .setExportType(ExportTypeConst.SCHOOL)
                 .setApplyExportFileUserId(currentUser.getId());
         if (Objects.nonNull(screeningNoticeId) && screeningNoticeId == 0) {
             exportCondition.setNotificationId(null);
@@ -304,7 +307,8 @@ public class VisionScreeningController {
         if (Objects.nonNull(o)) {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
-        redisUtil.set(key, 1, 60 * 60 * 24);
+        //time: 60 * 60 * 24
+        redisUtil.set(key, 1, 86400L);
     }
 
     /**

@@ -157,15 +157,15 @@ public class DistributionDTO implements Serializable {
             bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolAge, Collectors.collectingAndThen(Collectors.counting(), e ->
                     MathUtil.getFormatNumWith2Scale(e / (double) screeningStudentNum * 100)
             ))).forEach((schoolAgeType, ratio) -> {
-                if (SchoolAge.KINDERGARTEN.code == schoolAgeType) {
+                if (SchoolAge.KINDERGARTEN.code.equals(schoolAgeType)) {
                     schoolAgeDTO.kindergarten = ratio;
-                } else if (SchoolAge.PRIMARY.code == schoolAgeType) {
+                } else if (SchoolAge.PRIMARY.code.equals(schoolAgeType)) {
                     schoolAgeDTO.primary = ratio;
-                } else if (SchoolAge.JUNIOR.code == schoolAgeType) {
+                } else if (SchoolAge.JUNIOR.code.equals(schoolAgeType)) {
                     schoolAgeDTO.junior = ratio;
-                } else if (SchoolAge.HIGH.code == schoolAgeType) {
+                } else if (SchoolAge.HIGH.code.equals(schoolAgeType)) {
                     schoolAgeDTO.high = ratio;
-                } else if (SchoolAge.VOCATIONAL_HIGH.code == schoolAgeType) {
+                } else if (SchoolAge.VOCATIONAL_HIGH.code.equals(schoolAgeType)) {
                     schoolAgeDTO.vocationalHigh = ratio;
                 } else {
                     throw new BusinessException("数据异常，schoolAgeType = " + schoolAgeType);

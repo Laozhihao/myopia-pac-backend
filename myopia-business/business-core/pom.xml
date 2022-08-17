@@ -5,7 +5,7 @@
     <parent>
         <artifactId>myopia-business</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.4.0</version>
+        <version>MP-2.4.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,6 +25,7 @@
         <module>common-core</module>
         <module>device-core</module>
         <module>school-management-core</module>
+        <module>questionnaire-core</module>
     </modules>
 
     <dependencies>
@@ -34,6 +35,20 @@
             <artifactId>common-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Oauth 服务 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>oauth-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- flyway -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>

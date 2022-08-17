@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskMapper;
@@ -79,7 +81,19 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
      * @param districtIdList 行政区域ids
      * @param notificationId 筛查通知id
      */
-    public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList,Integer notificationId) {
-        return baseMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList,notificationId);
+    public List<ScreeningTask> getScreeningTaskByDistrictIdAndNotificationId(List<Integer> districtIdList, Integer notificationId) {
+        return baseMapper.getScreeningTaskByDistrictIdAndNotificationId(districtIdList, notificationId);
+    }
+
+
+    /**
+     * 查找对应orgId的常见病筛查计划
+     *
+     * @param orgId
+     * @return
+     */
+    public List<ScreeningTask> listCommonDiseaseByGovDeptId(Integer orgId) {
+        return this.list(new LambdaQueryWrapper<ScreeningTask>().eq(ScreeningTask::getGovDeptId, orgId)
+                .eq(ScreeningTask::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType()));
     }
 }

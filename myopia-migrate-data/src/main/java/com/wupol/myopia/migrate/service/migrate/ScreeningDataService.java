@@ -102,7 +102,7 @@ public class ScreeningDataService {
                 .setRightCorrectedVision(getBigDecimalValue(sysStudentEye.getRJzsl()))
                 .setGlassesType(getGlassesType(sysStudentEye.getGlasses()))
                 .setIsCooperative(0);
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO, String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
     }
 
     /**
@@ -131,7 +131,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
     }
 
     /**
@@ -157,7 +157,7 @@ public class ScreeningDataService {
                 .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
                 .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
                 .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
     }
 
     /**
@@ -182,7 +182,7 @@ public class ScreeningDataService {
                 .setIsState(0);
         otherEyeDiseasesDTO.setLDiseaseStr(sysStudentEye.getLDisease())
                 .setRDiseaseStr(sysStudentEye.getRDisease());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO,String.valueOf(SystemCode.MANAGEMENT_CLIENT.getCode()));
+        visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
     }
 
     /**
@@ -205,11 +205,11 @@ public class ScreeningDataService {
      * @param valStr 字符串数值
      * @return java.math.BigDecimal
      **/
-    private BigDecimal getBigDecimalValue(String valStr) {
+    private static BigDecimal getBigDecimalValue(String valStr) {
         try {
-            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr);
+            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr.trim());
         } catch (Exception e) {
-            log.error("转换数值异常：{}", valStr, e);
+            log.error("转换数值异常：[{}]", valStr, e);
             return null;
         }
     }

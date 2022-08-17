@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ import java.util.stream.Collectors;
  *
  * @author Simple4H
  */
+@UtilityClass
 public class ListUtil {
 
     /**

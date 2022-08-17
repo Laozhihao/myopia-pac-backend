@@ -64,10 +64,6 @@ public class ScheduledTasksExecutor {
     @Autowired
     private DistrictAttentiveObjectsStatisticService districtAttentiveObjectsStatisticService;
     @Autowired
-    private DistrictVisionStatisticService districtVisionStatisticService;
-    @Autowired
-    private DistrictMonitorStatisticService districtMonitorStatisticService;
-    @Autowired
     private SchoolVisionStatisticService schoolVisionStatisticService;
     @Autowired
     private SchoolMonitorStatisticService schoolMonitorStatisticService;
@@ -112,18 +108,18 @@ public class ScheduledTasksExecutor {
      * 根据指定日期生成筛查结果统计数据
      * @param date 日期
      */
-    public void statistic(String date,Integer planId,Boolean isAll){
-        if(isAll){
-            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(id->Objects.nonNull(id) && id>=127).collect(Collectors.toList());
+    public void statistic(String date,Integer planId,Boolean isAll,String exclude){
+        if(Objects.equals(isAll,Boolean.TRUE)){
+            List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(Objects::nonNull).collect(Collectors.toList());
+            if (StrUtil.isNotBlank(exclude)){
+                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->!exclude.contains(id.toString())).collect(Collectors.toList());
+            }
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");
                 return;
             }
             log.info("筛查数据统计,共{}条筛查计划",yesterdayScreeningPlanIds.size());
             Collections.sort(yesterdayScreeningPlanIds);
-            if(Objects.nonNull(planId)){
-                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->id>planId).collect(Collectors.toList());
-            }
             List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 20);
             for (int i = 0; i < planIdsList.size(); i++) {
                 log.info("分批执行中...{}/{}",i+1,planIdsList.size());
@@ -148,6 +144,10 @@ public class ScheduledTasksExecutor {
         log.info("筛查数据统计,数据处理完成");
     }
 
+    /**
+     * 根据筛查计划ID集合处理筛查结果统计
+     * @param screeningPlanIds 筛查计划ID集合
+     */
     public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
 
         CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
@@ -181,18 +181,12 @@ public class ScheduledTasksExecutor {
      * @param yesterdayScreeningPlanIds
      */
     public void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
-        List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
         List<DistrictMonitorStatistic> districtMonitorStatistics = new ArrayList<>();
         List<DistrictVisionStatistic> districtVisionStatistics = new ArrayList<>();
         List<SchoolVisionStatistic> schoolVisionStatistics = new ArrayList<>();
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
         genDistrictStatistics(yesterdayScreeningPlanIds, districtMonitorStatistics, districtVisionStatistics);
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);
-        //重点视力对象需统计的是学校所在区域的所有数据，另外统计
-//        genAttentiveObjectsStatistics(yesterdayScreeningPlanIds, districtAttentiveObjectsStatistics);
-//        districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
-        districtMonitorStatisticService.batchSaveOrUpdate(districtMonitorStatistics);
-        districtVisionStatisticService.batchSaveOrUpdate(districtVisionStatistics);
         schoolVisionStatisticService.batchSaveOrUpdate(schoolVisionStatistics);
         schoolMonitorStatisticService.batchSaveOrUpdate(schoolMonitorStatistics);
     }

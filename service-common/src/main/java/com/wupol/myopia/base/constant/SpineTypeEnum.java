@@ -1,5 +1,9 @@
 package com.wupol.myopia.base.constant;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+
 /**
  * 脊柱弯曲
  *
@@ -34,15 +38,9 @@ public enum SpineTypeEnum {
     }
 
     public static String getTypeName(Integer type) {
-        if (ONE_TYPE.type.equals(type)) {
-            return ONE_TYPE.name;
-        }
-        if (TWO_TYPE.type.equals(type)) {
-            return TWO_TYPE.name;
-        }
-        if (THREE_TYPE.type.equals(type)) {
-            return THREE_TYPE.name;
-        }
-        return "";
+        return Arrays.stream(values())
+                .filter(spineTypeEnum -> spineTypeEnum.getType().equals(type))
+                .map(SpineTypeEnum::getName)
+                .findFirst().orElse(StringUtils.EMPTY);
     }
 }

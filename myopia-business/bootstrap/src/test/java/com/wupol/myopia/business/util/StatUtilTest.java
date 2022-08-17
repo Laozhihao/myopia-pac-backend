@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * 筛查结论计算工具类测试
@@ -52,9 +53,9 @@ public class StatUtilTest {
 
     @Test
     public void isRefractiveErrorTest(){
-        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","3.0",2,false));
-        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","4.0",4,false));
-        Assert.assertEquals( true,StatUtil.isRefractiveError("3.0","4.0",6,false));
+        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","3.0",2));
+        Assert.assertEquals(true,StatUtil.isRefractiveError("2.0","4.0",4));
+        Assert.assertEquals( true,StatUtil.isRefractiveError("3.0","4.0",6));
     }
 
     @Test
@@ -108,8 +109,8 @@ public class StatUtilTest {
 
     @Test
     public void isOverweightAndObesityTest(){
-        Assert.assertEquals(false,StatUtil.isOverweightAndObesity("58","1.4","10.0",0).getFirst());
-        Assert.assertEquals(true,StatUtil.isOverweightAndObesity("58","1.4","10.0",0).getSecond());
+        Assert.assertEquals(false, Objects.requireNonNull(StatUtil.isOverweightAndObesity("58", "1.4", "10.0", 0)).getFirst());
+        Assert.assertEquals(true, Objects.requireNonNull(StatUtil.isOverweightAndObesity("58", "1.4", "10.0", 0)).getSecond());
     }
 
     @Test
@@ -120,10 +121,10 @@ public class StatUtilTest {
 
     @Test
     public void isHighBloodPressureTest(){
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 8));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 8));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 18));
-        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 18));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 8,new BigDecimal("120")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 8,new BigDecimal("119")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 0, 18,new BigDecimal("161")));
+        Assert.assertFalse(StatUtil.isHighBloodPressure(100, 80, 1, 18,new BigDecimal("150")));
     }
 
     @Test

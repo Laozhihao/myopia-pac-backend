@@ -1,0 +1,165 @@
+package com.wupol.myopia.business.api.questionnaire.service;
+
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * 用户答案
+ *
+ * @author Simple4H
+ */
+@Service
+public class UserAnswerBizService {
+
+    @Resource
+    private UserAnswerService userAnswerService;
+
+    @Resource
+    private UserAnswerFactory userAnswerFactory;
+
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
+
+    @Resource
+    private GovDeptService govDeptService;
+
+    @Resource
+    private DistrictService districtService;
+
+    @Resource
+    private SchoolService schoolService;
+
+    /**
+     * 获取用户答案
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(user.getExQuestionnaireUserId())
+                        .setUserType(user.getQuestionnaireUserType()));
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+        }
+        return userAnswerList;
+    }
+
+    /**
+     * 保存答案
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveUserAnswer(UserAnswerDTO requestDTO, CurrentUser user) {
+        Integer questionnaireId = requestDTO.getQuestionnaireId();
+        List<UserAnswerDTO.QuestionDTO> questionList = requestDTO.getQuestionList();
+        Integer userId = user.getExQuestionnaireUserId();
+        Integer questionnaireUserType = user.getQuestionnaireUserType();
+
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
+        // 更新记录表
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
+
+        // 先删除，后新增
+        iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);
+
+        // 保存用户答案
+        iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
+
+        // 保存进度
+        iUserAnswerService.saveUserProgress(requestDTO, userId, requestDTO.getIsFinish());
+
+        // 处理隐藏问题
+        iUserAnswerService.hiddenQuestion(questionnaireId, userId, recordId);
+
+        // 获取用户答题状态
+        return iUserAnswerService.getUserAnswerIsFinish(userId);
+    }
+
+    /**
+     * 是否完成问卷
+     *
+     * @param user 用户
+     *
+     * @return Boolean
+     */
+    public Boolean userAnswerIsFinish(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getUserAnswerIsFinish(user.getExQuestionnaireUserId());
+    }
+
+    /**
+     * 获取学校名称
+     *
+     * @param user 用户
+     *
+     * @return 学校名称
+     */
+    public String getSchoolName(CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getUserName(user.getExQuestionnaireUserId());
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId);
+    }
+
+    /**
+     * 获取学校
+     */
+    public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
+        if (!user.isQuestionnaireGovUser()) {
+            throw new BusinessException("身份异常!");
+        }
+        Integer orgId = user.getExQuestionnaireUserId();
+        GovDept govDept = govDeptService.getById(orgId);
+        Integer districtId = govDept.getDistrictId();
+        List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, District> districtMap = districtService.getByIds(schoolList.stream().map(School::getDistrictId).collect(Collectors.toList()));
+        return schoolList.stream().map(s -> {
+            SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
+            responseDTO.setName(s.getName());
+            District district = districtMap.get(s.getDistrictId());
+            if (Objects.isNull(district)) {
+                return responseDTO;
+            }
+            String code = String.valueOf(district.getCode());
+            responseDTO.setProvinceNo(code.substring(0, 2));
+            responseDTO.setCityNo(code.substring(2, 4));
+            responseDTO.setAreaNo(code.substring(4, 6));
+            responseDTO.setAreaType(s.getAreaType());
+            responseDTO.setMonitorType(s.getMonitorType());
+            return responseDTO;
+        }).collect(Collectors.toList());
+    }
+
+}

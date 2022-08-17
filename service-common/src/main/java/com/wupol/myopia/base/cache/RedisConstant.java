@@ -38,11 +38,6 @@ public interface RedisConstant {
     String FILE_EXPORT_LIST = "file:export:list";
 
     /**
-     * 筛查通知
-     */
-    String FILE_EXPORT_NOTICE_DATA = "file:export:notice:%s-%s-%s-%s-%s-%s";
-
-    /**
      * 筛查计划
      */
     String FILE_EXPORT_PLAN_DATA = "file:export:plan:%s-%s-%s-%s";
@@ -96,7 +91,7 @@ public interface RedisConstant {
     /**
      * 导出PDF-学校-筛查机构
      */
-    String FILE_EXPORT_PDF_SCHOOL_SCREENING = "file:export:pdf:school:screening:%s-%s-%s-%s";
+    String FILE_EXPORT_PDF_SCHOOL_SCREENING = "file:export:pdf:school:screening:%s-%s-%s";
 
     /**
      * 导出PDF-筛查机构
@@ -190,16 +185,6 @@ public interface RedisConstant {
      * 导出档案卡
      */
     String FILE_EXPORT_PLAN_ARCHIVES_DATA = "file:export:archives:%s-%s-%s-%s-%s-%s-%s";
-
-    /**
-     * 筛查通知-导出筛查数据
-     */
-    String FILE_SCREENING_NOTICE_DATE = "export:file:export:notice:screening:%s-%s-%s-%s-%s-%s";
-
-    /**
-     * 筛查计划-导出筛查数据
-     */
-    String FILE_PLAN_SCREENING_DATE = "export:file:export:plan:screening:data:%s-%s-%s-%s";
 
     /**
      * 导出PDF-区域-筛查机构

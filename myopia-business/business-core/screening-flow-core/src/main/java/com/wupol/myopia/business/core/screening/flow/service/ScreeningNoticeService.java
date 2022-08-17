@@ -81,7 +81,7 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return List<ScreeningNotice>
      */
     public List<ScreeningNotice> getByIds(List<Integer> ids) {
-        return baseMapper.getByIdsOrderByCreateTime(ids);
+        return baseMapper.getByIdsOrderByStartTime(ids);
     }
 
     /**
@@ -224,6 +224,14 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         // 取出第一条
         Optional<ScreeningNotice> screeningNoticeOptional = screeningNoticeList.stream().findFirst();
         return screeningNoticeOptional.orElse(null);
+    }
+
+    public List<ScreeningNotice> getByDistrictIds(List<Integer> districtIds) {
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper
+                .in(ScreeningNotice::getDistrictId, districtIds)
+                .orderByDesc(ScreeningNotice::getStartTime);
+        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
     }
 
 }

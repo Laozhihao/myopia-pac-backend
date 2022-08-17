@@ -8,6 +8,8 @@ import com.wupol.myopia.base.annotation.LimitedAccess;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -103,8 +105,11 @@ public class AuthController {
         // 获取菜单权限，并缓存token和权限
         List<Permission> permissions = authService.cachePermissionAndToken(userId, currentUser.getSystemCode(), currentUser.getUserType(),
                 oAuth2AccessToken.getExpiresIn(), oAuth2AccessToken.getValue());
-        // 更新用户最后登录时间
-        userService.updateById(new User().setId(userId).setLastLoginTime(new Date()));
+        // 更新用户最后登录时间，问卷系统用户无需更新
+        if (!SystemCode.QUESTIONNAIRE.getCode().equals(currentUser.getSystemCode()) ||
+                (SystemCode.QUESTIONNAIRE.getCode().equals(currentUser.getSystemCode()) && UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(currentUser.getUserType()))) {
+            userService.updateById(new User().setId(userId).setLastLoginTime(new Date()));
+        }
         return ApiResult.success(new LoginInfoVO(oAuth2AccessToken, permissions));
     }
 

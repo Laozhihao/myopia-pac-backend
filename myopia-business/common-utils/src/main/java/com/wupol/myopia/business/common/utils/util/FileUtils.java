@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.excel.EasyExcel;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -102,25 +104,39 @@ public final class FileUtils {
     }
 
     /**
-     * 递归删除目录下的所有文件及子目录下所有文件
-     * @param dir 将要删除的文件目录
-     * @return boolean Returns "true" if all deletions were successful.
-     *                 If a deletion fails, the method stops attempting to
-     *                 delete and returns "false".
+     * 是否包含文件
+     * @param srcFile 父文件或父文件夹
      */
-    public static boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            //递归删除目录中的子目录下
-            for (int i = 0; i< Objects.requireNonNull(children).length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
+    public static Boolean includeFiles(File srcFile){
+        if (Objects.isNull(srcFile)){
+            return Boolean.FALSE;
         }
-        // 目录此时为空，可以删除
-        return dir.delete();
+        if (srcFile.isFile()) {
+            return Boolean.TRUE;
+        }
+        List<File> fileList = Lists.newArrayList();
+        getFileList(srcFile,fileList);
+        return !CollectionUtils.isEmpty(fileList);
     }
 
+    /**
+     * 获取文件递归
+     * @param srcFile 父文件或父文件夹
+     */
+    public static void getFileList(File srcFile,List<File> fileList) {
+        if (srcFile.isFile()){
+            fileList.add(srcFile);
+        }
+        File[] files = srcFile.listFiles();
+        if (ArrayUtil.isEmpty(files)) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()){
+                getFileList(file,fileList);
+            }else {
+                fileList.add(file);
+            }
+        }
+    }
 }

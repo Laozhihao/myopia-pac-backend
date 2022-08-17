@@ -9,8 +9,10 @@ import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
@@ -18,7 +20,6 @@ import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPah
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseaseDataExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.system.constants.ScreeningTypeConst;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -57,8 +58,9 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
                     .setIsRescreenDesc("否")
+                    .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
                     .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
-            genScreeningData(vo, exportVo);
+            generateScreeningData(vo, exportVo);
             // 组装复筛数据
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             // 以下为常见病相关
@@ -73,7 +75,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
 
     @Override
     public Integer getScreeningType() {
-        return ScreeningTypeConst.COMMON_DISEASE;
+        return ScreeningTypeEnum.COMMON_DISEASE.getType();
     }
 
     @Override
@@ -88,7 +90,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @param dto       处理后筛查数据
      * @param exportDTO 筛查数据导出
      */
-    private void genScreeningData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
+    private void generateScreeningData(StatConclusionExportDTO dto, CommonDiseaseDataExportDTO exportDTO) {
         exportDTO.setLeftNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_NAKED_VISION)))
                 .setRightNakedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.RIGHTEYE_NAKED_VISION)))
                 .setLeftCorrectedVisions(ScreeningDataFormatUtils.singleEyeDateFormat((BigDecimal) JSONPath.eval(dto, ScreeningResultPahtConst.LEFTEYE_CORRECTED_VISION)))
@@ -199,7 +201,9 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
      * @return 结论
      */
     private String countSaprodontiaNum(List<String> list) {
-        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count() + ":" + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
+        return list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_D.getName(), SaprodontiaType.PERMANENT_D.getName())).count()
+                + cn.hutool.core.util.StrUtil.COLON + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_M.getName(), SaprodontiaType.PERMANENT_M.getName())).count()
+                + cn.hutool.core.util.StrUtil.COLON + list.stream().filter(s -> StringUtils.equalsAny(s, SaprodontiaType.DECIDUOUS_F.getName(), SaprodontiaType.PERMANENT_F.getName())).count();
     }
 
     /**
@@ -217,10 +221,10 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         SpineDataDO.SpineItem chestWaist = spineData.getChestWaist();
         SpineDataDO.SpineItem waist = spineData.getWaist();
         SpineDataDO.SpineItem entirety = spineData.getEntirety();
-        exportDTO.setChest(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
-                .setChestWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
-                .setWaist(StrUtil.spliceChar("、", SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
-                .setEntirety(StrUtil.spliceChar("、", SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
+        exportDTO.setChest(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(chest.getType()), SpineLevelEnum.getLevelName(chest.getLevel())))
+                .setChestWaist(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(chestWaist.getType()), SpineLevelEnum.getLevelName(chestWaist.getLevel())))
+                .setWaist(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEnum.getTypeName(waist.getType()), SpineLevelEnum.getLevelName(waist.getLevel())))
+                .setEntirety(StrUtil.spliceChar(CommonConst.CN_PUNCTUATION_COMMA, SpineTypeEntiretyEnum.getTypeName(entirety.getType()), SpineLevelEnum.getLevelName(entirety.getLevel())));
 
     }
 
@@ -246,11 +250,11 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
         DiseasesHistoryDO diseasesHistoryData = dto.getDiseasesHistoryData();
 
         if (Objects.nonNull(diseasesHistoryData) && !CollectionUtils.isEmpty(diseasesHistoryData.getDiseases())) {
-            exportDTO.setDiseasesHistory(String.join(",", diseasesHistoryData.getDiseases()));
+            exportDTO.setDiseasesHistory(String.join(cn.hutool.core.util.StrUtil.COMMA, diseasesHistoryData.getDiseases()));
         }
         PrivacyDataDO privacyData = dto.getPrivacyData();
         if (Objects.nonNull(privacyData)) {
-            if (privacyData.getHasIncident()) {
+            if (Objects.equals(privacyData.getHasIncident(),Boolean.TRUE)) {
                 exportDTO.setPrivacyData("是 年龄：" + privacyData.getAge());
             } else {
                 exportDTO.setPrivacyData("否");

@@ -1,20 +1,21 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
-import com.wupol.myopia.business.core.screening.flow.constant.SaprodontiaType;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * @Description:
  */
 @Slf4j
+@UtilityClass
 public class EyeDataUtil {
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
@@ -437,75 +439,6 @@ public class EyeDataUtil {
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
     }
 
-
-    /**
-     * 合并上下牙床数据
-     * @param result 筛查数据
-     * @return 合并上下牙床数据
-     */
-    public static SaprodontiaDataDODTO getSaprodontiaDataDODTO(VisionScreeningResult result){
-
-        List<SaprodontiaDataDO.SaprodontiaItem> items = new ArrayList<>();
-
-        if (Objects.nonNull(result)&&Objects.nonNull(result.getSaprodontiaData())){
-            items.addAll(result.getSaprodontiaData().getAbove());
-            items.addAll(result.getSaprodontiaData().getUnderneath());
-        }
-
-        return calculationTooth(items);
-    }
-
-    /**
-     * 计算乳牙/恒牙
-     * @param items 牙齿数据
-     */
-    private static SaprodontiaDataDODTO calculationTooth(List<SaprodontiaDataDO.SaprodontiaItem> items) {
-        SaprodontiaDataDODTO saprodontiaDataDODTO = new SaprodontiaDataDODTO();
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_D.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_M.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> deciduousFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.DECIDUOUS_F.getName(), item.getDeciduous())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentDs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_D.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentMs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_M.getName(), item.getPermanent())).collect(Collectors.toList());
-        List<SaprodontiaDataDO.SaprodontiaItem> permanentFs = items.stream().filter(item -> Objects.equals(SaprodontiaType.PERMANENT_F.getName(), item.getPermanent())).collect(Collectors.toList());
-
-
-        SaprodontiaStatItem deciduousTooth = new SaprodontiaStatItem();
-        SaprodontiaStatItem permanentTooth = new SaprodontiaStatItem();
-
-        if (CollectionUtil.isNotEmpty(deciduousDs)){
-            deciduousTooth.setDCount(deciduousDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousMs)){
-            deciduousTooth.setMCount(deciduousMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(deciduousFs)){
-            deciduousTooth.setFCount(deciduousFs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentDs)){
-            permanentTooth.setDCount(permanentDs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentMs)){
-            permanentTooth.setMCount(permanentMs.size());
-        }
-        if (CollectionUtil.isNotEmpty(permanentFs)){
-            permanentTooth.setFCount(permanentFs.size());
-        }
-
-        saprodontiaDataDODTO.setDeciduousTooth(deciduousTooth);
-        saprodontiaDataDODTO.setPermanentTooth(permanentTooth);
-
-        return saprodontiaDataDODTO;
-    }
-    /**
-     * 获取戴镜是否为空
-     * @param visionScreeningResult 筛查结果
-     * @return 类型描述
-     */
-    public static Integer glassTypeDesc(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
-    }
-
     /**
      * 获取右眼裸视力
      * @param visionScreeningResult 筛查结果
@@ -623,21 +556,6 @@ public class EyeDataUtil {
     }
 
     /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
-     */
-    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        if (ObjectsUtil.hasNull(sph, cyl)) {
-            return null;
-        }
-        return sph.add(cyl.multiply(new BigDecimal("0.5")))
-                .setScale(2, RoundingMode.HALF_UP);
-    }
-
-    /**
      * 计算 等效球镜（右眼）
      * @param visionScreenResult 筛查数据
      * @return 计算 等效球镜（右眼）
@@ -645,8 +563,7 @@ public class EyeDataUtil {
     public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
         BigDecimal sph = rightSph(visionScreenResult);
         BigDecimal cyl = rightCyl(visionScreenResult);
-
-        return calculationSE(sph,cyl);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
     }
 
     /**
@@ -657,8 +574,7 @@ public class EyeDataUtil {
     public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
         BigDecimal sph = leftSph(visionScreenResult);
         BigDecimal cyl = leftCyl(visionScreenResult);
-
-        return calculationSE(sph,cyl);
+        return StatUtil.getSphericalEquivalent(sph, cyl);
     }
 
     /**
@@ -691,9 +607,9 @@ public class EyeDataUtil {
     }
 
     /**
-     * 创建时间
+     * 更新时间
      * @param visionScreenResult 筛查结果
-     * @return 创建时间
+     * @return 更新时间
      */
     public static Date updateTime(VisionScreeningResult visionScreenResult) {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);
@@ -708,5 +624,4 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
     }
-
 }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="answer" property="answer"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
+                <if test="@Ognl@isNotEmpty(questionnaireId)">and `questionnaire_id` = #{questionnaireId}</if>
+                <if test="@Ognl@isNotEmpty(questionId)">and `question_id` = #{questionId}</if>
+                <if test="@Ognl@isNotEmpty(recordId)">and `record_id` = #{recordId}</if>
+                <if test="@Ognl@isNotEmpty(userType)">and `user_type` = #{userType}</if>
+                <if test="@Ognl@isNotEmpty(questionTitle)">and `question_title` = #{questionTitle}</if>
+                <if test="@Ognl@isNotEmpty(answer)">and `answer` = #{answer}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, questionnaire_id, question_id, record_id, user_type, question_title, answer, create_time, update_time
+    </sql>
+
+    <insert id="batchSaveUserAnswer">
+        INSERT INTO q_user_answer
+        (user_id, questionnaire_id, question_id, record_id, user_type, question_title, answer)
+        VALUES
+        <foreach collection="userAnswers" item="userAnswer" separator=",">
+            (#{userAnswer.userId}, #{userAnswer.questionnaireId}, #{userAnswer.questionId}, #{userAnswer.recordId},
+             #{userAnswer.userType},
+             #{userAnswer.questionTitle},
+             #{userAnswer.answer,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler})
+        </foreach>
+        on duplicate key update id          = values(id),
+                                answer      = values(answer),
+                                update_time = now()
+    </insert>
+
+    <delete id="deleteBatchByCombinationId">
+        delete
+        from q_user_answer where user_id = #{userId}
+                             and questionnaire_id = #{questionnaireId}
+                             and record_id = #{recordId}
+                             and user_type = #{userType}
+                             and question_id in
+        <foreach collection="questionIds" open="(" close=")" separator="," item="questionId">
+            #{questionId}
+        </foreach>
+    </delete>
+</mapper>

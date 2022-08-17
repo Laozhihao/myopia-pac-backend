@@ -2,7 +2,10 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * 筛查计划学校
@@ -10,6 +13,7 @@ import lombok.experimental.Accessors;
  * @Date 2021/01/25
  **/
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
@@ -26,7 +30,7 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
     /**
      * 筛查情况
      */
-    private String ScreeningSituation;
+    private String screeningSituation;
     /**
      * 问卷学生数
      */
@@ -42,7 +46,8 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
     private String questionnaireSituation;
 
 
-
-
-
+    /**
+     * 年级详情
+     */
+    private List<GradeQuestionnaireInfo> gradeQuestionnaireInfos;
 }

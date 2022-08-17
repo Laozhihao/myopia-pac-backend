@@ -3,7 +3,9 @@
 <mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion"></resultMap>
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="disease_num" property="diseaseNum" />
+    </resultMap>
 
     <!-- ExportVo查询映射结果 -->
     <resultMap id="ExportVoResultMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO">
@@ -120,7 +122,7 @@
     <sql id="Base_Column_List">
         id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level,
         is_bind_mp,report_id,screening_type,is_saprodontia,is_overweight,is_obesity,is_malnutrition,is_stunting,is_spinal_curvature,is_normal_blood_pressure,
-        is_diseases_history,is_nocturnal_emission,is_menarche,physique_rescreen_error_num,is_review,is_anisometropia,saprodontia_teeth,is_saprodontia_loss,saprodontia_loss_teeth,is_saprodontia_repair,saprodontia_repair_teeth,rescreen_item_num,low_vision_level,is_cooperative,screening_myopia
+        is_diseases_history,is_nocturnal_emission,is_menarche,physique_rescreen_error_num,is_review,is_anisometropia,saprodontia_teeth,is_saprodontia_loss,saprodontia_loss_teeth,is_saprodontia_repair,saprodontia_repair_teeth,rescreen_item_num,low_vision_level,is_cooperative,screening_myopia,disease_num
     </sql>
 
     <!-- 通用查询结果列 -->
@@ -189,23 +191,6 @@
         ORDER BY mspss.school_name
     </select>
 
-    <select id="selectExportVoByScreeningNoticeIdAndSchoolId" resultMap="ExportVoResultMap"
-            parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List"/>
-        FROM m_stat_conclusion msc
-                     LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-                     LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-                WHERE msc.school_id = #{schoolId}
-        <if test="screeningNoticeId != null">
-            and msc.src_screening_notice_id = #{screeningNoticeId}
-        </if>
-        <if test="planId != null">
-            and msc.plan_id = #{planId}
-        </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
     <select id="selectExportVoByScreeningPlanIdAndSchoolId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
         SELECT
         <include refid="Export_Vo_List" />
@@ -232,28 +217,6 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningNoticeIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.src_screening_notice_id = #{screeningNoticeId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
-    </select>
-
-    <select id="selectExportVoByScreeningPlanIdAndScreeningOrgId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
-        SELECT
-        <include refid="Export_Vo_List" />
-        FROM m_stat_conclusion msc
-        LEFT JOIN m_vision_screening_result mvsr ON msc.result_id = mvsr.id
-        LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
-        WHERE msc.plan_id = #{screeningPlanId}
-        AND mvsr.screening_org_id = #{screeningOrgId}
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 
@@ -379,6 +342,7 @@
                 </when>
             </choose>
         </if>
+        and is_rescreen = false
     </select>
 
     <select id="getByPlanStudentId" resultMap="BaseResultMap">
@@ -431,5 +395,31 @@
         </foreach>
         and is_review = 1
         and is_rescreen = 0
+    </select>
+
+    <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion where src_screening_notice_id = #{noticeId}
+                                 and district_id in
+        <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and is_rescreen = false
+    </select>
+
+    <select id="getByPlanIdSchoolId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and school_id = #{schoolId}
+        and is_rescreen = false
+        order by create_time desc
+    </select>
+
+    <select id="getByPlanId" resultMap="BaseResultMap">
+        select *
+        from m_stat_conclusion
+        where plan_id = #{planId}
+          and is_rescreen = false
     </select>
 </mapper>

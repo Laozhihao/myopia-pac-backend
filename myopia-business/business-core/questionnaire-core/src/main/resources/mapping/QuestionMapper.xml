@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.Question">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="attribute" property="attribute"/>
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="options" property="options"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
+                <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(subTitle)">and `sub_title` = #{subTitle}</if>
+                <if test="@Ognl@isNotEmpty(attribute)">and `attribute` = #{attribute}</if>
+                <if test="@Ognl@isNotEmpty(options)">and `options` = #{options}</if>
+                <if test="@Ognl@isNotEmpty(serialNumber)">and `serial_number` = #{serialNumber}</if>
+                <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
+                <if test="@Ognl@isNotEmpty(sameQuestionGroupId)">and `same_question_group_id` = #{sameQuestionGroupId}</if>
+                <if test="@Ognl@isNotEmpty(iconName)">and `icon_name` = #{iconName}</if>
+                <if test="@Ognl@isNotEmpty(mappingKey)">and `mapping_key` = #{mappingKey}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, title, sub_title, attribute, options, serial_number, pid, same_question_group_id, icon_name, mapping_key, create_time, update_time
+    </sql>
+</mapper>

@@ -1,43 +1,33 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.google.common.collect.Lists;
-import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
-import com.wupol.myopia.business.common.utils.interfaces.HasName;
-import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
-import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,31 +41,15 @@ import java.util.stream.Collectors;
 public class VisionScreeningResultController extends BaseController<VisionScreeningResultService, VisionScreeningResult> {
 
     @Autowired
-    private DistrictService districtService;
-    @Autowired
-    private ScreeningNoticeService screeningNoticeService;
-    @Autowired
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
-    private ScreeningOrganizationService screeningOrganizationService;
-    @Autowired
-    private SchoolService schoolService;
-    @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-    @Autowired
-    private StatConclusionService statConclusionService;
-    @Autowired
-    private ExcelFacade excelFacade;
-    @Autowired
-    private RedisUtil redisUtil;
     @Autowired
     private StudentFacade studentFacade;
     @Autowired
     private ExportStrategy exportStrategy;
-    @Autowired
-    private SysUtilService sysUtilService;
 
     /**
      * 获取档案卡列表
@@ -84,6 +58,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * @param planId   计划Id
      * @param gradeId  年纪Id
      * @param classId  班级Id
+     *
      * @return List<StudentCardResponseVO>
      */
     @GetMapping("/list-result")
@@ -94,7 +69,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         // 方便前端模板渲染复用
         if (Objects.nonNull(resultId)) {
             VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(resultId);
-            if (visionScreeningResult==null){
+            if (visionScreeningResult == null) {
                 throw new BusinessException("无法找到该筛查结果");
             }
             return Lists.newArrayList(studentFacade.getStudentCardResponseDTO(visionScreeningResult));
@@ -120,187 +95,10 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     }
 
     /**
-     * 筛查通知-导出筛查数据（screeningOrgId、districtId与schoolId不能同时为0）
-     * <p>这个接口需要考虑到筛查机构为单点的情况，为单点筛查机构，筛查通知Id可以为空
-     * 单点筛查机构没有筛查通知，但其筛查计划ID不能为空</p>
-     *
-     * @param screeningNoticeId 筛查通知Id
-     * @param screeningOrgId    筛查机构ID，默认0
-     * @param districtId        层级ID，默认0
-     * @param schoolId          学校ID，默认0
-     * @return ApiResult.success();
-     */
-    @GetMapping("/export")
-    public Object getScreeningNoticeExportData(Integer screeningNoticeId,
-                                               @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                               @RequestParam(defaultValue = "0") Integer districtId,
-                                               @RequestParam(defaultValue = "0") Integer schoolId,
-                                               @RequestParam(defaultValue = "0") Integer planId) throws IOException, UtilException {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        // 参数校验
-        validateExportParams(screeningNoticeId, screeningOrgId, districtId, schoolId, planId);
-        List<StatConclusionExportDTO> statConclusionExportVos = new ArrayList<>();
-        // 获取文件需显示的名称的机构/学校/区域前缀
-        String exportFileNamePrefix = "";
-        boolean isSchoolExport = false;
-
-        // 是否单点筛查机构
-        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))
-                && ScreeningOrgConfigTypeEnum.CONFIG_TYPE_1.getType().equals(screeningOrganizationService.getById(currentUser.getScreeningOrgId()).getConfigType())) {
-            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(currentUser.getScreeningOrgId()), "筛查机构");
-            if (Objects.isNull(planId)) {
-                throw new BusinessException("单点筛查机构PlanId不能为空");
-            }
-            statConclusionExportVos = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(planId, currentUser.getScreeningOrgId());
-        } else {
-            if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
-                exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
-                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndScreeningOrgId(screeningNoticeId, screeningOrgId);
-            }
-            if (!CommonConst.DEFAULT_ID.equals(districtId)) {
-                List<District> districtPositionDetailById = districtService.getDistrictPositionDetailById(districtId);
-                StringBuffer folder = new StringBuffer();
-                districtPositionDetailById.forEach(item->{
-                    folder.append(item.getName());
-                });
-                checkNotNullAndGetName(districtService.getById(districtId), "行政区域");
-                exportFileNamePrefix = folder.toString();
-                // 合计的要包括自己层级的筛查数据
-                List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(screeningNoticeId, childDistrictIds, null);
-            }
-            if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-                exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
-                isSchoolExport = true;
-                statConclusionExportVos = statConclusionService.getExportVoByScreeningNoticeIdAndSchoolId(screeningNoticeId, schoolId, planId);
-            }
-        }
-        if (CollectionUtils.isEmpty(statConclusionExportVos)) {
-            throw new BusinessException("暂无筛查数据，无法导出");
-        }
-        // 重复导出
-        String key = String.format(RedisConstant.FILE_EXPORT_NOTICE_DATA, screeningNoticeId, screeningOrgId, districtId, schoolId, planId, currentUser.getId());
-        checkIsExport(key);
-        // 导出限制
-        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_SCREENING_NOTICE_DATE, screeningNoticeId, screeningOrgId, districtId, schoolId, planId, currentUser.getId()), key);
-        statConclusionExportVos.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportVos, isSchoolExport, exportFileNamePrefix, key);
-        return ApiResult.success();
-    }
-
-    /**
-     * 筛查计划-导出筛查数据（screeningOrgId与schoolId不能同时为0）
-     * @param screeningPlanId
-     * @param screeningOrgId 筛查机构ID，默认0
-     * @param schoolId 学校ID，默认0
-     * @return
-     */
-    @GetMapping("/plan/export")
-    public Object getScreeningPlanExportData(Integer screeningPlanId, @RequestParam(defaultValue = "0") Integer screeningOrgId,
-                                             @RequestParam(defaultValue = "0") Integer schoolId) throws IOException, UtilException {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
-            screeningOrgId = currentUser.getScreeningOrgId();
-        }
-        // 参数校验
-        validatePlanExportParams(screeningPlanId, screeningOrgId, schoolId);
-        List<StatConclusionExportDTO> statConclusionExportDTOs = new ArrayList<>();
-        // 获取文件需显示的名称的机构/学校/区域前缀
-        String exportFileNamePrefix = "";
-        boolean isSchoolExport = false;
-        if (!CommonConst.DEFAULT_ID.equals(screeningOrgId)) {
-            exportFileNamePrefix = checkNotNullAndGetName(screeningOrganizationService.getById(screeningOrgId), "筛查机构");
-            statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndScreeningOrgId(screeningPlanId, screeningOrgId);
-        }
-        if (!CommonConst.DEFAULT_ID.equals(schoolId)) {
-            exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId), "学校");
-            isSchoolExport = true;
-            statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
-        }
-        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
-            throw new BusinessException("暂无筛查数据，无法导出");
-        }
-        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, screeningPlanId,screeningOrgId,schoolId, currentUser.getId());
-        checkIsExport(key);
-        // 导出限制
-        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_PLAN_SCREENING_DATE, screeningPlanId, screeningOrgId, schoolId, currentUser.getId()), key);
-        // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, isSchoolExport, exportFileNamePrefix, key);
-        return ApiResult.success();
-    }
-
-    /**
-     * 是否正在导出
-     * @param key Key
-     */
-    private void checkIsExport(String key) {
-        Object o = redisUtil.get(key);
-        if (Objects.nonNull(o)) {
-            throw new BusinessException("正在导出中，请勿重复导出");
-        }
-        redisUtil.set(key, 1, 60 * 60 * 24);
-    }
-
-    /**
-     * 校验筛查数据导出参数
-     * @param screeningNoticeId
-     * @param screeningOrgId
-     * @param districtId
-     * @param schoolId
-     * @param planId
-     */
-    private void validateExportParams(Integer screeningNoticeId, Integer screeningOrgId,
-                                      Integer districtId, Integer schoolId,Integer planId) {
-        // 筛查计划与筛查机构一对一，属于相同维度
-        if (Objects.nonNull(planId)) {
-            return;
-        }
-        // 筛查通知属于大维度，需要再细到下面子维度
-        ScreeningNotice screeningNotice = screeningNoticeService.getById(screeningNoticeId);
-        if (Objects.isNull(screeningNotice)) {
-            throw new BusinessException("筛查通知不存在");
-        }
-        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, districtId, schoolId);
-        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
-            throw new BusinessException("必须选择行政区域、学校或筛查机构中一个维度");
-        }
-    }
-
-    /**
-     * 校验筛查数据导出参数
-     * @param screeningPlanId
-     * @param screeningOrgId
-     * @param schoolId
-     */
-    private void validatePlanExportParams(Integer screeningPlanId, Integer screeningOrgId, Integer schoolId) {
-        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
-        if (Objects.isNull(screeningPlan)) {
-            throw new BusinessException("筛查计划不存在");
-        }
-        List<Integer> needCheckIdList = Arrays.asList(screeningOrgId, schoolId);
-        if (needCheckIdList.stream().filter(i -> !CommonConst.DEFAULT_ID.equals(i)).count() != 1) {
-            throw new BusinessException("必须选择层级、学校或筛查机构中一个维度");
-        }
-    }
-
-    /**
-     * 判空并获取名称
-     * @param object
-     * @param desc
-     * @return
-     */
-    private <T extends HasName> String checkNotNullAndGetName(T object, String desc) {
-        if (Objects.isNull(object)) {
-            throw new BusinessException(String.format("未找到该%s", desc));
-        }
-        return object.getName();
-    }
-
-    /**
      * 获取学生筛查计划档案卡
+     *
      * @param planStudentId
+     *
      * @return
      */
     @GetMapping("/screening/planStudent/card/{planStudentId}")

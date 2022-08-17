@@ -54,4 +54,9 @@ public class ExportExcelServiceNameConstant {
      * VS666管理-数据管理
      */
     public final String VS_DATA_EXCEL_SERVICE = "vsDataExcelService";
+
+    /**
+     * 问卷
+     */
+    public final String QUESTIONNAIRE_SERVICE = "questionnaireExcelService";
 }

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.device.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.device.domain.dto.FkrRequestDTO;
 import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
@@ -32,7 +31,7 @@ public class FkrDataService {
     private VisionScreeningBizService visionScreeningBizService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void uploadData(FkrRequestDTO requestDTO, String clientId) {
+    public void uploadData(FkrRequestDTO requestDTO) {
         log.info("str:{}", JSONObject.toJSONString(requestDTO));
         String deviceSN = requestDTO.getDeviceSN();
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
@@ -42,7 +41,7 @@ public class FkrDataService {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
         // 保存原始数据
         deviceUploadDataService.saveDeviceData(device, JSONObject.toJSONString(requestDTO), planStudentId, screeningOrganization.getId(), System.currentTimeMillis());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(requestDTO, screeningPlanSchoolStudent), clientId);
+        visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(requestDTO, screeningPlanSchoolStudent));
     }
 
     /**

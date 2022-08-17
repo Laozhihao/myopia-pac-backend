@@ -10,7 +10,7 @@
     <groupId>com.wupol.myopia</groupId>
     <artifactId>myopia-pac-backend</artifactId>
     <packaging>pom</packaging>
-    <version>MP-2.4.0</version>
+    <version>MP-2.4.3</version>
     <description>近视防控系统</description>
 
     <modules>
@@ -26,7 +26,7 @@
         <spring-cloud-alibaba.version>2.2.7.RELEASE</spring-cloud-alibaba.version>
         <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
         <hutool.version>5.5.1</hutool.version>
-        <fastjson.version>1.2.48</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <druid.version>1.2.3</druid.version>
         <mybatis-plus.version>3.4.1</mybatis-plus.version>
         <mybatis-plus-generator.version>3.4.1</mybatis-plus-generator.version>

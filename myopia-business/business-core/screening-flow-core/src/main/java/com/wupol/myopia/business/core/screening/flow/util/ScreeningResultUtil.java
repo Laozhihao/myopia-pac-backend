@@ -324,7 +324,7 @@ public class ScreeningResultUtil {
                                                                               Integer age, Integer maxType, BigDecimal nakedVision) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
-        sphItems.setVision(calculationSE(spn, cyl));
+        sphItems.setVision(StatUtil.getSphericalEquivalent(spn, cyl));
         TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
@@ -378,24 +378,24 @@ public class ScreeningResultUtil {
     public static List<BiometricItems> packageBiometricResult(BiometricDataDO date, OtherEyeDiseasesDO diseasesDO) {
         List<BiometricItems> items = new ArrayList<>();
         // 房水深度AD
-        BiometricItems ADItems = packageADItem(date);
-        items.add(ADItems);
+        BiometricItems adItem = packageADItem(date);
+        items.add(adItem);
 
         // 眼轴AL
-        BiometricItems ALItems = packageALItem(date);
-        items.add(ALItems);
+        BiometricItems alItem = packageALItem(date);
+        items.add(alItem);
 
         // 角膜中央厚度CCT
-        BiometricItems CCTItems = packageCCTItem(date);
-        items.add(CCTItems);
+        BiometricItems cctItem = packageCCTItem(date);
+        items.add(cctItem);
 
         // 状体厚度LT
-        BiometricItems LTItems = packageLTItem(date);
-        items.add(LTItems);
+        BiometricItems ltItem = packageLTItem(date);
+        items.add(ltItem);
 
         // 角膜白到白距离WTW
-        BiometricItems WTWItems = packageWTWItem(date);
-        items.add(WTWItems);
+        BiometricItems wtwItem = packageWTWItem(date);
+        items.add(wtwItem);
 
         items.add(packageEyeDiseases(diseasesDO));
         return items;
@@ -611,10 +611,10 @@ public class ScreeningResultUtil {
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
                 // 左眼
-                left.setVision(calculationSE(computerOptometry.getLeftEyeData().getSph(),
+                left.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getLeftEyeData().getSph(),
                         computerOptometry.getLeftEyeData().getCyl()));
                 // 右眼
-                right.setVision(calculationSE(computerOptometry.getRightEyeData().getSph(),
+                right.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getRightEyeData().getSph(),
                         computerOptometry.getRightEyeData().getCyl()));
             }
             details.setItem(Lists.newArrayList(left, right));
@@ -678,17 +678,6 @@ public class ScreeningResultUtil {
     }
 
     /**
-     * 计算 等效球镜
-     *
-     * @param sph 球镜
-     * @param cyl 柱镜
-     * @return 等效球镜
-     */
-    public static BigDecimal calculationSE(BigDecimal sph, BigDecimal cyl) {
-        return EyeDataUtil.calculationSE(sph,cyl);
-    }
-
-    /**
      * 获取散光轴位
      *
      * @param axial 轴位
@@ -708,7 +697,7 @@ public class ScreeningResultUtil {
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
-        BigDecimal se = calculationSE(sph, cyl);
+        BigDecimal se = StatUtil.getSphericalEquivalent(sph, cyl);
         if (Objects.isNull(se)) {
             return new TwoTuple<>();
         }
@@ -727,7 +716,7 @@ public class ScreeningResultUtil {
             // 远视
             HyperopiaLevelEnum hyperopiaWarningLevel = StatUtil.getHyperopiaLevel(sph.floatValue(), cyl.floatValue(), age);
             String str;
-            if (StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age)) {
+            if (Objects.equals(Boolean.TRUE,StatUtil.isHyperopia(sph.floatValue(), cyl.floatValue(), age))) {
                 str = "远视" + seVal + "度";
             } else {
                 str = seVal + "度";
@@ -763,7 +752,7 @@ public class ScreeningResultUtil {
         if (Objects.isNull(lowVision)){
             return null;
         }
-        if (lowVision) {
+        if (Objects.equals(Boolean.TRUE,lowVision)) {
             return ParentReportConst.NAKED_LOW;
         }
         return ParentReportConst.NAKED_NORMAL;
@@ -1147,6 +1136,7 @@ public class ScreeningResultUtil {
         if (BigDecimalUtil.lessThan(seBigDecimal, "0")) {
             return RecommendVisitEnum.KINDERGARTEN_RESULT_5;
         }
+        //TODO：??
 //        if (Objects.isNull(otherEyeDiseasesNormal)) {
 //            return RecommendVisitEnum.EMPTY;
 //        }
@@ -1561,10 +1551,9 @@ public class ScreeningResultUtil {
      * @param rightCyl 右-球镜
      * @return TwoTuple<BigDecimal, BigDecimal>
      */
-    private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph,
-                                                         BigDecimal leftCyl, BigDecimal rightCyl) {
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);;
-        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);;
+    private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl) {
+        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);
         return new TwoTuple<>(leftSe, rightSe);
     }
 

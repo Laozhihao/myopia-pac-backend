@@ -65,8 +65,13 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and msp.release_status = 1
-                order by msp.create_time desc
+        <if test="needFilterAbolishPlan">
+            and msp.release_status = 1
+        </if>
+        <if test="!needFilterAbolishPlan">
+            and msp.release_status in (1, 2)
+        </if>
+        order by msp.create_time desc
     </select>
 
     <select id="selectPageByQuery" resultMap="ScreeningPlanPageDTOMap" parameterType="java.util.Map">
@@ -103,6 +108,9 @@
                 <if test="@Ognl@isNotEmpty(param.screeningType)">
                     and mst.screening_type = #{param.screeningType}
                 </if>
+                <if test="param.needFilterAbolishPlan">
+                    and mst.release_status != 2
+                </if>
             </trim>
         </where>
         order by mst.create_time desc
@@ -131,8 +139,13 @@
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan msp
-        where release_status = 1
-          and msp.screening_org_id = #{orgId}
+        where msp.screening_org_id = #{orgId}
+        <if test="needFilterAbolishPlan">
+            and msp.release_status = 1
+        </if>
+        <if test="!needFilterAbolishPlan">
+            and msp.release_status in (1, 2)
+        </if>
         order by msp.create_time desc
     </select>
 
@@ -148,32 +161,16 @@
         from m_screening_plan
         where screening_task_id = #{taskId}
           and screening_org_id = #{orgId}
+          and release_status != 2
     </select>
 
-    <select id="getByOrgIds" resultMap="BaseResultMap">
+    <select id="getReleasePlanByOrgIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from m_screening_plan where screening_org_id in
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
         </foreach>
+        and release_status = 1
     </select>
-
-    <select id="getByIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
-
-    <select id="getPlanByTaskId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan
-        where screening_task_id = #{screeningTaskId}
-        and screening_org_id = #{screeningOrgId}
-    </select>
-
 </mapper>

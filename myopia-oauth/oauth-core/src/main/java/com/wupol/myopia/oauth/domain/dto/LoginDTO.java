@@ -33,6 +33,11 @@ public class LoginDTO {
     private String client_secret;
 
     /**
+     * 用户类型[0 学生；1 学校]
+     */
+    private String user_type;
+
+    /**
      * 授权类型
      **/
     private String grant_type;

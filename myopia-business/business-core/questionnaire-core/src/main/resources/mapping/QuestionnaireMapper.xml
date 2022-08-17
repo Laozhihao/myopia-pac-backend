@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire">
+
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(title)">and `title` = #{title}</if>
+                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
+                <if test="@Ognl@isNotEmpty(pid)">and `pid` = #{pid}</if>
+                <if test="@Ognl@isNotEmpty(type)">and `type` = #{type}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(qesUrl)">and `qes_url` = #{qesUrl}</if>
+                <if test="@Ognl@isNotEmpty(pageJson)">and `page_json` = #{pageJson}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, district_id, year, pid, type, status, qes_url, page_json, create_time, update_time
+    </sql>
+
+    <select id="getByTypes" resultMap="BaseResultMap">
+        SELECT q1.*
+        FROM q_questionnaire q1
+                 INNER JOIN (SELECT type,
+                                    max(create_time) create_time
+                             FROM q_questionnaire
+                             GROUP BY type) q2 ON q1.type = q2.type
+            AND q1.create_time = q2.create_time
+        where q1.type in
+        <foreach collection="types" item="type" index="index" open="(" close=")" separator=",">
+            #{type}
+        </foreach>
+    </select>
+
+</mapper>

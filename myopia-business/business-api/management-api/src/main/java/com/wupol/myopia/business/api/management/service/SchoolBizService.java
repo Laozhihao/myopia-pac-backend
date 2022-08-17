@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -15,7 +14,6 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
@@ -114,7 +112,7 @@ public class SchoolBizService {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId, CurrentUser currentUser) {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
@@ -123,9 +121,7 @@ public class SchoolBizService {
 
         // 通过planIds查询计划
         IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
-                .getListByIds(pageRequest, planSchoolList.stream()
-                        .map(ScreeningPlanSchool::getScreeningPlanId)
-                        .collect(Collectors.toList()));
+                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
@@ -175,7 +171,7 @@ public class SchoolBizService {
      * @return List<Integer>
      */
     private List<Integer> getHavePlanSchoolIds(SchoolQueryDTO query) {
-        if (Objects.nonNull(query.getNeedCheckHavePlan()) && query.getNeedCheckHavePlan()) {
+        if (Objects.nonNull(query.getNeedCheckHavePlan()) && Objects.equals(query.getNeedCheckHavePlan(),Boolean.TRUE)) {
             return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime(),query.getScreeningType());
         }
         return Collections.emptyList();

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>myopia-pac-backend</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.4.0</version>
+        <version>MP-2.4.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>myopia-business</artifactId>
@@ -46,18 +46,6 @@
                     <artifactId>cache</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <!-- Oauth 服务 -->
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>oauth-sdk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- flyway -->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
         </dependency>
     </dependencies>
 

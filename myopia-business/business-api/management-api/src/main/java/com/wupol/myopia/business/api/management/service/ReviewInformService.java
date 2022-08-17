@@ -13,7 +13,6 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
@@ -205,14 +204,9 @@ public class ReviewInformService {
         }
         String fileSaveParentPath = FileUtils.getFileSaveParentPath(pdfSavePath);
 
-        List<Integer> schoolIds = matchRescreenResults.stream().map(ScreeningPlanSchoolStudent::getSchoolId).collect(Collectors.toList());
-        Map<Integer, String> schoolMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
-
-        List<Integer> gradeIds = matchRescreenResults.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList());
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
-
-        List<Integer> classIds = matchRescreenResults.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(matchRescreenResults, ScreeningPlanSchoolStudent::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(matchRescreenResults,ScreeningPlanSchoolStudent::getClassId);
 
         Map<Integer, List<ScreeningPlanSchoolStudent>> planMap = matchRescreenResults.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
         planMap.forEach((planKey, planValue) -> {
@@ -228,7 +222,7 @@ public class ReviewInformService {
                             if (ExportTypeConst.GRADE.equals(type)) {
                                 FileUtils.downloadFile(pdfResponseDTO.getUrl(),
                                         Paths.get(fileSaveParentPath,
-                                                gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
+                                                schoolMap.get(schoolKey) + gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
                                                 classMap.get(classKey).getName() + RESCREEN_NAME,
                                                 RESCREEN_NAME + ".pdf").toString());
                             } else {
@@ -255,7 +249,7 @@ public class ReviewInformService {
             noticeService.sendExportFailNotice(userId, userId, getNoticeTitle(schoolId, gradeId, type) + RESCREEN_NAME);
             throw new BusinessException("发送通知异常");
         } finally {
-            FileUtils.deleteDir(new File(fileSaveParentPath));
+            FileUtil.del(new File(fileSaveParentPath));
         }
     }
 
@@ -278,12 +272,7 @@ public class ReviewInformService {
      * @return List<ScreeningPlanSchoolStudent>
      */
     private List<ScreeningPlanSchoolStudent> getMatchRescreenResults(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
-        if (CollectionUtils.isEmpty(planStudentList)) {
-            return new ArrayList<>();
-        }
-        return planStudentList;
+        return screeningPlanSchoolStudentService.getReviewStudentList(planId, orgId, schoolId, gradeId, classId);
     }
 
     /**

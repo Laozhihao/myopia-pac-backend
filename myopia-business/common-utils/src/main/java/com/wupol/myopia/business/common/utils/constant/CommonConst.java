@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 /**
  * 常量类
@@ -54,6 +57,11 @@ public class CommonConst {
      * 筛查 已发布
      */
     public final Integer STATUS_RELEASE = 1;
+
+    /**
+     * 筛查 作废
+     */
+    public final Integer STATUS_ABOLISH = 2;
 
     /**
      * 筛查表默认ID
@@ -169,4 +177,24 @@ public class CommonConst {
      *  Excel格式
      */
     public static final String FILE_SUFFIX = ".xlsx";
+
+    /**
+     *  中文逗号
+     */
+    public static final String CH_COMMA = "，";
+
+    /**
+     * 顿号
+     */
+    public static final String CN_PUNCTUATION_COMMA = "、";
+
+    /**
+     * 为百分之0
+     */
+    public static final String PERCENT_ZERO = "0.00%";
+
+    /**
+     * 需要插入脊柱个人信息的序号
+     */
+    public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList("A01", "A011", "A02", "A03", "A04");
 }

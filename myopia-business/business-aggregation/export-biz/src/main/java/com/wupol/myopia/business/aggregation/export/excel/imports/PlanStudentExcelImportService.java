@@ -1,14 +1,17 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.PhoneUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.business.aggregation.export.excel.ExportExcelService;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
-import com.wupol.myopia.business.aggregation.export.excel.domain.UnbindScreeningStudentDTO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.*;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -40,7 +43,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -60,7 +63,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
-@Log4j2
+@Slf4j
 public class PlanStudentExcelImportService {
 
     @Resource
@@ -98,6 +101,8 @@ public class PlanStudentExcelImportService {
 
     @Resource
     private SchoolClassService schoolClassService;
+    @Resource
+    private ExportExcelService exportExcelService;
 
     /**
      * 导入筛查学生信息
@@ -107,16 +112,61 @@ public class PlanStudentExcelImportService {
      * @param schoolId      学校Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public void importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) {
-
+    public UploadScreeningStudentVO importScreeningSchoolStudents(Integer userId, MultipartFile multipartFile, ScreeningPlan screeningPlan, Integer schoolId) {
+        UploadScreeningStudentVO uploadScreeningStudentVO;
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
+        String originalFilename = getFileName(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
-            // 无数据，直接返回
-            return;
+            uploadScreeningStudentVO = new UploadScreeningStudentVO().buildNoData();
+            uploadScreeningStudentVO.setFileName(originalFilename);
+            return uploadScreeningStudentVO;
         }
+        //前置校验
+        TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> tuple = preCheck(screeningPlan, schoolId, listMap);
+
         insertByUpload(userId, listMap, screeningPlan, schoolId);
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
+
+        uploadScreeningStudentVO = tuple.getFirst();
+        if (CollectionUtil.isNotEmpty(tuple.getSecond())){
+            ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
+                    .setScreeningPlanId(screeningPlan.getId())
+                    .setSchoolId(schoolId)
+                    .setFileName(originalFilename)
+                    .setUserId(userId);
+            uploadScreeningStudentVO.setFileName(originalFilename);
+            uploadScreeningStudentVO.setFailDataUrl(exportExcelService.process(condition, tuple.getSecond()));
+        }
+        return uploadScreeningStudentVO;
     }
+
+    /**
+     * 前置检查
+     *
+     * @param screeningPlan 筛查计划对象
+     * @param schoolId 学校ID
+     * @param listMap 数据集合
+     */
+    private TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> preCheck(ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
+        School school = schoolService.getById(schoolId);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("不存在该学校");
+        }
+        List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlan.getId());
+        Map<Integer, List<SchoolGradeExportDTO>> gradeAndClassMap = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
+        return ImportScreeningSchoolStudentBuilder.validData(listMap, existPlanSchoolStudentList, gradeAndClassMap.get(schoolId), school);
+    }
+
+    /**
+     * 获取原文件名称
+     *
+     * @param multipartFile 上传文档对象
+     */
+    private String getFileName(MultipartFile multipartFile){
+        String originalFilename = multipartFile.getOriginalFilename();
+        return originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public void insertByUpload(Integer userId, List<Map<Integer, String>> listMap, ScreeningPlan screeningPlan, Integer schoolId) {
@@ -157,8 +207,8 @@ public class PlanStudentExcelImportService {
             String gradeName = item.get(ImportExcelEnum.GRADE.getIndex());
             String className = item.get(ImportExcelEnum.CLASS.getIndex());
             String idCard = item.get(ImportExcelEnum.ID_CARD.getIndex());
-            // 如果同时存在身份证和护照，优先取身份证
-            String passport = StringUtils.isNoneBlank(idCard, item.get(ImportExcelEnum.PASSPORT.getIndex())) ? null : item.get(ImportExcelEnum.PASSPORT.getIndex());
+            // 如果身份证不为空，优先取身份证，passport置空
+            String passport = StringUtils.isBlank(idCard) ? item.get(ImportExcelEnum.PASSPORT.getIndex()) : null;
             String phone = item.get(ImportExcelEnum.PHONE.getIndex());
             String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
             Integer gender = StringUtils.isNotBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
@@ -262,6 +312,7 @@ public class PlanStudentExcelImportService {
 
     /**
      * 没有证件信息的上传
+     * TODO: 方法入参数量太多，封装为实体
      */
     private void notCredentialUpload(ScreeningPlanSchoolStudent planSchoolStudent, List<ScreeningPlanSchoolStudent> virtualStudentList, String idCard, String passport, String sno, Integer gender, String studentName, Integer nation, Date birthday, TwoTuple<Integer, Integer> gradeClassInfo, String phone, School school, Integer gradeType) {
         packagePlanStudent(idCard, passport, sno, gender, studentName, nation, birthday, gradeClassInfo, planSchoolStudent, phone, school, gradeType);
@@ -318,7 +369,7 @@ public class PlanStudentExcelImportService {
                                          Map<String, Student> existManagementStudentIdCardMap,
                                          Map<String, Student> existManagementStudentPassportMap, Integer userId) {
         if (!CollectionUtils.isEmpty(noScreeningCodeManagementStudentList)) {
-            saveOrStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
+            saveOrUpdateStudentAndPlanStudent(noScreeningCodeManagementStudentList, existPlanStudentIdCardMap, existPlanStudentPassportMap, screeningPlan, school);
         }
         if (!CollectionUtils.isEmpty(noCredentialStudents)) {
             updateOrSaveNoCredentialStudent(noCredentialStudents, noCredentialPlanStudents, screeningPlan);
@@ -385,7 +436,7 @@ public class PlanStudentExcelImportService {
      * @param plan                        计划
      * @param school                      学校
      */
-    private void saveOrStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
+    private void saveOrUpdateStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
 
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(managementStudentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(managementStudentList.stream().map(Student::getClassId).collect(Collectors.toList()));

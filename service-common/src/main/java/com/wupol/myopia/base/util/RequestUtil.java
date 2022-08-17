@@ -1,6 +1,7 @@
 package com.wupol.myopia.base.util;
 
 import cn.hutool.core.util.StrUtil;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -15,22 +16,23 @@ import java.util.Optional;
  *
  * @author hang.yuan 2022/5/10 09:41
  */
+@UtilityClass
 @Slf4j
 public class RequestUtil {
 
     /**
      * 多次反向代理后会有多个ip值 的分割符
      */
-    private final static String IP_UTILS_FLAG = ",";
+    private static final String IP_UTILS_FLAG = ",";
     /**
      * 未知IP
      */
-    private final static String UNKNOWN = "unknown";
+    private static final String UNKNOWN = "unknown";
     /**
      * 本地 IP
      */
-    private final static String LOCALHOST_IP = "0:0:0:0:0:0:0:1";
-    private final static String LOCALHOST_IP1 = "127.0.0.1";
+    private static final String LOCALHOST_IP = "0:0:0:0:0:0:0:1";
+    private static final String LOCALHOST_IP1 = "127.0.0.1";
 
     /**
      * 获取IP

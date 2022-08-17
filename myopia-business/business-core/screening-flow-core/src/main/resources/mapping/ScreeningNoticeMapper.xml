@@ -101,14 +101,14 @@
           and type = 1
     </select>
 
-    <select id="getByIdsOrderByCreateTime" resultMap="BaseResultMap">
+    <select id="getByIdsOrderByStartTime" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
         from m_screening_notice
                 where id in
         <foreach collection="ids" open="(" close=")" separator="," item="id">
             #{id}
         </foreach>
-        order by create_time desc
+        order by start_time asc
     </select>
 
     <select id="checkTitleExist" resultMap="BaseResultMap">

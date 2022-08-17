@@ -203,7 +203,7 @@ public class SchoolController {
      */
     @GetMapping("screening/record/lists/{schoolId}")
     public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
-        return schoolBizService.getScreeningRecordLists(pageRequest, schoolId);
+        return schoolBizService.getScreeningRecordLists(pageRequest, schoolId, CurrentUserUtil.getCurrentUser());
     }
 
     /**

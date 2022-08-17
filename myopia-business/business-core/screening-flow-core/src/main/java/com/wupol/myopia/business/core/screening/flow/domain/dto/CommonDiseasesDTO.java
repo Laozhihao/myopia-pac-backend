@@ -12,10 +12,11 @@ import lombok.Data;
  */
 @Data
 public class CommonDiseasesDTO {
+
     /**
-     * 筛查结果--龋齿
+     * 龋齿统计
      */
-    private SaprodontiaDataDODTO saprodontiaData;
+    private SaprodontiaStat saprodontiaStat;
 
     /**
      * 筛查结果--脊柱

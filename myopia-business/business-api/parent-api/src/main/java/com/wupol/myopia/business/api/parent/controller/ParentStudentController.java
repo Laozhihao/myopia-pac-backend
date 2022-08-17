@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.parent.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -12,6 +13,7 @@ import com.wupol.myopia.business.api.parent.domain.dos.CountReportItemsDO;
 import com.wupol.myopia.business.api.parent.domain.dos.ReportCountResponseDO;
 import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.api.parent.service.ParentStudentBizService;
+import com.wupol.myopia.business.common.utils.constant.WorkOrderStatusEnum;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -351,6 +353,10 @@ public class ParentStudentController {
         }
         DateUtil.checkBirthday(workOrder.getBirthday());
         Parent parent = parentService.getParentByUserId(user.getId());
+        List<WorkOrder> workOrderList = workOrderService.findByCreateUserIdAndStatus(parent.getUserId(), WorkOrderStatusEnum.UNTREATED.code);
+        if (CollectionUtil.isNotEmpty(workOrderList)){
+            throw new BusinessException("你提交的工单正在处理中，请勿重复提交。");
+        }
         workOrderService.addWorkOrder(workOrder,parent);
     }
 

@@ -2,7 +2,11 @@ package com.wupol.myopia.base.util;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
+import com.wupol.myopia.base.domain.ApiResult;
+import lombok.experimental.UtilityClass;
+import org.springframework.util.StringUtils;
 
 import java.time.Period;
 import java.time.ZoneId;
@@ -12,7 +16,10 @@ import java.util.*;
  * @Author wulizhou
  * @Date 2021/12/28 16:04
  */
+@UtilityClass
 public class BusinessUtil {
+
+    private static final String SYSTEM_ERROR_MESSAGE = "系统异常，请联系管理员";
 
     /**
      * 检验合作信息是否有效
@@ -181,4 +188,23 @@ public class BusinessUtil {
                 || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, 3))
                 || DateUtil.isSameDay(nowDate, DateUtil.offsetDay(checkDay, 7));
     }
+
+    /**
+     * 获取结果信息
+     * @param message
+     * @param body
+     * @return
+     */
+    public static String getMsgFromBodyWithDefault(String message, String body) {
+        try {
+            ApiResult result = JSONObject.parseObject(body, ApiResult.class);
+            if (Objects.nonNull(result) && StringUtils.hasText(result.getMessage())) {
+                return result.getMessage();
+            }
+            return StringUtils.isEmpty(message) ? SYSTEM_ERROR_MESSAGE : message;
+        } catch (Exception e) {
+            return SYSTEM_ERROR_MESSAGE;
+        }
+    }
+
 }

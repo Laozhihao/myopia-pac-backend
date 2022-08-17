@@ -31,7 +31,9 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -142,7 +144,6 @@ public class SchoolFacade {
      *
      * @param oldSchool  旧学校
      * @param newSchool  新学校
-     * @return void
      **/
     private void updateStudentCommonDiseaseId(School oldSchool, School newSchool) {
         // 行政区域地址的区/县、片区、监测点若没有变动，则不需要更新
@@ -158,8 +159,24 @@ public class SchoolFacade {
         if (CollectionUtils.isEmpty(commonDiseasePlanStudentList)) {
             return;
         }
+        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByIds(commonDiseasePlanStudentList.stream()
+                .map(CommonDiseasePlanStudent::getId).collect(Collectors.toList())).stream()
+                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         List<ScreeningPlanSchoolStudent> planStudentList = commonDiseasePlanStudentList.stream()
-                .map(x -> new ScreeningPlanSchoolStudent().setId(x.getId()).setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(newSchool.getDistrictId(), newSchool.getId(), x.getGradeId(), x.getStudentId(), x.getPlanStartTime())))
+                .map(x -> {
+                    ScreeningPlanSchoolStudent planStudent = planStudentMap.get(x.getId());
+                    return new ScreeningPlanSchoolStudent()
+                            .setId(planStudent.getId())
+                            .setPassport(planStudent.getPassport())
+                            .setIdCard(planStudent.getIdCard())
+                            .setProvinceCode(planStudent.getProvinceCode())
+                            .setCityCode(planStudent.getCityCode())
+                            .setAreaCode(planStudent.getAreaCode())
+                            .setTownCode(planStudent.getTownCode())
+                            .setAddress(planStudent.getAddress())
+                            .setCommonDiseaseId(studentCommonDiseaseIdService.getStudentCommonDiseaseId(newSchool.getDistrictId(), newSchool.getId(), x.getGradeId(), x.getStudentId(), x.getPlanStartTime()));
+
+                })
                 .collect(Collectors.toList());
         // 批量更新
         screeningPlanSchoolStudentService.updateBatchById(planStudentList);

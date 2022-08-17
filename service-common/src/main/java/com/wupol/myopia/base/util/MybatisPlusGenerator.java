@@ -63,6 +63,7 @@ public class MybatisPlusGenerator {
             .put(9, new CoreModule("screening-organization-core", "screening.organization"))
             .put(10, new CoreModule("stat-core", "stat"))
             .put(11, new CoreModule("system-core", "system"))
+            .put(12, new CoreModule("questionnaire-core", "questionnaire"))
             .build();
 
     public static void main(String[] args) {
@@ -145,7 +146,7 @@ public class MybatisPlusGenerator {
                 .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("root")
-                .setPassword("laozh0111");
+                .setPassword("123456");
         return dsc;
     }
 

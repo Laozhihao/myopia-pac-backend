@@ -211,9 +211,11 @@ public class ScreeningNoticeController {
     public void deleteInfo(@PathVariable Integer id) {
         // 判断是否已发布
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
+        // 删除筛查通知
         if (!screeningNoticeService.removeById(id)) {
             throw new BusinessException("删除失败，请重试");
         }
+        // 删除收到通知的机构（未发布时，只有创建通知的政府部门一个）
         screeningNoticeDeptOrgService.remove(new ScreeningNoticeDeptOrg().setScreeningNoticeId(id));
     }
 

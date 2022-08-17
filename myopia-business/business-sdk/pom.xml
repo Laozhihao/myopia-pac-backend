@@ -5,48 +5,10 @@
     <parent>
         <artifactId>myopia-business</artifactId>
         <groupId>com.wupol.myopia</groupId>
-        <version>MP-2.4.0</version>
+        <version>MP-2.4.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>business-sdk</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>export-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>stat-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>student-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>common-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>hospital-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>device-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

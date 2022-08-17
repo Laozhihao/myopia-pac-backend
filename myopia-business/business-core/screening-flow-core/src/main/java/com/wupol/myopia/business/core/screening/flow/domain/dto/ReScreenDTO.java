@@ -70,8 +70,6 @@ public class ReScreenDTO {
         /** 等效球镜（左） */
         private ScreeningDeviation leftSE;
 
-
-
         /** 身高 */
         private ScreeningDeviation height;
 

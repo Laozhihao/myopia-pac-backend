@@ -56,6 +56,13 @@ public enum SchoolEnum {
     private static final List<SchoolEnum> SCHOOL_KIND = Lists.newArrayList(SchoolEnum.KIND_1,
             SchoolEnum.KIND_2, SchoolEnum.KIND_3);
 
+
+    /**
+     * 非幼儿园数组
+     */
+    private static final List<SchoolEnum> NOT_KINDERGARTEN_SCHOOL_LIST = Lists.newArrayList(SchoolEnum.TYPE_PRIMARY,SchoolEnum.TYPE_MIDDLE,SchoolEnum.TYPE_HIGH,
+            SchoolEnum.TYPE_INTEGRATED_MIDDLE,SchoolEnum.TYPE_9,SchoolEnum.TYPE_12,SchoolEnum.TYPE_VOCATIONAL,SchoolEnum.TYPE_OTHER,SchoolEnum.TYPE_UNIVERSITY);
+
     SchoolEnum(Integer type, String name) {
         this.type = type;
         this.name = name;
@@ -108,6 +115,17 @@ public enum SchoolEnum {
                 .filter(item -> item.type.equals(type))
                 .map(SchoolEnum::getName)
                 .findFirst().orElse(StringUtils.EMPTY);
+    }
+
+
+    /**
+     * 是否不是幼儿园
+     *
+     * @param type
+     * @return
+     */
+    public static boolean checkNotKindergartenSchool(Integer type) {
+        return NOT_KINDERGARTEN_SCHOOL_LIST.stream().anyMatch(it -> it.type.equals(type));
     }
 }
 

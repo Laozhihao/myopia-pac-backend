@@ -12,7 +12,6 @@ import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.vo.SchoolGradeClassVO;
@@ -69,16 +68,13 @@ public class HospitalStudentBizService {
             return responseDTOIPage;
         }
         // 获取学校
-        List<Integer> schoolIds = hospitalStudentList.stream().map(HospitalStudent::getSchoolId).collect(Collectors.toList());
-        Map<Integer, String> schoolMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(hospitalStudentList, HospitalStudent::getSchoolId);
 
         // 获取年级
-        List<Integer> gradeIds = hospitalStudentList.stream().map(HospitalStudent::getGradeId).collect(Collectors.toList());
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeIds);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(hospitalStudentList, HospitalStudent::getGradeId);
 
         // 获取班级
-        List<Integer> classIds = hospitalStudentList.stream().map(HospitalStudent::getClassId).collect(Collectors.toList());
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(hospitalStudentList,HospitalStudent::getClassId);
 
         // 获取学生列表
         List<Integer> studentIds = hospitalStudentList.stream().map(HospitalStudent::getStudentId).collect(Collectors.toList());

@@ -6,7 +6,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.base.util.RegularUtils;
-import com.wupol.myopia.business.aggregation.export.excel.domain.StaffImportEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.StaffImportEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffDTO;
