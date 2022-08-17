@@ -60,7 +60,7 @@ public class TableItem implements Serializable {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Option implements Serializable{
+    public static class Option implements Serializable {
 
         private Integer maxLimit;
 
@@ -74,6 +74,11 @@ public class TableItem implements Serializable {
          * 数据类型
          */
         private String dataType;
+
+        /**
+         * 是否必填写
+         */
+        private Boolean required;
 
     }
 }

@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
@@ -19,11 +21,11 @@ import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordSe
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 政府部门
@@ -133,12 +135,54 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public List<District> getDistrict(Integer userId) {
+    public List<District> getDistrict(Integer userId, Integer schoolId) {
         GovDept govDept = govDeptService.getById(userId);
-        try {
-            return districtService.getSpecificDistrictTree(govDept.getDistrictId());
-        } catch (IOException e) {
-            throw new BusinessException("获取区域信息异常");
+        District district = districtService.getById(govDept.getDistrictId());
+
+        // 获取父节点
+        List<District> districts = getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
+
+        Integer level = getLevel(districts, district.getCode(), 1);
+
+        if (level <= 3) {
+            // 获取同级的数据
+            List<District> parentCode = districtService.getByParentCode(district.getParentCode());
+            // 合并
+            return getDistricts(districts, parentCode);
         }
+
+        if (level == 4) {
+            // 获取上级的数据
+            List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
+            // 合并
+            return getDistricts(districts, parentCode);
+        }
+        return new ArrayList<>();
+    }
+
+    private List<District> getDistricts(List<District> districts, List<District> parentCode) {
+        List<District> result = Lists.newArrayList(Iterables.concat(parentCode, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))),
+                ArrayList::new));
+        result.forEach(s->s.setChild(null));
+        return districtService.districtListToTree(result, 100000000L);
+    }
+
+
+    private Integer getLevel(List<District> list, Long code, Integer level) {
+        District district = list.get(0);
+        if (Objects.equals(district.getCode(), code)) {
+            return level;
+        }
+        level = level + 1;
+        return getLevel(district.getChild(), code, level);
+    }
+
+    private List<District> getAllDistrict(List<District> list, List<District> result) {
+        if (CollectionUtils.isEmpty(list)) {
+            return result;
+        }
+        result.addAll(list);
+        list.forEach(l -> getAllDistrict(l.getChild(), result));
+        return result;
     }
 }

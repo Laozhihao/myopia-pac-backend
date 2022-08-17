@@ -173,7 +173,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      */
     public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap, Boolean isShowTable) {
         List<Option> options = question.getOptions();
-        options.forEach(o-> o.setText(specialTitleProcess(o.getText())));
+        options.forEach(o -> o.setText(specialTitleProcess(o.getText())));
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setTitle(specialTitleProcess(childQuestionResponse.getTitle()));
         childQuestionResponse.setRequired(it.getRequired());
@@ -415,7 +415,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 json.getInteger(QuestionnaireConstant.MIN_LIMIT),
                 json.getInteger(QuestionnaireConstant.RANGE),
                 json.getInteger(QuestionnaireConstant.LENGTH),
-                json.getString(QuestionnaireConstant.DATA_TYPE)));
+                json.getString(QuestionnaireConstant.DATA_TYPE),
+                json.getBoolean(QuestionnaireConstant.REQUIRED)));
         return item;
     }
 
