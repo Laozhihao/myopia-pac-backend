@@ -11,7 +11,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -101,11 +100,9 @@ public class UserAnswerController {
      * 政府获取行政区域
      *
      * @return List<District>
-     *
-     * @throws IOException IOException
      */
-    @GetMapping("gov/getDistrict")
-    public List<District> getDistrict() throws IOException {
+    @GetMapping("getDistrict")
+    public List<District> getDistrict() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return userAnswerBizService.getDistrict(user);
     }
