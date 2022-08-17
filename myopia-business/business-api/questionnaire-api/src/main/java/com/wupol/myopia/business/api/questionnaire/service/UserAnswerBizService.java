@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
@@ -191,7 +192,15 @@ public class UserAnswerBizService {
         responseDTO.setAreaNo(code.substring(4, 6));
         responseDTO.setAreaType(school.getAreaType());
         responseDTO.setMonitorType(school.getMonitorType());
-        responseDTO.setDistrict(districtService.districtCodeToTree(district.getCode()));
+        Long areaCode = null;
+        List<District> list = JSON.parseArray(school.getDistrictDetail(), District.class);
+        if (list.size() == 2) {
+            areaCode = list.get(1).getCode();
+        }
+        if (list.size() >= 3) {
+            areaCode = list.get(2).getCode();
+        }
+        responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
         return responseDTO;
     }
 

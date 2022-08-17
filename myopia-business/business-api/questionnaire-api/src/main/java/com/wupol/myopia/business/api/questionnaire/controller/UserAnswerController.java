@@ -97,7 +97,7 @@ public class UserAnswerController {
     }
 
     /**
-     * 政府获取行政区域
+     * 获取行政区域
      *
      * @return List<District>
      */
