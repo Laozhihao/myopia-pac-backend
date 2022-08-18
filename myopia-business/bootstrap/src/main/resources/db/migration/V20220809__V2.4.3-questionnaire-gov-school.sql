@@ -12,3 +12,6 @@ alter table q_question
 
 alter table myopia_business.q_user_answer
     add table_json json null comment '表格JSON' after answer;
+
+alter table q_user_answer
+    add type varchar(32) null comment '类型' after table_json;
