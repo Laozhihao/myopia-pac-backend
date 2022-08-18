@@ -910,15 +910,23 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return baseMapper.selectList(wrapper);
     }
 
-
     /**
      * 只下而上获取区域
      *
      * @return List<District>
      */
     public List<District> getTopDistrictByCode(Long code) {
-        // TODO: 添加缓存
-        return getTopDistrictList(code, new ArrayList<>());
+        String key = String.format(DistrictCacheKey.DISTRICT_LIST_TOP_TREE, code);
+        Object cacheList = redisUtil.get(key);
+        if (Objects.nonNull(cacheList)) {
+            return JSON.parseArray(JSON.toJSONString(cacheList), District.class);
+        }
+        List<District> topDistrictList = getTopDistrictList(code, new ArrayList<>());
+        // 重新加入到缓存
+        if (!CollectionUtils.isEmpty(topDistrictList)) {
+            redisUtil.set(key, topDistrictList);
+        }
+        return topDistrictList;
     }
 
     /**
