@@ -74,15 +74,18 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
         // 不存在新增记录
         ScreeningPlan govDept = screeningPlanService.getOneByGovDept(userId);
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
+        if (Objects.nonNull(govDept)) {
+            userQuestionRecord.setPlanId(govDept.getId());
+            userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
+            userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
+        }
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         userQuestionRecord.setUserId(userId);
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
-        userQuestionRecord.setPlanId(govDept.getId());
+
         userQuestionRecord.setStudentId(null);
-        userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
-        userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
         userQuestionRecord.setGovId(userId);
         userQuestionRecord.setSchoolId(userId);
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
