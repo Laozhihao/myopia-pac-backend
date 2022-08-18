@@ -15,3 +15,6 @@ alter table q_user_answer
 
 alter table q_user_answer
     add type varchar(32) null comment '类型' after table_json;
+
+alter table q_user_answer
+    modify question_title varchar(1024) null;
