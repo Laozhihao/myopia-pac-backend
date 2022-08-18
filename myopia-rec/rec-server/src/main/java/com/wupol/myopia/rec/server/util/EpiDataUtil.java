@@ -57,7 +57,7 @@ public class EpiDataUtil {
             mainCmdList.add("wine");
         }
         mainCmdList.add(EPIC);
-        List<String> otherCmdList= Lists.newArrayList( "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=dd/mm/yyyy" );
+        List<String> otherCmdList= Lists.newArrayList( "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=yyyy/mm/dd" );
         mainCmdList.addAll(otherCmdList);
         String[] cmd = mainCmdList.toArray(new String[]{});
 
