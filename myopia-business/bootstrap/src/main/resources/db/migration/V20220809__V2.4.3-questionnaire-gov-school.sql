@@ -7,6 +7,12 @@ alter table q_questionnaire_question
 alter table q_user_question_record
     add record_type int null comment '汇总类型 1-汇总' after status;
 
+alter table q_question
+    add mapping_key varchar(32) null comment '前端映射key' after icon_name;
+
+alter table myopia_business.q_user_answer
+    add table_json json null comment '表格JSON' after answer;
+
 
 -- 问卷表修改字段
 ALTER TABLE q_questionnaire CHANGE qes_url qes_id INT NULL COMMENT 'qes管理ID';

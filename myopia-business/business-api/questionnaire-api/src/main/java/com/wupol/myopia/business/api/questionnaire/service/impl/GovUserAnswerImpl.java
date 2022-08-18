@@ -1,9 +1,13 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
@@ -14,14 +18,16 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 政府部门
@@ -49,6 +55,12 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Resource
     private ScreeningPlanService screeningPlanService;
 
+    @Resource
+    private DistrictService districtService;
+
+    @Resource
+    private SchoolService schoolService;
+
     @Override
     public Integer getUserType() {
         return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
@@ -74,9 +86,10 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord.setStudentId(null);
         userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
         userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
+        userQuestionRecord.setGovId(userId);
         userQuestionRecord.setSchoolId(userId);
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
-        userQuestionRecord.setStatus(UserQuestionRecordEnum.PROCESSING.getType());
+        userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();
     }
@@ -114,5 +127,39 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             throw new BusinessException("获取信息异常");
         }
         return govDept.getName();
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    @Override
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+    }
+
+    @Override
+    public List<District> getDistrict(Integer schoolId) {
+        School school = schoolService.getById(schoolId);
+        District district = districtService.getById(school.getDistrictId());
+
+        // 获取父节点
+        List<District> districts = districtService.getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
+        Integer level = districtService.getLevel(districts, district.getCode(), 1);
+
+        if (level <= 3) {
+            // 获取同级的数据
+            List<District> parentCode = districtService.getByParentCode(district.getParentCode());
+            // 合并
+            return districtService.getDistricts(districts, parentCode);
+        }
+        if (level == 4) {
+            // 获取上级的数据
+            List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
+            // 合并
+            return districtService.getDistricts(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+        }
+        return new ArrayList<>();
     }
 }

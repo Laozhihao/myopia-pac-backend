@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +23,10 @@ public interface IUserAnswerService {
 
     /**
      * 保存用户问卷记录
+     * <p>
+     * 存在一个问题，如果首次提交答案，并且isFinish是true的话，会遗漏一条汇总的数据<br/>
+     * 明年的保存汇总数据会出现问题（重复）
+     * </p>
      *
      * @param questionnaireId  问卷ID
      * @param userId           用户Id
@@ -93,5 +99,27 @@ public interface IUserAnswerService {
      * @param recordId        记录Id
      */
     default void hiddenQuestion(Integer questionnaireId, Integer userId, Integer recordId) {
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @param userId          用户Id
+     * @param questionnaireId 问卷Id
+     *
+     * @return 是否完成
+     */
+    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+        return false;
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     *
+     */
+    default List<District> getDistrict(Integer schoolId) {
+        return new ArrayList<>();
     }
 }

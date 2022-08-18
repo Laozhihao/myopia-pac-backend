@@ -1,16 +1,30 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 用户答案
@@ -28,6 +42,15 @@ public class UserAnswerBizService {
 
     @Resource
     private UserAnswerProgressService userAnswerProgressService;
+
+    @Resource
+    private GovDeptService govDeptService;
+
+    @Resource
+    private DistrictService districtService;
+
+    @Resource
+    private SchoolService schoolService;
 
     /**
      * 获取用户答案
@@ -97,6 +120,104 @@ public class UserAnswerBizService {
     public String getSchoolName(CurrentUser user) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
         return iUserAnswerService.getUserName(user.getExQuestionnaireUserId());
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @return 是否完成
+     */
+    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId);
+    }
+
+    /**
+     * 获取学校
+     */
+    public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
+        Integer districtId = getUserDistrictId(user);
+        List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, District> districtMap = districtService.getByIds(schoolList.stream().map(School::getDistrictId).collect(Collectors.toList()));
+        return schoolList.stream().map(s -> generateSchoolResponse(s, districtMap.get(s.getDistrictId()))).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取行政区域
+     *
+     * @return List<District>
+     */
+    public List<District> getDistrict(CurrentUser user, Integer schoolId) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getDistrict(schoolId);
+    }
+
+    /**
+     * 获取学校信息
+     *
+     * @param user 用户
+     *
+     * @return SchoolListResponseDTO
+     */
+    public SchoolListResponseDTO getSchoolInfo(CurrentUser user) {
+        if (!user.isQuestionnaireSchoolUser()) {
+            throw new BusinessException("身份异常!");
+        }
+        School school = schoolService.getById(user.getExQuestionnaireUserId());
+        if (Objects.isNull(school)) {
+            throw new BusinessException("数据异常!");
+        }
+        return generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+    }
+
+    /**
+     * 生成学校信息
+     */
+    private SchoolListResponseDTO generateSchoolResponse(School school, District district) {
+        SchoolListResponseDTO responseDTO = new SchoolListResponseDTO();
+        responseDTO.setSchoolId(school.getId());
+        responseDTO.setName(school.getName());
+        if (Objects.isNull(district)) {
+            return responseDTO;
+        }
+        String code = String.valueOf(district.getCode());
+        responseDTO.setProvinceNo(code.substring(0, 2));
+        responseDTO.setCityNo(code.substring(2, 4));
+        responseDTO.setAreaNo(code.substring(4, 6));
+        responseDTO.setAreaType(school.getAreaType());
+        responseDTO.setMonitorType(school.getMonitorType());
+        Long areaCode = null;
+        List<District> list = JSON.parseArray(school.getDistrictDetail(), District.class);
+        if (list.size() == 2) {
+            areaCode = list.get(1).getCode();
+        }
+        if (list.size() >= 3) {
+            areaCode = list.get(2).getCode();
+        }
+        responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
+        return responseDTO;
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     */
+    public List<District> govNextDistrict(CurrentUser user) {
+        Integer districtId = getUserDistrictId(user);
+        return districtService.getAreaTree(districtId);
+    }
+
+    private Integer getUserDistrictId(CurrentUser user) {
+        if (!user.isQuestionnaireGovUser()) {
+            throw new BusinessException("政府身份异常!");
+        }
+        Integer orgId = user.getExQuestionnaireUserId();
+        GovDept govDept = govDeptService.getById(orgId);
+        return govDept.getDistrictId();
     }
 
 }

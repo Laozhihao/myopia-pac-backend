@@ -4,11 +4,14 @@ import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
 import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author Simple4H
@@ -69,6 +72,56 @@ public class UserAnswerController {
     @GetMapping("getSchoolName")
     public ApiResult<String> getSchoolName() {
         return ApiResult.success(userAnswerBizService.getSchoolName(CurrentUserUtil.getCurrentUser()));
+    }
+
+    /**
+     * 问卷是否完成
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    @GetMapping("isFinish/{questionnaireId}")
+    public Boolean questionnaireIsFinish(@PathVariable("questionnaireId") Integer questionnaireId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user);
+    }
+
+    /**
+     * 获取学校
+     */
+    @GetMapping("schoolList")
+    public List<SchoolListResponseDTO> getSchoolList(String name) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getSchoolList(name, currentUser);
+    }
+
+    /**
+     * 获取行政区域
+     *
+     * @return List<District>
+     */
+    @GetMapping("getDistrict")
+    public List<District> getDistrict(Integer schoolId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getDistrict(user, schoolId);
+    }
+
+    /**
+     * 获取学校信息
+     *
+     * @return SchoolListResponseDTO
+     */
+    @GetMapping("getSchoolInfo")
+    public SchoolListResponseDTO getSchoolInfo() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return userAnswerBizService.getSchoolInfo(currentUser);
+    }
+
+    @GetMapping("gov/nextDistrict")
+    public List<District> govNextDistrict() {
+        return userAnswerBizService.govNextDistrict(CurrentUserUtil.getCurrentUser());
+
     }
 
 }

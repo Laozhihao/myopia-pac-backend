@@ -68,5 +68,10 @@ public class UserAnswerDTO {
          * 答案
          */
         private List<OptionAnswer> answer;
+
+        /**
+         * 表格JSON
+         */
+        private String tableJson;
     }
 }
