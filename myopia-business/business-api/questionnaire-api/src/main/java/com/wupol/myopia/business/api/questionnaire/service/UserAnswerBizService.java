@@ -202,13 +202,23 @@ public class UserAnswerBizService {
     }
 
     /**
-     * 政府获取行政区域
+     * 政府获取下属于行政区域
      *
      * @return List<District>
      */
     public List<District> govNextDistrict(CurrentUser user) {
         Integer districtId = getUserDistrictId(user);
         return districtService.getAreaTree(districtId);
+    }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     */
+    public List<District> govDistrictDetail(CurrentUser user) {
+        Integer districtId = getUserDistrictId(user);
+        return districtService.getCurrentAreaDistrict(districtId);
     }
 
     private Integer getUserDistrictId(CurrentUser user) {

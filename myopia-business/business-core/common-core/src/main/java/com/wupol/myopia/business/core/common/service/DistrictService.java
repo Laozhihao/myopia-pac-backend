@@ -910,14 +910,32 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         return baseMapper.selectList(wrapper);
     }
 
-    public List<District> getTopDistrictList(Long code, List<District> result) {
+
+    /**
+     * 只下而上获取区域
+     *
+     * @return List<District>
+     */
+    public List<District> getTopDistrictByCode(Long code) {
+        // TODO: 添加缓存
+        return getTopDistrictList(code, new ArrayList<>());
+    }
+
+    /**
+     * 循环获取区域
+     *
+     * @param code   code
+     * @param result 结果
+     *
+     * @return List<District>
+     */
+    private List<District> getTopDistrictList(Long code, List<District> result) {
         District district = getByCode(code);
         if (Objects.nonNull(district)) {
             result.add(district);
             getTopDistrictList(district.getParentCode(), result);
         }
         return result;
-
     }
 
     /**
@@ -927,19 +945,14 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         try {
             District district = getById(districtId);
             // 只下而上获取节点
-            List<District> districts = getTopDistrictList(district.getCode(), new ArrayList<>());
+            List<District> districts = getTopDistrictByCode(district.getCode());
 
             // 获取当前节点下的节点，并且拍平
             List<District> districtList = getAllDistrict(getSpecificDistrictTree(districtId), new ArrayList<>());
 
             ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
             // 只保留Area以上的节点
-            List<District> areaDistrictList = tempList.stream().filter(s -> StringUtils.equals(String.valueOf(s.getCode()).substring(6, 9), "000")).collect(Collectors.toList());
-            return districtListToTree(
-                    areaDistrictList.stream()
-                            .collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new)),
-                    PROVINCE_PARENT_CODE);
+            return keepAreaDistrictsTree(tempList);
         } catch (IOException e) {
             throw new BusinessException("异常");
         }
@@ -948,7 +961,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 合并两个行政区域，并且返回数结构
      */
-    public List<District> getDistricts(List<District> districts, List<District> districtList) {
+    public List<District> keepAreaDistrictsTree(List<District> districts, List<District> districtList) {
         List<District> result = Lists.newArrayList(Iterables.concat(districtList, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new));
         result.forEach(s -> s.setChild(null));
         return districtListToTree(result, PROVINCE_PARENT_CODE);
@@ -976,6 +989,33 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         result.addAll(list);
         list.forEach(l -> getAllDistrict(l.getChild(), result));
         return result;
+    }
+
+    /**
+     * 获取当前节点结构，最多到Area区域
+     *
+     * @return List<District>
+     */
+    public List<District> getCurrentAreaDistrict(Integer districtId) {
+        District district = getById(districtId);
+        List<District> allDistrict = getAllDistrict(getTopDistrictByCode(district.getCode()), new ArrayList<>());
+        return keepAreaDistrictsTree(allDistrict);
+    }
+
+    /**
+     * 只保留到Area区域，并且构造成一棵树
+     *
+     * @param allDistrict allDistrict
+     *
+     * @return List<District>
+     */
+    private List<District> keepAreaDistrictsTree(List<District> allDistrict) {
+        List<District> areaDistrictList = allDistrict.stream().filter(s -> StringUtils.equals(String.valueOf(s.getCode()).substring(6, 9), "000")).collect(Collectors.toList());
+        return districtListToTree(
+                areaDistrictList.stream()
+                        .collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                                new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new)),
+                PROVINCE_PARENT_CODE);
     }
 
 }
