@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
@@ -52,6 +53,11 @@ public class CommonUserAnswerImpl {
         if (Objects.isNull(userQuestionRecord)) {
             return null;
         }
+
+        if (Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType())) {
+            throw new BusinessException("该问卷已经提交，不能修改！！！");
+        }
+
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
             if (Objects.nonNull(questionnaire)) {
