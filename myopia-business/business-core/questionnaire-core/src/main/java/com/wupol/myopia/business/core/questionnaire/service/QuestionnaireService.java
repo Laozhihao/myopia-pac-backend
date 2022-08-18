@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -343,7 +344,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 Question question = questionMap.get(y.getQuestionId());
                 Option option = question.getOptions().get(0);
                 String text = option.getText();
-                String[] split = text.split("-");
+                String[] split = text.split(StrUtil.DASHED);
                 JSONObject jsonObject = option.getOption();
                 for (int i = 1; i <= jsonObject.size(); i++) {
                     TableItem tableItem = new TableItem();
@@ -404,8 +405,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
         item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
         item.setType(json.getString(QuestionnaireConstant.DATA_TYPE));
-        if (!StringUtils.equals(item.getType(), "select")) {
-            item.setType("input");
+        if (!StringUtils.equals(item.getType(), QuestionnaireConstant.SELECT)) {
+            item.setType(QuestionnaireConstant.INPUT);
         }
         item.setDropSelectKey(String.valueOf(json.getString(QuestionnaireConstant.DROP_SELECT_KEY)));
         item.setQuestionId(questionId);
