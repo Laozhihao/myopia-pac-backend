@@ -45,6 +45,8 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             questionDTO.setQuestionId(s.getQuestionId());
             questionDTO.setAnswer(s.getAnswer());
             questionDTO.setTableJson(s.getTableJson());
+            questionDTO.setType(s.getType());
+            questionDTO.setMappingKey(s.getMappingKey());
             return questionDTO;
         }).collect(Collectors.toList()));
         return userAnswerDTO;
@@ -86,7 +88,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 .map(QuestionnaireQuestion::getQesData).flatMap(Collection::stream)
                 .collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
 
-        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer)
+        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer).filter(Objects::nonNull)
                 .flatMap(Collection::stream).collect(Collectors.toList());
 
         answerList.forEach(answer -> {
@@ -95,6 +97,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 answer.setQesField(qesDataDOS.getQesField());
                 answer.setShowSerialNumber(qesDataDOS.getShowSerialNumber());
                 answer.setQesSerialNumber(qesDataDOS.getQesSerialNumber());
+                answer.setDataType(answer.getDataType());
             }
         });
     }
@@ -136,6 +139,8 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
             userAnswer.setTableJson(s.getTableJson());
+            userAnswer.setType(s.getType());
+            userAnswer.setMappingKey(s.getMappingKey());
             return userAnswer;
         }).collect(Collectors.toList());
     }

@@ -73,5 +73,15 @@ public class UserAnswerDTO {
          * 表格JSON
          */
         private String tableJson;
+
+        /**
+         * 类型
+         */
+        private String type;
+
+        /**
+         * 前端-映射Key
+         */
+        private String mappingKey;
     }
 }

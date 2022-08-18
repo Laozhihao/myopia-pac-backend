@@ -10,8 +10,17 @@ alter table q_user_question_record
 alter table q_question
     add mapping_key varchar(32) null comment '前端映射key' after icon_name;
 
-alter table myopia_business.q_user_answer
+alter table q_user_answer
     add table_json json null comment '表格JSON' after answer;
+
+alter table q_user_answer
+    add type varchar(32) null comment '类型' after table_json;
+
+alter table q_user_answer
+    modify question_title varchar(1024) null;
+
+alter table q_user_answer
+    add mapping_key varchar(32) null comment '映射Key' after type;
 
 
 -- 问卷表修改字段

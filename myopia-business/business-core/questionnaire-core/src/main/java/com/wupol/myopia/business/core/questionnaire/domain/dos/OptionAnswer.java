@@ -54,4 +54,9 @@ public class OptionAnswer implements Serializable {
      * 记分题目-分值
      */
     private Integer scoreValue;
+
+    /**
+     * dataType
+     */
+    private String dataType;
 }

@@ -75,6 +75,16 @@ public class UserAnswer implements Serializable {
     private String tableJson;
 
     /**
+     * 类型
+     */
+    private String type;
+
+    /**
+     * 前端映射Key
+     */
+    private String mappingKey;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

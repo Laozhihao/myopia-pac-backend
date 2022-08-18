@@ -38,6 +38,13 @@ public class QuestionnaireBizService {
     private QuestionnaireService questionnaireService;
 
 
+    /**
+     * 获取用户问卷
+     *
+     * @param user 用户
+     *
+     * @return 问卷
+     */
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(CurrentUser user) {
         IUserAnswerService userAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
         return userAnswerService.getUserQuestionnaire(user.getExQuestionnaireUserId());
