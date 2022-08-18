@@ -56,7 +56,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据code查地址
      *
      * @param codes code
-     *
      * @return List<District>
      */
     public List<District> getByCodes(List<Long> codes) {
@@ -100,7 +99,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过districtDetail获取名称
      *
      * @param districtDetail 前端存的字符串
-     *
      * @return 名字
      */
     public String getDistrictName(String districtDetail) {
@@ -123,7 +121,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过districtId获取层级全名（如：XX省XX市）
      *
      * @param districtId 区域ID
-     *
      * @return 名字
      */
     public String getDistrictNameByDistrictId(Integer districtId) {
@@ -142,7 +139,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
      *
      * @param list 区域ID
-     *
      * @return 名字
      */
     public String getDistrictNameByDistrictPositionDetail(List<District> list) {
@@ -160,7 +156,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param districtId 根节点行政区域
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getSpecificDistrictTree(Integer districtId) throws IOException {
@@ -173,7 +168,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 从缓存获取以指定行政区域为根节点的行政区域树的所有行政区域ID
      *
      * @param districtId 根节点行政区域
-     *
      * @return java.util.List<Integer>
      **/
     public List<Integer> getSpecificDistrictTreeAllDistrictIds(Integer districtId) {
@@ -192,7 +186,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param rootCode 指定的行政区域代码编号
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getSpecificDistrictTreePriorityCache(long rootCode) throws IOException {
@@ -215,7 +208,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取指定行政区域所属省份的所有行政区域树
-     *
      * @param districtCode 行政区域代码，如 410102000
      *
      * @return com.wupol.myopia.business.management.domain.model.District
@@ -239,7 +231,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取指定行政区域所属省份的所有行政区域树
      *
      * @param districtId 行政区域Id
-     *
      * @return
      */
     private District getProvinceDistrictTreePriorityCacheById(Integer districtId) {
@@ -252,7 +243,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取指定行政区域所在省份的层级ID
      *
      * @param districtId 行政区域Id
-     *
      * @return
      */
     public Integer getProvinceId(Integer districtId) {
@@ -263,10 +253,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 判断两个区域是否归于同个顶级行政区域
-     *
      * @param districtId
      * @param otherDistrictIdOther
-     *
      * @return
      */
     public boolean isSameProvince(Integer districtId, Integer otherDistrictIdOther) {
@@ -277,7 +265,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取指定行政区域所属省份的所有行政区域的id列表
      *
      * @param districtId 行政区域ID
-     *
      * @return List
      **/
     public List<Integer> getProvinceAllDistrictIds(Integer districtId) {
@@ -307,7 +294,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param districts 行政区域集合
      * @param rootCode  指定的行政区域代码编号
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public District getSubTreeFromDistrictTree(List<District> districts, long rootCode) throws IOException {
@@ -399,7 +385,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据指定code，获取其下级行政区域集
      *
      * @param parentCode 行政区域代码编号
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getChildDistrictByParentIdPriorityCache(Long parentCode) {
@@ -422,7 +407,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据层级ID获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param districtId 行政区域
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getDistrictPositionDetailById(Integer districtId) {
@@ -437,7 +421,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param district 行政区域
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getDistrictPositionDetail(District district) {
@@ -451,7 +434,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取指定行政区域的层级位置 - 层级链(从省开始到当前层级)
      *
      * @param districtCode 行政区域代码
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getDistrictPositionDetail(long districtCode) {
@@ -474,7 +456,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param districtList    行政区域集
      * @param currentDistrict 当前行政区域
-     *
      * @return void
      **/
     private void searchParentDistrictDetail(List<District> districtList, District currentDistrict) {
@@ -492,7 +473,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据行政区域代码编号，获取以其作为根节点的行政区区域树
      *
      * @param districtCode 行政区域代码
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     private District getDistrictTree(Long districtCode) {
@@ -516,7 +496,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据行政区域Id，获取以其作为根节点的行政区区域树的所有ID
      *
      * @param districtId 行政区域Id
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<Integer> getDistrictTreeAllIds(Integer districtId) {
@@ -531,7 +510,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据code获取行政区域
      *
      * @param districtCode 行政区域code
-     *
      * @return com.wupol.myopia.business.management.domain.model.District
      **/
     public District getDistrictByCode(Long districtCode) {
@@ -565,7 +543,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据ID集合，批量获取
      *
      * @param districtIds
-     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public List<District> getDistrictByIds(List<Integer> districtIds) {
@@ -577,7 +554,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 从当前节点出发，向上获取区域名称
      *
      * @param code 当前节点
-     *
      * @return 名字
      */
     public String getTopDistrictName(Long code) {
@@ -599,7 +575,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取行政区域
      *
      * @param code code
-     *
      * @return 名称
      */
     public String getDistrictName(Long code) {
@@ -625,7 +600,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param name 名字
      * @param code code
-     *
      * @return 名字
      */
     private String getName(String name, Long code) {
@@ -645,7 +619,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param areaCode     区代码
      * @param townCode     镇代码
      * @param address      地址
-     *
      * @return 全名称
      */
     public String getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) {
@@ -659,9 +632,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param cityCode     市代码
      * @param areaCode     区代码
      * @param townCode     镇代码
-     *
      * @return 全名称
-     *
      * @see #getAddressDetails(Long provinceCode, Long cityCode, Long areaCode, Long townCode, String address) 包含详细地址
      */
     public String getAddressByCode(Long provinceCode, Long cityCode, Long areaCode, Long townCode) {
@@ -681,7 +652,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过行政id获取行政名称
      *
      * @param ids 行政id
-     *
      * @return Map<Integer, District>
      */
     public Map<Integer, District> getByIds(List<Integer> ids) {
@@ -694,7 +664,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过名字获取code
      *
      * @param name 行政名字
-     *
      * @return code
      */
     public Long getCodeByName(String name) {
@@ -731,7 +700,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过地区id找到所有下属district
      *
      * @param districtId
-     *
      * @return
      */
     public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
@@ -744,7 +712,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param districtTree
      * @param districtIds
-     *
      * @return
      */
     public List<District> getDistrictTree(List<District> districtTree, Set<Integer> districtIds) {
@@ -764,7 +731,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param districtTree
      * @param districts
-     *
      * @return
      */
     public List<District> filterDistrictTree(List<District> districtTree, Set<Integer> districts) {
@@ -782,7 +748,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @param district
      * @param districts
-     *
      * @return
      */
     public District filterDistrict(District district, Set<Integer> districts) {
@@ -804,7 +769,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取下级的所有地区
      *
      * @return
-     *
      * @throws IOException
      */
     public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
@@ -816,7 +780,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取当前code的孩子节点
      *
      * @param code code
-     *
      * @return List<District>
      */
     public List<District> getNextDistrictByCode(Long code) {
@@ -827,7 +790,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取某个省，所有城市下，所有地区id
      *
      * @param districtId
-     *
      * @return
      */
     public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
@@ -840,7 +802,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 检查行政区域id
      *
      * @param districtId 行政区域
-     *
      * @return District 行政区域
      */
     public District checkAndGetDistrict(Integer districtId) {
@@ -858,7 +819,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取前缀
      *
      * @param districtId 行政区域ID
-     *
      * @return TwoTuple<Integer, Integer>
      */
     public TwoTuple<Integer, Integer> getDistrictPrefix(Integer districtId) {
@@ -874,7 +834,6 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * </p>
      *
      * @param code code
-     *
      * @return TwoTuple<String, String>
      */
     public TwoTuple<String, String> getCommitteeDesc(Long code) {
