@@ -78,9 +78,6 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         // 不存在新增记录
         ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
         if (Objects.nonNull(task)) {
-//            userQuestionRecord.setPlanId();
-//            userQuestionRecord.setSchoolId();
-//            userQuestionRecord.setStudentId();
             userQuestionRecord.setTaskId(task.getId());
             userQuestionRecord.setNoticeId(task.getScreeningNoticeId());
         }
@@ -115,7 +112,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(Integer userId) {
         ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
         if (Objects.isNull(task)) {
-            throw new BusinessException("你没有问卷需要填写");
+            throw new BusinessException("别搞，你没有问卷需要填写");
         }
         List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getGovQuestionnaireType();
         return commonUserAnswer.getUserQuestionnaire(typeList);
