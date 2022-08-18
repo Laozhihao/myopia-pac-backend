@@ -23,10 +23,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskServic
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 政府部门
@@ -145,24 +143,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public List<District> getDistrict(Integer schoolId) {
         School school = schoolService.getById(schoolId);
-        District district = districtService.getById(school.getDistrictId());
-
-        // 获取父节点
-        List<District> districts = districtService.getAllDistrict(districtService.districtCodeToTree(district.getCode()), new ArrayList<>());
-        Integer level = districtService.getLevel(districts, district.getCode(), 1);
-
-        if (level <= 3) {
-            // 获取同级的数据
-            List<District> parentCode = districtService.getByParentCode(district.getParentCode());
-            // 合并
-            return districtService.keepAreaDistrictsTree(districts, parentCode);
-        }
-        if (level == 4) {
-            // 获取上级的数据
-            List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
-            // 合并
-            return districtService.keepAreaDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
-        }
-        return new ArrayList<>();
+        Integer districtId = school.getDistrictId();
+        return districtService.getSameLevelDistrictKeepArea(districtId);
     }
 }

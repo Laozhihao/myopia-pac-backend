@@ -7,7 +7,6 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
 import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +23,6 @@ public class UserAnswerController {
 
     @Resource
     private UserAnswerBizService userAnswerBizService;
-
-    @Resource
-    private DistrictService districtService;
 
 
     /**
@@ -140,11 +136,6 @@ public class UserAnswerController {
     @GetMapping("gov/districtDetail")
     public List<District> govDistrictDetail() {
         return userAnswerBizService.govDistrictDetail(CurrentUserUtil.getCurrentUser());
-    }
-
-    @GetMapping
-    public Object getTopDistrictByCode(Long code) {
-        return districtService.getTopDistrictByCode(code);
     }
 
 }
