@@ -1,20 +1,20 @@
 package com.wupol.myopia.business.core.questionnaire.util;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * EpiData数据出来工具
@@ -101,13 +101,8 @@ public class EpiDataUtil {
             FileUtil.mkdir(epiDataDirectory);
         }
 
-        // 把两个List数据合并成txt所需要的指定的格式
-        List<String> list = new ArrayList<>();
-        list.add(String.join(";", headerList));
-        dataList.forEach(itemList -> list.add(String.join(";", itemList)));
-
         // 先从数据转成txt文件，再转到rec文件
-        boolean isSuccess = createTxt(list, txtPath);
+        boolean isSuccess = createTxt(headerList,dataList, txtPath);
         if (!isSuccess) {
             return false;
         }
@@ -121,11 +116,45 @@ public class EpiDataUtil {
 
 
     /**
+     * 获取根目录
+     */
+    public static String getRootPath() {
+        String epiData = "EpiData/"+UUID.randomUUID().toString();
+        String epiDataPath = IOUtils.getTempSubPath(epiData);
+        File epiDataDirectory = new File(epiDataPath);
+        if (!epiDataDirectory.exists()) {
+            FileUtil.mkdir(epiDataDirectory);
+        }
+        return epiDataPath;
+    }
+
+    /**
+     * 获取生成txt文件路径
+     * @param headerList rec文件的头模版的属性
+     * @param dataList  需要导出的数据
+     */
+    public static String createTxtPath(List<String> headerList, List<List<String>> dataList){
+        String epiDataPath = EpiDataUtil.getRootPath();
+        String txtPath = Paths.get(epiDataPath,UUID.randomUUID().toString() + QuestionnaireConstant.TXT).toString();
+        boolean isSuccess = createTxt(headerList, dataList, txtPath);
+        if (isSuccess){
+            return txtPath;
+        }
+        return StrUtil.EMPTY;
+    }
+
+    /**
      * 把内容写到指定的txt文件
-     * @param list 写入内容集合
+     * @param headerList rec文件的头模版的属性
+     * @param dataList  需要导出的数据
      * @param filePath 写入文件地址
      */
-    private static boolean createTxt(List<String> list, String filePath) {
+    private static boolean createTxt(List<String> headerList, List<List<String>> dataList, String filePath) {
+        // 把两个List数据合并成txt所需要的指定的格式
+        List<String> list = new ArrayList<>();
+        list.add(String.join(";", headerList));
+        dataList.forEach(itemList -> list.add(String.join(";", itemList)));
+
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), GBK))) {
             for (String data : list) {
                 bw.write(data);

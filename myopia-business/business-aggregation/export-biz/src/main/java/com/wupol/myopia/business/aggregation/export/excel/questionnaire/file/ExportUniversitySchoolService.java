@@ -1,15 +1,19 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerRecFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.rec.client.RecServiceClient;
+import com.wupol.myopia.rec.domain.RecExportDTO;
+import com.wupol.myopia.rec.domain.RecExportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,8 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     private UserAnswerFacade userAnswerFacade;
     @Autowired
     private UserAnswerRecFacade userAnswerRecFacade;
+    @Autowired
+    private RecServiceClient recServiceClient;
 
 
     @Override
@@ -59,11 +65,19 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
 
-        GenerateRecDataBO generateRecDataBO = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
-        if (Objects.isNull(generateRecDataBO)){
+        Map<Integer, TwoTuple<String,String>> dataMap = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
+        if (CollUtil.isEmpty(dataMap)){
             return;
         }
-        System.out.println(generateRecDataBO);
+        for (Map.Entry<Integer, TwoTuple<String,String>> entry : dataMap.entrySet()) {
+            TwoTuple<String, String> tuple = entry.getValue();
+            String recFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
+            RecExportDTO recExportDTO = new RecExportDTO();
+            recExportDTO.setQesUrl(tuple.getFirst());
+            recExportDTO.setTxtUrl(tuple.getSecond());
+            recExportDTO.setRecName(recFileName);
+            RecExportVO export = recServiceClient.export(recExportDTO);
+        }
     }
 
     @Override

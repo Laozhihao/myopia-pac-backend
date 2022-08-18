@@ -2,20 +2,25 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
@@ -25,6 +30,7 @@ import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -59,6 +65,8 @@ public class UserAnswerRecFacade {
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final QuestionnaireFacade questionnaireFacade;
     private final QuestionnaireExcelFactory questionnaireExcelFactory;
+    private final ResourceFileService resourceFileService;
+    private final S3Utils s3Utils;
 
     private static final String  ID = "id";
     private static final String  RADIO = "radio";
@@ -194,7 +202,7 @@ public class UserAnswerRecFacade {
                     recDataBO.setRecAnswerDataBOList(recAnswerDataBOList);
                 }
                 //处理非隐藏数据
-                questionRecDataProcess(userAnswerMap, questionMap, recDataBO, userQuestionRecord.getId(),tuple);
+                questionRecDataProcess(userAnswerMap, questionMap, recDataBO, userQuestionRecord.getId());
             }
             recDataBOList.add(recDataBO);
         });
@@ -224,14 +232,13 @@ public class UserAnswerRecFacade {
      * @param questionMap 问题集合
      * @param recDataBO 导出excel数据对象
      * @param userQuestionRecordId 用户问卷记录ID
-     * @param tuple 学生信息(年级和编码4位)
      */
-    private void questionRecDataProcess(Map<Integer, List<UserAnswer>> userAnswerMap, Map<Integer, Question> questionMap, RecDataBO recDataBO, Integer userQuestionRecordId,TwoTuple<String, String> tuple) {
+    private void questionRecDataProcess(Map<Integer, List<UserAnswer>> userAnswerMap, Map<Integer, Question> questionMap, RecDataBO recDataBO, Integer userQuestionRecordId) {
         List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecordId);
         if (CollUtil.isNotEmpty(userAnswers)){
             Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
             List<RecDataBO.RecAnswerDataBO> answerList = Lists.newArrayList();
-            questionUserAnswerMap.forEach((questionId,list)-> getRecAnswerData(list, questionMap,tuple,answerList));
+            questionUserAnswerMap.forEach((questionId,list)-> getRecAnswerData(list, questionMap,answerList));
             if (Objects.isNull(recDataBO.getRecAnswerDataBOList())) {
                 recDataBO.setRecAnswerDataBOList(answerList);
             }else {
@@ -252,7 +259,6 @@ public class UserAnswerRecFacade {
         List<RecDataBO.RecAnswerDataBO> answerDataBOList =Lists.newArrayList();
 
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-        School school = schoolService.getById(screeningPlanSchoolStudent.getSchoolId());
 
         String commonDiseaseId = screeningPlanSchoolStudent.getCommonDiseaseId();
 
@@ -269,28 +275,28 @@ public class UserAnswerRecFacade {
                 recAnswerDataBO.setQesField(qesDataBO.getQesField());
                 switch (qesDataBO.getQesField()){
                     case "province":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(0, 2));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(0, 2)));
                         break;
                     case "city":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(2, 4));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(2, 4)));
                         break;
                     case "district":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(4,5));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(4,5)));
                         break;
                     case "county":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(5, 7));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(5, 7)));
                         break;
                     case "point":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(7,8));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(7,8)));
                         break;
                     case "school":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(8,10));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(8,10)));
                         break;
                     case "a01":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(10,12));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(10,12)));
                         break;
                     case "a011":
-                        recAnswerDataBO.setRecAnswer(commonDiseaseId.substring(12,16));
+                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(12,16)));
                         break;
                     case "ID1":
                     case "ID2":
@@ -299,7 +305,6 @@ public class UserAnswerRecFacade {
                     case "date":
                         recAnswerDataBO.setRecAnswer(DateUtil.format(fillDate, "yyyy/MM/dd"));
                         break;
-
                     default:
                         break;
                 }
@@ -331,20 +336,31 @@ public class UserAnswerRecFacade {
         return StrUtil.EMPTY;
     }
 
+    /**
+     * 数字格式化
+     * @param num 数字
+     */
+    private String numberFormat(String num){
+        if (StrUtil.isNotBlank(num)){
+            return String.valueOf(Integer.valueOf(num));
+        }
+        return StrUtil.EMPTY;
+    }
 
     /**
      * 获取答案数据
      * @param userAnswerList 用户答案数据集合
      * @param questionMap 问题集合
-     * @param tuple 学生信息(年级和编码4位)
      */
-    private void getRecAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap,TwoTuple<String, String> tuple,List<RecDataBO.RecAnswerDataBO> answerDataBOList){
+    private void getRecAnswerData(List<UserAnswer> userAnswerList,Map<Integer, Question> questionMap,List<RecDataBO.RecAnswerDataBO> answerDataBOList){
         UserAnswer userAnswer = userAnswerList.get(0);
         Question question = questionMap.get(userAnswer.getQuestionId());
-
+        if (Objects.isNull(question)){
+            return;
+        }
         List<Option> options = JSON.parseArray(JSON.toJSONString(question.getOptions()), Option.class);
         if (options.size() == 1){
-            setDataInputType(userAnswerList, answerDataBOList, question, options,tuple);
+            setDataInputType(userAnswerList, answerDataBOList, question, options);
         }else {
             //处理 多选或者单选
             Map<String, Option> optionMap = options.stream().collect(Collectors.toMap(Option::getId, Function.identity()));
@@ -360,9 +376,8 @@ public class UserAnswerRecFacade {
      * @param answerDataBOList 用户答案数据
      * @param question 问题
      * @param options 问题选项
-     * @param tuple 学生信息(年级和编码4位)
      */
-    private void setDataInputType(List<UserAnswer> userAnswerList,List<RecDataBO.RecAnswerDataBO> answerDataBOList, Question question, List<Option> options,TwoTuple<String, String> tuple) {
+    private void setDataInputType(List<UserAnswer> userAnswerList,List<RecDataBO.RecAnswerDataBO> answerDataBOList, Question question, List<Option> options) {
         Option questionOption = options.get(0);
         Map<String, OptionAnswer> optionAnswerMap = getStreamByOptionAnswerList(userAnswerList).collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity()));
         if (Objects.equals(question.getType(), RADIO)) {
@@ -375,9 +390,7 @@ public class UserAnswerRecFacade {
             }
         }
         else if (Objects.equals(question.getType(), INPUT)) {
-            getStreamByOptionAnswerList(userAnswerList).forEach(optionAnswer -> {
-                addAnswerData(answerDataBOList, optionAnswer);
-            });
+            getStreamByOptionAnswerList(userAnswerList).forEach(optionAnswer -> addAnswerData(answerDataBOList, optionAnswer));
         }
     }
 
@@ -391,6 +404,7 @@ public class UserAnswerRecFacade {
         }else {
             resultValue = optionAnswer.getValue();
         }
+
         RecDataBO.RecAnswerDataBO recAnswerDataBO = new RecDataBO.RecAnswerDataBO(optionAnswer.getQesField(),resultValue);
         answerDataBOList.add(recAnswerDataBO);
     }
@@ -468,24 +482,63 @@ public class UserAnswerRecFacade {
      * @param questionnaireIds 问卷ID集合
      * @param questionnaireId 隐藏问题问卷ID
      */
-    public List<Map<String,String>> getRecData(List<UserQuestionRecord> userQuestionRecordList,
-                                      List<Integer> questionnaireIds,Integer questionnaireId){
+    public TwoTuple<String,String> getRecData(List<UserQuestionRecord> userQuestionRecordList,
+                                      List<Integer> questionnaireIds,Integer questionnaireId) {
         List<RecDataBO> recDataBOList = Lists.newArrayList();
         List<HideQuestionRecDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestionRec(questionnaireId);
         recDataProcess(userQuestionRecordList,hideQuestionDataBOList, recDataBOList);
-        for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
-            System.out.println(hideQuestionDataBO);
-        }
         List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(questionnaireIds);
         CollUtil.sort(recDataBOList,Comparator.comparing(RecDataBO::getGradeCode));
+
+        List<String> qesFieldList = qesFieldMappingList.stream().map(qesFieldMapping -> getQesFieldStr(qesFieldMapping.getQesField())).collect(Collectors.toList());
+        List<List<String>> dataList = new ArrayList<>();
+
+
         for (RecDataBO recDataBO : recDataBOList) {
-            List<RecDataBO.RecAnswerDataBO> dataList = recDataBO.getRecAnswerDataBOList();
-            for (RecDataBO.RecAnswerDataBO answerDataBO : dataList) {
-                System.out.println(answerDataBO);
+            List<RecDataBO.RecAnswerDataBO> answerDataBOList = recDataBO.getRecAnswerDataBOList();
+            if (CollUtil.isEmpty(answerDataBOList)){
+                continue;
             }
+            Map<String, RecDataBO.RecAnswerDataBO> recAnswerDataBOMap = answerDataBOList.stream().filter(recAnswerDataBO -> Objects.nonNull(recAnswerDataBO.getQesField())).collect(Collectors.toMap(RecDataBO.RecAnswerDataBO::getQesField, Function.identity()));
+
+            List<RecDataBO.RecAnswerDataBO> sortMap = Lists.newArrayList();
+            for (QesFieldMapping qesFieldMapping : qesFieldMappingList) {
+                RecDataBO.RecAnswerDataBO recAnswerDataBO = recAnswerDataBOMap.get(qesFieldMapping.getQesField());
+                if (Objects.nonNull(recAnswerDataBO)){
+                    sortMap.add(recAnswerDataBO);
+                }else {
+                    sortMap.add(new RecDataBO.RecAnswerDataBO(qesFieldMapping.getQesField(),null));
+                }
+            }
+
+            List<String> collect = sortMap.stream().map(recAnswerDataBO -> {
+                if (StrUtil.isNotBlank(recAnswerDataBO.getRecAnswer())) {
+                    return recAnswerDataBO.getRecAnswer();
+                }
+                return StrUtil.EMPTY;
+            }).collect(Collectors.toList());
+            dataList.add(collect);
         }
 
-        return Lists.newArrayList();
+        String txtPath = EpiDataUtil.createTxtPath(qesFieldList, dataList);
+        ResourceFile resourceFile = null;
+        try {
+            resourceFile = s3Utils.uploadS3AndGetResourceFile(FileUtil.newFile(txtPath));
+        } catch (UtilException e) {
+            log.error("上传失败:{}",txtPath);
+            throw new BusinessException("上传失败");
+        }
+        Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
+        String txtUrl = resourceFileService.getResourcePath(resourceFile.getId());
+        String qesUrl = resourceFileService.getResourcePath(qesFileId);
+        return TwoTuple.of(qesUrl, txtUrl);
+    }
+
+    private String getQesFieldStr(String qesField){
+        if (StrUtil.isNotBlank(qesField)){
+            return  "\"" +qesField.toLowerCase() + "\"";
+        }
+        return null;
     }
 
 
@@ -506,21 +559,21 @@ public class UserAnswerRecFacade {
      * 获取rec数据
      * @param generateDataCondition 生成数据条件
      */
-    public GenerateRecDataBO generateRecData(GenerateDataCondition generateDataCondition){
+    public Map<Integer,TwoTuple<String,String>> generateRecData(GenerateDataCondition generateDataCondition) {
         QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
         ExportCondition exportCondition = generateDataCondition.getExportCondition();
         //根据问卷类型获取问卷集合
         List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
         if (CollUtil.isEmpty(questionnaireList)){
             log.warn("暂无此问卷类型：{}",mainBodyType.getDesc());
-            return null;
+            return Maps.newHashMap();
         }
 
         //获取用户问卷记录
         List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), generateDataCondition.getGradeTypeList());
         if (CollUtil.isEmpty(userQuestionRecordList)){
             log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(),exportCondition.getPlanId(),exportCondition.getTaskId(),mainBodyType.getDesc());
-            return null;
+            return Maps.newHashMap();
         }
 
         //获取学生类型问卷的 基础信息部分问卷ID
@@ -551,14 +604,12 @@ public class UserAnswerRecFacade {
      * @param questionnaireId 问卷基础部分对应的问卷ID
      * @param schoolRecordMap 学校对应用户记录集合
      */
-    public GenerateRecDataBO getRecData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap){
-        GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
+    public Map<Integer,TwoTuple<String,String>> getRecData(List<Integer> latestQuestionnaireIds,Integer questionnaireId,Map<Integer, List<UserQuestionRecord>> schoolRecordMap) {
 
-        Map<Integer,List<Map<String,String>>> dataMap= Maps.newHashMap();
+        Map<Integer,TwoTuple<String,String>> dataMap= Maps.newHashMap();
         for (Map.Entry<Integer, List<UserQuestionRecord>> entry : schoolRecordMap.entrySet()) {
-            dataMap.put(entry.getKey(), getRecData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
+            dataMap.put(entry.getKey(),getRecData(entry.getValue(), latestQuestionnaireIds, questionnaireId));
         }
-
-        return generateRecDataBO;
+        return dataMap;
     }
 }

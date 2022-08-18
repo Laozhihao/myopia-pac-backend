@@ -44,5 +44,6 @@ public class RecDataBO {
             this.qesField = qesField;
             this.recAnswer = recAnswer;
         }
+
     }
 }

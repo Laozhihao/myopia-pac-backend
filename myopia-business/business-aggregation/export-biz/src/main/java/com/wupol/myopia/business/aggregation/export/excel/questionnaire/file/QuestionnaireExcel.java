@@ -38,7 +38,7 @@ public interface QuestionnaireExcel {
      * @param fileName 文件保存路径
      * @exception IOException IO异常
      */
-    default void generateExcelFile(ExportCondition exportCondition, String fileName)throws IOException {
+    default void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
 
     }
 

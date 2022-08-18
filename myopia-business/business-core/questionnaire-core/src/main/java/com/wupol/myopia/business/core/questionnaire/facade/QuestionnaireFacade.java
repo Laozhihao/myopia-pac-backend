@@ -12,10 +12,7 @@ import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
-import com.wupol.myopia.business.core.questionnaire.domain.model.QesFieldMapping;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +36,7 @@ public class QuestionnaireFacade {
     private final QuestionnaireQuestionService questionnaireQuestionService;
     private final QuestionService questionService;
     private final QesFieldMappingService qesFieldMappingService;
+    private final QuestionnaireQesService questionnaireQesService;
 
     private Map<Integer,List<Integer>> scoreMap = Maps.newConcurrentMap();
 
@@ -416,6 +414,11 @@ public class QuestionnaireFacade {
         return Lists.newArrayList();
     }
 
+
+    public Integer getQesFileId(Integer qesId){
+        QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
+        return questionnaireQes.getQesFileId();
+    }
 
     /**
      * 获取隐藏问题集合
