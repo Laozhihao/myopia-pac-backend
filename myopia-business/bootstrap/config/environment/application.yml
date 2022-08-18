@@ -150,7 +150,7 @@ wechat:
     url-host: https://api.weixin.qq.com
   # 微信回调域名——同家长端域名
   callback:
-    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
+    url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}/api
   # 家长端前端工程访问域名
   h5-client:
     url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
