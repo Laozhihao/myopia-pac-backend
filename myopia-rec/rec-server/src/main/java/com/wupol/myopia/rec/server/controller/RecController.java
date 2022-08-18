@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -29,8 +30,8 @@ public class RecController {
      * @param recExportDTO 导出条件
      */
     @PostMapping("/export")
-    public ApiResult<RecExportVO> export(@RequestBody @Valid RecExportDTO recExportDTO) {
-        return ApiResult.success(recExportFacade.recExport(recExportDTO));
+    public Callable<ApiResult<RecExportVO>> export(@RequestBody @Valid RecExportDTO recExportDTO) {
+        return () -> ApiResult.success(recExportFacade.recExport(recExportDTO));
     }
 
 }
