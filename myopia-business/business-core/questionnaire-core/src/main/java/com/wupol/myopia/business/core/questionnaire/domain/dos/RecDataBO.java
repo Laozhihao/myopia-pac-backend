@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -24,18 +25,11 @@ public class RecDataBO {
 
     private List<RecAnswerDataBO> recAnswerDataBOList;
 
+
     @Data
+    @NoArgsConstructor
     public static class RecAnswerDataBO{
 
-        /**
-         * 问题ID
-         */
-        private Integer questionId;
-
-        /**
-         * 操作ID
-         */
-        private String optionId;
         /**
          * qes字段
          */
@@ -45,5 +39,10 @@ public class RecDataBO {
          * rec答案
          */
         private String recAnswer;
+
+        public RecAnswerDataBO(String qesField, String recAnswer) {
+            this.qesField = qesField;
+            this.recAnswer = recAnswer;
+        }
     }
 }
