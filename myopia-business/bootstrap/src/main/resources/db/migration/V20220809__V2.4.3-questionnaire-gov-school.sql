@@ -16,6 +16,9 @@ alter table q_user_answer
 alter table q_user_answer
     add type varchar(32) null comment '类型' after table_json;
 
+alter table q_user_answer
+    modify question_title varchar(1024) null;
+
 -- 筛查机构表，新增筛查类型配置字段
 ALTER TABLE `m_screening_organization`
     ADD COLUMN `screening_type_config` varchar(10) COMMENT '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';

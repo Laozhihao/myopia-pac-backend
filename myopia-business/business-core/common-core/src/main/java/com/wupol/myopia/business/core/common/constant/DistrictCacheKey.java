@@ -42,4 +42,9 @@ public interface DistrictCacheKey {
     String DISTRICT_CN_NAME = "district:cn_name:code_%s";
 
     String DISTRICT_CODE = "district:name:code_%s";
+
+    /**
+     * 从目标code，只下而上获取行政区域
+     */
+    String DISTRICT_LIST_TOP_TREE = "district:list:top:code_%s";
 }

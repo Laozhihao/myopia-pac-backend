@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -221,6 +220,11 @@ public class UserAnswerBizService {
         return districtService.getCurrentAreaDistrict(districtId);
     }
 
+    /**
+     * 获取政府人员的行政区域
+     *
+     * @return 行政区域Id
+     */
     private Integer getUserDistrictId(CurrentUser user) {
         if (!user.isQuestionnaireGovUser()) {
             throw new BusinessException("政府身份异常!");
