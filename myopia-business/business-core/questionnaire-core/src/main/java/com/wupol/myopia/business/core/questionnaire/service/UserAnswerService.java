@@ -46,6 +46,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             questionDTO.setAnswer(s.getAnswer());
             questionDTO.setTableJson(s.getTableJson());
             questionDTO.setType(s.getType());
+            questionDTO.setMappingKey(s.getMappingKey());
             return questionDTO;
         }).collect(Collectors.toList()));
         return userAnswerDTO;
@@ -138,6 +139,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             userAnswer.setAnswer(s.getAnswer());
             userAnswer.setTableJson(s.getTableJson());
             userAnswer.setType(s.getType());
+            userAnswer.setMappingKey(s.getMappingKey());
             return userAnswer;
         }).collect(Collectors.toList());
     }
