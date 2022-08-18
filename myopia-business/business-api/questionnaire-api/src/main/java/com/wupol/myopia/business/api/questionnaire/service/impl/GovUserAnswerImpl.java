@@ -18,12 +18,14 @@ import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -50,13 +52,13 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     private GovDeptService govDeptService;
 
     @Resource
-    private ScreeningPlanService screeningPlanService;
-
-    @Resource
     private DistrictService districtService;
 
     @Resource
     private SchoolService schoolService;
+
+    @Resource
+    private ScreeningTaskService screeningTaskService;
 
     @Override
     public Integer getUserType() {
@@ -71,23 +73,20 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         if (Objects.nonNull(recordId)) {
             return recordId;
         }
+        UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
 
         // 不存在新增记录
-        ScreeningPlan govDept = screeningPlanService.getOneByGovDept(userId);
-        UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
-        if (Objects.nonNull(govDept)) {
-            userQuestionRecord.setPlanId(govDept.getId());
-            userQuestionRecord.setTaskId(govDept.getScreeningTaskId());
-            userQuestionRecord.setNoticeId(govDept.getSrcScreeningNoticeId());
+        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
+        if (Objects.nonNull(task)) {
+            userQuestionRecord.setTaskId(task.getId());
+            userQuestionRecord.setNoticeId(task.getScreeningNoticeId());
         }
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         userQuestionRecord.setUserId(userId);
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
 
-        userQuestionRecord.setStudentId(null);
         userQuestionRecord.setGovId(userId);
-        userQuestionRecord.setSchoolId(userId);
         userQuestionRecord.setQuestionnaireType(questionnaire.getType());
         userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
@@ -111,6 +110,10 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public List<UserQuestionnaireResponseDTO> getUserQuestionnaire(Integer userId) {
+        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
+        if (Objects.isNull(task)) {
+            throw new BusinessException("别搞，你没有问卷需要填写");
+        }
         List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getGovQuestionnaireType();
         return commonUserAnswer.getUserQuestionnaire(typeList);
     }
@@ -158,7 +161,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             // 获取上级的数据
             List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
             // 合并
-            return districtService.keepAreaDistrictsTree(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+            return districtService.keepAreaDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
         }
         return new ArrayList<>();
     }
