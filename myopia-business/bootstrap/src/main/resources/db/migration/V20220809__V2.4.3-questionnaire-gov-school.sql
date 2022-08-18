@@ -18,3 +18,6 @@ alter table q_user_answer
 
 alter table q_user_answer
     modify question_title varchar(1024) null;
+
+alter table q_user_answer
+    add mapping_key varchar(32) null comment '映射Key' after type;
