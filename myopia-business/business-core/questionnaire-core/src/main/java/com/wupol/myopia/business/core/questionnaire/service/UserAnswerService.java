@@ -44,6 +44,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
             questionDTO.setAnswer(s.getAnswer());
+            questionDTO.setTableJson(s.getTableJson());
             return questionDTO;
         }).collect(Collectors.toList()));
         return userAnswerDTO;
@@ -134,6 +135,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             userAnswer.setUserType(userType);
             userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
+            userAnswer.setTableJson(s.getTableJson());
             return userAnswer;
         }).collect(Collectors.toList());
     }

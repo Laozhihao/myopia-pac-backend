@@ -9,3 +9,6 @@ alter table q_user_question_record
 
 alter table q_question
     add mapping_key varchar(32) null comment '前端映射key' after icon_name;
+
+alter table myopia_business.q_user_answer
+    add table_json json null comment '表格JSON' after answer;

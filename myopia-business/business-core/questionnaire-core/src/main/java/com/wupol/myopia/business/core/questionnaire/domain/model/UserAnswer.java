@@ -70,6 +70,11 @@ public class UserAnswer implements Serializable {
     private List<OptionAnswer> answer;
 
     /**
+     * 表格json
+     */
+    private String tableJson;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
