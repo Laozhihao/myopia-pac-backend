@@ -97,6 +97,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 answer.setQesField(qesDataDOS.getQesField());
                 answer.setShowSerialNumber(qesDataDOS.getShowSerialNumber());
                 answer.setQesSerialNumber(qesDataDOS.getQesSerialNumber());
+                answer.setDataType(answer.getDataType());
             }
         });
     }
