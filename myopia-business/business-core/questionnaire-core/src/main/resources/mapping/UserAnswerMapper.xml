@@ -33,13 +33,14 @@
 
     <insert id="batchSaveUserAnswer">
         INSERT INTO q_user_answer
-        (user_id, questionnaire_id, question_id, record_id, user_type, question_title, answer)
+        (user_id, questionnaire_id, question_id, record_id, user_type, question_title, answer, table_json)
         VALUES
         <foreach collection="userAnswers" item="userAnswer" separator=",">
             (#{userAnswer.userId}, #{userAnswer.questionnaireId}, #{userAnswer.questionId}, #{userAnswer.recordId},
              #{userAnswer.userType},
              #{userAnswer.questionTitle},
-             #{userAnswer.answer,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler})
+             #{userAnswer.answer,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+             #{userAnswer.tableJson})
         </foreach>
         on duplicate key update id          = values(id),
                                 answer      = values(answer),

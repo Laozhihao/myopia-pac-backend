@@ -86,7 +86,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 .map(QuestionnaireQuestion::getQesData).flatMap(Collection::stream)
                 .collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
 
-        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer)
+        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer).filter(Objects::nonNull)
                 .flatMap(Collection::stream).collect(Collectors.toList());
 
         answerList.forEach(answer -> {
