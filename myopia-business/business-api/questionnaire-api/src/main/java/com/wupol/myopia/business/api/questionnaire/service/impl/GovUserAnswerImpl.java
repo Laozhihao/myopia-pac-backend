@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
@@ -23,7 +21,6 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -152,13 +149,13 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             // 获取同级的数据
             List<District> parentCode = districtService.getByParentCode(district.getParentCode());
             // 合并
-            return districtService.getDistricts(districts, parentCode);
+            return districtService.keepAreaDistrictsTree(districts, parentCode);
         }
         if (level == 4) {
             // 获取上级的数据
             List<District> parentCode = districtService.getByParentCode(districtService.getByCode(district.getParentCode()).getParentCode());
             // 合并
-            return districtService.getDistricts(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+            return districtService.keepAreaDistrictsTree(districts.stream().filter(s->!Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
         }
         return new ArrayList<>();
     }

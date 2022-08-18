@@ -118,10 +118,24 @@ public class UserAnswerController {
         return userAnswerBizService.getSchoolInfo(currentUser);
     }
 
+    /**
+     * 获取政府人员下属行政区域
+     *
+     * @return List<District>
+     */
     @GetMapping("gov/nextDistrict")
     public List<District> govNextDistrict() {
         return userAnswerBizService.govNextDistrict(CurrentUserUtil.getCurrentUser());
+    }
 
+    /**
+     * 获取政府人员当前行政区域
+     *
+     * @return List<District>
+     */
+    @GetMapping("gov/districtDetail")
+    public List<District> govDistrictDetail() {
+        return userAnswerBizService.govDistrictDetail(CurrentUserUtil.getCurrentUser());
     }
 
 }
