@@ -7,7 +7,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
@@ -23,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -88,6 +90,16 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         return userQuestionRecord.getId();
     }
 
+    /**
+     * <p>如果存在多份表格的话，会存在问题<br/>
+     * 前端目前是将questionId默认为-1，如果一份问卷存在多份表格，就需要区分开<br/>
+     * 如：表格1-questionId为-1，表格2-questionId为-2
+     * </p>
+     *
+     * @param questionnaireId 问卷ID
+     * @param userId          用户Id
+     * @param questionList    问题列表
+     */
     @Override
     public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
         commonUserAnswer.deletedUserAnswer(questionList, questionnaireId, userId, getUserType());

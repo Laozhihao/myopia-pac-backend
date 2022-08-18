@@ -368,7 +368,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @author hang.yuan
      * @date 2022/4/2
      */
-    public List<District> districtListToTree(List<District> list, Long parentCode) {
+    private List<District> districtListToTree(List<District> list, Long parentCode) {
         Map<Long, District> map = new HashMap<>();
         List<District> rootList = new ArrayList<>();
         for (District district : list) {
@@ -911,11 +911,73 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取下属节点，到Area级别
+     */
+    public List<District> getAreaTree(Integer districtId) {
+        try {
+            District district = getById(districtId);
+            // 只下而上获取节点
+            List<District> districts = getTopDistrictByCode(district.getCode());
+
+            // 获取当前节点下的节点，并且拍平
+            List<District> districtList = getAllDistrict(getSpecificDistrictTree(districtId), new ArrayList<>());
+
+            ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
+            // 只保留Area以上的节点
+            return keepAreaDistrictsTree(tempList);
+        } catch (IOException e) {
+            throw new BusinessException("异常");
+        }
+    }
+
+    /**
+     * 获取同级的行政区域，并且只保留到Area级别
+     *
+     * @param districtId 区域Id
+     *
+     * @return List<District>
+     */
+    public List<District> getSameLevelDistrictKeepArea(Integer districtId) {
+        District district = getById(districtId);
+
+        // 获取父节点
+        List<District> districts = getAllDistrict(districtCodeToTree(district.getCode()), new ArrayList<>());
+        Integer level = getLevel(districts, district.getCode(), 1);
+
+        if (level <= 3) {
+            // 获取同级的数据
+            List<District> parentCode = getByParentCode(district.getParentCode());
+            // 合并
+            return keepAreaTwoDistrictsTree(districts, parentCode);
+        }
+        if (level == 4) {
+            // 获取上级的数据
+            List<District> parentCode = getByParentCode(getByCode(district.getParentCode()).getParentCode());
+            // 合并
+            return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * 获取当前行政区域的结构树，最多到Area区域
+     *
+     * @return List<District>
+     *
+     * @see DistrictService#keepAreaDistrictsTree
+     */
+    public List<District> getCurrentAreaDistrict(Integer districtId) {
+        District district = getById(districtId);
+        List<District> allDistrict = getAllDistrict(getTopDistrictByCode(district.getCode()), new ArrayList<>());
+        return keepAreaDistrictsTree(allDistrict);
+    }
+
+    /**
      * 只下而上获取区域
      *
      * @return List<District>
      */
-    public List<District> getTopDistrictByCode(Long code) {
+    private List<District> getTopDistrictByCode(Long code) {
         String key = String.format(DistrictCacheKey.DISTRICT_LIST_TOP_TREE, code);
         Object cacheList = redisUtil.get(key);
         if (Objects.nonNull(cacheList)) {
@@ -947,50 +1009,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取下属节点，到Area级别
-     */
-    public List<District> getAreaTree(Integer districtId) {
-        try {
-            District district = getById(districtId);
-            // 只下而上获取节点
-            List<District> districts = getTopDistrictByCode(district.getCode());
-
-            // 获取当前节点下的节点，并且拍平
-            List<District> districtList = getAllDistrict(getSpecificDistrictTree(districtId), new ArrayList<>());
-
-            ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
-            // 只保留Area以上的节点
-            return keepAreaDistrictsTree(tempList);
-        } catch (IOException e) {
-            throw new BusinessException("异常");
-        }
-    }
-
-    /**
-     * 合并两个行政区域，并且返回数结构
-     */
-    public List<District> keepAreaDistrictsTree(List<District> districts, List<District> districtList) {
-        List<District> result = Lists.newArrayList(Iterables.concat(districtList, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new));
-        result.forEach(s -> s.setChild(null));
-        return districtListToTree(result, PROVINCE_PARENT_CODE);
-    }
-
-    /**
-     * 获取区域层级
-     */
-    public Integer getLevel(List<District> list, Long code, Integer level) {
-        District district = list.get(0);
-        if (Objects.equals(district.getCode(), code)) {
-            return level;
-        }
-        level = level + 1;
-        return getLevel(district.getChild(), code, level);
-    }
-
-    /**
      * 拍平list
      */
-    public List<District> getAllDistrict(List<District> list, List<District> result) {
+    private List<District> getAllDistrict(List<District> list, List<District> result) {
         if (CollectionUtils.isEmpty(list)) {
             return result;
         }
@@ -1000,18 +1021,34 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 获取当前节点结构，最多到Area区域
-     *
-     * @return List<District>
+     * 获取区域层级
      */
-    public List<District> getCurrentAreaDistrict(Integer districtId) {
-        District district = getById(districtId);
-        List<District> allDistrict = getAllDistrict(getTopDistrictByCode(district.getCode()), new ArrayList<>());
-        return keepAreaDistrictsTree(allDistrict);
+    private Integer getLevel(List<District> list, Long code, Integer level) {
+        District district = list.get(0);
+        if (Objects.equals(district.getCode(), code)) {
+            return level;
+        }
+        level = level + 1;
+        return getLevel(district.getChild(), code, level);
+    }
+
+    /**
+     * 合并两个行政区域，并且返回树结构
+     */
+    private List<District> keepAreaTwoDistrictsTree(List<District> districts, List<District> districtList) {
+        List<District> result = Lists.newArrayList(Iterables.concat(districtList, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new));
+        result.forEach(s -> s.setChild(null));
+        return districtListToTree(result, PROVINCE_PARENT_CODE);
     }
 
     /**
      * 只保留到Area区域，并且构造成一棵树
+     * <p>
+     * 如：广东省-广州市-荔湾区-沙面街道-翠洲社区居民委员会，则返回<br/>
+     * 广东省<br/>
+     * --广州市<br/>
+     * ----荔湾区<br/>
+     * </p>
      *
      * @param allDistrict allDistrict
      *
