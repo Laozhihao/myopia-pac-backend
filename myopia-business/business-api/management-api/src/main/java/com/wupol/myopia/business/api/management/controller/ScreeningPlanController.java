@@ -124,6 +124,7 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Assert.notNull(screeningPlanDTO.getScreeningType(), "筛查类型不能为空");
         // 校验用户机构，政府部门，无法新增计划
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -140,6 +141,9 @@ public class ScreeningPlanController {
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
+        // 校验筛查类型权限
+        ScreeningOrganization organization = screeningOrganizationService.getById(screeningPlanDTO.getScreeningOrgId());
+        Assert.isTrue(organization.getScreeningTypeConfig().contains(String.valueOf(screeningPlanDTO.getScreeningType())), "暂未开通该筛查类型配置，如需开通，请联系管理员");
         // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
@@ -153,7 +157,6 @@ public class ScreeningPlanController {
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
             // 用户自己新建的筛查计划需设置districtId
-            ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());

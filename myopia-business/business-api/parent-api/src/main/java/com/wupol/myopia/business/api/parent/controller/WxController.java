@@ -72,6 +72,7 @@ public class WxController {
     @GetMapping("/index")
     public String getCode(String state) {
         logger.info("家长端入口，访问微信api获取授权code，获取state:{}", state);
+        logger.info("redirect:{}", String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state));
         return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
@@ -100,14 +101,14 @@ public class WxController {
             Parent parent = parentService.getParentByOpenId(openId);
             if (Objects.isNull(parent)) {
                 String url = String.format(WxConstant.WX_H5_CLIENT_URL, h5ClientUrlHost, WxBusinessExceptionCodeEnum.UNAUTHORIZED.getCode(), state);
-                logger.debug("重定向到协议页面：{}", url);
+                logger.info("重定向到协议页面：{}", url);
                 return "redirect:" + url;
             }
             // 判断用户是否已经绑定手机号码，未绑定则跳到“绑定手机”页面
             User user = oauthServiceClient.getUserDetailByUserId(parent.getUserId());
             if (Objects.isNull(user) || StringUtils.isEmpty(user.getPhone())) {
                 String url = String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), URLEncoder.encode(parent.getHashKey(), StandardCharsets.UTF_8.toString()), state);
-                logger.debug("重定向到绑定手机页面页面：{}", url);
+                logger.info("重定向到绑定手机页面页面：{}", url);
                 return "redirect:" + url;
             }
             // 自动登录

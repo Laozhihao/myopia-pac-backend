@@ -563,6 +563,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public ScreeningPlanSchoolStudent getOneByPlanId(Integer planId) {
         ScreeningPlanSchoolStudent planSchoolStudent = baseMapper.getOneByPlanId(planId);
+        if (Objects.isNull(planSchoolStudent)) {
+            return null;
+        }
         return setSchoolDistrictId(planSchoolStudent);
     }
 

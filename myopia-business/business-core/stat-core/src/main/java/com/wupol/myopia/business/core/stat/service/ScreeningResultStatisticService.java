@@ -206,39 +206,6 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return queryWrapper;
     }
 
-
-    /**
-     * 根据区域ID集合获取筛查结果统计集合
-     * @param districtIds 区域ID集合
-     * @param isTotal 是否是合计
-     */
-    public List<ScreeningResultStatistic> getStatisticByDistrictIds(Set<Integer> districtIds, Boolean isTotal) {
-        List<ScreeningResultStatistic> screeningResultStatistics=Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(districtIds)){
-            Lists.partition(Lists.newArrayList(districtIds),100).forEach(ids->{
-                LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper= new LambdaQueryWrapper<>();
-                Optional.ofNullable(isTotal).ifPresent(b->queryWrapper.eq(ScreeningResultStatistic::getIsTotal,b));
-                queryWrapper.in(ScreeningResultStatistic::getDistrictId,districtIds);
-                queryWrapper.orderByDesc(ScreeningResultStatistic::getUpdateTime);
-                screeningResultStatistics.addAll(baseMapper.selectList(queryWrapper));
-            });
-        }
-        return screeningResultStatistics;
-    }
-
-    /**
-     * 根据当前区域ID获取筛查结果统计数据集合
-     * @param districtId 区域ID
-     * @param isTotal 是否合计
-     */
-    public List<ScreeningResultStatistic> getStatisticByCurrentDistrictId(Integer districtId, Boolean isTotal) {
-        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper= new LambdaQueryWrapper<>();
-        Optional.ofNullable(isTotal).ifPresent(b->queryWrapper.eq(ScreeningResultStatistic::getIsTotal,b));
-        queryWrapper.eq(ScreeningResultStatistic::getDistrictId,districtId);
-        queryWrapper.orderByDesc(ScreeningResultStatistic::getUpdateTime);
-        return baseMapper.selectList(queryWrapper);
-    }
-
     /**
      * 通过planId、学校ID获取列表
      * @param planIds 计划ID集合
