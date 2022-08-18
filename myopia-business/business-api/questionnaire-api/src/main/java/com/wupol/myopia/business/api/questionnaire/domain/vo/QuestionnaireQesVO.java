@@ -29,9 +29,9 @@ public class QuestionnaireQesVO {
     private String description;
 
     /**
-     * 是否预览
+     * 预览url
      */
-    private Boolean isPreview;
+    private String previewUrl;
     /**
      * 是否存在qes文件
      */

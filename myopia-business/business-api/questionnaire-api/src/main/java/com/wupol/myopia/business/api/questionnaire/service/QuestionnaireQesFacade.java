@@ -25,10 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -128,6 +125,21 @@ public class QuestionnaireQesFacade {
     }
 
     /**
+     * 获取预览url
+     * @param questionnaireQesList 问卷qes文件集合
+     */
+    private Map<Integer,String> getPreviewUrl(List<QuestionnaireQes> questionnaireQesList){
+        if (CollUtil.isEmpty(questionnaireQesList)){
+            return Maps.newHashMap();
+        }
+        Set<Integer> previewFileIds = questionnaireQesList.stream().map(QuestionnaireQes::getPreviewFileId).collect(Collectors.toSet());
+
+        Map<Integer,String> previewFileMap = Maps.newHashMap();
+        previewFileIds.forEach(previewFileId-> previewFileMap.put(previewFileId,resourceFileService.getResourcePath(previewFileId)));
+        return previewFileMap;
+    }
+
+    /**
      * 根据年份查询问卷模板QES集合
      * @param year 年份
      */
@@ -165,7 +177,7 @@ public class QuestionnaireQesFacade {
         boolean flag = true;
         for (Map.Entry<Integer, List<QuestionnaireQes>> entry : questionnaireQesMap.entrySet()) {
             if (flag){
-                dataMap.put(entry.getKey(),entry.getValue().stream().map(this::buildQuestionnaireQesVO).collect(Collectors.toList()));
+                dataMap = getDataMap(entry.getKey(),entry.getValue());
                 flag=false;
             }
         }
@@ -175,8 +187,9 @@ public class QuestionnaireQesFacade {
 
     private Map<Integer, List<QuestionnaireQesVO>> getDataMap(Integer year,List<QuestionnaireQes> questionnaireQesList) {
         Map<Integer, List<QuestionnaireQesVO>> dataMap = Maps.newHashMap();
+        Map<Integer, String> previewUrlMap = getPreviewUrl(questionnaireQesList);
         if(CollUtil.isNotEmpty(questionnaireQesList)){
-            dataMap.put(year,questionnaireQesList.stream().map(this::buildQuestionnaireQesVO).collect(Collectors.toList()));
+            dataMap.put(year,questionnaireQesList.stream().map(questionnaireQes -> buildQuestionnaireQesVO(questionnaireQes,previewUrlMap)).collect(Collectors.toList()));
         }
         return dataMap;
     }
@@ -193,13 +206,13 @@ public class QuestionnaireQesFacade {
      * 构建问卷模板qes响应实体
      * @param questionnaireQes 问卷模板qes对象
      */
-    private QuestionnaireQesVO buildQuestionnaireQesVO(QuestionnaireQes questionnaireQes){
+    private QuestionnaireQesVO buildQuestionnaireQesVO(QuestionnaireQes questionnaireQes,Map<Integer, String> previewUrlMap){
         QuestionnaireQesVO questionnaireQesVO = new QuestionnaireQesVO();
         questionnaireQesVO.setId(questionnaireQes.getId());
         questionnaireQesVO.setYear(questionnaireQes.getYear());
         questionnaireQesVO.setName(questionnaireQes.getName());
         questionnaireQesVO.setDescription(questionnaireQes.getDescription());
-        questionnaireQesVO.setIsPreview(Objects.nonNull(questionnaireQes.getPreviewFileId()));
+        questionnaireQesVO.setPreviewUrl(previewUrlMap.get(questionnaireQes.getPreviewFileId()));
         questionnaireQesVO.setIsExistQes(Objects.nonNull(questionnaireQes.getQesFileId()));
         return questionnaireQesVO;
     }
