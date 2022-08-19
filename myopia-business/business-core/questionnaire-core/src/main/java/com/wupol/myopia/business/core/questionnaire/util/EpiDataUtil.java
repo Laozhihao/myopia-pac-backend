@@ -29,7 +29,6 @@ public class EpiDataUtil {
     private static final String  PARAMETER = "\\{([^}]*)\\}";
     private static final String  EPIC = "/app/EpiC.exe";
     private static final String  TXT_TO_REC_MSG = "【TXT转REC异常】";
-    private static final String  EPI_DATA_FOLDER = "EpiData";
 
     /**
      * qes文件解析为txt文件
@@ -120,7 +119,7 @@ public class EpiDataUtil {
      * 获取根目录
      */
     public static String getRootPath() {
-        String epiData = EPI_DATA_FOLDER+StrUtil.SLASH+UUID.randomUUID().toString();
+        String epiData = QuestionnaireConstant.EPI_DATA_FOLDER+StrUtil.SLASH+UUID.randomUUID().toString();
         String epiDataPath = IOUtils.getTempSubPath(epiData);
         File epiDataDirectory = new File(epiDataPath);
         if (!epiDataDirectory.exists()) {
