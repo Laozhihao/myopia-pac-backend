@@ -71,12 +71,14 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
         }
         for (Map.Entry<Integer, TwoTuple<String,String>> entry : dataMap.entrySet()) {
             TwoTuple<String, String> tuple = entry.getValue();
-            String recFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
+            String recFileName = userAnswerRecFacade.getRecFileName(entry.getKey(), getType());
             RecExportDTO recExportDTO = new RecExportDTO();
             recExportDTO.setQesUrl(tuple.getFirst());
             recExportDTO.setTxtUrl(tuple.getSecond());
             recExportDTO.setRecName(recFileName);
             RecExportVO export = recServiceClient.export(recExportDTO);
+            System.out.println(export);
+//            String recPath = UserAnswerBuilder.getRecPath(export.getRecUrl(), EpiDataUtil.getRootPath());
         }
     }
 

@@ -6,12 +6,14 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.UserAnswerBuilder;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -36,6 +38,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +75,9 @@ public class UserAnswerRecFacade {
     private static final String  RADIO = "radio";
     private static final String  INPUT = "input";
     private static final String  CHECKBOX = "checkbox";
-    private static final String  FILE_NAME="%s的%s的问卷数据.xlsx";
-    private static final String  GRADE="年级";
-    private static final String  CODE="编码4位";
+    private static final String  FILE_NAME="%s的%s的rec文件";
+    private static final String  NUMBER="number";
+    private static final String  TEXT="text";
 
 
     /**
@@ -87,22 +90,10 @@ public class UserAnswerRecFacade {
             ExportType exportType = exportTypeService.get();
             return exportType.getConditionValue(exportCondition);
         }
-        return defaultValue(null,null,null);
+        return UserAnswerBuilder.defaultValue(null,null,null);
     }
 
-    /**
-     * 获取条件值的默认值
-     * @param noticeId 通知ID
-     * @param taskId 任务ID
-     * @param planId 计划ID
-     */
-    public static List<Integer> defaultValue(Integer noticeId,Integer taskId,Integer planId) {
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(noticeId);
-        list.add(taskId);
-        list.add(planId);
-        return list;
-    }
+
     /**
      * 获取问卷记录数（有数据的问卷 状态进行中或者已完成）
      *
@@ -262,41 +253,40 @@ public class UserAnswerRecFacade {
 
         String commonDiseaseId = screeningPlanSchoolStudent.getCommonDiseaseId();
 
-        for (int i = 0; i < hideQuestionDataBOList.size(); i++) {
-            HideQuestionRecDataBO hideQuestionDataBO = hideQuestionDataBOList.get(i);
+        for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             RecDataBO.RecAnswerDataBO recAnswerDataBO = new RecDataBO.RecAnswerDataBO();
             List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
             qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
-            if (CollUtil.isEmpty(qesDataList)){
+            if (CollUtil.isEmpty(qesDataList)) {
                 continue;
             }
-            if (Objects.equals(hideQuestionDataBO.getType(),INPUT)){
+            if (Objects.equals(hideQuestionDataBO.getType(), INPUT)) {
                 HideQuestionRecDataBO.QesDataBO qesDataBO = qesDataList.get(0);
                 recAnswerDataBO.setQesField(qesDataBO.getQesField());
-                switch (qesDataBO.getQesField()){
+                switch (qesDataBO.getQesField()) {
                     case "province":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(0, 2)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,0, 2));
                         break;
                     case "city":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(2, 4)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,2, 4));
                         break;
                     case "district":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(4,5)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,4, 5));
                         break;
                     case "county":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(5, 7)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,5, 7));
                         break;
                     case "point":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(7,8)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,7, 8));
                         break;
                     case "school":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(8,10)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,8, 10));
                         break;
                     case "a01":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(10,12)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,10, 12));
                         break;
                     case "a011":
-                        recAnswerDataBO.setRecAnswer(numberFormat(commonDiseaseId.substring(12,16)));
+                        recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId,12, 16));
                         break;
                     case "ID1":
                     case "ID2":
@@ -310,11 +300,11 @@ public class UserAnswerRecFacade {
                 }
 
             }
-            if (Objects.equals(hideQuestionDataBO.getType(),RADIO)){
+            if (Objects.equals(hideQuestionDataBO.getType(), RADIO)) {
                 HideQuestionRecDataBO.QesDataBO qesDataBO = qesDataList.get(0);
-                if (Objects.equals(qesDataBO.getQesField(),"a02")){
+                if (Objects.equals(qesDataBO.getQesField(), "a02")) {
                     recAnswerDataBO.setQesField(qesDataBO.getQesField());
-                    recAnswerDataBO.setRecAnswer(getGenderRecData(screeningPlanSchoolStudent.getGender()));
+                    recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getGenderRecData(screeningPlanSchoolStudent.getGender()));
                 }
             }
             answerDataBOList.add(recAnswerDataBO);
@@ -322,30 +312,7 @@ public class UserAnswerRecFacade {
         return answerDataBOList;
     }
 
-    /**
-     * 获取性别的rec数据
-     * @param gender 性别
-     */
-    private String getGenderRecData(Integer gender){
-        if (Objects.equals(gender,0)){
-            return "1";
-        }
-        if (Objects.equals(gender,1)){
-            return "2";
-        }
-        return StrUtil.EMPTY;
-    }
 
-    /**
-     * 数字格式化
-     * @param num 数字
-     */
-    private String numberFormat(String num){
-        if (StrUtil.isNotBlank(num)){
-            return String.valueOf(Integer.valueOf(num));
-        }
-        return StrUtil.EMPTY;
-    }
 
     /**
      * 获取答案数据
@@ -403,6 +370,10 @@ public class UserAnswerRecFacade {
             resultValue = optionAnswer.getQesSerialNumber();
         }else {
             resultValue = optionAnswer.getValue();
+        }
+
+        if (Objects.equals(optionAnswer.getDataType(),TEXT)) {
+            resultValue = UserAnswerBuilder.textFormat(resultValue);
         }
 
         RecDataBO.RecAnswerDataBO recAnswerDataBO = new RecDataBO.RecAnswerDataBO(optionAnswer.getQesField(),resultValue);
@@ -490,7 +461,7 @@ public class UserAnswerRecFacade {
         List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(questionnaireIds);
         CollUtil.sort(recDataBOList,Comparator.comparing(RecDataBO::getGradeCode));
 
-        List<String> qesFieldList = qesFieldMappingList.stream().map(qesFieldMapping -> getQesFieldStr(qesFieldMapping.getQesField())).collect(Collectors.toList());
+        List<String> qesFieldList = qesFieldMappingList.stream().map(qesFieldMapping -> UserAnswerBuilder.getQesFieldStr(qesFieldMapping.getQesField())).collect(Collectors.toList());
         List<List<String>> dataList = new ArrayList<>();
 
 
@@ -499,25 +470,19 @@ public class UserAnswerRecFacade {
             if (CollUtil.isEmpty(answerDataBOList)){
                 continue;
             }
-            Map<String, RecDataBO.RecAnswerDataBO> recAnswerDataBOMap = answerDataBOList.stream().filter(recAnswerDataBO -> Objects.nonNull(recAnswerDataBO.getQesField())).collect(Collectors.toMap(RecDataBO.RecAnswerDataBO::getQesField, Function.identity()));
+            Map<String, RecDataBO.RecAnswerDataBO> recAnswerDataBoMap = answerDataBOList.stream().filter(recAnswerDataBO -> Objects.nonNull(recAnswerDataBO.getQesField())).collect(Collectors.toMap(RecDataBO.RecAnswerDataBO::getQesField, Function.identity()));
 
-            List<RecDataBO.RecAnswerDataBO> sortMap = Lists.newArrayList();
+
+            List<String> recDataList =Lists.newArrayList();
             for (QesFieldMapping qesFieldMapping : qesFieldMappingList) {
-                RecDataBO.RecAnswerDataBO recAnswerDataBO = recAnswerDataBOMap.get(qesFieldMapping.getQesField());
+                RecDataBO.RecAnswerDataBO recAnswerDataBO = recAnswerDataBoMap.get(qesFieldMapping.getQesField());
                 if (Objects.nonNull(recAnswerDataBO)){
-                    sortMap.add(recAnswerDataBO);
+                    recDataList.add(UserAnswerBuilder.getRecData(qesFieldMapping.getQesField(),recAnswerDataBO.getRecAnswer()));
                 }else {
-                    sortMap.add(new RecDataBO.RecAnswerDataBO(qesFieldMapping.getQesField(),null));
+                    recDataList.add(UserAnswerBuilder.getRecData(qesFieldMapping.getQesField(),null));
                 }
             }
-
-            List<String> collect = sortMap.stream().map(recAnswerDataBO -> {
-                if (StrUtil.isNotBlank(recAnswerDataBO.getRecAnswer())) {
-                    return recAnswerDataBO.getRecAnswer();
-                }
-                return StrUtil.EMPTY;
-            }).collect(Collectors.toList());
-            dataList.add(collect);
+            dataList.add(recDataList);
         }
 
         String txtPath = EpiDataUtil.createTxtPath(qesFieldList, dataList);
@@ -534,21 +499,15 @@ public class UserAnswerRecFacade {
         return TwoTuple.of(qesUrl, txtUrl);
     }
 
-    private String getQesFieldStr(String qesField){
-        if (StrUtil.isNotBlank(qesField)){
-            return  "\"" +qesField.toLowerCase() + "\"";
-        }
-        return null;
-    }
 
 
     /**
-     * 获取excel问卷名称
+     * 获取rec文件名称
      *
      * @param schoolId 学校ID
      * @param questionnaireType 问卷类型
      */
-    public String getExcelFileName(Integer schoolId,Integer questionnaireType){
+    public String getRecFileName(Integer schoolId, Integer questionnaireType){
         School school = schoolService.getById(schoolId);
         QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
         return String.format(FILE_NAME,school.getName(),questionnaireTypeEnum.getDesc());

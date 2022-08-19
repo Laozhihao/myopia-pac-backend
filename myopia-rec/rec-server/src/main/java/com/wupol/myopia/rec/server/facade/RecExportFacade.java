@@ -49,7 +49,7 @@ public class RecExportFacade {
         String rootPath = EpiDataUtil.getRootPath();
 
         //rec文件地址
-        TwoTuple<String, String> tuple = getRecSavePath(rootPath);
+        TwoTuple<String, String> tuple = getRecSavePath(rootPath,recExportDTO.getRecName());
 
         // qes文件和txt文件下载
         String txtPath = getTxtPath(recExportDTO.getTxtUrl(),rootPath);
@@ -68,6 +68,7 @@ public class RecExportFacade {
             return recExportVO;
         }
 
+        FileUtil.rename(FileUtil.newFile(tuple.getSecond()), recExportDTO.getRecName(), true, true);
         //上传rec文件到S3 获取S3链接
         try {
             File zipFile = compressFile(tuple.getFirst());
@@ -113,8 +114,8 @@ public class RecExportFacade {
     /**
      * 获取REC文件父文件夹和REC文件路径
      */
-    private TwoTuple<String,String> getRecSavePath(String rootPath){
-        String recFolder = Paths.get(rootPath, UUID.randomUUID().toString()).toString();
+    private TwoTuple<String,String> getRecSavePath(String rootPath,String folderName){
+        String recFolder = Paths.get(rootPath, folderName).toString();
         if(!FileUtil.exist(recFolder)){
             FileUtil.mkdir(recFolder);
         }
