@@ -22,6 +22,9 @@ alter table q_user_answer
 alter table q_user_answer
     add mapping_key varchar(32) null comment '映射Key' after type;
 
+alter table q_user_answer_progress
+    add step_json json null comment '步骤json' after current_side_bar;
+
 -- 筛查机构表，新增筛查类型配置字段
 ALTER TABLE `m_screening_organization`
     ADD COLUMN `screening_type_config` varchar(10) COMMENT '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';

@@ -46,6 +46,11 @@ public class UserAnswerDTO {
     private String currentSideBar;
 
     /**
+     * 步骤json
+     */
+    private String stepJson;
+
+    /**
      * 问卷Ids
      */
     private List<Integer> questionnaireIds;
