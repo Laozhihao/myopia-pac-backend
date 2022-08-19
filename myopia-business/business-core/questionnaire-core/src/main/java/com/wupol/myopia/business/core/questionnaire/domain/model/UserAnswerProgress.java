@@ -53,6 +53,12 @@ public class UserAnswerProgress implements Serializable {
     private String currentSideBar;
 
     /**
+     * 步骤JSON
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String stepJson;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN)
