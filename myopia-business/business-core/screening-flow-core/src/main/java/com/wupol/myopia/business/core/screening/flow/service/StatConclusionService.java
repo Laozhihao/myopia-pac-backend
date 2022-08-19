@@ -48,6 +48,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
     /**
+     * 获取list（排除作废计划）
+     *
+     * @param statConclusionQueryDTO 查询条件
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion>
+     **/
+    public List<StatConclusion> listExcludeAbolishPlanByQuery(StatConclusionQueryDTO statConclusionQueryDTO) {
+        return baseMapper.listExcludeAbolishPlanByQuery(statConclusionQueryDTO);
+    }
+
+    /**
      * 获取最后一个
      * @param statConclusionQueryDTO
      * @return
@@ -68,9 +78,10 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
-    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds) {
+    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds, List<Integer> excludePlanIds) {
         LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds);
+        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds)
+                .notIn(!CollectionUtils.isEmpty(excludePlanIds), StatConclusion::getPlanId, excludePlanIds);
         return baseMapper.selectList(queryWrapper);
     }
 

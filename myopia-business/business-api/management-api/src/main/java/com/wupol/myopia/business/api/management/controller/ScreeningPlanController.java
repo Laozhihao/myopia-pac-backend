@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -24,6 +25,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStud
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
+import com.wupol.myopia.business.api.management.schedule.DistrictStatisticTask;
 import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
 import com.wupol.myopia.business.api.management.service.ReviewInformService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireLoginService;
@@ -39,6 +41,12 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
+import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
+import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +123,14 @@ public class ScreeningPlanController {
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
     private ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private SchoolVisionStatisticService schoolVisionStatisticService;
+    @Autowired
+    private SchoolMonitorStatisticService schoolMonitorStatisticService;
+    @Autowired
+    private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private DistrictStatisticTask districtStatisticTask;
 
     /**
      * 新增
@@ -767,11 +783,23 @@ public class ScreeningPlanController {
         // 2.更新计划状态为作废状态
         screeningPlanService.updateById(new ScreeningPlan().setId(planId).setReleaseStatus(CommonConst.STATUS_ABOLISH));
         // 3.筛查通知状态变更未创建
-        if (Objects.nonNull(screeningPlan.getScreeningTaskId()) && screeningPlan.getScreeningTaskId() != 0) {
+        if (Objects.nonNull(screeningPlan.getScreeningTaskId()) && !CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
             ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlan.getScreeningTaskId());
             ScreeningNoticeDeptOrg screeningNoticeDeptOrg = new ScreeningNoticeDeptOrg().setOperationStatus(CommonConst.STATUS_NOTICE_READ).setOperatorId(currentUser.getId()).setScreeningTaskPlanId(0);
             screeningNoticeDeptOrgService.update(screeningNoticeDeptOrg, new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setAcceptOrgId(screeningPlan.getScreeningOrgId()));
         }
+        // 4. 删除相关统计数据
+        schoolVisionStatisticService.remove(new SchoolVisionStatistic().setScreeningPlanId(planId));
+        schoolMonitorStatisticService.remove(new SchoolMonitorStatistic().setScreeningPlanId(planId));
+        screeningResultStatisticService.deleteByPlanId(planId);
+        // 1）判断计划是否来自于通知
+        if (Objects.nonNull(screeningPlan.getSrcScreeningNoticeId()) && !CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
+            // 2）把通知相关的区域统计删掉
+            screeningResultStatisticService.remove(new ScreeningResultStatistic().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setSchoolId(-1));
+            // 3）重新统计该通知的区域数据(排除掉当前作废的计划)
+            districtStatisticTask.districtStatisticsByNoticeIds(Lists.newArrayList(screeningPlan.getSrcScreeningNoticeId()), Lists.newArrayList(planId));
+        }
+
     }
 
     /**

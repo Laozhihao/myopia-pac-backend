@@ -91,7 +91,13 @@ public class ManagementScreeningPlanBizService {
         return screeningPlanIPage;
     }
 
-    public List<ScreeningPlan> getScreeningPlanByUser(CurrentUser user) {
+    /**
+     * 获取发布的筛查计划
+     *
+     * @param user 当前登录用户
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan>
+     **/
+    public List<ScreeningPlan> getReleaseScreeningPlanByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);
         Set<Integer> screeningNoticeIds = screeningNotices.stream().map(ScreeningNotice::getId).collect(Collectors.toSet());
         // 筛查机构可以直接创建计划，不需要有通知下发

@@ -92,9 +92,10 @@
     </select>
 
     <select id="getHaveSrcScreeningNoticePlanIdsByTime" resultType="java.lang.Integer">
-        SELECT DISTINCT plan_id
-        FROM m_vision_screening_result
-        WHERE DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
+        SELECT DISTINCT mvsr.plan_id
+        FROM m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        WHERE msp.release_status = 1 AND DATE(mvsr.update_time) BETWEEN DATE(#{mvsr.startTime}) AND DATE(#{mvsr.endTime})
     </select>
 
     <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">

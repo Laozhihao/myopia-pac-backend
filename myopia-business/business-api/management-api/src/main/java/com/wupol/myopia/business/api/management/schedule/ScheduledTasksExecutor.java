@@ -21,7 +21,9 @@ import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.*;
-import com.wupol.myopia.business.core.stat.service.*;
+import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStatisticService;
+import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
+import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Alix
@@ -100,8 +103,7 @@ public class ScheduledTasksExecutor {
             return;
         }
         statisticByPlanIds(yesterdayScreeningPlanIds);
-
-        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds);
+        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds, Collections.emptyList());
     }
 
     /**
@@ -109,10 +111,11 @@ public class ScheduledTasksExecutor {
      * @param date 日期
      */
     public void statistic(String date,Integer planId,Boolean isAll,String exclude){
+        List<Integer> excludePlanIds = Optional.ofNullable(exclude).map(x -> Stream.of(x.split(",")).map(Integer::parseInt).collect(Collectors.toList())).orElse(Collections.emptyList());
         if(Objects.equals(isAll,Boolean.TRUE)){
             List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().map(ScreeningPlan::getId).filter(Objects::nonNull).collect(Collectors.toList());
             if (StrUtil.isNotBlank(exclude)){
-                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id->!exclude.contains(id.toString())).collect(Collectors.toList());
+                yesterdayScreeningPlanIds = yesterdayScreeningPlanIds.stream().filter(id -> !excludePlanIds.contains(id)).collect(Collectors.toList());
             }
             if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
                 log.info("筛查数据统计：历史无筛查数据，无需统计");
@@ -123,12 +126,12 @@ public class ScheduledTasksExecutor {
             List<List<Integer>> planIdsList = ListUtil.split(yesterdayScreeningPlanIds, 20);
             for (int i = 0; i < planIdsList.size(); i++) {
                 log.info("分批执行中...{}/{}",i+1,planIdsList.size());
-                screeningResultStatisticByPlanIds(planIdsList.get(i));
+                screeningResultStatisticByPlanIds(planIdsList.get(i), excludePlanIds);
             }
-        }else {
-            if ((StrUtil.isBlank(date) && planId != null) || (StrUtil.isNotBlank(date)&& planId != null)){
+        } else {
+            if (Objects.nonNull(planId)){
                 log.info("通过筛查计划ID planId:{}生成筛查结果统计数据",planId);
-                screeningResultStatisticByPlanIds(Lists.newArrayList(planId));
+                screeningResultStatisticByPlanIds(Lists.newArrayList(planId), excludePlanIds);
             }
 
             if (StrUtil.isNotBlank(date)&& planId == null){
@@ -138,7 +141,7 @@ public class ScheduledTasksExecutor {
                     log.info("筛查数据统计：{}无筛查数据，无需统计",date);
                     return;
                 }
-                screeningResultStatisticByPlanIds(planIds);
+                screeningResultStatisticByPlanIds(planIds, excludePlanIds);
             }
         }
         log.info("筛查数据统计,数据处理完成");
@@ -148,11 +151,11 @@ public class ScheduledTasksExecutor {
      * 根据筛查计划ID集合处理筛查结果统计
      * @param screeningPlanIds 筛查计划ID集合
      */
-    public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds){
+    public void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds, List<Integer> excludePlanIds){
 
         CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
             log.info("按区域统计开始");
-            districtStatisticTask.districtStatistics(screeningPlanIds);
+            districtStatisticTask.districtStatistics(screeningPlanIds, excludePlanIds);
             log.info("按区域统计结束");
         }, asyncServiceExecutor);
 

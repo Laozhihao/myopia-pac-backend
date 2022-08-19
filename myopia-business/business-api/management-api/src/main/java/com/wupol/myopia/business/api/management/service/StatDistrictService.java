@@ -106,12 +106,13 @@ public class StatDistrictService {
      * @param noticeId 通知ID
      */
     private PrimarySchoolAndAboveResultVO getPrimarySchoolAndAboveResultVO(ScreeningNotice screeningNotice, Integer districtId, Integer noticeId) {
-        //查找合计数据（当前层级 + 下级）
+        //查找合计数据（包括当前层级 和 下级的，不只页面的那一条“合计”数据）
         List<ScreeningResultStatistic> visionStatistics = getPrimarySchoolAndAboveResultList(noticeId, districtId, screeningNotice.getScreeningType());
         if (CollectionUtils.isEmpty(visionStatistics)) {
             return null;
         }
         TwoTuple<String, Map<Integer, String>> districtInfo = districtInfo(districtId, visionStatistics);
+        //获取当前级数据（该统计数据来源于该层级的所有学校，不包括下级的）
         ScreeningResultStatistic currentVisionStatistic = currentVisionStatistic(districtId, noticeId, Boolean.FALSE,screeningNotice.getScreeningType());
         //构建数据
         PrimarySchoolAndAboveResultVO primarySchoolAndAboveResultVO = new PrimarySchoolAndAboveResultVO();
@@ -130,12 +131,7 @@ public class StatDistrictService {
      * @param isKindergarten 是否是幼儿园
      */
     private ScreeningResultStatistic currentVisionStatistic(Integer districtId, Integer noticeId, boolean isKindergarten,Integer screeningType) {
-        List<ScreeningResultStatistic> currentVisionStatistics = screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, screeningType, isKindergarten);
-        ScreeningResultStatistic currentVisionStatistic = null;
-        if (CollectionUtils.isNotEmpty(currentVisionStatistics)) {
-            currentVisionStatistic = currentVisionStatistics.stream().findFirst().orElse(null);
-        }
-        return currentVisionStatistic;
+        return screeningResultStatisticService.getStatisticByNoticeIdAndCurrentDistrictId(noticeId, districtId, Boolean.FALSE, screeningType, isKindergarten);
     }
 
 
