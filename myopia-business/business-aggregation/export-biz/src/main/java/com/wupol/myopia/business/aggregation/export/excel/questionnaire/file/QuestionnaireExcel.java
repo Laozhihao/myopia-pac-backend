@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * 问卷excel接口
@@ -13,16 +16,50 @@ import java.nio.file.Paths;
 public interface QuestionnaireExcel {
 
     /**
+     * 生成文件
+     *
+     * @param exportCondition 导出条件
+     * @param fileName 文件保存路径
+     * @param fileType 生成文件类型
+     * @exception IOException IO异常
+     */
+    default void generateFile(ExportCondition exportCondition, String fileName,String fileType) throws IOException {
+        if (Objects.equals(fileType, QuestionnaireConstant.EXCEL_FILE)){
+            generateExcelFile(exportCondition,fileName);
+        }else {
+            generateRecFile(exportCondition,fileName);
+        }
+    }
+
+    /**
      * 生成excel文件
      *
      * @param exportCondition 导出条件
      * @param fileName 文件保存路径
-     * @return 文件
+     * @exception IOException IO异常
      */
-    default void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
+    default void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
 
     }
 
+    /**
+     * 生成rec文件
+     *
+     * @param exportCondition 导出条件
+     * @param fileName 文件保存路径
+     */
+    default void generateRecFile(ExportCondition exportCondition, String fileName) {
+
+    }
+
+    /**
+     * 构建生成数据条件对象
+     * @param exportCondition 导出条件对象
+     * @param isAsc 是否顺序
+     */
+    default GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc){
+        return null;
+    }
 
     /**
      * 问卷类型

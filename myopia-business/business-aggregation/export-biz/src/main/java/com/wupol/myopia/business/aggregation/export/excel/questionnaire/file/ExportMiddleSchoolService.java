@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -33,11 +34,10 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
         return QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType();
     }
 
-    @Override
-    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
 
-        List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code);
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.MIDDLE_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition,Boolean.TRUE);
+    @Override
+    public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }
@@ -50,4 +50,18 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
         }
     }
 
+    @Override
+    public void generateRecFile(ExportCondition exportCondition, String fileName) {
+
+    }
+
+    @Override
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
+        return new GenerateDataCondition()
+                .setMainBodyType(QuestionnaireTypeEnum.MIDDLE_SCHOOL)
+                .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
+                .setGradeTypeList(Lists.newArrayList(SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code))
+                .setExportCondition(exportCondition)
+                .setIsAsc(isAsc);
+    }
 }

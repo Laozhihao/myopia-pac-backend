@@ -1,10 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
@@ -22,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,68 +47,62 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
 
+
+    /**
+     * 预处理
+     * @param exportCondition 导出条件
+     */
     @Override
-    public void export(ExportCondition exportCondition) {
-
-        String noticeKeyContent = null;
-        String parentPath = null;
-        try {
-            preProcess(exportCondition);
-            // 1.获取文件名(如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名)
-            String fileName = getFileName(exportCondition);
-            // 2.获取文件保存父目录路径
-            parentPath = getFileSaveParentPath();
-            // 3.获取文件保存路径
-            String fileSavePath = getFileSavePath(parentPath, fileName);
-            // 4.生成excel
-            generateExcelFile(fileSavePath,null,exportCondition);
-            // 5.压缩文件
-            File file = compressFile(fileSavePath);
-            // 没有文件直接返回
-            if (Objects.isNull(file)){return;}
-            // 6.上传文件
-            Integer fileId = uploadFile(file);
-            // 7.获取通知的关键内容
-            noticeKeyContent = getNoticeKeyContent(exportCondition);
-            // 8.发送成功通知
-            sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
-        } catch (Exception e) {
-            String requestData = JSON.toJSONString(exportCondition);
-            log.error("【导出Excel异常】{}", requestData, e);
-            // 发送失败通知
-            if (!StringUtils.isEmpty(noticeKeyContent)) {
-                sendFailNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent);
-            }
-        } finally {
-            // 7.删除临时文件
-            deleteTempFile(parentPath);
-            // 8.释放锁
-            unlock(getLockKey(exportCondition));
+    public void preProcess(ExportCondition exportCondition) {
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
+        if (exportTypeService.isPresent()) {
+            ExportType exportType = exportTypeService.get();
+            exportType.preProcess(exportCondition);
         }
-
-
     }
 
+    /**
+     * 1、获取文件名
+     * @param exportCondition 导出条件
+     */
     @Override
-    public File generateExcelFile(String fileName, List data, ExportCondition exportCondition) throws IOException {
-
-        List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
-        if (CollectionUtil.isEmpty(questionnaireTypeList)){
-            return null;
+    public String getFileName(ExportCondition exportCondition) {
+        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
+        if (exportTypeService.isPresent()) {
+            ExportType exportType = exportTypeService.get();
+            return exportType.getFileName(exportCondition);
         }
-        for (Integer questionnaireType : questionnaireTypeList) {
-            if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
-                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
-                for (Integer type : QuestionnaireConstant.STUDENT_TYPE_LIST) {
-                    generateExcelFile(filePath, exportCondition, type);
-                }
-            }else {
-                generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
-            }
-        }
+        throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
+    }
 
+    /**
+     * 4、获取数据，生成List（暂时空实现）
+     * @param exportCondition 导出条件
+     */
+    @Override
+    public List getExcelData(ExportCondition exportCondition) {
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 5.数据处理
+     * @param isPackage 是否打包
+     * @param exportCondition 导出条件
+     * @param fileSavePath 文件保存路径（含基础路径）
+     * @param fileName 文件名
+     * @param data 数据集合
+     */
+    @Override
+    public File fileDispose(Boolean isPackage, ExportCondition exportCondition, String fileSavePath, String fileName, List data) throws IOException {
+        if (Objects.equals(Boolean.TRUE,isPackage)){
+            // 生成excel
+            generateExcelFile(fileSavePath,data,exportCondition);
+            // 压缩文件
+            return compressFile(fileSavePath);
+        }
         return null;
     }
+
 
     /**
      * 根据地区导出数据时，获取地区的各个学校问卷数据文件夹名称
@@ -134,14 +125,51 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return fileName;
     }
 
+    /**
+     * 生成Excel
+     * @param fileName 文件保存路径（含基础路径）
+     * @param data 导出数据集合（暂时没用）
+     * @param exportCondition 导出条件
+     */
+    @Override
+    public File generateExcelFile(String fileName, List data, ExportCondition exportCondition) throws IOException {
+
+        List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
+        if (CollectionUtils.isEmpty(questionnaireTypeList)){
+            return null;
+        }
+        for (Integer questionnaireType : questionnaireTypeList) {
+            if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
+                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
+                for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
+                    generateExcelFile(filePath, exportCondition, type);
+                }
+            }else {
+                generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 生成Excel
+     * @param fileName 文件保存路径（含基础路径）
+     * @param exportCondition 导出条件
+     * @param questionnaireType 问卷类型
+     */
     private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
         Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFactory.getQuestionnaireExcelService(questionnaireType);
         if (questionnaireExcelService.isPresent()) {
             QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-            questionnaireExcel.generateExcelFile(exportCondition,fileName);
+            questionnaireExcel.generateFile(exportCondition,fileName,QuestionnaireConstant.EXCEL_FILE);
         }
     }
 
+
+    /**
+     * 7.获取通知的关键内容
+     * @param exportCondition 导出条件
+     */
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
         Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
@@ -152,15 +180,6 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
     }
 
-    @Override
-    public String getFileName(ExportCondition exportCondition) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
-        if (exportTypeService.isPresent()) {
-            ExportType exportType = exportTypeService.get();
-            return exportType.getFileName(exportCondition);
-        }
-        throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
-    }
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
@@ -172,20 +191,6 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         throw new BusinessException(String.format(ERROR_MSG,exportCondition.getExportType()));
     }
 
-    @Override
-    public void preProcess(ExportCondition exportCondition) {
-        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
-        if (exportTypeService.isPresent()) {
-            ExportType exportType = exportTypeService.get();
-            exportType.preProcess(exportCondition);
-        }
-    }
-
-
-    @Override
-    public List getExcelData(ExportCondition exportCondition) {
-        return Lists.newArrayList();
-    }
 
     @Override
     public Class getHeadClass(ExportCondition exportCondition) {
@@ -208,7 +213,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> {
                 boolean contains = questionnaireType.contains(userQuestionRecord.getQuestionnaireType());
                 boolean studentType = questionnaireType.contains(QuestionnaireConstant.STUDENT_TYPE)
-                        && QuestionnaireConstant.STUDENT_TYPE_LIST.contains(userQuestionRecord.getQuestionnaireType());
+                        && QuestionnaireConstant.getStudentTypeList().contains(userQuestionRecord.getQuestionnaireType());
                 return contains || studentType;
             });
         }
@@ -224,6 +229,11 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     }
 
+    /**
+     * 3、获取文件保存路径
+     * @param parentPath 文件保存父目录路径
+     * @param fileName 文件名
+     */
     @Override
     public String getFileSavePath(String parentPath, String fileName) {
         String fileSavePath = super.getFileSavePath(parentPath, fileName);
@@ -233,6 +243,10 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return fileSavePath;
     }
 
+    /**
+     * 压缩文件
+     * @param fileSavePath 文件保存路径（含基础路径）
+     */
     @Override
     public File compressFile(String fileSavePath) {
         File srcFile = FileUtil.file(fileSavePath);
@@ -245,4 +259,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return ZipUtil.zip(zipFile, CharsetUtil.defaultCharset(), true, srcFile);
     }
 
+
+    @Override
+    public Boolean isPackage() {
+        return Boolean.TRUE;
+    }
 }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -33,15 +34,13 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
         return QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType();
     }
 
-    @Override
-    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
 
-        List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code);
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.PRIMARY_SCHOOL, QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE, gradeTypeList, exportCondition,Boolean.TRUE);
+    @Override
+    public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }
-
         Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
         for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
             String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
@@ -50,4 +49,18 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
         }
     }
 
+    @Override
+    public void generateRecFile(ExportCondition exportCondition, String fileName) {
+
+    }
+
+    @Override
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
+        return new GenerateDataCondition()
+                .setMainBodyType(QuestionnaireTypeEnum.PRIMARY_SCHOOL)
+                .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
+                .setGradeTypeList(Lists.newArrayList(SchoolAge.PRIMARY.code))
+                .setExportCondition(exportCondition)
+                .setIsAsc(isAsc);
+    }
 }

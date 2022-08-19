@@ -14,12 +14,13 @@ import java.util.TimeZone;
 @MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
 @EnableDiscoveryClient
 @EnableScheduling
-@EnableFeignClients(basePackages = {"com.wupol.myopia.business.**.client", "com.wupol.myopia.oauth.sdk.client"})
+@EnableFeignClients(basePackages = {"com.wupol.myopia.business.**.client", "com.wupol.myopia.oauth.sdk.client","com.wupol.myopia.rec.client"})
 @SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api"})
 public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        System.setProperty("java.io.tmpdir","/tmp");
         SpringApplication.run(MyopiaBusinessApplication.class, args);
     }
 

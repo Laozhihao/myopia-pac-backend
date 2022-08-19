@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.common.service;
 
+import cn.hutool.core.io.FileUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -131,6 +133,17 @@ public class ResourceFileService extends BaseService<ResourceFileMapper, Resourc
         String savePath = uploadConfig.getSavePath();
         TwoTuple<String, String> uploadToServerResults = UploadUtil.upload(file, savePath);
         return uploadToServerResults.getSecond();
+    }
+
+    /**
+     * 解析后保存路径
+     * @param srcFilePath 原文件路径
+     * @param fileExtensions 解析后保存文件的扩展名称
+     */
+    public String parseSavePath(String srcFilePath,String fileExtensions){
+        String fileName = FileUtil.mainName(srcFilePath)+fileExtensions;
+        String savePath = uploadConfig.getSavePath();
+        return Paths.get(savePath, fileName).toString();
     }
 
 }

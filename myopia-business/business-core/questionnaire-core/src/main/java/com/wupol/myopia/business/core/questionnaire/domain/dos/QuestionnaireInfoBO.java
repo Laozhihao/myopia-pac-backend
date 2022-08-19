@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import cn.hutool.core.util.StrUtil;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -12,36 +15,27 @@ import java.util.List;
  */
 @Data
 public class QuestionnaireInfoBO {
-    /**
-     * 问卷Id
-     */
-    private Integer questionnaireId;
 
     /**
-     * 问卷名称
+     * 问卷对象
      */
-    private String questionnaireName;
+    private Questionnaire questionnaire;
 
     /**
      * 题目
      */
     private List<QuestionBO> questionList;
 
+
+    @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class QuestionBO{
+    public static class QuestionBO extends Question {
 
         /**
          * 问卷问题关联表ID
          */
         private Integer questionnaireQuestionId;
-        /**
-         * 问题Id
-         */
-        private Integer questionId;
-        /**
-         * 问题名称
-         */
-        private String questionName;
+
         /**
          * 问题的序号
          */
@@ -56,6 +50,10 @@ public class QuestionnaireInfoBO {
          */
         private List<QuestionBO> questionBOList;
 
+        /**
+         * qes信息
+         */
+        private List<QesDataDO> qesData;
 
 
 
