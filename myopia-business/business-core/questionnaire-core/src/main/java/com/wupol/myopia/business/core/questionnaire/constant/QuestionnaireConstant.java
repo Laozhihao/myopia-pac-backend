@@ -108,6 +108,16 @@ public class QuestionnaireConstant {
      */
     public static final String LENGTH = "length";
 
+    /**
+     * 下拉
+     */
+    public static final String SELECT = "select";
+
+    /**
+     * 输入
+     */
+    public static final String INPUT = "input";
+
 
     /**
      * 临时文件夹名称

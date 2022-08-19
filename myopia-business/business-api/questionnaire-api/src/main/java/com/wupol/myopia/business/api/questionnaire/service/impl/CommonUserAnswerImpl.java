@@ -74,6 +74,7 @@ public class CommonUserAnswerImpl {
             if (Objects.nonNull(userAnswerProgress)) {
                 userAnswerProgress.setCurrentStep(null);
                 userAnswerProgress.setCurrentSideBar(null);
+                userAnswerProgress.setStepJson(null);
                 userAnswerProgress.setUpdateTime(new Date());
                 userAnswerProgressService.updateById(userAnswerProgress);
             }
@@ -122,6 +123,7 @@ public class CommonUserAnswerImpl {
         }
         userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
         userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
+        userAnswerProgress.setStepJson(requestDTO.getStepJson());
         userAnswerProgressService.saveOrUpdate(userAnswerProgress);
     }
 

@@ -22,6 +22,9 @@ alter table q_user_answer
 alter table q_user_answer
     add mapping_key varchar(32) null comment '映射Key' after type;
 
+alter table q_user_answer_progress
+    add step_json json null comment '步骤json' after current_side_bar;
+
 
 -- 问卷表修改字段
 ALTER TABLE q_questionnaire CHANGE qes_url qes_id INT NULL COMMENT 'qes管理ID';
