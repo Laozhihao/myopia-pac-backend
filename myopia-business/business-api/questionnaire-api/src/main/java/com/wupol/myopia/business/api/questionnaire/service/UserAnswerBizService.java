@@ -82,11 +82,14 @@ public class UserAnswerBizService {
         // 更新记录表
         Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
 
-        // 先删除，后新增
-        iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);
+        // 答案为空不保存
+        if (!CollectionUtils.isEmpty(questionList)) {
+            // 先删除，后新增
+            iUserAnswerService.deletedUserAnswer(questionnaireId, userId, questionList);
 
-        // 保存用户答案
-        iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
+            // 保存用户答案
+            iUserAnswerService.saveUserAnswer(requestDTO, userId, recordId);
+        }
 
         // 保存进度
         iUserAnswerService.saveUserProgress(requestDTO, userId, requestDTO.getIsFinish());
