@@ -1,7 +1,9 @@
 package com.wupol.myopia.rec.server.facade;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.rec.server.domain.TwoTuple;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -44,15 +47,18 @@ public class RecExportFacade {
      * @param recExportDTO 导出条件
      */
     public RecExportVO recExport(RecExportDTO recExportDTO){
+        parameterCheck(recExportDTO);
         RecExportVO recExportVO = new RecExportVO();
-
         String rootPath = EpiDataUtil.getRootPath();
-
         //rec文件地址
         TwoTuple<String, String> tuple = getRecSavePath(rootPath);
-
         // qes文件和txt文件下载
-        String txtPath = getTxtPath(recExportDTO.getTxtUrl(),rootPath);
+        String txtPath;
+        if (CollUtil.isNotEmpty(recExportDTO.getDataList())){
+            txtPath = getTxtPath(recExportDTO.getDataList(),rootPath);
+        }else {
+            txtPath = getTxtPath(recExportDTO.getTxtUrl(),rootPath);
+        }
         String qesPath = getQesPath(recExportDTO.getQesUrl(),rootPath);
 
         //rec文件导出
@@ -62,12 +68,22 @@ public class RecExportFacade {
         }
         log.info("[PROCESSING]-[generate rec file success]");
         recExportVO.setRecName(recExportDTO.getRecName());
-
         //不存在rec文件直接返回
         if (!FileUtil.exist(tuple.getSecond())){
             return recExportVO;
         }
 
+        return uploadRecFileToS3(recExportDTO, recExportVO, rootPath, tuple);
+    }
+
+    /**
+     * 上传rec文件到S3
+     * @param recExportDTO 导出条件
+     * @param recExportVO 响应实体
+     * @param rootPath 基础路径
+     * @param tuple rec文件路径
+     */
+    private RecExportVO uploadRecFileToS3(RecExportDTO recExportDTO, RecExportVO recExportVO, String rootPath, TwoTuple<String, String> tuple) {
         FileUtil.rename(FileUtil.newFile(tuple.getSecond()), recExportDTO.getRecName(), true, true);
         //上传rec文件到S3 获取S3链接
         try {
@@ -85,15 +101,26 @@ public class RecExportFacade {
     }
 
     /**
+     * 参数检查
+     * @param recExportDTO 导出数据
+     */
+    private void parameterCheck(RecExportDTO recExportDTO){
+        if (CollUtil.isEmpty(recExportDTO.getDataList()) && StrUtil.isBlank(recExportDTO.getTxtUrl())){
+            throw new BusinessException("export txt data cannot be empty");
+        }
+    }
+
+    /**
      * S3链接下载qes文件
      * @param qesUrl S3的qes文件链接
+     * @param epiDataPath 基础文件夹
      */
     private String getQesPath(String qesUrl,String epiDataPath){
         String qesPath = Paths.get(epiDataPath,UUID.randomUUID().toString() + QES).toString();
         try {
             FileUtils.copyURLToFile(new URL(qesUrl), new File(qesPath));
         } catch (IOException e) {
-            throw new BusinessException("create qes path failed, qesUrl="+qesUrl);
+            throw new BusinessException("create qes file failed, qesUrl="+qesUrl);
         }
         return qesPath;
     }
@@ -101,19 +128,35 @@ public class RecExportFacade {
     /**
      * S3链接下载txt文件
      * @param txtUrl S3的txt文件链接
+     * @param epiDataPath 基础文件夹
      */
     private String getTxtPath(String txtUrl,String epiDataPath){
         String txtPath = Paths.get(epiDataPath, UUID.randomUUID().toString() + TXT).toString();
         try {
             FileUtils.copyURLToFile(new URL(txtUrl), new File(txtPath));
         } catch (IOException e) {
-            throw new BusinessException("create txt path failed, txtUrl="+txtUrl);
+            throw new BusinessException("create txt file failed, txtUrl="+txtUrl);
         }
         return txtPath;
     }
 
     /**
+     * 数据生成txt文件
+     * @param dataList 导出数据
+     * @param epiDataPath 基础文件夹
+     */
+    private String getTxtPath(List<String> dataList, String epiDataPath){
+        String txtPath = Paths.get(epiDataPath, UUID.randomUUID().toString() + TXT).toString();
+        boolean isSuccess = EpiDataUtil.createTxt(dataList, txtPath);
+        if (Objects.equals(Boolean.TRUE,isSuccess)){
+            return txtPath;
+        }
+        throw new BusinessException("create txt file failed");
+    }
+
+    /**
      * 获取REC文件父文件夹和REC文件路径
+     * @param rootPath 基础文件夹
      */
     private TwoTuple<String,String> getRecSavePath(String rootPath){
         String recFolder = Paths.get(rootPath, UUID.randomUUID().toString()).toString();
