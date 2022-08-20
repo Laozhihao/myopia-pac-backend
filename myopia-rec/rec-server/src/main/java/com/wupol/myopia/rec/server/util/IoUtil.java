@@ -6,6 +6,7 @@ import com.wupol.myopia.rec.server.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -17,7 +18,7 @@ public class IoUtil {
 
     public static String getTempSubPath(String sub) {
         String tmpdir = getTempPath();
-        String subDirStr = tmpdir + File.separator + sub;
+        String subDirStr =  Paths.get(tmpdir,sub).toString();
         File subDirFile = new File(subDirStr);
         if (FileUtil.exist(subDirFile)){
             return subDirStr;
