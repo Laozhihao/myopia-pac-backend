@@ -11,20 +11,15 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnsw
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
-import com.wupol.myopia.rec.client.RecServiceClient;
 import com.wupol.myopia.rec.domain.RecExportDTO;
-import com.wupol.myopia.rec.domain.RecExportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 导出学生健康状况及影响因素调查表（大学版）
@@ -39,11 +34,6 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     private UserAnswerFacade userAnswerFacade;
     @Autowired
     private UserAnswerRecFacade userAnswerRecFacade;
-    @Autowired
-    private RecServiceClient recServiceClient;
-    @Autowired
-    private ThreadPoolTaskExecutor asyncServiceExecutor;
-
 
     @Override
     public Integer getType() {
@@ -75,18 +65,7 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            RecExportDTO recExportDTO = buildRecExportDTO(generateRecDataBO);
-            CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO),asyncServiceExecutor);
-            try {
-                RecExportVO recExportVO = future.get();
-                System.out.println(recExportVO);
-                String recPath = EpiDataUtil.getRecPath(recExportVO.getRecUrl(), EpiDataUtil.getRootPath(),recExportVO.getRecName());
-            } catch (InterruptedException e){
-                log.warn("Interrupted",e);
-                Thread.currentThread().interrupt();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            userAnswerRecFacade.exportRecFile(fileName, buildRecExportDTO(generateRecDataBO));
         }
     }
 

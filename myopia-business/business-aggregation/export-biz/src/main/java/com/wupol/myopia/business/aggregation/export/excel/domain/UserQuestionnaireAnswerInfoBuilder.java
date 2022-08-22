@@ -64,6 +64,9 @@ public class UserQuestionnaireAnswerInfoBuilder {
         UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
         Date fillDate = userQuestionRecordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
         for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
+            userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
+            userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
+            userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getSchoolId());
             if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                     || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
                 //处理隐藏数据（学生和学校数据）

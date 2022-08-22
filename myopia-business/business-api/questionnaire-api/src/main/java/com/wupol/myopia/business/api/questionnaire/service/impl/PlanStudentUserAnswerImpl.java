@@ -16,6 +16,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.service.*;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.apache.commons.lang3.StringUtils;
@@ -189,7 +190,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
             optionAnswer.setOptionId(json.getString("id"));
-            optionAnswer.setValue(planStudent.getGradeName());
+            optionAnswer.setValue(GradeCodeEnum.getByName(planStudent.getGradeName()).getCode());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
             return;

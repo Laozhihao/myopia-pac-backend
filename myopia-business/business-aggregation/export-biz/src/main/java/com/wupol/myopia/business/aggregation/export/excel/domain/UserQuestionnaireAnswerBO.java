@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 用户问卷答案业务实体
+ * 用户问卷答案
  *
  * @author hang.yuan 2022/8/20 17:06
  */

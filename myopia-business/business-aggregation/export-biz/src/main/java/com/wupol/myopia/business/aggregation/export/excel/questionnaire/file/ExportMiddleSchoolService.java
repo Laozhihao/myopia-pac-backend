@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerRecFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.rec.domain.RecExportDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,8 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
 
     @Autowired
     private UserAnswerFacade userAnswerFacade;
+    @Autowired
+    private UserAnswerRecFacade userAnswerRecFacade;
 
     @Override
     public Integer getType() {
@@ -52,7 +58,22 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
+        List<GenerateRecDataBO> generateRecDataBOList = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        if (CollUtil.isEmpty(generateRecDataBOList)){
+            return;
+        }
+        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+            userAnswerRecFacade.exportRecFile(fileName, buildRecExportDTO(generateRecDataBO));
+        }
+    }
 
+    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO) {
+        String recFileName = userAnswerRecFacade.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+        RecExportDTO recExportDTO = new RecExportDTO();
+        recExportDTO.setQesUrl(generateRecDataBO.getQesUrl());
+        recExportDTO.setDataList(generateRecDataBO.getDataList());
+        recExportDTO.setRecName(recFileName);
+        return recExportDTO;
     }
 
     @Override

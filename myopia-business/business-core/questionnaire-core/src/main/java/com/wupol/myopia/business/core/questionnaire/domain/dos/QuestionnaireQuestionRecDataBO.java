@@ -22,14 +22,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class QuestionnaireQuestionRecDataBO {
 
-    public QuestionnaireQuestionRecDataBO(Question question) {
-        this.question = question;
-    }
-
     /**
      * 问题
      */
     private Question question;
+
+    /**
+     * 是否隐藏
+     */
+    private Boolean isHidden;
 
     /**
      * 问题对应选项信息

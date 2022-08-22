@@ -56,7 +56,10 @@ public class QuestionnaireRecInfoBuilder {
      */
     private void setQuestionRecDataBOList(List<QuestionnaireQuestionRecDataBO> questionRecDataBOList, Map<Integer, Question> questionMap, QuestionnaireQuestion questionnaireQuestion) {
         Question question = questionMap.get(questionnaireQuestion.getQuestionId());
-        QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO = new QuestionnaireQuestionRecDataBO(question);
+        QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO = new QuestionnaireQuestionRecDataBO();
+        questionnaireQuestionRecDataBO.setQuestion(question);
+        questionnaireQuestionRecDataBO.setIsHidden(questionnaireQuestion.getIsHidden());
+
         if (Objects.equals(question.getType(), QuestionnaireConstant.INPUT)){
             questionnaireQuestionRecDataBO.setQuestionnaireRecDataBOList(getInputData(question, questionnaireQuestion));
         }
