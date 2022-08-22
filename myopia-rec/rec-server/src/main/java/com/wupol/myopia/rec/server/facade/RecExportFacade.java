@@ -47,10 +47,6 @@ public class RecExportFacade {
      * @param recExportDTO 导出条件
      */
     public RecExportVO recExport(RecExportDTO recExportDTO){
-        if (Objects.nonNull(recExportDTO)){
-            System.out.println(recExportDTO);
-            return null;
-        }
         parameterCheck(recExportDTO);
         RecExportVO recExportVO = new RecExportVO();
         String rootPath = EpiDataUtil.getRootPath();
