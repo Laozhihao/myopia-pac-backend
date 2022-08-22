@@ -21,6 +21,11 @@ public class SchoolListResponseDTO {
     private Integer schoolId;
 
     /**
+     * 学校编号
+     */
+    private String schoolNo;
+
+    /**
      * 学校名称
      */
     private String name;

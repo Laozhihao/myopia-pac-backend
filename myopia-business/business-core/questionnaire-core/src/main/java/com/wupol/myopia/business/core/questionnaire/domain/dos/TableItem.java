@@ -14,6 +14,8 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TableItem implements Serializable {
 
     /**
@@ -55,6 +57,11 @@ public class TableItem implements Serializable {
      * 构建成前端需要的option
      */
     private Option option;
+
+    public TableItem(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
 
     @Getter
     @Setter
