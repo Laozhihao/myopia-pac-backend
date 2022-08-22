@@ -115,4 +115,9 @@ public class QuestionnaireConstant {
      */
     public static final String INPUT = "input";
 
+    /**
+     * text
+     */
+    public static final String TEXT = "text";
+
 }
