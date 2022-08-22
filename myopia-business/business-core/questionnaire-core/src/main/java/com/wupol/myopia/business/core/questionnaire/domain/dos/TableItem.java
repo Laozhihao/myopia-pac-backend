@@ -62,6 +62,9 @@ public class TableItem implements Serializable {
         this.name = name;
         this.type = type;
     }
+    public TableItem(String name) {
+        this.name = name;
+    }
 
     @Getter
     @Setter
