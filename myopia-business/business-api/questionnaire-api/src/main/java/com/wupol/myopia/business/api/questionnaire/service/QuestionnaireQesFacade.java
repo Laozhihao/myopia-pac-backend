@@ -152,7 +152,7 @@ public class QuestionnaireQesFacade {
             return questionnaireQesListVO;
         }
 
-        List<Integer> yearList = questionnaireQesList.stream().sorted(Comparator.comparing(QuestionnaireQes::getYear)).map(QuestionnaireQes::getYear).collect(Collectors.toList());
+        List<Integer> yearList = questionnaireQesList.stream().sorted(Comparator.comparing(QuestionnaireQes::getYear)).map(QuestionnaireQes::getYear).distinct().collect(Collectors.toList());
         questionnaireQesListVO.setYearList(yearList);
 
         //根据年份获取

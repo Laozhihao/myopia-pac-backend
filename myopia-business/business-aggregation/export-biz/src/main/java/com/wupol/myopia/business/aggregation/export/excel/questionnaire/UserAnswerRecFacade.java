@@ -210,13 +210,8 @@ public class UserAnswerRecFacade {
                 }
                 processAnswerData(dataList, questionAnswerMap, questionnaireQuestionRecDataBO);
             }
-
-
             Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> UserAnswerBuilder.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity()));
             List<QuestionnaireRecDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
-
-            System.out.println(JSON.toJSONString(collect, true));
-            System.out.println(JSON.toJSONString(qesFieldList, true));
             dataMap.put(userQuestionnaireAnswerBO.getStudentId(), collect);
         }
         return dataMap;
@@ -538,6 +533,7 @@ public class UserAnswerRecFacade {
      * @param recExportDTO 导出条件
      */
     public void exportRecFile(String fileName, RecExportDTO recExportDTO) {
+        System.out.println(recExportDTO);
         CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO),asyncServiceExecutor);
         try {
             RecExportVO recExportVO = future.get();
