@@ -30,8 +30,8 @@ public class RecController {
      * @param recExportDTO 导出条件
      */
     @PostMapping("/export")
-    public Callable<ApiResult<RecExportVO>> export(@RequestBody @Valid RecExportDTO recExportDTO) {
-        return () -> ApiResult.success(recExportFacade.recExport(recExportDTO));
+    public ApiResult<RecExportVO> export(@RequestBody @Valid RecExportDTO recExportDTO) {
+        return ApiResult.success(recExportFacade.recExport(recExportDTO));
     }
 
 }

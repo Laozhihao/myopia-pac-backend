@@ -3,8 +3,6 @@ package com.wupol.myopia.rec.server.domain.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,10 +17,17 @@ public class RecExportDTO implements Serializable {
     @NotBlank(message = "qes文件链接不能为空")
     private String qesUrl;
 
-    @NotBlank(message = "txt文件链接不能为空")
+    /**
+     * txt文件链接
+     */
     private String txtUrl;
 
     @NotBlank(message = "rec文件名称")
     private String recName;
+
+    /**
+     * 导出数据
+     */
+    private List<String> dataList;
 
 }

@@ -41,8 +41,7 @@ public class TypeUtils {
             try {
                 genericClass = Class.forName(genericType.getTypeName());
             } catch (ClassNotFoundException e) {
-                // 修改为runtimeException
-                throw new IllegalStateException("无法找到类 " + genericType.getTypeName(), e);
+                throw new RuntimeException("无法找到类 " + genericType.getTypeName(), e);
             }
             if (Collection.class.isAssignableFrom(rawType)) {
                 JavaType javaType = getCollectionType(rawType, genericClass);

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
-import com.wupol.myopia.business.core.questionnaire.constant.SelectKey;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.DropSelect;
 import lombok.Getter;
 import lombok.Setter;

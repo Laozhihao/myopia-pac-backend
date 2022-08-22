@@ -18,6 +18,7 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelStudentDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
@@ -544,14 +545,14 @@ public class UserAnswerFacade {
         QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
         ExportCondition exportCondition = generateDataCondition.getExportCondition();
         //根据问卷类型获取问卷集合
-        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType);
+        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType, QuestionnaireConstant.EXCEL_FILE);
         if (CollUtil.isEmpty(questionnaireList)){
             log.warn("暂无此问卷类型：{}", mainBodyType.getDesc());
             return null;
         }
 
         //获取用户问卷记录
-        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType), generateDataCondition.getGradeTypeList());
+        List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(exportCondition, questionnaireFacade.getQuestionnaireTypeList(mainBodyType,QuestionnaireConstant.EXCEL_FILE), generateDataCondition.getGradeTypeList());
         if (CollUtil.isEmpty(userQuestionRecordList)){
             log.info("暂无数据：notificationId:{}、planId:{}、taskId:{},问卷类型：{}",exportCondition.getNotificationId(), exportCondition.getPlanId(), exportCondition.getTaskId(), mainBodyType.getDesc());
             return null;

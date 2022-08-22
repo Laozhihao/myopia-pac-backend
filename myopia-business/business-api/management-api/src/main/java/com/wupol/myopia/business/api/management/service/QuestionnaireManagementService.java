@@ -280,6 +280,12 @@ public class QuestionnaireManagementService {
             vo.setAmount(schoolIds.size());
             vo.setQuestionnaireTitle(item.getDesc());
             vo.setAccomplish(getStudentQuestionEndBySchool(schoolIds, item.getType(), taskId));
+            if (Objects.equals(item,QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
+                vo.setType(0);
+            }
+            if (Objects.equals(item,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
+                vo.setType(1);
+            }
             return vo;
         }).collect(Collectors.toList());
     }

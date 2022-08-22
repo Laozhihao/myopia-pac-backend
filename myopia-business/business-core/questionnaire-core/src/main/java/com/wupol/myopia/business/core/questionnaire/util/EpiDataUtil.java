@@ -8,13 +8,14 @@ import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * EpiData数据出来工具
@@ -26,9 +27,11 @@ import java.util.stream.Collectors;
 public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
+    private static final String  UTF8 = "UTF-8";
     private static final String  PARAMETER = "\\{([^}]*)\\}";
     private static final String  EPIC = "/app/EpiC.exe";
     private static final String  TXT_TO_REC_MSG = "【TXT转REC异常】";
+    private static final String  SEMICOLON = ";";
 
     /**
      * qes文件解析为txt文件
@@ -42,7 +45,7 @@ public class EpiDataUtil {
             String line;
             while ((line = br.readLine()) != null) {
                 bw.write(line);
-                bw.newLine();
+//                bw.newLine();
             }
         }catch (IOException e){
             log.error("【QES转TXT异常】", e);
@@ -94,15 +97,15 @@ public class EpiDataUtil {
      * @param dataList      需要导出的数据
      */
     public static boolean exportRecFile(String qesPath, String recPath, List<String> headerList, List<List<String>> dataList) {
-        String epiDataPath = IOUtils.getTempSubPath("EpiData");
-        String txtPath = Paths.get(epiDataPath,System.currentTimeMillis() + ".txt").toString();
+        String epiDataPath = IOUtils.getTempSubPath(QuestionnaireConstant.EPI_DATA_FOLDER);
+        String txtPath = Paths.get(epiDataPath,System.currentTimeMillis() + QuestionnaireConstant.TXT).toString();
         File epiDataDirectory = new File(epiDataPath);
         if (!epiDataDirectory.exists()){
             FileUtil.mkdir(epiDataDirectory);
         }
 
         // 先从数据转成txt文件，再转到rec文件
-        boolean isSuccess = createTxt(headerList,dataList, txtPath);
+        boolean isSuccess = createTxt(mergeDataTxt(headerList, dataList), txtPath);
         if (!isSuccess) {
             return false;
         }
@@ -136,7 +139,7 @@ public class EpiDataUtil {
     public static String createTxtPath(List<String> headerList, List<List<String>> dataList){
         String epiDataPath = EpiDataUtil.getRootPath();
         String txtPath = Paths.get(epiDataPath,UUID.randomUUID().toString() + QuestionnaireConstant.TXT).toString();
-        boolean isSuccess = createTxt(headerList, dataList, txtPath);
+        boolean isSuccess = createTxt(mergeDataTxt(headerList,dataList), txtPath);
         if (isSuccess){
             return txtPath;
         }
@@ -144,19 +147,25 @@ public class EpiDataUtil {
     }
 
     /**
+     * 把两个List数据合并成txt所需要的指定的格式
+     * @param headerList rec文件的字段属性
+     * @param dataList 需要导出的数据
+     */
+    public static List<String> mergeDataTxt(List<String> headerList, List<List<String>> dataList){
+        List<String> list = new ArrayList<>();
+        list.add(String.join(SEMICOLON, headerList));
+        dataList.forEach(itemList -> list.add(String.join(SEMICOLON, itemList)));
+        return list;
+    }
+
+    /**
      * 把内容写到指定的txt文件
-     * @param headerList rec文件的头模版的属性
      * @param dataList  需要导出的数据
      * @param filePath 写入文件地址
      */
-    private static boolean createTxt(List<String> headerList, List<List<String>> dataList, String filePath) {
-        // 把两个List数据合并成txt所需要的指定的格式
-        List<String> list = new ArrayList<>();
-        list.add(String.join(";", headerList));
-        dataList.forEach(itemList -> list.add(String.join(";", itemList)));
-
+    private static boolean createTxt(List<String> dataList, String filePath) {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), GBK))) {
-            for (String data : list) {
+            for (String data : dataList) {
                 bw.write(data);
                 bw.newLine();
             }
@@ -176,13 +185,11 @@ public class EpiDataUtil {
      */
     private static boolean txt2Rec(String txtPath, String qesPath, String recPath) {
         List<String> mainCmdList = Lists.newArrayList();
-        if (Objects.equals(windowsSystem(),Boolean.TRUE)){
-            mainCmdList.add(EPIC);
-        }else {
+        if (!Objects.equals(windowsSystem(), Boolean.TRUE)) {
             mainCmdList.add("wine");
-            mainCmdList.add(EPIC);
         }
-        List<String> otherCmdList= Lists.newArrayList( "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=dd/mm/yyyy" );
+        mainCmdList.add(EPIC);
+        List<String> otherCmdList= Lists.newArrayList( "i", "TXT", txtPath, recPath, "qes="+qesPath, "delim=;", "q=text", "REPLACE", "ignorefirst", "date=yyyy/mm/dd" );
         mainCmdList.addAll(otherCmdList);
         String[] cmd = mainCmdList.toArray(new String[]{});
 
@@ -223,6 +230,21 @@ public class EpiDataUtil {
     private static Boolean windowsSystem(){
         String system = System.getProperty("os.name").toLowerCase();
         return !Objects.equals("mac", system) && !Objects.equals("linux", system);
+    }
+
+    /**
+     * S3链接下载rec文件
+     *
+     * @param recUrl S3的rec文件链接
+     */
+    public static String getRecPath(String recUrl, String epiDataPath, String fileName) {
+        String recPath = Paths.get(epiDataPath, fileName + QuestionnaireConstant.ZIP).toString();
+        try {
+            FileUtils.copyURLToFile(new URL(recUrl), new File(recPath));
+        } catch (IOException e) {
+            throw new BusinessException("create rec file failed, recUrl=" + recUrl);
+        }
+        return recPath;
     }
 
 }
