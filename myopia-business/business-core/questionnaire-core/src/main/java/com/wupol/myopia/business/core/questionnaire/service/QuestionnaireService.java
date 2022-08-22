@@ -381,10 +381,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
 
         SchoolTeacherTable titleTable = new SchoolTeacherTable();
-        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号", "text"), new TableItem("类别", "text"),
-                new TableItem("专/兼职", "text"), new TableItem("学校卫生工作年限", "text"),
-                new TableItem("学历", "text"), new TableItem("职称", "text"),
-                new TableItem("执业资格证书", "text"), new TableItem("上一年度学校卫生培训次数", "text")));
+        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号"), new TableItem("类别"),
+                new TableItem("专/兼职"), new TableItem("学校卫生工作年限"),
+                new TableItem("学历"), new TableItem("职称"),
+                new TableItem("执业资格证书"), new TableItem("上一年度学校卫生培训次数")));
 
         List<SchoolTeacherTable> result = Lists.newArrayList(titleTable);
 
