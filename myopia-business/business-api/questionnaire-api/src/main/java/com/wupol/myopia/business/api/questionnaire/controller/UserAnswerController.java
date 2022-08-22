@@ -8,9 +8,14 @@ import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
 import com.wupol.myopia.business.api.questionnaire.service.UserAnswerBizService;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -23,6 +28,9 @@ public class UserAnswerController {
 
     @Resource
     private UserAnswerBizService userAnswerBizService;
+
+    @Resource
+    private SchoolService schoolService;
 
 
     /**
@@ -136,6 +144,22 @@ public class UserAnswerController {
     @GetMapping("gov/districtDetail")
     public List<District> govDistrictDetail() {
         return userAnswerBizService.govDistrictDetail(CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 获取学校编码
+     *
+     * @param districtAreaCode 区/镇/县的行政区域编号，如：210103000
+     * @param areaType         片区类型，如：2-中片区
+     * @param monitorType      监测点类型，如：1-城区
+     *
+     * @return 学校编码
+     */
+    @GetMapping("/getLatestSchoolNo")
+    public ApiResult<String> getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
+                                               @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
+                                               @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
+        return ApiResult.success(schoolService.getLatestSchoolNo(districtAreaCode, areaType, monitorType));
     }
 
 }
