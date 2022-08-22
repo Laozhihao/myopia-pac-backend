@@ -181,13 +181,14 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
      * @param screeningType 筛查类型
      * @param isKindergarten 是否是幼儿园
      */
-    public List<ScreeningResultStatistic> getStatisticByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, boolean isTotal,Integer screeningType,boolean isKindergarten)  {
-        if (ObjectsUtil.allNotNull(noticeId,currentDistrictId)){
-            LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = getQueryWrapper(noticeId, isTotal, screeningType,isKindergarten);
-            queryWrapper.eq(ScreeningResultStatistic::getDistrictId, currentDistrictId);
-            return this.list(queryWrapper);
+    public ScreeningResultStatistic getStatisticByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, boolean isTotal,Integer screeningType,boolean isKindergarten)  {
+        if (ObjectsUtil.hasNull(noticeId, currentDistrictId)) {
+            return null;
         }
-        return Lists.newArrayList();
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = getQueryWrapper(noticeId, isTotal, screeningType,isKindergarten);
+        queryWrapper.eq(ScreeningResultStatistic::getDistrictId, currentDistrictId)
+                .eq(ScreeningResultStatistic::getSchoolId, -1);
+        return this.getOne(queryWrapper);
     }
 
     /**

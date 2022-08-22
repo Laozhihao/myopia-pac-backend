@@ -22,6 +22,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -424,11 +425,11 @@ public class DistrictCommonDiseaseReportService {
      * @param isRescreen 是否复测
      */
     private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isRescreen) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
-        queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
-        queryWrapper.in(StatConclusion::getDistrictId, districtIds);
-        return statConclusionService.list(queryWrapper);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setDistrictIds(districtIds)
+                .setSrcScreeningNoticeId(noticeId)
+                .setIsRescreen(isRescreen);
+        return statConclusionService.listExcludeAbolishPlanByQuery(query);
     }
 
     /**

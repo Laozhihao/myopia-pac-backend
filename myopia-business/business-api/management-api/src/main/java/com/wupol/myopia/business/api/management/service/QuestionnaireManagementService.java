@@ -166,7 +166,7 @@ public class QuestionnaireManagementService {
                 return new QuestionAreaDTO();
             }
             //查看该通知所有筛查学校的层级的 地区树
-            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
+            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getReleaseScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(screeningPlans)) {
                 Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
                 if (!CollectionUtils.isEmpty(districts)) {
