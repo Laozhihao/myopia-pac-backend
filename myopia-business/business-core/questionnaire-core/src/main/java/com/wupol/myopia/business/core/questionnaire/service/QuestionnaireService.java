@@ -378,6 +378,14 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (CollUtil.isEmpty(questionnaireQuestionList)) {
             return;
         }
+
+        SchoolTeacherTable titleTable = new SchoolTeacherTable();
+        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号", "text"), new TableItem("类别", "text"),
+                new TableItem("专/兼职", "text"), new TableItem("学校卫生工作年限", "text"),
+                new TableItem("学历", "text"), new TableItem("职称", "text"),
+                new TableItem("执业资格证书", "text"), new TableItem("上一年度学校卫生培训次数", "text")));
+
+        List<SchoolTeacherTable> result = Lists.newArrayList(titleTable);
         List<SchoolTeacherTable> collect = questionnaireQuestionList.stream().map(s -> {
             SchoolTeacherTable table = new SchoolTeacherTable();
 
@@ -390,7 +398,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             table.setTableItems(tableItems);
             return table;
         }).collect(Collectors.toList());
-        questionResponse.setSchoolTeacherTables(collect);
+        result.addAll(collect);
+        questionResponse.setSchoolTeacherTables(result);
     }
 
     /**
