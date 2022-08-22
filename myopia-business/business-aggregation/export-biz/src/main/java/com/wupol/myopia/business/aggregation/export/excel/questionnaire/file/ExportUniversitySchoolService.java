@@ -5,23 +5,26 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerRecFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.rec.client.RecServiceClient;
 import com.wupol.myopia.rec.domain.RecExportDTO;
 import com.wupol.myopia.rec.domain.RecExportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 导出学生健康状况及影响因素调查表（大学版）
@@ -38,6 +41,8 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     private UserAnswerRecFacade userAnswerRecFacade;
     @Autowired
     private RecServiceClient recServiceClient;
+    @Autowired
+    private ThreadPoolTaskExecutor asyncServiceExecutor;
 
 
     @Override
@@ -65,21 +70,33 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
 
-        Map<Integer, TwoTuple<String,String>> dataMap = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
-        if (CollUtil.isEmpty(dataMap)){
+        List<GenerateRecDataBO> generateRecDataBOList = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
         }
-        for (Map.Entry<Integer, TwoTuple<String,String>> entry : dataMap.entrySet()) {
-            TwoTuple<String, String> tuple = entry.getValue();
-            String recFileName = userAnswerRecFacade.getRecFileName(entry.getKey(), getType());
-            RecExportDTO recExportDTO = new RecExportDTO();
-            recExportDTO.setQesUrl(tuple.getFirst());
-            recExportDTO.setTxtUrl(tuple.getSecond());
-            recExportDTO.setRecName(recFileName);
-            RecExportVO export = recServiceClient.export(recExportDTO);
-            System.out.println(export);
-//            String recPath = UserAnswerBuilder.getRecPath(export.getRecUrl(), EpiDataUtil.getRootPath());
+        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+            RecExportDTO recExportDTO = buildRecExportDTO(generateRecDataBO);
+            CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO),asyncServiceExecutor);
+            try {
+                RecExportVO recExportVO = future.get();
+                System.out.println(recExportVO);
+                String recPath = EpiDataUtil.getRecPath(recExportVO.getRecUrl(), EpiDataUtil.getRootPath(),recExportVO.getRecName());
+            } catch (InterruptedException e){
+                log.warn("Interrupted",e);
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO) {
+        String recFileName = userAnswerRecFacade.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+        RecExportDTO recExportDTO = new RecExportDTO();
+        recExportDTO.setQesUrl(generateRecDataBO.getQesUrl());
+        recExportDTO.setDataList(generateRecDataBO.getDataList());
+        recExportDTO.setRecName(recFileName);
+        return recExportDTO;
     }
 
     @Override

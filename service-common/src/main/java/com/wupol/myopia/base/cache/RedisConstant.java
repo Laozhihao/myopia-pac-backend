@@ -1,11 +1,14 @@
 package com.wupol.myopia.base.cache;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * Redis缓存key
  *
  * @Author HaoHao
  * @Date 2020/12/26
  **/
+@UtilityClass
 public final class RedisConstant {
 
     /**

@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
-import com.wupol.myopia.business.core.questionnaire.domain.handle.QesDataDoHandler;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

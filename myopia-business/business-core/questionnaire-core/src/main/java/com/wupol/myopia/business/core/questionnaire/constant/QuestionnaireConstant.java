@@ -5,6 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 问卷常量
@@ -141,11 +142,20 @@ public class QuestionnaireConstant {
      */
     public static final String TXT = ".txt";
 
+    public static final String  ZIP = ".zip";
+
     /**
      * 文件类型
      */
     public static final String EXCEL_FILE = "excel";
     public static final String REC_FILE = "rec";
+
+    public static final String  RADIO = "radio";
+    public static final String  CHECKBOX = "checkbox";
+    public static final String  RADIO_INPUT = "radio-input";
+    public static final String  CHECKBOX_INPUT = "checkbox-input";
+    public static final String  NUMBER="number";
+    public static final String  TEXT="text";
 
     /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
@@ -167,16 +177,24 @@ public class QuestionnaireConstant {
      * 获取学生健康状况及影响因素调查表（小学版）问卷
      * @return 问卷类型集合
      */
-    public static List<Integer> getPrimarySchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
+    public static List<Integer> getPrimarySchool(String exportFile){
+        if (Objects.equals(EXCEL_FILE,exportFile)) {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType());
+        }else {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.PRIMARY_SCHOOL.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        }
     }
 
     /**
      * 获取学生健康状况及影响因素调查表（中学版）问卷
      * @return 问卷类型集合
      */
-    public static List<Integer> getMiddleSchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
+    public static List<Integer> getMiddleSchool(String exportFile){
+        if (Objects.equals(EXCEL_FILE,exportFile)) {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType());
+        }else {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.MIDDLE_SCHOOL.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        }
     }
 
     /**

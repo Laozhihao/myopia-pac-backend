@@ -10,8 +10,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @author hang.yuan
  * @date 2022/8/12
  */
-@EnableDiscoveryClient
-@EnableFeignClients
+//@EnableDiscoveryClient
+//@EnableFeignClients
 @SpringBootApplication(scanBasePackages = {"com.wupol.myopia"})
 public class MyopiaRecServerApplication {
 

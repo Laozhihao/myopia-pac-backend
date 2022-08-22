@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
@@ -47,14 +48,51 @@ public class QuestionnaireFacade {
      * @param questionnaireId 问卷ID
      */
     public QuestionnaireInfoBO getQuestionnaireInfo(Integer questionnaireId){
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
+        ThreeTuple<Questionnaire, List<QuestionnaireQuestion>, List<Question>> questionnaireBaseInfo = getQuestionnaireBaseInfo(questionnaireId);
+        if (Objects.isNull(questionnaireBaseInfo)){
+            return null;
+        }
+        return QuestionnaireInfoBuilder.buildQuestionnaireInfo(questionnaireBaseInfo.getFirst(),questionnaireBaseInfo.getSecond(),questionnaireBaseInfo.getThird());
+    }
+
+    /**
+     * 获取问卷数据构建结构
+     * @param questionnaireIds 问卷ID集合
+     */
+    public List<QuestionnaireQuestionRecDataBO> getDataBuildList(List<Integer> questionnaireIds){
+        List<QuestionnaireQuestionRecDataBO> dataBuildList = Lists.newArrayList();
+        if (CollUtil.isEmpty(questionnaireIds)){
+            return dataBuildList;
+        }
+        questionnaireIds.forEach(questionnaireId-> dataBuildList.addAll(getQuestionnaireRecInfoBO(questionnaireId).dataBuild()));
+        return dataBuildList;
+    }
+
+    /**
+     * 获取问卷rec数据信息
+     * @param questionnaireId 问卷ID
+     */
+    public QuestionnaireRecInfoBuilder getQuestionnaireRecInfoBO(Integer questionnaireId){
+        ThreeTuple<Questionnaire, List<QuestionnaireQuestion>, List<Question>> questionnaireBaseInfo = getQuestionnaireBaseInfo(questionnaireId);
+        if (Objects.isNull(questionnaireBaseInfo)){
+            return null;
+        }
+        return QuestionnaireRecInfoBuilder.build(questionnaireBaseInfo);
+    }
+
+    /**
+     * 获取问卷基础信息（问卷信息，题目信息，问卷题目关系）
+     * @param questionnaireId 问卷ID
+     */
+    private ThreeTuple<Questionnaire,List<QuestionnaireQuestion>,List<Question>> getQuestionnaireBaseInfo(Integer questionnaireId){
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
         if (CollUtil.isEmpty(questionnaireQuestionList)){
             return null;
         }
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         List<Integer> questionIds = questionnaireQuestionList.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         List<Question> questionList = questionService.listByIds(questionIds);
-        return QuestionnaireInfoBuilder.buildQuestionnaireInfo(questionnaire,questionnaireQuestionList,questionList);
+        return new ThreeTuple<>(questionnaire,questionnaireQuestionList,questionList);
     }
 
 
@@ -375,8 +413,8 @@ public class QuestionnaireFacade {
      *
      * @return 问卷集合
      */
-    public List<Questionnaire> getLatestQuestionnaire(QuestionnaireTypeEnum questionnaireTypeEnum){
-        List<Integer> questionnaireTypeList = getQuestionnaireTypeList(questionnaireTypeEnum);
+    public List<Questionnaire> getLatestQuestionnaire(QuestionnaireTypeEnum questionnaireTypeEnum,String exportFile){
+        List<Integer> questionnaireTypeList = getQuestionnaireTypeList(questionnaireTypeEnum,exportFile);
         if (CollUtil.isEmpty(questionnaireTypeList)){
             return Lists.newArrayList();
         }
@@ -392,16 +430,16 @@ public class QuestionnaireFacade {
      *
      * @param questionnaireTypeEnum 问卷类型
      */
-    public List<Integer> getQuestionnaireTypeList(QuestionnaireTypeEnum questionnaireTypeEnum){
+    public List<Integer> getQuestionnaireTypeList(QuestionnaireTypeEnum questionnaireTypeEnum,String exportFile){
         switch (questionnaireTypeEnum){
             case AREA_DISTRICT_SCHOOL:
                 return QuestionnaireConstant.getAreaDistrictSchool();
             case PRIMARY_SECONDARY_SCHOOLS:
                 return QuestionnaireConstant.getPrimarySecondarySchool();
             case PRIMARY_SCHOOL:
-                return QuestionnaireConstant.getPrimarySchool();
+                return QuestionnaireConstant.getPrimarySchool(exportFile);
             case MIDDLE_SCHOOL:
-                return QuestionnaireConstant.getMiddleSchool();
+                return QuestionnaireConstant.getMiddleSchool(exportFile);
             case UNIVERSITY_SCHOOL:
                 return QuestionnaireConstant.getUniversitySchool();
             case VISION_SPINE:
@@ -414,11 +452,6 @@ public class QuestionnaireFacade {
         return Lists.newArrayList();
     }
 
-
-    public Integer getQesFileId(Integer qesId){
-        QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
-        return questionnaireQes.getQesFileId();
-    }
 
     /**
      * 获取隐藏问题集合
@@ -497,6 +530,15 @@ public class QuestionnaireFacade {
         if (CollUtil.isNotEmpty(questionnaireIds)){
             questionnaireIds.forEach(id-> scoreMap.put(id,Lists.newArrayList()));
         }
+    }
+
+    /**
+     * 获取qes文件ID
+     * @param qesId qes管理ID
+     */
+    public Integer getQesFileId(Integer qesId){
+        QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
+        return questionnaireQes.getQesFileId();
     }
 
 }

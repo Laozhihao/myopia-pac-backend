@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain;
 
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * 生成rec数据业务实体
@@ -11,15 +12,13 @@ import lombok.experimental.Accessors;
  * @author hang.yuan 2022/8/17 11:14
  */
 @Data
-@Accessors(chain = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class GenerateRecDataBO {
 
     private Integer schoolId;
 
-    private TwoTuple<String,String> tuple;
+    private String qesUrl;
 
-    public GenerateRecDataBO(TwoTuple<String, String> tuple) {
-        this.tuple = tuple;
-    }
+    private List<String> dataList;
 }

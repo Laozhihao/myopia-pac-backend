@@ -106,27 +106,4 @@ public class QuestionnaireInfoBuilder {
             setQuestion(childList,questionnaireQuestionMap,questionMap);
         }
     }
-
-    /**
-     * 问题树展开
-     * @param questionList 问题集合
-     */
-    public static List<QuestionExtBO> getQuestionBOList(List<QuestionExtBO> questionList){
-        List<QuestionExtBO> questionExtBOList =Lists.newArrayList();
-        if (CollectionUtils.isEmpty(questionList)){
-            return questionExtBOList;
-        }
-        expandTree(questionList,questionExtBOList);
-        return questionExtBOList;
-    }
-
-    private static void expandTree(List<QuestionExtBO> questionList, List<QuestionExtBO> questionExtBOList){
-        for (QuestionExtBO questionExtBO : questionList) {
-            questionExtBOList.add(questionExtBO);
-            List<QuestionExtBO> childList = questionExtBO.getQuestionExtBOList();
-            if (CollectionUtil.isNotEmpty(childList)){
-                expandTree(childList,questionExtBOList);
-            }
-        }
-    }
 }
