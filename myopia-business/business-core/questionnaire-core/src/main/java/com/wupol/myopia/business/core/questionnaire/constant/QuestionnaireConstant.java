@@ -222,9 +222,4 @@ public class QuestionnaireConstant {
         return Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
 
-    /**
-     * text
-     */
-    public static final String TEXT = "text";
-
 }
