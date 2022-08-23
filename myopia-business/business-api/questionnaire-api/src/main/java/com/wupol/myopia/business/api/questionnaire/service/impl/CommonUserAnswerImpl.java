@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -78,15 +79,18 @@ public class CommonUserAnswerImpl {
                 userAnswerProgress.setUpdateTime(new Date());
                 userAnswerProgressService.updateById(userAnswerProgress);
             }
-            // 新增一条汇总的数据
-            UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
-            totalRecord.setId(null);
-            totalRecord.setQuestionnaireId(-1);
-            totalRecord.setQuestionnaireType(null);
-            totalRecord.setRecordType(1);
-            totalRecord.setCreateTime(new Date());
-            totalRecord.setUpdateTime(new Date());
-            userQuestionRecordService.save(totalRecord);
+            // 学生新增汇总信息
+            if (Objects.equals(userType, QuestionnaireUserType.STUDENT.getType())) {
+                // 新增一条汇总的数据
+                UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
+                totalRecord.setId(null);
+                totalRecord.setQuestionnaireId(-1);
+                totalRecord.setQuestionnaireType(null);
+                totalRecord.setRecordType(1);
+                totalRecord.setCreateTime(new Date());
+                totalRecord.setUpdateTime(new Date());
+                userQuestionRecordService.save(totalRecord);
+            }
         }
         return userQuestionRecord.getId();
     }
