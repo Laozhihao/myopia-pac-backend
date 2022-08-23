@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
@@ -133,7 +134,11 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             UserAnswer userAnswer = new UserAnswer();
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
-            userAnswer.setQuestionId(s.getQuestionId());
+            Integer questionId = s.getQuestionId();
+            if (Objects.isNull(questionId)) {
+                throw new BusinessException("问题Id异常!");
+            }
+            userAnswer.setQuestionId(questionId);
             userAnswer.setRecordId(recordId);
             userAnswer.setUserType(userType);
             userAnswer.setQuestionTitle(s.getTitle());

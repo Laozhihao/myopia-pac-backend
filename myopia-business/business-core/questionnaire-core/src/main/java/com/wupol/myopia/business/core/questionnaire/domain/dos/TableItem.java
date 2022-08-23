@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,9 +59,9 @@ public class TableItem implements Serializable {
      */
     private Option option;
 
-    public TableItem(String name, String type) {
+    public TableItem(String name) {
         this.name = name;
-        this.type = type;
+        this.type = QuestionnaireConstant.TEXT;
     }
 
     @Getter

@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -380,18 +381,21 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
 
         SchoolTeacherTable titleTable = new SchoolTeacherTable();
-        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号", "text"), new TableItem("类别", "text"),
-                new TableItem("专/兼职", "text"), new TableItem("学校卫生工作年限", "text"),
-                new TableItem("学历", "text"), new TableItem("职称", "text"),
-                new TableItem("执业资格证书", "text"), new TableItem("上一年度学校卫生培训次数", "text")));
+        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号"), new TableItem("类别"),
+                new TableItem("专/兼职"), new TableItem("学校卫生工作年限"),
+                new TableItem("学历"), new TableItem("职称"),
+                new TableItem("执业资格证书"), new TableItem("上一年度学校卫生培训次数")));
 
         List<SchoolTeacherTable> result = Lists.newArrayList(titleTable);
+
+        AtomicInteger count = new AtomicInteger(1);
         List<SchoolTeacherTable> collect = questionnaireQuestionList.stream().map(s -> {
             SchoolTeacherTable table = new SchoolTeacherTable();
 
             Question question = questionMap.get(s.getQuestionId());
             JSONObject option = question.getOptions().get(0).getOption();
             List<TableItem> tableItems = new ArrayList<>();
+            tableItems.add(new TableItem(String.valueOf(count.getAndIncrement())));
             for (int i = 1; i <= option.size(); i++) {
                 tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem(), question.getId()));
             }

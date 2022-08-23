@@ -119,6 +119,11 @@ public class QuestionnaireConstant {
      */
     public static final String INPUT = "input";
 
+    /**
+     * text
+     */
+    public static final String TEXT = "text";
+
 
     /**
      * 临时文件夹名称
@@ -155,7 +160,6 @@ public class QuestionnaireConstant {
     public static final String  RADIO_INPUT = "radio-input";
     public static final String  CHECKBOX_INPUT = "checkbox-input";
     public static final String  NUMBER="number";
-    public static final String  TEXT="text";
 
     /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
