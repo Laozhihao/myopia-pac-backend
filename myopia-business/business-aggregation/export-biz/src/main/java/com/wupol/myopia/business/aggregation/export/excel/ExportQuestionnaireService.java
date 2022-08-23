@@ -48,8 +48,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
 
-
     private List<Integer> recFileList = Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
+
+    private volatile String fileType;
 
     /**
      * 预处理
@@ -57,6 +58,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      */
     @Override
     public void preProcess(ExportCondition exportCondition) {
+        fileType = recFileList.contains(exportCondition.getExportType())?QuestionnaireConstant.REC_FILE:QuestionnaireConstant.EXCEL_FILE;
         Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
         if (exportTypeService.isPresent()) {
             ExportType exportType = exportTypeService.get();
@@ -98,7 +100,6 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Override
     public File fileDispose(Boolean isPackage, ExportCondition exportCondition, String fileSavePath, String fileName, List data) throws IOException {
         if (Objects.equals(Boolean.TRUE,isPackage)){
-            String fileType = recFileList.contains(exportCondition.getExportType())?QuestionnaireConstant.REC_FILE:QuestionnaireConstant.EXCEL_FILE;
             // 生成文件
             generateFile(fileSavePath,exportCondition,fileType);
             // 压缩文件
@@ -107,6 +108,13 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         return null;
     }
 
+    @Override
+    public String getErrorMsg() {
+        if (Objects.equals(fileType,QuestionnaireConstant.REC_FILE)){
+            return "【导出REC异常】{}";
+        }
+        return super.getErrorMsg();
+    }
 
     /**
      * 根据地区导出数据时，获取地区的各个学校问卷数据文件夹名称

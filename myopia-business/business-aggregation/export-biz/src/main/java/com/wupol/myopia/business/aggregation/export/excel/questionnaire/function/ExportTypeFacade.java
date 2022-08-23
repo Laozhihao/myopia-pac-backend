@@ -119,13 +119,11 @@ public class ExportTypeFacade {
         switch (exportType){
             case 10:
             case 15:
-            case 18:
                 typeMap.put(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getDesc());
                 typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
                 break;
             case 11:
             case 13:
-            case 16:
                 typeMap.put(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getDesc());
                 typeMap.put(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getDesc());
                 typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
@@ -138,9 +136,17 @@ public class ExportTypeFacade {
                 typeMap.put(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getDesc());
                 typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
                 break;
+            case 16:
+                typeMap.put(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getDesc());
+                typeMap.put(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getDesc());
+                typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
+                typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
+                break;
             case 17:
                 typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
-                typeMap.put(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getDesc());
+                typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
+                break;
+            case 18:
                 typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
                 break;
             case 12:
