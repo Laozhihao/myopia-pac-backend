@@ -22,7 +22,7 @@ import java.util.UUID;
 public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
-    private static final String  EPIC = "/app/EpiC.exe";
+    private static final String  EPIC = "/wine/EpiC.exe";
     private static final String  TXT_TO_REC_MSG = "【导出REC文件异常】";
     private static final String  EPI_DATA_FOLDER = "EpiData";
 

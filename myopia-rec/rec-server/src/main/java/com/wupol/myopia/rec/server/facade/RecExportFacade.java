@@ -70,6 +70,7 @@ public class RecExportFacade {
         recExportVO.setRecName(recExportDTO.getRecName());
         //不存在rec文件直接返回
         if (!FileUtil.exist(tuple.getSecond())){
+            log.warn("no rec file generation");
             return recExportVO;
         }
 
