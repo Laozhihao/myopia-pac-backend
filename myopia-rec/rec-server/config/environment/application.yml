@@ -1,7 +1,6 @@
 ### 服务端口号
 server:
   port: 8080
-  host: ${VISTEL_MYOPIA_PAC_REC_INTERNAL_URI}
 
 ### log4j2配置 ###
 logging:
