@@ -424,13 +424,16 @@
     </select>
 
     <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">
-        select *
-        from m_stat_conclusion where src_screening_notice_id = #{noticeId}
-                                 and district_id in
+        select msc.*
+        from m_stat_conclusion msc
+        left join m_screening_plan msp on msc.plan_id = msp.id
+        where msc.src_screening_notice_id = #{noticeId}
+        and msc.district_id in
         <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        and is_rescreen = false
+        and msc.is_rescreen = false
+        and msp.release_status = 1
     </select>
 
     <select id="getByPlanIdSchoolId" resultMap="BaseResultMap">
