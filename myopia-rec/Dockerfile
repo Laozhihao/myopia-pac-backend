@@ -15,11 +15,10 @@ RUN --mount=type=cache,target=/root/.m2 \
     mvn validate package -U -Dmaven.javadoc.skip=true -DskipTests=true
 
 # application
-FROM wupol/epic-jdk:1.0
+FROM dops-registry.vistel.cn/devops/workbase-image/jre-8-wine-epic:3.1.2
 
 WORKDIR /app
-RUN mkdir -p /app/file
-EXPOSE 8040
+EXPOSE 8080
 
 COPY --from=app-builder /build/myopia-rec/rec-server/target/myopia-rec.jar /app/
 CMD ["java", "-jar", "/app/myopia-rec.jar"]

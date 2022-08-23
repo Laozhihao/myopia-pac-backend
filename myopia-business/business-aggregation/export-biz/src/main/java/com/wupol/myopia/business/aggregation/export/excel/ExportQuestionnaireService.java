@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
@@ -47,6 +48,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
 
+
+    private List<Integer> recFileList = Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
 
     /**
      * 预处理
@@ -95,8 +98,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Override
     public File fileDispose(Boolean isPackage, ExportCondition exportCondition, String fileSavePath, String fileName, List data) throws IOException {
         if (Objects.equals(Boolean.TRUE,isPackage)){
-            // 生成excel
-            generateExcelFile(fileSavePath,data,exportCondition);
+            String fileType = recFileList.contains(exportCondition.getExportType())?QuestionnaireConstant.REC_FILE:QuestionnaireConstant.EXCEL_FILE;
+            // 生成文件
+            generateFile(fileSavePath,exportCondition,fileType);
             // 压缩文件
             return compressFile(fileSavePath);
         }
@@ -128,11 +132,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     /**
      * 生成Excel
      * @param fileName 文件保存路径（含基础路径）
-     * @param data 导出数据集合（暂时没用）
      * @param exportCondition 导出条件
      */
-    @Override
-    public File generateExcelFile(String fileName, List data, ExportCondition exportCondition) throws IOException {
+    public File generateFile(String fileName, ExportCondition exportCondition,String fileType) throws IOException {
 
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtils.isEmpty(questionnaireTypeList)){
@@ -142,26 +144,26 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
                 String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
                 for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
-                    generateExcelFile(filePath, exportCondition, type);
+                    generateFile(filePath, exportCondition, type,fileType);
                 }
             }else {
-                generateExcelFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType);
+                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType,fileType);
             }
         }
         return null;
     }
 
     /**
-     * 生成Excel
+     * 生成文件
      * @param fileName 文件保存路径（含基础路径）
      * @param exportCondition 导出条件
      * @param questionnaireType 问卷类型
      */
-    private void generateExcelFile(String fileName, ExportCondition exportCondition, Integer questionnaireType) throws IOException {
+    private void generateFile(String fileName, ExportCondition exportCondition, Integer questionnaireType,String fileType) throws IOException {
         Optional<QuestionnaireExcel> questionnaireExcelService = questionnaireExcelFactory.getQuestionnaireExcelService(questionnaireType);
         if (questionnaireExcelService.isPresent()) {
             QuestionnaireExcel questionnaireExcel = questionnaireExcelService.get();
-            questionnaireExcel.generateFile(exportCondition,fileName,QuestionnaireConstant.EXCEL_FILE);
+            questionnaireExcel.generateFile(exportCondition,fileName,fileType);
         }
     }
 

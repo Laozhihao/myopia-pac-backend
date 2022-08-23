@@ -524,24 +524,43 @@ public class UserAnswerRecFacade {
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
 
+    /**
+     * 构建导出条件
+     * @param generateRecDataBO 生成rec数据
+     * @param questionnaireType 问卷类型
+     */
+    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO,Integer questionnaireType) {
+        String recFileName = getRecFileName(generateRecDataBO.getSchoolId(), questionnaireType);
+        RecExportDTO recExportDTO = new RecExportDTO();
+        recExportDTO.setQesUrl(generateRecDataBO.getQesUrl());
+        recExportDTO.setDataList(generateRecDataBO.getDataList());
+        recExportDTO.setRecName(recFileName);
+        return recExportDTO;
+    }
 
     /**
      * 调rec导出工具
      * @param fileName 文件夹
-     * @param recExportDTO 导出条件
+     * @param generateRecDataBO 导出条件
+     * @param generateRecDataBO 导出条件
      */
-    public void exportRecFile(String fileName, RecExportDTO recExportDTO) {
-        System.out.println(recExportDTO);
+    public void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO,Integer questionnaireType) {
+        RecExportDTO recExportDTO = buildRecExportDTO(generateRecDataBO, questionnaireType);
+
+        log.info("请求参数：{}",JSON.toJSONString(recExportDTO));
         CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO),asyncServiceExecutor);
         try {
             RecExportVO recExportVO = future.get();
             EpiDataUtil.getRecPath(recExportVO.getRecUrl(), fileName,recExportVO.getRecName());
+            log.info("生成rec文件成功 recName={}",recExportVO.getRecName());
         } catch (InterruptedException e){
             log.warn("Interrupted",e);
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("获取rec导出结果失败");
         }
+
+
     }
 
 }

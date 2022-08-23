@@ -22,7 +22,7 @@ import java.util.UUID;
 public class EpiDataUtil {
 
     private static final String  GBK = "GBK";
-    private static final String  EPIC = "/app/EpiC.exe";
+    private static final String  EPIC = "/wine/EpiC.exe";
     private static final String  TXT_TO_REC_MSG = "【导出REC文件异常】";
     private static final String  EPI_DATA_FOLDER = "EpiData";
 
@@ -68,8 +68,16 @@ public class EpiDataUtil {
      */
     public static boolean exportRecFile(String txtPath, String qesPath, String recPath) {
         String[] cmd = buildCmd(txtPath, qesPath, recPath);
-
         log.info("[START]-[txt convert to rec] ,execute command : {}", Arrays.toString(cmd));
+        return execCmd(cmd,Boolean.FALSE);
+    }
+
+    /**
+     * 执行命令
+     * @param cmd 命令
+     * @param isPrint 是否打印
+     */
+    private static boolean execCmd(String[] cmd,Boolean isPrint) {
         Process process;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
@@ -89,6 +97,9 @@ public class EpiDataUtil {
                     process.destroy();
                     return false;
                 }
+                if (Objects.equals(isPrint,Boolean.TRUE)){
+                    log.info(">>>>>> {}",line);
+                }
             }
             return true;
 
@@ -107,7 +118,7 @@ public class EpiDataUtil {
      */
     private static String[] buildCmd(String txtPath, String qesPath, String recPath) {
         List<String> mainCmdList = Lists.newArrayList();
-        if (!Objects.equals(IoUtil.windowsSystem(), Boolean.TRUE)) {
+        if (Objects.equals(IoUtil.windowsSystem(), Boolean.FALSE)) {
             mainCmdList.add("wine");
         }
         mainCmdList.add(EPIC);
@@ -116,5 +127,18 @@ public class EpiDataUtil {
         return mainCmdList.toArray(new String[]{});
     }
 
+    /**
+     * 初始化Epic程序
+     */
+    public static Boolean initEpic(){
+        List<String> mainCmdList = Lists.newArrayList();
+        if (Objects.equals(IoUtil.windowsSystem(), Boolean.FALSE)) {
+            mainCmdList.add("wine");
+        }
+        mainCmdList.add(EPIC);
+        String[] cmd = mainCmdList.toArray(new String[]{});
+        log.info("[START]-[initialized EpiC config] ,execute command : {}", Arrays.toString(cmd));
+        return execCmd(cmd,Boolean.TRUE);
+    }
 
 }

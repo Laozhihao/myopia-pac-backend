@@ -70,6 +70,7 @@ public class RecExportFacade {
         recExportVO.setRecName(recExportDTO.getRecName());
         //不存在rec文件直接返回
         if (!FileUtil.exist(tuple.getSecond())){
+            log.warn("no rec file generation");
             return recExportVO;
         }
 
@@ -105,6 +106,10 @@ public class RecExportFacade {
      * @param recExportDTO 导出数据
      */
     private void parameterCheck(RecExportDTO recExportDTO){
+
+        if (Objects.equals(EpicInit.initStatus,Boolean.FALSE)){
+            throw new BusinessException("EpiC not initialized");
+        }
         if (CollUtil.isEmpty(recExportDTO.getDataList()) && StrUtil.isBlank(recExportDTO.getTxtUrl())){
             throw new BusinessException("export txt data cannot be empty");
         }
