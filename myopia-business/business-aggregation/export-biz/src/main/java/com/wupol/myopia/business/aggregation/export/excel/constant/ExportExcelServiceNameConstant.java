@@ -60,8 +60,4 @@ public class ExportExcelServiceNameConstant {
      */
     public final String QUESTIONNAIRE_SERVICE = "questionnaireExcelService";
 
-    /**
-     * 问卷REC
-     */
-    public final String QUESTIONNAIRE_REC_SERVICE = "questionnaireRecService";
 }
