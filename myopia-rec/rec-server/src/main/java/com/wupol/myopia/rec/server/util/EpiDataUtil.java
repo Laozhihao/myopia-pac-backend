@@ -98,7 +98,7 @@ public class EpiDataUtil {
                     return false;
                 }
                 if (Objects.equals(isPrint,Boolean.TRUE)){
-                    log.info(line);
+                    log.info(">>>>>> {}",line);
                 }
             }
             return true;
