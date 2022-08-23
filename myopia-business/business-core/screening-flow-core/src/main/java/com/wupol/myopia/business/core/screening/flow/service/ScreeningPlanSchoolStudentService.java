@@ -353,7 +353,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
     public List<ScreeningPlanSchoolStudent> filterOutPlanStudentOfReleasePlan(List<ScreeningPlanSchoolStudent> planSchoolStudentList) {
-        List<ScreeningPlan> planList = screeningPlanService.getByIds(planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).distinct().collect(Collectors.toList()));
+        List<Integer> planIds = planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(planIds)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningPlan> planList = screeningPlanService.getByIds(planIds);
         List<Integer> releasePlanIdList = planList.stream().filter(x -> CommonConst.STATUS_RELEASE.equals(x.getReleaseStatus())).map(ScreeningPlan::getId).collect(Collectors.toList());
         return planSchoolStudentList.stream().filter(x -> releasePlanIdList.contains(x.getScreeningPlanId())).collect(Collectors.toList());
     }
