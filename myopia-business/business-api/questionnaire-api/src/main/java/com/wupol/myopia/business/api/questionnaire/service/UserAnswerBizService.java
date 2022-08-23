@@ -212,7 +212,7 @@ public class UserAnswerBizService {
      */
     public List<District> govNextDistrict(CurrentUser user) {
         Integer districtId = getUserDistrictId(user);
-        return districtService.getAreaTree(districtId);
+        return districtService.getSameLevelDistrictKeepArea(districtId);
     }
 
     /**
