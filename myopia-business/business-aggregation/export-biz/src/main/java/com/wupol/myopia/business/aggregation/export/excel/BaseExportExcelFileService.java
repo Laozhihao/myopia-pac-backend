@@ -84,7 +84,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             sendSuccessNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent, fileId);
         } catch (Exception e) {
             String requestData = JSON.toJSONString(exportCondition);
-            log.error("【导出Excel异常】{}", requestData, e);
+            log.error(getErrorMsg(), requestData, e);
             // 发送失败通知
             if (!StringUtils.isEmpty(noticeKeyContent)) {
                 sendFailNotice(exportCondition.getApplyExportFileUserId(), noticeKeyContent);
@@ -97,6 +97,9 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         }
     }
 
+    public String getErrorMsg(){
+        return "【导出Excel异常】{}";
+    }
 
     /**
      * 开关
