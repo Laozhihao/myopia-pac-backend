@@ -295,7 +295,7 @@ public class QuestionnaireManagementController {
                 .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
                 .setTaskId(exportQuestionnaireDTO.getTaskId());
 
-        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_REC_SERVICE);
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }
 
 

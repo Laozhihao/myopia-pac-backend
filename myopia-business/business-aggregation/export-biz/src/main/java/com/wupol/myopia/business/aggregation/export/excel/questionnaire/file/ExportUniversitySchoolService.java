@@ -11,7 +11,6 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnsw
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.rec.domain.RecExportDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,17 +64,8 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            userAnswerRecFacade.exportRecFile(fileName, buildRecExportDTO(generateRecDataBO));
+            userAnswerRecFacade.exportRecFile(fileName, generateRecDataBO,getType());
         }
-    }
-
-    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO) {
-        String recFileName = userAnswerRecFacade.getRecFileName(generateRecDataBO.getSchoolId(), getType());
-        RecExportDTO recExportDTO = new RecExportDTO();
-        recExportDTO.setQesUrl(generateRecDataBO.getQesUrl());
-        recExportDTO.setDataList(generateRecDataBO.getDataList());
-        recExportDTO.setRecName(recFileName);
-        return recExportDTO;
     }
 
     @Override
