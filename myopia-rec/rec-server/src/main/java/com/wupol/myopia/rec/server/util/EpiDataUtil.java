@@ -49,7 +49,8 @@ public class EpiDataUtil {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), GBK))) {
             for (String data : dataList) {
                 bw.write(data);
-                bw.newLine();
+                //只支持windows的回车符
+                bw.write("\r\n");
             }
             return true;
         } catch (Exception e) {

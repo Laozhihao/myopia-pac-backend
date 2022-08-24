@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -15,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,13 +70,16 @@ public class QuestionnaireBizService {
             for (QesFieldMapping qesFieldMapping : qesFieldMappingList) {
                 Optional.ofNullable(qesDataMap.get(qesFieldMapping.getQesField())).ifPresent(qesDataDOList -> {
                     List<String> optionIds = qesDataDOList.stream().map(QesDataDO::getOptionId).collect(Collectors.toList());
-                    String optionIdStr = CollUtil.join(optionIds, ",");
+                    String optionIdStr = CollUtil.join(optionIds, StrUtil.COMMA);
                     qesFieldMapping.setOptionId(optionIdStr);
                 });
             }
             qesFieldMappingService.updateBatchById(qesFieldMappingList);
             List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
-            questionnaireList.forEach(questionnaire -> questionnaire.setQesId(getQesId(questionnaire.getQesId(),qesId)));
+            questionnaireList.forEach(questionnaire -> {
+                questionnaire.setQesId(getQesId(questionnaire.getQesId(),qesId));
+                questionnaire.setUpdateTime(new Date());
+            });
             questionnaireService.updateBatchById(questionnaireList);
         }
     }
@@ -88,9 +90,13 @@ public class QuestionnaireBizService {
      * @param newQesId 新的qes管理ID
      */
     private String getQesId(String dbQesId,Integer newQesId){
+        //数据库的值为空
         if (StrUtil.isBlank(dbQesId)){
             return newQesId.toString();
         }
-        return dbQesId+StrUtil.COMMA+newQesId;
+        //数据的值不为空 新增新值
+        Set<String> qesIds = Sets.newHashSet(dbQesId.split(StrUtil.COMMA));
+        qesIds.add(newQesId.toString());
+        return CollUtil.join(qesIds, StrUtil.COMMA);
     }
 }

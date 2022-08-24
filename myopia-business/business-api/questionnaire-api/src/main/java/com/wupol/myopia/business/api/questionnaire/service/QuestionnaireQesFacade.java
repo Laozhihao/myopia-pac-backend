@@ -77,6 +77,7 @@ public class QuestionnaireQesFacade {
         //上传
         uploadQesFile(qesPath, questionnaireQes,Boolean.TRUE);
         uploadQesFile(parseSavePath, questionnaireQes,Boolean.FALSE);
+        questionnaireQes.setUpdateTime(new Date());
         questionnaireQesService.updateById(questionnaireQes);
 
         //保存qes字段映射
