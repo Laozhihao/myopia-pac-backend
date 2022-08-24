@@ -57,7 +57,7 @@ public class DistrictStatisticTask {
             return;
         }
         //筛查计划ID 查找筛查通知ID
-        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(screeningPlanIds);
+        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsOfReleasePlanByPlanIds(screeningPlanIds);
         if(CollectionUtil.isEmpty(screeningNoticeIds)){
             log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
@@ -67,7 +67,6 @@ public class DistrictStatisticTask {
             log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
         }
-
         districtStatisticsByNoticeIds(screeningNoticeIds, excludePlanIds);
     }
 
@@ -81,7 +80,7 @@ public class DistrictStatisticTask {
     public void districtStatisticsByNoticeIds(List<Integer> screeningNoticeIds, List<Integer> excludePlanIds) {
 
         //筛查通知ID 查出筛查数据结论
-        List<StatConclusion> statConclusionList = statConclusionService.getBySrcScreeningNoticeIds(screeningNoticeIds, excludePlanIds);
+        List<StatConclusion> statConclusionList = statConclusionService.listOfReleasePlanByScreeningNoticeIds(screeningNoticeIds, excludePlanIds);
         if (CollectionUtil.isEmpty(statConclusionList)){
             log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollectionUtil.join(screeningNoticeIds,","));
             return;

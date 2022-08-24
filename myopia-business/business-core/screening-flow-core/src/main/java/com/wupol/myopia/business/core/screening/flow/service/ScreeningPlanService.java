@@ -222,12 +222,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningPlanIds
      * @return
      */
-    public List<Integer> getSrcScreeningNoticeIdsByIds(List<Integer> screeningPlanIds) {
+    public List<Integer> getSrcScreeningNoticeIdsOfReleasePlanByPlanIds(List<Integer> screeningPlanIds) {
         if (CollectionUtils.isEmpty(screeningPlanIds)) {
             return Collections.emptyList();
         }
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
         screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
+        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
         List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
         return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
     }
@@ -296,7 +297,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public long getAllPlanStudentNumByNoticeId(Integer noticeId) {
-        List<ScreeningPlan> allPlans = this.getAllPlanByNoticeId(noticeId);
+        List<ScreeningPlan> allPlans = this.getAllReleasePlanByNoticeId(noticeId);
         Integer allPlanStudentNums = allPlans.stream().map(ScreeningPlan::getStudentNumbers).reduce(0, Integer::sum);
         return allPlanStudentNums.longValue();
     }
@@ -307,8 +308,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param noticeId
      * @return
      */
-    public List<ScreeningPlan> getAllPlanByNoticeId(Integer noticeId) {
-        //TODO @jacob是要查询发布状态么？
+    public List<ScreeningPlan> getAllReleasePlanByNoticeId(Integer noticeId) {
         ScreeningPlan screeningPlan = new ScreeningPlan();
         screeningPlan.setSrcScreeningNoticeId(noticeId).setReleaseStatus(CommonConst.STATUS_RELEASE);
         LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();

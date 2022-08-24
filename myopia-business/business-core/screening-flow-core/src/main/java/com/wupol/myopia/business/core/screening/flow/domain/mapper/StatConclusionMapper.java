@@ -32,12 +32,12 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     List<StatConclusion> listByQuery(StatConclusionQueryDTO query);
 
     /**
-     * 获取list（排除作废计划）
+     * 获取list（已发布的计划的）
      *
      * @param query 查询条件
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion>
      **/
-    List<StatConclusion> listExcludeAbolishPlanByQuery(StatConclusionQueryDTO query);
+    List<StatConclusion> listOfReleasePlanByQuery(StatConclusionQueryDTO query);
 
     List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 

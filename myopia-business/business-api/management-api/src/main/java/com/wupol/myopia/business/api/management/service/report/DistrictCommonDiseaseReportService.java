@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -114,7 +113,7 @@ public class DistrictCommonDiseaseReportService {
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException(String.format("不存在筛查通知: noticeId=%s", noticeId));
         }
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
         if (CollectionUtil.isEmpty(screeningPlanList)) {
             throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
         }
@@ -429,7 +428,7 @@ public class DistrictCommonDiseaseReportService {
         query.setDistrictIds(districtIds)
                 .setSrcScreeningNoticeId(noticeId)
                 .setIsRescreen(isRescreen);
-        return statConclusionService.listExcludeAbolishPlanByQuery(query);
+        return statConclusionService.listOfReleasePlanByQuery(query);
     }
 
     /**

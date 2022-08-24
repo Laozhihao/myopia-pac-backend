@@ -796,8 +796,8 @@ public class ScreeningPlanController {
         if (Objects.nonNull(screeningPlan.getSrcScreeningNoticeId()) && !CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
             // 2）把通知相关的区域统计删掉
             screeningResultStatisticService.remove(new ScreeningResultStatistic().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setSchoolId(-1));
-            // 3）重新统计该通知的区域数据(排除掉当前作废的计划)
-            districtStatisticTask.districtStatisticsByNoticeIds(Lists.newArrayList(screeningPlan.getSrcScreeningNoticeId()), Lists.newArrayList(planId));
+            // 3）重新统计该通知的区域数据
+            districtStatisticTask.districtStatisticsByNoticeIds(Lists.newArrayList(screeningPlan.getSrcScreeningNoticeId()), null);
         }
 
     }

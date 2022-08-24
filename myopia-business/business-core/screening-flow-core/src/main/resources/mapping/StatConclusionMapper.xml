@@ -156,7 +156,7 @@
         <include refid="Base_Where_Clause" />
     </select>
 
-    <select id="listExcludeAbolishPlanByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
+    <select id="listOfReleasePlanByQuery" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT msc.*
         FROM m_stat_conclusion msc
         LEFT JOIN m_screening_plan msp ON msp.id = msc.plan_id
@@ -168,17 +168,35 @@
         <if test="@Ognl@isNotEmpty(schoolGradeCode)">and msc.`school_grade_code` = #{schoolGradeCode}</if>
         <if test="@Ognl@isNotEmpty(schoolAge)">and msc.`school_age` = #{schoolAge}</if>
         <if test="@Ognl@isNotEmpty(schoolClassName)">and msc.`school_class_name` = #{schoolClassName}</if>
+        <if test="@Ognl@isNotEmpty(startTime)">and msc.`create_time` <![CDATA[>=]]> #{startTime}</if>
+        <if test="@Ognl@isNotEmpty(endTime)">and msc.`create_time` <![CDATA[<]]> #{endTime}</if>
+        <if test="@Ognl@isNotEmpty(isValid)">and msc.`is_valid` = #{isValid}</if>
+        <if test="@Ognl@isNotEmpty(isRescreen)">and msc.`is_rescreen` = #{isRescreen}</if>
+        <if test="@Ognl@isNotEmpty(isCooperative)">and msc.`is_cooperative` = #{isCooperative}</if>
         <if test="districtIds != null and districtIds.size() != 0">
             and msc.`district_id` in
             <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
                 #{id}
             </foreach>
         </if>
-        <if test="@Ognl@isNotEmpty(startTime)">and msc.`create_time` <![CDATA[>=]]> #{startTime}</if>
-        <if test="@Ognl@isNotEmpty(endTime)">and msc.`create_time` <![CDATA[<]]> #{endTime}</if>
-        <if test="@Ognl@isNotEmpty(isValid)">and msc.`is_valid` = #{isValid}</if>
-        <if test="@Ognl@isNotEmpty(isRescreen)">and msc.`is_rescreen` = #{isRescreen}</if>
-        <if test="@Ognl@isNotEmpty(isCooperative)">and msc.`is_cooperative` = #{isCooperative}</if>
+        <if test="screeningNoticeIds != null and screeningNoticeIds.size() != 0">
+            and msc.`src_screening_notice_id` in
+            <foreach collection="screeningNoticeIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="excludePlanIds != null and excludePlanIds.size() != 0">
+            and msc.`plan_id` not in
+            <foreach collection="excludePlanIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="planIds != null and planIds.size() != 0">
+            and msc.`plan_id` in
+            <foreach collection="planIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
     </select>
 
     <select id="selectExportVoByScreeningNoticeIdAndDistrictIds" resultMap="ExportVoResultMap" parameterType="java.util.Map">

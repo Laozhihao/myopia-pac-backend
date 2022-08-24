@@ -89,7 +89,7 @@ public class StatSchoolService {
             return Lists.newArrayList();
         }
         if(user.isGovDeptUser()){
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
             return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
         }
 
@@ -323,7 +323,7 @@ public class StatSchoolService {
             return Lists.newArrayList();
         }
         if(user.isGovDeptUser()){
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
             return getStatisticByPlanIdsAndSchoolId(screeningPlans, schoolId);
         }
 

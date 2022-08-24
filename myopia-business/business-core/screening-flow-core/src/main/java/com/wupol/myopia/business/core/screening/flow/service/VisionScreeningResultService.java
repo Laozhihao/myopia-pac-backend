@@ -104,7 +104,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 通过指定的日期获取筛查计划ID集合
      */
-    public List<Integer> getScreeningPlanIdsByDate(String dateStr) {
+    public List<Integer> getReleasePlanIdsByDate(String dateStr) {
         if (StrUtil.isBlank(dateStr)) {
             dateStr = LocalDate.now().minusDays(1).toString();
 
