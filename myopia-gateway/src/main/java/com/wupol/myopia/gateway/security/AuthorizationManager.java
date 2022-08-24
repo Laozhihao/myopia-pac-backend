@@ -69,8 +69,8 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             return Mono.just(new AuthorizationDecision(false));
         }
         CurrentUser currentUser = JSONUtil.parseObj(jwsObject.getPayload().toString()).get(AuthConstants.JWT_USER_INFO_KEY, CurrentUser.class);
-        Object accessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
-        Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getId()));
+        Object accessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getSystemCode(), currentUser.getId()));
+        Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getSystemCode(), currentUser.getId()));
         // 判断是否已经退出登录
         if (!tokenWithoutPrefix.equals(accessToken) && !tokenWithoutPrefix.equals(oldAccessToken)) {
             return Mono.just(new AuthorizationDecision(false));
@@ -89,7 +89,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
             }
         }
         // 判断接口访问权限
-        List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
+        List<Object> permissions = redisUtil.lGetAll(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getSystemCode(), currentUser.getId()));
         if (CollectionUtils.isEmpty(permissions)) {
             return Mono.just(new AuthorizationDecision(false));
         }
