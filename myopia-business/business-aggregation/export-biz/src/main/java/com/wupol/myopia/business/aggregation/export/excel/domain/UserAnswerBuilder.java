@@ -57,7 +57,7 @@ public class UserAnswerBuilder {
      * @param end             结束下标
      */
     public static String getValue(String commonDiseaseId, Integer start, Integer end) {
-        return numberFormat(commonDiseaseId.substring(start, end));
+        return numberFormat(commonDiseaseId.substring(start, end),null);
     }
 
     /**
@@ -65,10 +65,14 @@ public class UserAnswerBuilder {
      *
      * @param num 数字
      */
-    public static String numberFormat(String num) {
+    public static String numberFormat(String num,Integer range) {
         if (StrUtil.isNotBlank(num)) {
+            if (Objects.nonNull(range) && range > 0){
+                return String.format("%."+range+"f", new Double(num));
+            }
             return String.valueOf(Integer.valueOf(num));
         }
+
         return StrUtil.EMPTY;
     }
 

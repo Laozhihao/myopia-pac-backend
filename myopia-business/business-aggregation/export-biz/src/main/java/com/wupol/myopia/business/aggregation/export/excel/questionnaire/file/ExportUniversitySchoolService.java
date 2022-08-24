@@ -63,9 +63,9 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
         if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
         }
-        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            userAnswerRecFacade.exportRecFile(fileName, generateRecDataBO,getType());
-        }
+//        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+//            userAnswerRecFacade.exportRecFile(fileName, generateRecDataBO,getType());
+//        }
     }
 
     @Override

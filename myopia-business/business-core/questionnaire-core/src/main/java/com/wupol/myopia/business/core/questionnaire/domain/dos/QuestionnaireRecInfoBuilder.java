@@ -84,7 +84,7 @@ public class QuestionnaireRecInfoBuilder {
         List<QuestionnaireRecDataBO> radioOrCheckboxList = Lists.newArrayList();
         for (Option option : question.getOptions()) {
             QesDataDO qesDataDO = qesDataDoMap.get(option.getId());
-            QuestionnaireRecDataBO questionnaireRecDataBO = buildRadioOrCheckboxData(questionnaireQuestion, qesDataDO);
+            QuestionnaireRecDataBO questionnaireRecDataBO = buildRadioOrCheckboxData(questionnaireQuestion, qesDataDO,QuestionnaireConstant.RADIO);
             setRadioOrCheckboxInputData(typeInput, qesDataDoMap, option, questionnaireRecDataBO);
             radioOrCheckboxList.add(questionnaireRecDataBO);
         }
@@ -103,7 +103,7 @@ public class QuestionnaireRecInfoBuilder {
             List<QuestionnaireRecDataBO> radioOrCheckboxInputList = option.getOption()
                     .values().stream()
                     .map(value -> JSON.parseObject(JSON.toJSONString(value), InputOption.class))
-                    .map(inputOption -> buildRadioOrCheckboxInputData(qesDataDoMap, inputOption))
+                    .map(inputOption -> buildRadioOrCheckboxInputData(qesDataDoMap, inputOption,typeInput,questionnaireRecDataBO.getQuestionId()))
                     .collect(Collectors.toList());
             questionnaireRecDataBO.setQuestionnaireRecDataBOList(radioOrCheckboxInputList);
         }
@@ -113,15 +113,18 @@ public class QuestionnaireRecInfoBuilder {
      * 构建单选或者多选数据结构
      * @param questionnaireQuestion 问卷问题关系对象
      * @param qesDataDO qes数据对象
+     * @param type 选项类型
      */
-    private QuestionnaireRecDataBO buildRadioOrCheckboxData(QuestionnaireQuestion questionnaireQuestion, QesDataDO qesDataDO) {
+    private QuestionnaireRecDataBO buildRadioOrCheckboxData(QuestionnaireQuestion questionnaireQuestion, QesDataDO qesDataDO,String type) {
         return new QuestionnaireRecDataBO()
                     .setQesField(qesDataDO.getQesField())
                     .setRecAnswer(qesDataDO.getQesSerialNumber())
                     .setDataType(QuestionnaireConstant.NUMBER)
                     .setRequired(questionnaireQuestion.getRequired())
                     .setIsHidden(questionnaireQuestion.getIsHidden())
-                    .setOptionId(qesDataDO.getOptionId());
+                    .setOptionId(qesDataDO.getOptionId())
+                    .setQuestionId(questionnaireQuestion.getQuestionId())
+                    .setType(type);
     }
 
     /**
@@ -129,13 +132,17 @@ public class QuestionnaireRecInfoBuilder {
      * @param qesDataDoMap qes数据对象集合
      * @param inputOption input选项对象
      */
-    private QuestionnaireRecDataBO buildRadioOrCheckboxInputData(Map<String, QesDataDO> qesDataDoMap, InputOption inputOption) {
+    private QuestionnaireRecDataBO buildRadioOrCheckboxInputData(Map<String, QesDataDO> qesDataDoMap, InputOption inputOption,String type,Integer questionId) {
         QesDataDO radioInputQes = qesDataDoMap.get(inputOption.getId());
         return new QuestionnaireRecDataBO()
                     .setQesField(radioInputQes.getQesField())
                     .setDataType(inputOption.getDataType())
                     .setRequired(inputOption.getRequired())
-                    .setOptionId(inputOption.getId());
+                    .setOptionId(inputOption.getId())
+                    .setRange(inputOption.getRange())
+                    .setLength(inputOption.getLength())
+                    .setType(type)
+                    .setQuestionId(questionId);
     }
 
     /**
@@ -150,24 +157,29 @@ public class QuestionnaireRecInfoBuilder {
                 .map(value -> JSON.parseObject(JSON.toJSONString(value), InputOption.class))
                 .collect(Collectors.toMap(InputOption::getId, Function.identity()));
         return questionnaireQuestion.getQesData().stream()
-                .map(qesDataDO -> buildInputDataBO(inputOptionMap,questionnaireQuestion.getIsHidden(), qesDataDO))
+                .map(qesDataDO -> buildInputDataBO(inputOptionMap,questionnaireQuestion,QuestionnaireConstant.INPUT, qesDataDO))
                 .collect(Collectors.toList());
     }
 
     /**
      * 构建Input类型数据结构
      * @param inputOptionMap input选项对象集合
-     * @param isHidden 是否隐藏
+     * @param questionnaireQuestion 问卷问题关系对象
+     * @param type 问题类型
      * @param qesDataDO qes数据对象
      */
-    private QuestionnaireRecDataBO buildInputDataBO(Map<String, InputOption> inputOptionMap,Boolean isHidden, QesDataDO qesDataDO) {
+    private QuestionnaireRecDataBO buildInputDataBO(Map<String, InputOption> inputOptionMap,QuestionnaireQuestion questionnaireQuestion,String type, QesDataDO qesDataDO) {
         InputOption inputOption = inputOptionMap.get(qesDataDO.getOptionId());
         return new QuestionnaireRecDataBO()
                     .setQesField(qesDataDO.getQesField())
                     .setOptionId(qesDataDO.getOptionId())
                     .setRequired(inputOption.getRequired())
                     .setDataType(inputOption.getDataType())
-                    .setIsHidden(isHidden);
+                    .setRange(inputOption.getRange())
+                    .setLength(inputOption.getLength())
+                    .setIsHidden(questionnaireQuestion.getIsHidden())
+                    .setQuestionId(questionnaireQuestion.getQuestionId())
+                    .setType(type);
     }
     /**
      * 构建问卷rec数据信息构建对象

@@ -44,6 +44,24 @@ public class QuestionnaireRecDataBO {
      */
     private Boolean isHidden;
 
+    /**
+     * 问题ID
+     */
+    private Integer questionId;
+    /**
+     * 类型
+     */
+    private String type;
+
+    /**
+     * 数字类型，小数点
+     */
+    private Integer range;
+    /**
+     * 文本类型，长度
+     */
+    private Integer length;
+
 
     private List<QuestionnaireRecDataBO> questionnaireRecDataBOList;
 

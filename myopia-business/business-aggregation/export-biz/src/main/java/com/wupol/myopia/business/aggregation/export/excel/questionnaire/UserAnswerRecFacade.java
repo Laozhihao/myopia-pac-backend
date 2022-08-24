@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -163,7 +164,10 @@ public class UserAnswerRecFacade {
      * @param planSchoolStudentList  计划学生集合
      */
     private List<UserQuestionRecord> filterDistrict(Integer districtId, List<UserQuestionRecord> userQuestionRecordList, List<ScreeningPlanSchoolStudent> planSchoolStudentList) {
-        if (Objects.isNull(districtId) || CollUtil.isEmpty(planSchoolStudentList)) {
+        if (CollUtil.isEmpty(planSchoolStudentList)){
+            return Lists.newArrayList();
+        }
+        if (Objects.isNull(districtId)) {
             return userQuestionRecordList;
         }
 
@@ -284,18 +288,21 @@ public class UserAnswerRecFacade {
     private QuestionnaireRecDataBO getQuestionnaireRecDataBO(List<QuestionnaireRecDataBO> recDataList,
                                                              Map<String, OptionAnswer> answerMap) {
         //初始化单选值
-        QuestionnaireRecDataBO result = recDataList.get(0);
-        result.setRecAnswer(StrUtil.EMPTY);
-        result.setQuestionnaireRecDataBOList(null);
+        List<QuestionnaireRecDataBO> result =Lists.newArrayList();
 
         for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
             OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
             if (Objects.isNull(optionAnswer)) {
                 continue;
             }
-            result = questionnaireRecDataBO;
+            result.add(questionnaireRecDataBO);
         }
-        return result;
+        if (CollUtil.isEmpty(result)){
+            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataList.get(0));
+            questionnaireRecDataBO.setRecAnswer(StrUtil.EMPTY);
+            return questionnaireRecDataBO;
+        }
+        return result.get(0);
     }
     /**
      * 设置隐藏单选数据
@@ -329,7 +336,7 @@ public class UserAnswerRecFacade {
         for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
             String answer = Optional.ofNullable(answerMap.get(questionnaireRecDataBO.getOptionId())).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
-                questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer));
+                questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer,questionnaireRecDataBO.getRange()));
             }
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
                 questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.textFormat(answer));
@@ -351,14 +358,15 @@ public class UserAnswerRecFacade {
                 if (Objects.equals(questionnaireRecDataBO.getQesField(), "ID1") || Objects.equals(questionnaireRecDataBO.getQesField(), "ID2")) {
                     questionnaireRecDataBO.setRecAnswer(answer);
                 } else {
-                    questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer));
+                    questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer,questionnaireRecDataBO.getRange()));
                 }
             }
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
-                if (Objects.equals(questionnaireRecDataBO.getQesField(), "data")) {
+                if (Objects.equals(questionnaireRecDataBO.getQesField(), "date")) {
                     questionnaireRecDataBO.setRecAnswer(answer);
+                }else {
+                    questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.textFormat(answer));
                 }
-                questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.textFormat(answer));
             }
             dataList.add(questionnaireRecDataBO);
         }
@@ -379,7 +387,6 @@ public class UserAnswerRecFacade {
             questionnaireRecDataBO.setRecAnswer("2");
         }
         questionnaireRecDataBO.setRecAnswer("1");
-        dataList.add(questionnaireRecDataBO);
         //多选Input
         getCheckboxInputData(dataList, answerMap, questionnaireRecDataBO);
     }
@@ -396,8 +403,11 @@ public class UserAnswerRecFacade {
                                       QuestionnaireRecDataBO questionnaireRecDataBO) {
         List<QuestionnaireRecDataBO> questionnaireRecDataBOList = questionnaireRecDataBO.getQuestionnaireRecDataBOList();
         if (CollUtil.isEmpty(questionnaireRecDataBOList)) {
+            dataList.add(questionnaireRecDataBO);
             return;
         }
+        questionnaireRecDataBO.setQuestionnaireRecDataBOList(null);
+        dataList.add(questionnaireRecDataBO);
         getInputData(dataList, answerMap, questionnaireRecDataBOList);
     }
 
@@ -487,6 +497,16 @@ public class UserAnswerRecFacade {
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
         String qesUrl = resourceFileService.getResourcePath(qesFileId);
 
+//        schoolAnswerMap.forEach((schoolId,map)->{
+//            System.out.println("学校："+schoolId);
+//            map.forEach((stuId,dataList)->{
+//                System.out.println("学生："+stuId);
+//                for (QuestionnaireRecDataBO questionnaireRecDataBO : dataList) {
+//                    System.out.println(JSON.toJSONString(questionnaireRecDataBO,true));
+//                }
+//            });
+//        });
+
         return schoolAnswerMap.entrySet().stream()
                 .map(entry -> buildGenerateRecDataBO(qesFieldList, qesUrl, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
@@ -520,6 +540,8 @@ public class UserAnswerRecFacade {
     private GenerateRecDataBO buildGenerateRecDataBO(List<String> qesFieldList, String qesUrl, Integer schoolId, Map<Integer, List<QuestionnaireRecDataBO>> studentAnswersMap) {
         List<List<String>> dataList = new ArrayList<>();
         studentAnswersMap.forEach((studentId, answerList) -> dataList.add(answerList.stream().map(QuestionnaireRecDataBO::getRecAnswer).collect(Collectors.toList())));
+        String txtPath = EpiDataUtil.createTxtPath(qesFieldList, dataList);
+        System.out.println(txtPath);
         List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
