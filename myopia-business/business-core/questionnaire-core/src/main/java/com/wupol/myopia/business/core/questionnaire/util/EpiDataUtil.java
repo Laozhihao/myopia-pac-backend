@@ -169,7 +169,7 @@ public class EpiDataUtil {
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), GBK))) {
             for (String data : dataList) {
                 bw.write(data);
-                bw.newLine();
+                bw.write("\r\n");
             }
             return true;
         } catch (Exception e) {

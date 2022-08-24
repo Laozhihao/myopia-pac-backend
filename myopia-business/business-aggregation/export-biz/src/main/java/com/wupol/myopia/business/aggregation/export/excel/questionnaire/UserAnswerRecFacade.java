@@ -497,16 +497,6 @@ public class UserAnswerRecFacade {
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
         String qesUrl = resourceFileService.getResourcePath(qesFileId);
 
-//        schoolAnswerMap.forEach((schoolId,map)->{
-//            System.out.println("学校："+schoolId);
-//            map.forEach((stuId,dataList)->{
-//                System.out.println("学生："+stuId);
-//                for (QuestionnaireRecDataBO questionnaireRecDataBO : dataList) {
-//                    System.out.println(JSON.toJSONString(questionnaireRecDataBO,true));
-//                }
-//            });
-//        });
-
         return schoolAnswerMap.entrySet().stream()
                 .map(entry -> buildGenerateRecDataBO(qesFieldList, qesUrl, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
@@ -540,8 +530,6 @@ public class UserAnswerRecFacade {
     private GenerateRecDataBO buildGenerateRecDataBO(List<String> qesFieldList, String qesUrl, Integer schoolId, Map<Integer, List<QuestionnaireRecDataBO>> studentAnswersMap) {
         List<List<String>> dataList = new ArrayList<>();
         studentAnswersMap.forEach((studentId, answerList) -> dataList.add(answerList.stream().map(QuestionnaireRecDataBO::getRecAnswer).collect(Collectors.toList())));
-        String txtPath = EpiDataUtil.createTxtPath(qesFieldList, dataList);
-        System.out.println(txtPath);
         List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
