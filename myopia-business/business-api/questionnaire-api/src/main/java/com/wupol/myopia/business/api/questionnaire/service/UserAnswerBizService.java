@@ -14,6 +14,12 @@ import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressSe
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -50,6 +56,15 @@ public class UserAnswerBizService {
 
     @Resource
     private SchoolService schoolService;
+
+    @Resource
+    private ScreeningTaskService screeningTaskService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 获取用户答案
@@ -140,7 +155,16 @@ public class UserAnswerBizService {
      */
     public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
         Integer districtId = getUserDistrictId(user);
-        List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId));
+        ScreeningTask task = screeningTaskService.getOneByOrgId(user.getExQuestionnaireUserId());
+        if (Objects.isNull(task)) {
+            throw new BusinessException("你没有问卷需要填写");
+        }
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(screeningPlanService.getByTaskId(task.getId()).stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        if (CollectionUtils.isEmpty(planSchools)) {
+            throw new BusinessException("你没有问卷需要填写");
+        }
+        List<Integer> schoolIds = planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId), schoolIds);
         if (CollectionUtils.isEmpty(schoolList)) {
             return new ArrayList<>();
         }

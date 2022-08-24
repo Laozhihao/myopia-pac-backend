@@ -493,13 +493,15 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      *
      * @param name        名称
      * @param districtIds 区域
+     * @param schoolIds   学校Ids
      *
      * @return 学校
      */
-    public List<School> getByNameAndDistrictIds(String name, Collection<Integer> districtIds) {
+    public List<School> getByNameAndDistrictIds(String name, Collection<Integer> districtIds, Collection<Integer> schoolIds) {
         LambdaQueryWrapper<School> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StringUtils.isNotBlank(name), School::getName, name)
-                .in(School::getDistrictId, districtIds);
+                .in(School::getDistrictId, districtIds)
+                .in(School::getId, schoolIds);
         return baseMapper.selectList(wrapper);
     }
 }
