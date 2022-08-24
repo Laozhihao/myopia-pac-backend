@@ -374,13 +374,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     /**
      * 通过政府机构Id获取
      *
-     * @param govId 政府机构Id
+     * @param taskId 任务Id
      *
      * @return ScreeningPlan
      */
-    public ScreeningPlan getOneByGovDept(Integer govId) {
-        LambdaQueryWrapper<ScreeningPlan> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ScreeningPlan::getGovDeptId, govId).orderByDesc(ScreeningPlan::getCreateTime);
-        return getOne(wrapper);
+    public List<ScreeningPlan> getByTaskId(Integer taskId) {
+        return list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
     }
 }
