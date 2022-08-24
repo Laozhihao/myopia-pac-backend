@@ -96,7 +96,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         return this.list(new LambdaQueryWrapper<ScreeningTask>()
                 .eq(ScreeningTask::getGovDeptId, orgId)
                 .eq(ScreeningTask::getScreeningType, ScreeningTypeEnum.COMMON_DISEASE.getType())
-                .orderByAsc(ScreeningTask::getCreateTime));
+                .orderByDesc(ScreeningTask::getCreateTime));
     }
 
     public ScreeningTask getOneByOrgId(Integer orgId) {
