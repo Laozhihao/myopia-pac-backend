@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireM
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
+@Slf4j
 public class QuestionnaireService extends BaseService<QuestionnaireMapper, Questionnaire> {
 
     @Resource
@@ -416,6 +418,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @return TableItem
      */
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
+        log.info("获取表格详情：{}", json);
         item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
         item.setType(json.getString(QuestionnaireConstant.DATA_TYPE));
         if (!StringUtils.equals(item.getType(), QuestionnaireConstant.SELECT)) {
@@ -427,8 +430,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         item.setFrontMark(-1);
         item.setOption(new TableItem.Option(json.getInteger(QuestionnaireConstant.MAX_LIMIT),
                 json.getInteger(QuestionnaireConstant.MIN_LIMIT),
-                json.getInteger(QuestionnaireConstant.RANGE),
                 json.getInteger(QuestionnaireConstant.LENGTH),
+                json.getInteger(QuestionnaireConstant.RANGE),
                 json.getString(QuestionnaireConstant.DATA_TYPE),
                 json.getBoolean(QuestionnaireConstant.REQUIRED)));
         return item;
