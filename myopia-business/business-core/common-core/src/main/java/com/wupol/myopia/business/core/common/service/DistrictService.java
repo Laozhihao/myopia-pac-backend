@@ -902,7 +902,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         // 获取父节点
         List<District> districts = getAllDistrict(districtCodeToTree(district.getCode()), new ArrayList<>());
         Integer level = getLevel(districts, district.getCode(), 1);
-
+        if (level == 2) {
+            // 获取下级的数据
+            List<District> parentCode = getByParentCode(district.getCode());
+            // 合并
+            return keepAreaTwoDistrictsTree(districts, parentCode);
+        }
         if (level <= 3) {
             // 获取同级的数据
             List<District> parentCode = getByParentCode(district.getParentCode());
