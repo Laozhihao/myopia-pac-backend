@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -645,7 +646,10 @@ public class QuestionnaireManagementService {
      */
     private List<Integer> getNoQesList(List<Questionnaire> questionnaireList) {
 
-        Set<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId)
+                .filter(Objects::nonNull)
+                .flatMap(s -> Arrays.stream(s.split(StrUtil.COMMA)))
+                .map(Integer::valueOf).collect(Collectors.toSet());
         Map<Integer, Boolean> qesMap = Maps.newHashMap();
         if (CollUtil.isNotEmpty(qesMap)){
             List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.listByIds(qesIds);
@@ -654,7 +658,8 @@ public class QuestionnaireManagementService {
         }
 
         return questionnaireList.stream()
-                        .filter(questionnaire -> Objects.equals(Boolean.FALSE, qesMap.getOrDefault(questionnaire.getQesId(),Boolean.FALSE)))
+                        .filter(questionnaire -> !Objects.equals(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),questionnaire.getType()))
+                        .filter(questionnaire -> Objects.equals(Boolean.FALSE, qesMap.getOrDefault(Integer.valueOf(questionnaire.getQesId()),Boolean.FALSE)))
                         .map(questionnaire -> {
                             if (QuestionnaireConstant.getStudentTypeList().contains(questionnaire.getType())) {
                                 return QuestionnaireConstant.STUDENT_TYPE;

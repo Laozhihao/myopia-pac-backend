@@ -70,7 +70,7 @@ public class Questionnaire implements Serializable {
     /**
      * qes文件地址
      */
-    private Integer qesId;
+    private String qesId;
 
     /**
      * 页面json数据

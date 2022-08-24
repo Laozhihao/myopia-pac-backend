@@ -33,7 +33,9 @@ UPDATE `m_screening_organization` SET screening_type_config = '0';
 
 
 -- 问卷表修改字段
-ALTER TABLE q_questionnaire CHANGE qes_url qes_id INT NULL COMMENT 'qes管理ID';
+ALTER TABLE q_questionnaire CHANGE qes_url qes_id VARCHAR(10) NULL COMMENT 'qes管理ID';
+
+
 
 -- qes字段映射表修改
 ALTER TABLE q_qes_field_mapping MODIFY COLUMN system_field varchar(60) NULL COMMENT '系统字段';

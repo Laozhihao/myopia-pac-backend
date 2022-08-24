@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
-import com.google.common.collect.Lists;
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -77,8 +77,20 @@ public class QuestionnaireBizService {
             }
             qesFieldMappingService.updateBatchById(qesFieldMappingList);
             List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
-            questionnaireList.forEach(questionnaire -> questionnaire.setQesId(qesId));
+            questionnaireList.forEach(questionnaire -> questionnaire.setQesId(getQesId(questionnaire.getQesId(),qesId)));
             questionnaireService.updateBatchById(questionnaireList);
         }
+    }
+
+    /**
+     * 获取qes管理ID
+     * @param dbQesId 数据库qes管理ID
+     * @param newQesId 新的qes管理ID
+     */
+    private String getQesId(String dbQesId,Integer newQesId){
+        if (StrUtil.isBlank(dbQesId)){
+            return newQesId.toString();
+        }
+        return dbQesId+StrUtil.COMMA+newQesId;
     }
 }
