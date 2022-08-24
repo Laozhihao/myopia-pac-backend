@@ -14,18 +14,18 @@ public interface RedisConstant {
     String ALL_PERMISSION_KEY = "auth:permission:all";
 
     /**
-     * 用户权限资源，auth:user:permission:{userId}，如：auth:user:permission:24
+     * 用户权限资源，auth:user:permission:{systemCode}:{userId}，如：auth:user:permission:1:24
      */
-    String USER_PERMISSION_KEY = "auth:user:permission:%d";
+    String USER_PERMISSION_KEY = "auth:user:permission:%d:%d";
 
     /**
-     * 用户授权token，auth:user:authorization:{userId}，如：auth:user:authorization:24
+     * 用户授权token，auth:user:authorization:{systemCode}:{userId}，如：auth:user:authorization:1:24
      */
-    String USER_AUTHORIZATION_KEY = "auth:user:authorization:%d";
+    String USER_AUTHORIZATION_KEY = "auth:user:authorization:%d:%d";
     /**
-     * 用户旧的授权token，auth:user:authorization_old:{userId}，如：auth:user:authorization_old:24
+     * 用户旧的授权token，auth:user:authorization_old:{systemCode}:{userId}，如：auth:user:authorization_old:1:24
      */
-    String USER_AUTHORIZATION_OLD_KEY = "auth:user:authorization_old:%d";
+    String USER_AUTHORIZATION_OLD_KEY = "auth:user:authorization_old:%d:%d";
 
     /**
      * 学生二维码过期时间

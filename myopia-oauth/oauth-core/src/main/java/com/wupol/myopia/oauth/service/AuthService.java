@@ -41,7 +41,7 @@ public class AuthService {
     private RoleService roleService;
 
     public List<Permission> cachePermissionAndToken(Integer userId, Integer systemCode, Integer userType, long expiresTime, String accessToken) {
-        cacheUserAccessToken(userId, accessToken, expiresTime);
+        cacheUserAccessToken(userId, systemCode, accessToken, expiresTime);
         return cacheUserPermission(userId, systemCode, userType, expiresTime);
     }
 
@@ -70,21 +70,22 @@ public class AuthService {
         }
 
         List<Object> apiPermissionPaths = getApiPermission(permissions);
-        cacheUserPermission(userId, apiPermissionPaths, expiresTime);
+        cacheUserPermission(systemCode, userId, apiPermissionPaths, expiresTime);
         return permissions;
     }
 
     /**
      * 缓存用户权限
      *
+     * @param systemCode 系统编号
      * @param userId 用户ID
      * @param permissionList 用户权限集合
      * @param expiresTime 过期时间（秒）
      * @return void
      **/
-    private void cacheUserPermission(Integer userId, List<Object> permissionList, long expiresTime) {
+    private void cacheUserPermission(Integer systemCode, Integer userId, List<Object> permissionList, long expiresTime) {
         Assert.notNull(userId, "【缓存用户权限】用户ID为空！");
-        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, userId), permissionList, expiresTime);
+        redisUtil.lSet(String.format(RedisConstant.USER_PERMISSION_KEY, systemCode, userId), permissionList, expiresTime);
     }
 
     /**
@@ -98,11 +99,11 @@ public class AuthService {
     public void delayPermissionAndTokenCache(String accessToken, String refreshToken, long newExpiresTime) throws ParseException {
         CurrentUser currentUser = parseToken(refreshToken);
         // 保留旧 accessToken 5分钟，以便新旧token正常过渡
-        Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
-        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getId()), oldAccessToken, OLD_ACCESS_TOKEN_EXPIRES_TIME);
+        Object oldAccessToken = redisUtil.get(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getSystemCode(), currentUser.getId()));
+        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_OLD_KEY, currentUser.getSystemCode(), currentUser.getId()), oldAccessToken, OLD_ACCESS_TOKEN_EXPIRES_TIME);
         // 缓存权限和新token
         cacheUserPermission(currentUser.getId(), currentUser.getSystemCode(), currentUser.getUserType(), newExpiresTime);
-        cacheUserAccessToken(currentUser.getId(), accessToken, newExpiresTime);
+        cacheUserAccessToken(currentUser.getId(), currentUser.getSystemCode(), accessToken, newExpiresTime);
     }
 
     /**
@@ -129,10 +130,10 @@ public class AuthService {
      * @param expiresTime
      * @return void
      **/
-    private void cacheUserAccessToken(Integer userId, String accessToken, long expiresTime) {
+    private void cacheUserAccessToken(Integer userId, Integer systemCode, String accessToken, long expiresTime) {
         Assert.notNull(userId, "【缓存用户accessToken】用户ID为空！");
         Assert.hasLength(accessToken, "【缓存用户accessToken】accessToken为空！");
-        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_KEY, userId), accessToken, expiresTime);
+        redisUtil.set(String.format(RedisConstant.USER_AUTHORIZATION_KEY, systemCode, userId), accessToken, expiresTime);
     }
 
     /**
