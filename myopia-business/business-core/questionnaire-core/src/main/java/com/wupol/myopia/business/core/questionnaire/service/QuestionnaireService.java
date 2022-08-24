@@ -88,7 +88,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
         //如果没有页面数据，组装问卷数据
         List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId, false, true);
-//        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
+        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
