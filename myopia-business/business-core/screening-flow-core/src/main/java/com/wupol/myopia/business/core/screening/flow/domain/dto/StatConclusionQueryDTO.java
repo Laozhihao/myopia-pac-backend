@@ -29,4 +29,10 @@ public class StatConclusionQueryDTO extends StatConclusion {
     /** 查询结束时间 */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endTime;
+    /** 筛查通知ID集 **/
+    private List<Integer> screeningNoticeIds;
+    /** 排除的计划ID集 **/
+    private List<Integer> excludePlanIds;
+    /** 计划ID集 **/
+    private List<Integer> planIds;
 }

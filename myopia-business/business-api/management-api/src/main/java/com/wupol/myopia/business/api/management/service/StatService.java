@@ -130,7 +130,7 @@ public class StatService {
                 .setIsRescreen(false)
                 .setIsCooperative(0);
         List<StatConclusion> warningConclusions =
-                statConclusionService.listExcludeAbolishPlanByQuery(warningListQuery);
+                statConclusionService.listOfReleasePlanByQuery(warningListQuery);
         int total = warningConclusions.size();
         int warning0Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
@@ -203,7 +203,7 @@ public class StatService {
         query.setSchoolId(schoolId);
         query.setSchoolGradeCode(schoolGradeCode);
         query.setSchoolClassName(schoolClass);
-        return composeScreeningDataContrast(statConclusionService.listExcludeAbolishPlanByQuery(query),
+        return composeScreeningDataContrast(statConclusionService.listOfReleasePlanByQuery(query),
                 getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
                         , schoolAge, schoolId, schoolGradeCode, schoolClass));
     }
@@ -249,7 +249,7 @@ public class StatService {
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
-        List<StatConclusion> statConclusions = statConclusionService.listExcludeAbolishPlanByQuery(query);
+        List<StatConclusion> statConclusions = statConclusionService.listOfReleasePlanByQuery(query);
         if (statConclusions == null) {
             return ScreeningClassStat.builder().build();
         }
@@ -870,7 +870,7 @@ public class StatService {
                 query.setSchoolGradeCode(schoolGradeCode);
             }
         }
-        List<StatConclusion> statConclusionList = statConclusionService.listExcludeAbolishPlanByQuery(query);
+        List<StatConclusion> statConclusionList = statConclusionService.listOfReleasePlanByQuery(query);
         DataContrastFilterResultDTO dataContrastFilterResultDTO = new DataContrastFilterResultDTO(
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));

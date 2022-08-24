@@ -8,7 +8,6 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictVisionStatistic;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author HaoHao
@@ -27,15 +26,5 @@ public class DistrictVisionStatisticService extends BaseService<DistrictVisionSt
             return;
         }
         Lists.partition(districtVisionStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
-    }
-
-    /**
-     * 通过noticeId获取DistrictId
-     *
-     * @param noticeId 筛查通知Id
-     * @return DistrictId
-     */
-    public Set<Integer> getDistrictIdByNoticeId(Integer noticeId) {
-        return baseMapper.getDistrictIdByNoticeId(noticeId);
     }
 }
