@@ -334,7 +334,12 @@ public class QuestionnaireFacade {
         if (CollUtil.isEmpty(questionnaireList)){
             return Lists.newArrayList();
         }
-        List<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId).collect(Collectors.toList());
+        List<Integer> qesIds = questionnaireList.stream()
+                .map(Questionnaire::getQesId)
+                .filter(Objects::nonNull)
+                .flatMap(qesId->Arrays.stream(qesId.split(StrUtil.COMMA)))
+                .map(Integer::valueOf)
+                .collect(Collectors.toList());
         if (CollUtil.isEmpty(qesIds)){
             return Lists.newArrayList();
         }
