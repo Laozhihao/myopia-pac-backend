@@ -418,7 +418,6 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @return TableItem
      */
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
-        log.info("获取表格详情：{}", json);
         item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
         item.setType(json.getString(QuestionnaireConstant.DATA_TYPE));
         if (!StringUtils.equals(item.getType(), QuestionnaireConstant.SELECT)) {
