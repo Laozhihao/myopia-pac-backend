@@ -30,7 +30,15 @@ public class UserQuestionnaireAnswerBO {
      */
     private Integer userType;
 
+    /**
+     * 学生ID
+     */
     private Integer studentId;
+
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
 
     /**
      * 用户答案(问题对应答案)

@@ -52,11 +52,6 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
     }
 
     @Override
-    public void generateRecFile(ExportCondition exportCondition, String fileName) {
-
-    }
-
-    @Override
     public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.VISION_SPINE)

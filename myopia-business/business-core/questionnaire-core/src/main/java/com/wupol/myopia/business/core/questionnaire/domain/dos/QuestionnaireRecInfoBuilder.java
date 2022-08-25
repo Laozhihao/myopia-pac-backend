@@ -59,7 +59,9 @@ public class QuestionnaireRecInfoBuilder {
         QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO = new QuestionnaireQuestionRecDataBO();
         questionnaireQuestionRecDataBO.setQuestion(question);
         questionnaireQuestionRecDataBO.setIsHidden(questionnaireQuestion.getIsHidden());
-
+        if (Objects.isNull(question)){
+            return;
+        }
         if (Objects.equals(question.getType(), QuestionnaireConstant.INPUT)){
             questionnaireQuestionRecDataBO.setQuestionnaireRecDataBOList(getInputData(question, questionnaireQuestion));
         }
@@ -104,6 +106,7 @@ public class QuestionnaireRecInfoBuilder {
                     .values().stream()
                     .map(value -> JSON.parseObject(JSON.toJSONString(value), InputOption.class))
                     .map(inputOption -> buildRadioOrCheckboxInputData(qesDataDoMap, inputOption,typeInput,questionnaireRecDataBO.getQuestionId()))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             questionnaireRecDataBO.setQuestionnaireRecDataBOList(radioOrCheckboxInputList);
         }
@@ -134,6 +137,9 @@ public class QuestionnaireRecInfoBuilder {
      */
     private QuestionnaireRecDataBO buildRadioOrCheckboxInputData(Map<String, QesDataDO> qesDataDoMap, InputOption inputOption,String type,Integer questionId) {
         QesDataDO radioInputQes = qesDataDoMap.get(inputOption.getId());
+        if (Objects.isNull(radioInputQes)){
+            return null;
+        }
         return new QuestionnaireRecDataBO()
                     .setQesField(radioInputQes.getQesField())
                     .setDataType(inputOption.getDataType())

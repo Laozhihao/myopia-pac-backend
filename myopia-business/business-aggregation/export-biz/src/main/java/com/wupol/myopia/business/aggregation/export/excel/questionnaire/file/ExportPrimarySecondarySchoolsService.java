@@ -37,7 +37,7 @@ public class ExportPrimarySecondarySchoolsService implements QuestionnaireExcel 
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_SCHOOL.getType());
         List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
         if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
