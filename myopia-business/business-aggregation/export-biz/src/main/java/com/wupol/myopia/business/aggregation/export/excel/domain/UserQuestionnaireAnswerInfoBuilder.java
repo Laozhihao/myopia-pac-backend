@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
@@ -38,21 +39,54 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private Map<Integer, List<UserAnswer>> userAnswerMap;
     private List<HideQuestionRecDataBO> hideQuestionDataBOList;
     private Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap;
+    private Integer userType;
+
+    private List<Integer> schoolType = Lists.newArrayList(
+                                        QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),
+                                        QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
+                                        QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
 
 
     public List<UserQuestionnaireAnswerBO> dataBuild(){
-        if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,planSchoolStudentMap)) {
+        if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,planSchoolStudentMap,userType)) {
             throw new BusinessException("UserQuestionnaireAnswerInfo构建失败，缺少关键参数");
         }
 
         List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = Lists.newArrayList();
 
-        //学生ID对应的问卷记录信息集合
-        Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
+        if (Objects.equals(userType, UserType.QUESTIONNAIRE_STUDENT.getType())){
+            //学生ID对应的问卷记录信息集合
+            Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
+            studentMap.forEach((studentId,recordList)-> userQuestionnaireAnswerBOList.add(processStudentData(studentId,recordList)));
+        }
 
-        studentMap.forEach((studentId,recordList)-> userQuestionnaireAnswerBOList.add(processStudentData(studentId,recordList)));
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())
+                || Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
+
+            //学生ID对应的问卷记录信息集合
+            Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+            schoolMap.forEach((schoolId,recordList)-> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId,recordList)));
+        }
 
         return userQuestionnaireAnswerBOList;
+    }
+
+
+    private UserQuestionnaireAnswerBO processSchoolData(Integer schoolId, List<UserQuestionRecord> userQuestionRecordList){
+        UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
+        Date fillDate = userQuestionRecordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
+        for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
+            userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
+            userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
+            userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getSchoolId());
+            if (schoolType.contains(userQuestionRecord.getQuestionnaireType())){
+                //处理隐藏数据（学生和学校数据）
+                hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
+            }
+            //处理非隐藏数据
+            questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
+        }
+        return userQuestionnaireAnswerBO;
     }
 
     /**
@@ -110,6 +144,9 @@ public class UserQuestionnaireAnswerInfoBuilder {
             List<OptionAnswer> answerList = JSON.parseArray(JSON.toJSONString(answer.getAnswer()), OptionAnswer.class);
             return answerList.stream();
         }).collect(Collectors.toList());
+
+    }
+    public void hideSchoolQuestionRecDataProcess(Integer schoolId, Date fillDate,UserQuestionnaireAnswerBO userQuestionnaireAnswerBO) {
 
     }
 

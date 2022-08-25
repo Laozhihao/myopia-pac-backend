@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
+import com.wupol.myopia.business.aggregation.export.excel.domain.UserAnswerBuilder;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
 import java.util.List;
@@ -71,6 +71,6 @@ public interface ExportType {
      * @return 获取条件值
      */
     default List<Integer> getConditionValue(ExportCondition exportCondition){
-        return UserAnswerFacade.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        return UserAnswerBuilder.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
     }
 }

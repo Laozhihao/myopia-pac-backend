@@ -487,6 +487,9 @@ public class QuestionnaireFacade {
     }
 
     public List<HideQuestionRecDataBO> getHideQuestionnaireQuestionRec(Integer questionnaireId) {
+        if (Objects.isNull(questionnaireId)){
+            return Lists.newArrayList();
+        }
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
         questionnaireQuestionList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(Boolean.TRUE,questionnaireQuestion.getIsHidden())).collect(Collectors.toList());
         if (CollUtil.isNotEmpty(questionnaireQuestionList)){

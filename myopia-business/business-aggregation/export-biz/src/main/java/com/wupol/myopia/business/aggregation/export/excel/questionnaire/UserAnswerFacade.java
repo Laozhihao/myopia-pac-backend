@@ -66,7 +66,7 @@ public class UserAnswerFacade {
     private final DistrictService districtService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final QuestionnaireFacade questionnaireFacade;
-    private final QuestionnaireExcelFactory questionnaireExcelFactory;
+    private final QuestionnaireFactory questionnaireFactory;
 
     private static final String  PLACEHOLDER = "-{%s}";
     private static final String  ID = "id";
@@ -83,27 +83,11 @@ public class UserAnswerFacade {
      * @param exportCondition 导出条件
      */
     private List<Integer> getConditionValue(ExportCondition exportCondition){
-        Optional<ExportType> exportTypeService = questionnaireExcelFactory.getExportTypeService(exportCondition.getExportType());
-        if (exportTypeService.isPresent()){
-            ExportType exportType = exportTypeService.get();
-            return exportType.getConditionValue(exportCondition);
-        }
-        return defaultValue(null,null,null);
+        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+        return exportTypeService.getConditionValue(exportCondition);
     }
 
-    /**
-     * 获取条件值的默认值
-     * @param noticeId 通知ID
-     * @param taskId 任务ID
-     * @param planId 计划ID
-     */
-    public static List<Integer> defaultValue(Integer noticeId,Integer taskId,Integer planId) {
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(noticeId);
-        list.add(taskId);
-        list.add(planId);
-        return list;
-    }
+
     /**
      * 获取问卷记录数（有数据的问卷 状态进行中或者已完成）
      *

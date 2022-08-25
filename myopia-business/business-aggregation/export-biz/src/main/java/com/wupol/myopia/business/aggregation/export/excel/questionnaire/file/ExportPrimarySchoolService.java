@@ -2,12 +2,14 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerRecFacade;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -33,7 +35,7 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
     private UserAnswerFacade userAnswerFacade;
 
     @Autowired
-    private UserAnswerRecFacade userAnswerRecFacade;
+    private QuestionnaireFactory questionnaireFactory;
 
     @Override
     public Integer getType() {
@@ -57,12 +59,13 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
-        List<GenerateRecDataBO> generateRecDataBOList = userAnswerRecFacade.generateRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
         if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            userAnswerRecFacade.exportRecFile(fileName, generateRecDataBO,getType());
+            answerService.exportRecFile(fileName, generateRecDataBO,getType());
         }
     }
 
@@ -74,6 +77,7 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
                 .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
                 .setGradeTypeList(Lists.newArrayList(SchoolAge.PRIMARY.code))
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc);
+                .setIsAsc(isAsc)
+                .setUserType(UserType.QUESTIONNAIRE_STUDENT.getType());
     }
 }

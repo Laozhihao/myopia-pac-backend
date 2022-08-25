@@ -12,7 +12,7 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
@@ -89,7 +89,7 @@ public class QuestionnaireManagementService {
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private QuestionnaireExcelFactory questionnaireExcelFactory;
+    private QuestionnaireFactory questionnaireFactory;
 
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
@@ -601,11 +601,7 @@ public class QuestionnaireManagementService {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
 
-        Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
-        if (!exportTypeOptional.isPresent()){
-            throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
-        }
-        ExportType exportTypeService = exportTypeOptional.get();
+        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
         Map<Integer, String> questionnaireTypeMap = exportTypeService.getQuestionnaireType();
 
         List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Lists.newArrayList();
