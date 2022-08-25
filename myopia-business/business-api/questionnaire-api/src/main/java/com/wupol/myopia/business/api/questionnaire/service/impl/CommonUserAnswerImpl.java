@@ -177,4 +177,21 @@ public class CommonUserAnswerImpl {
         }
         return Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType());
     }
+
+    /**
+     * 获取用户答案
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, userType);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(userId)
+                        .setUserType(userType));
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
+    }
 }
