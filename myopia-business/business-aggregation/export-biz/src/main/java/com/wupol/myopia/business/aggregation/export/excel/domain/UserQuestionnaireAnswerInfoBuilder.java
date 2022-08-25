@@ -45,11 +45,6 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private Map<Integer, School> schoolMap;
     private Integer userType;
 
-    private static List<Integer> schoolType = Lists.newArrayList(
-                                        QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),
-                                        QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
-                                        QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
-
 
     public List<UserQuestionnaireAnswerBO> dataBuild(){
         if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,userType)
@@ -88,10 +83,8 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
             userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
             userQuestionnaireAnswerBO.setSchoolId(userQuestionRecord.getSchoolId());
-            if (schoolType.contains(userQuestionRecord.getQuestionnaireType())){
-                //处理隐藏数据（学生和学校数据）
-                hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
-            }
+            //处理学校隐藏数据
+            hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
             //处理非隐藏数据
             questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
         }
@@ -112,7 +105,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getSchoolId());
             if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                     || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
-                //处理隐藏数据（学生和学校数据）
+                //处理学生隐藏数据
                 hideQuestionRecDataProcess(studentId, fillDate,userQuestionnaireAnswerBO);
             }
             //处理非隐藏数据
@@ -178,7 +171,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
             List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
-            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
+            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList());
             if (CollUtil.isEmpty(qesDataList)) {
                 continue;
             }
@@ -209,7 +202,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
             List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
-            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
+            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList());
             if (CollUtil.isEmpty(qesDataList)) {
                 continue;
             }

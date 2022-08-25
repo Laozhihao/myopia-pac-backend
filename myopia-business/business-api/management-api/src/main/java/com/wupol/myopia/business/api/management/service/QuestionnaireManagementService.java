@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordE
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.QesFieldMappingService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
@@ -694,5 +695,4 @@ public class QuestionnaireManagementService {
                 })
                 .distinct().collect(Collectors.toList());
     }
-
 }

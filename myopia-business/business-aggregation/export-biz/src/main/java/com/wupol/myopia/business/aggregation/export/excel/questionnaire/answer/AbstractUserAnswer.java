@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.*;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -23,7 +22,6 @@ import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -41,7 +39,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 抽象用户答案
@@ -150,7 +147,7 @@ public abstract class AbstractUserAnswer implements Answer {
         CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO), asyncServiceExecutor);
         try {
             RecExportVO recExportVO = future.get();
-            EpiDataUtil.getRecPath(recExportVO.getRecUrl(), fileName, recExportVO.getRecName());
+            String recPath = EpiDataUtil.getRecPath(recExportVO.getRecUrl(), fileName, recExportVO.getRecName());
             log.info("生成rec文件成功 recName={}", recExportVO.getRecName());
         } catch (InterruptedException e) {
             log.warn("Interrupted", e);
@@ -340,7 +337,7 @@ public abstract class AbstractUserAnswer implements Answer {
         }
         List<QuestionnaireRecDataBO> inputList = recDataList.stream().map(QuestionnaireRecDataBO::getQuestionnaireRecDataBOList).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
         QuestionnaireRecDataBO questionnaireRecDataBO = getQuestionnaireRecDataBO(recDataList, answerMap);
-        if (!Objects.equals(questionnaireRecDataBO.getQesField(),"QM")){
+        if (!Objects.equals(questionnaireRecDataBO.getQesField(),QuestionnaireConstant.QM)){
             dataList.add(questionnaireRecDataBO);
         }
         if (CollUtil.isEmpty(inputList)) {
@@ -410,7 +407,7 @@ public abstract class AbstractUserAnswer implements Answer {
             return;
         }
 
-        if (!Objects.equals(questionnaireRecDataBO.getQesField(),"QM")){
+        if (!Objects.equals(questionnaireRecDataBO.getQesField(),QuestionnaireConstant.QM)){
             questionnaireRecDataBO.setQuestionnaireRecDataBOList(null);
             dataList.add(questionnaireRecDataBO);
         }

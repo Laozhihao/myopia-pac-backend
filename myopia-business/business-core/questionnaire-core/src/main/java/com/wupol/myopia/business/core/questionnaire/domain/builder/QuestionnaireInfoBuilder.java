@@ -76,7 +76,7 @@ public class QuestionnaireInfoBuilder {
         questionBO.setQuestionSerialNumber(questionnaireQuestion.getSerialNumber());
         List<QesDataDO> qesDataList = questionnaireQuestion.getQesData();
         if (CollUtil.isNotEmpty(qesDataList)){
-            questionBO.setQesData(qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList()));
+            questionBO.setQesData(qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList()));
         }
         questionBO.setIsScore(Optional.ofNullable(question.getAttribute()).map(QuestionAttribute::getIsScore).orElse(Boolean.FALSE));
         return questionBO;

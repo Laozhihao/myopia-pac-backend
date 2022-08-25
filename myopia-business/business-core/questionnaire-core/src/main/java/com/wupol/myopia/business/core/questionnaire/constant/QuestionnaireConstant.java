@@ -155,11 +155,16 @@ public class QuestionnaireConstant {
     public static final String EXCEL_FILE = "excel";
     public static final String REC_FILE = "rec";
 
+    /**
+     * 选项类型
+     */
     public static final String  RADIO = "radio";
     public static final String  CHECKBOX = "checkbox";
     public static final String  RADIO_INPUT = "radio-input";
     public static final String  CHECKBOX_INPUT = "checkbox-input";
+
     public static final String  NUMBER="number";
+    public static final String  QM = "QM";
 
     /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
@@ -205,8 +210,12 @@ public class QuestionnaireConstant {
      * 获取学生健康状况及影响因素调查表（大学版）问卷
      * @return 问卷类型集合
      */
-    public static List<Integer> getUniversitySchool(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
+    public static List<Integer> getUniversitySchool(String exportFile){
+        if (Objects.equals(EXCEL_FILE,exportFile)) {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
+        }else {
+            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        }
     }
 
     /**
@@ -226,4 +235,12 @@ public class QuestionnaireConstant {
         return Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
 
+    /**
+     * 获取rec导出类型
+     */
+    public static List<Integer> getRecExportType(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),
+                QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
+                QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
+    }
 }
