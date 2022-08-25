@@ -9,7 +9,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -65,23 +64,6 @@ public class UserAnswerBizService {
 
     @Resource
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
-    /**
-     * 获取用户答案
-     */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
-        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, user);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                new UserAnswerProgress()
-                        .setUserId(user.getExQuestionnaireUserId())
-                        .setUserType(user.getQuestionnaireUserType()));
-        if (Objects.nonNull(userAnswerProgress)) {
-            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
-            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
-            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
-        }
-        return userAnswerList;
-    }
 
     /**
      * 保存答案
@@ -145,9 +127,9 @@ public class UserAnswerBizService {
      *
      * @return 是否完成
      */
-    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user) {
+    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user, Integer districtId, Integer schoolId) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId);
+        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId, districtId, schoolId);
     }
 
     /**
@@ -291,6 +273,14 @@ public class UserAnswerBizService {
             return new ArrayList<>();
         }
         return schoolList;
+    }
+
+    /**
+     * 获取用户答案
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user, Integer districtId, Integer schoolId) {
+        IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
+        return iUserAnswerService.getUserAnswerList(questionnaireId, user.getExQuestionnaireUserId(), districtId, schoolId);
     }
 
 }

@@ -126,7 +126,12 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
      * @return 是否完成
      */
     @Override
-    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
         return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+    }
+
+    @Override
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId) {
+        return commonUserAnswer.getUserAnswerList(questionnaireId, userId, getUserType());
     }
 }
