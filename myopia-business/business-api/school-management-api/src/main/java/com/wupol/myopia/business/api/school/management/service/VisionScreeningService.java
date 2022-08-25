@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -87,6 +88,7 @@ public class VisionScreeningService {
         }
         List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream()
+                .filter(x -> CommonConst.STATUS_RELEASE.equals(x.getReleaseStatus()))
                 .filter(s->Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
                 .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
