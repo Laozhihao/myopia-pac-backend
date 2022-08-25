@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -129,6 +130,20 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
                 .setUserId(userId)
                 .setUserType(userType)
                 .setQuestionnaireId(questionnaireId));
+    }
+
+    /**
+     * 获取用户记录表
+     *
+     * @return UserQuestionRecord
+     */
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Integer districtId) {
+        return getOne(new LambdaQueryWrapper<UserQuestionRecord>()
+                .eq(UserQuestionRecord::getUserId, userId)
+                .eq(UserQuestionRecord::getUserType, userType)
+                .eq(UserQuestionRecord::getQuestionnaireId, questionnaireId)
+                .eq(Objects.nonNull(schoolId), UserQuestionRecord::getSchoolId, schoolId)
+                .eq(Objects.nonNull(districtId), UserQuestionRecord::getDistrictId, districtId));
     }
 
 }
