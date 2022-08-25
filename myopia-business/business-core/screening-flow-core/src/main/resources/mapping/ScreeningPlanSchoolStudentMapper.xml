@@ -298,11 +298,11 @@
         </if>
     </select>
 
-    <select id="findByStudentId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan_school_student
-        where student_id = #{studentId}
+    <select id="getReleasePlanStudentByStudentId" resultMap="BaseResultMap">
+        select s.*
+        from m_screening_plan_school_student s
+        left join m_screening_plan p on p.id = s.screening_plan_id
+        where s.student_id = #{studentId} and p.release_status = 1
     </select>
 
     <select id="findByPlanId" resultMap="BaseResultMap">

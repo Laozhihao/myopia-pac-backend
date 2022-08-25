@@ -81,13 +81,14 @@
         group by student_id
     </select>
 
-    <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where student_id = #{studentId}
-          and is_double_screen = 0
-        order by create_time desc
+    <select id="getLatestResultOfReleasePlanByStudentId" resultMap="BaseResultMap">
+        select mvsr.*
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.student_id = #{studentId}
+          and msp.release_status = 1
+          and mvsr.is_double_screen = 0
+        order by mvsr.create_time desc
         limit 1
     </select>
 
@@ -108,13 +109,14 @@
           and is_double_screen = 0
     </select>
 
-    <select id="getByStudentId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where student_id = #{studentId}
-        group by update_time
-        order by update_time desc
+    <select id="getReleasePlanResultByStudentId" resultMap="BaseResultMap">
+        select mvsr.*
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.student_id = #{studentId}
+          and msp.release_status = 1
+        group by mvsr.update_time
+        order by mvsr.update_time desc
     </select>
 
     <select id="getByStudentIdWithPage" resultMap="ResultWithPlanInfo">
