@@ -237,20 +237,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningOrgId
      * @return
      */
-    public List<Integer> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId) {
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
-        return screeningPlanSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
-    }
-
-    /**
-     * @param screeningOrgId
-     * @return
-     */
-    public List<Integer> getScreeningSchoolIdByScreeningOrgId(Integer screeningOrgId, Integer channel) {
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(screeningOrgId);
+    public List<Integer> getReleasePlanSchoolIdByScreeningOrgId(Integer screeningOrgId, Integer channel) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getReleasePlanScreeningSchoolsByScreeningOrgId(screeningOrgId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
     }
@@ -260,8 +251,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param deptId
      */
-    public Set<Integer> getCurrentPlanIds(Integer deptId) {
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
+    public Set<Integer> getCurrentReleasePlanIds(Integer deptId) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getReleasePlanScreeningSchoolsByScreeningOrgId(deptId);
         return screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
 
@@ -270,11 +261,11 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      *
      * @param deptId
      */
-    public Set<Integer> getCurrentPlanIds(Integer deptId, Integer channel) {
-        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getScreeningSchoolsByScreeningOrgId(deptId);
+    public Set<Integer> getCurrentReleasePlanIds(Integer deptId, Integer channel) {
+        List<ScreeningPlanSchool> screeningPlanSchools = screeningPlanSchoolService.getReleasePlanScreeningSchoolsByScreeningOrgId(deptId);
         List<Integer> planIds = screeningPlanSchools.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList());
         List<Integer> planChannelIds = baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlan>()
-                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel))
+                        .in(!planIds.isEmpty(), ScreeningPlan::getId, planIds).eq(ScreeningPlan::getScreeningType, channel).eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE))
                 .stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         return screeningPlanSchools.stream().filter(item -> planChannelIds.contains(item.getScreeningPlanId())).map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toSet());
     }
@@ -286,7 +277,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param schoolId
      * @return
      */
-    public ScreeningPlan getCurrentPlan(Integer screeningOrgId, Integer schoolId, Integer channel) {
+    public ScreeningPlan getCurrentReleasePlan(Integer screeningOrgId, Integer schoolId, Integer channel) {
         return baseMapper.selectScreeningPlanDetailByOrgIdAndSchoolId(schoolId, screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), channel);
     }
 

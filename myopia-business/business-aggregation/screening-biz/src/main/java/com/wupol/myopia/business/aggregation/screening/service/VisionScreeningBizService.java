@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -90,6 +92,7 @@ public class VisionScreeningBizService {
         }
 
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(currentVisionScreeningResult.getPlanId()));
+        Assert.isTrue(CommonConst.STATUS_RELEASE.equals(screeningPlan.getReleaseStatus()), "保存失败，筛查计划已作废！");
         if (screeningResultBasicData.getIsState() != 0) {
             verifyScreening(currentAndOtherResult.getSecond(), screeningPlan.getScreeningType() == 1);
         }

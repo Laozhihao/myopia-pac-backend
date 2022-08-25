@@ -73,11 +73,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param deptId 筛查机构ID
      * @return
      */
-    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId,Integer channel) {
+    public List<ScreeningPlanSchoolStudent> getCurrentReleasePlanStudentByOrgIdAndSchoolId(Integer schoolId, Integer deptId, Integer channel) {
         if (deptId == null) {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(deptId, channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(deptId, channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return Collections.emptyList();
         }
@@ -88,11 +88,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
 
-    public List<ScreeningPlanSchoolStudent> getCurrentPlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId, Integer channel) {
+    public List<ScreeningPlanSchoolStudent> getCurrentRelePlanStudentByGradeIdAndScreeningOrgId(Integer gradeId, Integer screeningOrgId, Integer channel) {
         if (screeningOrgId == null) {
             throw new ManagementUncheckedException("screeningOrgId 不能为空");
         }
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId, channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(screeningOrgId, channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
         }
@@ -246,9 +246,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param channel 0：视力筛查，1：常见病。入口不同
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
-    public IPage<ScreeningPlanSchoolStudent> getCurrentPlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size,Integer channel) {
+    public IPage<ScreeningPlanSchoolStudent> getCurrentReleasePlanScreeningStudentList(ScreeningStudentQueryDTO screeningStudentQuery, Integer page, Integer size, Integer channel) {
         // 获取当前计划
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningStudentQuery.getScreeningOrgId(), channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(screeningStudentQuery.getScreeningOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new Page<>(page, size);
         }
@@ -264,9 +264,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param channel 0 : 视力筛查，1：常见病
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
-    public List<ScreeningPlanSchoolStudent> listByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,Integer channel) {
+    public List<ScreeningPlanSchoolStudent> listReleasePlanStudentByEntityDescByCreateTime(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer channel) {
         // 获取当前计划
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningPlanSchoolStudent.getScreeningOrgId(), channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(screeningPlanSchoolStudent.getScreeningOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return Collections.emptyList();
         }
