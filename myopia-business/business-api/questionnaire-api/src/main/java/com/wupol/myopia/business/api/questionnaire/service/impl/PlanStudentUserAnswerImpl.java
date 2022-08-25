@@ -100,9 +100,10 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
      * @param questionnaireId 问卷ID
      * @param userId          用户Id
      * @param questionList    问题列表
+     * @param recordId
      */
     @Override
-    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
+    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId) {
         commonUserAnswer.deletedUserAnswer(questionList, questionnaireId, userId, getUserType());
     }
 

@@ -45,8 +45,9 @@ public interface IUserAnswerService {
      * @param questionnaireId 问卷ID
      * @param userId          用户Id
      * @param questionList    问题列表
+     * @param recordId        记录表Id
      */
-    void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList);
+    void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId);
 
     /**
      * 保存用户答案
