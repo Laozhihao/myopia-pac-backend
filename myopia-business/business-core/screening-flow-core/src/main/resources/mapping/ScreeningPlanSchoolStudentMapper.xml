@@ -61,16 +61,15 @@
         migrate_student_screening_id
     </sql>
 
-    <select id="selectStudentInfoWithResult"
-            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO">
+    <select id="selectStudentInfoWithResult" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO">
         SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
         , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.gender
         , s.screening_task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
         , r.other_eye_diseases
         FROM m_screening_plan_school_student s
         LEFT JOIN m_vision_screening_result r ON s.id = r.screening_plan_school_student_id
-        WHERE
-        s.school_id = #{data.schoolId}
+        LEFT JOIN m_screening_plan p ON p.id = s.screening_plan_id
+        WHERE s.school_id = #{data.schoolId} AND p.release_status = 1
         <if test="data.clazzName != null">
             AND s.class_name = #{data.clazzName}
         </if>

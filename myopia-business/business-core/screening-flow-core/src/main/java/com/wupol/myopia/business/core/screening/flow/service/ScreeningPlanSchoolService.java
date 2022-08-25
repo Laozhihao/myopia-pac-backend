@@ -181,12 +181,12 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
-     * 获取筛查机构正在筛查的学校ID
+     * 获取筛查机构正在筛查的学校ID（属于已发布计划的）
      *
      * @param screeningOrgId
      * @return
      */
-    public List<ScreeningPlanSchool> getScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
+    public List<ScreeningPlanSchool> getReleasePlanScreeningSchoolsByScreeningOrgId(Integer screeningOrgId) {
         return baseMapper.getScreeningSchoolsByOrgId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date());
     }
 

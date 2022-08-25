@@ -126,7 +126,7 @@ public class ScreeningAppService {
      * @throws JsonProcessingException
      */
     public List<SysStudent> getStudentReview(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Integer page, Integer size, boolean isRandom, Integer channel) {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(screeningOrgId);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(screeningOrgId);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ArrayList<>();
         }
@@ -135,7 +135,7 @@ public class ScreeningAppService {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents;
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
-            ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(screeningOrgId, schoolId, channel);
+            ScreeningPlan currentPlan = screeningPlanService.getCurrentReleasePlan(screeningOrgId, schoolId, channel);
             String cacheKey = "app:" + screeningOrgId + currentPlan.getId() + schoolId + gradeName + clazzName;
             screeningPlanSchoolStudents = getRandomData(screeningPlanSchoolStudents, cacheKey, currentPlan.getEndTime());
         } else {
@@ -292,7 +292,7 @@ public class ScreeningAppService {
      * @return
      */
     public List<School> getSchoolByScreeningOrgId(Integer screeningOrgId, Integer channel) {
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(screeningOrgId, channel);
+        List<Integer> schoolIds = screeningPlanService.getReleasePlanSchoolIdByScreeningOrgId(screeningOrgId, channel);
         return schoolService.getSchoolByIds(schoolIds);
     }
 
@@ -446,14 +446,14 @@ public class ScreeningAppService {
      * @param channel
      * @return
      */
-    private List<ScreeningPlanSchoolStudent> getStudentPlan(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
+    private List<ScreeningPlanSchoolStudent> getReleasePlanStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
         ScreeningPlanSchoolStudent query = new ScreeningPlanSchoolStudent()
                 .setScreeningOrgId(screeningOrgId)
                 .setSchoolId(schoolId)
                 .setClassId(classId)
                 .setGradeId(gradeId);
         // 查询班级所有学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listByEntityDescByCreateTime(query, channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.listReleasePlanStudentByEntityDescByCreateTime(query, channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
             return Lists.newArrayList();
@@ -537,7 +537,7 @@ public class ScreeningAppService {
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
     public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state, Integer channel) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getStudentPlan(schoolId, gradeId, classId, screeningOrgId, channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getReleasePlanStudent(schoolId, gradeId, classId, screeningOrgId, channel);
         if (screeningPlanSchoolStudentList.isEmpty()) {
             return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
         }
@@ -562,7 +562,7 @@ public class ScreeningAppService {
     }
 
     public ClassScreeningProgress findClassScreeningStudent(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getStudentPlan(schoolId, gradeId, classId, screeningOrgId, channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getReleasePlanStudent(schoolId, gradeId, classId, screeningOrgId, channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
             return new ClassScreeningProgress();
@@ -613,7 +613,7 @@ public class ScreeningAppService {
     }
 
     public ClassScreeningProgressState findClassScreeningStudentState(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Integer channel) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getStudentPlan(schoolId, gradeId, classId, screeningOrgId, channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getReleasePlanStudent(schoolId, gradeId, classId, screeningOrgId, channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentList)) {
             // 空数据降级处理。根据目前需求（仅显示有筛查数据的学校 008-1.2021-08-26），实际不会进到这里。
             return new ClassScreeningProgressState();
@@ -787,6 +787,8 @@ public class ScreeningAppService {
     public VisionScreeningResult getVisionScreeningResultByPlanStudentId(Integer planStudentId, Integer screeningOrgId) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(screeningOrgId));
         Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId());
+        Assert.isTrue(CommonConst.STATUS_RELEASE.equals(plan.getReleaseStatus()), "学生所属筛查计划已作废！");
         return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
     }
 
@@ -802,6 +804,8 @@ public class ScreeningAppService {
     public VisionScreeningResult getVisionScreeningResultByPlanStudentIdAndState(Integer planStudentId, Integer screeningOrgId, Integer isState) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.findOne(new ScreeningPlanSchoolStudent().setId(planStudentId).setScreeningOrgId(screeningOrgId));
         Assert.notNull(screeningPlanSchoolStudent, SysEnum.SYS_STUDENT_NULL.getMessage());
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId());
+        Assert.isTrue(CommonConst.STATUS_RELEASE.equals(plan.getReleaseStatus()), "学生所属筛查计划已作废！");
         return visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
     }
 

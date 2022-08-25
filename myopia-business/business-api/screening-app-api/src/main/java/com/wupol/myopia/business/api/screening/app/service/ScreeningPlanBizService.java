@@ -99,7 +99,7 @@ public class ScreeningPlanBizService {
             throw new ManagementUncheckedException("deptId 不能为空");
         }
 
-        List<Integer> schoolIds = screeningPlanService.getScreeningSchoolIdByScreeningOrgId(deptId, channel);
+        List<Integer> schoolIds = screeningPlanService.getReleasePlanSchoolIdByScreeningOrgId(deptId, channel);
         if (CollectionUtils.isEmpty(schoolIds)) {
             return Collections.emptyList();
         }
