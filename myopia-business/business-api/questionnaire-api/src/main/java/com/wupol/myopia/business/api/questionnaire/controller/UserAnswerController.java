@@ -40,7 +40,7 @@ public class UserAnswerController {
      *
      * @return UserAnswerDTO
      */
-    @GetMapping("list}")
+    @GetMapping("list")
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer districtId, Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtId, schoolId);
