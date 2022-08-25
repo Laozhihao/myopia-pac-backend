@@ -204,6 +204,13 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId) {
         getQuestionnaireType(questionnaireId, districtId, schoolId);
-        return userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtId, schoolId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtId, schoolId);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtId, schoolId);
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
     }
 }
