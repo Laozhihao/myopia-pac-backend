@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
@@ -36,15 +37,28 @@ public class UserQuestionnaireAnswerBO {
      */
     private Map<Integer, List<OptionAnswer>> questionAnswerMap;
 
+    /**
+     * 隐藏问题答案
+     */
     private List<QesFieldDataBO> qesFieldDataBOList;
 
 
-    public Map<Integer, Map<String,OptionAnswer>> getAnswerMap(){
-        if (CollUtil.isEmpty(questionAnswerMap)){
+    /**
+     * 用户key
+     */
+    public String getUserKey() {
+        return userId + StrUtil.UNDERLINE + userType;
+    }
+
+    /**
+     * 问题对应答案集合
+     */
+    public Map<Integer, Map<String, OptionAnswer>> getAnswerMap() {
+        if (CollUtil.isEmpty(questionAnswerMap)) {
             return Maps.newHashMap();
         }
-        Map<Integer, Map<String,OptionAnswer>> map =Maps.newHashMap();
-        questionAnswerMap.forEach((questionId,list)-> map.put(questionId,list.stream().collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity()))));
+        Map<Integer, Map<String, OptionAnswer>> map = Maps.newHashMap();
+        questionAnswerMap.forEach((questionId, list) -> map.put(questionId, list.stream().collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity()))));
         return map;
     }
 

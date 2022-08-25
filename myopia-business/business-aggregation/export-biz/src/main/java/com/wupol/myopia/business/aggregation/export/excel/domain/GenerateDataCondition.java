@@ -35,4 +35,9 @@ public class GenerateDataCondition {
      * 是否顺序
      */
     private Boolean isAsc;
+
+    /**
+     * 用户类型
+     */
+    private Integer userType;
 }

@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -18,7 +15,6 @@ import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
 import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionRecDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
@@ -296,23 +292,6 @@ public class QuestionnaireManagementController {
                 .setTaskId(exportQuestionnaireDTO.getTaskId());
 
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
-    }
-
-
-
-    @GetMapping("/test")
-    public void head(Integer[] questionnaireIds ){
-        if (ArrayUtil.isNotEmpty(questionnaireIds)){
-//            List<QuestionnaireQuestionRecDataBO> dataBuildList = questionnaireFacade.getDataBuildList(Lists.newArrayList(questionnaireIds));
-//            for (QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO : dataBuildList) {
-//               log.info(JSON.toJSONString(questionnaireQuestionRecDataBO,true));
-//            }
-
-            List<List<String>> head = questionnaireFacade.getHead(Lists.newArrayList(questionnaireIds));
-            for (List<String> list : head) {
-                log.info(list.toString());
-            }
-        }
     }
 
 }

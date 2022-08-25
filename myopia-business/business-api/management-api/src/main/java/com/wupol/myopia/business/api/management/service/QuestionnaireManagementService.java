@@ -12,7 +12,7 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
@@ -89,7 +89,7 @@ public class QuestionnaireManagementService {
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private QuestionnaireExcelFactory questionnaireExcelFactory;
+    private QuestionnaireFactory questionnaireFactory;
 
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
@@ -601,11 +601,7 @@ public class QuestionnaireManagementService {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
 
-        Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
-        if (!exportTypeOptional.isPresent()){
-            throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
-        }
-        ExportType exportTypeService = exportTypeOptional.get();
+        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
         Map<Integer, String> questionnaireTypeMap = exportTypeService.getQuestionnaireType();
 
         List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Lists.newArrayList();
@@ -617,7 +613,6 @@ public class QuestionnaireManagementService {
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
 
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
-
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
@@ -631,11 +626,9 @@ public class QuestionnaireManagementService {
         questionnaireTypeVO.setNoDataList(typeKeyList);
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
 
-
         if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE) && exportTypeList.contains(exportType)){
             questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
         }
-
 
         return questionnaireTypeVO;
     }
@@ -651,7 +644,7 @@ public class QuestionnaireManagementService {
                 .flatMap(s -> Arrays.stream(s.split(StrUtil.COMMA)))
                 .map(Integer::valueOf).collect(Collectors.toSet());
         Map<Integer, Boolean> qesMap = Maps.newHashMap();
-        if (CollUtil.isNotEmpty(qesMap)){
+        if (CollUtil.isNotEmpty(qesIds)){
             List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.listByIds(qesIds);
             Map<Integer, Boolean> collect = questionnaireQesList.stream().collect(Collectors.toMap(QuestionnaireQes::getId, questionnaireQes -> Objects.nonNull(questionnaireQes.getQesFileId())));
             qesMap.putAll(collect);
@@ -659,7 +652,19 @@ public class QuestionnaireManagementService {
 
         return questionnaireList.stream()
                         .filter(questionnaire -> !Objects.equals(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),questionnaire.getType()))
-                        .filter(questionnaire -> Objects.equals(Boolean.FALSE, qesMap.getOrDefault(Integer.valueOf(questionnaire.getQesId()),Boolean.FALSE)))
+                        .filter(questionnaire -> {
+                            String qesIdStr = questionnaire.getQesId();
+                            if (Objects.isNull(qesIdStr)){
+                                return Boolean.TRUE;
+                            }
+                            String[] qesIdList = qesIdStr.split(StrUtil.COMMA);
+                            List<Boolean> qesExistList = Lists.newArrayList();
+                            for (String qesId : qesIdList) {
+                                qesExistList.add(qesMap.getOrDefault(Integer.valueOf(qesId), Boolean.FALSE));
+                            }
+                            return qesExistList.stream().filter(qesExist->Objects.equals(qesExist,Boolean.FALSE)).count() == qesExistList.size();
+
+                        })
                         .map(questionnaire -> {
                             if (QuestionnaireConstant.getStudentTypeList().contains(questionnaire.getType())) {
                                 return QuestionnaireConstant.STUDENT_TYPE;
