@@ -12,8 +12,10 @@ import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordE
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -23,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskServic
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,20 +61,49 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Resource
     private ScreeningTaskService screeningTaskService;
 
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
+
     @Override
     public Integer getUserType() {
         return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId) {
 
-        // 如果存在记录，且完成问卷，则更新状态
-        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());
-        if (Objects.nonNull(recordId)) {
-            return recordId;
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
+        Integer questionnaireType = questionnaire.getType();
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()) && Objects.isNull(schoolId)) {
+            throw new BusinessException("学校Id不能为空");
         }
-        UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType()) && Objects.isNull(districtId)) {
+            throw new BusinessException("区域Id不能为空");
+        }
+
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtId);
+
+        if (Objects.nonNull(userQuestionRecord)) {
+            if (Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType())) {
+                throw new BusinessException("该问卷已经提交，不能修改！！！");
+            }
+
+            if (Objects.equals(isFinish, Boolean.TRUE)) {
+                userQuestionRecord.setStatus(UserQuestionRecordEnum.FINISH.getType());
+                userQuestionRecordService.updateById(userQuestionRecord);
+                // 清空用户答案进度表
+                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtId, schoolId);
+                if (Objects.nonNull(userAnswerProgress)) {
+                    userAnswerProgress.setCurrentStep(null);
+                    userAnswerProgress.setCurrentSideBar(null);
+                    userAnswerProgress.setStepJson(null);
+                    userAnswerProgress.setUpdateTime(new Date());
+                    userAnswerProgressService.updateById(userAnswerProgress);
+                }
+            }
+            return userQuestionRecord.getId();
+        }
+        userQuestionRecord = new UserQuestionRecord();
 
         // 不存在新增记录
         ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
@@ -79,13 +111,14 @@ public class GovUserAnswerImpl implements IUserAnswerService {
             userQuestionRecord.setTaskId(task.getId());
             userQuestionRecord.setNoticeId(task.getScreeningNoticeId());
         }
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         userQuestionRecord.setUserId(userId);
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
 
         userQuestionRecord.setGovId(userId);
-        userQuestionRecord.setQuestionnaireType(questionnaire.getType());
+        userQuestionRecord.setDistrictId(districtId);
+        userQuestionRecord.setSchoolId(schoolId);
+        userQuestionRecord.setQuestionnaireType(questionnaireType);
         userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();

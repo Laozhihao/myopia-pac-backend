@@ -32,10 +32,12 @@ public interface IUserAnswerService {
      * @param userId           用户Id
      * @param isFinish         是否完成
      * @param questionnaireIds 问卷ID列表
+     * @param districtId       区域Id
+     * @param schoolId         学校Id
      *
      * @return 记录Id
      */
-    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds);
+    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId);
 
     /**
      * 删除用户答案
@@ -117,7 +119,6 @@ public interface IUserAnswerService {
      * 政府获取行政区域
      *
      * @return List<District>
-     *
      */
     default List<District> getDistrict(Integer schoolId) {
         return new ArrayList<>();

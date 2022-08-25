@@ -65,7 +65,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId) {
 
         // 如果存在记录，且完成问卷，则更新状态
         Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());

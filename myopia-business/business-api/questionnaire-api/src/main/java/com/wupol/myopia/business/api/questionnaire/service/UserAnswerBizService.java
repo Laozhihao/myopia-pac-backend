@@ -95,7 +95,7 @@ public class UserAnswerBizService {
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
         // 更新记录表
-        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds());
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds(), requestDTO.getDistrictId(), requestDTO.getSchoolId());
 
         // 答案为空不保存
         if (!CollectionUtils.isEmpty(questionList)) {
