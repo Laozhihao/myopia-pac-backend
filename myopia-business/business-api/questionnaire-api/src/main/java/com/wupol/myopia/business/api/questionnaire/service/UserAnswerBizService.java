@@ -218,7 +218,11 @@ public class UserAnswerBizService {
     public List<District> govNextDistrict(CurrentUser user) {
         List<School> schoolList = getGovOrgSchoolList(null, user);
         List<Long> areaCode = schoolList.stream().map(this::getAreaCode).collect(Collectors.toList());
-        return districtService.keepAreaDistrictsTree(districtService.getByCodes(areaCode));
+
+        List<District> result = new ArrayList<>();
+        areaCode.forEach(s-> result.addAll(districtService.getTopDistrictByCode(s)));
+        List<District> allDistrict = districtService.getAllDistrict(result, new ArrayList<>());
+        return districtService.keepAreaDistrictsTree(allDistrict);
     }
 
     /**

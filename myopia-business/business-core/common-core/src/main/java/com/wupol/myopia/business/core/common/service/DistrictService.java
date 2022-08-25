@@ -941,7 +941,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @return List<District>
      */
-    private List<District> getTopDistrictByCode(Long code) {
+    public List<District> getTopDistrictByCode(Long code) {
         String key = String.format(DistrictCacheKey.DISTRICT_LIST_TOP_TREE, code);
         Object cacheList = redisUtil.get(key);
         if (Objects.nonNull(cacheList)) {
@@ -975,7 +975,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 拍平list
      */
-    private List<District> getAllDistrict(List<District> list, List<District> result) {
+    public List<District> getAllDistrict(List<District> list, List<District> result) {
         if (CollectionUtils.isEmpty(list)) {
             return result;
         }
