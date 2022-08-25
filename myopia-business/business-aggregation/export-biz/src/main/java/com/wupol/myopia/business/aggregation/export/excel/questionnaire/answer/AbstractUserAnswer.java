@@ -109,59 +109,6 @@ public abstract class AbstractUserAnswer implements Answer {
     }
 
     /**
-     * 获取问卷记录数（有数据的问卷 状态进行中或者已完成）
-     *
-     * @param exportCondition 导出条件
-     * @param questionnaireTypeList 问卷类型集合
-     */
-    public List<UserQuestionRecord> getQuestionnaireRecordList(ExportCondition exportCondition, List<Integer> questionnaireTypeList,List<Integer> gradeTypeList) {
-        List<Integer> conditionValue = getConditionValue(exportCondition);
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(conditionValue.get(0),conditionValue.get(1),conditionValue.get(2),QuestionnaireStatusEnum.FINISH.getCode());
-        if (CollectionUtils.isEmpty(userQuestionRecordList)){
-            return Lists.newArrayList();
-        }
-
-        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
-                .filter(userQuestionRecord -> questionnaireTypeList.contains(userQuestionRecord.getQuestionnaireType()));
-        List<UserQuestionRecord> collect;
-        if (Objects.nonNull(exportCondition.getSchoolId())){
-            collect = userQuestionRecordStream
-                    .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getSchoolId(),exportCondition.getSchoolId()))
-                    .collect(Collectors.toList());
-        } else {
-            collect = userQuestionRecordStream.collect(Collectors.toList());
-        }
-
-        if (CollectionUtils.isEmpty(collect)){
-            return Lists.newArrayList();
-        }
-
-        Set<Integer> planStudentIds = collect.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
-        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
-
-        Set<Integer> districtIdList = Sets.newHashSet();
-        if(Objects.nonNull(exportCondition.getDistrictId())){
-            List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(exportCondition.getDistrictId());
-            districtIdList.addAll(districtIds);
-            if (!districtIds.contains(exportCondition.getDistrictId())){
-                districtIdList.add(exportCondition.getDistrictId());
-            }
-        }
-
-        Stream<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentStream = planSchoolStudentList.stream().filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()));
-        //有数据过滤
-        if (!CollectionUtils.isEmpty(districtIdList)){
-            screeningPlanSchoolStudentStream = screeningPlanSchoolStudentStream.filter(planSchoolStudent-> districtIdList.contains(planSchoolStudent.getSchoolDistrictId()));
-        }
-        List<Integer> planStudentIdList = screeningPlanSchoolStudentStream .map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
-
-        return collect.stream()
-                .filter(userQuestionRecord -> planStudentIdList.contains(userQuestionRecord.getUserId()))
-                .collect(Collectors.toList());
-
-    }
-
-    /**
      * 获取rec文件名称
      *
      * @param schoolId          学校ID
@@ -280,6 +227,9 @@ public abstract class AbstractUserAnswer implements Answer {
         Map<String, List<QuestionnaireRecDataBO>> questionnaireRecDataMap = questionnaireRecDataBOList.stream().collect(Collectors.groupingBy(QuestionnaireRecDataBO::getQesField));
 
         List<QesFieldDataBO> qesFieldDataBOList = userQuestionnaireAnswerBO.getQesFieldDataBOList();
+        if (CollUtil.isEmpty(qesFieldDataBOList)){
+            return;
+        }
         Map<String, QesFieldDataBO> qesFieldDataBoMap = qesFieldDataBOList.stream().collect(Collectors.toMap(QesFieldDataBO::getQesField, Function.identity()));
         questionnaireRecDataMap.forEach((qesField, recDataList) -> {
 
@@ -385,9 +335,14 @@ public abstract class AbstractUserAnswer implements Answer {
     }
 
     private void getRadioData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
+        if (CollUtil.isEmpty(recDataList)){
+            return;
+        }
         List<QuestionnaireRecDataBO> inputList = recDataList.stream().map(QuestionnaireRecDataBO::getQuestionnaireRecDataBOList).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
         QuestionnaireRecDataBO questionnaireRecDataBO = getQuestionnaireRecDataBO(recDataList, answerMap);
-        dataList.add(questionnaireRecDataBO);
+        if (!Objects.equals(questionnaireRecDataBO.getQesField(),"QM")){
+            dataList.add(questionnaireRecDataBO);
+        }
         if (CollUtil.isEmpty(inputList)) {
             return;
         }
@@ -454,8 +409,11 @@ public abstract class AbstractUserAnswer implements Answer {
             dataList.add(questionnaireRecDataBO);
             return;
         }
-        questionnaireRecDataBO.setQuestionnaireRecDataBOList(null);
-        dataList.add(questionnaireRecDataBO);
+
+        if (!Objects.equals(questionnaireRecDataBO.getQesField(),"QM")){
+            questionnaireRecDataBO.setQuestionnaireRecDataBOList(null);
+            dataList.add(questionnaireRecDataBO);
+        }
         getInputData(dataList, answerMap, questionnaireRecDataBOList);
     }
 
@@ -500,6 +458,10 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
         List<QuestionnaireQuestionRecDataBO> dataBuildList = questionnaireFacade.getDataBuildList(latestQuestionnaireIds);
+
+        if (Objects.isNull(questionnaireId)){
+            questionnaireId = latestQuestionnaireIds.get(0);
+        }
 
         List<HideQuestionRecDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestionRec(questionnaireId);
 
@@ -572,11 +534,15 @@ public abstract class AbstractUserAnswer implements Answer {
         Set<Integer> planStudentIds = userQuestionRecordList.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds));
 
+        Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+
         UserQuestionnaireAnswerInfoBuilder build = UserQuestionnaireAnswerInfoBuilder.builder()
                 .userQuestionRecordList(userQuestionRecordList)
                 .userAnswerMap(userAnswerList.stream().collect(Collectors.groupingBy(UserAnswer::getRecordId)))
                 .hideQuestionDataBOList(hideQuestionDataBOList)
                 .planSchoolStudentMap(planSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity())))
+                .schoolMap(schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity())))
                 .userType(userType)
                 .build();
 
@@ -585,7 +551,11 @@ public abstract class AbstractUserAnswer implements Answer {
 
     private GenerateRecDataBO buildGenerateRecDataBO(List<String> qesFieldList, String qesUrl, Integer schoolId, Map<String, List<QuestionnaireRecDataBO>> studentAnswersMap) {
         List<List<String>> dataList = new ArrayList<>();
-        studentAnswersMap.forEach((userKey, answerList) -> dataList.add(answerList.stream().map(QuestionnaireRecDataBO::getRecAnswer).collect(Collectors.toList())));
+        studentAnswersMap.forEach((userKey, answerList) -> dataList.add(answerList.stream()
+                .map(answer->Optional.ofNullable(answer)
+                        .map(questionnaireRecDataBO ->Optional.ofNullable(questionnaireRecDataBO.getRecAnswer()).orElse(StrUtil.EMPTY))
+                        .orElse(StrUtil.EMPTY))
+                .collect(Collectors.toList())));
         List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }

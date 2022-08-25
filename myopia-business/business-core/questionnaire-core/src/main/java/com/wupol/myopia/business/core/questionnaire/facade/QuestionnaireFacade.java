@@ -486,6 +486,10 @@ public class QuestionnaireFacade {
         return Lists.newArrayList();
     }
 
+    /**
+     * 隐藏问题处理
+     * @param questionnaireId 问卷ID
+     */
     public List<HideQuestionRecDataBO> getHideQuestionnaireQuestionRec(Integer questionnaireId) {
         if (Objects.isNull(questionnaireId)){
             return Lists.newArrayList();
