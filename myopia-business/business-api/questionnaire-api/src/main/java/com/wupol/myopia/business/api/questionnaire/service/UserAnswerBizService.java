@@ -154,7 +154,6 @@ public class UserAnswerBizService {
      * 获取学校
      */
     public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
-        Integer districtId = getUserDistrictId(user);
         ScreeningTask task = screeningTaskService.getOneByOrgId(user.getExQuestionnaireUserId());
         if (Objects.isNull(task)) {
             throw new BusinessException("你没有问卷需要填写");
@@ -164,7 +163,7 @@ public class UserAnswerBizService {
             throw new BusinessException("你没有问卷需要填写");
         }
         List<Integer> schoolIds = planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
-        List<School> schoolList = schoolService.getByNameAndDistrictIds(name, districtService.getSpecificDistrictTreeAllDistrictIds(districtId), schoolIds);
+        List<School> schoolList = schoolService.getByNameAndIds(name, schoolIds);
         if (CollectionUtils.isEmpty(schoolList)) {
             return new ArrayList<>();
         }
