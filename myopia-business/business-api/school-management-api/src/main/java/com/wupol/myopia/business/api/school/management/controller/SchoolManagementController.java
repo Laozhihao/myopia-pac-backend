@@ -10,7 +10,6 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -48,8 +47,6 @@ public class SchoolManagementController {
     private SchoolGradeService schoolGradeService;
     @Resource
     private SchoolFacade schoolFacade;
-    @Autowired
-    private ScreeningExportService screeningExportService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     /**
