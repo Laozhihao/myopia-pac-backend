@@ -40,10 +40,10 @@ public class UserAnswerController {
      *
      * @return UserAnswerDTO
      */
-    @GetMapping("list/{questionnaireId}")
-    public UserAnswerDTO getUserAnswerList(@PathVariable("questionnaireId") Integer questionnaireId) {
+    @GetMapping("list")
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer districtId, Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.getUserAnswerList(questionnaireId, user);
+        return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtId, schoolId);
     }
 
     /**
@@ -89,10 +89,10 @@ public class UserAnswerController {
      *
      * @return UserAnswerDTO
      */
-    @GetMapping("isFinish/{questionnaireId}")
-    public Boolean questionnaireIsFinish(@PathVariable("questionnaireId") Integer questionnaireId) {
+    @GetMapping("govAndSchool/isFinish")
+    public Boolean questionnaireIsFinish(Integer questionnaireId, Integer districtId, Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user);
+        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user, districtId, schoolId);
     }
 
     /**

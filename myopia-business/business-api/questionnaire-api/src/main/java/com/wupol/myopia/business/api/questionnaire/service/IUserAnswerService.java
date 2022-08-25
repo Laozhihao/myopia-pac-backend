@@ -109,10 +109,12 @@ public interface IUserAnswerService {
      *
      * @param userId          用户Id
      * @param questionnaireId 问卷Id
+     * @param districtId 区域Id
+     * @param schoolId 学校Id
      *
      * @return 是否完成
      */
-    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
         return false;
     }
 
@@ -124,4 +126,9 @@ public interface IUserAnswerService {
     default List<District> getDistrict(Integer schoolId) {
         return new ArrayList<>();
     }
+
+    /**
+     * 获取答案
+     */
+    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId);
 }

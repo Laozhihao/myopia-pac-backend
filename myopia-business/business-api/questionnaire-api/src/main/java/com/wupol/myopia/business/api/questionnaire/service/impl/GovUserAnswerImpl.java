@@ -75,14 +75,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId) {
 
-        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-        Integer questionnaireType = questionnaire.getType();
-        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()) && Objects.isNull(schoolId)) {
-            throw new BusinessException("学校Id不能为空");
-        }
-        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType()) && Objects.isNull(districtId)) {
-            throw new BusinessException("区域Id不能为空");
-        }
+        Integer questionnaireType = getQuestionnaireType(questionnaireId, districtId, schoolId);
 
         UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtId);
 
@@ -125,6 +118,21 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
         userQuestionRecordService.save(userQuestionRecord);
         return userQuestionRecord.getId();
+    }
+
+    /**
+     * 获取问卷类型
+     */
+    private Integer getQuestionnaireType(Integer questionnaireId, Integer districtId, Integer schoolId) {
+        Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
+        Integer questionnaireType = questionnaire.getType();
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()) && Objects.isNull(schoolId)) {
+            throw new BusinessException("学校Id不能为空");
+        }
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType()) && Objects.isNull(districtId)) {
+            throw new BusinessException("区域Id不能为空");
+        }
+        return questionnaireType;
     }
 
     @Override
@@ -177,8 +185,13 @@ public class GovUserAnswerImpl implements IUserAnswerService {
      * @return 是否完成
      */
     @Override
-    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
-        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
+        getQuestionnaireType(questionnaireId, districtId, schoolId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtId);
+        if (Objects.isNull(userQuestionRecord)) {
+            return false;
+        }
+        return Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType());
     }
 
     @Override
@@ -186,5 +199,18 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         School school = schoolService.getById(schoolId);
         Integer districtId = school.getDistrictId();
         return districtService.getSameLevelDistrictKeepArea(districtId);
+    }
+
+    @Override
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId) {
+        getQuestionnaireType(questionnaireId, districtId, schoolId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtId, schoolId);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtId, schoolId);
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
     }
 }

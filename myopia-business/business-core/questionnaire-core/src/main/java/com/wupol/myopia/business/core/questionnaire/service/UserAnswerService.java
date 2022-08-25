@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wupol.myopia.base.domain.CurrentUser;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
@@ -10,6 +10,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,9 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
 
+    @Resource
+    private UserQuestionRecordService userQuestionRecordService;
+
     /**
      * 获取用户答案
      *
@@ -37,10 +41,40 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType);
+        handleUserAnswer(userAnswerDTO, userAnswers);
+        return userAnswerDTO;
+    }
+
+    /**
+     * 获取用户答案
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Integer districtId, Integer schoolId) {
+        UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
+        userAnswerDTO.setQuestionnaireId(questionnaireId);
+
+        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtId);
+        if(Objects.isNull(questionRecord)) {
+            return userAnswerDTO;
+        }
+        userAnswerDTO.setDistrictId(questionRecord.getDistrictId());
+        userAnswerDTO.setSchoolId(questionRecord.getSchoolId());
+        List<UserAnswer> userAnswers = getListByRecordIds(Lists.newArrayList(questionRecord.getId()));
+        handleUserAnswer(userAnswerDTO, userAnswers);
+        return userAnswerDTO;
+    }
+
+    /**
+     * 处理用户答案
+     */
+    private static void handleUserAnswer(UserAnswerDTO userAnswerDTO, List<UserAnswer> userAnswers) {
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
@@ -50,7 +84,6 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             questionDTO.setMappingKey(s.getMappingKey());
             return questionDTO;
         }).collect(Collectors.toList()));
-        return userAnswerDTO;
     }
 
     /**
@@ -117,6 +150,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
                 .eq(UserAnswer::getUserId, userId)
                 .eq(UserAnswer::getUserType, userType);
+
         return baseMapper.selectList(wrapper);
     }
 

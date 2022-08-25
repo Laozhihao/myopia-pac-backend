@@ -101,7 +101,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
      * @param questionnaireId 问卷ID
      * @param userId          用户Id
      * @param questionList    问题列表
-     * @param recordId
+     * @param recordId        记录表Id
      */
     @Override
     public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId) {
@@ -184,6 +184,11 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
         // 处理脊柱弯曲学生基本信息
         addVisionSpineNotice(planStudent, questionnaireId, userId, getUserType(), recordId);
+    }
+
+    @Override
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId) {
+        return commonUserAnswer.getUserAnswerList(questionnaireId, userId, getUserType());
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
