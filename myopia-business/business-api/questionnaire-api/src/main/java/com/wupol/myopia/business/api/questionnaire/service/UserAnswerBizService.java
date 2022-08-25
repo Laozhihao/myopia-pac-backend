@@ -154,19 +154,7 @@ public class UserAnswerBizService {
      * 获取学校
      */
     public List<SchoolListResponseDTO> getSchoolList(String name, CurrentUser user) {
-        ScreeningTask task = screeningTaskService.getOneByOrgId(user.getExQuestionnaireUserId());
-        if (Objects.isNull(task)) {
-            throw new BusinessException("你没有问卷需要填写");
-        }
-        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(screeningPlanService.getByTaskId(task.getId()).stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-        if (CollectionUtils.isEmpty(planSchools)) {
-            throw new BusinessException("你没有问卷需要填写");
-        }
-        List<Integer> schoolIds = planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
-        List<School> schoolList = schoolService.getByNameAndIds(name, schoolIds);
-        if (CollectionUtils.isEmpty(schoolList)) {
-            return new ArrayList<>();
-        }
+        List<School> schoolList = getGovOrgSchoolList(name, user);
         Map<Integer, District> districtMap = districtService.getByIds(schoolList.stream().map(School::getDistrictId).collect(Collectors.toList()));
         return schoolList.stream().map(s -> generateSchoolResponse(s, districtMap.get(s.getDistrictId()))).collect(Collectors.toList());
     }
@@ -216,6 +204,31 @@ public class UserAnswerBizService {
         responseDTO.setAreaNo(code.substring(4, 6));
         responseDTO.setAreaType(school.getAreaType());
         responseDTO.setMonitorType(school.getMonitorType());
+        Long areaCode = getAreaCode(school);
+        responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
+        return responseDTO;
+    }
+
+
+    /**
+     * 政府获取下属于行政区域
+     *
+     * @return List<District>
+     */
+    public List<District> govNextDistrict(CurrentUser user) {
+        List<School> schoolList = getGovOrgSchoolList(null, user);
+        List<Long> areaCode = schoolList.stream().map(this::getAreaCode).collect(Collectors.toList());
+        return districtService.keepAreaDistrictsTree(districtService.getByCodes(areaCode));
+    }
+
+    /**
+     * 获取区域Code
+     *
+     * @param school 学校
+     *
+     * @return 区域Code
+     */
+    private Long getAreaCode(School school) {
         Long areaCode = null;
         List<District> list = JSON.parseArray(school.getDistrictDetail(), District.class);
         if (list.size() == 2) {
@@ -224,18 +237,7 @@ public class UserAnswerBizService {
         if (list.size() >= 3) {
             areaCode = list.get(2).getCode();
         }
-        responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
-        return responseDTO;
-    }
-
-    /**
-     * 政府获取下属于行政区域
-     *
-     * @return List<District>
-     */
-    public List<District> govNextDistrict(CurrentUser user) {
-        Integer districtId = getUserDistrictId(user);
-        return districtService.getSameLevelDistrictKeepArea(districtId);
+        return areaCode;
     }
 
     /**
@@ -260,6 +262,31 @@ public class UserAnswerBizService {
         Integer orgId = user.getExQuestionnaireUserId();
         GovDept govDept = govDeptService.getById(orgId);
         return govDept.getDistrictId();
+    }
+
+    /**
+     * 获取学校
+     *
+     * @param name 学校名称
+     * @param user 用户
+     *
+     * @return List<School>
+     */
+    private List<School> getGovOrgSchoolList(String name, CurrentUser user) {
+        ScreeningTask task = screeningTaskService.getOneByOrgId(user.getExQuestionnaireUserId());
+        if (Objects.isNull(task)) {
+            throw new BusinessException("你没有问卷需要填写");
+        }
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(screeningPlanService.getByTaskId(task.getId()).stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        if (CollectionUtils.isEmpty(planSchools)) {
+            throw new BusinessException("你没有问卷需要填写");
+        }
+        List<Integer> schoolIds = planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+        List<School> schoolList = schoolService.getByNameAndIds(name, schoolIds);
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return new ArrayList<>();
+        }
+        return schoolList;
     }
 
 }
