@@ -25,6 +25,17 @@ alter table q_user_answer
 alter table q_user_answer_progress
     add step_json json null comment '步骤json' after current_side_bar;
 
+alter table q_user_question_record drop key index_name;
+
+alter table q_user_question_record
+    add district_id int null comment '区域Id' after student_id;
+
+alter table q_user_answer_progress
+    add school_id int null comment '学校Id' after user_type;
+
+alter table q_user_answer_progress
+    add district_id int null comment '区域Id' after school_id;
+
 
 -- 问卷表修改字段
 ALTER TABLE q_questionnaire CHANGE qes_url qes_id VARCHAR(10) NULL COMMENT 'qes管理ID';

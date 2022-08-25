@@ -55,6 +55,16 @@ public class UserAnswerDTO {
      */
     private List<Integer> questionnaireIds;
 
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
+     * 区域Id
+     */
+    private Integer districtId;
+
     @Getter
     @Setter
     public static class QuestionDTO {

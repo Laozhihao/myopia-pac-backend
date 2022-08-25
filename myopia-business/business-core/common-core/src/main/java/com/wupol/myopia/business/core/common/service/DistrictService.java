@@ -1018,7 +1018,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      *
      * @return List<District>
      */
-    private List<District> keepAreaDistrictsTree(List<District> allDistrict) {
+    public List<District> keepAreaDistrictsTree(List<District> allDistrict) {
         List<District> areaDistrictList = allDistrict.stream().filter(s -> StringUtils.equals(String.valueOf(s.getCode()).substring(6, 9), "000")).collect(Collectors.toList());
         return districtListToTree(
                 areaDistrictList.stream()
