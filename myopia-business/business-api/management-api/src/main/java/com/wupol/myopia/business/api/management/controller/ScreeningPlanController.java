@@ -795,7 +795,7 @@ public class ScreeningPlanController {
         // 1）判断计划是否来自于通知
         if (Objects.nonNull(screeningPlan.getSrcScreeningNoticeId()) && !CommonConst.DEFAULT_ID.equals(screeningPlan.getScreeningTaskId())) {
             // 2）把通知相关的区域统计删掉
-            screeningResultStatisticService.remove(new ScreeningResultStatistic().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()).setSchoolId(-1));
+            screeningResultStatisticService.remove(new ScreeningResultStatistic().setScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId()));
             // 3）重新统计该通知的区域数据
             districtStatisticTask.districtStatisticsByNoticeIds(Lists.newArrayList(screeningPlan.getSrcScreeningNoticeId()), null);
         }
