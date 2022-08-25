@@ -5,8 +5,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
-import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
@@ -15,8 +13,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
-import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -24,7 +20,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,19 +49,13 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     @Resource
     private ScreeningPlanService screeningPlanService;
 
-    @Resource
-    private SchoolService schoolService;
-
-    @Resource
-    private DistrictService districtService;
-
     @Override
     public Integer getUserType() {
         return QuestionnaireUserType.SCHOOL.getType();
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId) {
 
         // 如果存在记录，且完成问卷，则更新状态
         Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());
@@ -97,7 +86,7 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
+    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId) {
         commonUserAnswer.deletedUserAnswer(questionList, questionnaireId, userId, getUserType());
     }
 
