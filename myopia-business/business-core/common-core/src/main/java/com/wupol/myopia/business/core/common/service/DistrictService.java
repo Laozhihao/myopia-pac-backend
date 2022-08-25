@@ -900,11 +900,36 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         District district = getById(districtId);
 
         // 获取父节点
-        List<District> districts = getAllDistrict(districtCodeToTree(district.getCode()), new ArrayList<>());
-        Integer level = getLevel(districts, district.getCode(), 1);
+        Long code = district.getCode();
+        List<District> districts = getAllDistrict(districtCodeToTree(code), new ArrayList<>());
+        Integer level = getLevel(districts, code, 1);
+
+        // 直辖市处理
+        String codeStr = String.valueOf(code).substring(0,2);
+        if (StringUtils.equalsAny(codeStr,"11", "12","31","50")) {
+            if (level == 1) {
+                // 获取下级的数据
+                List<District> parentCode = getByParentCode(code);
+                // 合并
+                return keepAreaTwoDistrictsTree(districts, parentCode);
+            }
+            if (level <= 2) {
+                // 获取同级的数据
+                List<District> parentCode = getByParentCode(district.getParentCode());
+                // 合并
+                return keepAreaTwoDistrictsTree(districts, parentCode);
+            }
+            if (level == 3) {
+                // 获取上级的数据
+                List<District> parentCode = getByParentCode(getByCode(district.getParentCode()).getParentCode());
+                // 合并
+                return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), code)).collect(Collectors.toList()), parentCode);
+            }
+        }
+
         if (level == 2) {
             // 获取下级的数据
-            List<District> parentCode = getByParentCode(district.getCode());
+            List<District> parentCode = getByParentCode(code);
             // 合并
             return keepAreaTwoDistrictsTree(districts, parentCode);
         }
@@ -918,7 +943,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             // 获取上级的数据
             List<District> parentCode = getByParentCode(getByCode(district.getParentCode()).getParentCode());
             // 合并
-            return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), district.getCode())).collect(Collectors.toList()), parentCode);
+            return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), code)).collect(Collectors.toList()), parentCode);
         }
         return new ArrayList<>();
     }
