@@ -54,8 +54,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId id
      * @return List<ScreeningResult>
      */
-    public List<VisionScreeningResult> getByStudentId(Integer studentId) {
-        return baseMapper.getByStudentId(studentId);
+    public List<VisionScreeningResult> getReleasePlanResultByStudentId(Integer studentId) {
+        return baseMapper.getReleasePlanResultByStudentId(studentId);
     }
 
     /**
@@ -167,8 +167,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId 学生ID
      * @return VisionScreeningResult
      */
-    public VisionScreeningResult getLatestResultByStudentId(Integer studentId) {
-        return baseMapper.getLatestResultByStudentId(studentId);
+    public VisionScreeningResult getLatestResultOfReleasePlanByStudentId(Integer studentId) {
+        return baseMapper.getLatestResultOfReleasePlanByStudentId(studentId);
     }
 
     /**

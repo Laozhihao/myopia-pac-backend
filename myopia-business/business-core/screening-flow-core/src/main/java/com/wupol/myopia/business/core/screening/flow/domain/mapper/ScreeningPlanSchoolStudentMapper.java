@@ -29,7 +29,7 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
 
     List<StudentScreeningInfoWithResultDTO> selectStudentInfoWithResult(@Param("data") ScreeningResultSearchDTO screeningResultSearchDTO);
 
-    List<ScreeningPlanSchoolStudent> findByStudentId(@Param("studentId") Integer studentId);
+    List<ScreeningPlanSchoolStudent> getReleasePlanStudentByStudentId(@Param("studentId") Integer studentId);
 
     IPage<ScreeningPlanSchoolStudent> selectPlanStudentListByPage(@Param("page") Page<?> page, @Param("param") ScreeningStudentQueryDTO query);
 
