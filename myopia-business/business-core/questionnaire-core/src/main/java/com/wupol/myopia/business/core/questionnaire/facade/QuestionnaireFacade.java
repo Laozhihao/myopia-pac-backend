@@ -8,7 +8,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder;
@@ -334,17 +336,24 @@ public class QuestionnaireFacade {
         if (CollUtil.isEmpty(questionnaireList)){
             return Lists.newArrayList();
         }
-        List<Integer> qesIds = questionnaireList.stream()
-                .map(Questionnaire::getQesId)
-                .filter(Objects::nonNull)
-                .flatMap(qesId->Arrays.stream(qesId.split(StrUtil.COMMA)))
-                .map(Integer::valueOf)
-                .collect(Collectors.toList());
-        if (CollUtil.isEmpty(qesIds)){
+        List<String> qesIdStrList = questionnaireList.stream().map(Questionnaire::getQesId).filter(Objects::nonNull).collect(Collectors.toList());
+        if (qesIdStrList.size() != questionnaireIds.size()){
+            throw new BusinessException(String.format("未上传qes文件,问卷名称:%s",CollUtil.join(questionnaireList.stream().map(Questionnaire::getTitle).collect(Collectors.toList()), ",")));
+        }
+
+        List<List<Integer>> qesIdList =Lists.newArrayList();
+        for (Questionnaire questionnaire : questionnaireList) {
+            String qesId = questionnaire.getQesId();
+            qesIdList.add(Arrays.stream(qesId.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList()));
+        }
+        List<Integer> intersectionList = ListUtil.getIntersection(qesIdList);
+
+        if (CollUtil.isEmpty(intersectionList)){
             return Lists.newArrayList();
         }
-        return qesFieldMappingService.listByQesId(qesIds.get(0));
+        return qesFieldMappingService.listByQesId(intersectionList.get(0));
     }
+
 
     /**
      * 获取Excel表头信息对象集合
