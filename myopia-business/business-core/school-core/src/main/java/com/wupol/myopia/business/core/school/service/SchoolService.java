@@ -491,8 +491,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 通过名字和区域Id获取
      *
-     * @param name        名称
-     * @param schoolIds   学校Ids
+     * @param name      名称
+     * @param schoolIds 学校Ids
      *
      * @return 学校
      */
