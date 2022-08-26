@@ -28,10 +28,10 @@ alter table q_user_answer_progress
 alter table q_user_question_record drop key index_name;
 
 alter table q_user_question_record
-    add district_id int null comment '区域Id' after student_id;
+    add district_code bigint null comment '区域code' after student_id;
 
 alter table q_user_answer_progress
     add school_id int null comment '学校Id' after user_type;
 
 alter table q_user_answer_progress
-    add district_id int null comment '区域Id' after school_id;
+    add district_code bigint null comment '区域code' after school_id;

@@ -73,11 +73,11 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Long districtCode, Integer schoolId) {
 
-        Integer questionnaireType = getQuestionnaireType(questionnaireId, districtId, schoolId);
+        Integer questionnaireType = getQuestionnaireType(questionnaireId, districtCode, schoolId);
 
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode);
 
         if (Objects.nonNull(userQuestionRecord)) {
             if (Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType())) {
@@ -88,7 +88,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
                 userQuestionRecord.setStatus(UserQuestionRecordEnum.FINISH.getType());
                 userQuestionRecordService.updateById(userQuestionRecord);
                 // 清空用户答案进度表
-                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtId, schoolId);
+                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId);
                 if (Objects.nonNull(userAnswerProgress)) {
                     userAnswerProgress.setCurrentStep(null);
                     userAnswerProgress.setCurrentSideBar(null);
@@ -112,7 +112,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord.setQuestionnaireId(questionnaireId);
 
         userQuestionRecord.setGovId(userId);
-        userQuestionRecord.setDistrictId(districtId);
+        userQuestionRecord.setDistrictCode(districtCode);
         userQuestionRecord.setSchoolId(schoolId);
         userQuestionRecord.setQuestionnaireType(questionnaireType);
         userQuestionRecord.setStatus(Objects.equals(isFinish, Boolean.TRUE) ? UserQuestionRecordEnum.FINISH.getType() : UserQuestionRecordEnum.PROCESSING.getType());
@@ -123,13 +123,13 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     /**
      * 获取问卷类型
      */
-    private Integer getQuestionnaireType(Integer questionnaireId, Integer districtId, Integer schoolId) {
+    private Integer getQuestionnaireType(Integer questionnaireId, Long districtCode, Integer schoolId) {
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         Integer questionnaireType = questionnaire.getType();
         if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType()) && Objects.isNull(schoolId)) {
             throw new BusinessException("学校Id不能为空");
         }
-        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType()) && Objects.isNull(districtId)) {
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType()) && Objects.isNull(districtCode)) {
             throw new BusinessException("区域Id不能为空");
         }
         return questionnaireType;
@@ -185,9 +185,9 @@ public class GovUserAnswerImpl implements IUserAnswerService {
      * @return 是否完成
      */
     @Override
-    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
-        getQuestionnaireType(questionnaireId, districtId, schoolId);
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtId);
+    public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Long districtCode, Integer schoolId) {
+        getQuestionnaireType(questionnaireId, districtCode, schoolId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode);
         if (Objects.isNull(userQuestionRecord)) {
             return false;
         }
@@ -202,10 +202,10 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId) {
-        getQuestionnaireType(questionnaireId, districtId, schoolId);
-        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtId, schoolId);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtId, schoolId);
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
+        getQuestionnaireType(questionnaireId, districtCode, schoolId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId);
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());

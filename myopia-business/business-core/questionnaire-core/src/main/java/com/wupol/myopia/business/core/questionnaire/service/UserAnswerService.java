@@ -56,15 +56,15 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Integer districtId, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Long districtCode, Integer schoolId) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
 
-        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtId);
+        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtCode);
         if(Objects.isNull(questionRecord)) {
             return userAnswerDTO;
         }
-        userAnswerDTO.setDistrictId(questionRecord.getDistrictId());
+        userAnswerDTO.setDistrictCode(questionRecord.getDistrictCode());
         userAnswerDTO.setSchoolId(questionRecord.getSchoolId());
         List<UserAnswer> userAnswers = getListByRecordIds(Lists.newArrayList(questionRecord.getId()));
         handleUserAnswer(userAnswerDTO, userAnswers);
