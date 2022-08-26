@@ -63,7 +63,7 @@ public class UserAnswerDTO {
     /**
      * 区域Id
      */
-    private Integer districtId;
+    private Long districtCode;
 
     @Getter
     @Setter

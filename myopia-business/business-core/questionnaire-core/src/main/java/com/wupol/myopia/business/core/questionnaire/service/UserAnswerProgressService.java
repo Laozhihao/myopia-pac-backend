@@ -15,11 +15,11 @@ import java.util.Objects;
 @Service
 public class UserAnswerProgressService extends BaseService<UserAnswerProgressMapper, UserAnswerProgress> {
 
-    public UserAnswerProgress getUserAnswerProgressService(Integer userId, Integer userType, Integer districtId, Integer schoolId) {
+    public UserAnswerProgress getUserAnswerProgressService(Integer userId, Integer userType, Long districtCode, Integer schoolId) {
         return getOne(new LambdaQueryWrapper<UserAnswerProgress>()
                 .eq(UserAnswerProgress::getUserId, userId)
                 .eq(UserAnswerProgress::getUserType, userType)
-                .eq(Objects.nonNull(districtId), UserAnswerProgress::getDistrictId, districtId)
+                .eq(Objects.nonNull(districtCode), UserAnswerProgress::getDistrictCode, districtCode)
                 .eq(Objects.nonNull(schoolId), UserAnswerProgress::getSchoolId, schoolId));
     }
 
