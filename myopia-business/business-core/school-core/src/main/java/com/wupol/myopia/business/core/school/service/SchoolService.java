@@ -499,8 +499,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     public List<School> getByNameAndIds(String name, Collection<Integer> schoolIds) {
         LambdaQueryWrapper<School> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StringUtils.isNotBlank(name), School::getName, name)
-                .in(School::getId, schoolIds)
-                .notIn(School::getType, Lists.newArrayList(8, 9));
+                .in(School::getId, schoolIds);
         return baseMapper.selectList(wrapper);
     }
 }
