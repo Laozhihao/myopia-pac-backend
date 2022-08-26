@@ -54,6 +54,10 @@ public class StudentAnswerImpl extends AbstractUserAnswer {
             studentStream = studentStream.filter(planSchoolStudent -> districtIdList.contains(planSchoolStudent.getSchoolDistrictId()));
         }
 
+        if (Objects.nonNull(exportCondition.getSchoolId())){
+            userQuestionRecordList = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getSchoolId(),exportCondition.getSchoolId())).collect(Collectors.toList());
+        }
+
         List<Integer> planStudentIdList = studentStream.map(ScreeningPlanSchoolStudent::getId)
                 .collect(Collectors.toList());
 
