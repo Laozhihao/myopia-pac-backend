@@ -26,4 +26,16 @@ public class QuestionnaireQesService extends BaseService<QuestionnaireQesMapper,
         queryWrapper.eq(QuestionnaireQes::getYear,year);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 根据名称模糊查询 （like 右侧百分号 ）
+     * @param name 名称
+     */
+    public List<QuestionnaireQes> getArchiveQesByName(String name){
+        LambdaQueryWrapper<QuestionnaireQes> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.likeRight(QuestionnaireQes::getName,name);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+
 }

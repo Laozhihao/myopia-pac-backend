@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
+
+import java.util.List;
 
 /**
  * 导出类型常量
@@ -85,5 +88,10 @@ public final class ExportTypeConst {
      * 工作台->机构筛查记录【rec文件】
      */
     public static final Integer SCREENING_RECORD_REC = 18;
+
+
+    public static List<Integer> getRecExportTypeList(){
+        return Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
+    }
 
 }

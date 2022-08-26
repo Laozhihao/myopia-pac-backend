@@ -186,6 +186,10 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public void validateBeforeExport(ExportCondition exportCondition) {
         this.preProcess(exportCondition);
 
+        if (ExportTypeConst.getRecExportTypeList().contains(exportCondition.getExportType()) && Objects.isNull(exportCondition.getDataType())) {
+            throw new IllegalArgumentException("导出rec数据类型不能为空");
+        }
+
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId(), QuestionnaireStatusEnum.FINISH.getCode());
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             throw new BusinessException("暂无数据");

@@ -101,8 +101,6 @@ public class QuestionnaireManagementService {
 
     private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS_EXCEL,ExportTypeConst.SCHOOL_STATISTICS_EXCEL,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
 
-    private static List<Integer> recExportTypeList = Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
-
     /**
      * 根据机构id获得所有任务
      *
@@ -621,7 +619,7 @@ public class QuestionnaireManagementService {
             Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
             List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
 
-            if (recExportTypeList.contains(exportType)){
+            if (ExportTypeConst.getRecExportTypeList().contains(exportType)){
                 questionnaireTypeVO.setNoQesList(getNoQesList(questionnaireList));
             }
 

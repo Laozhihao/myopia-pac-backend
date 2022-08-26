@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.api.management.service.ArchiveService;
 import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
@@ -18,7 +19,6 @@ import com.wupol.myopia.business.core.questionnaire.constant.SelectKeyEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
-import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,7 @@ public class QuestionnaireManagementController {
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
 
     @Resource
-    private QuestionnaireFacade questionnaireFacade;
+    private ArchiveService archiveService;
 
     /**
      * 获得当前登录人的筛查任务
@@ -289,8 +289,10 @@ public class QuestionnaireManagementController {
                 .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
                 .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
                 .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
-                .setTaskId(exportQuestionnaireDTO.getTaskId());
+                .setTaskId(exportQuestionnaireDTO.getTaskId())
+                .setDataType(exportQuestionnaireDTO.getDataType());
 
+        archiveService.setArchiveRecData(exportCondition);
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }
 

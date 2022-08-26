@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -21,6 +24,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
+import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -35,6 +39,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -148,6 +155,7 @@ public abstract class AbstractUserAnswer implements Answer {
         try {
             RecExportVO recExportVO = future.get();
             String recPath = EpiDataUtil.getRecPath(recExportVO.getRecUrl(), fileName, recExportVO.getRecName());
+            recFileMove(recPath,fileName,recExportVO.getRecName());
             log.info("生成rec文件成功 recName={}", recExportVO.getRecName());
         } catch (InterruptedException e) {
             log.warn("Interrupted", e);
@@ -155,6 +163,20 @@ public abstract class AbstractUserAnswer implements Answer {
         } catch (Exception e) {
             log.warn("获取rec导出结果失败");
         }
+    }
+
+    private static void recFileMove(String recZip,String epiDataPath, String recFolderName){
+        ZipUtil.unzip(recZip,epiDataPath);
+        recFolderName = Paths.get(epiDataPath, recFolderName).toString();
+        File[] files = FileUtil.newFile(recFolderName).listFiles();
+        if (ArrayUtil.isEmpty(files)){
+            return;
+        }
+        for (File file : files) {
+            FileUtil.move(file,FileUtil.newFile(epiDataPath),true);
+        }
+        FileUtil.del(recZip);
+        FileUtil.del(recFolderName);
     }
 
     /**
@@ -201,7 +223,7 @@ public abstract class AbstractUserAnswer implements Answer {
                 }
                 processAnswerData(dataList, questionAnswerMap, questionnaireQuestionRecDataBO);
             }
-            Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> UserAnswerBuilder.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity()));
+            Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity()));
             List<QuestionnaireRecDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
             dataMap.put(userQuestionnaireAnswerBO.getUserKey(), collect);
         }
@@ -276,14 +298,14 @@ public abstract class AbstractUserAnswer implements Answer {
                 if (Objects.equals(questionnaireRecDataBO.getQesField(), "ID1") || Objects.equals(questionnaireRecDataBO.getQesField(), "ID2")) {
                     questionnaireRecDataBO.setRecAnswer(answer);
                 } else {
-                    questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer, questionnaireRecDataBO.getRange()));
+                    questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
                 }
             }
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
                 if (Objects.equals(questionnaireRecDataBO.getQesField(), "date")) {
                     questionnaireRecDataBO.setRecAnswer(answer);
                 } else {
-                    questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.textFormat(answer));
+                    questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
                 }
             }
             dataList.add(questionnaireRecDataBO);
@@ -301,10 +323,10 @@ public abstract class AbstractUserAnswer implements Answer {
         for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
             String answer = Optional.ofNullable(answerMap.get(questionnaireRecDataBO.getOptionId())).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
-                questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.numberFormat(answer, questionnaireRecDataBO.getRange()));
+                questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
             }
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
-                questionnaireRecDataBO.setRecAnswer(UserAnswerBuilder.textFormat(answer));
+                questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
             }
             dataList.add(questionnaireRecDataBO);
         }
@@ -465,7 +487,7 @@ public abstract class AbstractUserAnswer implements Answer {
         List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(latestQuestionnaireIds);
 
         List<String> qesFieldList = qesFieldMappingList.stream()
-                .map(qesFieldMapping -> UserAnswerBuilder.getQesFieldStr(qesFieldMapping.getQesField()))
+                .map(qesFieldMapping -> AnswerUtil.getQesFieldStr(qesFieldMapping.getQesField()))
                 .collect(Collectors.toList());
 
         Map<Integer, Map<String, List<QuestionnaireRecDataBO>>> schoolAnswerMap = Maps.newHashMap();
