@@ -132,11 +132,14 @@ public class CurrentUser {
 
     /**
      * 是否政府用户
+     *
      * @return
      */
     @JsonIgnore
     public boolean isQuestionnaireGovUser() {
-        return UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
+        return (UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode))
+                ||
+                (UserType.GOVERNMENT_ADMIN.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode));
     }
 
 

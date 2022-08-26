@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,7 +12,7 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireExcelFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
@@ -22,7 +24,12 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
+import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.service.QesFieldMappingService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
+import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -83,12 +90,16 @@ public class QuestionnaireManagementService {
     @Autowired
     private SchoolService schoolService;
     @Autowired
-    private QuestionnaireExcelFactory questionnaireExcelFactory;
+    private QuestionnaireFactory questionnaireFactory;
 
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
+    @Autowired
+    private QuestionnaireService questionnaireService;
+    @Autowired
+    private QuestionnaireQesService questionnaireQesService;
 
-    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
+    private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS_EXCEL,ExportTypeConst.SCHOOL_STATISTICS_EXCEL,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
 
     /**
      * 根据机构id获得所有任务
@@ -157,7 +168,7 @@ public class QuestionnaireManagementService {
                 return new QuestionAreaDTO();
             }
             //查看该通知所有筛查学校的层级的 地区树
-            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
+            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getReleaseScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(screeningPlans)) {
                 Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
                 if (!CollectionUtils.isEmpty(districts)) {
@@ -271,6 +282,12 @@ public class QuestionnaireManagementService {
             vo.setAmount(schoolIds.size());
             vo.setQuestionnaireTitle(item.getDesc());
             vo.setAccomplish(getStudentQuestionEndBySchool(schoolIds, item.getType(), taskId));
+            if (Objects.equals(item,QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
+                vo.setType(0);
+            }
+            if (Objects.equals(item,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
+                vo.setType(1);
+            }
             return vo;
         }).collect(Collectors.toList());
     }
@@ -585,11 +602,7 @@ public class QuestionnaireManagementService {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
 
-        Optional<ExportType> exportTypeOptional = questionnaireExcelFactory.getExportTypeService(exportType);
-        if (!exportTypeOptional.isPresent()){
-            throw new BusinessException(String.format("未找到对应的实例,导出类型:%s",exportType));
-        }
-        ExportType exportTypeService = exportTypeOptional.get();
+        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
         Map<Integer, String> questionnaireTypeMap = exportTypeService.getQuestionnaireType();
 
         List<QuestionnaireTypeVO.QuestionnaireType> questionnaireTypeList = Lists.newArrayList();
@@ -603,19 +616,65 @@ public class QuestionnaireManagementService {
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
+            Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
+            List<Questionnaire> questionnaireList = questionnaireService.listByIds(questionnaireIds);
+
+            if (ExportTypeConst.getRecExportTypeList().contains(exportType)){
+                questionnaireTypeVO.setNoQesList(getNoQesList(questionnaireList));
+            }
+
             List<Integer> questionnaireTypes = getQuestionnaireTypes(userQuestionRecordList);
             typeKeyList.removeAll(questionnaireTypes);
-            questionnaireTypeVO.setNoDataList(typeKeyList);
-        }else {
-            questionnaireTypeVO.setNoDataList(typeKeyList);
         }
-
+        questionnaireTypeVO.setNoDataList(typeKeyList);
         questionnaireTypeVO.setSelectList(Lists.newArrayList());
+
         if (!typeKeyList.contains(QuestionnaireConstant.STUDENT_TYPE) && exportTypeList.contains(exportType)){
             questionnaireTypeVO.getSelectList().add(QuestionnaireConstant.STUDENT_TYPE);
         }
 
         return questionnaireTypeVO;
+    }
+
+    /**
+     * 获取没有qes文件的问卷类型
+     * @param questionnaireList 问卷集合
+     */
+    private List<Integer> getNoQesList(List<Questionnaire> questionnaireList) {
+
+        Set<Integer> qesIds = questionnaireList.stream().map(Questionnaire::getQesId)
+                .filter(Objects::nonNull)
+                .flatMap(s -> Arrays.stream(s.split(StrUtil.COMMA)))
+                .map(Integer::valueOf).collect(Collectors.toSet());
+        Map<Integer, Boolean> qesMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(qesIds)){
+            List<QuestionnaireQes> questionnaireQesList = questionnaireQesService.listByIds(qesIds);
+            Map<Integer, Boolean> collect = questionnaireQesList.stream().collect(Collectors.toMap(QuestionnaireQes::getId, questionnaireQes -> Objects.nonNull(questionnaireQes.getQesFileId())));
+            qesMap.putAll(collect);
+        }
+
+        return questionnaireList.stream()
+                        .filter(questionnaire -> !Objects.equals(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),questionnaire.getType()))
+                        .filter(questionnaire -> {
+                            String qesIdStr = questionnaire.getQesId();
+                            if (Objects.isNull(qesIdStr)){
+                                return Boolean.TRUE;
+                            }
+                            String[] qesIdList = qesIdStr.split(StrUtil.COMMA);
+                            List<Boolean> qesExistList = Lists.newArrayList();
+                            for (String qesId : qesIdList) {
+                                qesExistList.add(qesMap.getOrDefault(Integer.valueOf(qesId), Boolean.FALSE));
+                            }
+                            return qesExistList.stream().filter(qesExist->Objects.equals(qesExist,Boolean.FALSE)).count() == qesExistList.size();
+
+                        })
+                        .map(questionnaire -> {
+                            if (QuestionnaireConstant.getStudentTypeList().contains(questionnaire.getType())) {
+                                return QuestionnaireConstant.STUDENT_TYPE;
+                            }
+                            return questionnaire.getType();
+                        })
+                        .distinct().collect(Collectors.toList());
     }
 
     /**
@@ -627,7 +686,7 @@ public class QuestionnaireManagementService {
                 .map(UserQuestionRecord::getQuestionnaireType)
                 .distinct()
                 .map(questionnaireType -> {
-                    if (QuestionnaireConstant.STUDENT_TYPE_LIST.contains(questionnaireType)) {
+                    if (QuestionnaireConstant.getStudentTypeList().contains(questionnaireType)) {
                         return QuestionnaireConstant.STUDENT_TYPE;
                     }
                     return questionnaireType;

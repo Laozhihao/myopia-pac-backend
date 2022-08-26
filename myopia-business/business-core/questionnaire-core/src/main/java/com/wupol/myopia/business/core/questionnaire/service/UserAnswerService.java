@@ -1,7 +1,8 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wupol.myopia.base.domain.CurrentUser;
+import com.google.common.collect.Lists;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
@@ -9,6 +10,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserAnswerMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,9 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
 
+    @Resource
+    private UserQuestionRecordService userQuestionRecordService;
+
     /**
      * 获取用户答案
      *
@@ -36,17 +41,49 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, user.getExQuestionnaireUserId(), user.getQuestionnaireUserType());
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType);
+        handleUserAnswer(userAnswerDTO, userAnswers);
+        return userAnswerDTO;
+    }
+
+    /**
+     * 获取用户答案
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Integer districtId, Integer schoolId) {
+        UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
+        userAnswerDTO.setQuestionnaireId(questionnaireId);
+
+        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtId);
+        if(Objects.isNull(questionRecord)) {
+            return userAnswerDTO;
+        }
+        userAnswerDTO.setDistrictId(questionRecord.getDistrictId());
+        userAnswerDTO.setSchoolId(questionRecord.getSchoolId());
+        List<UserAnswer> userAnswers = getListByRecordIds(Lists.newArrayList(questionRecord.getId()));
+        handleUserAnswer(userAnswerDTO, userAnswers);
+        return userAnswerDTO;
+    }
+
+    /**
+     * 处理用户答案
+     */
+    private static void handleUserAnswer(UserAnswerDTO userAnswerDTO, List<UserAnswer> userAnswers) {
         userAnswerDTO.setQuestionList(userAnswers.stream().map(s -> {
             UserAnswerDTO.QuestionDTO questionDTO = new UserAnswerDTO.QuestionDTO();
             questionDTO.setQuestionId(s.getQuestionId());
             questionDTO.setAnswer(s.getAnswer());
+            questionDTO.setTableJson(s.getTableJson());
+            questionDTO.setType(s.getType());
+            questionDTO.setMappingKey(s.getMappingKey());
             return questionDTO;
         }).collect(Collectors.toList()));
-        return userAnswerDTO;
     }
 
     /**
@@ -85,7 +122,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 .map(QuestionnaireQuestion::getQesData).flatMap(Collection::stream)
                 .collect(Collectors.toMap(QesDataDO::getOptionId, Function.identity()));
 
-        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer)
+        List<OptionAnswer> answerList = questionList.stream().map(UserAnswerDTO.QuestionDTO::getAnswer).filter(Objects::nonNull)
                 .flatMap(Collection::stream).collect(Collectors.toList());
 
         answerList.forEach(answer -> {
@@ -94,6 +131,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 answer.setQesField(qesDataDOS.getQesField());
                 answer.setShowSerialNumber(qesDataDOS.getShowSerialNumber());
                 answer.setQesSerialNumber(qesDataDOS.getQesSerialNumber());
+                answer.setDataType(answer.getDataType());
             }
         });
     }
@@ -112,6 +150,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
                 .eq(UserAnswer::getUserId, userId)
                 .eq(UserAnswer::getUserType, userType);
+
         return baseMapper.selectList(wrapper);
     }
 
@@ -129,11 +168,18 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
             UserAnswer userAnswer = new UserAnswer();
             userAnswer.setUserId(userId);
             userAnswer.setQuestionnaireId(questionnaireId);
-            userAnswer.setQuestionId(s.getQuestionId());
+            Integer questionId = s.getQuestionId();
+            if (Objects.isNull(questionId)) {
+                throw new BusinessException("问题Id异常!");
+            }
+            userAnswer.setQuestionId(questionId);
             userAnswer.setRecordId(recordId);
             userAnswer.setUserType(userType);
             userAnswer.setQuestionTitle(s.getTitle());
             userAnswer.setAnswer(s.getAnswer());
+            userAnswer.setTableJson(s.getTableJson());
+            userAnswer.setType(s.getType());
+            userAnswer.setMappingKey(s.getMappingKey());
             return userAnswer;
         }).collect(Collectors.toList());
     }
@@ -179,6 +225,23 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
         LambdaQueryWrapper<UserAnswer> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserAnswer::getRecordId, recordIds);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 通过问题Id获取答案
+     *
+     * @return List<UserAnswer>
+     */
+    public List<UserAnswer> getByQuestionIds(Integer questionnaireId, Integer userId,
+                                             Integer userType, Collection<Integer> questionIds, Integer recordId) {
+
+        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
+                .eq(UserAnswer::getUserId, userId)
+                .eq(UserAnswer::getUserType, userType)
+                .in(UserAnswer::getQuestionId, questionIds)
+                .eq(UserAnswer::getRecordId, recordId);
+        return baseMapper.selectList(wrapper);
     }
 
 }

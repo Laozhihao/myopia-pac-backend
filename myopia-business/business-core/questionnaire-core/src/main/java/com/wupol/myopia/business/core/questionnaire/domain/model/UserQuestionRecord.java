@@ -76,6 +76,11 @@ public class UserQuestionRecord implements Serializable {
     private Integer studentId;
 
     /**
+     * 区域Id
+     */
+    private Integer districtId;
+
+    /**
      * 问卷类型
      */
     private Integer questionnaireType;

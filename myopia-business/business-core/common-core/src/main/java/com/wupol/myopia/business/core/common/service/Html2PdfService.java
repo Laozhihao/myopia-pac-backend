@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import java.util.UUID;
  */
 @Service("html2PdfService")
 @Log4j2
+@ConditionalOnProperty(name = "myopia.upload.enabled", havingValue = "true", matchIfMissing = true)
 public class Html2PdfService {
 
     @Autowired

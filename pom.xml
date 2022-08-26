@@ -19,6 +19,7 @@
         <module>service-common</module>
         <module>myopia-business</module>
         <module>myopia-migrate-data</module>
+        <module>myopia-rec</module>
     </modules>
 
     <properties>

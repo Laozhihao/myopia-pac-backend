@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,8 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TableItem implements Serializable {
 
     /**
@@ -56,11 +59,16 @@ public class TableItem implements Serializable {
      */
     private Option option;
 
+    public TableItem(String name) {
+        this.name = name;
+        this.type = QuestionnaireConstant.TEXT;
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Option implements Serializable{
+    public static class Option implements Serializable {
 
         private Integer maxLimit;
 
@@ -74,6 +82,11 @@ public class TableItem implements Serializable {
          * 数据类型
          */
         private String dataType;
+
+        /**
+         * 是否必填写
+         */
+        private Boolean required;
 
     }
 }

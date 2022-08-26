@@ -41,6 +41,16 @@ public class UserAnswerProgress implements Serializable {
     private Integer userType;
 
     /**
+     * 区域Id
+     */
+    private Integer districtId;
+
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
      * currentStep
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
@@ -51,6 +61,12 @@ public class UserAnswerProgress implements Serializable {
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String currentSideBar;
+
+    /**
+     * 步骤JSON
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String stepJson;
 
     /**
      * 创建时间

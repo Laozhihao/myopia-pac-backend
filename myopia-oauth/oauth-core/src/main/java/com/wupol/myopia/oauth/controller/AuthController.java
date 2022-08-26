@@ -155,8 +155,8 @@ public class AuthController {
     @PostMapping("/exit")
     public ApiResult logout() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        redisUtil.del(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getId()));
-        redisUtil.del(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getId()));
+        redisUtil.del(String.format(RedisConstant.USER_PERMISSION_KEY, currentUser.getSystemCode(), currentUser.getId()));
+        redisUtil.del(String.format(RedisConstant.USER_AUTHORIZATION_KEY, currentUser.getSystemCode(), currentUser.getId()));
         return ApiResult.success();
     }
 

@@ -46,9 +46,24 @@ public class UserAnswerDTO {
     private String currentSideBar;
 
     /**
+     * 步骤json
+     */
+    private String stepJson;
+
+    /**
      * 问卷Ids
      */
     private List<Integer> questionnaireIds;
+
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
+     * 区域Id
+     */
+    private Integer districtId;
 
     @Getter
     @Setter
@@ -68,5 +83,20 @@ public class UserAnswerDTO {
          * 答案
          */
         private List<OptionAnswer> answer;
+
+        /**
+         * 表格JSON
+         */
+        private String tableJson;
+
+        /**
+         * 类型
+         */
+        private String type;
+
+        /**
+         * 前端-映射Key
+         */
+        private String mappingKey;
     }
 }

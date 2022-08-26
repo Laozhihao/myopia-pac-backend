@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
@@ -52,6 +54,11 @@ public class CommonUserAnswerImpl {
         if (Objects.isNull(userQuestionRecord)) {
             return null;
         }
+
+        if (Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType())) {
+            throw new BusinessException("该问卷已经提交，不能修改！！！");
+        }
+
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
             if (Objects.nonNull(questionnaire)) {
@@ -68,18 +75,22 @@ public class CommonUserAnswerImpl {
             if (Objects.nonNull(userAnswerProgress)) {
                 userAnswerProgress.setCurrentStep(null);
                 userAnswerProgress.setCurrentSideBar(null);
+                userAnswerProgress.setStepJson(null);
                 userAnswerProgress.setUpdateTime(new Date());
                 userAnswerProgressService.updateById(userAnswerProgress);
             }
-            // 新增一条汇总的数据
-            UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
-            totalRecord.setId(null);
-            totalRecord.setQuestionnaireId(-1);
-            totalRecord.setQuestionnaireType(null);
-            totalRecord.setRecordType(1);
-            totalRecord.setCreateTime(new Date());
-            totalRecord.setUpdateTime(new Date());
-            userQuestionRecordService.save(totalRecord);
+            // 学生新增汇总信息
+            if (Objects.equals(userType, QuestionnaireUserType.STUDENT.getType())) {
+                // 新增一条汇总的数据
+                UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
+                totalRecord.setId(null);
+                totalRecord.setQuestionnaireId(-1);
+                totalRecord.setQuestionnaireType(null);
+                totalRecord.setRecordType(1);
+                totalRecord.setCreateTime(new Date());
+                totalRecord.setUpdateTime(new Date());
+                userQuestionRecordService.save(totalRecord);
+            }
         }
         return userQuestionRecord.getId();
     }
@@ -104,10 +115,7 @@ public class CommonUserAnswerImpl {
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             return;
         }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                new UserAnswerProgress()
-                        .setUserId(userId)
-                        .setUserType(userType));
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, requestDTO.getDistrictId(), requestDTO.getSchoolId());
 
         if (Objects.isNull(userAnswerProgress)) {
             userAnswerProgress = new UserAnswerProgress();
@@ -116,6 +124,7 @@ public class CommonUserAnswerImpl {
         }
         userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
         userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
+        userAnswerProgress.setStepJson(requestDTO.getStepJson());
         userAnswerProgressService.saveOrUpdate(userAnswerProgress);
     }
 
@@ -167,5 +176,22 @@ public class CommonUserAnswerImpl {
             return false;
         }
         return Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType());
+    }
+
+    /**
+     * 获取用户答案
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, userType);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(userId)
+                        .setUserType(userType));
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
     }
 }

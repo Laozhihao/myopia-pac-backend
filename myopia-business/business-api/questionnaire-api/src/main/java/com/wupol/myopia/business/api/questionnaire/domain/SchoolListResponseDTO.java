@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.api.questionnaire.domain;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 学校列表
@@ -11,6 +14,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SchoolListResponseDTO {
+
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
+
+    /**
+     * 学校编号
+     */
+    private String schoolNo;
 
     /**
      * 学校名称
@@ -41,4 +54,9 @@ public class SchoolListResponseDTO {
      * 监测点：1城区、2郊县
      */
     private Integer monitorType;
+
+    /**
+     * 区域
+     */
+    private List<District> district;
 }

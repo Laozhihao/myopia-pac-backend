@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.controller;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -54,5 +55,16 @@ public class QuestionnaireController {
     @GetMapping("/getDropSelect/{key}")
     public List<DropSelect> getDropSelectKey(@PathVariable("key") String key) {
         return DropSelectEnum.getSelect(key);
+    }
+
+
+    /**
+     * 问卷关联qes字段映射
+     * @param questionnaireIds 问卷ID
+     * @param qesId qes管理ID
+     */
+    @GetMapping("addQesFieldMapping")
+    public void addQesFieldMapping(@RequestParam Integer[] questionnaireIds, @RequestParam Integer qesId){
+        questionnaireBizService.saveQuestionnaireQesField(Lists.newArrayList(questionnaireIds),qesId);
     }
 }

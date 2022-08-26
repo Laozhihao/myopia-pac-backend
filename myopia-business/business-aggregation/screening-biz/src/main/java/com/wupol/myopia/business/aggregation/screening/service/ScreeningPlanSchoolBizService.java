@@ -11,7 +11,6 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -40,26 +39,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ScreeningPlanSchoolBizService {
+
     @Autowired
     private ScreeningPlanSchoolService screeningPlanSchoolService;
-
     @Autowired
     private ScreeningPlanService screeningPlanService;
-
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
-
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
-
     @Autowired
     private SchoolGradeService schoolGradeService;
-
-    @Autowired
-    private StudentService studentService;
 
     /**
      * 通过筛查计划ID获取所有关联的学校vo信息

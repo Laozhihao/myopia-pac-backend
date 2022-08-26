@@ -50,13 +50,14 @@ public class DistrictStatisticTask {
     /**
      * 按区域统计
      * @param screeningPlanIds 筛查计划ID集合
+     * @param excludePlanIds   排除的筛查计划ID集合
      */
-    public void districtStatistics(List<Integer> screeningPlanIds) {
+    public void districtStatistics(List<Integer> screeningPlanIds, List<Integer> excludePlanIds) {
         if (CollectionUtil.isEmpty(screeningPlanIds)){
             return;
         }
         //筛查计划ID 查找筛查通知ID
-        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(screeningPlanIds);
+        List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsOfReleasePlanByPlanIds(screeningPlanIds);
         if(CollectionUtil.isEmpty(screeningNoticeIds)){
             log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
@@ -66,14 +67,24 @@ public class DistrictStatisticTask {
             log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
             return;
         }
+        districtStatisticsByNoticeIds(screeningNoticeIds, excludePlanIds);
+    }
+
+    /**
+     * 按区域统计
+     *
+     * @param screeningNoticeIds    筛查通知ID集
+     * @param excludePlanIds        排除的筛查计划ID集
+     * @return void
+     **/
+    public void districtStatisticsByNoticeIds(List<Integer> screeningNoticeIds, List<Integer> excludePlanIds) {
 
         //筛查通知ID 查出筛查数据结论
-        List<StatConclusion> statConclusionList = statConclusionService.getBySrcScreeningNoticeIds(screeningNoticeIds);
+        List<StatConclusion> statConclusionList = statConclusionService.listOfReleasePlanByScreeningNoticeIds(screeningNoticeIds, excludePlanIds);
         if (CollectionUtil.isEmpty(statConclusionList)){
             log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollectionUtil.join(screeningNoticeIds,","));
             return;
         }
-
 
         List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = Lists.newArrayList();
         List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = Lists.newArrayList();
@@ -266,15 +277,12 @@ public class DistrictStatisticTask {
                                    List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
         List<StatConclusion> statConclusions = selfStatistic.getStatConclusions();
         if (CollectionUtils.isEmpty(statConclusions)) {
-            // 计划筛查学生不为0时，即使还没有筛查数据，也要新增统计
             return;
         }
 
-        // 层级自己的筛查数据肯定属于同一个任务，所以只取第一个的就可以
-        Integer screeningTaskId = CollectionUtils.isEmpty(statConclusions) ? CommonConst.DEFAULT_ID : statConclusions.get(0).getTaskId();
-        Integer screeningPlanId = CollectionUtils.isEmpty(statConclusions) ? CommonConst.DEFAULT_ID : statConclusions.get(0).getPlanId();
-        selfStatistic.setScreeningTaskId(screeningTaskId)
-                .setScreeningPlanId(screeningPlanId)
+        // set默认值
+        selfStatistic.setScreeningTaskId(CommonConst.DEFAULT_ID)
+                .setScreeningPlanId(CommonConst.DEFAULT_ID)
                 .setIsTotal(Boolean.FALSE).setSchoolId(-1).setScreeningOrgId(-1);
 
         if (Objects.nonNull(visionScreeningResultStatisticList)){

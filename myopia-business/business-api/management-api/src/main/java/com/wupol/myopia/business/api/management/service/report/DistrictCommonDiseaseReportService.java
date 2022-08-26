@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service.report;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -22,6 +21,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
@@ -113,7 +113,7 @@ public class DistrictCommonDiseaseReportService {
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException(String.format("不存在筛查通知: noticeId=%s", noticeId));
         }
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
         if (CollectionUtil.isEmpty(screeningPlanList)) {
             throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
         }
@@ -424,11 +424,11 @@ public class DistrictCommonDiseaseReportService {
      * @param isRescreen 是否复测
      */
     private List<StatConclusion> getStatConclusionList(Integer noticeId, List<Integer> districtIds, Boolean isRescreen) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, noticeId);
-        queryWrapper.eq(StatConclusion::getIsRescreen, isRescreen);
-        queryWrapper.in(StatConclusion::getDistrictId, districtIds);
-        return statConclusionService.list(queryWrapper);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setDistrictIds(districtIds)
+                .setSrcScreeningNoticeId(noticeId)
+                .setIsRescreen(isRescreen);
+        return statConclusionService.listOfReleasePlanByQuery(query);
     }
 
     /**

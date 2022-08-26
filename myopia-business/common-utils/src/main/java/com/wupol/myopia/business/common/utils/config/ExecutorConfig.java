@@ -2,6 +2,7 @@ package com.wupol.myopia.business.common.utils.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -15,8 +16,8 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @Slf4j
 @Configuration
+@ConditionalOnProperty(name = "myopia.executor.enabled", havingValue = "true", matchIfMissing = true)
 public class ExecutorConfig {
-
 
 
     @Value("${async.executor.thread.core_pool_size:2}")

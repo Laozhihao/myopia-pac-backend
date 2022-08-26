@@ -64,7 +64,6 @@ public class SchoolCommonDiseaseReportService {
     public SchoolCommonDiseaseReportVO schoolCommonDiseaseReport(Integer schoolId, Integer planId) {
         SchoolCommonDiseaseReportVO schoolCommonDiseaseReportVO = new SchoolCommonDiseaseReportVO();
 
-
         //学校ID、计划ID
         List<StatConclusion> statConclusionList = getStatConclusionList(schoolId, planId, Boolean.FALSE);
         statConclusionList = statConclusionList.stream().filter(sc -> !Objects.equals(sc.getIsCooperative(),1)).collect(Collectors.toList());

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -18,6 +19,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireM
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
+@Slf4j
 public class QuestionnaireService extends BaseService<QuestionnaireMapper, Questionnaire> {
 
     @Resource
@@ -84,7 +88,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
         //如果没有页面数据，组装问卷数据
         List<QuestionnaireInfoDTO> questionnaireInfo = getQuestionnaireInfo(questionnaireId, false, true);
-//        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
+        this.updateById(Questionnaire.builder().pageJson(questionnaireInfo).id(questionnaireId).build());
         return questionnaireInfo;
     }
 
@@ -172,6 +176,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
      * @return QuestionResponse
      */
     public QuestionResponse commonBuildQuestion(Question question, QuestionnaireQuestion it, Map<Integer, Question> questionMap, Boolean isShowTable) {
+        List<Option> options = question.getOptions();
+        options.forEach(o -> o.setText(specialTitleProcess(o.getText())));
         QuestionResponse childQuestionResponse = BeanCopyUtil.copyBeanPropertise(question, QuestionResponse.class);
         childQuestionResponse.setTitle(specialTitleProcess(childQuestionResponse.getTitle()));
         childQuestionResponse.setRequired(it.getRequired());
@@ -341,7 +347,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                 Question question = questionMap.get(y.getQuestionId());
                 Option option = question.getOptions().get(0);
                 String text = option.getText();
-                String[] split = text.split("-");
+                String[] split = text.split(StrUtil.DASHED);
                 JSONObject jsonObject = option.getOption();
                 for (int i = 1; i <= jsonObject.size(); i++) {
                     TableItem tableItem = new TableItem();
@@ -375,19 +381,31 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         if (CollUtil.isEmpty(questionnaireQuestionList)) {
             return;
         }
+
+        SchoolTeacherTable titleTable = new SchoolTeacherTable();
+        titleTable.setTableItems(Lists.newArrayList(new TableItem("序号"), new TableItem("类别"),
+                new TableItem("专/兼职"), new TableItem("学校卫生工作年限"),
+                new TableItem("学历"), new TableItem("职称"),
+                new TableItem("执业资格证书"), new TableItem("上一年度学校卫生培训次数")));
+
+        List<SchoolTeacherTable> result = Lists.newArrayList(titleTable);
+
+        AtomicInteger count = new AtomicInteger(1);
         List<SchoolTeacherTable> collect = questionnaireQuestionList.stream().map(s -> {
             SchoolTeacherTable table = new SchoolTeacherTable();
 
             Question question = questionMap.get(s.getQuestionId());
             JSONObject option = question.getOptions().get(0).getOption();
             List<TableItem> tableItems = new ArrayList<>();
+            tableItems.add(new TableItem(String.valueOf(count.getAndIncrement())));
             for (int i = 1; i <= option.size(); i++) {
                 tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(option.get(String.valueOf(i))), JSONObject.class), new TableItem(), question.getId()));
             }
             table.setTableItems(tableItems);
             return table;
         }).collect(Collectors.toList());
-        questionResponse.setSchoolTeacherTables(collect);
+        result.addAll(collect);
+        questionResponse.setSchoolTeacherTables(result);
     }
 
     /**
@@ -402,8 +420,8 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
     private TableItem getTableItem(JSONObject json, TableItem item, Integer questionId) {
         item.setId(String.valueOf(json.getString(QuestionnaireConstant.ID)));
         item.setType(json.getString(QuestionnaireConstant.DATA_TYPE));
-        if (!StringUtils.equals(item.getType(), "select")) {
-            item.setType("input");
+        if (!StringUtils.equals(item.getType(), QuestionnaireConstant.SELECT)) {
+            item.setType(QuestionnaireConstant.INPUT);
         }
         item.setDropSelectKey(String.valueOf(json.getString(QuestionnaireConstant.DROP_SELECT_KEY)));
         item.setQuestionId(questionId);
@@ -411,9 +429,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         item.setFrontMark(-1);
         item.setOption(new TableItem.Option(json.getInteger(QuestionnaireConstant.MAX_LIMIT),
                 json.getInteger(QuestionnaireConstant.MIN_LIMIT),
-                json.getInteger(QuestionnaireConstant.RANGE),
                 json.getInteger(QuestionnaireConstant.LENGTH),
-                json.getString(QuestionnaireConstant.DATA_TYPE)));
+                json.getInteger(QuestionnaireConstant.RANGE),
+                json.getString(QuestionnaireConstant.DATA_TYPE),
+                json.getBoolean(QuestionnaireConstant.REQUIRED)));
         return item;
     }
 

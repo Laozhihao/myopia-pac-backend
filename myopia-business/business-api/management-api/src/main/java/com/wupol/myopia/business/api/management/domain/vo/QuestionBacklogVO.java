@@ -28,4 +28,9 @@ public class QuestionBacklogVO {
      * 问卷Id
      */
     private Integer questionnaireId;
+
+    /**
+     * 问卷类型(0是学校环境，1是省市区)
+     */
+    private Integer type;
 }

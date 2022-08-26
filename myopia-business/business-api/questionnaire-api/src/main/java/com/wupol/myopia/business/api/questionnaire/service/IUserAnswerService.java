@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.questionnaire.service;
 
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,10 +32,12 @@ public interface IUserAnswerService {
      * @param userId           用户Id
      * @param isFinish         是否完成
      * @param questionnaireIds 问卷ID列表
+     * @param districtId       区域Id
+     * @param schoolId         学校Id
      *
      * @return 记录Id
      */
-    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds);
+    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId);
 
     /**
      * 删除用户答案
@@ -41,8 +45,9 @@ public interface IUserAnswerService {
      * @param questionnaireId 问卷ID
      * @param userId          用户Id
      * @param questionList    问题列表
+     * @param recordId        记录表Id
      */
-    void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList);
+    void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId);
 
     /**
      * 保存用户答案
@@ -104,10 +109,26 @@ public interface IUserAnswerService {
      *
      * @param userId          用户Id
      * @param questionnaireId 问卷Id
+     * @param districtId 区域Id
+     * @param schoolId 学校Id
      *
      * @return 是否完成
      */
-    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId) {
+    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
         return false;
     }
+
+    /**
+     * 政府获取行政区域
+     *
+     * @return List<District>
+     */
+    default List<District> getDistrict(Integer schoolId) {
+        return new ArrayList<>();
+    }
+
+    /**
+     * 获取答案
+     */
+    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId);
 }
