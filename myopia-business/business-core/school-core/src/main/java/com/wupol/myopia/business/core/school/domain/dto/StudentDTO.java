@@ -33,6 +33,11 @@ public class StudentDTO extends Student {
     private String schoolName;
 
     /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
      * 民族描述
      */
     private String nationDesc;

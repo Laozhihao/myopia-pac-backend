@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.ArchiveRecData;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -11,6 +13,8 @@ import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.builder.ArchiveDataFieldBuilder;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
@@ -141,6 +145,7 @@ public class ArchiveService {
     private StudentDTO getStudentDTO(ScreeningPlanSchoolStudent planStudent, SchoolClassDTO classWithSchoolAndGradeName, School school) {
         StudentDTO studentDTO = new StudentDTO()
                 .setSchoolName(classWithSchoolAndGradeName.getSchoolName())
+                .setSchoolId(classWithSchoolAndGradeName.getSchoolId())
                 .setGradeName(classWithSchoolAndGradeName.getGradeName())
                 .setClassName(classWithSchoolAndGradeName.getName())
                 .setSchoolDistrictName(school.getDistrictDetail());
@@ -247,6 +252,18 @@ public class ArchiveService {
 
         List<CommonDiseaseArchiveCard> archiveData = getArchiveData(archiveRequestParam);
 
+        Map<Integer,List<CommonDiseaseArchiveCard>> schoolTypeMap = Maps.newHashMap();
+
+        for (CommonDiseaseArchiveCard archiveCard : archiveData) {
+            CardInfoVO studentInfo = archiveCard.getStudentInfo();
+            SchoolTypeEnum schoolType = SchoolAge.getSchoolType(studentInfo.getSchoolType());
+            List<CommonDiseaseArchiveCard> commonDiseaseArchiveCards = schoolTypeMap.get(schoolType.getType());
+            if (CollUtil.isEmpty(commonDiseaseArchiveCards)){
+                commonDiseaseArchiveCards = Lists.newArrayList();
+            }
+            commonDiseaseArchiveCards.add(archiveCard);
+            schoolTypeMap.put(schoolType.getType(),commonDiseaseArchiveCards);
+        }
 
         List<ArchiveRecData.RecData> recDataList = Lists.newArrayList();
 

@@ -21,6 +21,7 @@ public class ArchiveRecData {
     @Data
     public static class RecData{
         private Integer schoolType;
+        private Integer schoolId;
         private List<String> qesFieldList;
         private List<List<String>> dataList;
     }

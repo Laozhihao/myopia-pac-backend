@@ -38,8 +38,16 @@ public interface Answer {
      * 导出REC文件
      * @param fileName 文件夹或者文件名
      * @param generateRecDataBO 生成数据条件
-     * @param questionnaireType 文件类型
+     * @param recFileName 文件类型
      *
      */
-    void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO, Integer questionnaireType);
+    void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO, String recFileName);
+
+    /**
+     * 获取rec问卷名称
+     * @param schoolId 学校ID
+     * @param questionnaireType 问卷类型
+     * @return  问卷类型
+     */
+    String getRecFileName(Integer schoolId, Integer questionnaireType);
 }

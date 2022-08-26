@@ -43,8 +43,10 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
         if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
         }
+
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            answerService.exportRecFile(fileName, generateRecDataBO,getType());
+            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+            answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }
 

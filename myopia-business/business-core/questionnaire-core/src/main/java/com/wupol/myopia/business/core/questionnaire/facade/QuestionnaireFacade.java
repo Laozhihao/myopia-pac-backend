@@ -455,7 +455,7 @@ public class QuestionnaireFacade {
             case MIDDLE_SCHOOL:
                 return QuestionnaireConstant.getMiddleSchool(exportFile);
             case UNIVERSITY_SCHOOL:
-                return QuestionnaireConstant.getUniversitySchool(exportFile);
+                return QuestionnaireConstant.getUniversitySchool();
             case VISION_SPINE:
                 return QuestionnaireConstant.getVisionSpine();
             case SCHOOL_ENVIRONMENT:
