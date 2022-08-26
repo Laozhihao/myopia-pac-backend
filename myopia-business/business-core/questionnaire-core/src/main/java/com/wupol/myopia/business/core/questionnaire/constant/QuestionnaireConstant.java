@@ -210,12 +210,8 @@ public class QuestionnaireConstant {
      * 获取学生健康状况及影响因素调查表（大学版）问卷
      * @return 问卷类型集合
      */
-    public static List<Integer> getUniversitySchool(String exportFile){
-        if (Objects.equals(EXCEL_FILE,exportFile)) {
-            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
-        }else {
-            return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
-        }
+    public static List<Integer> getUniversitySchool(){
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.UNIVERSITY_SCHOOL.getType());
     }
 
     /**

@@ -53,6 +53,10 @@ public class CardInfoVO {
      * 学校名称
      */
     private String schoolName;
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 
     /**
      * 行政区域名

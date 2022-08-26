@@ -2,9 +2,11 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.ArchiveRecData;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -15,6 +17,7 @@ import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
+import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,10 +53,27 @@ public class ExportArchiveRecService implements QuestionnaireExcel{
         Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
 
         ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
-        String lockKey = exportTypeService.getLockKey(exportCondition);
-        List<ArchiveRecData.RecData> recDataList = archiveRecData.getDataMap(lockKey);
+        List<ArchiveRecData.RecData> recDataList = archiveRecData.getDataMap(exportTypeService.getLockKey(exportCondition));
         Map<Integer, List<ArchiveRecData.RecData>> schoolDataMap = recDataList.stream().collect(Collectors.groupingBy(ArchiveRecData.RecData::getSchoolType));
 
+        List<GenerateRecDataBO> generateRecDataBOList = Lists.newArrayList();
+        Map<Integer, String> qesUrlMap = getQesUrl();
+        schoolDataMap.forEach((schoolType,data)->{
+            GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
+            generateRecDataBO.setQesUrl(qesUrlMap.get(schoolType));
+            List<List<String>> dataList = data.stream().flatMap(recData -> recData.getDataList().stream()).collect(Collectors.toList());
+            List<String> dataTxt = EpiDataUtil.mergeDataTxt(data.get(0).getQesFieldList(), dataList);
+            generateRecDataBO.setDataList(dataTxt);
+            generateRecDataBOList.add(generateRecDataBO);
+        });
+
+        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+            answerService.exportRecFile(fileName,generateRecDataBO,QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
+        }
+
+    }
+
+    private Map<Integer,String> getQesUrl() {
         List<QuestionnaireQes> archiveQesList = questionnaireQesService.getArchiveQesByName(QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
         if (CollUtil.isEmpty(archiveQesList)){
             throw new BusinessException(String.format("未上传QES文件,问卷类型:%s",QuestionnaireTypeEnum.ARCHIVE_REC.getDesc()));
@@ -78,7 +98,6 @@ public class ExportArchiveRecService implements QuestionnaireExcel{
             }
         }
 
-
-
+        return qesUrlMap;
     }
 }

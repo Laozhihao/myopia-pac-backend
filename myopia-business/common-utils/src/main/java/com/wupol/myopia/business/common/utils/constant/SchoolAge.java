@@ -3,12 +3,10 @@ package com.wupol.myopia.business.common.utils.constant;
 
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.DateFormatUtil;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -204,5 +202,23 @@ public enum SchoolAge {
     public static boolean checkKindergarten(Integer schoolAgeType) {
         return SchoolAge.KINDERGARTEN.code.equals(schoolAgeType);
 
+    }
+
+    /**
+     * 获取学校类型
+     * @param schoolAge 学龄段
+     */
+    public static SchoolTypeEnum getSchoolType(Integer schoolAge){
+        if (Objects.equals(KINDERGARTEN.code,schoolAge)){
+            return SchoolTypeEnum.KINDERGARTEN;
+        }
+        if (Objects.equals(PRIMARY.code,schoolAge) || Objects.equals(JUNIOR.code,schoolAge)
+                || Objects.equals(HIGH.code,schoolAge) || Objects.equals(VOCATIONAL_HIGH.code,schoolAge)){
+            return SchoolTypeEnum.PRIMARY_AND_SECONDARY;
+        }
+        if (Objects.equals(UNIVERSITY.code,schoolAge)){
+            return SchoolTypeEnum.UNIVERSITY;
+        }
+        throw new BusinessException("无效学校类型");
     }
 }

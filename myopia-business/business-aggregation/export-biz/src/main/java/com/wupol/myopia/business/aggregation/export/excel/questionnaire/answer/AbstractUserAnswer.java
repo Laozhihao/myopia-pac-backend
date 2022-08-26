@@ -118,6 +118,7 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param schoolId          学校ID
      * @param questionnaireType 问卷类型
      */
+    @Override
     public String getRecFileName(Integer schoolId, Integer questionnaireType) {
         School school = schoolService.getById(schoolId);
         QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
@@ -128,10 +129,9 @@ public abstract class AbstractUserAnswer implements Answer {
      * 构建导出条件
      *
      * @param generateRecDataBO 生成rec数据
-     * @param questionnaireType 问卷类型
+     * @param recFileName 问卷类型
      */
-    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO, Integer questionnaireType) {
-        String recFileName = getRecFileName(generateRecDataBO.getSchoolId(), questionnaireType);
+    private RecExportDTO buildRecExportDTO(GenerateRecDataBO generateRecDataBO, String recFileName) {
         RecExportDTO recExportDTO = new RecExportDTO();
         recExportDTO.setQesUrl(generateRecDataBO.getQesUrl());
         recExportDTO.setDataList(generateRecDataBO.getDataList());
@@ -147,8 +147,8 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param generateRecDataBO 导出条件
      */
     @Override
-    public void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO, Integer questionnaireType) {
-        RecExportDTO recExportDTO = buildRecExportDTO(generateRecDataBO, questionnaireType);
+    public void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO, String recFileName) {
+        RecExportDTO recExportDTO = buildRecExportDTO(generateRecDataBO, recFileName);
 
         log.info("请求参数：{}", JSON.toJSONString(recExportDTO));
         CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO), asyncServiceExecutor);

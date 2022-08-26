@@ -537,6 +537,7 @@ public class StudentFacade {
         cardInfoVO.setSno(studentInfo.getSno());
         cardInfoVO.setParentPhone(studentInfo.getParentPhone());
         cardInfoVO.setSchoolName(studentInfo.getSchoolName());
+        cardInfoVO.setSchoolId(studentInfo.getSchoolId());
         cardInfoVO.setClassName(studentInfo.getClassName());
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
