@@ -146,4 +146,19 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
                 .eq(Objects.nonNull(districtCode), UserQuestionRecord::getDistrictCode, districtCode));
     }
 
+
+    /**
+     * 根据任务Id和问卷类型查询
+     * @param taskId
+     * @param questionnaireType
+     * @param status
+     */
+    public List<UserQuestionRecord> listByTaskIdAndType(Integer taskId,Integer questionnaireType ,Integer status){
+        LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserQuestionRecord::getTaskId,taskId);
+        queryWrapper.eq(UserQuestionRecord::getQuestionnaireType,questionnaireType);
+        queryWrapper.eq(UserQuestionRecord::getStatus,status);
+        return baseMapper.selectList(queryWrapper);
+    }
+
 }
