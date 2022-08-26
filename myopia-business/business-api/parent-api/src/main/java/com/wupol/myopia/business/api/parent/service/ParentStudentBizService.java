@@ -20,6 +20,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QrCodeCacheKey;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -305,10 +306,10 @@ public class ParentStudentBizService {
      * @return List<CountReportItemsDTO>
      */
     public List<CountReportItemsDO> getStudentCountReportItems(Integer studentId) {
-        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByStudentId(studentId);
+        List<VisionScreeningResult> screeningResults = visionScreeningResultService.getReleasePlanResultByStudentId(studentId);
         return screeningResults.stream()
                 .filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE))
-                .filter(result-> Objects.equals(result.getScreeningType(),0))
+                .filter(result-> Objects.equals(result.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
                 .map(result -> {
                     CountReportItemsDO items = new CountReportItemsDO();
                     items.setId(result.getId());
@@ -325,7 +326,7 @@ public class ParentStudentBizService {
      * @return ScreeningReportResponseDTO 筛查报告返回体
      */
     public ScreeningReportResponseDTO latestScreeningReport(Integer studentId) {
-        VisionScreeningResult result = visionScreeningResultService.getLatestResultByStudentId(studentId);
+        VisionScreeningResult result = visionScreeningResultService.getLatestResultOfReleasePlanByStudentId(studentId);
         if (null == result) {
             Student student = studentService.getById(studentId);
             ScreeningReportResponseDTO responseDTO = new ScreeningReportResponseDTO();
@@ -338,7 +339,7 @@ public class ParentStudentBizService {
             responseDTO.setIsNewbornWithoutIdCard(student.getIsNewbornWithoutIdCard());
             return responseDTO;
         }
-        return packageScreeningReport(visionScreeningResultService.getById(result.getId()), true);
+        return packageScreeningReport(result, true);
     }
 
     /**
@@ -390,7 +391,7 @@ public class ParentStudentBizService {
      */
     public ScreeningVisionTrendsResponseDTO screeningVisionTrends(Integer studentId) {
         ScreeningVisionTrendsResponseDTO responseDTO = new ScreeningVisionTrendsResponseDTO();
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentId(studentId).stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE)).collect(Collectors.toList());
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getReleasePlanResultByStudentId(studentId).stream().filter(result -> result.getIsDoubleScreen().equals(Boolean.FALSE)).collect(Collectors.toList());
         // 矫正视力详情
         responseDTO.setCorrectedVisionDetails(ScreeningResultUtil.packageVisionTrendsByCorrected(resultList));
         // 柱镜详情
@@ -602,7 +603,7 @@ public class ParentStudentBizService {
             checkStudent(student, condition, name);
         }
         responseDTO.setStudentId(student.getId());
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByStudentId(student.getId());
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(student.getId());
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
             VisionScreeningResult result = visionScreeningResultService.getLatestByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
@@ -679,7 +680,7 @@ public class ParentStudentBizService {
      */
     private StudentDTO getStudentDTO(Integer studentId) {
         StudentDTO student = studentService.getStudentById(studentId);
-        student.setScreeningCodes(screeningPlanSchoolStudentService.getByStudentId(studentId)
+        student.setScreeningCodes(screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId)
                 .stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
                 .collect(Collectors.toList()));
         return student;

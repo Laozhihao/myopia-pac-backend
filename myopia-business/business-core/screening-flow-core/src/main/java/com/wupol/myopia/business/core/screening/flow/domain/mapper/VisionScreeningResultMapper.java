@@ -26,13 +26,13 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<StudentScreeningCountDTO> countScreeningTime();
 
-    VisionScreeningResult getLatestResultByStudentId(@Param("studentId") Integer studentId);
+    VisionScreeningResult getLatestResultOfReleasePlanByStudentId(@Param("studentId") Integer studentId);
 
     List<Integer> getHaveSrcScreeningNoticePlanIdsByTime(@Param("startTime") Date yesterdayStartTime, @Param("endTime") Date yesterdayEndTime);
 
     List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(@Param("schoolId") Integer schoolId, @Param("orgId") Integer orgId, @Param("planId") Integer planId);
 
-    List<VisionScreeningResult> getByStudentId(Integer studentId);
+    List<VisionScreeningResult> getReleasePlanResultByStudentId(Integer studentId);
 
     List<VisionScreeningResult> getStudentResults();
 

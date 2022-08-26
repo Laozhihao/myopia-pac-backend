@@ -50,8 +50,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param studentId 学生ID
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getByStudentId(Integer studentId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByStudentId(studentId);
+    public List<ScreeningPlanSchoolStudent> getReleasePlanStudentByStudentId(Integer studentId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getReleasePlanStudentByStudentId(studentId);
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
@@ -481,7 +481,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return true-存在筛查计划 false-不存在
      */
     public boolean checkStudentHavePlan(Integer studentId) {
-        return !CollectionUtils.isEmpty(getByStudentId(studentId));
+        return !CollectionUtils.isEmpty(findByList(new ScreeningPlanSchoolStudent().setStudentId(studentId)));
     }
 
     /**
