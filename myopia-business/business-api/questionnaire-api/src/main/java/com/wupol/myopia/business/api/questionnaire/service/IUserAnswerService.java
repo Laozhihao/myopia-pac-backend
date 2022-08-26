@@ -32,12 +32,12 @@ public interface IUserAnswerService {
      * @param userId           用户Id
      * @param isFinish         是否完成
      * @param questionnaireIds 问卷ID列表
-     * @param districtId       区域Id
+     * @param districtCode       区域code
      * @param schoolId         学校Id
      *
      * @return 记录Id
      */
-    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Integer districtId, Integer schoolId);
+    Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Long districtCode, Integer schoolId);
 
     /**
      * 删除用户答案
@@ -109,12 +109,12 @@ public interface IUserAnswerService {
      *
      * @param userId          用户Id
      * @param questionnaireId 问卷Id
-     * @param districtId 区域Id
+     * @param districtCode 区域 code
      * @param schoolId 学校Id
      *
      * @return 是否完成
      */
-    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Integer districtId, Integer schoolId) {
+    default Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Long districtCode, Integer schoolId) {
         return false;
     }
 
@@ -130,5 +130,5 @@ public interface IUserAnswerService {
     /**
      * 获取答案
      */
-    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer districtId, Integer schoolId);
+    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId);
 }

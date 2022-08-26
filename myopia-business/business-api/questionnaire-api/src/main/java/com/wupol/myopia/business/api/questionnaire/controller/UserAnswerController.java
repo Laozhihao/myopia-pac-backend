@@ -41,9 +41,9 @@ public class UserAnswerController {
      * @return UserAnswerDTO
      */
     @GetMapping("list")
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer districtId, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Long districtCode, Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtId, schoolId);
+        return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtCode, schoolId);
     }
 
     /**
@@ -90,9 +90,9 @@ public class UserAnswerController {
      * @return UserAnswerDTO
      */
     @GetMapping("govAndSchool/isFinish")
-    public Boolean questionnaireIsFinish(Integer questionnaireId, Integer districtId, Integer schoolId) {
+    public Boolean questionnaireIsFinish(Integer questionnaireId, Long districtCode, Integer schoolId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user, districtId, schoolId);
+        return userAnswerBizService.questionnaireIsFinish(questionnaireId, user, districtCode, schoolId);
     }
 
     /**

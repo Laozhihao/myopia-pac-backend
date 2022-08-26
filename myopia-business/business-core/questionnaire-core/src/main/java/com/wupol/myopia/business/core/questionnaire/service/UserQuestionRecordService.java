@@ -137,13 +137,13 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return UserQuestionRecord
      */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Integer districtId) {
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Long districtCode) {
         return getOne(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getUserId, userId)
                 .eq(UserQuestionRecord::getUserType, userType)
                 .eq(UserQuestionRecord::getQuestionnaireId, questionnaireId)
                 .eq(Objects.nonNull(schoolId), UserQuestionRecord::getSchoolId, schoolId)
-                .eq(Objects.nonNull(districtId), UserQuestionRecord::getDistrictId, districtId));
+                .eq(Objects.nonNull(districtCode), UserQuestionRecord::getDistrictCode, districtCode));
     }
 
 }

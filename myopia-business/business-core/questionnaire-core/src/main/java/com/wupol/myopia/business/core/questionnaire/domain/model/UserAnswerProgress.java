@@ -43,7 +43,7 @@ public class UserAnswerProgress implements Serializable {
     /**
      * 区域Id
      */
-    private Integer districtId;
+    private Long districtCode;
 
     /**
      * 学校Id

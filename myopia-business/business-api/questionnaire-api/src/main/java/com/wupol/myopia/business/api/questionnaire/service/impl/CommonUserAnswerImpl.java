@@ -115,7 +115,7 @@ public class CommonUserAnswerImpl {
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             return;
         }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, requestDTO.getDistrictId(), requestDTO.getSchoolId());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, requestDTO.getDistrictCode(), requestDTO.getSchoolId());
 
         if (Objects.isNull(userAnswerProgress)) {
             userAnswerProgress = new UserAnswerProgress();

@@ -76,9 +76,9 @@ public class UserQuestionRecord implements Serializable {
     private Integer studentId;
 
     /**
-     * 区域Id
+     * 区域Code
      */
-    private Integer districtId;
+    private Long districtCode;
 
     /**
      * 问卷类型
