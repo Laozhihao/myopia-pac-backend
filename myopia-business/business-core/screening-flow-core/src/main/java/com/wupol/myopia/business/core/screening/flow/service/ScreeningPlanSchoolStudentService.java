@@ -728,6 +728,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param planSchoolStudent 参与筛查计划的学生
      */
     private ScreeningPlanSchoolStudent setSchoolDistrictId(ScreeningPlanSchoolStudent planSchoolStudent){
+        if (Objects.isNull(planSchoolStudent)) {
+            return null;
+        }
         School school = schoolService.getById(planSchoolStudent.getSchoolId());
         planSchoolStudent.setSchoolDistrictId(school.getDistrictId());
         return planSchoolStudent;
