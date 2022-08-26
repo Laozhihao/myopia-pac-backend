@@ -66,7 +66,7 @@ public class ScreeningRecordRecExportType implements ExportType {
             //导出计划下的
             Assert.notNull(exportCondition.getScreeningOrgId(),"机构ID不能为空");
         }
-
+        exportCondition.setDistrictId(null);
         exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(), QuestionnaireConstant.STUDENT_TYPE));
     }
 }

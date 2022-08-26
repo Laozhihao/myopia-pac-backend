@@ -36,7 +36,7 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
         List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
         Stream<UserQuestionRecord> stream = userQuestionRecordList.stream();
         if (Objects.nonNull(districtIdList)) {
-            stream = stream.filter(userQuestionRecord -> districtIdList.contains(userQuestionRecord.getDistrictCode()));
+//            stream = stream.filter(userQuestionRecord -> districtIdList.contains(""));
         }
 
         return stream.collect(Collectors.toList());
