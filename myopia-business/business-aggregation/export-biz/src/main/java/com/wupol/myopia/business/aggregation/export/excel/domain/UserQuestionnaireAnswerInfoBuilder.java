@@ -17,6 +17,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
+import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.AllArgsConstructor;
@@ -44,11 +45,6 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap;
     private Map<Integer, School> schoolMap;
     private Integer userType;
-
-    private static List<Integer> schoolType = Lists.newArrayList(
-                                        QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),
-                                        QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
-                                        QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
 
 
     public List<UserQuestionnaireAnswerBO> dataBuild(){
@@ -88,10 +84,8 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
             userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
             userQuestionnaireAnswerBO.setSchoolId(userQuestionRecord.getSchoolId());
-            if (schoolType.contains(userQuestionRecord.getQuestionnaireType())){
-                //处理隐藏数据（学生和学校数据）
-                hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
-            }
+            //处理学校隐藏数据
+            hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
             //处理非隐藏数据
             questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
         }
@@ -112,7 +106,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getSchoolId());
             if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                     || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
-                //处理隐藏数据（学生和学校数据）
+                //处理学生隐藏数据
                 hideQuestionRecDataProcess(studentId, fillDate,userQuestionnaireAnswerBO);
             }
             //处理非隐藏数据
@@ -178,7 +172,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
             List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
-            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
+            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList());
             if (CollUtil.isEmpty(qesDataList)) {
                 continue;
             }
@@ -209,7 +203,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
             List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
-            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), "QM")).collect(Collectors.toList());
+            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList());
             if (CollUtil.isEmpty(qesDataList)) {
                 continue;
             }
@@ -223,7 +217,7 @@ public class UserQuestionnaireAnswerInfoBuilder {
                 HideQuestionRecDataBO.QesDataBO qesDataBO = qesDataList.get(0);
                 if (Objects.equals(qesDataBO.getQesField(), "a02")) {
                     recAnswerDataBO.setQesField(qesDataBO.getQesField());
-                    recAnswerDataBO.setRecAnswer(UserAnswerBuilder.getGenderRecData(screeningPlanSchoolStudent.getGender()));
+                    recAnswerDataBO.setRecAnswer(AnswerUtil.getGenderRecData(screeningPlanSchoolStudent.getGender()));
                 }
             }
             qesFieldDataBOList.add(recAnswerDataBO);
@@ -242,28 +236,28 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private void setStudentQesFieldData(Date fillDate, String commonDiseaseId, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
         switch (qesDataBO.getQesField()) {
             case "province":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 0, 2));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 0, 2));
                 break;
             case "city":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 2, 4));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 2, 4));
                 break;
             case "district":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 4, 5));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 4, 5));
                 break;
             case "county":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 5, 7));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 5, 7));
                 break;
             case "point":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 7, 8));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 7, 8));
                 break;
             case "school":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 8, 10));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 8, 10));
                 break;
             case "a01":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 10, 12));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 10, 12));
                 break;
             case "a011":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(commonDiseaseId, 12, 16));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 12, 16));
                 break;
             case "ID1":
             case "ID2":
@@ -280,22 +274,22 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private void setSchoolQesFieldData(Date fillDate, String schoolNo, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
         switch (qesDataBO.getQesField()) {
             case "province":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 0, 2));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 0, 2));
                 break;
             case "city":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 2, 4));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 2, 4));
                 break;
             case "district":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 4, 5));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 4, 5));
                 break;
             case "county":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 5, 7));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 5, 7));
                 break;
             case "point":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 7, 8));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 7, 8));
                 break;
             case "school":
-                qesFieldDataBO.setRecAnswer(UserAnswerBuilder.getValue(schoolNo, 8, 10));
+                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(schoolNo, 8, 10));
                 break;
             case "ID1":
             case "ID2":

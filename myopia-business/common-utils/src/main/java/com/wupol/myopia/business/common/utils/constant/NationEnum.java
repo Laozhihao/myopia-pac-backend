@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import lombok.Getter;
 
@@ -80,7 +81,7 @@ public enum NationEnum {
     /**
      * 常见民族
      */
-    public static final List<NationEnum> COMMON_NATION =  Arrays.asList(HAN, MONGOLIAN, TIBETAN, ZHUANG, HUI, MANCHU, UYGHUR);
+    public static final List<NationEnum> COMMON_NATION = Lists.newArrayList(HAN, MONGOLIAN, TIBETAN, ZHUANG, HUI, MANCHU, UYGHUR);
 
     NationEnum(Integer code, String name) {
         this.code = code;

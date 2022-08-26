@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.questionnaire.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper;
@@ -45,7 +46,7 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 if (qesData.stream().map(QesDataDO::getOptionId).filter(StringUtils::isNotBlank).count() != qesData.size()) {
                     throw new BusinessException("选项Id异常");
                 }
-                detail.setQesData(qesData.stream().filter(s -> !StringUtils.equals(s.getQesField(), "QM")).collect(Collectors.toList()));
+                detail.setQesData(qesData.stream().filter(s -> !StringUtils.equals(s.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList()));
             }
             question.setQesData(qesData);
             question.setIsHidden(detail.getIsHidden());

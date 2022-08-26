@@ -2,7 +2,13 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Lists;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.ArchiveRecData;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
+import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.domain.builder.ArchiveDataFieldBuilder;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -60,6 +66,10 @@ public class ArchiveService {
     private SchoolService schoolService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private ArchiveRecData archiveRecData;
+    @Autowired
+    private QuestionnaireFactory questionnaireFactory;
 
     /**
      * 获取档案卡/监测表数据 TODO：整合获取其他类型档案卡数据接口
@@ -229,4 +239,19 @@ public class ArchiveService {
                 .setMonitorType(school.getMonitorType());
     }
 
+    public void setArchiveRecData(ExportCondition exportCondition) {
+        if (!Objects.equals(1,exportCondition.getDataType())){
+            return;
+        }
+        ArchiveRequestParam archiveRequestParam = new ArchiveRequestParam();
+
+        List<CommonDiseaseArchiveCard> archiveData = getArchiveData(archiveRequestParam);
+
+
+        List<ArchiveRecData.RecData> recDataList = Lists.newArrayList();
+
+        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+        String lockKey = exportTypeService.getLockKey(exportCondition);
+        archiveRecData.setDataMap(lockKey,recDataList);
+    }
 }

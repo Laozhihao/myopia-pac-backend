@@ -49,4 +49,9 @@ public class ExportQuestionnaireDTO {
      * 筛查任务ID
      */
     private Integer taskId;
+
+    /**
+     * 数据类型：1:监测表数据  2:问卷数据
+     */
+    private Integer dataType;
 }

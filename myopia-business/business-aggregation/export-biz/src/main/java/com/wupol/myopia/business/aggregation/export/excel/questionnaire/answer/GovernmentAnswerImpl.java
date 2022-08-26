@@ -8,7 +8,9 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 政府答案实现
@@ -32,10 +34,12 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
         }
 
         List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
+        Stream<UserQuestionRecord> stream = userQuestionRecordList.stream();
+        if (Objects.nonNull(districtIdList)) {
+            stream = stream.filter(userQuestionRecord -> districtIdList.contains(userQuestionRecord.getDistrictId()));
+        }
 
-        return userQuestionRecordList.stream()
-                .filter(userQuestionRecord -> districtIdList.contains(userQuestionRecord.getDistrictId()))
-                .collect(Collectors.toList());
+        return stream.collect(Collectors.toList());
     }
 
 

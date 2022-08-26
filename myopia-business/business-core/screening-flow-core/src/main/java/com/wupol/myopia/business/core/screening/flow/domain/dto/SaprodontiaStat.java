@@ -32,7 +32,7 @@ public class SaprodontiaStat implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    private static class StatItem implements Serializable {
+    public static class StatItem implements Serializable {
         /**
          * 为龋（d/D）的牙齿总数
          */
