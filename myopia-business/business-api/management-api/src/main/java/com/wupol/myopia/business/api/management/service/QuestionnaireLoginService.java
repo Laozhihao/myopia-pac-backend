@@ -110,10 +110,6 @@ public class QuestionnaireLoginService {
         if (!StrUtil.equals(AuthConstant.QUESTIONNAIRE_SCHOOL_SECRET, password)) {
             return null;
         }
-        School school = schoolService.getBySchoolNo(schoolNo);
-        if (Objects.equals(school.getType(),8) || Objects.equals(school.getType(),9)) {
-            return null;
-        }
-        return school;
+        return schoolService.getBySchoolNo(schoolNo);
     }
 }
