@@ -502,4 +502,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
                 .in(School::getId, schoolIds);
         return baseMapper.selectList(wrapper);
     }
+
+    /**
+     * 学校ID集合和地区ID集合查询
+     * @param schoolIds
+     * @param districtIds
+     */
+    public List<School> listBySchoolIdsAndDistrictIds(List<Integer> schoolIds,List<Integer> districtIds){
+        LambdaQueryWrapper<School> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(School::getId,schoolIds);
+        queryWrapper.in(School::getDistrictId,districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

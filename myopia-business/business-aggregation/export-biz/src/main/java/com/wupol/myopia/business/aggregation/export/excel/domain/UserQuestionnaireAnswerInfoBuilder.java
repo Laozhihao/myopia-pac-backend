@@ -62,22 +62,47 @@ public class UserQuestionnaireAnswerInfoBuilder {
             studentMap.forEach((studentId,recordList)-> userQuestionnaireAnswerBOList.add(processStudentData(studentId,recordList)));
         }
 
-        if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())
-                || Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
 
             //学生ID对应的问卷记录信息集合
             Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
             schoolMap.forEach((schoolId,recordList)-> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId,recordList)));
         }
 
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
+
+            //学生ID对应的问卷记录信息集合
+            Map<String, List<UserQuestionRecord>> governmentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(userQuestionRecord -> getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
+            governmentMap.forEach((key,recordList)-> userQuestionnaireAnswerBOList.add(processGovernmentData(key,recordList)));
+        }
+
         return userQuestionnaireAnswerBOList;
     }
 
-
-    private UserQuestionnaireAnswerBO processSchoolData(Integer schoolId, List<UserQuestionRecord> userQuestionRecordList){
+    private UserQuestionnaireAnswerBO processGovernmentData(String key, List<UserQuestionRecord> recordList) {
         UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
-        Date fillDate = userQuestionRecordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
-        for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
+        for (UserQuestionRecord userQuestionRecord : recordList) {
+            if (Objects.equals(userQuestionRecord.getRecordType(),1)){
+                continue;
+            }
+            userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
+            userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
+            userQuestionnaireAnswerBO.setSchoolId(userQuestionRecord.getSchoolId());
+            //处理非隐藏数据
+            questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
+        }
+        return userQuestionnaireAnswerBO;
+    }
+
+    public static String getGovernmentKey(Integer userType,Integer govId,Long districtCode){
+        return userType+StrUtil.UNDERLINE+govId+StrUtil.UNDERLINE+districtCode;
+    }
+
+
+    private UserQuestionnaireAnswerBO processSchoolData(Integer schoolId, List<UserQuestionRecord> recordList){
+        UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
+        Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
+        for (UserQuestionRecord userQuestionRecord : recordList) {
             if (Objects.equals(userQuestionRecord.getRecordType(),1)){
                 continue;
             }
@@ -155,6 +180,16 @@ public class UserQuestionnaireAnswerInfoBuilder {
                             return optionAnswer;
                         });
             }
+            if (Objects.equals(answer.getType(),"diseaseTable")){
+                String tableJson = answer.getTableJson();
+                JSONObject jsonObject = JSON.parseObject(tableJson);
+                return jsonObject.entrySet().stream().map(entry->{
+                    OptionAnswer optionAnswer = new OptionAnswer();
+                    optionAnswer.setOptionId(entry.getKey());
+                    optionAnswer.setValue(Optional.ofNullable(entry.getValue()).map(Object::toString).orElse(StrUtil.EMPTY));
+                    return optionAnswer;
+                });
+            }
             List<OptionAnswer> answerList = JSON.parseArray(JSON.toJSONString(answer.getAnswer()), OptionAnswer.class);
             return answerList.stream();
 
@@ -167,6 +202,9 @@ public class UserQuestionnaireAnswerInfoBuilder {
         }
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
         School school = schoolMap.get(schoolId);
+        if (Objects.isNull(school)){
+            return;
+        }
         String schoolNo = school.getSchoolNo();
 
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {

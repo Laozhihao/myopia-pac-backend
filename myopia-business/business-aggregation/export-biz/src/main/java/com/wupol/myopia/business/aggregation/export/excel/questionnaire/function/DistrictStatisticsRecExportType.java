@@ -18,9 +18,9 @@ public class DistrictStatisticsRecExportType implements ExportType {
     @Autowired
     private ExportTypeFacade exportTypeFacade;
 
-    private static final String KEY = "%s的%s的问卷数据";
-    private static final String DISTRICT_SCHOOL = "%s各学校问卷数据";
-    private static final String FILE_EXPORT_EXCEL = "file:export:excel:districtStatisticsRec:%s-%s-%s-%s";
+    private static final String KEY = "%s的%s的rec文件";
+    private static final String DISTRICT_SCHOOL = "%s各学校rec文件";
+    private static final String FILE_EXPORT_REC = "file:export:rec:districtStatisticsRec:%s-%s-%s-%s";
 
 
     @Override
@@ -40,7 +40,7 @@ public class DistrictStatisticsRecExportType implements ExportType {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return String.format(FILE_EXPORT_EXCEL,
+        return String.format(FILE_EXPORT_REC,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
                 exportCondition.getDistrictId(),
@@ -61,5 +61,6 @@ public class DistrictStatisticsRecExportType implements ExportType {
     @Override
     public void preProcess(ExportCondition exportCondition) {
         ExportTypeFacade.checkDistrictId(exportCondition);
+        exportCondition.setSchoolId(null);
     }
 }

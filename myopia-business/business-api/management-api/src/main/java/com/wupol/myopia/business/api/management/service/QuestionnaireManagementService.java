@@ -27,7 +27,6 @@ import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordE
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
-import com.wupol.myopia.business.core.questionnaire.service.QesFieldMappingService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
@@ -247,7 +246,8 @@ public class QuestionnaireManagementService {
 
         Map<Integer, ScreeningPlanSchool> schoolPlanMap = searchPage.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
 
-        Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
+        List<School> schoolList = getSchool(taskId, areaId);
+        Set<Integer> schoolIds = schoolList.stream().map(School::getId).collect(Collectors.toSet());
         questionSchoolVO.setSchoolAmount(schoolIds.size());
         questionSchoolVO.setSchoolAccomplish(
                 schoolIds.stream().map(item ->
@@ -268,28 +268,54 @@ public class QuestionnaireManagementService {
      * @return
      */
     public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
-        List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL);
+        List<QuestionBacklogVO> backlogVOList =Lists.newArrayList();
+
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
+            List<QuestionnaireTypeEnum> types = Lists.newArrayList(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL);
             return types.stream().map(item -> {
                 QuestionBacklogVO vo = new QuestionBacklogVO();
                 vo.setQuestionnaireTitle(item.getDesc());
                 return vo;
             }).collect(Collectors.toList());
         }
-        Set<Integer> schoolIds = getSchoolIds(taskId, areaId);
-        return types.stream().map(item -> {
-            QuestionBacklogVO vo = new QuestionBacklogVO();
-            vo.setAmount(schoolIds.size());
-            vo.setQuestionnaireTitle(item.getDesc());
-            vo.setAccomplish(getStudentQuestionEndBySchool(schoolIds, item.getType(), taskId));
-            if (Objects.equals(item,QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
-                vo.setType(0);
-            }
-            if (Objects.equals(item,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
-                vo.setType(1);
-            }
-            return vo;
-        }).collect(Collectors.toList());
+        List<School> schoolList = getSchool(taskId, areaId);
+        //学校
+        backlogVOList.add(getSchoolInfo(taskId,schoolList));
+
+        //政府
+        backlogVOList.add(getGovernmentInfo(taskId,schoolList));
+        return backlogVOList;
+    }
+
+    private QuestionBacklogVO getSchoolInfo(Integer taskId,List<School> schoolList) {
+        Set<Integer> schoolIds = schoolList.stream().map(School::getId).collect(Collectors.toSet());
+        QuestionBacklogVO questionBacklogVO = new QuestionBacklogVO();
+        questionBacklogVO.setAmount(schoolIds.size());
+        questionBacklogVO.setQuestionnaireTitle(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getDesc());
+        questionBacklogVO.setAccomplish(getStudentQuestionEndBySchool(schoolIds, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType(), taskId));
+        questionBacklogVO.setType(0);
+        return questionBacklogVO;
+    }
+
+    private QuestionBacklogVO getGovernmentInfo(Integer taskId, List<School> schoolList)  {
+        Set<Integer> districtIds = schoolList.stream().map(School::getDistrictId).collect(Collectors.toSet());
+        List<District> districtList = districtService.getDistrictByIds(Lists.newArrayList(districtIds));
+        Set<String> districtCodes = districtList.stream().map(district -> district.getCode().toString().substring(0, 6)).collect(Collectors.toSet());
+        QuestionBacklogVO questionBacklogVO = new QuestionBacklogVO();
+        questionBacklogVO.setAmount(districtCodes.size());
+        questionBacklogVO.setQuestionnaireTitle(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getDesc());
+        questionBacklogVO.setAccomplish(getGovernmentQuestionEndByTaskId(taskId, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),districtCodes));
+        questionBacklogVO.setType(1);
+        return questionBacklogVO;
+    }
+
+    private Integer getGovernmentQuestionEndByTaskId(Integer taskId,Integer questionnaireType,Set<String> districtCodes){
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.listByTaskIdAndType(taskId, questionnaireType, QuestionnaireStatusEnum.FINISH.getCode());
+        return (int)userQuestionRecordList.stream()
+                .map(UserQuestionRecord::getDistrictCode)
+                .filter(Objects::nonNull)
+                .filter(code -> districtCodes.contains(code.toString().substring(0, 6)))
+                .count();
     }
 
     /**
@@ -300,15 +326,13 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    private Set<Integer> getSchoolIds(Integer taskId, Integer areaId) throws IOException {
-        List<ScreeningPlan> plans = screeningPlanService.list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
+    private List<School> getSchool(Integer taskId, Integer areaId) throws IOException {
+        List<ScreeningPlan> plans = screeningPlanService.getByTaskId(taskId);
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
-        Set<Integer> schoolIds = screeningPlanSchoolService.list(new LambdaQueryWrapper<ScreeningPlanSchool>().in(ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList())))
-                .stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
-        return schoolService.list(new LambdaQueryWrapper<School>()
-                .in(School::getId, schoolIds)
-                .in(School::getDistrictId, districtIds)
-        ).stream().map(School::getId).collect(Collectors.toSet());
+        List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.getByPlanIds(planIds);
+        Set<Integer> schoolIds = screeningPlanSchoolList.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+        return schoolService.listBySchoolIdsAndDistrictIds(Lists.newArrayList(schoolIds), Lists.newArrayList(districtIds));
     }
 
     /**

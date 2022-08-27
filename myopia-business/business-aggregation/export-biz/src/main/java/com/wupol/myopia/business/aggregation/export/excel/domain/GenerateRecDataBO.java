@@ -18,7 +18,21 @@ public class GenerateRecDataBO {
 
     private Integer schoolId;
 
+    private String governmentKey;
+
     private String qesUrl;
 
     private List<String> dataList;
+
+    public GenerateRecDataBO(Integer schoolId, String qesUrl, List<String> dataList) {
+        this.schoolId = schoolId;
+        this.qesUrl = qesUrl;
+        this.dataList = dataList;
+    }
+
+    public GenerateRecDataBO(String governmentKey, String qesUrl, List<String> dataList) {
+        this.governmentKey = governmentKey;
+        this.qesUrl = qesUrl;
+        this.dataList = dataList;
+    }
 }
