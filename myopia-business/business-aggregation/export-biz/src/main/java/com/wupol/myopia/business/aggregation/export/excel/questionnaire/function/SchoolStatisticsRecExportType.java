@@ -18,8 +18,8 @@ public class SchoolStatisticsRecExportType implements ExportType {
     @Autowired
     private ExportTypeFacade exportTypeFacade;
 
-    private static final String KEY = "%s的%s的问卷数据";
-    private static final String FILE_EXPORT_EXCEL = "file:export:excel:schoolStatisticsRec:%s-%s-%s-%s";
+    private static final String KEY = "%s的%s的rec文件";
+    private static final String FILE_EXPORT_REC = "file:export:rec:schoolStatisticsRec:%s-%s-%s-%s";
 
 
     @Override
@@ -39,7 +39,7 @@ public class SchoolStatisticsRecExportType implements ExportType {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return String.format(FILE_EXPORT_EXCEL,
+        return String.format(FILE_EXPORT_REC,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
                 exportCondition.getSchoolId(),
@@ -54,5 +54,6 @@ public class SchoolStatisticsRecExportType implements ExportType {
     @Override
     public void preProcess(ExportCondition exportCondition) {
         ExportTypeFacade.checkSchoolId(exportCondition);
+        exportCondition.setDistrictId(null);
     }
 }

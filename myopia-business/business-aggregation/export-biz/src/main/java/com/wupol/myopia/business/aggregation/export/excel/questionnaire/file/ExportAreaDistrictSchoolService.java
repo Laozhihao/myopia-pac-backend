@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
@@ -45,7 +46,10 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
         }
 
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+            String governmentKey = generateRecDataBO.getGovernmentKey();
+            String[] key = governmentKey.split(StrUtil.UNDERLINE);
+//            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+            String recFileName ="XXX政府";
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }

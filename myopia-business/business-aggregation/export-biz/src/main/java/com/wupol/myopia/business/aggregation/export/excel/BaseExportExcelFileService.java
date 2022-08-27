@@ -77,7 +77,9 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 5.数据处理
             File excelFile = fileDispose(isPackage(), exportCondition, fileSavePath,fileName, data);
             // 没有文件直接返回
-            if (Objects.isNull(excelFile)){return;}
+            if (Objects.isNull(excelFile)){
+                throw new BusinessException("没有文件导出失败");
+            }
             // 6.上传文件
             Integer fileId = uploadFile(excelFile);
             // 7.发送成功通知

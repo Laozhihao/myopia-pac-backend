@@ -50,8 +50,7 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
         if (Objects.nonNull(districtIdList)) {
             schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
         }
-        List<Integer> schoolIdList = schoolStream.map(School::getId)
-                .collect(Collectors.toList());
+        List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());
 
         return userQuestionRecordList.stream()
                 .filter(userQuestionRecord -> schoolIdList.contains(userQuestionRecord.getUserId()))

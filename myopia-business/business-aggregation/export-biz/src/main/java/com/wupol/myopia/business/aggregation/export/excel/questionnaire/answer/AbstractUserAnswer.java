@@ -9,6 +9,7 @@ import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.*;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -321,7 +322,8 @@ public abstract class AbstractUserAnswer implements Answer {
      */
     private void getInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
         for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
-            String answer = Optional.ofNullable(answerMap.get(questionnaireRecDataBO.getOptionId())).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
+            OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+            String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
                 questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
             }
@@ -329,6 +331,23 @@ public abstract class AbstractUserAnswer implements Answer {
                 questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
             }
             dataList.add(questionnaireRecDataBO);
+        }
+    }
+
+    private void getRadioInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
+
+        for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
+            OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+            String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
+            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
+                questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
+            }
+            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
+                questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
+            }
+            if (Objects.nonNull(optionAnswer) && StrUtil.isNotBlank(answer) ){
+                dataList.add(questionnaireRecDataBO);
+            }
         }
     }
 
@@ -365,7 +384,7 @@ public abstract class AbstractUserAnswer implements Answer {
         if (CollUtil.isEmpty(inputList)) {
             return;
         }
-        getInputData(dataList, answerMap, inputList);
+        getRadioInputData(dataList, answerMap, inputList);
     }
 
     /**
@@ -460,6 +479,11 @@ public abstract class AbstractUserAnswer implements Answer {
             return Lists.newArrayList();
         }
 
+        if (Objects.equals(generateDataCondition.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType())) {
+            return getGovernmentRecData(tuple,generateDataCondition);
+        }
+
+
         //获取学生类型问卷的 基础信息部分问卷ID
         Integer questionnaireId = null;
         if (Objects.nonNull(generateDataCondition.getBaseInfoType())) {
@@ -504,6 +528,42 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.toList());
 
     }
+
+    private List<GenerateRecDataBO> getGovernmentRecData(TwoTuple<List<Questionnaire>, List<UserQuestionRecord>> tuple,GenerateDataCondition generateDataCondition){
+
+        List<Integer> latestQuestionnaireIds = tuple.getFirst().stream().map(Questionnaire::getId).collect(Collectors.toList());
+
+        Map<String, List<UserQuestionRecord>> governmentRecordMap = tuple.getSecond().stream()
+                .filter(userQuestionRecord -> latestQuestionnaireIds.contains(userQuestionRecord.getQuestionnaireId()))
+                .sorted(Comparator.comparing(UserQuestionRecord::getId))
+                .collect(Collectors.groupingBy(userQuestionRecord -> UserQuestionnaireAnswerInfoBuilder.getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
+
+        List<QuestionnaireQuestionRecDataBO> dataBuildList = questionnaireFacade.getDataBuildList(latestQuestionnaireIds);
+
+        List<HideQuestionRecDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestionRec(latestQuestionnaireIds.get(0));
+
+        List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(latestQuestionnaireIds);
+
+        List<String> qesFieldList = qesFieldMappingList.stream()
+                .map(qesFieldMapping -> AnswerUtil.getQesFieldStr(qesFieldMapping.getQesField()))
+                .collect(Collectors.toList());
+
+        Map<String, Map<String, List<QuestionnaireRecDataBO>>> governmentAnswerMap = Maps.newHashMap();
+        governmentRecordMap.forEach((key, recordList) -> {
+            List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(recordList, hideQuestionDataBOList, generateDataCondition.getUserType());
+            governmentAnswerMap.put(key, getRecData(userQuestionnaireAnswerBOList, dataBuildList, qesFieldList));
+        });
+
+        Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
+        String qesUrl = resourceFileService.getResourcePath(qesFileId);
+
+        return governmentAnswerMap.entrySet().stream()
+                .map(entry -> buildGovernmentGenerateRecDataBO(qesFieldList, qesUrl, entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+
+    }
+
 
 
     /**
@@ -577,6 +637,17 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.toList())));
         List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
+    }
+
+    private GenerateRecDataBO buildGovernmentGenerateRecDataBO(List<String> qesFieldList, String qesUrl, String governmentKey, Map<String, List<QuestionnaireRecDataBO>> studentAnswersMap) {
+        List<List<String>> dataList = new ArrayList<>();
+        studentAnswersMap.forEach((userKey, answerList) -> dataList.add(answerList.stream()
+                .map(answer->Optional.ofNullable(answer)
+                        .map(questionnaireRecDataBO ->Optional.ofNullable(questionnaireRecDataBO.getRecAnswer()).orElse(StrUtil.EMPTY))
+                        .orElse(StrUtil.EMPTY))
+                .collect(Collectors.toList())));
+        List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
+        return new GenerateRecDataBO(governmentKey, qesUrl, dataTxt);
     }
 
 

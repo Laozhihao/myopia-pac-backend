@@ -130,9 +130,27 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      */
     public File generateFile(String fileName, ExportCondition exportCondition,String fileType) throws IOException {
 
+        if (Objects.equals(1,exportCondition.getDataType())) {
+            generateArchiveRec(fileName,exportCondition);
+        }
+
+        if (Objects.equals(2,exportCondition.getDataType())) {
+            generateQuestionnaireRec(fileName,exportCondition,fileType);
+        }
+
+        return null;
+    }
+
+    /**
+     * 生成问卷rec
+     * @param fileName 文件保存路径（含基础路径）
+     * @param exportCondition 导出条件
+     * @param fileType 文件类型
+     */
+    private void generateQuestionnaireRec(String fileName, ExportCondition exportCondition,String fileType) throws IOException {
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtils.isEmpty(questionnaireTypeList)){
-            return null;
+            return ;
         }
         for (Integer questionnaireType : questionnaireTypeList) {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
@@ -144,7 +162,15 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
                 generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType,fileType);
             }
         }
-        return null;
+    }
+
+    /**
+     * 生成监测表rec
+     * @param fileName 文件保存路径（含基础路径）
+     * @param exportCondition 导出条件
+     */
+    private void generateArchiveRec(String fileName, ExportCondition exportCondition) {
+
     }
 
     /**
