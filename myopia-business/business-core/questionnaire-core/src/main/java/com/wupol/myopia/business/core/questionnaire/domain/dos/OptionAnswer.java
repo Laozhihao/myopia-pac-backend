@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -10,8 +9,7 @@ import java.io.Serializable;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class OptionAnswer implements Serializable {
 
     private static final long serialVersionUID = -4538461740977702142L;

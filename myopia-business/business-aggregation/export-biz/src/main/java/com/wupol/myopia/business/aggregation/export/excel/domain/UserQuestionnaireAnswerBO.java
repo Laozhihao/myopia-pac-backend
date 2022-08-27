@@ -66,7 +66,7 @@ public class UserQuestionnaireAnswerBO {
             return Maps.newHashMap();
         }
         Map<Integer, Map<String, OptionAnswer>> map = Maps.newHashMap();
-        questionAnswerMap.forEach((questionId, list) -> map.put(questionId, list.stream().collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity()))));
+        questionAnswerMap.forEach((questionId, list) -> map.put(questionId, list.stream().collect(Collectors.toMap(OptionAnswer::getOptionId, Function.identity(),(v1, v2)->v2))));
         return map;
     }
 
