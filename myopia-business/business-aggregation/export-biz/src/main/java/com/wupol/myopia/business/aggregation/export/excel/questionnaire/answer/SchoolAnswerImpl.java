@@ -46,7 +46,11 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
         Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
 
-        Stream<School> schoolStream = schoolList.stream().filter(school -> Objects.equals(school.getId(), exportCondition.getSchoolId()));
+        Stream<School> schoolStream = schoolList.stream();
+        if (Objects.nonNull(exportCondition.getSchoolId())) {
+           schoolStream = schoolStream.filter(school -> Objects.equals(school.getId(), exportCondition.getSchoolId()));
+        }
+
         if (Objects.nonNull(districtIdList)) {
             schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
         }

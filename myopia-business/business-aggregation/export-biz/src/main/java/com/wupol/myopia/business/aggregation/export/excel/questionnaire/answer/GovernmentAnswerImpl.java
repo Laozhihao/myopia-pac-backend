@@ -48,11 +48,11 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
             return userQuestionRecordList;
         }
 
-        List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
         Stream<UserQuestionRecord> stream = userQuestionRecordList.stream();
 
         if (Objects.equals(answerDataBO.getQuestionnaireTypeEnum(), QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
             questionnaireTypeEnum = QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL;
+            List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
             if (Objects.nonNull(districtIdList)){
                 stream = stream.filter(userQuestionRecord -> {
                     if (Objects.isNull(userQuestionRecord)){
@@ -63,6 +63,7 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
             }
         } else if (Objects.equals(answerDataBO.getQuestionnaireTypeEnum(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
             questionnaireTypeEnum = QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT;
+            List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
             Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
             Stream<School> schoolStream = schoolList.stream();

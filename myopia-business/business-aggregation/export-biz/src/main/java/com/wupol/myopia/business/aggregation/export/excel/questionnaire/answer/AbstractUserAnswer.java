@@ -517,8 +517,8 @@ public abstract class AbstractUserAnswer implements Answer {
 
         Map<Integer, Map<String, List<QuestionnaireRecDataBO>>> schoolAnswerMap = Maps.newHashMap();
         schoolRecordMap.forEach((schoolId, recordList) -> {
-            List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(recordList, hideQuestionDataBOList, generateDataCondition.getUserType());
-            schoolAnswerMap.put(schoolId, getRecData(userQuestionnaireAnswerBOList, dataBuildList, qesFieldList));
+            schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList));
+
         });
 
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
@@ -527,6 +527,18 @@ public abstract class AbstractUserAnswer implements Answer {
         return schoolAnswerMap.entrySet().stream()
                 .map(entry -> buildGenerateRecDataBO(qesFieldList, qesUrl, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
+
+    }
+
+    private Map<String, List<QuestionnaireRecDataBO>> buildAnswerMap(GenerateDataCondition generateDataCondition, List<QuestionnaireQuestionRecDataBO> dataBuildList,
+                                List<HideQuestionRecDataBO> hideQuestionDataBOList, List<String> qesFieldList,
+                                List<UserQuestionRecord> recordList) {
+        UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition = new UserQuestionnaireAnswerCondition()
+                .setUserQuestionRecordList(recordList)
+                .setHideQuestionDataBOList(hideQuestionDataBOList)
+                .setGenerateDataCondition(generateDataCondition);
+        List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(userQuestionnaireAnswerCondition);
+        return getRecData(userQuestionnaireAnswerBOList, dataBuildList, qesFieldList);
 
     }
 
@@ -551,8 +563,7 @@ public abstract class AbstractUserAnswer implements Answer {
 
         Map<String, Map<String, List<QuestionnaireRecDataBO>>> governmentAnswerMap = Maps.newHashMap();
         governmentRecordMap.forEach((key, recordList) -> {
-            List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(recordList, hideQuestionDataBOList, generateDataCondition.getUserType());
-            governmentAnswerMap.put(key, getRecData(userQuestionnaireAnswerBOList, dataBuildList, qesFieldList));
+            governmentAnswerMap.put(key,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList));
         });
 
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
@@ -601,13 +612,13 @@ public abstract class AbstractUserAnswer implements Answer {
     /**
      * 获取用户问卷答案集合
      *
-     * @param userQuestionRecordList 用户问卷记录
-     * @param hideQuestionDataBOList 隐藏问题数据集合
-     * @param userType               用户类型
+     * @param userQuestionnaireAnswerCondition 用户问卷记录条件实体
      */
-    private List<UserQuestionnaireAnswerBO> getUserQuestionnaireAnswerBOList(List<UserQuestionRecord> userQuestionRecordList,
-                                                                             List<HideQuestionRecDataBO> hideQuestionDataBOList,
-                                                                             Integer userType) {
+    private List<UserQuestionnaireAnswerBO> getUserQuestionnaireAnswerBOList(UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition) {
+        GenerateDataCondition generateDataCondition = userQuestionnaireAnswerCondition.getGenerateDataCondition();
+        List<HideQuestionRecDataBO> hideQuestionDataBOList = userQuestionnaireAnswerCondition.getHideQuestionDataBOList();
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionnaireAnswerCondition.getUserQuestionRecordList();
+
         List<Integer> recordIds = userQuestionRecordList.stream().map(UserQuestionRecord::getId).collect(Collectors.toList());
         List<UserAnswer> userAnswerList = userAnswerService.getListByRecordIds(recordIds);
 
@@ -623,7 +634,7 @@ public abstract class AbstractUserAnswer implements Answer {
                 .hideQuestionDataBOList(hideQuestionDataBOList)
                 .planSchoolStudentMap(planSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity())))
                 .schoolMap(schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity())))
-                .userType(userType)
+                .questionnaireTypeEnum(generateDataCondition.getMainBodyType()).userType(generateDataCondition.getUserType())
                 .build();
 
         return build.dataBuild();

@@ -45,10 +45,11 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap;
     private Map<Integer, School> schoolMap;
     private Integer userType;
+    private QuestionnaireTypeEnum questionnaireTypeEnum;
 
 
     public List<UserQuestionnaireAnswerBO> dataBuild(){
-        if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,userType)
+        if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,userType,questionnaireTypeEnum)
                 || (Objects.equals(userType,UserType.QUESTIONNAIRE_STUDENT.getType()) && Objects.isNull(planSchoolStudentMap))
                 || (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType()) && Objects.isNull(schoolMap))) {
             throw new BusinessException("UserQuestionnaireAnswerInfo构建失败，缺少关键参数");
@@ -63,20 +64,30 @@ public class UserQuestionnaireAnswerInfoBuilder {
         }
 
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
-
-            //学生ID对应的问卷记录信息集合
-            Map<Integer, List<UserQuestionRecord>> schoolMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-            schoolMap.forEach((schoolId,recordList)-> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId,recordList)));
+            setSchoolData(userQuestionnaireAnswerBOList);
         }
 
-        if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
 
-            //学生ID对应的问卷记录信息集合
-            Map<String, List<UserQuestionRecord>> governmentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(userQuestionRecord -> getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
-            governmentMap.forEach((key,recordList)-> userQuestionnaireAnswerBOList.add(processGovernmentData(key,recordList)));
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
+            if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
+
+                Map<String, List<UserQuestionRecord>> governmentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(userQuestionRecord -> getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
+                governmentMap.forEach((key,recordList)-> userQuestionnaireAnswerBOList.add(processGovernmentData(key,recordList)));
+
+            }else if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
+
+                setSchoolData(userQuestionnaireAnswerBOList);
+            }
+
         }
 
         return userQuestionnaireAnswerBOList;
+    }
+
+    private void setSchoolData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList) {
+        //学校ID对应的问卷记录信息集合
+        Map<Integer, List<UserQuestionRecord>> schoolDataMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+        schoolDataMap.forEach((schoolId, recordList) -> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId, recordList)));
     }
 
     private UserQuestionnaireAnswerBO processGovernmentData(String key, List<UserQuestionRecord> recordList) {
