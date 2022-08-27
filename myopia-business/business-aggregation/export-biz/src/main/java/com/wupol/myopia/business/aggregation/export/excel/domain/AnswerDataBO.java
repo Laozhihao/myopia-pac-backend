@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,4 +19,5 @@ public class AnswerDataBO {
     private List<UserQuestionRecord> userQuestionRecordList;
     private List<Integer> gradeTypeList;
     private ExportCondition exportCondition;
+    private QuestionnaireTypeEnum questionnaireTypeEnum;
 }
