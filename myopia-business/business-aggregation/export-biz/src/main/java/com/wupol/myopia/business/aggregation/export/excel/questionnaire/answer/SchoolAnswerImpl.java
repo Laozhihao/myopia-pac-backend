@@ -53,7 +53,7 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
         List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());
 
         return userQuestionRecordList.stream()
-                .filter(userQuestionRecord -> schoolIdList.contains(userQuestionRecord.getUserId()))
+                .filter(userQuestionRecord -> schoolIdList.contains(userQuestionRecord.getSchoolId()))
                 .collect(Collectors.toList());
     }
 

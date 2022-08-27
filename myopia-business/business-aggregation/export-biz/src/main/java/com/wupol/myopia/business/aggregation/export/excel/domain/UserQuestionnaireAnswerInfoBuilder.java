@@ -170,7 +170,8 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private List<OptionAnswer> getRecAnswerData(List<UserAnswer> userAnswerList){
 
         return userAnswerList.stream().flatMap(answer -> {
-            if (Objects.equals(answer.getType(),"teacherTable")){
+            if (Objects.equals(answer.getType(),"teacherTable")
+                    || Objects.equals(answer.getType(),"diseaseTable")){
                 String tableJson = answer.getTableJson();
                 JSONObject jsonObject = JSON.parseObject(tableJson);
                 return jsonObject.entrySet().stream().map(entry->{
@@ -180,15 +181,20 @@ public class UserQuestionnaireAnswerInfoBuilder {
                             return optionAnswer;
                         });
             }
-            if (Objects.equals(answer.getType(),"diseaseTable")){
+            if (Objects.equals(answer.getType(),"classTable")){
                 String tableJson = answer.getTableJson();
+
                 JSONObject jsonObject = JSON.parseObject(tableJson);
-                return jsonObject.entrySet().stream().map(entry->{
-                    OptionAnswer optionAnswer = new OptionAnswer();
-                    optionAnswer.setOptionId(entry.getKey());
-                    optionAnswer.setValue(Optional.ofNullable(entry.getValue()).map(Object::toString).orElse(StrUtil.EMPTY));
-                    return optionAnswer;
-                });
+                return jsonObject.values().stream()
+                        .map(classObj -> JSON.parseObject(JSON.toJSONString(classObj)))
+                        .flatMap(classData -> classData.entrySet().stream()
+                                .map(entry -> {
+                                    OptionAnswer optionAnswer = new OptionAnswer();
+                                    optionAnswer.setOptionId(entry.getKey());
+                                    optionAnswer.setValue(Optional.ofNullable(entry.getValue()).map(Object::toString).orElse(StrUtil.EMPTY));
+                                    return optionAnswer;
+                                })
+                        );
             }
             List<OptionAnswer> answerList = JSON.parseArray(JSON.toJSONString(answer.getAnswer()), OptionAnswer.class);
             return answerList.stream();

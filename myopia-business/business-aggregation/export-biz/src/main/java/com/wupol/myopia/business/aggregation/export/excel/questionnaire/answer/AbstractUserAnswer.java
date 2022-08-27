@@ -479,7 +479,8 @@ public abstract class AbstractUserAnswer implements Answer {
             return Lists.newArrayList();
         }
 
-        if (Objects.equals(generateDataCondition.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType())) {
+        if (Objects.equals(generateDataCondition.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType())
+                && Objects.equals(generateDataCondition.getMainBodyType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)) {
             return getGovernmentRecData(tuple,generateDataCondition);
         }
 
@@ -660,7 +661,8 @@ public abstract class AbstractUserAnswer implements Answer {
         return new AnswerDataBO()
                 .setExportCondition(generateDataCondition.getExportCondition())
                 .setUserQuestionRecordList(userQuestionRecordList)
-                .setGradeTypeList(generateDataCondition.getGradeTypeList());
+                .setGradeTypeList(generateDataCondition.getGradeTypeList())
+                .setQuestionnaireTypeEnum(generateDataCondition.getMainBodyType());
     }
 
     /**
