@@ -7,6 +7,7 @@ import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCooperation;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
@@ -125,7 +126,7 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
      * 筛查类型的配置
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private ScreeningOrganization screeningConfig;
+    private ScreeningConfig screeningConfig;
 
     /**
      * 创建时间
