@@ -51,7 +51,6 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
             String governmentKey = generateRecDataBO.getGovernmentKey();
             String[] key = governmentKey.split(StrUtil.UNDERLINE);
             String recFileName = answerService.getRecFileName(new RecFileNameCondition(Long.valueOf(key[2]),getType()));
-            EpiDataUtil.printJsonData(generateRecDataBO.getDataList());
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }

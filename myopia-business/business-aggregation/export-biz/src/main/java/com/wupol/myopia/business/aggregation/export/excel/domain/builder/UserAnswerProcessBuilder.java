@@ -94,7 +94,7 @@ public class UserAnswerProcessBuilder {
                 }
                 processAnswerData(dataList, questionAnswerMap, questionnaireQuestionRecDataBO);
             }
-            Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity()));
+            Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity(),(v1,v2)->v2));
             List<QuestionnaireRecDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
             dataMap.put(userQuestionnaireAnswerBO.getUserKey(), collect);
         }
@@ -225,6 +225,7 @@ public class UserAnswerProcessBuilder {
             getRadioData(dataList, answerMap, recDataList);
         }
         if (Objects.equals(question.getType(), QuestionnaireConstant.CHECKBOX)) {
+            answerMap.putAll(questionAnswerMap.getOrDefault(-1,Maps.newHashMap()));
             recDataList.forEach(questionnaireRecDataBO -> getCheckboxData(dataList, answerMap, questionnaireRecDataBO));
         }
     }
@@ -246,6 +247,9 @@ public class UserAnswerProcessBuilder {
             }
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
                 questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
+            }
+            if (Objects.equals(questionnaireRecDataBO.getDataType(),QuestionnaireConstant.SELECT)){
+                questionnaireRecDataBO.setRecAnswer(answer);
             }
             dataList.add(questionnaireRecDataBO);
         }
