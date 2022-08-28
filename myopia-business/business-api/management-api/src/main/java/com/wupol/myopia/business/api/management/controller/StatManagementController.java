@@ -156,7 +156,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/district/attentive-objects-statistic")
-    public FocusObjectsStatisticVO getAttenticeObjectsStatistic(@RequestParam Integer districtId) throws IOException {
+    public FocusObjectsStatisticVO getAttenticeObjectsStatistic(@RequestParam Integer districtId) {
         //下级层级
         List<District> districts = districtService.getChildDistrictByParentIdPriorityCache(districtId);
         Set<Integer> districtIds = districts.stream().map(District::getId).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -185,7 +185,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/big-screen")
-    public BigScreeningVO getBigScreeningVO(Integer noticeId) throws IOException {
+    public BigScreeningVO getBigScreeningVO(Integer noticeId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         if (ObjectsUtil.hasNull(currentUser, noticeId)) {
             throw new ManagementUncheckedException("noticeId 或者 currentUser 不能为空");

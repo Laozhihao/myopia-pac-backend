@@ -135,7 +135,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
             Set<Integer> districtIds = Sets.newHashSet();
             try {
                 districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("获取行政区域失败");
             }
             districtIds.add(currentDistrictId);

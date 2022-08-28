@@ -43,7 +43,7 @@ public class OperationAndMaintenanceController {
      * @throws IOException
      */
     @GetMapping("/big")
-    public void statBigScreen() throws IOException {
+    public void statBigScreen() {
         bigScreeningStatService.statisticBigScreen();
     }
 

@@ -720,7 +720,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId){
         District district = getById(districtId);
         return this.getChildDistrictByParentIdPriorityCache(district.getCode());
     }
@@ -787,9 +787,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取下级的所有地区
      *
      * @return
-     * @throws IOException
      */
-    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
+    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
         return districts.stream().map(District::getId).collect(Collectors.toSet());
     }
@@ -810,7 +809,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
+    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
                 cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.schedule;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.CompareUtil;
@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,25 +51,25 @@ public class DistrictStatisticTask {
      * @param screeningPlanIds 筛查计划ID集合
      */
     public void districtStatistics(List<Integer> screeningPlanIds) {
-        if (CollectionUtil.isEmpty(screeningPlanIds)){
+        if (CollUtil.isEmpty(screeningPlanIds)){
             return;
         }
         //筛查计划ID 查找筛查通知ID
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsByIds(screeningPlanIds);
-        if(CollectionUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
+        if(CollUtil.isEmpty(screeningNoticeIds)){
+            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
-        if(CollectionUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollectionUtil.join(screeningPlanIds,","));
+        if(CollUtil.isEmpty(screeningNoticeIds)){
+            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
 
         //筛查通知ID 查出筛查数据结论
         List<StatConclusion> statConclusionList = statConclusionService.getBySrcScreeningNoticeIds(screeningNoticeIds);
-        if (CollectionUtil.isEmpty(statConclusionList)){
-            log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollectionUtil.join(screeningNoticeIds,","));
+        if (CollUtil.isEmpty(statConclusionList)){
+            log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollUtil.join(screeningNoticeIds,","));
             return;
         }
 
@@ -99,7 +98,7 @@ public class DistrictStatisticTask {
     private void screeningResultStatistic(List<StatConclusion> statConclusionList,
                                                 List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                                 List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollUtil.isEmpty(statConclusionList)){
             return;
         }
         Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
@@ -122,7 +121,7 @@ public class DistrictStatisticTask {
     private void statistic(List<StatConclusion> statConclusionList,
                            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                            List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
-        if (CollectionUtil.isEmpty(statConclusionList) ){
+        if (CollUtil.isEmpty(statConclusionList) ){
             return;
         }
         //根据筛查通知ID分组
@@ -173,7 +172,7 @@ public class DistrictStatisticTask {
             // 合计的要包括自己层级的筛查数据
             childDistricts = districtService.getChildDistrictByParentIdPriorityCache(districtId);
             childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("获取区域层级失败", e);
         }
 
@@ -186,7 +185,7 @@ public class DistrictStatisticTask {
         List<StatConclusion> totalStatConclusions = haveStatConclusionsChildDistrictIds.stream().map(districtStatConclusions::get).flatMap(Collection::stream).collect(Collectors.toList());
         List<ScreeningPlanSchoolStudent> totalPlanStudentCountList = haveStudentDistrictIds.stream().flatMap(id -> {
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = districtPlanStudentCountMap.get(id);
-            if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
+            if (CollUtil.isNotEmpty(planSchoolStudentList)) {
                 return planSchoolStudentList.stream();
             } else {
                 return Stream.empty();
@@ -303,7 +302,7 @@ public class DistrictStatisticTask {
                                       List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
 
         List<StatConclusion> statConclusions = statistic.getStatConclusions();
-        if (CollectionUtil.isEmpty(statConclusions)){
+        if (CollUtil.isEmpty(statConclusions)){
             return;
         }
         ScreeningResultStatisticBuilder.screening(visionScreeningResultStatisticList,commonDiseaseScreeningResultStatisticList,statistic,statConclusions);
