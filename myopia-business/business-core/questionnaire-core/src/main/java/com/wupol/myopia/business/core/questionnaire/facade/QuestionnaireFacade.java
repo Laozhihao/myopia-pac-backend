@@ -504,29 +504,43 @@ public class QuestionnaireFacade {
             return Lists.newArrayList();
         }
         List<QuestionnaireQuestion> questionnaireQuestionList = questionnaireQuestionService.listByQuestionnaireId(questionnaireId);
-        questionnaireQuestionList = questionnaireQuestionList.stream().filter(questionnaireQuestion -> Objects.equals(Boolean.TRUE,questionnaireQuestion.getIsHidden())).collect(Collectors.toList());
+        questionnaireQuestionList = questionnaireQuestionList.stream()
+                .filter(questionnaireQuestion -> Objects.equals(Boolean.TRUE,questionnaireQuestion.getIsHidden()))
+                .collect(Collectors.toList());
+
         if (CollUtil.isNotEmpty(questionnaireQuestionList)){
             List<Integer> questionIds = questionnaireQuestionList.stream()
                     .map(QuestionnaireQuestion::getQuestionId)
                     .collect(Collectors.toList());
-            Map<Integer, QuestionnaireQuestion> questionnaireQuestionMap = questionnaireQuestionList.stream().collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, Function.identity()));
+
+            Map<Integer, QuestionnaireQuestion> questionnaireQuestionMap = questionnaireQuestionList.stream().collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, Function.identity(),(v1,v2)->v2));
             List<Question> questionList = questionService.listByIds(questionIds);
             CollUtil.sort(questionList,Comparator.comparing(Question::getId));
 
-            return questionList.stream().map(question -> {
-                HideQuestionRecDataBO hideQuestionDataBO = new HideQuestionRecDataBO(question.getId(),question.getType());
-                QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionMap.get(question.getId());
-                if (Objects.nonNull(questionnaireQuestion)){
-                    List<HideQuestionRecDataBO.QesDataBO> collect = questionnaireQuestion.getQesData().stream().map(qesDataDO -> new HideQuestionRecDataBO.QesDataBO(qesDataDO.getQesField(), qesDataDO.getQesSerialNumber())).collect(Collectors.toList());
-                    hideQuestionDataBO.setQesData(collect);
-                }
-                return hideQuestionDataBO;
-            }).collect(Collectors.toList());
+            return questionList.stream()
+                    .map(question -> buildHideQuestionRecDataBO(questionnaireQuestionMap, question))
+                    .collect(Collectors.toList());
         }
         return Lists.newArrayList();
     }
 
-
+    /**
+     * 构建隐藏问题
+     * @param questionnaireQuestionMap 问卷问题关系集合
+     * @param question 问题对象
+     */
+    private HideQuestionRecDataBO buildHideQuestionRecDataBO(Map<Integer, QuestionnaireQuestion> questionnaireQuestionMap, Question question) {
+        HideQuestionRecDataBO hideQuestionDataBO = new HideQuestionRecDataBO(question.getId(),question.getType());
+        QuestionnaireQuestion questionnaireQuestion = questionnaireQuestionMap.get(question.getId());
+        if (Objects.nonNull(questionnaireQuestion)){
+            List<HideQuestionRecDataBO.QesDataBO> collect = questionnaireQuestion.getQesData()
+                    .stream()
+                    .map(qesDataDO -> new HideQuestionRecDataBO.QesDataBO(qesDataDO.getQesField(), qesDataDO.getQesSerialNumber()))
+                    .collect(Collectors.toList());
+            hideQuestionDataBO.setQesData(collect);
+        }
+        return hideQuestionDataBO;
+    }
 
 
     /**

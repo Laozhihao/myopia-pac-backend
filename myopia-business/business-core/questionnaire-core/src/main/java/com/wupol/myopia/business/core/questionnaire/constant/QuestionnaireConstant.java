@@ -139,14 +139,10 @@ public class QuestionnaireConstant {
     }
 
     /**
-     * rec文件扩展名
+     * 文件扩展名
      */
     public static final String REC = ".rec";
-    /**
-     * TXT文件扩展名
-     */
     public static final String TXT = ".txt";
-
     public static final String  ZIP = ".zip";
 
     /**
@@ -165,6 +161,11 @@ public class QuestionnaireConstant {
 
     public static final String  NUMBER="number";
     public static final String  QM = "QM";
+
+    /**
+     * 日期格式化样式
+     */
+    public static final String DATE_FORMAT ="yyyy/MM/dd";
 
     /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷

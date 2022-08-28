@@ -262,6 +262,6 @@ public class EpiDataUtil {
         for (int i = 0; i < qesFieldArr.length; i++) {
             list.add(new QesFieldDataBO(qesFieldArr[i],dataArr[i]));
         }
-        log.info(JSON.toJSONString(list));
+        log.info(JSON.toJSONString(list,true));
     }
 }

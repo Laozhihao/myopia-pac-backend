@@ -7,6 +7,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -66,7 +67,7 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+            String recFileName = answerService.getRecFileName(new RecFileNameCondition(generateRecDataBO.getSchoolId(),getType()));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }

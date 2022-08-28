@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
 
 import java.util.List;
 
@@ -45,9 +46,8 @@ public interface Answer {
 
     /**
      * 获取rec问卷名称
-     * @param schoolId 学校ID
-     * @param questionnaireType 问卷类型
-     * @return  问卷类型
+     * @param recFileNameCondition rec文件名生成条件
+     * @return  问卷名称
      */
-    String getRecFileName(Integer schoolId, Integer questionnaireType);
+    String getRecFileName(RecFileNameCondition recFileNameCondition);
 }

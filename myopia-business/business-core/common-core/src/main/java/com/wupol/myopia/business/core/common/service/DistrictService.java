@@ -136,6 +136,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtCode 区域编码
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictCode(Long districtCode) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetail(districtCode);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
      * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
      *
      * @param list 区域ID

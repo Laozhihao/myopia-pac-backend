@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -43,7 +44,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
+            String recFileName = answerService.getRecFileName(new RecFileNameCondition(generateRecDataBO.getSchoolId(), getType()));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }

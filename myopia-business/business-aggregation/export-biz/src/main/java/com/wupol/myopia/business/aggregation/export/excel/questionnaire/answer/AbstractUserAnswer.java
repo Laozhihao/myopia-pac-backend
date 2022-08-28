@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.*;
+import com.wupol.myopia.business.aggregation.export.excel.domain.AnswerDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -113,17 +113,28 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 获取rec文件名称
-     *
-     * @param schoolId          学校ID
-     * @param questionnaireType 问卷类型
-     */
+
     @Override
-    public String getRecFileName(Integer schoolId, Integer questionnaireType) {
-        School school = schoolService.getById(schoolId);
-        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(questionnaireType);
-        return String.format(FILE_NAME, school.getName(), questionnaireTypeEnum.getDesc());
+    public String getRecFileName(RecFileNameCondition recFileNameCondition) {
+        QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(recFileNameCondition.getQuestionnaireType());
+        String name;
+        switch (questionnaireTypeEnum){
+            case PRIMARY_SCHOOL:
+            case MIDDLE_SCHOOL:
+            case UNIVERSITY_SCHOOL:
+            case SCHOOL_ENVIRONMENT:
+            case PRIMARY_SECONDARY_SCHOOLS:
+                School school = schoolService.getById(recFileNameCondition.getSchoolId());
+                name = school.getName();
+                break;
+            case AREA_DISTRICT_SCHOOL:
+                name = districtService.getDistrictNameByDistrictCode(recFileNameCondition.getDistrictCode());
+                break;
+            default:
+                name = StrUtil.EMPTY;
+                break;
+        }
+        return String.format(FILE_NAME, name, questionnaireTypeEnum.getDesc());
     }
 
     /**
@@ -166,6 +177,12 @@ public abstract class AbstractUserAnswer implements Answer {
         }
     }
 
+    /**
+     * rec导出工具生成的压缩包文件，解压及移动
+     * @param recZip 压缩包路径
+     * @param epiDataPath 基础路径
+     * @param recFolderName rec文件夹名称
+     */
     private static void recFileMove(String recZip,String epiDataPath, String recFolderName){
         ZipUtil.unzip(recZip,epiDataPath);
         recFolderName = Paths.get(epiDataPath, recFolderName).toString();
@@ -252,12 +269,11 @@ public abstract class AbstractUserAnswer implements Answer {
         }
         Map<String, QesFieldDataBO> qesFieldDataBoMap = qesFieldDataBOList.stream().collect(Collectors.toMap(QesFieldDataBO::getQesField, Function.identity()));
         questionnaireRecDataMap.forEach((qesField, recDataList) -> {
-
             if (Objects.equals(question.getType(), QuestionnaireConstant.INPUT)) {
                 getHideInputData(dataList, qesFieldDataBoMap, recDataList);
             }
             if (Objects.equals(question.getType(), QuestionnaireConstant.RADIO)) {
-                setHideRadio(dataList, qesFieldDataBoMap, recDataList.get(0));
+                getHideRadio(dataList, qesFieldDataBoMap, recDataList.get(0));
             }
         });
     }
@@ -278,6 +294,7 @@ public abstract class AbstractUserAnswer implements Answer {
             getInputData(dataList, answerMap, recDataList);
         }
         if (Objects.equals(question.getType(), QuestionnaireConstant.RADIO)) {
+            answerMap.putAll(questionAnswerMap.getOrDefault(-1,Maps.newHashMap()));
             getRadioData(dataList, answerMap, recDataList);
         }
         if (Objects.equals(question.getType(), QuestionnaireConstant.CHECKBOX)) {
@@ -293,7 +310,11 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param recDataList       问卷Rec数据信息集合
      */
     private void getHideInputData(List<QuestionnaireRecDataBO> dataList, Map<String, QesFieldDataBO> qesFieldDataBOMap, List<QuestionnaireRecDataBO> recDataList) {
-        for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
+        if (CollUtil.isEmpty(recDataList)){
+            return;
+        }
+        for (QuestionnaireRecDataBO recDataBO : recDataList) {
+            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
             String answer = Optional.ofNullable(qesFieldDataBOMap.get(questionnaireRecDataBO.getQesField())).map(qesFieldDataBO -> Optional.ofNullable(qesFieldDataBO.getRecAnswer()).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
                 if (Objects.equals(questionnaireRecDataBO.getQesField(), "ID1") || Objects.equals(questionnaireRecDataBO.getQesField(), "ID2")) {
@@ -321,7 +342,8 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param recDataList 问卷Rec数据信息集合
      */
     private void getInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
-        for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
+        for (QuestionnaireRecDataBO recDataBO : recDataList) {
+            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
             OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
             String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
@@ -334,9 +356,16 @@ public abstract class AbstractUserAnswer implements Answer {
         }
     }
 
+    /**
+     * 获取单选中输入框类型的数据
+     * @param dataList 结果集合
+     * @param answerMap 问题集合
+     * @param recDataList 问卷Rec数据信息集合
+     */
     private void getRadioInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
 
-        for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
+        for (QuestionnaireRecDataBO recDataBO : recDataList) {
+            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
             OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
             String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
@@ -345,6 +374,10 @@ public abstract class AbstractUserAnswer implements Answer {
             if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
                 questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
             }
+            if (Objects.equals(questionnaireRecDataBO.getDataType(),QuestionnaireConstant.SELECT)){
+                questionnaireRecDataBO.setRecAnswer(answer);
+            }
+
             if (Objects.nonNull(optionAnswer) && StrUtil.isNotBlank(answer) ){
                 dataList.add(questionnaireRecDataBO);
             }
@@ -352,15 +385,19 @@ public abstract class AbstractUserAnswer implements Answer {
     }
 
     /**
-     * 设置隐藏单选数据
+     * 获取隐藏单选数据
      *
      * @param dataList               结果集合
      * @param qesFieldDataBoMap      qes字段数据集合
-     * @param questionnaireRecDataBO 问卷Rec数据信息
+     * @param recDataBO 问卷Rec数据信息
      */
-    private void setHideRadio(List<QuestionnaireRecDataBO> dataList,
+    private void getHideRadio(List<QuestionnaireRecDataBO> dataList,
                               Map<String, QesFieldDataBO> qesFieldDataBoMap,
-                              QuestionnaireRecDataBO questionnaireRecDataBO) {
+                              QuestionnaireRecDataBO recDataBO) {
+        if (Objects.isNull(recDataBO)){
+            return;
+        }
+        QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
         QesFieldDataBO qesFieldDataBO = qesFieldDataBoMap.get(questionnaireRecDataBO.getQesField());
         if (Objects.isNull(qesFieldDataBO)) {
             return;
@@ -372,7 +409,16 @@ public abstract class AbstractUserAnswer implements Answer {
         getHideRadioInputData(dataList, qesFieldDataBoMap, questionnaireRecDataBO);
     }
 
-    private void getRadioData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
+    /**
+     * 获取单选数据
+     *
+     * @param dataList               结果集合
+     * @param qesFieldDataBoMap      qes字段数据集合
+     * @param recDataBO 问卷Rec数据信息
+     */
+    private void getRadioData(List<QuestionnaireRecDataBO> dataList,
+                              Map<String, OptionAnswer> answerMap,
+                              List<QuestionnaireRecDataBO> recDataList) {
         if (CollUtil.isEmpty(recDataList)){
             return;
         }
@@ -418,16 +464,18 @@ public abstract class AbstractUserAnswer implements Answer {
      *
      * @param dataList               结果集合
      * @param answerMap              问题集合
-     * @param questionnaireRecDataBO 问卷Rec数据信息
+     * @param recDataBO 问卷Rec数据信息
      */
     private void getCheckboxData(List<QuestionnaireRecDataBO> dataList,
                                  Map<String, OptionAnswer> answerMap,
-                                 QuestionnaireRecDataBO questionnaireRecDataBO) {
+                                 QuestionnaireRecDataBO recDataBO) {
+        QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
         OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
         if (Objects.isNull(optionAnswer)) {
             questionnaireRecDataBO.setRecAnswer("2");
+        }else {
+            questionnaireRecDataBO.setRecAnswer("1");
         }
-        questionnaireRecDataBO.setRecAnswer("1");
         //多选Input
         getCheckboxInputData(dataList, answerMap, questionnaireRecDataBO);
     }
@@ -479,6 +527,7 @@ public abstract class AbstractUserAnswer implements Answer {
             return Lists.newArrayList();
         }
 
+        //政府，省、地市及区（县）管理部门学校卫生工作调查表
         if (Objects.equals(generateDataCondition.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType())
                 && Objects.equals(generateDataCondition.getMainBodyType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)) {
             return getGovernmentRecData(tuple,generateDataCondition);
@@ -516,10 +565,7 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.toList());
 
         Map<Integer, Map<String, List<QuestionnaireRecDataBO>>> schoolAnswerMap = Maps.newHashMap();
-        schoolRecordMap.forEach((schoolId, recordList) -> {
-            schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList));
-
-        });
+        schoolRecordMap.forEach((schoolId, recordList) -> schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList)));
 
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
         String qesUrl = resourceFileService.getResourcePath(qesFileId);
@@ -562,9 +608,7 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.toList());
 
         Map<String, Map<String, List<QuestionnaireRecDataBO>>> governmentAnswerMap = Maps.newHashMap();
-        governmentRecordMap.forEach((key, recordList) -> {
-            governmentAnswerMap.put(key,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList));
-        });
+        governmentRecordMap.forEach((key, recordList) -> governmentAnswerMap.put(key,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList)));
 
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
         String qesUrl = resourceFileService.getResourcePath(qesFileId);

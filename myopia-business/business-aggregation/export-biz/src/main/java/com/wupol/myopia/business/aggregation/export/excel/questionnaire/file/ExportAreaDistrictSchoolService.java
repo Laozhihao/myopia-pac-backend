@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -48,8 +50,8 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
             String governmentKey = generateRecDataBO.getGovernmentKey();
             String[] key = governmentKey.split(StrUtil.UNDERLINE);
-//            String recFileName = answerService.getRecFileName(generateRecDataBO.getSchoolId(), getType());
-            String recFileName ="XXX政府";
+            String recFileName = answerService.getRecFileName(new RecFileNameCondition(Long.valueOf(key[2]),getType()));
+            EpiDataUtil.printJsonData(generateRecDataBO.getDataList());
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }
