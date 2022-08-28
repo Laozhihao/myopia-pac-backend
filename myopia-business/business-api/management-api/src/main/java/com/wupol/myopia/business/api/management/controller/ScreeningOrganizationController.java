@@ -131,6 +131,7 @@ public class ScreeningOrganizationController {
             screeningOrganization.setStatus(null);
             screeningOrganization.setAccountNum(null);
             screeningOrganization.setConfigType(null);
+            screeningOrganization.setScreeningConfig(null);
         }
         ScreeningOrgResponseDTO screeningOrgResponseDTO = screeningOrganizationBizService.updateScreeningOrganization(user, screeningOrganization);
         // 若为平台管理员且修改了用户名，则回显账户名
