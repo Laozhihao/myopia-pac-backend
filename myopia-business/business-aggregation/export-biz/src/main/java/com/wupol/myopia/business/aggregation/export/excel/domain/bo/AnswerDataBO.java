@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;

@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.RecFileNameCondition;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

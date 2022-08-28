@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.UserQuestionnaireAnswerBO;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;

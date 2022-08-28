@@ -2,8 +2,8 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;

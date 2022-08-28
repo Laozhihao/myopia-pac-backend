@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 

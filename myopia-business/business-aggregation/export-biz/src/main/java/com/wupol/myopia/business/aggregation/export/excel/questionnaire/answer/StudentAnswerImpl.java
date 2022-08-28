@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.business.aggregation.export.excel.domain.AnswerDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.AnswerDataBO;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;

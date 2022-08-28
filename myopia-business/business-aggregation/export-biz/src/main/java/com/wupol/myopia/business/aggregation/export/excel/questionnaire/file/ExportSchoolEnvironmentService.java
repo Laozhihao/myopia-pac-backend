@@ -2,9 +2,9 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.RecFileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.RecFileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;

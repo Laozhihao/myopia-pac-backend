@@ -1,5 +1,6 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import lombok.Data;

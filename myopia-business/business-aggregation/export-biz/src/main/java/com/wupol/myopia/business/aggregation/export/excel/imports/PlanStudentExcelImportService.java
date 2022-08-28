@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdcardUtil;
@@ -12,6 +13,8 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExportExcelService;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
 import com.wupol.myopia.business.aggregation.export.excel.domain.*;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.ExportScreeningSchoolStudentCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.builder.ImportScreeningSchoolStudentBuilder;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -128,7 +131,7 @@ public class PlanStudentExcelImportService {
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
 
         uploadScreeningStudentVO = tuple.getFirst();
-        if (CollectionUtil.isNotEmpty(tuple.getSecond())){
+        if (CollUtil.isNotEmpty(tuple.getSecond())){
             ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
                     .setScreeningPlanId(screeningPlan.getId())
                     .setSchoolId(schoolId)
