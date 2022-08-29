@@ -49,100 +49,27 @@ public class ArchiveDataFieldBuilder {
 
     private List<QesArchiveField> getKindergarten(){
         List<QesArchiveField> qesArchiveFieldList = Lists.newArrayList();
-        qesArchiveFieldList.add(new QesArchiveField("ID1",""));
-        qesArchiveFieldList.add(new QesArchiveField("province",""));
-        qesArchiveFieldList.add(new QesArchiveField("city",""));
-        qesArchiveFieldList.add(new QesArchiveField("district",""));
-        qesArchiveFieldList.add(new QesArchiveField("county",""));
-        qesArchiveFieldList.add(new QesArchiveField("point",""));
-        qesArchiveFieldList.add(new QesArchiveField("school",""));
-        qesArchiveFieldList.add(new QesArchiveField("grade",""));
-        qesArchiveFieldList.add(new QesArchiveField("num",""));
-        qesArchiveFieldList.add(new QesArchiveField("ID2",""));
-        qesArchiveFieldList.add(new QesArchiveField("gender",""));
-        qesArchiveFieldList.add(new QesArchiveField("nation",""));
-        qesArchiveFieldList.add(new QesArchiveField("nationother",""));
-        qesArchiveFieldList.add(new QesArchiveField("birth",""));
-        qesArchiveFieldList.add(new QesArchiveField("examine",""));
-        qesArchiveFieldList.add(new QesArchiveField("glasstype",""));
-        qesArchiveFieldList.add(new QesArchiveField("OKR",""));
-        qesArchiveFieldList.add(new QesArchiveField("OKL",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionR",""));
-        qesArchiveFieldList.add(new QesArchiveField("glassR",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionL",""));
-        qesArchiveFieldList.add(new QesArchiveField("glassL",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherR",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinR",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisR",""));
-        qesArchiveFieldList.add(new QesArchiveField("SER",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherL",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinL",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisL",""));
-        qesArchiveFieldList.add(new QesArchiveField("SEL",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherLT",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinLT",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisLT",""));
+        setStudentCommonDiseaseIdInfo(qesArchiveFieldList);
+        setVisionData(qesArchiveFieldList);
+        setComputerOptometry(qesArchiveFieldList);
         qesArchiveFieldList.add(new QesArchiveField("NOTE",""));
-        qesArchiveFieldList.add(new QesArchiveField("name",""));
+        setNameData(qesArchiveFieldList);
         return qesArchiveFieldList;
     }
 
     private List<QesArchiveField> getPrimaryAndSecondary(){
         List<QesArchiveField> qesArchiveFieldList = Lists.newArrayList();
-        qesArchiveFieldList.add(new QesArchiveField("ID1",""));
-        qesArchiveFieldList.add(new QesArchiveField("province",""));
-        qesArchiveFieldList.add(new QesArchiveField("city",""));
-        qesArchiveFieldList.add(new QesArchiveField("district",""));
-        qesArchiveFieldList.add(new QesArchiveField("county",""));
-        qesArchiveFieldList.add(new QesArchiveField("point",""));
-        qesArchiveFieldList.add(new QesArchiveField("school",""));
-        qesArchiveFieldList.add(new QesArchiveField("grade",""));
-        qesArchiveFieldList.add(new QesArchiveField("num",""));
-        qesArchiveFieldList.add(new QesArchiveField("ID2",""));
-        qesArchiveFieldList.add(new QesArchiveField("gender",""));
-        qesArchiveFieldList.add(new QesArchiveField("nation",""));
-        qesArchiveFieldList.add(new QesArchiveField("nationother",""));
-        qesArchiveFieldList.add(new QesArchiveField("birth",""));
-        qesArchiveFieldList.add(new QesArchiveField("examine",""));
-        qesArchiveFieldList.add(new QesArchiveField("q31",""));
-        qesArchiveFieldList.add(new QesArchiveField("q32",""));
-        qesArchiveFieldList.add(new QesArchiveField("q33",""));
-        qesArchiveFieldList.add(new QesArchiveField("q34",""));
-        qesArchiveFieldList.add(new QesArchiveField("q35",""));
-        qesArchiveFieldList.add(new QesArchiveField("q36",""));
-        qesArchiveFieldList.add(new QesArchiveField("q37",""));
-        qesArchiveFieldList.add(new QesArchiveField("q38",""));
-        qesArchiveFieldList.add(new QesArchiveField("glasstype",""));
-        qesArchiveFieldList.add(new QesArchiveField("OKR",""));
-        qesArchiveFieldList.add(new QesArchiveField("OKL",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionR",""));
-        qesArchiveFieldList.add(new QesArchiveField("glassR",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionL",""));
-        qesArchiveFieldList.add(new QesArchiveField("glassL",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherR",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinR",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisR",""));
-        qesArchiveFieldList.add(new QesArchiveField("SER",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisRT",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherL",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinL",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisL",""));
-        qesArchiveFieldList.add(new QesArchiveField("SEL",""));
-        qesArchiveFieldList.add(new QesArchiveField("spherLT",""));
-        qesArchiveFieldList.add(new QesArchiveField("cylinLT",""));
-        qesArchiveFieldList.add(new QesArchiveField("axisLT",""));
+        setStudentCommonDiseaseIdInfo(qesArchiveFieldList);
+        setDiseasesHistoryData(qesArchiveFieldList);
+        setVisionData(qesArchiveFieldList);
+        setComputerOptometry(qesArchiveFieldList);
+
         qesArchiveFieldList.add(new QesArchiveField("NOTE",""));
         qesArchiveFieldList.add(new QesArchiveField("q51",""));
         qesArchiveFieldList.add(new QesArchiveField("q52",""));
         qesArchiveFieldList.add(new QesArchiveField("q53",""));
-        qesArchiveFieldList.add(new QesArchiveField("q54",""));
-        qesArchiveFieldList.add(new QesArchiveField("q55",""));
-        qesArchiveFieldList.add(new QesArchiveField("q56",""));
+        setSaprodontiaData(qesArchiveFieldList);
+
         qesArchiveFieldList.add(new QesArchiveField("q6",""));
         qesArchiveFieldList.add(new QesArchiveField("q7",""));
         qesArchiveFieldList.add(new QesArchiveField("qx2",""));
@@ -153,19 +80,30 @@ public class ArchiveDataFieldBuilder {
         qesArchiveFieldList.add(new QesArchiveField("qx41",""));
         qesArchiveFieldList.add(new QesArchiveField("qx1",""));
         qesArchiveFieldList.add(new QesArchiveField("qx11",""));
-        qesArchiveFieldList.add(new QesArchiveField("q81",""));
-        qesArchiveFieldList.add(new QesArchiveField("q82",""));
-        qesArchiveFieldList.add(new QesArchiveField("q91",""));
-        qesArchiveFieldList.add(new QesArchiveField("q911",""));
-        qesArchiveFieldList.add(new QesArchiveField("q92",""));
-        qesArchiveFieldList.add(new QesArchiveField("q921",""));
-        qesArchiveFieldList.add(new QesArchiveField("name",""));
-        qesArchiveFieldList.add(new QesArchiveField("date",""));
+        setBloodPressureDataAndPrivacyData(qesArchiveFieldList);
+
+        setNameData(qesArchiveFieldList);
+        setDateData(qesArchiveFieldList);
         return qesArchiveFieldList;
     }
 
     private List<QesArchiveField> getUniversity(){
         List<QesArchiveField> qesArchiveFieldList = Lists.newArrayList();
+        setStudentCommonDiseaseIdInfo(qesArchiveFieldList);
+        setDiseasesHistoryData(qesArchiveFieldList);
+        qesArchiveFieldList.add(new QesArchiveField("visionR",""));
+        qesArchiveFieldList.add(new QesArchiveField("visionL",""));
+        setSaprodontiaData(qesArchiveFieldList);
+        qesArchiveFieldList.add(new QesArchiveField("q6",""));
+        qesArchiveFieldList.add(new QesArchiveField("q7",""));
+        setBloodPressureDataAndPrivacyData(qesArchiveFieldList);
+        setNameData(qesArchiveFieldList);
+        setDateData(qesArchiveFieldList);
+        return qesArchiveFieldList;
+    }
+
+
+    private void setStudentCommonDiseaseIdInfo(List<QesArchiveField> qesArchiveFieldList){
         qesArchiveFieldList.add(new QesArchiveField("ID1",""));
         qesArchiveFieldList.add(new QesArchiveField("province",""));
         qesArchiveFieldList.add(new QesArchiveField("city",""));
@@ -181,6 +119,37 @@ public class ArchiveDataFieldBuilder {
         qesArchiveFieldList.add(new QesArchiveField("nationother",""));
         qesArchiveFieldList.add(new QesArchiveField("birth",""));
         qesArchiveFieldList.add(new QesArchiveField("examine",""));
+    }
+
+
+    private void setVisionData(List<QesArchiveField> qesArchiveFieldList){
+        qesArchiveFieldList.add(new QesArchiveField("glasstype",""));
+        qesArchiveFieldList.add(new QesArchiveField("OKR",""));
+        qesArchiveFieldList.add(new QesArchiveField("OKL",""));
+        qesArchiveFieldList.add(new QesArchiveField("visionR",""));
+        qesArchiveFieldList.add(new QesArchiveField("glassR",""));
+        qesArchiveFieldList.add(new QesArchiveField("visionL",""));
+        qesArchiveFieldList.add(new QesArchiveField("glassL",""));
+    }
+
+    private void setComputerOptometry(List<QesArchiveField> qesArchiveFieldList){
+        qesArchiveFieldList.add(new QesArchiveField("spherR",""));
+        qesArchiveFieldList.add(new QesArchiveField("cylinR",""));
+        qesArchiveFieldList.add(new QesArchiveField("axisR",""));
+        qesArchiveFieldList.add(new QesArchiveField("SER",""));
+        qesArchiveFieldList.add(new QesArchiveField("spherRT",""));
+        qesArchiveFieldList.add(new QesArchiveField("cylinRT",""));
+        qesArchiveFieldList.add(new QesArchiveField("axisRT",""));
+        qesArchiveFieldList.add(new QesArchiveField("spherL",""));
+        qesArchiveFieldList.add(new QesArchiveField("cylinL",""));
+        qesArchiveFieldList.add(new QesArchiveField("axisL",""));
+        qesArchiveFieldList.add(new QesArchiveField("SEL",""));
+        qesArchiveFieldList.add(new QesArchiveField("spherLT",""));
+        qesArchiveFieldList.add(new QesArchiveField("cylinLT",""));
+        qesArchiveFieldList.add(new QesArchiveField("axisLT",""));
+    }
+
+    private void setDiseasesHistoryData(List<QesArchiveField> qesArchiveFieldList){
         qesArchiveFieldList.add(new QesArchiveField("q31",""));
         qesArchiveFieldList.add(new QesArchiveField("q32",""));
         qesArchiveFieldList.add(new QesArchiveField("q33",""));
@@ -189,22 +158,29 @@ public class ArchiveDataFieldBuilder {
         qesArchiveFieldList.add(new QesArchiveField("q36",""));
         qesArchiveFieldList.add(new QesArchiveField("q37",""));
         qesArchiveFieldList.add(new QesArchiveField("q38",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionR",""));
-        qesArchiveFieldList.add(new QesArchiveField("visionL",""));
+    }
+
+    private void setNameData(List<QesArchiveField> qesArchiveFieldList){
+        qesArchiveFieldList.add(new QesArchiveField("name",""));
+    }
+
+    private void setDateData(List<QesArchiveField> qesArchiveFieldList){
+        qesArchiveFieldList.add(new QesArchiveField("date",""));
+    }
+
+    private void setSaprodontiaData(List<QesArchiveField> qesArchiveFieldList){
         qesArchiveFieldList.add(new QesArchiveField("q54",""));
         qesArchiveFieldList.add(new QesArchiveField("q55",""));
         qesArchiveFieldList.add(new QesArchiveField("q56",""));
-        qesArchiveFieldList.add(new QesArchiveField("q6",""));
-        qesArchiveFieldList.add(new QesArchiveField("q7",""));
+    }
+
+    private void setBloodPressureDataAndPrivacyData(List<QesArchiveField> qesArchiveFieldList){
         qesArchiveFieldList.add(new QesArchiveField("q81",""));
         qesArchiveFieldList.add(new QesArchiveField("q82",""));
         qesArchiveFieldList.add(new QesArchiveField("q91",""));
         qesArchiveFieldList.add(new QesArchiveField("q911",""));
         qesArchiveFieldList.add(new QesArchiveField("q92",""));
         qesArchiveFieldList.add(new QesArchiveField("q921",""));
-        qesArchiveFieldList.add(new QesArchiveField("name",""));
-        qesArchiveFieldList.add(new QesArchiveField("date",""));
-        return qesArchiveFieldList;
     }
 
 }
