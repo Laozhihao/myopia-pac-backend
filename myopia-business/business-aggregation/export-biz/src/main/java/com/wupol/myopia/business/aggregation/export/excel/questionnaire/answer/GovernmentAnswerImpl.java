@@ -33,7 +33,7 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
     @Autowired
     private SchoolService schoolService;
 
-    private volatile QuestionnaireTypeEnum questionnaireTypeEnum;
+    private QuestionnaireTypeEnum questionnaireTypeEnum;
 
     @Override
     public Integer getUserType() {

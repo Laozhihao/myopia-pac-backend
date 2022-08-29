@@ -49,6 +49,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Autowired
     private ResourceFileService resourceFileService;
 
+    private static String errorExcelMsg = "【导出Excel异常】{}";
+
     /**
      * 导出文件
      *
@@ -100,7 +102,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     }
 
     public String getErrorMsg(){
-        return "【导出Excel异常】{}";
+        return errorExcelMsg;
     }
 
     /**

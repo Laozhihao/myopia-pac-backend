@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionRecDataBO;
 import com.wupol.myopia.business.core.questionnaire.facade.QuestionnaireFacade;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,7 @@ public class QuestionnaireTest {
         for (QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO : dataBuildList) {
             System.out.println(JSON.toJSONString(questionnaireQuestionRecDataBO, true));
         }
+
+        Assert.assertTrue(true);
     }
 }

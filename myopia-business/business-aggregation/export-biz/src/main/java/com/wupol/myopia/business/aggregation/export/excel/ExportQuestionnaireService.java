@@ -49,6 +49,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
     private volatile String fileType;
 
+    private static String errorRecMsg = "【导出REC异常】{}";
+
     /**
      * 预处理
      * @param exportCondition 导出条件
@@ -101,7 +103,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Override
     public String getErrorMsg() {
         if (Objects.equals(fileType,QuestionnaireConstant.REC_FILE)){
-            return "【导出REC异常】{}";
+            return errorRecMsg;
         }
         return super.getErrorMsg();
     }
