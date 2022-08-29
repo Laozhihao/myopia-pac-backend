@@ -61,7 +61,7 @@ public class AnswerUtil {
      * @param range 小数点
      */
     public static String numberFormat(BigDecimal num,Integer range) {
-        return numberFormat(Optional.ofNullable(num).map(BigDecimal::toString).orElse(StrUtil.EMPTY),0);
+        return numberFormat(Optional.ofNullable(num).map(BigDecimal::toString).orElse(StrUtil.EMPTY),range);
     }
 
     /**
@@ -115,6 +115,9 @@ public class AnswerUtil {
      * @param end             结束下标
      */
     public static String getValue(String commonDiseaseId, Integer start, Integer end) {
+        if (StrUtil.isBlank(commonDiseaseId)){
+            return StrUtil.EMPTY;
+        }
         return AnswerUtil.numberFormat(commonDiseaseId.substring(start, end),null);
     }
 

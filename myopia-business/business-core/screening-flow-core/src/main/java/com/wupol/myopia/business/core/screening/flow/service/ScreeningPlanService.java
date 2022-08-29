@@ -316,6 +316,18 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 根据通知ID和发布状态查询筛查计划
+     * @param noticeIds 通知ID集合
+     * @param releaseStatus 发布状态
+     */
+    public List<ScreeningPlan> getAllPlanByNoticeIdsAndStatus(List<Integer> noticeIds,Integer releaseStatus) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds);
+        queryWrapper.eq(ScreeningPlan::getReleaseStatus,releaseStatus);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
      * 获取年度
      *
      * @return
