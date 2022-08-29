@@ -192,7 +192,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId, Integer planId) {
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType());
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
                 new UserAnswerProgress()

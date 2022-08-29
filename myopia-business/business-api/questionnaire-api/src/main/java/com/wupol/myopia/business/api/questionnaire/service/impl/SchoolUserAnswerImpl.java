@@ -137,19 +137,18 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
-        Integer screeningPlanId = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType()).getScreeningPlanId();
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId,
-                getUserType(),
-                questionnaireId,
-                screeningPlanId);
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId, Integer planId) {
+        if (Objects.isNull(planId)) {
+            throw new BusinessException("计划Id不能为空");
+        }
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, planId);
 
         if (Objects.isNull(userQuestionRecord)) {
             return new UserAnswerDTO();
         }
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), userQuestionRecord.getId());
 
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), null, null, screeningPlanId);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), null, null, planId);
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());

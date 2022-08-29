@@ -203,7 +203,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId, Integer planId) {
         getQuestionnaireType(questionnaireId, districtCode, schoolId);
         ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId, Objects.nonNull(task) ? task.getId() : null);

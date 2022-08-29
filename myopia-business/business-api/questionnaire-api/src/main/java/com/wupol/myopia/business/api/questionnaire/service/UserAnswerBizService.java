@@ -277,9 +277,9 @@ public class UserAnswerBizService {
     /**
      * 获取用户答案
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user, Long districtCode, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user, Long districtCode, Integer schoolId, Integer planId) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.getUserAnswerList(questionnaireId, user.getExQuestionnaireUserId(), districtCode, schoolId);
+        return iUserAnswerService.getUserAnswerList(questionnaireId, user.getExQuestionnaireUserId(), districtCode, schoolId, planId);
     }
 
 }

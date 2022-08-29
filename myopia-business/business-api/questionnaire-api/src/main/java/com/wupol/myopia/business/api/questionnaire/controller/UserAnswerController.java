@@ -41,9 +41,9 @@ public class UserAnswerController {
      * @return UserAnswerDTO
      */
     @GetMapping("list")
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Long districtCode, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Long districtCode, Integer schoolId, Integer planId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtCode, schoolId);
+        return userAnswerBizService.getUserAnswerList(questionnaireId, user, districtCode, schoolId, planId);
     }
 
     /**
