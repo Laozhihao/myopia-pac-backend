@@ -17,6 +17,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -639,6 +640,16 @@ public class QuestionnaireManagementService {
         questionnaireTypeVO.setQuestionnaireTypeList(questionnaireTypeList);
 
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
+
+        //筛查过滤作废的
+        Set<Integer> noticeIds = userQuestionRecordList.stream().map(UserQuestionRecord::getNoticeId).collect(Collectors.toSet());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeIdsAndStatus(Lists.newArrayList(noticeIds), CommonConst.STATUS_RELEASE);
+        if (CollUtil.isNotEmpty(screeningPlanList)){
+            Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
+            userQuestionRecordList = userQuestionRecordList.stream()
+                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()))
+                    .collect(Collectors.toList());
+        }
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
