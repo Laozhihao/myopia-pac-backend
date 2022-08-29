@@ -201,6 +201,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             if (StringUtils.equals(question.getType(), QuestionnaireConstant.TEACHER_TABLE)) {
                 setSchoolTeacher(childQuestionResponse, it, questionMap);
             }
+            if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE_2)) {
+                setSchoolClassroom(childQuestionResponse, it, questionMap);
+            }
         }
 
         return childQuestionResponse;
