@@ -160,6 +160,20 @@ public class ScreeningOrganizationController {
         return screeningOrganizationService.getScreeningOrgDetails(id);
     }
 
+    /**
+     * 获取当前用户的筛查机构
+     *
+     * @return 筛查机构实体
+     */
+    @GetMapping("")
+    public ScreeningOrgResponseDTO getScreeningOrganization() {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (Objects.isNull(user.getScreeningOrgId())) {
+            throw new BusinessException("该用户无筛查机构");
+        }
+        return screeningOrganizationService.getScreeningOrgDetails(user.getScreeningOrgId());
+    }
+
 
     /**
      * 删除筛查机构

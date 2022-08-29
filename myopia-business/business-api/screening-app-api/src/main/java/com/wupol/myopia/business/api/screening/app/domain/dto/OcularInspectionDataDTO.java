@@ -4,6 +4,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspection
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,6 +27,16 @@ public class OcularInspectionDataDTO implements Serializable {
      * 垂直位斜视
      */
     private Integer verticalStrabismus;
+
+    /**
+     * 测量方法：1-交替遮盖法、2-遮盖去遮盖法
+     */
+    private Integer measureMethod;
+
+    /**
+     * 眼部疾病
+     */
+    private List<String> eyeDiseases;
     /**
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
@@ -39,6 +50,8 @@ public class OcularInspectionDataDTO implements Serializable {
         ocularInspectionDataDTO.setEsotropia(ocularInspectionDataDO.getEsotropia());
         ocularInspectionDataDTO.setExotropia(ocularInspectionDataDO.getExotropia());
         ocularInspectionDataDTO.setVerticalStrabismus(ocularInspectionDataDO.getVerticalStrabismus());
+        ocularInspectionDataDTO.setMeasureMethod(ocularInspectionDataDO.getMeasureMethod());
+        ocularInspectionDataDTO.setEyeDiseases(ocularInspectionDataDO.getEyeDiseases());
         ocularInspectionDataDTO.setDiagnosis(ocularInspectionDataDO.getDiagnosis());
         return ocularInspectionDataDTO;
     }

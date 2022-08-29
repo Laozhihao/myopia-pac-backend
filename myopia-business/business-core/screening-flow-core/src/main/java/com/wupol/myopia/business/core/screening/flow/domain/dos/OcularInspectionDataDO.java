@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 33cm眼位数据
@@ -30,6 +31,17 @@ public class OcularInspectionDataDO  extends AbstractDiagnosisResult implements 
      * 垂直位斜视
      */
     private Integer verticalStrabismus;
+
+    /**
+     * 测量方法：1-交替遮盖法、2-遮盖去遮盖法
+     */
+    private Integer measureMethod;
+
+    /**
+     * 眼部疾病
+     */
+    private List<String> eyeDiseases;
+
     /**
      * 是否配合检查：0-配合、1-不配合
      */
