@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.school.constant;
 
 
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 

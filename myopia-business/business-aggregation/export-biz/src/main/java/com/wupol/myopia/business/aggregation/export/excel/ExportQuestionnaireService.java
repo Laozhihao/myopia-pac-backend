@@ -280,7 +280,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         if (CollUtil.isNotEmpty(screeningPlanList)){
             Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
             userQuestionRecordList = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()))
+                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()) || Objects.isNull(userQuestionRecord.getPlanId()) )
                     .collect(Collectors.toList());
         }
 

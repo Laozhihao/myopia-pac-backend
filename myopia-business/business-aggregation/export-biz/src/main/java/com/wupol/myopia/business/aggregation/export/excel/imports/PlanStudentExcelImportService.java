@@ -168,7 +168,8 @@ public class PlanStudentExcelImportService {
      */
     private String getFileName(MultipartFile multipartFile){
         String originalFilename = multipartFile.getOriginalFilename();
-        return originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
+        originalFilename = originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
+        return originalFilename+"(修)";
     }
 
 
