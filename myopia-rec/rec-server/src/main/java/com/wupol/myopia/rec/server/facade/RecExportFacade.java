@@ -37,6 +37,7 @@ import java.util.UUID;
 public class RecExportFacade {
 
     private final S3Util s3Util;
+    private final EpicInit epicInit;
 
     private static final String QES = ".qes";
     private static final String TXT = ".txt";
@@ -107,7 +108,7 @@ public class RecExportFacade {
      */
     private void parameterCheck(RecExportDTO recExportDTO){
 
-        if (Objects.equals(EpicInit.initStatus,Boolean.FALSE)){
+        if (Objects.equals(epicInit.getInitStatus(),Boolean.FALSE)){
             throw new BusinessException("EpiC not initialized");
         }
         if (CollUtil.isEmpty(recExportDTO.getDataList()) && StrUtil.isBlank(recExportDTO.getTxtUrl())){
