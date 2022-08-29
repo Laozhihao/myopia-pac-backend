@@ -2,7 +2,6 @@ package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.exception.BusinessException;

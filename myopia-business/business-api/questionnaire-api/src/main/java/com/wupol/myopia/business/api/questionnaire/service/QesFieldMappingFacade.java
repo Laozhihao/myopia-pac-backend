@@ -15,7 +15,6 @@ import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -38,21 +37,8 @@ import java.util.stream.Collectors;
 public class QesFieldMappingFacade {
 
     private final ResourceFileService resourceFileService;
-    private final QuestionnaireQesService questionnaireQesService;
     private final QesFieldMappingService qesFieldMappingService;
 
-
-    /**
-     * 根据qes管理ID保存qes字段映射
-     * @param qesId qes管理ID
-     */
-    public void saveQesFieldMapping(Integer qesId) {
-        QuestionnaireQes questionnaireQes = questionnaireQesService.getById(qesId);
-        if (Objects.isNull(questionnaireQes.getQesFileId())){
-            return;
-        }
-        saveQesFieldMapping(questionnaireQes);
-    }
 
     /**
      * 保存qes字段映射

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -16,7 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;

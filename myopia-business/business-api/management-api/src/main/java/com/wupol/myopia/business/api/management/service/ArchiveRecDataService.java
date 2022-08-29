@@ -11,6 +11,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
 import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
@@ -132,8 +133,8 @@ public class ArchiveRecDataService {
         qesFieldDataBOList.add(new QesFieldDataBO("gender",AnswerUtil.getGenderRecData(studentInfo.getGender())));
         qesFieldDataBOList.add(new QesFieldDataBO("nation", tuple.getFirst()));
         qesFieldDataBOList.add(new QesFieldDataBO("nationother", tuple.getSecond()));
-        qesFieldDataBOList.add(new QesFieldDataBO("birth", DateUtil.format(studentInfo.getBirthday(),"yyyy/MM/dd")));
-        qesFieldDataBOList.add(new QesFieldDataBO("examine",DateUtil.format(studentInfo.getScreeningDate(),"yyyy/MM/dd")));
+        qesFieldDataBOList.add(new QesFieldDataBO("birth", DateUtil.format(studentInfo.getBirthday(), QuestionnaireConstant.DATE_FORMAT)));
+        qesFieldDataBOList.add(new QesFieldDataBO("examine",DateUtil.format(studentInfo.getScreeningDate(),QuestionnaireConstant.DATE_FORMAT)));
         return qesFieldDataBOList;
     }
 
@@ -225,7 +226,7 @@ public class ArchiveRecDataService {
         }else {
             qesFieldDataBOList.add(new QesFieldDataBO("name",AnswerUtil.textFormat(studentInfo.getName())));
         }
-        qesFieldDataBOList.add(new QesFieldDataBO("date",DateUtil.format(Optional.ofNullable(studentInfo.getScreeningDate()).orElse(new Date()),"yyyy/MM/dd")));
+        qesFieldDataBOList.add(new QesFieldDataBO("date",DateUtil.format(Optional.ofNullable(studentInfo.getScreeningDate()).orElse(new Date()),QuestionnaireConstant.DATE_FORMAT)));
         return qesFieldDataBOList;
     }
 

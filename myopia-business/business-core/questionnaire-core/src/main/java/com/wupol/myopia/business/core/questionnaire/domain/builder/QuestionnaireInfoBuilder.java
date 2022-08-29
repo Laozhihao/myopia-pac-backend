@@ -2,18 +2,15 @@ package com.wupol.myopia.business.core.questionnaire.domain.builder;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionAttribute;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionExtBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
 import lombok.experimental.UtilityClass;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
