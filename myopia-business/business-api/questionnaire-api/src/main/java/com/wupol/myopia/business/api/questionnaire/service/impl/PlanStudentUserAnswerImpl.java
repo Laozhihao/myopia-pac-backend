@@ -244,7 +244,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
         List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         // 获取答案
-        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, recordId, questionIds);
+        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, questionIds, recordId);
         if (CollectionUtils.isEmpty(userAnswers)) {
             return;
         }
@@ -271,7 +271,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 问题是否已经存在
-        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, userQuestionRecord.getId(), questionIds))) {
+        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, questionIds, userQuestionRecord.getId()))) {
             return;
         }
 
