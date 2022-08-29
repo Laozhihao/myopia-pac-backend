@@ -89,7 +89,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
                 userQuestionRecord.setStatus(UserQuestionRecordEnum.FINISH.getType());
                 userQuestionRecordService.updateById(userQuestionRecord);
                 // 清空用户答案进度表
-                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId);
+                UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId, null);
                 if (Objects.nonNull(userAnswerProgress)) {
                     userAnswerProgress.setCurrentStep(null);
                     userAnswerProgress.setCurrentSideBar(null);
@@ -206,8 +206,8 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
         getQuestionnaireType(questionnaireId, districtCode, schoolId);
         ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
-        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId,Objects.nonNull(task) ? task.getId() : null);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId, Objects.nonNull(task) ? task.getId() : null);
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId, null);
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
             userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());

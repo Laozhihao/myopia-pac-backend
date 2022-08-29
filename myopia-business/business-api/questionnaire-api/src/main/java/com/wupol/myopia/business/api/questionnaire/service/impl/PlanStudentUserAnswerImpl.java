@@ -59,6 +59,9 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Resource
     private CommonUserAnswerImpl commonUserAnswer;
 
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
+
     @Override
     public Integer getUserType() {
         return QuestionnaireUserType.STUDENT.getType();
@@ -190,7 +193,17 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
-        return commonUserAnswer.getUserAnswerList(questionnaireId, userId, getUserType());
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(userId)
+                        .setUserType(getUserType()));
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {

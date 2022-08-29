@@ -9,8 +9,10 @@ import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordE
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaireResponseDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService;
+import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
 import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -48,6 +50,9 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
 
     @Override
     public Integer getUserType() {
@@ -133,6 +138,19 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
-        return commonUserAnswer.getUserAnswerList(questionnaireId, userId, getUserType());
+        Integer screeningPlanId = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType()).getScreeningPlanId();
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId,
+                getUserType(),
+                questionnaireId,
+                screeningPlanId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), userQuestionRecord.getId());
+
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), null, null, screeningPlanId);
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
     }
 }

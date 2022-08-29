@@ -76,6 +76,9 @@ public class CommonUserAnswerImpl {
                 userAnswerProgress.setCurrentStep(null);
                 userAnswerProgress.setCurrentSideBar(null);
                 userAnswerProgress.setStepJson(null);
+                userAnswerProgress.setDistrictCode(null);
+                userAnswerProgress.setSchoolId(null);
+                userAnswerProgress.setPlanId(null);
                 userAnswerProgress.setUpdateTime(new Date());
                 userAnswerProgressService.updateById(userAnswerProgress);
             }
@@ -115,7 +118,7 @@ public class CommonUserAnswerImpl {
         if (Objects.equals(isFinish, Boolean.TRUE)) {
             return;
         }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, requestDTO.getDistrictCode(), requestDTO.getSchoolId());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, requestDTO.getDistrictCode(), requestDTO.getSchoolId(), requestDTO.getPlanId());
 
         if (Objects.isNull(userAnswerProgress)) {
             userAnswerProgress = new UserAnswerProgress();
@@ -125,6 +128,9 @@ public class CommonUserAnswerImpl {
         userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
         userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
         userAnswerProgress.setStepJson(requestDTO.getStepJson());
+        userAnswerProgress.setDistrictCode(requestDTO.getDistrictCode());
+        userAnswerProgress.setSchoolId(requestDTO.getSchoolId());
+        userAnswerProgress.setPlanId(requestDTO.getPlanId());
         userAnswerProgressService.saveOrUpdate(userAnswerProgress);
     }
 
@@ -176,22 +182,5 @@ public class CommonUserAnswerImpl {
             return false;
         }
         return Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType());
-    }
-
-    /**
-     * 获取用户答案
-     */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
-        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, userType);
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                new UserAnswerProgress()
-                        .setUserId(userId)
-                        .setUserType(userType));
-        if (Objects.nonNull(userAnswerProgress)) {
-            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
-            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
-            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
-        }
-        return userAnswerList;
     }
 }

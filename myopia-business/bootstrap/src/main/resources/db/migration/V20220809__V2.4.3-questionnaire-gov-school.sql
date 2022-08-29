@@ -35,3 +35,6 @@ alter table q_user_answer_progress
 
 alter table q_user_answer_progress
     add district_code bigint null comment '区域code' after school_id;
+
+alter table q_user_answer_progress
+    add plan_id int null comment '计划Id' after district_code;

@@ -158,7 +158,10 @@ public class UserAnswerBizService {
         if (Objects.isNull(school)) {
             throw new BusinessException("数据异常!");
         }
-        return generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+        SchoolListResponseDTO responseDTO = generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOneBySchoolId(school.getId());
+        responseDTO.setPlanId(planSchool.getScreeningPlanId());
+        return responseDTO;
     }
 
     /**

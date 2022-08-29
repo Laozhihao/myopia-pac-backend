@@ -34,6 +34,7 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         wrapper.eq(UserQuestionRecord::getUserId, userId);
         wrapper.eq(UserQuestionRecord::getUserType, userType);
         wrapper.in(UserQuestionRecord::getQuestionnaireId, questionnaireIds);
+        wrapper.orderByDesc(UserQuestionRecord::getCreateTime);
         return baseMapper.selectList(wrapper);
     }
 
