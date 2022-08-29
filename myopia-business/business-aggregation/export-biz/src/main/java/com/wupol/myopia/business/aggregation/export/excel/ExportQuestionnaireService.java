@@ -116,8 +116,8 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      * @param districtId 地区ID
      * @param fileName 文件路径
      */
-    private String getFileName(Integer questionnaireType,Integer exportType,Integer districtId,String fileName){
-        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(districtId)){
+    private String getFileName(Integer questionnaireType,Integer exportType,Integer districtId,String fileName,String fileType){
+        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(districtId) && Objects.equals(fileType,QuestionnaireConstant.EXCEL_FILE)){
             ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
             String districtKey = exportTypeService.getDistrictKey(districtId);
             return getFileSavePath(fileName,districtKey);
@@ -156,12 +156,12 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         }
         for (Integer questionnaireType : questionnaireTypeList) {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
-                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
+                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName,fileType);
                 for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
                     generateFile(filePath, exportCondition, type,fileType);
                 }
             }else {
-                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType,fileType);
+                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName,fileType), exportCondition, questionnaireType,fileType);
             }
         }
     }
