@@ -57,14 +57,14 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Long districtCode, Integer schoolId) {
 
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType());
         // 如果存在记录，且完成问卷，则更新状态
-        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());
+        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType(), screeningPlanSchool.getScreeningPlanId());
         if (Objects.nonNull(recordId)) {
             return recordId;
         }
 
         // 不存在新增记录
-        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType());
         Integer screeningPlanId = screeningPlanSchool.getScreeningPlanId();
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
 
@@ -127,7 +127,8 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
      */
     @Override
     public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Long districtCode, Integer schoolId) {
-        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId);
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(userId, ScreeningTypeEnum.COMMON_DISEASE.getType());
+        return commonUserAnswer.questionnaireIsFinish(userId, getUserType(), questionnaireId, screeningPlanSchool.getScreeningPlanId());
     }
 
     @Override

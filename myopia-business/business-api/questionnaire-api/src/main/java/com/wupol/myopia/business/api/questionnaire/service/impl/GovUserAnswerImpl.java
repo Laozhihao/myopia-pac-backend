@@ -77,7 +77,8 @@ public class GovUserAnswerImpl implements IUserAnswerService {
 
         Integer questionnaireType = getQuestionnaireType(questionnaireId, districtCode, schoolId);
 
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode);
+        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode, Objects.nonNull(task) ? task.getId() : null);
 
         if (Objects.nonNull(userQuestionRecord)) {
             if (Objects.equals(userQuestionRecord.getStatus(), UserQuestionRecordEnum.FINISH.getType())) {
@@ -102,7 +103,6 @@ public class GovUserAnswerImpl implements IUserAnswerService {
         userQuestionRecord = new UserQuestionRecord();
 
         // 不存在新增记录
-        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
         if (Objects.nonNull(task)) {
             userQuestionRecord.setTaskId(task.getId());
             userQuestionRecord.setNoticeId(task.getScreeningNoticeId());
@@ -187,7 +187,8 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public Boolean questionnaireIsFinish(Integer userId, Integer questionnaireId, Long districtCode, Integer schoolId) {
         getQuestionnaireType(questionnaireId, districtCode, schoolId);
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode);
+        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, getUserType(), questionnaireId, schoolId, districtCode, Objects.nonNull(task) ? task.getId() : null);
         if (Objects.isNull(userQuestionRecord)) {
             return false;
         }
@@ -204,7 +205,8 @@ public class GovUserAnswerImpl implements IUserAnswerService {
     @Override
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId) {
         getQuestionnaireType(questionnaireId, districtCode, schoolId);
-        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId);
+        ScreeningTask task = screeningTaskService.getOneByOrgId(userId);
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), districtCode, schoolId,Objects.nonNull(task) ? task.getId() : null);
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId);
         if (Objects.nonNull(userAnswerProgress)) {
             userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());

@@ -48,8 +48,8 @@ public class CommonUserAnswerImpl {
      *
      * @return 记录表Id
      */
-    public Integer finishQuestionnaire(Integer questionnaireId, Boolean isFinish, List<Integer> questionnaireIds, Integer userId, Integer userType) {
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId);
+    public Integer finishQuestionnaire(Integer questionnaireId, Boolean isFinish, List<Integer> questionnaireIds, Integer userId, Integer userType, Integer planId) {
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, planId);
 
         if (Objects.isNull(userQuestionRecord)) {
             return null;
@@ -170,8 +170,8 @@ public class CommonUserAnswerImpl {
      *
      * @return 是否完成
      */
-    public Boolean questionnaireIsFinish(Integer userId, Integer userType, Integer questionnaireId) {
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId);
+    public Boolean questionnaireIsFinish(Integer userId, Integer userType, Integer questionnaireId, Integer planId) {
+        UserQuestionRecord userQuestionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, planId);
         if (Objects.isNull(userQuestionRecord)) {
             return false;
         }

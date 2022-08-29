@@ -125,11 +125,12 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return UserQuestionRecord
      */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId) {
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer planId) {
         return findOne(new UserQuestionRecord()
                 .setUserId(userId)
                 .setUserType(userType)
-                .setQuestionnaireId(questionnaireId));
+                .setQuestionnaireId(questionnaireId)
+                .setPlanId(planId));
     }
 
     /**
@@ -137,13 +138,14 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return UserQuestionRecord
      */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Long districtCode) {
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Long districtCode, Integer taskId) {
         return getOne(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getUserId, userId)
                 .eq(UserQuestionRecord::getUserType, userType)
                 .eq(UserQuestionRecord::getQuestionnaireId, questionnaireId)
                 .eq(Objects.nonNull(schoolId), UserQuestionRecord::getSchoolId, schoolId)
-                .eq(Objects.nonNull(districtCode), UserQuestionRecord::getDistrictCode, districtCode));
+                .eq(Objects.nonNull(districtCode), UserQuestionRecord::getDistrictCode, districtCode)
+                .eq(Objects.nonNull(taskId), UserQuestionRecord::getTaskId, taskId));
     }
 
 }

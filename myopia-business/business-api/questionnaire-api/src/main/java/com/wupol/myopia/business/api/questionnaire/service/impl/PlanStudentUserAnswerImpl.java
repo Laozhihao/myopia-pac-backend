@@ -67,13 +67,16 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     @Override
     public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Long districtCode, Integer schoolId) {
 
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("学生数据异常！");
+        }
         // 如果存在记录，且完成问卷，则更新状态
-        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType());
+        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType(), planStudent.getScreeningPlanId());
         if (Objects.nonNull(recordId)) {
             return recordId;
         }
 
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         // 不存在新增记录
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
         UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
