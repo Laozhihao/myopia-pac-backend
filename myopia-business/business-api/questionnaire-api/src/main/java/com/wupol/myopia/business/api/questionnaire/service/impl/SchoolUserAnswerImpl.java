@@ -157,4 +157,11 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
         }
         return userAnswerList;
     }
+
+    @Override
+    public void preCheck(UserAnswerDTO userAnswerDTO) {
+        if (Objects.isNull(userAnswerDTO.getPlanId())) {
+            throw new BusinessException("计划Id不能为空");
+        }
+    }
 }

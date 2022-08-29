@@ -68,6 +68,10 @@ public class UserAnswerBizService {
         Integer questionnaireUserType = user.getQuestionnaireUserType();
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
+
+        // 数据校验
+        iUserAnswerService.preCheck(requestDTO);
+
         // 更新记录表
         Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds(), requestDTO.getDistrictCode(), requestDTO.getSchoolId());
 
