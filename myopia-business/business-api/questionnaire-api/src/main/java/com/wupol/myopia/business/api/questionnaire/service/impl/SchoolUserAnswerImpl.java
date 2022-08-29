@@ -143,6 +143,10 @@ public class SchoolUserAnswerImpl implements IUserAnswerService {
                 getUserType(),
                 questionnaireId,
                 screeningPlanId);
+
+        if (Objects.isNull(userQuestionRecord)) {
+            return new UserAnswerDTO();
+        }
         UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType(), userQuestionRecord.getId());
 
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), null, null, screeningPlanId);
