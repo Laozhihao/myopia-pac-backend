@@ -45,13 +45,14 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return
      */
-    public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType) {
+    public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType,Integer status) {
         if (CollectionUtils.isEmpty(planIds)) {
             return Lists.newArrayList();
         }
         return baseMapper.selectList(new LambdaQueryWrapper<UserQuestionRecord>()
                 .in(UserQuestionRecord::getPlanId, planIds)
                 .eq(UserQuestionRecord::getUserType, userType)
+                .eq(UserQuestionRecord::getStatus,status)
         );
     }
 
