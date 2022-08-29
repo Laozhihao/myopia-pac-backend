@@ -120,14 +120,21 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      * 根据地区导出数据时，获取地区的各个学校问卷数据文件夹名称
      *
      * @param questionnaireType 问卷类型
-     * @param exportType 导出类型
-     * @param districtId 地区ID
+     * @param exportCondition 导出条件
      * @param fileName 文件路径
      */
-    private String getFileName(Integer questionnaireType,Integer exportType,Integer districtId,String fileName,String fileType){
-        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(districtId) && Objects.equals(fileType,QuestionnaireConstant.EXCEL_FILE)){
-            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
-            String districtKey = exportTypeService.getDistrictKey(districtId);
+    private String getFileName(Integer questionnaireType,ExportCondition exportCondition,String fileName,String fileType){
+        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.equals(fileType,QuestionnaireConstant.EXCEL_FILE)){
+            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+            String districtKey = exportTypeService.getFolder(exportCondition.getDistrictId());
+            return getFileSavePath(fileName,districtKey);
+        }
+
+        if (Objects.equals(ExportTypeConst.SCREENING_RECORD_REC,exportCondition.getExportType())
+                && Objects.isNull(exportCondition.getSchoolId())
+                && Objects.nonNull(exportCondition.getScreeningOrgId())){
+            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+            String districtKey = exportTypeService.getFolder(exportCondition.getScreeningOrgId());
             return getFileSavePath(fileName,districtKey);
         }
         return fileName;
@@ -164,12 +171,12 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         }
         for (Integer questionnaireType : questionnaireTypeList) {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
-                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName,fileType);
+                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition, fileName,fileType);
                 for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
                     generateFile(filePath, exportCondition, type,fileType);
                 }
             }else {
-                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName,fileType), exportCondition, questionnaireType,fileType);
+                generateFile(getFileName(questionnaireType, exportCondition, fileName,fileType), exportCondition, questionnaireType,fileType);
             }
         }
     }

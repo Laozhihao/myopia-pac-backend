@@ -24,6 +24,7 @@ public class ScreeningRecordRecExportType implements ExportType {
 
     private static final String ALL_KEY = "%s筛查计划下的rec文件";
     private static final String SCHOOL_KEY = "%s的rec文件";
+    private static final String ORG_SCHOOL = "%s筛查各学校rec文件";
     private static final String FILE_EXPORT_REC_ALL = "file:export:rec:screeningRecordRecAll:%s-%s";
     private static final String FILE_EXPORT_REC_SCHOOL = "file:export:rec:screeningRecordSchoolRec:%s-%s-%s";
 
@@ -50,6 +51,11 @@ public class ScreeningRecordRecExportType implements ExportType {
         }else {
             return String.format(FILE_EXPORT_REC_SCHOOL,exportCondition.getApplyExportFileUserId(),exportCondition.getPlanId(),schoolId);
         }
+    }
+
+    @Override
+    public String getFolder(Integer id) {
+        return exportTypeFacade.getOrgKey(id,ORG_SCHOOL);
     }
 
     @Override
