@@ -27,6 +27,9 @@ public class ScreeningFacade {
     private final ScreeningPlanService screeningPlanService;
 
     public List<UserQuestionRecord> filterByPlanId(List<UserQuestionRecord> userQuestionRecordList){
+        if (CollUtil.isEmpty(userQuestionRecordList)){
+            return userQuestionRecordList;
+        }
         //筛查过滤作废的
         Set<Integer> noticeIds = userQuestionRecordList.stream().map(UserQuestionRecord::getNoticeId).collect(Collectors.toSet());
         List<ScreeningPlan> screeningPlanList = screeningPlanService.getPlanByNoticeIdsAndStatusBatch(Lists.newArrayList(noticeIds), CommonConst.STATUS_RELEASE);

@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.RecFileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 
 import java.util.List;
 
@@ -50,4 +48,11 @@ public interface Answer {
      * @return  问卷名称
      */
     String getRecFileName(RecFileNameCondition recFileNameCondition);
+
+
+    /**
+     * 根据条件过滤数据
+     * @param filterDataCondition 过滤数据条件
+     */
+    List<UserQuestionRecord> filterData(FilterDataCondition filterDataCondition);
 }

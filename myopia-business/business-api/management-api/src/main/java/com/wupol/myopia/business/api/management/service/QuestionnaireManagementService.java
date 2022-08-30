@@ -12,13 +12,14 @@ import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -627,7 +628,8 @@ public class QuestionnaireManagementService {
      * @param exportType 导出类型
      * @param taskId 筛查任务ID
      */
-    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId) {
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,
+                                                 Integer screeningNoticeId,Integer schoolId,Integer districtId) {
 
         QuestionnaireTypeVO questionnaireTypeVO = new QuestionnaireTypeVO();
 
@@ -644,7 +646,13 @@ public class QuestionnaireManagementService {
 
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
 
-        userQuestionRecordList = screeningFacade.filterByPlanId(userQuestionRecordList);
+        if (Objects.nonNull(schoolId)){
+            userQuestionRecordList = userQuestionRecordList.stream().filter(userQuestionRecord -> Objects.equals(schoolId,userQuestionRecord.getSchoolId())).collect(Collectors.toList());
+        }
+
+        List<UserQuestionRecord> dataList = getUserQuestionRecordList(districtId, userQuestionRecordList);
+
+        userQuestionRecordList = screeningFacade.filterByPlanId(dataList);
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());
@@ -665,6 +673,27 @@ public class QuestionnaireManagementService {
         }
 
         return questionnaireTypeVO;
+    }
+
+    private List<UserQuestionRecord> getUserQuestionRecordList(Integer districtId, List<UserQuestionRecord> userQuestionRecordList) {
+        if (CollUtil.isEmpty(userQuestionRecordList)){
+            return userQuestionRecordList;
+        }
+
+        if (Objects.nonNull(districtId)){
+            List<UserQuestionRecord> dataList =Lists.newArrayList();
+            Map<Integer, List<UserQuestionRecord>> userTypeMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getUserType));
+            for (Map.Entry<Integer, List<UserQuestionRecord>> entry : userTypeMap.entrySet()) {
+                FilterDataCondition filterDataCondition = new FilterDataCondition()
+                        .setUserQuestionRecordList(entry.getValue())
+                        .setDistrictId(districtId);
+                Answer answerService = questionnaireFactory.getAnswerService(entry.getKey());
+                List<UserQuestionRecord> userQuestionRecords = answerService.filterData(filterDataCondition);
+                dataList.addAll(userQuestionRecords);
+            }
+            return dataList;
+        }
+        return userQuestionRecordList;
     }
 
     /**

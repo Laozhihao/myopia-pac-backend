@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.AnswerDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -41,40 +42,15 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
     }
 
     @Override
+    public List<UserQuestionRecord> filterData(FilterDataCondition filterDataCondition) {
+        return getUserQuestionRecordList(filterDataCondition.getUserQuestionRecordList(),filterDataCondition.getDistrictId(),filterDataCondition.getQuestionnaireTypeEnum());
+    }
+
+    @Override
     public List<UserQuestionRecord> getAnswerData(AnswerDataBO answerDataBO) {
         List<UserQuestionRecord> userQuestionRecordList = answerDataBO.getUserQuestionRecordList();
         ExportCondition exportCondition = answerDataBO.getExportCondition();
-        if (CollUtil.isEmpty(userQuestionRecordList)) {
-            return userQuestionRecordList;
-        }
-
-        Stream<UserQuestionRecord> stream = userQuestionRecordList.stream();
-
-        if (Objects.equals(answerDataBO.getQuestionnaireTypeEnum(), QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
-            questionnaireTypeEnum = QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL;
-            List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
-            if (Objects.nonNull(districtIdList)){
-                stream = stream.filter(userQuestionRecord -> {
-                    if (Objects.isNull(userQuestionRecord)){
-                        return false;
-                    }
-                    return districtIdList.contains(Integer.valueOf(userQuestionRecord.getDistrictCode().toString().substring(0,6)));
-                });
-            }
-        } else if (Objects.equals(answerDataBO.getQuestionnaireTypeEnum(), QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
-            questionnaireTypeEnum = QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT;
-            List<Integer> districtIdList = filterDistrict(exportCondition.getDistrictId());
-            Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
-            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
-            Stream<School> schoolStream = schoolList.stream();
-            if (Objects.nonNull(districtIdList)) {
-                schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
-            }
-            List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());
-            stream = stream.filter(userQuestionRecord -> schoolIdList.contains(userQuestionRecord.getSchoolId()));
-        }
-
-        return stream.collect(Collectors.toList());
+        return getUserQuestionRecordList(userQuestionRecordList,exportCondition.getDistrictId(),answerDataBO.getQuestionnaireTypeEnum());
     }
 
 
@@ -86,9 +62,42 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
                 return districtIdList;
             }
             List<District> districtList = districtService.getDistrictByIds(districtIdList);
-            Set<Integer> districtCodes = districtList.stream().map(district -> district.getCode().toString().substring(0, 6)).map(Integer::valueOf).collect(Collectors.toSet());
-            return Lists.newArrayList(districtCodes);
+            return districtList.stream().map(district -> district.getCode().toString().substring(0, 6)).map(Integer::valueOf).distinct().collect(Collectors.toList());
         }
         return districtIdList;
+    }
+
+    private List<UserQuestionRecord> getUserQuestionRecordList(List<UserQuestionRecord> userQuestionRecordList,Integer districtId,QuestionnaireTypeEnum questionnaireType) {
+        if (CollUtil.isEmpty(userQuestionRecordList)) {
+            return userQuestionRecordList;
+        }
+        Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream()
+                .filter(userQuestionRecord -> Objects.equals(userQuestionRecord.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType()));
+
+        if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
+            questionnaireTypeEnum = QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL;
+            List<Integer> districtIdList = filterDistrict(districtId);
+            if (Objects.nonNull(districtIdList)){
+                userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> {
+                    if (Objects.isNull(userQuestionRecord)){
+                        return false;
+                    }
+                    return districtIdList.contains(Integer.valueOf(userQuestionRecord.getDistrictCode().toString().substring(0,6)));
+                });
+            }
+        }else if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
+            questionnaireTypeEnum = QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT;
+            List<Integer> districtIdList = filterDistrict(districtId);
+            Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            Stream<School> schoolStream = schoolList.stream();
+            if (Objects.nonNull(districtIdList)) {
+                schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
+            }
+            List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());
+            userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> schoolIdList.contains(userQuestionRecord.getSchoolId()));
+        }
+
+        return userQuestionRecordStream.collect(Collectors.toList());
     }
 }
