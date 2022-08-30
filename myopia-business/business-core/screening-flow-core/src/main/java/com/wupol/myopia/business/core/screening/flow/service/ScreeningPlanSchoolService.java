@@ -224,8 +224,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @param schoolId    学校Id
      * @return IPage<ScreeningListResponseDTO>
      */
-    public IPage<ScreeningListResponseDTO> getResponseBySchoolId(PageRequest pageRequest, Integer schoolId) {
-        return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
+    public IPage<ScreeningListResponseDTO> getReleasePlanSchoolPageBySchoolId(PageRequest pageRequest, Integer schoolId) {
+        return baseMapper.getReleasePlanSchoolPageBySchoolId(pageRequest.toPage(), schoolId);
     }
 
 
