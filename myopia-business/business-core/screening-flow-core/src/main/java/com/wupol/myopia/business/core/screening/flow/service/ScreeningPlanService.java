@@ -297,7 +297,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @return
      */
     public long getAllPlanStudentNumByNoticeId(Integer noticeId) {
-        List<ScreeningPlan> allPlans = this.getAllPlanByNoticeId(noticeId);
+        List<ScreeningPlan> allPlans = this.getAllReleasePlanByNoticeId(noticeId);
         Integer allPlanStudentNums = allPlans.stream().map(ScreeningPlan::getStudentNumbers).reduce(0, Integer::sum);
         return allPlanStudentNums.longValue();
     }
@@ -308,13 +308,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param noticeId
      * @return
      */
-    public List<ScreeningPlan> getAllPlanByNoticeId(Integer noticeId) {
-        //TODO @jacob是要查询发布状态么？
-        ScreeningPlan screeningPlan = new ScreeningPlan();
-        screeningPlan.setSrcScreeningNoticeId(noticeId).setReleaseStatus(CommonConst.STATUS_RELEASE);
-        LambdaQueryWrapper<ScreeningPlan> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId);
-        return baseMapper.selectList(queryWrapper);
+    public List<ScreeningPlan> getAllReleasePlanByNoticeId(Integer noticeId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId)
+                .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
     }
 
     /**

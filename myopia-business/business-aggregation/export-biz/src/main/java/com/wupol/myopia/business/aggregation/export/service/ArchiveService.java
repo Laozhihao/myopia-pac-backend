@@ -354,7 +354,7 @@ public class ArchiveService {
         }
         Set<Integer> planIds = Sets.newHashSet();
         if (Objects.nonNull(exportCondition.getNotificationId())){
-            List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(exportCondition.getNotificationId());
+            List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(exportCondition.getNotificationId());
             Set<Integer> ids = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
             planIds.addAll(ids);
         }
@@ -373,7 +373,7 @@ public class ArchiveService {
         if (!Objects.equals(exportCondition.getExportType(),ExportTypeConst.DISTRICT_STATISTICS_REC)){
             return;
         }
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(exportCondition.getNotificationId());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(exportCondition.getNotificationId());
         Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         List<Integer> districtIdList = districtService.filterDistrict(exportCondition.getDistrictId());
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndIsDoubleScreenAndDistrictIds(Lists.newArrayList(planIds), Boolean.FALSE,districtIdList,null);

@@ -1,7 +1,8 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -9,7 +10,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.CommonDiseasesAnalysisVariableVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.CommonDiseasesNum;
@@ -113,20 +113,20 @@ public class DistrictCommonDiseaseReportService {
         if (Objects.isNull(screeningNotice)) {
             throw new BusinessException(String.format("不存在筛查通知: noticeId=%s", noticeId));
         }
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeId(noticeId);
-        if (CollectionUtil.isEmpty(screeningPlanList)) {
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
+        if (CollUtil.isEmpty(screeningPlanList)) {
             throw new BusinessException(String.format("该筛查通知不存在筛查计划: noticeId=%s", noticeId));
         }
 
         Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(screeningResults)) {
+        if (CollUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
             return;
         }
 
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(planSchoolStudentList)) {
+        if (CollUtil.isEmpty(planSchoolStudentList)) {
             districtCommonDiseaseReportVO.setGlobalVariableVO(globalVariableVO);
             return;
         }
@@ -145,8 +145,8 @@ public class DistrictCommonDiseaseReportService {
 
         String districtName = districtService.getDistrictNameByDistrictId(districtId);
         Set<String> years = Sets.newHashSet(DateUtil.format(startTime, format),DateUtil.format(endTime, format));
-        List<String> sort = CollectionUtil.sort(years, Comparator.comparing(String::toString));
-        String year = CollectionUtil.join(sort, StrUtil.DASHED);
+        List<String> sort = CollUtil.sort(years, Comparator.comparing(String::toString));
+        String year = CollUtil.join(sort, StrUtil.DASHED);
         List<String> yearPeriod;
         if (years.size() == 1) {
             yearPeriod = Lists.newArrayList(getDateStr(startTime),DateUtil.format(endTime, "MM月dd日"));
@@ -157,7 +157,7 @@ public class DistrictCommonDiseaseReportService {
             globalVariableVO.setDataYear(DateUtil.format(visionScreeningResult.getCreateTime(), format));
         }
 
-        String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
+        String screeningTimePeriod = CollUtil.join(yearPeriod, StrUtil.DASHED);
         globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
 
         globalVariableVO.setAreaName(districtName);
@@ -222,7 +222,7 @@ public class DistrictCommonDiseaseReportService {
     private List<ScreeningPlanSchoolStudent> getScreeningStudentList(List<Integer> haveStudentDistrictIds,Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentCountMap){
         return haveStudentDistrictIds.stream().distinct().flatMap(id -> {
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentCountMap.get(id);
-            if (CollectionUtil.isNotEmpty(planSchoolStudentList)) {
+            if (CollUtil.isNotEmpty(planSchoolStudentList)) {
                 return planSchoolStudentList.stream();
             } else {
                 return Stream.empty();
@@ -250,7 +250,7 @@ public class DistrictCommonDiseaseReportService {
         districtCommonDiseaseReportVO.setScreeningStudentNum(planStudentCountList.size());
 
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIds(Lists.newArrayList(planIds));
-        if (CollectionUtil.isEmpty(screeningResults)) {
+        if (CollUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
         } else {
             long count = screeningResults.stream()
@@ -269,7 +269,7 @@ public class DistrictCommonDiseaseReportService {
      * @param districtCommonDiseaseReportVO 按区域常见病报告实体
      */
     private void getVisionAnalysisVO(List<StatConclusion> statConclusionList, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<StatConclusion> validList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getIsValid(), Boolean.TRUE)).collect(Collectors.toList());
@@ -293,7 +293,7 @@ public class DistrictCommonDiseaseReportService {
      * @param visionAnalysisVO 视力分析对象
      */
     private void getKindergartenVO(List<StatConclusion> kindergartenList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
-        if (CollectionUtil.isEmpty(kindergartenList)) {
+        if (CollUtil.isEmpty(kindergartenList)) {
             return;
         }
         DistrictCommonDiseaseReportVO.KindergartenVO kindergartenVO = new DistrictCommonDiseaseReportVO.KindergartenVO();
@@ -326,7 +326,7 @@ public class DistrictCommonDiseaseReportService {
      * @param visionAnalysisVO 视力分析对象
      */
     private void getPrimarySchoolAndAboveVO(List<StatConclusion> primarySchoolAndAboveList, int validScreeningNum, DistrictCommonDiseaseReportVO.VisionAnalysisVO visionAnalysisVO) {
-        if (CollectionUtil.isEmpty(primarySchoolAndAboveList)) {
+        if (CollUtil.isEmpty(primarySchoolAndAboveList)) {
             return;
         }
         DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO primarySchoolAndAboveVO = new DistrictCommonDiseaseReportVO.PrimarySchoolAndAboveVO();
@@ -369,11 +369,11 @@ public class DistrictCommonDiseaseReportService {
         List<StatConclusion> normalHighList = schoolMap.get(SchoolAge.HIGH.code);
         List<StatConclusion> vocationalHighList = schoolMap.get(SchoolAge.VOCATIONAL_HIGH.code);
 
-        if (CollectionUtil.isNotEmpty(vocationalHighList)) {
+        if (CollUtil.isNotEmpty(vocationalHighList)) {
 
             List<StatConclusion> highList = Lists.newArrayList();
             highList.addAll(vocationalHighList);
-            if (CollectionUtil.isNotEmpty(normalHighList)) {
+            if (CollUtil.isNotEmpty(normalHighList)) {
                 highList.addAll(normalHighList);
                 getMyopiaItemVO(highList, ReportConst.HIGH, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
                 getMyopiaItemVO(normalHighList, SchoolAge.HIGH.desc, validScreeningNum, primarySchoolAndAboveVO::setNormalHighSchool);
@@ -383,7 +383,7 @@ public class DistrictCommonDiseaseReportService {
             }
 
         } else {
-            if (CollectionUtil.isNotEmpty(normalHighList)){
+            if (CollUtil.isNotEmpty(normalHighList)){
                 getMyopiaItemVO(normalHighList, ReportConst.HIGH, validScreeningNum, primarySchoolAndAboveVO::setHighSchool);
             }
         }
@@ -403,7 +403,7 @@ public class DistrictCommonDiseaseReportService {
      */
     private void getMyopiaItemVO(List<StatConclusion> statConclusionList, String schoolAge, Integer validScreeningNum,
                                  Consumer<DistrictCommonDiseaseReportVO.MyopiaItemVO> consumer) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         int myopiaNum = (int) statConclusionList.stream()
@@ -435,7 +435,7 @@ public class DistrictCommonDiseaseReportService {
      * 常见病分析
      */
     private void getDistrictCommonDiseasesAnalysisVO(List<StatConclusion> statConclusionList, DistrictCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -445,7 +445,7 @@ public class DistrictCommonDiseaseReportService {
                     return !Objects.equals(gradeCodeEnum.getType(), SchoolAge.KINDERGARTEN.code);
                 }).collect(Collectors.toList());
         Map<Integer, String> schoolMap = Maps.newHashMap();
-        if (CollectionUtil.isNotEmpty(primaryAndAboveStatConclusionList)) {
+        if (CollUtil.isNotEmpty(primaryAndAboveStatConclusionList)) {
             Set<Integer> schoolIds = primaryAndAboveStatConclusionList.stream().map(StatConclusion::getSchoolId).collect(Collectors.toSet());
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
             Map<Integer, String> collect = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
