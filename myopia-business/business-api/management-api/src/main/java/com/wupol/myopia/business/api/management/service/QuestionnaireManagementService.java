@@ -155,35 +155,29 @@ public class QuestionnaireManagementService {
      * @return
      */
     public QuestionAreaDTO getQuestionTaskAreas(Integer taskId, CurrentUser user) {
-        try {
-            QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
-            ScreeningTask task = screeningTaskService.getById(taskId);
-            if (Objects.isNull(task)) {
-                return new QuestionAreaDTO();
-            }
-            //查看该通知所有筛查学校的层级的 地区树
-            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(screeningPlans)) {
-                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-                if (!CollectionUtils.isEmpty(districts)) {
-                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
-                } else {
-                    questionAreaDTO.setDistricts(Lists.newArrayList());
-                }
-            }
-
-            if (user.isGovDeptUser()) {
-                GovDept govDept = govDeptService.getById(user.getId());
-                List<District> topDistrictList = districtService.getTopDistrictByCode(districtService.getById(govDept.getDistrictId()).getCode());
-                questionAreaDTO.setDefaultAreaIds(topDistrictList.stream().map(District::getId).collect(Collectors.toList()));
-            }
-            return questionAreaDTO;
-        } catch (Exception e) {
-            log.error("获得任务区域失败", e);
-            throw new BusinessException("获得任务区域失败！");
+        QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
+        ScreeningTask task = screeningTaskService.getById(taskId);
+        if (Objects.isNull(task)) {
+            return new QuestionAreaDTO();
         }
-    }
+        //查看该通知所有筛查学校的层级的 地区树
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(screeningPlans)) {
+            Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+            if (!CollectionUtils.isEmpty(districts)) {
+                questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+            } else {
+                questionAreaDTO.setDistricts(Lists.newArrayList());
+            }
+        }
 
+        if (user.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            List<District> topDistrictList = districtService.getTopDistrictByCode(districtService.getById(govDept.getDistrictId()).getCode());
+            questionAreaDTO.setDefaultAreaIds(topDistrictList.stream().map(District::getId).sorted().collect(Collectors.toList()));
+        }
+        return questionAreaDTO;
+    }
 
     /**
      * 获取年度
