@@ -1,7 +1,13 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,8 +19,10 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class OcularInspectionDataDTO implements Serializable {
+public class OcularInspectionDataDTO extends ScreeningResultBasicData implements Serializable {
     /**
      * 内斜
      */
@@ -54,5 +62,32 @@ public class OcularInspectionDataDTO implements Serializable {
         ocularInspectionDataDTO.setEyeDiseases(ocularInspectionDataDO.getEyeDiseases());
         ocularInspectionDataDTO.setDiagnosis(ocularInspectionDataDO.getDiagnosis());
         return ocularInspectionDataDTO;
+    }
+
+    /**
+     * 数据是否有效，只用于标准版，不作用于海南版本
+     */
+    public boolean isValid() {
+        return ObjectUtils.anyNotNull(measureMethod, eyeDiseases);
+    }
+
+    @Override
+    public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
+        OcularInspectionDataDO ocularInspectionDataDO = new OcularInspectionDataDO();
+        ocularInspectionDataDO.setEsotropia(esotropia)
+                .setExotropia(exotropia)
+                .setEyeDiseases(eyeDiseases)
+                .setMeasureMethod(measureMethod)
+                .setIsCooperative(getIsCooperative())
+                .setVerticalStrabismus(verticalStrabismus);
+        ocularInspectionDataDO.setCreateUserId(getCreateUserId());
+        ocularInspectionDataDO.setDiagnosis(diagnosis);
+        ocularInspectionDataDO.setUpdateTime(getUpdateTime());
+        return visionScreeningResult;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_OCULAR_INSPECTION;
     }
 }

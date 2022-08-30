@@ -1,7 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -16,8 +23,10 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/7/27
  **/
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class SlitLampDataDTO implements Serializable {
+public class SlitLampDataDTO extends ScreeningResultBasicData implements Serializable {
 
     /**
      * 病变异常组织(左眼)
@@ -86,4 +95,25 @@ public class SlitLampDataDTO implements Serializable {
         return slitLampDataDTO;
     }
 
+    public boolean isValid() {
+        return ObjectUtils.anyNotNull(leftPathologicalTissues, rightPathologicalTissues);
+    }
+
+    @Override
+    public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
+        SlitLampDataDO slitLampDataDO = new SlitLampDataDO();
+        SlitLampDataDO.SlitLampData leftData = new SlitLampDataDO.SlitLampData();
+        leftData.setLateriality(0).setPathologicalTissues(getLeftPathologicalTissueList()).setDiagnosis(leftDiagnosis);
+        SlitLampDataDO.SlitLampData rightData = new SlitLampDataDO.SlitLampData();
+        rightData.setLateriality(1).setPathologicalTissues(getRightPathologicalTissueList());
+        slitLampDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative()).setDiagnosis(rightDiagnosis);
+        slitLampDataDO.setCreateUserId(getCreateUserId());
+        slitLampDataDO.setUpdateTime(getUpdateTime());
+        return visionScreeningResult;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_SLIT_LAMP;
+    }
 }
