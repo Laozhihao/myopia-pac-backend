@@ -68,10 +68,7 @@ public class CommonUserAnswerImpl {
             userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
             userQuestionRecordService.updateBatchById(userQuestionRecordList);
             // 清空用户答案进度表
-            UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                    new UserAnswerProgress()
-                            .setUserId(userId)
-                            .setUserType(userType));
+            UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, null, null, planId);
             if (Objects.nonNull(userAnswerProgress)) {
                 userAnswerProgress.setCurrentStep(null);
                 userAnswerProgress.setCurrentSideBar(null);
