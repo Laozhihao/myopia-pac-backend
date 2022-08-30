@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -11,7 +10,8 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.Question
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -19,8 +19,6 @@ import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +47,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
+    private ArchiveService archiveService;
+    @Autowired
+    private ScreeningFacade screeningFacade;
 
     private List<Integer> recFileList = Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
     private static List<Integer> schoolQuestionnaireType = Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE, QuestionnaireTypeEnum.VISION_SPINE.getType());
@@ -191,9 +190,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(questionnaireTypeList)){
             return ;
         }
-        for (Integer questionnaireType : questionnaireTypeList) {
-            generateFile(fileName, exportCondition, questionnaireType,QuestionnaireConstant.REC_FILE);
-        }
+        generateFile(fileName, exportCondition, QuestionnaireTypeEnum.ARCHIVE_REC.getType(),QuestionnaireConstant.REC_FILE);
     }
 
     /**
@@ -235,12 +232,28 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public void validateBeforeExport(ExportCondition exportCondition) {
         this.preProcess(exportCondition);
 
+        if (Objects.equals(exportCondition.getDataType(),1)){
+            archiveService.archiveDataValidate(exportCondition);
+        }
+
+        if (Objects.equals(exportCondition.getDataType(),2)){
+            questionnaireDataValidate(exportCondition);
+        }
+
+    }
+
+
+
+    /**
+     * 问卷数据校验
+     * @param exportCondition 导出条件
+     */
+    private void questionnaireDataValidate(ExportCondition exportCondition) {
         if (ExportTypeConst.getRecExportTypeList().contains(exportCondition.getExportType()) && Objects.isNull(exportCondition.getDataType())) {
             throw new IllegalArgumentException("导出rec数据类型不能为空");
         }
 
         List<UserQuestionRecord> userQuestionRecordList = getUserQuestionRecordList(exportCondition);
-
         Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream();
 
         List<Integer> questionnaireType = exportCondition.getQuestionnaireType();
@@ -261,7 +274,6 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             throw new BusinessException("暂无数据");
         }
-
     }
 
     /**
@@ -274,15 +286,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             throw new BusinessException("暂无数据");
         }
 
-        //筛查过滤作废的
-        Set<Integer> noticeIds = userQuestionRecordList.stream().map(UserQuestionRecord::getNoticeId).collect(Collectors.toSet());
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeIdsAndStatus(Lists.newArrayList(noticeIds), CommonConst.STATUS_RELEASE);
-        if (CollUtil.isNotEmpty(screeningPlanList)){
-            Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-            userQuestionRecordList = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()) || Objects.isNull(userQuestionRecord.getPlanId()) )
-                    .collect(Collectors.toList());
-        }
+        userQuestionRecordList =  screeningFacade.filterByPlanId(userQuestionRecordList);
 
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             throw new BusinessException("暂无数据");

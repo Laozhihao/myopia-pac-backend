@@ -14,6 +14,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
@@ -99,6 +100,8 @@ public class QuestionnaireManagementService {
     private QuestionnaireService questionnaireService;
     @Autowired
     private QuestionnaireQesService questionnaireQesService;
+    @Autowired
+    private ScreeningFacade screeningFacade;
 
     private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS_EXCEL,ExportTypeConst.SCHOOL_STATISTICS_EXCEL,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
 
@@ -641,15 +644,7 @@ public class QuestionnaireManagementService {
 
         List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(screeningNoticeId,taskId,screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
 
-        //筛查过滤作废的
-        Set<Integer> noticeIds = userQuestionRecordList.stream().map(UserQuestionRecord::getNoticeId).collect(Collectors.toSet());
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeIdsAndStatus(Lists.newArrayList(noticeIds), CommonConst.STATUS_RELEASE);
-        if (CollUtil.isNotEmpty(screeningPlanList)){
-            Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-            userQuestionRecordList = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()) || Objects.isNull(userQuestionRecord.getPlanId()) )
-                    .collect(Collectors.toList());
-        }
+        userQuestionRecordList = screeningFacade.filterByPlanId(userQuestionRecordList);
 
         if (!CollectionUtils.isEmpty(userQuestionRecordList)){
             Set<Integer> questionnaireIds = userQuestionRecordList.stream().map(UserQuestionRecord::getQuestionnaireId).collect(Collectors.toSet());

@@ -31,9 +31,9 @@ public class ExportStrategy {
 
     @Autowired
     private SysUtilService sysUtilService;
-
     @Autowired
     private RedisUtil redisUtil;
+
 
     @Value("${spring.cloud.nacos.discovery.ip:'1'}")
     private String ip;
@@ -42,6 +42,7 @@ public class ExportStrategy {
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
 
         ExportFileService exportFileService = getExportFileService(serviceName);
+
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
 

@@ -10,7 +10,6 @@ import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConsta
 import com.wupol.myopia.business.core.questionnaire.domain.model.QesFieldMapping;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QesFieldMappingService;
-import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;

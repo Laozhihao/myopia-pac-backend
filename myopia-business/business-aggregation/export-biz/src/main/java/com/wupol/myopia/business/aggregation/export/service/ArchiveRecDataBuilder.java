@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.service;
+package com.wupol.myopia.business.aggregation.export.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/8/25 20:55
  */
 @UtilityClass
-public class ArchiveRecDataService {
+public class ArchiveRecDataBuilder {
 
 
     private static Map<String,String> nationMap = Maps.newHashMap();
@@ -44,11 +45,26 @@ public class ArchiveRecDataService {
         }
     }
 
+
+    public List<List<QesFieldDataBO>> getDataList(Integer schoolType ,List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
+        if (Objects.equals(schoolType, SchoolTypeEnum.KINDERGARTEN.getType())){
+            return getKindergarten(commonDiseaseArchiveCardList);
+        }
+        if (Objects.equals(schoolType,SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType())){
+            return getPrimaryAndSecondary(commonDiseaseArchiveCardList);
+        }
+
+        if (Objects.equals(schoolType,SchoolTypeEnum.UNIVERSITY.getType())){
+            return getUniversity(commonDiseaseArchiveCardList);
+        }
+        return Lists.newArrayList();
+    }
+
     /**
      * 获取幼儿园
      * @param commonDiseaseArchiveCardList 常见病档案卡集合
      */
-    public List<List<QesFieldDataBO>> getKindergarten(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
+    private List<List<QesFieldDataBO>> getKindergarten(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
          return commonDiseaseArchiveCardList.stream().map(commonDiseaseArchiveCard -> {
                     List<QesFieldDataBO> list = Lists.newArrayList();
                     list.addAll(setStudentCommonDiseaseIdInfo(commonDiseaseArchiveCard));
@@ -64,7 +80,7 @@ public class ArchiveRecDataService {
      * 获取中小学
      * @param commonDiseaseArchiveCardList 常见病档案卡集合
      */
-    public List<List<QesFieldDataBO>> getPrimaryAndSecondary(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
+    private List<List<QesFieldDataBO>> getPrimaryAndSecondary(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
         return commonDiseaseArchiveCardList.stream().map(commonDiseaseArchiveCard -> {
                     List<QesFieldDataBO> list = Lists.newArrayList();
                     list.addAll(setStudentCommonDiseaseIdInfo(commonDiseaseArchiveCard));
@@ -86,7 +102,7 @@ public class ArchiveRecDataService {
      * 获取大学
      * @param commonDiseaseArchiveCardList 常见病档案卡集合
      */
-    public List<List<QesFieldDataBO>> getUniversity(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
+    private List<List<QesFieldDataBO>> getUniversity(List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
         return commonDiseaseArchiveCardList.stream().map(commonDiseaseArchiveCard -> {
                     List<QesFieldDataBO> list = Lists.newArrayList();
                     list.addAll(setStudentCommonDiseaseIdInfo(commonDiseaseArchiveCard));

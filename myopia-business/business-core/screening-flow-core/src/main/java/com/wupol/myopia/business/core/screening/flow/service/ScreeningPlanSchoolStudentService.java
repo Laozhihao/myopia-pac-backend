@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -151,6 +152,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return setSchoolDistrictId(screeningPlanSchoolStudentList);
+    }
+
+    /**
+     * 根据筛查计划和学校ID获取筛查学生
+     * @param screeningPlanIds 筛查计划ID集合
+     * @param schoolId 学校ID(非必须)
+     */
+    public List<ScreeningPlanSchoolStudent> getByPlanIdOrSchoolId(List<Integer> screeningPlanIds, Integer schoolId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
+                .in(ScreeningPlanSchoolStudent::getScreeningPlanId, screeningPlanIds)
+                .eq(Objects.nonNull(schoolId), ScreeningPlanSchoolStudent::getSchoolId, schoolId));
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 

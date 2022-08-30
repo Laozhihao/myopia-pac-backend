@@ -12,7 +12,7 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.builder.UserQue
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -33,7 +33,6 @@ import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -83,6 +82,8 @@ public abstract class AbstractUserAnswer implements Answer {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private ScreeningFacade screeningFacade;
 
 
     private static final String FILE_NAME = "%s的%s的rec文件";
@@ -112,15 +113,7 @@ public abstract class AbstractUserAnswer implements Answer {
             return Lists.newArrayList();
         }
 
-        //筛查过滤作废的
-        Set<Integer> noticeIds = userQuestionRecordList.stream().map(UserQuestionRecord::getNoticeId).collect(Collectors.toSet());
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllPlanByNoticeIdsAndStatus(Lists.newArrayList(noticeIds), CommonConst.STATUS_RELEASE);
-        if (CollUtil.isNotEmpty(screeningPlanList)){
-            Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-            userQuestionRecordList = userQuestionRecordList.stream()
-                    .filter(userQuestionRecord -> planIds.contains(userQuestionRecord.getPlanId()) || Objects.isNull(userQuestionRecord.getPlanId()) )
-                    .collect(Collectors.toList());
-        }
+        userQuestionRecordList =  screeningFacade.filterByPlanId(userQuestionRecordList);
 
         //过滤用户类型
         return userQuestionRecordList.stream()
@@ -185,15 +178,7 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param districtId 区域ID
      */
     protected List<Integer> filterDistrict(Integer districtId) {
-        if (Objects.isNull(districtId)) {
-            return null;
-        }
-        List<Integer> districtIdList = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-        if (!districtIdList.contains(districtId)) {
-            districtIdList.add(districtId);
-        }
-        return districtIdList;
-
+        return districtService.filterDistrict(districtId);
     }
 
 

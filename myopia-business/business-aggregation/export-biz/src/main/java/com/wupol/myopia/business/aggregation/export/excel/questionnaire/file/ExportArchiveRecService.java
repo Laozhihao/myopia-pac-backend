@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.UserType;
@@ -10,14 +11,20 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecD
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.ArchiveRecData;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.ArchiveRecDataBuilder;
+import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.CardInfoVO;
+import com.wupol.myopia.business.core.screening.flow.domain.vo.CommonDiseaseArchiveCard;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +38,14 @@ import java.util.stream.Collectors;
  *
  * @author hang.yuan 2022/8/26 09:50
  */
+@Slf4j
 @Service
 public class ExportArchiveRecService implements QuestionnaireExcel{
 
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
     @Autowired
-    private ArchiveRecData archiveRecData;
+    private ArchiveService archiveService;
     @Autowired
     private QuestionnaireQesService questionnaireQesService;
     @Autowired
@@ -52,12 +60,22 @@ public class ExportArchiveRecService implements QuestionnaireExcel{
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
         Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
 
-        ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
-        List<ArchiveRecData.RecData> recDataList = archiveRecData.getDataMap(exportTypeService.getLockKey(exportCondition));
+        List<CommonDiseaseArchiveCard> archiveData = archiveService.getArchiveData(exportCondition);
+
+        Map<Integer, List<CommonDiseaseArchiveCard>> schoolTypeMap = getSchoolTypeMap(archiveData);
+
+        Map<Integer, String> qesUrlMap = getQesUrl();
+
+        schoolTypeMap.forEach((schoolType,dataList)-> {
+            List<List<QesFieldDataBO>> qesDataList = ArchiveRecDataBuilder.getDataList(schoolType, dataList);
+            log.info(JSON.toJSONString(qesDataList));
+        });
+
+        List<ArchiveRecData.RecData> recDataList = Lists.newArrayList();
         Map<Integer, List<ArchiveRecData.RecData>> schoolDataMap = recDataList.stream().collect(Collectors.groupingBy(ArchiveRecData.RecData::getSchoolType));
 
         List<GenerateRecDataBO> generateRecDataBOList = Lists.newArrayList();
-        Map<Integer, String> qesUrlMap = getQesUrl();
+
         schoolDataMap.forEach((schoolType,data)->{
             GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
             generateRecDataBO.setQesUrl(qesUrlMap.get(schoolType));
@@ -71,6 +89,22 @@ public class ExportArchiveRecService implements QuestionnaireExcel{
             answerService.exportRecFile(fileName,generateRecDataBO,QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
         }
 
+    }
+
+
+    private Map<Integer,List<CommonDiseaseArchiveCard>> getSchoolTypeMap(List<CommonDiseaseArchiveCard> archiveData){
+        Map<Integer,List<CommonDiseaseArchiveCard>> schoolTypeMap = Maps.newHashMap();
+        for (CommonDiseaseArchiveCard archiveCard : archiveData) {
+            CardInfoVO studentInfo = archiveCard.getStudentInfo();
+            SchoolTypeEnum schoolType = SchoolAge.getSchoolType(studentInfo.getSchoolType());
+            List<CommonDiseaseArchiveCard> commonDiseaseArchiveCards = schoolTypeMap.get(schoolType.getType());
+            if (CollUtil.isEmpty(commonDiseaseArchiveCards)){
+                commonDiseaseArchiveCards = Lists.newArrayList();
+            }
+            commonDiseaseArchiveCards.add(archiveCard);
+            schoolTypeMap.put(schoolType.getType(),commonDiseaseArchiveCards);
+        }
+        return schoolTypeMap;
     }
 
     private Map<Integer,String> getQesUrl() {

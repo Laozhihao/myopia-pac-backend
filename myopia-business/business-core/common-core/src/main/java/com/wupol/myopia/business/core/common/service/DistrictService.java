@@ -201,6 +201,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定区域下的所有区域ID(包括子集)
+     * @param districtId 区域ID
+     */
+    public List<Integer> filterDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            return null;
+        }
+        List<Integer> districtIdList = getSpecificDistrictTreeAllDistrictIds(districtId);
+        if (!districtIdList.contains(districtId)) {
+            districtIdList.add(districtId);
+        }
+        return districtIdList;
+
+    }
+
+    /**
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param rootCode 指定的行政区域代码编号
