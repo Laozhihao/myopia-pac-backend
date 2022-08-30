@@ -1153,11 +1153,13 @@ public class ScreeningAppController {
      */
     @GetMapping("/check/staffType")
     public Boolean checkStaffType() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        ScreeningOrganizationStaff staff = screeningOrganizationStaffService.getStaffsByUserId(currentUser.getId());
-        if (Objects.isNull(staff)) {
-            throw new BusinessException("筛查人员信息异常");
-        }
-        return ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL == staff.getType();
+//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+//        ScreeningOrganizationStaff staff = screeningOrganizationStaffService.getStaffsByUserId(currentUser.getId());
+//        if (Objects.isNull(staff)) {
+//            throw new BusinessException("筛查人员信息异常");
+//        }
+//        return ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL == staff.getType();
+        // TODO：临时处理，上线新域名后，旧域名重定向token会丢失
+        return true;
     }
 }
