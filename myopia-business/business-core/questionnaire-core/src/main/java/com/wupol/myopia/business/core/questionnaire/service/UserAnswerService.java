@@ -44,7 +44,7 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
     public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
-        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType);
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType, null);
         handleUserAnswer(userAnswerDTO, userAnswers);
         return userAnswerDTO;
     }
@@ -56,12 +56,27 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return UserAnswerDTO
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Long districtCode, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
+        UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
+        userAnswerDTO.setQuestionnaireId(questionnaireId);
+        List<UserAnswer> userAnswers = getByQuestionnaireIdAndUserType(questionnaireId, userId, userType, recordId);
+        handleUserAnswer(userAnswerDTO, userAnswers);
+        return userAnswerDTO;
+    }
+
+    /**
+     * 获取用户答案
+     *
+     * @param questionnaireId 问卷Id
+     *
+     * @return UserAnswerDTO
+     */
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Integer userType, Long districtCode, Integer schoolId, Integer taskId) {
         UserAnswerDTO userAnswerDTO = new UserAnswerDTO();
         userAnswerDTO.setQuestionnaireId(questionnaireId);
 
-        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtCode);
-        if(Objects.isNull(questionRecord)) {
+        UserQuestionRecord questionRecord = userQuestionRecordService.getUserQuestionRecord(userId, userType, questionnaireId, schoolId, districtCode, taskId);
+        if (Objects.isNull(questionRecord)) {
             return userAnswerDTO;
         }
         userAnswerDTO.setDistrictCode(questionRecord.getDistrictCode());
@@ -144,13 +159,13 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
      *
      * @return List<UserAnswer>
      */
-    public List<UserAnswer> getByQuestionnaireIdAndUserType(Integer questionnaireId, Integer userId, Integer userType) {
+    public List<UserAnswer> getByQuestionnaireIdAndUserType(Integer questionnaireId, Integer userId, Integer userType, Integer recordId) {
 
         LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
                 .eq(UserAnswer::getUserId, userId)
-                .eq(UserAnswer::getUserType, userType);
-
+                .eq(UserAnswer::getUserType, userType)
+                .eq(Objects.nonNull(recordId), UserAnswer::getRecordId, recordId);
         return baseMapper.selectList(wrapper);
     }
 
@@ -198,23 +213,6 @@ public class UserAnswerService extends BaseService<UserAnswerMapper, UserAnswer>
                 .in(UserAnswer::getQuestionId, questionIds);
         return baseMapper.selectList(wrapper);
     }
-
-    /**
-     * 通过问题Id获取答案
-     *
-     * @return List<UserAnswer>
-     */
-    public List<UserAnswer> getByQuestionIds(Integer questionnaireId, Integer userId, Integer userType, Integer recordId, Collection<Integer> questionIds) {
-
-        LambdaQueryWrapper<UserAnswer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserAnswer::getQuestionnaireId, questionnaireId)
-                .eq(UserAnswer::getUserId, userId)
-                .eq(UserAnswer::getUserType, userType)
-                .in(UserAnswer::getQuestionId, questionIds)
-                .eq(UserAnswer::getRecordId, recordId);
-        return baseMapper.selectList(wrapper);
-    }
-
 
     /**
      * 根据记录ID集合 批量查询用户答案

@@ -240,4 +240,9 @@ public class QuestionnaireConstant {
                 QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
                 QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
+    /**
+     * 学校教室环境卫生
+     */
+    public static final String SCHOOL_CLASSROOM_TITLE_2 = "school-classroom-table-2";
+
 }

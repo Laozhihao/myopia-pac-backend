@@ -995,7 +995,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 只下而上获取区域
+     * 只下而上获取区域，没有层级关系
+     * <p>
+     * 如石牌街道<br/>
+     * 则返回[广东省、广州市、天河区、石牌街道]
+     * </p>
      *
      * @return List<District>
      */

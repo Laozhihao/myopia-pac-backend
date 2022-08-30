@@ -59,4 +59,9 @@ public class SchoolListResponseDTO {
      * 区域
      */
     private List<District> district;
+
+    /**
+     * 计划Id
+     */
+    private Integer planId;
 }

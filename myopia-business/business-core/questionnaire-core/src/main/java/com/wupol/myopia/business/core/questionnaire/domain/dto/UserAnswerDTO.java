@@ -65,6 +65,11 @@ public class UserAnswerDTO {
      */
     private Long districtCode;
 
+    /**
+     * 计划Id
+     */
+    private Integer planId;
+
     @Getter
     @Setter
     public static class QuestionDTO {

@@ -51,6 +51,11 @@ public class UserAnswerProgress implements Serializable {
     private Integer schoolId;
 
     /**
+     * 计划Id
+     */
+    private Integer planId;
+
+    /**
      * currentStep
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED)
