@@ -166,7 +166,3 @@ white-list:
   # 按区域/学校常见病报告
   - "/management/report/districtCommonDiseaseReport"
   - "/management/report/schoolCommonDiseaseReport"
-  # TODO: 临时处理，上线新域名后，旧域名重定向token会丢失
-  - "/app/screening/check/staffType"
-  - "/hospital/app/management/common/app/version/latest"
-  - "/preschool/app/management/common/app/version/latest"
