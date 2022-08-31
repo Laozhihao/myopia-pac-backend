@@ -18,6 +18,10 @@ public class GenerateRecDataBO {
 
     private Integer schoolId;
 
+    private String schoolName;
+
+    private Integer schoolType;
+
     private String governmentKey;
 
     private String qesUrl;

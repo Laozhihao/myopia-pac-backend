@@ -6,6 +6,7 @@ import cn.hutool.core.util.ZipUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -232,11 +233,11 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public void validateBeforeExport(ExportCondition exportCondition) {
         this.preProcess(exportCondition);
 
-        if (Objects.equals(exportCondition.getDataType(),1)){
+        if (Objects.equals(exportCondition.getDataType(), RecExportDataTypeEnum.ARCHIVE_REC.getCode())){
             archiveService.archiveDataValidate(exportCondition);
         }
 
-        if (Objects.equals(exportCondition.getDataType(),2)){
+        if (Objects.equals(exportCondition.getDataType(),RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode())){
             questionnaireDataValidate(exportCondition);
         }
 

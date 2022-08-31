@@ -18,6 +18,7 @@ public class RecFileNameCondition {
     private Long districtCode;
     private Integer questionnaireType;
 
+
     public RecFileNameCondition(Integer schoolId, Integer questionnaireType) {
         this.schoolId = schoolId;
         this.questionnaireType = questionnaireType;

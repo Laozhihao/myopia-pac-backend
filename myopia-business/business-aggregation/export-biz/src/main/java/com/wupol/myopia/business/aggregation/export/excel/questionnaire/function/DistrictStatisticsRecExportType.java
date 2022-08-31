@@ -1,11 +1,15 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import com.google.common.collect.Lists;
+import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 按区域统计rec导出类型
@@ -62,5 +66,8 @@ public class DistrictStatisticsRecExportType implements ExportType {
     public void preProcess(ExportCondition exportCondition) {
         ExportTypeFacade.checkDistrictId(exportCondition);
         exportCondition.setSchoolId(null);
+        if (Objects.equals(RecExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
+        }
     }
 }

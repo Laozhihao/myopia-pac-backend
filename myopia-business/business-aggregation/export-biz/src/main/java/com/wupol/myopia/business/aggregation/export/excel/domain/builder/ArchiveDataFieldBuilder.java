@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.builder;
+package com.wupol.myopia.business.aggregation.export.excel.domain.builder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -34,9 +34,9 @@ public class ArchiveDataFieldBuilder {
         private String systemField;
     }
 
-    public static Map<String,String> getArchiveDataMap(Integer schoolType){
+    public static List<String> getArchiveQesFieldList(Integer schoolType){
         List<QesArchiveField> archiveFieldList = DATA_MAP.get(schoolType);
-        return archiveFieldList.stream().collect(Collectors.toMap(QesArchiveField::getQesField, QesArchiveField::getSystemField));
+        return archiveFieldList.stream().map(QesArchiveField::getQesField).collect(Collectors.toList());
     }
 
     private static Map<Integer, List<QesArchiveField>> initDataMap(){

@@ -243,8 +243,8 @@ public class QuestionnaireManagementController {
      * @param screeningPlanId
      */
     @GetMapping("/dataSchool")
-    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId){
-        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId);
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId,Integer dataType){
+        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId,dataType);
     }
 
     /**

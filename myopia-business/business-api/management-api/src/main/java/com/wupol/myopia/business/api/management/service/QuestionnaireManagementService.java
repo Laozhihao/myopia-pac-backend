@@ -10,8 +10,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -37,14 +37,8 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.log4j.Log4j2;
@@ -68,7 +62,6 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class QuestionnaireManagementService {
-    private static final String ID = "\"id\":";
 
     private static final String ID_REGEX = "\"id\":(.*?),";
 
@@ -108,6 +101,8 @@ public class QuestionnaireManagementService {
     private QuestionnaireQesService questionnaireQesService;
     @Autowired
     private ScreeningFacade screeningFacade;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
 
     private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS_EXCEL,ExportTypeConst.SCHOOL_STATISTICS_EXCEL,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
 
@@ -599,17 +594,30 @@ public class QuestionnaireManagementService {
      *
      * @param screeningPlanId 筛查计划ID
      */
-    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId) {
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
-        if (!CollectionUtils.isEmpty(userQuestionRecordList)){
-            Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
-            if (CollectionUtils.isEmpty(schoolIds)){
-                return Lists.newArrayList();
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId,Integer dataType) {
+        List<QuestionnaireDataSchoolVO> schoolDataList = Lists.newArrayList();
+        Set<Integer> schoolIds= null;
+        if (Objects.equals(dataType, RecExportDataTypeEnum.ARCHIVE_REC.getCode())){
+            List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(screeningPlanId, Boolean.FALSE, null);
+            if (CollUtil.isEmpty(visionScreeningResultList)){
+                return schoolDataList;
             }
-            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
-            return schoolList.stream().map(school -> new QuestionnaireDataSchoolVO(school.getId(),school.getName())).collect(Collectors.toList());
+            schoolIds = visionScreeningResultList.stream().map(VisionScreeningResult::getSchoolId).collect(Collectors.toSet());
         }
-        return Lists.newArrayList();
+         else if (Objects.equals(dataType,RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode())){
+            List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
+            if (CollUtil.isEmpty(userQuestionRecordList)){
+                return schoolDataList;
+            }
+            schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
+
+        }
+        if (CollectionUtils.isEmpty(schoolIds)){
+            return schoolDataList;
+        }
+        List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+        return schoolList.stream().map(school -> new QuestionnaireDataSchoolVO(school.getId(),school.getName())).collect(Collectors.toList());
+
     }
 
     /**

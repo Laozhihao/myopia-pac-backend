@@ -9,7 +9,6 @@ import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
@@ -45,7 +44,11 @@ public class ArchiveRecDataBuilder {
         }
     }
 
-
+    /**
+     * 获取监测表qes字段
+     * @param schoolType 学校类型
+     * @param commonDiseaseArchiveCardList 监测表数据集合
+     */
     public List<List<QesFieldDataBO>> getDataList(Integer schoolType ,List<CommonDiseaseArchiveCard> commonDiseaseArchiveCardList){
         if (Objects.equals(schoolType, SchoolTypeEnum.KINDERGARTEN.getType())){
             return getKindergarten(commonDiseaseArchiveCardList);
@@ -237,7 +240,7 @@ public class ArchiveRecDataBuilder {
         CardInfoVO studentInfo = commonDiseaseArchiveCard.getStudentInfo();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
         qesFieldDataBOList.add(new QesFieldDataBO("NOTE",AnswerUtil.textFormat(null)));
-        if (Objects.equals(SchoolAge.KINDERGARTEN.code,studentInfo.getSchoolType())){
+        if (Objects.equals(SchoolTypeEnum.KINDERGARTEN.getType(),studentInfo.getSchoolType())){
             qesFieldDataBOList.add(new QesFieldDataBO("name",AnswerUtil.textFormat(null)));
         }else {
             qesFieldDataBOList.add(new QesFieldDataBO("name",AnswerUtil.textFormat(studentInfo.getName())));
@@ -387,7 +390,7 @@ public class ArchiveRecDataBuilder {
             if (Objects.equals(privacyDataDO.getHasIncident(), Boolean.TRUE)) {
                 return TwoTuple.of("2",AnswerUtil.numberFormat(privacyDataDO.getAge()));
             }
-            return TwoTuple.of("1",AnswerUtil.textFormat(null));
-        }).orElse(TwoTuple.of("1",AnswerUtil.textFormat(null)));
+            return TwoTuple.of("1","");
+        }).orElse(TwoTuple.of("1",""));
     }
 }

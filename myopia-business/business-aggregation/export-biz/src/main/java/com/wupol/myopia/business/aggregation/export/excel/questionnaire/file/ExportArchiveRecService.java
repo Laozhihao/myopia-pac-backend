@@ -2,25 +2,24 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.ArchiveRecData;
+import com.wupol.myopia.business.aggregation.export.excel.domain.builder.ArchiveDataFieldBuilder;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.ArchiveRecDataBuilder;
 import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.SchoolTypeEnum;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQes;
 import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireQesService;
+import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CardInfoVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CommonDiseaseArchiveCard;
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class ExportArchiveRecService implements QuestionnaireExcel{
+public class ExportArchiveRecService implements QuestionnaireExcel {
 
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
@@ -63,72 +63,99 @@ public class ExportArchiveRecService implements QuestionnaireExcel{
         List<CommonDiseaseArchiveCard> archiveData = archiveService.getArchiveData(exportCondition);
 
         Map<Integer, List<CommonDiseaseArchiveCard>> schoolTypeMap = getSchoolTypeMap(archiveData);
-
         Map<Integer, String> qesUrlMap = getQesUrl();
-
-        schoolTypeMap.forEach((schoolType,dataList)-> {
-            List<List<QesFieldDataBO>> qesDataList = ArchiveRecDataBuilder.getDataList(schoolType, dataList);
-            log.info(JSON.toJSONString(qesDataList));
-        });
-
-        List<ArchiveRecData.RecData> recDataList = Lists.newArrayList();
-        Map<Integer, List<ArchiveRecData.RecData>> schoolDataMap = recDataList.stream().collect(Collectors.groupingBy(ArchiveRecData.RecData::getSchoolType));
 
         List<GenerateRecDataBO> generateRecDataBOList = Lists.newArrayList();
 
-        schoolDataMap.forEach((schoolType,data)->{
-            GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
-            generateRecDataBO.setQesUrl(qesUrlMap.get(schoolType));
-            List<List<String>> dataList = data.stream().flatMap(recData -> recData.getDataList().stream()).collect(Collectors.toList());
-            List<String> dataTxt = EpiDataUtil.mergeDataTxt(data.get(0).getQesFieldList(), dataList);
-            generateRecDataBO.setDataList(dataTxt);
-            generateRecDataBOList.add(generateRecDataBO);
+        schoolTypeMap.forEach((schoolType, dataList) -> {
+            List<String> archiveQesFieldList = ArchiveDataFieldBuilder.getArchiveQesFieldList(schoolType);
+            Map<Integer, List<CommonDiseaseArchiveCard>> schoolMap = dataList.stream().collect(Collectors.groupingBy(commonDiseaseArchiveCard -> commonDiseaseArchiveCard.getStudentInfo().getSchoolId()));
+            schoolMap.forEach((schoolId, schoolDataList) -> buildGenerateRecDataBO(qesUrlMap, generateRecDataBOList, schoolType, dataList, archiveQesFieldList, schoolDataList));
         });
 
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            answerService.exportRecFile(fileName,generateRecDataBO,QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
+            answerService.exportRecFile(fileName, generateRecDataBO, getFileName(generateRecDataBO.getSchoolType(), generateRecDataBO.getSchoolName()));
         }
 
     }
 
+    private void buildGenerateRecDataBO(Map<Integer, String> qesUrlMap, List<GenerateRecDataBO> generateRecDataBOList, Integer schoolType, List<CommonDiseaseArchiveCard> dataList, List<String> archiveQesFieldList, List<CommonDiseaseArchiveCard> schoolDataList) {
+        GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
+        generateRecDataBO.setQesUrl(qesUrlMap.get(schoolType));
+        generateRecDataBO.setSchoolType(schoolType);
+        CommonDiseaseArchiveCard commonDiseaseArchiveCard = schoolDataList.get(0);
+        List<List<QesFieldDataBO>> qesDataList = ArchiveRecDataBuilder.getDataList(schoolType, dataList);
+        List<List<String>> qesAnswerDataList = qesDataList.stream().map(qesFieldDataBOList -> {
+            Map<String, QesFieldDataBO> qesFieldDataBoMap = qesFieldDataBOList.stream().collect(Collectors.toMap(QesFieldDataBO::getQesField, Function.identity(), (v1, v2) -> v2));
+            List<QesFieldDataBO> sortList = Lists.newArrayList();
+            archiveQesFieldList.forEach(qesField -> sortList.add(qesFieldDataBoMap.get(qesField)));
+            return sortList.stream().map(QesFieldDataBO::getRecAnswer).collect(Collectors.toList());
+        }).collect(Collectors.toList());
 
-    private Map<Integer,List<CommonDiseaseArchiveCard>> getSchoolTypeMap(List<CommonDiseaseArchiveCard> archiveData){
-        Map<Integer,List<CommonDiseaseArchiveCard>> schoolTypeMap = Maps.newHashMap();
+        List<String> qesFieldList = archiveQesFieldList.stream()
+                .map(AnswerUtil::getQesFieldStr)
+                .collect(Collectors.toList());
+        List<String> dataTxt = EpiDataUtil.mergeDataTxt(qesFieldList, qesAnswerDataList);
+        generateRecDataBO.setDataList(dataTxt);
+        generateRecDataBO.setSchoolName(commonDiseaseArchiveCard.getStudentInfo().getSchoolName());
+        generateRecDataBOList.add(generateRecDataBO);
+    }
+
+    private String getFileName(Integer schoolType, String schoolName) {
+        String fileNameTmp = "%s的%s(%s)的rec文件";
+        if (Objects.equals(schoolType, SchoolTypeEnum.KINDERGARTEN.getType())) {
+            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.KINDERGARTEN.getDesc() + "版");
+        }
+
+        if (Objects.equals(schoolType, SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType())) {
+            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.PRIMARY_AND_SECONDARY.getDesc() + "版");
+        }
+
+        if (Objects.equals(schoolType, SchoolTypeEnum.UNIVERSITY.getType())) {
+            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.UNIVERSITY.getDesc() + "版");
+        }
+        return StrUtil.EMPTY;
+
+    }
+
+
+    private Map<Integer, List<CommonDiseaseArchiveCard>> getSchoolTypeMap(List<CommonDiseaseArchiveCard> archiveData) {
+        Map<Integer, List<CommonDiseaseArchiveCard>> schoolTypeMap = Maps.newHashMap();
         for (CommonDiseaseArchiveCard archiveCard : archiveData) {
             CardInfoVO studentInfo = archiveCard.getStudentInfo();
-            SchoolTypeEnum schoolType = SchoolAge.getSchoolType(studentInfo.getSchoolType());
+            SchoolTypeEnum schoolType = SchoolTypeEnum.getByType(studentInfo.getSchoolType());
             List<CommonDiseaseArchiveCard> commonDiseaseArchiveCards = schoolTypeMap.get(schoolType.getType());
-            if (CollUtil.isEmpty(commonDiseaseArchiveCards)){
+            if (CollUtil.isEmpty(commonDiseaseArchiveCards)) {
                 commonDiseaseArchiveCards = Lists.newArrayList();
             }
             commonDiseaseArchiveCards.add(archiveCard);
-            schoolTypeMap.put(schoolType.getType(),commonDiseaseArchiveCards);
+            schoolTypeMap.put(schoolType.getType(), commonDiseaseArchiveCards);
         }
         return schoolTypeMap;
     }
 
-    private Map<Integer,String> getQesUrl() {
+    private Map<Integer, String> getQesUrl() {
         List<QuestionnaireQes> archiveQesList = questionnaireQesService.getArchiveQesByName(QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
-        if (CollUtil.isEmpty(archiveQesList)){
-            throw new BusinessException(String.format("未上传QES文件,问卷类型:%s",QuestionnaireTypeEnum.ARCHIVE_REC.getDesc()));
+        if (CollUtil.isEmpty(archiveQesList)) {
+            throw new BusinessException(String.format("未上传QES文件,问卷类型:%s", QuestionnaireTypeEnum.ARCHIVE_REC.getDesc()));
         }
 
         List<QuestionnaireQes> notQesFileIdList = archiveQesList.stream().filter(questionnaireQes -> Objects.isNull(questionnaireQes.getQesFileId())).collect(Collectors.toList());
-        if (CollUtil.isNotEmpty(notQesFileIdList)){
-            throw new BusinessException(String.format("%s未上传QES文件",CollUtil.join(notQesFileIdList.stream().map(QuestionnaireQes::getName).collect(Collectors.toList()), StrUtil.COMMA)));
+        if (CollUtil.isNotEmpty(notQesFileIdList)) {
+            throw new BusinessException(String.format("%s未上传QES文件", CollUtil.join(notQesFileIdList.stream().map(QuestionnaireQes::getName).collect(Collectors.toList()), StrUtil.COMMA)));
         }
 
-        Map<Integer,String> qesUrlMap = Maps.newHashMap();
+        Map<Integer, String> qesUrlMap = Maps.newHashMap();
         for (QuestionnaireQes questionnaireQes : archiveQesList) {
             String qesUrl = resourceFileService.getResourcePath(questionnaireQes.getQesFileId());
-            if (questionnaireQes.getName().contains(SchoolTypeEnum.KINDERGARTEN.getDesc())){
-                qesUrlMap.put(SchoolTypeEnum.KINDERGARTEN.getType(),qesUrl);
+            if (questionnaireQes.getName().contains(SchoolTypeEnum.KINDERGARTEN.getDesc())) {
+                qesUrlMap.put(SchoolTypeEnum.KINDERGARTEN.getType(), qesUrl);
             }
-            if (questionnaireQes.getName().contains(SchoolTypeEnum.PRIMARY_AND_SECONDARY.getDesc())){
-                qesUrlMap.put(SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(),qesUrl);
+            if (questionnaireQes.getName().contains(SchoolTypeEnum.PRIMARY_AND_SECONDARY.getDesc())) {
+                qesUrlMap.put(SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(), qesUrl);
             }
-            if (questionnaireQes.getName().contains(SchoolTypeEnum.UNIVERSITY.getDesc())){
-                qesUrlMap.put(SchoolTypeEnum.UNIVERSITY.getType(),qesUrl);
+            if (questionnaireQes.getName().contains(SchoolTypeEnum.UNIVERSITY.getDesc())) {
+                qesUrlMap.put(SchoolTypeEnum.UNIVERSITY.getType(), qesUrl);
             }
         }
 
