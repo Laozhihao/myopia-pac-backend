@@ -22,3 +22,8 @@ INSERT INTO o_permission(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `i
 VALUES (975, '筛查机构管理-rec文件', 'exportOrgQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 2, 3, 1),
 (976, 'rec文件', 'exportPlatformOrgQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 5, 1),
 (977, '问卷关联qes字段映射', 'addQesFieldMapping', 'get:/questionnaire/addQesFieldMapping', 0, 0, 1, 970, 1);
+
+-- 问卷管理rec文件权限sql
+INSERT INTO o_permission(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`)
+VALUES (978, '按区域-rec文件', 'exportDistrictQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 882, 1),
+(979, '按学校-rec文件', 'exportSchoolQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 882, 1);
