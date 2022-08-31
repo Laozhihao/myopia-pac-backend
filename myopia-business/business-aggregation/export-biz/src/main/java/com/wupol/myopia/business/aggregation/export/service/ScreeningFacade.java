@@ -26,6 +26,10 @@ public class ScreeningFacade {
 
     private final ScreeningPlanService screeningPlanService;
 
+    /**
+     * 过滤作废筛查计划数据
+     * @param userQuestionRecordList 用户问卷记录集合
+     */
     public List<UserQuestionRecord> filterByPlanId(List<UserQuestionRecord> userQuestionRecordList){
         if (CollUtil.isEmpty(userQuestionRecordList)){
             return userQuestionRecordList;

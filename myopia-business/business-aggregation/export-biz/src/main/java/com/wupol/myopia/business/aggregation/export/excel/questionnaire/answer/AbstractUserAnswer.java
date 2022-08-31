@@ -35,7 +35,6 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.rec.client.RecServiceClient;
 import com.wupol.myopia.rec.domain.RecExportDTO;
 import com.wupol.myopia.rec.domain.RecExportVO;
@@ -81,8 +80,6 @@ public abstract class AbstractUserAnswer implements Answer {
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
-    private ScreeningPlanService screeningPlanService;
-    @Autowired
     private ScreeningFacade screeningFacade;
 
 
@@ -113,6 +110,7 @@ public abstract class AbstractUserAnswer implements Answer {
             return Lists.newArrayList();
         }
 
+        //过滤作废筛查计划数据
         userQuestionRecordList =  screeningFacade.filterByPlanId(userQuestionRecordList);
 
         //过滤用户类型
@@ -210,6 +208,7 @@ public abstract class AbstractUserAnswer implements Answer {
                     .findFirst().map(Questionnaire::getId).orElse(null);
         }
 
+        //最新问卷ID集合
         List<Integer> latestQuestionnaireIds = tuple.getFirst().stream().map(Questionnaire::getId).collect(Collectors.toList());
 
         //学校对应用户问卷记录
@@ -218,32 +217,45 @@ public abstract class AbstractUserAnswer implements Answer {
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
+        //获取问卷问题rec数据结构
         List<QuestionnaireQuestionRecDataBO> dataBuildList = questionnaireFacade.getDataBuildList(latestQuestionnaireIds);
 
+        //没有基础信息问卷，使用问卷ID集合第一个
         if (Objects.isNull(questionnaireId)){
             questionnaireId = latestQuestionnaireIds.get(0);
         }
 
+        //获取隐藏数据结果
         List<HideQuestionRecDataBO> hideQuestionDataBOList = questionnaireFacade.getHideQuestionnaireQuestionRec(questionnaireId);
 
+        //获取问卷对应的qes字段集合
         List<QesFieldMapping> qesFieldMappingList = questionnaireFacade.getQesFieldMappingList(latestQuestionnaireIds);
 
+        //处理qes字段 满足导出rec文件的数据文件（txt文件）头部信息
         List<String> qesFieldList = qesFieldMappingList.stream()
                 .map(qesFieldMapping -> AnswerUtil.getQesFieldStr(qesFieldMapping.getQesField()))
                 .collect(Collectors.toList());
 
+        //构建问卷Rec数据信息
         Map<Integer, Map<String, List<QuestionnaireRecDataBO>>> schoolAnswerMap = Maps.newHashMap();
         schoolRecordMap.forEach((schoolId, recordList) -> schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, dataBuildList, hideQuestionDataBOList, qesFieldList, recordList)));
 
+        //获取qes文件的地址信息
         Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
         String qesUrl = resourceFileService.getResourcePath(qesFileId);
 
+        //以学校维度 ，构建导出rec文件条件信息
         return schoolAnswerMap.entrySet().stream()
                 .map(entry -> UserAnswerProcessBuilder.buildGenerateRecDataBO(qesFieldList, qesUrl, entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
     }
 
+    /**
+     * 政府Rec文件数据 (TODO: 与通用获取REC数据重复多了，后期考虑能否提取功能部分)
+     * @param tuple 基础信息
+     * @param generateDataCondition 生成导出数据条件对象
+     */
     private List<GenerateRecDataBO> getGovernmentRecData(TwoTuple<List<Questionnaire>, List<UserQuestionRecord>> tuple,GenerateDataCondition generateDataCondition){
 
         List<Integer> latestQuestionnaireIds = tuple.getFirst().stream().map(Questionnaire::getId).collect(Collectors.toList());

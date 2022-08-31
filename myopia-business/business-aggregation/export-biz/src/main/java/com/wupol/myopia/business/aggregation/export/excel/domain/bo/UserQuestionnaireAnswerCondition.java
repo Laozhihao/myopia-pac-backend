@@ -15,7 +15,16 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class UserQuestionnaireAnswerCondition {
+    /**
+     * 用户问卷记录集合
+     */
     private List<UserQuestionRecord> userQuestionRecordList;
+    /**
+     * 隐藏问题rec数据集合
+     */
     private List<HideQuestionRecDataBO> hideQuestionDataBOList;
+    /**
+     * 生成数据条件
+     */
     private GenerateDataCondition generateDataCondition;
 }
