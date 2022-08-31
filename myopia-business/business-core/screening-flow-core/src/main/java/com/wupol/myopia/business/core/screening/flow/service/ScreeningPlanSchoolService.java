@@ -245,4 +245,14 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
                 .like(Objects.nonNull(schoolName), ScreeningPlanSchool::getSchoolName, schoolName)
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
     }
+
+    /**
+     * 根据学校ID获取筛查计划
+     *
+     * @param schoolId 学校ID
+     * @return ScreeningPlanSchool
+     */
+    public ScreeningPlanSchool getOneBySchoolId(Integer schoolId) {
+        return baseMapper.getBySchoolId(schoolId).stream().findFirst().orElse(null);
+    }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.questionnaire.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
@@ -7,8 +8,8 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.QuestionnaireMainTitleEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
@@ -23,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,13 +52,16 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     @Resource
-    private UserAnswerProgressService userAnswerProgressService;
-
-    @Resource
     private QuestionnaireQuestionService questionnaireQuestionService;
 
     @Resource
     private QuestionService questionService;
+
+    @Resource
+    private CommonUserAnswerImpl commonUserAnswer;
+
+    @Resource
+    private UserAnswerProgressService userAnswerProgressService;
 
     @Override
     public Integer getUserType() {
@@ -62,43 +69,21 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     @Override
-    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds) {
+    public Integer saveUserQuestionRecord(Integer questionnaireId, Integer userId, Boolean isFinish, List<Integer> questionnaireIds, Long districtCode, Integer schoolId) {
 
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
-        UserQuestionRecord userQuestionRecord = userQuestionRecordService.findOne(
-                new UserQuestionRecord()
-                        .setUserId(planStudent.getId())
-                        .setUserType(getUserType())
-                        .setQuestionnaireId(questionnaireId));
-
+        if (Objects.isNull(planStudent)) {
+            throw new BusinessException("学生数据异常！");
+        }
         // 如果存在记录，且完成问卷，则更新状态
-        if (Objects.nonNull(userQuestionRecord)) {
-            if (Objects.equals(isFinish, Boolean.TRUE)) {
-                Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
-                if (Objects.nonNull(questionnaire)){
-                    questionnaireIds.add(questionnaire.getId());
-                }
-                List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(planStudent.getId(), getUserType(), questionnaireIds);
-                userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
-                userQuestionRecordService.updateBatchById(userQuestionRecordList);
-                // 清空用户答案进度表
-                UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                        new UserAnswerProgress()
-                                .setUserId(userId)
-                                .setUserType(getUserType()));
-                if (Objects.nonNull(userAnswerProgress)) {
-                    userAnswerProgress.setCurrentStep(null);
-                    userAnswerProgress.setCurrentSideBar(null);
-                    userAnswerProgress.setUpdateTime(new Date());
-                    userAnswerProgressService.updateById(userAnswerProgress);
-                }
-            }
-            return userQuestionRecord.getId();
+        Integer recordId = commonUserAnswer.finishQuestionnaire(questionnaireId, isFinish, questionnaireIds, userId, getUserType(), planStudent.getScreeningPlanId());
+        if (Objects.nonNull(recordId)) {
+            return recordId;
         }
 
         // 不存在新增记录
         Questionnaire questionnaire = questionnaireService.getById(questionnaireId);
-        userQuestionRecord = new UserQuestionRecord();
+        UserQuestionRecord userQuestionRecord = new UserQuestionRecord();
         userQuestionRecord.setUserId(planStudent.getId());
         userQuestionRecord.setUserType(getUserType());
         userQuestionRecord.setQuestionnaireId(questionnaireId);
@@ -113,13 +98,20 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         return userQuestionRecord.getId();
     }
 
+    /**
+     * <p>如果存在多份表格的话，会存在问题<br/>
+     * 前端目前是将questionId默认为-1，如果一份问卷存在多份表格，就需要区分开<br/>
+     * 如：表格1-questionId为-1，表格2-questionId为-2
+     * </p>
+     *
+     * @param questionnaireId 问卷ID
+     * @param userId          用户Id
+     * @param questionList    问题列表
+     * @param recordId        记录表Id
+     */
     @Override
-    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList) {
-        List<UserAnswer> userAnswerList = userAnswerService.getByQuestionIds(questionnaireId, userId, getUserType(), questionList.stream().map(UserAnswerDTO.QuestionDTO::getQuestionId).collect(Collectors.toList()));
-
-        if (!CollectionUtils.isEmpty(userAnswerList)) {
-            userAnswerService.removeByIds(userAnswerList.stream().map(UserAnswer::getId).collect(Collectors.toList()));
-        }
+    public void deletedUserAnswer(Integer questionnaireId, Integer userId, List<UserAnswerDTO.QuestionDTO> questionList, Integer recordId) {
+        commonUserAnswer.deletedUserAnswer(questionList, questionnaireId, userId, getUserType());
     }
 
     @Override
@@ -129,23 +121,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Override
     public void saveUserProgress(UserAnswerDTO requestDTO, Integer userId, Boolean isFinish) {
-        // 完成不需要保存进度
-        if (Objects.equals(isFinish, Boolean.TRUE)) {
-            return;
-        }
-        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
-                new UserAnswerProgress()
-                        .setUserId(userId)
-                        .setUserType(getUserType()));
-
-        if (Objects.isNull(userAnswerProgress)) {
-            userAnswerProgress = new UserAnswerProgress();
-            userAnswerProgress.setUserId(userId);
-            userAnswerProgress.setUserType(getUserType());
-        }
-        userAnswerProgress.setCurrentStep(requestDTO.getCurrentStep());
-        userAnswerProgress.setCurrentSideBar(requestDTO.getCurrentSideBar());
-        userAnswerProgressService.saveOrUpdate(userAnswerProgress);
+        commonUserAnswer.saveUserProgress(isFinish, userId, getUserType(), requestDTO);
     }
 
     @Override
@@ -156,38 +132,17 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             throw new BusinessException("获取信息异常");
         }
 
-        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getBySchoolAge(planStudent.getGradeType());
-        if (CollectionUtils.isEmpty(typeList)) {
-            return new ArrayList<>();
-        }
-
-        // 获取问卷
-        Map<Integer, Questionnaire> typeMap = questionnaireService.getByTypes(typeList.stream().map(QuestionnaireTypeEnum::getType).collect(Collectors.toList())).stream().collect(Collectors.toMap(Questionnaire::getType, Function.identity()));
-
-        return typeList.stream().map(s -> {
-            UserQuestionnaireResponseDTO responseDTO = new UserQuestionnaireResponseDTO();
-            Questionnaire questionnaire = typeMap.get(s.getType());
-            responseDTO.setId(questionnaire.getId());
-            responseDTO.setTitle(s.getDesc());
-            responseDTO.setMainTitle(QuestionnaireMainTitleEnum.getByType(s.getType()).getMainTitle());
-            return responseDTO;
-        }).collect(Collectors.toList());
+        List<QuestionnaireTypeEnum> typeList = QuestionnaireTypeEnum.getStudentQuestionnaireBySchoolAge(planStudent.getGradeType());
+        return commonUserAnswer.getUserQuestionnaire(typeList);
     }
 
     @Override
     public Boolean getUserAnswerIsFinish(Integer userId) {
-        List<UserQuestionnaireResponseDTO> userQuestionnaire = getUserQuestionnaire(userId);
-        List<Integer> questionnaireIds = userQuestionnaire.stream().map(UserQuestionnaireResponseDTO::getId).collect(Collectors.toList());
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(userId, getUserType(), questionnaireIds);
-        if (CollectionUtils.isEmpty(userQuestionRecordList)) {
-            return false;
-        }
-        // 多份问卷，状态是统一的
-        return Objects.equals(userQuestionRecordList.get(0).getStatus(), UserQuestionRecordEnum.FINISH.getType());
+        return commonUserAnswer.getUserAnswerIsFinish(getUserQuestionnaire(userId), userId, getUserType());
     }
 
     @Override
-    public String getSchoolName(Integer userId) {
+    public String getUserName(Integer userId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         if (Objects.isNull(planStudent)) {
             throw new BusinessException("获取信息异常");
@@ -203,7 +158,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 获取问卷中是否存在序号为A01，A011，A02三个问题
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02"));
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList(CommonConst.A01, CommonConst.A011, CommonConst.A02));
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }
@@ -237,21 +192,36 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         addVisionSpineNotice(planStudent, questionnaireId, userId, getUserType(), recordId);
     }
 
+    @Override
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId, Integer planId) {
+        UserAnswerDTO userAnswerList = userAnswerService.getUserAnswerList(questionnaireId, userId, getUserType());
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.findOne(
+                new UserAnswerProgress()
+                        .setUserId(userId)
+                        .setUserType(getUserType()));
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerList.setCurrentSideBar(userAnswerProgress.getCurrentSideBar());
+            userAnswerList.setCurrentStep(userAnswerProgress.getCurrentStep());
+            userAnswerList.setStepJson(userAnswerProgress.getStepJson());
+        }
+        return userAnswerList;
+    }
+
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
-        if (StringUtils.equals(v, "A01")) {
+        if (StringUtils.equals(v, CommonConst.A01)) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             optionAnswer.setValue(planStudent.getGradeName());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
             return;
         }
 
-        if (StringUtils.equals(v, "A011")) {
+        if (StringUtils.equals(v, CommonConst.A011)) {
             OptionAnswer optionAnswer = new OptionAnswer();
-            JSONObject json = JSONObject.parseObject(JSONObject.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }
@@ -262,7 +232,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             return;
         }
 
-        if (StringUtils.equals(v, "A02")) {
+        if (StringUtils.equals(v, CommonConst.A02)) {
             Optional<Option> optionOptional = options.stream().filter(s -> StringUtils.equals(s.getText(), GenderEnum.getName(planStudent.getGender()))).findFirst();
             if (optionOptional.isPresent()) {
                 OptionAnswer optionAnswer = new OptionAnswer();
@@ -288,7 +258,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
         List<Integer> questionIds = questionnaireQuestions.stream().map(QuestionnaireQuestion::getQuestionId).collect(Collectors.toList());
         // 获取答案
-        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, recordId, questionIds);
+        List<UserAnswer> userAnswers = userAnswerService.getByQuestionIds(questionnaireId, userId, userType, questionIds, recordId);
         if (CollectionUtils.isEmpty(userAnswers)) {
             return;
         }
@@ -315,7 +285,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 问题是否已经存在
-        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, userQuestionRecord.getId(), questionIds))) {
+        if (!CollectionUtils.isEmpty(userAnswerService.getByQuestionIds(questionnaire.getId(), userId, userType, questionIds, userQuestionRecord.getId()))) {
             return;
         }
 

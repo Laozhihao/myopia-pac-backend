@@ -76,6 +76,11 @@ public class UserQuestionRecord implements Serializable {
     private Integer studentId;
 
     /**
+     * 区域Code
+     */
+    private Long districtCode;
+
+    /**
      * 问卷类型
      */
     private Integer questionnaireType;
@@ -84,6 +89,11 @@ public class UserQuestionRecord implements Serializable {
      * 状态 0-未开始 1-进行中 2-结束
      */
     private Integer status;
+
+    /**
+     * 汇总类型 1-汇总
+     */
+    private Integer recordType;
 
     /**
      * 创建时间

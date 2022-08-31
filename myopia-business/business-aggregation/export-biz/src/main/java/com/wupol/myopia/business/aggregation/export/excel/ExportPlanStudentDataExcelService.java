@@ -27,6 +27,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -134,6 +135,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
     public File generateExcelFile(String filePath, List data, ExportCondition exportCondition) {
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = data;
+        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
+            throw new BusinessException("暂无筛查数据!");
+        }
         Map<Integer, List<StatConclusionExportDTO>> schoolStatMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getSchoolId));
         Map<Integer, List<StatConclusionExportDTO>> gradeStatMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getGradeId));
         Map<Integer, School> schoolMap = schoolService.getByIds(statConclusionExportDTOs.stream().map(StatConclusionExportDTO::getSchoolId).collect(Collectors.toList())).stream().collect(Collectors.toMap(School::getId, Function.identity()));
