@@ -34,15 +34,14 @@
     <select id="getByTypes" resultMap="BaseResultMap">
         SELECT q1.*
         FROM q_questionnaire q1
-                 INNER JOIN (SELECT type,
-                                    max(create_time) create_time
-                             FROM q_questionnaire
-                             GROUP BY type) q2 ON q1.type = q2.type
-            AND q1.create_time = q2.create_time
-        where q1.type in
+            INNER JOIN (SELECT type,
+                               max(year) year
+                        FROM q_questionnaire where type in
         <foreach collection="types" item="type" index="index" open="(" close=")" separator=",">
             #{type}
         </foreach>
+        GROUP BY type) q2 ON q1.type = q2.type
+            AND q1.year = q2.year
     </select>
 
 </mapper>

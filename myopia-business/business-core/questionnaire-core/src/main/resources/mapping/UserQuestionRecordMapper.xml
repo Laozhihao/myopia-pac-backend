@@ -20,8 +20,10 @@
                 <if test="@Ognl@isNotEmpty(govId)">and `gov_id` = #{govId}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
+                <if test="@Ognl@isNotEmpty(districtCode)">and `district_code` = #{districtCode}</if>
                 <if test="@Ognl@isNotEmpty(questionnaire_type)">and `questionnaireType` = #{questionnaire_type}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(recordType)">and `record_type` = #{recordType}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
             </trim>
@@ -30,7 +32,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, user_type, questionnaire_id, plan_id, task_id, notice_id, gov_id, school_id, student_id, questionnaire_type, status, create_time, update_time
+        id, user_id, user_type, questionnaire_id, plan_id, task_id, notice_id, gov_id, school_id, student_id, district_code, questionnaire_type, status, record_type, create_time, update_time
     </sql>
 
 </mapper>

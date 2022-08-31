@@ -20,6 +20,8 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.domain.model.GovDept;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
@@ -86,6 +88,9 @@ public class QuestionnaireManagementService {
     private QuestionnaireExcelFactory questionnaireExcelFactory;
 
     @Autowired
+    private GovDeptService govDeptService;
+
+    @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
 
     private static List<Integer> exportTypeList = Lists.newArrayList(ExportTypeConst.QUESTIONNAIRE_PAGE,ExportTypeConst.DISTRICT_STATISTICS,ExportTypeConst.SCHOOL_STATISTICS,ExportTypeConst.MULTI_TERMINAL_SCHOOL_SCREENING_RECORD);
@@ -150,43 +155,37 @@ public class QuestionnaireManagementService {
      * @return
      */
     public QuestionAreaDTO getQuestionTaskAreas(Integer taskId, CurrentUser user) {
-        try {
-            QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
-            ScreeningTask task = screeningTaskService.getById(taskId);
-            if (Objects.isNull(task)) {
-                return new QuestionAreaDTO();
-            }
-            //查看该通知所有筛查学校的层级的 地区树
-            List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getReleaseScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(screeningPlans)) {
-                Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
-                if (!CollectionUtils.isEmpty(districts)) {
-                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
-                } else {
-                    questionAreaDTO.setDistricts(Lists.newArrayList());
-                }
-            }
-            if (!user.isPlatformAdminUser()) {
-                District parentDistrict = districtBizService.getNotPlatformAdminUserDistrict(user);
-                if (JSON.toJSONString(questionAreaDTO.getDistricts()).contains(ID + parentDistrict.getId())) {
-                    questionAreaDTO.setDefaultAreaId(parentDistrict.getId());
-                    questionAreaDTO.setDefaultAreaName(parentDistrict.getName());
-                }
-                if (!CollectionUtils.isEmpty(questionAreaDTO.getDistricts())) {
-                    questionAreaDTO.setDistricts(questionAreaDTO.getDistricts().get(0).getChild());
-                    // 如果是默认的和第一级的相同，且第一级只有一个那么去掉第一级
-                    if (questionAreaDTO.getDistricts().size() == 1 && Objects.equals(questionAreaDTO.getDistricts().get(0).getCode(), parentDistrict.getParentCode())) {
-                        questionAreaDTO.setDistricts(questionAreaDTO.getDistricts().get(0).getChild());
-                    }
-                }
-            }
-            return questionAreaDTO;
-        } catch (Exception e) {
-            log.error("获得任务区域失败", e);
-            throw new BusinessException("获得任务区域失败！");
+        QuestionAreaDTO questionAreaDTO = new QuestionAreaDTO();
+        ScreeningTask task = screeningTaskService.getById(taskId);
+        if (Objects.isNull(task)) {
+            return new QuestionAreaDTO();
         }
-    }
+        //查看该通知所有筛查学校的层级的 地区树
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(user).stream().filter(item -> item.getScreeningTaskId().equals(taskId)).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(screeningPlans)) {
+            Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+            if (!CollectionUtils.isEmpty(districts)) {
+                questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+            } else {
+                questionAreaDTO.setDistricts(Lists.newArrayList());
+            }
+        }
+        if (!user.isGovDeptUser() || CollectionUtils.isEmpty(questionAreaDTO.getDistricts())) {
+            return questionAreaDTO;
 
+        }
+        GovDept govDept = govDeptService.getById(user.getOrgId());
+        District govDistrict = districtService.getById(govDept.getDistrictId());
+        // 政府的区域与存在数据的区域是否相同，如果相同则显示，反之就不显示
+        List<District> allDistrict = districtService.getAllDistrict(questionAreaDTO.getDistricts(), new ArrayList<>());
+        long count = allDistrict.stream().filter(s -> Objects.equals(s.getId(), govDistrict.getId())).count();
+        if (count <= 0) {
+            return questionAreaDTO;
+        }
+        List<District> topDistrictList = districtService.getTopDistrictByCode(govDistrict.getCode());
+        questionAreaDTO.setDefaultAreaIds(topDistrictList.stream().map(District::getId).sorted().collect(Collectors.toList()));
+        return questionAreaDTO;
+    }
 
     /**
      * 获取年度

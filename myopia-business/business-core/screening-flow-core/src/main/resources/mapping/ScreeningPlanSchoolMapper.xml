@@ -91,6 +91,7 @@
         <include refid="Base_Column_List"/>
         from m_screening_plan_school
         where school_id = #{schoolId}
+        order by create_time desc
     </select>
 
     <select id="getOneByPlanIdAndSchoolId" resultMap="BaseResultMap">

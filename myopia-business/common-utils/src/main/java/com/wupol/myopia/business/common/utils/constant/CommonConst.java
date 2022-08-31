@@ -194,7 +194,32 @@ public class CommonConst {
     public static final String PERCENT_ZERO = "0.00%";
 
     /**
+     * A01
+     */
+    public static final String A01 = "A01";
+
+    /**
+     * A011
+     */
+    public static final String A011 = "A011";
+
+    /**
+     * A02
+     */
+    public static final String A02 = "A02";
+
+    /**
+     * A03
+     */
+    public static final String A03 = "A03";
+
+    /**
+     * A04
+     */
+    public static final String A04 = "A04";
+
+    /**
      * 需要插入脊柱个人信息的序号
      */
-    public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList("A01", "A011", "A02", "A03", "A04");
+    public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList(A01, A011, A02, A03, A04);
 }
