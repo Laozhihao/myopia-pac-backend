@@ -91,11 +91,7 @@ public class GovUserAnswerImpl implements IUserAnswerService {
                 // 清空用户答案进度表
                 UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, getUserType(), districtCode, schoolId, null);
                 if (Objects.nonNull(userAnswerProgress)) {
-                    userAnswerProgress.setCurrentStep(null);
-                    userAnswerProgress.setCurrentSideBar(null);
-                    userAnswerProgress.setStepJson(null);
-                    userAnswerProgress.setUpdateTime(new Date());
-                    userAnswerProgressService.updateById(userAnswerProgress);
+                    userAnswerProgressService.removeById(userAnswerProgress);
                 }
             }
             return userQuestionRecord.getId();
