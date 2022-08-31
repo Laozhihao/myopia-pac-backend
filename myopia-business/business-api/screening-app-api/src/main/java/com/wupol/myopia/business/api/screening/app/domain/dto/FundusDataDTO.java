@@ -71,6 +71,7 @@ public class FundusDataDTO extends ScreeningResultBasicData implements Serializa
         fundusDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setRemark(remark).setIsCooperative(getIsCooperative());
         fundusDataDO.setCreateUserId(getCreateUserId());
         fundusDataDO.setUpdateTime(getUpdateTime());
+        visionScreeningResult.setFundusData(fundusDataDO);
         return visionScreeningResult;
     }
 

@@ -109,6 +109,7 @@ public class SlitLampDataDTO extends ScreeningResultBasicData implements Seriali
         slitLampDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative()).setDiagnosis(rightDiagnosis);
         slitLampDataDO.setCreateUserId(getCreateUserId());
         slitLampDataDO.setUpdateTime(getUpdateTime());
+        visionScreeningResult.setSlitLampData(slitLampDataDO);
         return visionScreeningResult;
     }
 

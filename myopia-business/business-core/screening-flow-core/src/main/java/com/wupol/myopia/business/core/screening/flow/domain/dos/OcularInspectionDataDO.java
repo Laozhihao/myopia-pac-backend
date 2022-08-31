@@ -40,7 +40,7 @@ public class OcularInspectionDataDO  extends AbstractDiagnosisResult implements 
     /**
      * 眼部疾病
      */
-    private List<String> eyeDiseases;
+    private String eyeDiseases;
 
     /**
      * 是否配合检查：0-配合、1-不配合

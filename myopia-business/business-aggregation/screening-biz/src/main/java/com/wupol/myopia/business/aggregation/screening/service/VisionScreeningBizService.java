@@ -206,6 +206,26 @@ public class VisionScreeningBizService {
                     throw exception;
                 }
             }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_OCULAR_INSPECTION) && Objects.nonNull(firstResult.getOcularInspectionData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getOcularInspectionData().getUpdateTime())) {
+                    throw exception;
+                }
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_FUNDUS) && Objects.nonNull(firstResult.getFundusData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getFundusData().getUpdateTime())) {
+                    throw exception;
+                }
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SLIT_LAMP) && Objects.nonNull(firstResult.getSlitLampData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSlitLampData().getUpdateTime())) {
+                    throw exception;
+                }
+            }
+            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL) && Objects.nonNull(firstResult.getVisualLossLevelData())) {
+                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getVisualLossLevelData().getUpdateTime())) {
+                    throw exception;
+                }
+            }
             if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC) && Objects.nonNull(firstResult.getBiometricData())) {
                 if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getBiometricData().getUpdateTime())) {
                     throw exception;

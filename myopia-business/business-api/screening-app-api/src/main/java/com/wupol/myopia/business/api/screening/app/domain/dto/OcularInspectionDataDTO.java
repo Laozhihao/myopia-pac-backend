@@ -44,7 +44,7 @@ public class OcularInspectionDataDTO extends ScreeningResultBasicData implements
     /**
      * 眼部疾病
      */
-    private List<String> eyeDiseases;
+    private String eyeDiseases;
     /**
      * 初步诊断结果：0-正常、1-（疑似）异常
      */
@@ -83,6 +83,7 @@ public class OcularInspectionDataDTO extends ScreeningResultBasicData implements
         ocularInspectionDataDO.setCreateUserId(getCreateUserId());
         ocularInspectionDataDO.setDiagnosis(diagnosis);
         ocularInspectionDataDO.setUpdateTime(getUpdateTime());
+        visionScreeningResult.setOcularInspectionData(ocularInspectionDataDO);
         return visionScreeningResult;
     }
 

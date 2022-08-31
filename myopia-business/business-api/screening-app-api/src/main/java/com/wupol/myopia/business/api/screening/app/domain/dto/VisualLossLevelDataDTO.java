@@ -64,6 +64,7 @@ public class VisualLossLevelDataDTO extends ScreeningResultBasicData implements 
         visualLossLevelDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative());
         visualLossLevelDataDO.setCreateUserId(getCreateUserId());
         visualLossLevelDataDO.setUpdateTime(getUpdateTime());
+        visionScreeningResult.setVisualLossLevelData(visualLossLevelDataDO);
         return visionScreeningResult;
     }
 
