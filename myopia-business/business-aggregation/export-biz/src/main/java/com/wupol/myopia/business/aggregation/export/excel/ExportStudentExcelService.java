@@ -122,7 +122,6 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))
                     .setArea(addressMap.getOrDefault(ExportAddressKey.AREA, StringUtils.EMPTY))
                     .setTown(addressMap.getOrDefault(ExportAddressKey.TOWN, StringUtils.EMPTY));
-//                    .setCredential(StringUtils.isNotBlank(item.getIdCard()) ? MaskUtil.maskIdCard(item.getIdCard()) : MaskUtil.maskPassport(item.getPassport()));
             if (Objects.nonNull(visitMap.get(item.getId()))) {
                 exportVo.setVisitsCount(visitMap.get(item.getId()).size());
             } else {
