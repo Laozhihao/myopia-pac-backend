@@ -9,6 +9,7 @@ import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
@@ -210,7 +211,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         if (StringUtils.equals(v, CommonConst.A01)) {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             optionAnswer.setValue(planStudent.getGradeName());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
@@ -220,7 +221,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         if (StringUtils.equals(v, CommonConst.A011)) {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }
