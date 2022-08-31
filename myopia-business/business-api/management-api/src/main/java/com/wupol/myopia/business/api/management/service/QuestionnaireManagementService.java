@@ -170,10 +170,20 @@ public class QuestionnaireManagementService {
                 questionAreaDTO.setDistricts(Lists.newArrayList());
             }
         }
-
         if (user.isGovDeptUser()) {
+            if (CollectionUtils.isEmpty(questionAreaDTO.getDistricts())) {
+                return questionAreaDTO;
+
+            }
             GovDept govDept = govDeptService.getById(user.getOrgId());
-            List<District> topDistrictList = districtService.getTopDistrictByCode(districtService.getById(govDept.getDistrictId()).getCode());
+            District govDistrict = districtService.getById(govDept.getDistrictId());
+            // 政府的区域与存在数据的区域是否相同，如果相同则显示，反之就不显示
+            List<District> allDistrict = districtService.getAllDistrict(questionAreaDTO.getDistricts(), new ArrayList<>());
+            long count = allDistrict.stream().filter(s -> Objects.equals(s.getId(), govDistrict.getId())).count();
+            if (count <= 0) {
+                return questionAreaDTO;
+            }
+            List<District> topDistrictList = districtService.getTopDistrictByCode(govDistrict.getCode());
             questionAreaDTO.setDefaultAreaIds(topDistrictList.stream().map(District::getId).sorted().collect(Collectors.toList()));
         }
         return questionAreaDTO;
