@@ -612,7 +612,7 @@ public class QuestionnaireManagementService {
             }
             schoolIds = visionScreeningResultList.stream().map(VisionScreeningResult::getSchoolId).collect(Collectors.toSet());
         }
-         else if (Objects.equals(dataType,RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode())){
+         else if (Objects.equals(dataType,RecExportDataTypeEnum.QUESTIONNAIRE.getCode())){
             List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
             if (CollUtil.isEmpty(userQuestionRecordList)){
                 return schoolDataList;

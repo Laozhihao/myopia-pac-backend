@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 public enum RecExportDataTypeEnum {
     ARCHIVE_REC(1,"监测表数据"),
-    QUESTIONNAIRE_REC(2,"问卷数据");
+    QUESTIONNAIRE(2,"问卷数据");
 
     @Getter
     private Integer code;

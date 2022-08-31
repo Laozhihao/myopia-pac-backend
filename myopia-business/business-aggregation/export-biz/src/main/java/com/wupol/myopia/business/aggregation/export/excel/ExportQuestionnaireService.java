@@ -237,7 +237,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
             archiveService.archiveDataValidate(exportCondition);
         }
 
-        if (Objects.equals(exportCondition.getDataType(),RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode())){
+        if (Objects.equals(exportCondition.getDataType(),RecExportDataTypeEnum.QUESTIONNAIRE.getCode())){
             questionnaireDataValidate(exportCondition);
         }
 

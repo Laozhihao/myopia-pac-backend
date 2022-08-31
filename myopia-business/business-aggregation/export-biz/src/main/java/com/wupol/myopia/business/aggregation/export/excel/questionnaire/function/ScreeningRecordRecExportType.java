@@ -77,7 +77,7 @@ public class ScreeningRecordRecExportType implements ExportType {
         if (Objects.equals(RecExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
             exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
         }
-        if (Objects.equals(RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode(),exportCondition.getDataType())){
+        if (Objects.equals(RecExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())){
             exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE));
         }
 
