@@ -3,7 +3,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.qrcode;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
@@ -184,7 +184,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                     className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
                 }
                 PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className);
-                log.info("响应参数:{}", JSONObject.toJSONString(pdfResponseDTO));
+                log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
                 try {
                     log.info("文件件保存路径:{}",dir);
                     FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,className).toString());
@@ -224,7 +224,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
                 type);
         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
-        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
         return pdfResponseDTO.getUrl();
     }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -92,7 +93,7 @@ public class HeightAndWeightNum extends EntityFunction implements Num {
 
 
     public HeightAndWeightNum build(List<StatConclusion> statConclusionList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             this.validScreeningNum = ReportConst.ZERO;
             this.overweightNum = ReportConst.ZERO;
             this.obeseNum = ReportConst.ZERO;

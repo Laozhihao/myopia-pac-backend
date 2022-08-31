@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 眼保健检查数据基础信息
  * @Author wulizhou
@@ -10,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class BaseValue {
+public class BaseValue implements Serializable {
 
     private Integer id;
     private String name;

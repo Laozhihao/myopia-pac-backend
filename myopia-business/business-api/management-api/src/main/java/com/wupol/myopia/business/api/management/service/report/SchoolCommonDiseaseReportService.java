@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -104,7 +104,7 @@ public class SchoolCommonDiseaseReportService {
         }
 
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtil.isEmpty(screeningResults)) {
+        if (CollUtil.isEmpty(screeningResults)) {
             throw new BusinessException("暂无筛查数据！");
         }
         globalVariableVO.setReportDate(new Date());
@@ -125,7 +125,7 @@ public class SchoolCommonDiseaseReportService {
             VisionScreeningResult visionScreeningResult = screeningResults.get(0);
             globalVariableVO.setDataYear(DateUtil.format(visionScreeningResult.getCreateTime(), format));
         }
-        String screeningTimePeriod = CollectionUtil.join(yearPeriod, StrUtil.DASHED);
+        String screeningTimePeriod = CollUtil.join(yearPeriod, StrUtil.DASHED);
         globalVariableVO.setScreeningTimePeriod(screeningTimePeriod);
 
         globalVariableVO.setSchoolName(school.getName());
@@ -145,7 +145,7 @@ public class SchoolCommonDiseaseReportService {
     private void setNum(Integer schoolId, Integer planId, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(planId, schoolId);
         List<Integer> planSchoolStudentIds=Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
+        if (CollUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
             List<Integer> collect = screeningPlanSchoolStudentList.stream().filter(sp->Objects.equals(sp.getGradeType(), SchoolAge.KINDERGARTEN.code)).map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList());
             planSchoolStudentIds.addAll(collect);
             screeningPlanSchoolStudentList = screeningPlanSchoolStudentList.stream().filter(sp->!Objects.equals(sp.getGradeType(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
@@ -157,7 +157,7 @@ public class SchoolCommonDiseaseReportService {
 
 
         List<VisionScreeningResult> screeningResults = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtil.isEmpty(screeningResults)) {
+        if (CollUtil.isEmpty(screeningResults)) {
             districtCommonDiseaseReportVO.setActualScreeningNum(0);
         } else {
             long count = screeningResults.stream()
@@ -173,7 +173,7 @@ public class SchoolCommonDiseaseReportService {
      * 视力分析
      */
     private void getVisionAnalysisVO(List<StatConclusion> statConclusionList, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             statConclusionList = Collections.emptyList();
         }
         List<StatConclusion> primaryAndAboveStatConclusionList = statConclusionList.stream()
@@ -203,7 +203,7 @@ public class SchoolCommonDiseaseReportService {
      * 常见病分析
      */
     private void getSchoolCommonDiseasesAnalysisVO(List<StatConclusion> statConclusionList, SchoolCommonDiseaseReportVO districtCommonDiseaseReportVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 

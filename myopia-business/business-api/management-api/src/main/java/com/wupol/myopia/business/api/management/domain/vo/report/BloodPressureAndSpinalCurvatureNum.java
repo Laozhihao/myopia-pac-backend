@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.service.report.EntityFunction;
@@ -66,7 +66,7 @@ public class BloodPressureAndSpinalCurvatureNum extends EntityFunction implement
     private Integer gender;
 
     public BloodPressureAndSpinalCurvatureNum build(List<StatConclusion> statConclusionList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             this.validScreeningNum = ReportConst.ZERO;
             this.abnormalSpineCurvatureNum = ReportConst.ZERO;
             this.highBloodPressureNum = ReportConst.ZERO;

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.common.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.PdfRequestDTO;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -70,7 +71,7 @@ public class Html2PdfService {
      **/
     public String convertHtmlToPdf(String url, String fileName) {
         PdfResponseDTO pdfResponse = syncGeneratorPDF(url, fileName);
-        log.info("【请求node-js服务】响应：{}", JSONObject.toJSONString(pdfResponse));
+        log.info("【请求node-js服务】响应：{}", JSON.toJSONString(pdfResponse));
         return pdfResponse.getUrl();
     }
 
@@ -108,7 +109,7 @@ public class Html2PdfService {
     public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String uuid) {
         log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
-        log.info("【请求node-js服务】：{}", JSONObject.toJSONString(request));
+        log.info("【请求node-js服务】：{}", JSON.toJSONString(request));
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -123,7 +124,7 @@ public class Html2PdfService {
     public PdfResponseDTO syncGeneratorPdfSpecial(String url, String fileName, String uuid) {
         log.info("【同步生成PDF,专用方法】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid,Boolean.TRUE);
-        log.info("【请求node-js服务,专用方法】：{}", JSONObject.toJSONString(request));
+        log.info("【请求node-js服务,专用方法】：{}", JSON.toJSONString(request));
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -176,6 +177,6 @@ public class Html2PdfService {
         requestDTO.setConfig(config);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(JSONObject.toJSONString(requestDTO), httpHeaders);
+        return new HttpEntity<>(JSON.toJSONString(requestDTO), httpHeaders);
     }
 }

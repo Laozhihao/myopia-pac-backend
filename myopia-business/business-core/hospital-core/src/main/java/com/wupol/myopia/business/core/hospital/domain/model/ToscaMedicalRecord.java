@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ToscaMedicalRecord {
+public class ToscaMedicalRecord implements Serializable {
     /** 学生id */
     private Integer studentId;
     /** 散瞳前 */
@@ -25,7 +26,7 @@ public class ToscaMedicalRecord {
     @Getter
     @Setter
     @Accessors(chain = true)
-    public class Tosco {
+    public static class Tosco implements Serializable {
         /** 学生id */
         private Integer studentId;
         /** 1散瞳前，2散瞳后 */

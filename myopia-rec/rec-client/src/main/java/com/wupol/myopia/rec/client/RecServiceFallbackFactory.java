@@ -1,6 +1,6 @@
 package com.wupol.myopia.rec.client;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.rec.domain.ApiResult;
 import feign.FeignException;
 import feign.hystrix.FallbackFactory;
@@ -31,7 +31,7 @@ public class RecServiceFallbackFactory implements FallbackFactory<RecServiceClie
 
     public static String getMsgFromBodyWithDefault(String message, String body) {
         try {
-            ApiResult result = JSONObject.parseObject(body, ApiResult.class);
+            ApiResult result = JSON.parseObject(body, ApiResult.class);
             if (Objects.nonNull(result) && StringUtils.hasText(result.getMessage())) {
                 return result.getMessage();
             }

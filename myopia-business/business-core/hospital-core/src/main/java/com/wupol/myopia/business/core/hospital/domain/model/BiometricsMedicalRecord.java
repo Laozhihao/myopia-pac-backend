@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class BiometricsMedicalRecord {
+public class BiometricsMedicalRecord implements Serializable {
     /** 学生id */
     private Integer studentId;
     /** 散瞳前 */
@@ -25,7 +26,7 @@ public class BiometricsMedicalRecord {
     @Getter
     @Setter
     @Accessors(chain = true)
-    public class Biometrics {
+    public static class Biometrics implements Serializable {
         /** 1散瞳前，2散瞳后 */
         private Integer checkType;
         /** 右眼轴位 */

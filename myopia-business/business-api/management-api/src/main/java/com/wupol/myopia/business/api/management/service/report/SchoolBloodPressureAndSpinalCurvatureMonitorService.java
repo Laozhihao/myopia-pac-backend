@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -34,7 +34,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      */
     public void getSchoolBloodPressureAndSpinalCurvatureMonitorVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO) {
 
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO = new SchoolBloodPressureAndSpinalCurvatureMonitorVO();
@@ -56,7 +56,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-说明变量
      */
     private void getBloodPressureAndSpinalCurvatureMonitorVariableVO(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         BloodPressureAndSpinalCurvatureMonitorVariableVO variableVO = new BloodPressureAndSpinalCurvatureNum()
@@ -70,7 +70,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同性别
      */
     private void getBloodPressureAndSpinalCurvatureSexVO(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -86,7 +86,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同性别-说明变量
      */
     private void getBloodPressureAndSpinalCurvatureSexVariableVO(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureSexVO sexVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
@@ -114,7 +114,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同性别-表格数据
      */
     private void getBloodPressureAndSpinalCurvatureSexMonitorTableList(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureSexVO sexVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
@@ -134,7 +134,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private BloodPressureAndSpinalCurvatureMonitorTable getBloodPressureAndSpinalCurvatureSexTable(List<StatConclusion> statConclusionList, Integer gender) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return null;
         }
         List<StatConclusion> conclusionlist;
@@ -159,7 +159,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同学龄段
      */
     private void getBloodPressureAndSpinalCurvatureGradeVO(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         BloodPressureAndSpinalCurvatureGradeVO gradeVO = new BloodPressureAndSpinalCurvatureGradeVO();
@@ -173,7 +173,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同学龄段-说明变量
      */
     private void getBloodPressureAndSpinalCurvatureGradeVariableVO(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -195,28 +195,28 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同学龄段-表格数据
      */
     private void getBloodPressureAndSpinalCurvatureGradeMonitorTableList(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureGradeVO schoolAgeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
         List<BloodPressureAndSpinalCurvatureMonitorTable> primaryList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
-        if (CollectionUtil.isNotEmpty(primaryList)) {
+        if (CollUtil.isNotEmpty(primaryList)) {
             tableList.addAll(primaryList);
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> juniorList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
-        if (CollectionUtil.isNotEmpty(juniorList)) {
+        if (CollUtil.isNotEmpty(juniorList)) {
             tableList.addAll(juniorList);
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> normalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
-        if (CollectionUtil.isNotEmpty(normalHighList)) {
+        if (CollUtil.isNotEmpty(normalHighList)) {
             tableList.addAll(normalHighList);
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> vocationalHighList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
-        if (CollectionUtil.isNotEmpty(vocationalHighList)) {
+        if (CollUtil.isNotEmpty(vocationalHighList)) {
             tableList.addAll(vocationalHighList);
         }
         List<BloodPressureAndSpinalCurvatureMonitorTable> universityList = getBloodPressureAndSpinalCurvatureSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
-        if (CollectionUtil.isNotEmpty(universityList)) {
+        if (CollUtil.isNotEmpty(universityList)) {
             tableList.addAll(universityList);
         }
 
@@ -226,12 +226,12 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
 
     private List<BloodPressureAndSpinalCurvatureMonitorTable> getBloodPressureAndSpinalCurvatureSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap = CollUtil.sort(gradeCodeMap, String::compareTo);
         List<BloodPressureAndSpinalCurvatureMonitorTable> tableList = Lists.newArrayList();
         gradeCodeMap.forEach((grade, list) -> getBloodPressureAndSpinalCurvatureGrade(list, ReportUtil.getItemName(grade,schoolAge), tableList));
         getBloodPressureAndSpinalCurvatureGrade(conclusionList, ReportUtil.getItemNameTotal(schoolAge), tableList);
@@ -240,7 +240,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
 
 
     private void getBloodPressureAndSpinalCurvatureGrade(List<StatConclusion> statConclusionList, String grade, List<BloodPressureAndSpinalCurvatureMonitorTable> gradeList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         BloodPressureAndSpinalCurvatureMonitorTable bloodPressureAndSpinalCurvatureMonitorTable = new BloodPressureAndSpinalCurvatureNum().build(statConclusionList).ratioNotSymbol().buildTable();
@@ -252,7 +252,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同年龄段
      */
     private void getBloodPressureAndSpinalCurvatureAgeVO(List<StatConclusion> statConclusionList, SchoolBloodPressureAndSpinalCurvatureMonitorVO schoolBloodPressureAndSpinalCurvatureMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         BloodPressureAndSpinalCurvatureAgeVO ageVO = new BloodPressureAndSpinalCurvatureAgeVO();
@@ -267,7 +267,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同年龄段-说明变量
      */
     private void getBloodPressureAndSpinalCurvatureAgeVariableVO(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureAgeVO ageVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -288,7 +288,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
      * 血压与脊柱弯曲异常监测结果-不同年龄段-表格数据
      */
     private void getBloodPressureAndSpinalCurvatureAgeMonitorTableList(List<StatConclusion> statConclusionList, BloodPressureAndSpinalCurvatureAgeVO ageVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -300,7 +300,7 @@ public class SchoolBloodPressureAndSpinalCurvatureMonitorService {
     }
 
     private void getBloodPressureAndSpinalCurvatureAgeTable(Integer age, List<StatConclusion> conclusionlist, List<BloodPressureAndSpinalCurvatureMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(conclusionlist)) {
+        if (CollUtil.isEmpty(conclusionlist)) {
             return;
         }
 
