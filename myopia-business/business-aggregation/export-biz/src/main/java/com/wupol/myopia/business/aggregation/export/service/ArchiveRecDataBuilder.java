@@ -5,7 +5,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -182,10 +184,10 @@ public class ArchiveRecDataBuilder {
         qesFieldDataBOList.add(new QesFieldDataBO("glasstype", tuple.getFirst()));
         qesFieldDataBOList.add(new QesFieldDataBO("OKR", tuple.getSecond()));
         qesFieldDataBOList.add(new QesFieldDataBO("OKL",tuple.getThird()));
-        qesFieldDataBOList.add(new QesFieldDataBO("visionR",AnswerUtil.numberFormat(rightEyeData.getNakedVision(),1)));
-        qesFieldDataBOList.add(new QesFieldDataBO("glassR",AnswerUtil.numberFormat(rightEyeData.getCorrectedVision(),1)));
-        qesFieldDataBOList.add(new QesFieldDataBO("visionL",AnswerUtil.numberFormat(leftEyeData.getNakedVision(),1)));
-        qesFieldDataBOList.add(new QesFieldDataBO("glassL",AnswerUtil.numberFormat(leftEyeData.getCorrectedVision(),1)));
+        qesFieldDataBOList.add(new QesFieldDataBO("visionR",getEyeDataValue(rightEyeData.getNakedVision())));
+        qesFieldDataBOList.add(new QesFieldDataBO("glassR",getEyeDataValue(rightEyeData.getCorrectedVision())));
+        qesFieldDataBOList.add(new QesFieldDataBO("visionL",getEyeDataValue(leftEyeData.getNakedVision())));
+        qesFieldDataBOList.add(new QesFieldDataBO("glassL",getEyeDataValue(leftEyeData.getCorrectedVision())));
         return qesFieldDataBOList;
     }
 
@@ -200,9 +202,22 @@ public class ArchiveRecDataBuilder {
             return new ThreeTuple<>("2",StrUtil.EMPTY,StrUtil.EMPTY);
         }
         if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.getCode(),glassType)){
-            return new ThreeTuple<>("3",AnswerUtil.numberFormat(okr,2),AnswerUtil.numberFormat(okl,2));
+
+            return new ThreeTuple<>("3",getOkValue(okr),getOkValue(okl));
         }
         return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
+    }
+
+    private String getOkValue(BigDecimal num){
+        num = getNumLessThan(num,"-30.00");
+        num = getNumMoreThan(num,"0.00");
+        return AnswerUtil.numberFormat(num,2);
+    }
+
+    private String getEyeDataValue(BigDecimal num){
+        num = getNumLessThan(num,"3.3");
+        num = getNumMoreThan(num,"5.6");
+        return AnswerUtil.numberFormat(num,1);
     }
 
     /**
@@ -213,23 +228,67 @@ public class ArchiveRecDataBuilder {
         ComputerOptometryDO computerOptometryData = commonDiseaseArchiveCard.getComputerOptometryData();
         ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometryData.getRightEyeData();
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometryData.getLeftEyeData();
-
+        ThreeTuple<String, String, String> rightConvertValue = getConvertValue(rightEyeData.getSph(), rightEyeData.getCyl(), rightEyeData.getAxial());
+        ThreeTuple<String, String, String> leftConvertValue = getConvertValue(leftEyeData.getSph(), leftEyeData.getCyl(), leftEyeData.getAxial());
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("spherR",AnswerUtil.numberFormat(rightEyeData.getSph(),2)));
-        qesFieldDataBOList.add(new QesFieldDataBO("cylinR",AnswerUtil.numberFormat(rightEyeData.getCyl(),2)));
-        qesFieldDataBOList.add(new QesFieldDataBO("axisR",AnswerUtil.numberFormat(rightEyeData.getAxial(),0)));
+        qesFieldDataBOList.add(new QesFieldDataBO("spherR",getSpherValue(rightEyeData.getSph())));
+        qesFieldDataBOList.add(new QesFieldDataBO("cylinR",getCylinValue(rightEyeData.getCyl())));
+        qesFieldDataBOList.add(new QesFieldDataBO("axisR",getAxisValue(rightEyeData.getAxial())));
         qesFieldDataBOList.add(new QesFieldDataBO("SER", AnswerUtil.numberFormat(StatUtil.getSphericalEquivalent(rightEyeData.getSph(),rightEyeData.getCyl()),3)));
-        qesFieldDataBOList.add(new QesFieldDataBO("spherRT",StrUtil.EMPTY));
-        qesFieldDataBOList.add(new QesFieldDataBO("cylinRT",StrUtil.EMPTY));
-        qesFieldDataBOList.add(new QesFieldDataBO("axisRT",StrUtil.EMPTY));
-        qesFieldDataBOList.add(new QesFieldDataBO("spherL",AnswerUtil.numberFormat(leftEyeData.getSph(),2)));
-        qesFieldDataBOList.add(new QesFieldDataBO("cylinL",AnswerUtil.numberFormat(leftEyeData.getCyl(),2)));
-        qesFieldDataBOList.add(new QesFieldDataBO("axisL",AnswerUtil.numberFormat(leftEyeData.getAxial(),0)));
+        qesFieldDataBOList.add(new QesFieldDataBO("spherRT",rightConvertValue.getFirst()));
+        qesFieldDataBOList.add(new QesFieldDataBO("cylinRT",rightConvertValue.getSecond()));
+        qesFieldDataBOList.add(new QesFieldDataBO("axisRT",rightConvertValue.getThird()));
+        qesFieldDataBOList.add(new QesFieldDataBO("spherL",getSpherValue(leftEyeData.getSph())));
+        qesFieldDataBOList.add(new QesFieldDataBO("cylinL",getCylinValue(leftEyeData.getCyl())));
+        qesFieldDataBOList.add(new QesFieldDataBO("axisL",getAxisValue(leftEyeData.getAxial())));
         qesFieldDataBOList.add(new QesFieldDataBO("SEL",AnswerUtil.numberFormat(StatUtil.getSphericalEquivalent(leftEyeData.getSph(),leftEyeData.getCyl()),3)));
-        qesFieldDataBOList.add(new QesFieldDataBO("spherLT",StrUtil.EMPTY));
-        qesFieldDataBOList.add(new QesFieldDataBO("cylinLT",StrUtil.EMPTY));
-        qesFieldDataBOList.add(new QesFieldDataBO("axisLT",StrUtil.EMPTY));
+        qesFieldDataBOList.add(new QesFieldDataBO("spherLT",leftConvertValue.getFirst()));
+        qesFieldDataBOList.add(new QesFieldDataBO("cylinLT",leftConvertValue.getSecond()));
+        qesFieldDataBOList.add(new QesFieldDataBO("axisLT",leftConvertValue.getThird()));
         return qesFieldDataBOList;
+    }
+
+    private String getSpherValue(BigDecimal num){
+        num = getNumLessThan(num,"-30.00");
+        num = getNumMoreThan(num,"30.00");
+        return AnswerUtil.numberFormat(num,2);
+    }
+
+    private String getCylinValue(BigDecimal num){
+        num = getNumLessThan(num,"-15.00");
+        num = getNumMoreThan(num,"15.00");
+        return AnswerUtil.numberFormat(num,2);
+    }
+
+    private String getAxisValue(BigDecimal num){
+        num = getNumLessThan(num,"0");
+        num = getNumMoreThan(num,"180");
+        return AnswerUtil.numberFormat(num,0);
+    }
+
+    private ThreeTuple<String,String,String> getConvertValue(BigDecimal spher,BigDecimal cylin, BigDecimal axis){
+        if (ObjectsUtil.allNull(cylin,axis)){
+            return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
+        }
+
+        if (Objects.nonNull(cylin) && BigDecimalUtil.lessThanAndEqual(cylin,"0")){
+            return new ThreeTuple<>("999","999","999");
+        }
+        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,"0") && Objects.nonNull(axis) &&  BigDecimalUtil.moreThan(axis,"90")){
+            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal("0")).add(cylin);
+            return new ThreeTuple<>(AnswerUtil.numberFormat(add,2),
+                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal("-1")),2),
+                    AnswerUtil.numberFormat(axis.subtract(new BigDecimal("90")),0));
+        }
+
+        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,"0") && Objects.nonNull(axis) &&  BigDecimalUtil.lessThan(axis,"90")){
+            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal("0")).add(cylin);
+            return new ThreeTuple<>(AnswerUtil.numberFormat(add,2),
+                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal("-1")),2),
+                    AnswerUtil.numberFormat(axis.add(new BigDecimal("90")),0));
+        }
+
+        return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
     }
 
     /**
@@ -307,9 +366,21 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setHeightAndWeightData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         HeightAndWeightDataDO heightAndWeightData = commonDiseaseArchiveCard.getHeightAndWeightData();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q6",AnswerUtil.numberFormat(heightAndWeightData.getHeight(),1)));
-        qesFieldDataBOList.add(new QesFieldDataBO("q7",AnswerUtil.numberFormat(heightAndWeightData.getWeight(),1)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q6",getHeightValue(heightAndWeightData.getHeight())));
+        qesFieldDataBOList.add(new QesFieldDataBO("q7",getWeightValue(heightAndWeightData.getWeight())));
         return qesFieldDataBOList;
+    }
+
+    private String getHeightValue(BigDecimal num){
+        num = getNumLessThan(num,"80");
+        num = getNumMoreThan(num,"210");
+        return AnswerUtil.numberFormat(num,1);
+    }
+
+    private String getWeightValue(BigDecimal num){
+        num = getNumLessThan(num,"10");
+        num = getNumMoreThan(num,"200");
+        return AnswerUtil.numberFormat(num,1);
     }
 
     /**
@@ -350,9 +421,20 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setBloodPressureData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         BloodPressureDataDO bloodPressureData = commonDiseaseArchiveCard.getBloodPressureData();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q81",AnswerUtil.numberFormat(bloodPressureData.getSbp(),0)));
-        qesFieldDataBOList.add(new QesFieldDataBO("q82",AnswerUtil.numberFormat(bloodPressureData.getDbp(),0)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q81",getSbpValue(bloodPressureData.getSbp())));
+        qesFieldDataBOList.add(new QesFieldDataBO("q82",getDbpValue(bloodPressureData.getDbp())));
         return qesFieldDataBOList;
+    }
+
+    private String getSbpValue(BigDecimal num){
+        num = getNumLessThan(num,"0");
+        num = getNumMoreThan(num,"300");
+        return AnswerUtil.numberFormat(num,0);
+    }
+    private String getDbpValue(BigDecimal num){
+        num = getNumLessThan(num,"0");
+        num = getNumMoreThan(num,"200");
+        return AnswerUtil.numberFormat(num,0);
     }
 
     /**
@@ -393,4 +475,19 @@ public class ArchiveRecDataBuilder {
             return TwoTuple.of("1","");
         }).orElse(TwoTuple.of("1",""));
     }
+
+    private static BigDecimal getNumLessThan(BigDecimal num,String value) {
+        if (Objects.nonNull(num) && BigDecimalUtil.lessThan(num,value)){
+            num = new BigDecimal(value);
+        }
+        return num;
+    }
+    private static BigDecimal getNumMoreThan(BigDecimal num,String value) {
+        if (Objects.nonNull(num) && BigDecimalUtil.moreThan(num,value)){
+            num = new BigDecimal(value);
+        }
+        return num;
+    }
+
+
 }
