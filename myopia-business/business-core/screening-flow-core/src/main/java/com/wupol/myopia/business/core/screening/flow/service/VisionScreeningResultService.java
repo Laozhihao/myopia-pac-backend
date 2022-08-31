@@ -56,18 +56,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId id
      * @return List<ScreeningResult>
      */
-    public List<VisionScreeningResult> getByStudentId(Integer studentId) {
-        return baseMapper.getByStudentId(studentId);
+    public List<VisionScreeningResult> getReleasePlanResultByStudentId(Integer studentId) {
+        return baseMapper.getReleasePlanResultByStudentId(studentId);
     }
 
     /**
      * 通过StudentId获取筛查结果
      *
      * @param studentId id
-     * @return List<ScreeningResult>
+     * @param needFilterAbolishPlan 是否需要过滤作废的计划
+     * @return IPage<VisionScreeningResultDTO>
      */
-    public IPage<VisionScreeningResult> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId);
+    public IPage<VisionScreeningResultDTO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId, boolean needFilterAbolishPlan) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId, needFilterAbolishPlan);
     }
 
 
@@ -105,7 +106,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 通过指定的日期获取筛查计划ID集合
      */
-    public List<Integer> getScreeningPlanIdsByDate(String dateStr) {
+    public List<Integer> getReleasePlanIdsByDate(String dateStr) {
         if (StrUtil.isBlank(dateStr)) {
             dateStr = LocalDate.now().minusDays(1).toString();
 
@@ -177,8 +178,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param studentId 学生ID
      * @return VisionScreeningResult
      */
-    public VisionScreeningResult getLatestResultByStudentId(Integer studentId) {
-        return baseMapper.getLatestResultByStudentId(studentId);
+    public VisionScreeningResult getLatestResultOfReleasePlanByStudentId(Integer studentId) {
+        return baseMapper.getLatestResultOfReleasePlanByStudentId(studentId);
     }
 
     /**

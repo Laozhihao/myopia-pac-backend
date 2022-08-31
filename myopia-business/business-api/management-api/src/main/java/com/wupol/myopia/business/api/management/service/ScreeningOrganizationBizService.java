@@ -168,12 +168,12 @@ public class ScreeningOrganizationBizService {
      *
      * @param request 分页入参
      * @param orgId   机构ID
+     * @param currentUser   当前登录用户
      * @return {@link IPage}
      */
-    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId) {
-
+    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser());
         List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;
@@ -198,7 +198,7 @@ public class ScreeningOrganizationBizService {
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
-        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
+        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime(), planResponse.getReleaseStatus()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
@@ -410,7 +410,7 @@ public class ScreeningOrganizationBizService {
 
         // 筛查次数
         List<ScreeningPlan> planLists = screeningPlanService
-                .getByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
+                .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
                         .collect(Collectors.toList()));
         Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
                 .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));

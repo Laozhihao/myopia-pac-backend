@@ -170,7 +170,7 @@
         LIMIT 1;
     </select>
 
-    <select id="getResponseBySchoolId"
+    <select id="getReleasePlanSchoolPageBySchoolId"
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
         select msps.screening_plan_id as planId,
                msps.school_id         as schoolId,
@@ -178,7 +178,8 @@
         from m_screening_plan_school msps
                  left join m_screening_plan msp on msps.screening_plan_id = msp.id
         where msp.screening_type = 0
-          and school_id = #{schoolId}
+          and msp.release_status = 1
+          and msps.school_id = #{schoolId}
         order by msps.create_time desc
     </select>
 

@@ -49,7 +49,7 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     Long getCurrentMaxScreeningCode();
 
-    IPage<ScreeningListResponseDTO> getResponseBySchoolId(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
+    IPage<ScreeningListResponseDTO> getReleasePlanSchoolPageBySchoolId(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
 
     /**
      * 获取指定学校及筛查类型信息

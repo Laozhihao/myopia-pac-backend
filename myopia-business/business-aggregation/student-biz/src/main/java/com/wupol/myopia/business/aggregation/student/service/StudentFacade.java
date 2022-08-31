@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
@@ -116,17 +117,16 @@ public class StudentFacade {
      * 获取学生筛查档案
      *
      * @param studentId 学生ID
+     * @param currentUser 当前登录用户
      * @return 学生档案卡返回体
      */
-    public  IPage<StudentScreeningResultItemsDTO> getScreeningList(PageRequest pageRequest, Integer studentId) {
+    public  IPage<StudentScreeningResultItemsDTO> getScreeningList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser) {
         // 通过学生id查询结果
-        IPage<VisionScreeningResult> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId);
-        List<VisionScreeningResult> resultList = resultIPage.getRecords();
+        IPage<VisionScreeningResultDTO> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId, !currentUser.isPlatformAdminUser());
+        List<VisionScreeningResultDTO> resultList = resultIPage.getRecords();
         if (CollectionUtils.isEmpty(resultList)) {
             return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         }
-        // 获取筛查计划
-        Map<Integer, String> planIdAndTitleMap = getPlanTitleMap(resultList);
         // 获取机构
         Map<Integer, ScreeningOrganization> screeningOrganizationMap = getScreeningOrgMap(resultList);
         // 获取结论
@@ -139,13 +139,13 @@ public class StudentFacade {
         StudentDTO studentDTO = studentService.getStudentById(studentId);
         List<StudentScreeningResultItemsDTO> records = new ArrayList<>();
         // 转换
-        for (VisionScreeningResult result : resultList) {
+        for (VisionScreeningResultDTO result : resultList) {
             StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
             ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentMap.getOrDefault(result.getScreeningPlanSchoolStudentId(), new ScreeningPlanSchoolStudent());
             StatConclusion statConclusion = statMap.getOrDefault(result.getId(), new StatConclusion());
             // 设置其他
             item.setDetails(getScreeningDataDetail(result, reScreeningResultMap))
-                    .setScreeningTitle(planIdAndTitleMap.get(result.getPlanId()))
+                    .setScreeningTitle(result.getPlanTitle())
                     .setScreeningDate(result.getUpdateTime())
                     // 佩戴眼镜的类型随便取一个都行，两只眼睛的数据是一样的
                     .setGlassesTypeDes(Optional.ofNullable(result.getVisionData()).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getGlassesType).map(WearingGlassesSituation::getType).orElse(null))
@@ -170,22 +170,11 @@ public class StudentFacade {
                     //设置学生性别
                     .setGender(studentDTO.getGender())
                     //设置常见病ID
-                    .setCommonDiseasesCode(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getCommonDiseaseId());
+                    .setCommonDiseasesCode(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getCommonDiseaseId())
+                    .setReleaseStatus(result.getReleaseStatus());
             records.add(item);
         }
         return new Page<StudentScreeningResultItemsDTO>(resultIPage.getCurrent(), resultIPage.getSize(), resultIPage.getTotal()).setRecords(records);
-    }
-
-    /**
-     * 获取筛查计划标题Map
-     *
-     * @param resultList    筛查结果数据集
-     * @return java.util.Map<java.lang.Integer,java.lang.String>
-     **/
-    private Map<Integer, String> getPlanTitleMap(List<VisionScreeningResult> resultList) {
-        List<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).distinct().collect(Collectors.toList());
-        List<ScreeningPlan> plans = screeningPlanService.listByIds(planIds);
-        return plans.stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
     }
 
     /**
@@ -194,7 +183,7 @@ public class StudentFacade {
      * @param resultList    筛查结果数据集
      * @return java.util.Map<java.lang.Integer,com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
-    private Map<Integer, ScreeningOrganization> getScreeningOrgMap(List<VisionScreeningResult> resultList) {
+    private Map<Integer, ScreeningOrganization> getScreeningOrgMap(List<VisionScreeningResultDTO> resultList) {
         List<Integer> screeningOrgIds =  resultList.stream().map(VisionScreeningResult::getScreeningOrgId).distinct().collect(Collectors.toList());
         List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByIds(screeningOrgIds);
         return screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
@@ -206,7 +195,7 @@ public class StudentFacade {
      * @param resultList    筛查结果数据集
      * @return java.util.Map<java.lang.Integer,com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion>
      **/
-    private Map<Integer, StatConclusion> getStatConclusionMap(List<VisionScreeningResult> resultList) {
+    private Map<Integer, StatConclusion> getStatConclusionMap(List<VisionScreeningResultDTO> resultList) {
         List<Integer> resultIds = resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList());
         List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultIds);
         return statConclusionList.stream().collect(Collectors.toMap(StatConclusion::getResultId, Function.identity()));
@@ -218,7 +207,7 @@ public class StudentFacade {
      * @param resultList    筛查结果数据集
      * @return java.util.Map<java.lang.Integer,com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent>
      **/
-    private Map<Integer, ScreeningPlanSchoolStudent> getPlanStudentMap(List<VisionScreeningResult> resultList) {
+    private Map<Integer, ScreeningPlanSchoolStudent> getPlanStudentMap(List<VisionScreeningResultDTO> resultList) {
         List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).distinct().collect(Collectors.toList());
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.listByIds(planStudentIds);
         return screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));

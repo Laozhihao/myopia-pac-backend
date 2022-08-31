@@ -355,10 +355,13 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      *
      * @param startDate 开始时间
      * @param endDate   结束时间
+     * @param releaseStatus   计划状态
      * @return 筛查状态 0-未开始 1-进行中 2-已结束
      */
-    public Integer getScreeningStatus(Date startDate, Date endDate) {
-
+    public Integer getScreeningStatus(Date startDate, Date endDate, Integer releaseStatus) {
+        if (CommonConst.STATUS_ABOLISH.equals(releaseStatus)) {
+            return 3;
+        }
         Date nowDate = new Date();
         if (nowDate.before(startDate)) {
             return 0;

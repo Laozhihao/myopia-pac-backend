@@ -100,7 +100,7 @@ public class ScreeningPlan implements Serializable {
     private Integer studentNumbers;
 
     /**
-     * 筛查计划--发布状态 （0未发布 1已发布）
+     * 筛查计划--发布状态 （0-未发布、1-已发布、2-作废）
      */
     private Integer releaseStatus;
 

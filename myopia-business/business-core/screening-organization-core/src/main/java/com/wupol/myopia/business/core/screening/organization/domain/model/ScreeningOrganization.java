@@ -158,6 +158,12 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
     private String qrCodeConfig;
 
     /**
+     * 筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病
+     */
+    @Pattern(regexp = "[0-1](,[0-1])?", message = "screeningTypeConfig不合法")
+    private String screeningTypeConfig;
+
+    /**
      * 转化成ScreeningOrganizationExportDTO
      *
      * @return ScreeningOrganizationExportDTO

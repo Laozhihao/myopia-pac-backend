@@ -327,7 +327,7 @@ public class ScreeningExportService {
      * @return
      */
     public List<QrCodeInfo> getQrCodeAndStudentInfo(AppQueryQrCodeParams params, Integer orgId,Integer channel) {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(orgId, channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(orgId, channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             throw new BusinessException("当前无筛查计划");
         }

@@ -260,7 +260,7 @@ public class ScreeningOrganizationController {
         if (Objects.nonNull(user.getScreeningOrgId())) {
             orgId = user.getScreeningOrgId();
         }
-        return screeningOrganizationBizService.getRecordLists(request, orgId);
+        return screeningOrganizationBizService.getRecordLists(request, orgId, user);
     }
 
     /**
