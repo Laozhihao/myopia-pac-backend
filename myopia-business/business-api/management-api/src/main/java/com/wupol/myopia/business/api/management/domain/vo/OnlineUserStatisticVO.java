@@ -38,4 +38,9 @@ public class OnlineUserStatisticVO implements Serializable {
      */
     private Long zeroToSixClientNum;
 
+    /**
+     * 问卷系统端
+     */
+    private Long questionnaireClientNum;
+
 }

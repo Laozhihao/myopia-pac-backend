@@ -20,7 +20,5 @@ VALUES (970, '问卷模板设置', 'questionnaireQesSetting', NULL, 1, 1, 1, 910
 -- rec文件导出
 INSERT INTO o_permission(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`)
 VALUES (975, '筛查机构管理-rec文件', 'exportOrgQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 2, 3, 1),
-(976, '按区域-rec文件', 'exportDistrictQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 29, 1),
-(977, '按学校-rec文件', 'exportSchoolQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 30, 1),
-(978, 'rec文件', 'exportPlatformOrgQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 5, 1),
-(979, '问卷关联qes字段映射', 'addQesFieldMapping', 'get:/questionnaire/addQesFieldMapping', 0, 0, 1, 970, 1);
+(976, 'rec文件', 'exportPlatformOrgQuestionnaireRec', 'post:/management/questionnaire/rec/export', 0, 0, 1, 5, 1),
+(977, '问卷关联qes字段映射', 'addQesFieldMapping', 'get:/questionnaire/addQesFieldMapping', 0, 0, 1, 970, 1);

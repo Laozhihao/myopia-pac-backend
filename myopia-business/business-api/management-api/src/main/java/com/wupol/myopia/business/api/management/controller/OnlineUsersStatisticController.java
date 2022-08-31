@@ -37,9 +37,14 @@ public class OnlineUsersStatisticController {
             long hospitalClientNum = keys.stream().filter(key->key.contains("online:4") ).count();
             long parentClientNum = keys.stream().filter(key->key.contains("online:5")).count();
             long zeroToSixClientNum = keys.stream().filter(key->key.contains("online:7")).count();
-            onlineUserStatisticVO.setManagementClientNum(managementClientNum).setSchoolClientNum(schoolClientNum)
-                    .setScreeningClientNum(screeningClientNum).setHospitalClientNum(hospitalClientNum).setParentClientNum(parentClientNum)
-                    .setZeroToSixClientNum(zeroToSixClientNum);
+            long questionnaireClientNum = keys.stream().filter(key->key.contains("online:8")).count();
+            onlineUserStatisticVO.setManagementClientNum(managementClientNum)
+                    .setSchoolClientNum(schoolClientNum)
+                    .setScreeningClientNum(screeningClientNum)
+                    .setHospitalClientNum(hospitalClientNum)
+                    .setParentClientNum(parentClientNum)
+                    .setZeroToSixClientNum(zeroToSixClientNum)
+                    .setQuestionnaireClientNum(questionnaireClientNum);
         }else {
             onlineUserStatisticVO.setManagementClientNum(0L).setSchoolClientNum(0L)
                     .setScreeningClientNum(0L).setHospitalClientNum(0L).setParentClientNum(0L)
