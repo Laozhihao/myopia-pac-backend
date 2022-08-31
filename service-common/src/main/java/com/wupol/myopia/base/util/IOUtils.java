@@ -1,9 +1,11 @@
 package com.wupol.myopia.base.util;
 
+import cn.hutool.core.io.FileUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * @Author HaoHao
@@ -14,9 +16,9 @@ public class IOUtils {
 
     public static String getTempSubPath(String sub) {
         String tmpdir = getTempPath();
-        String subDirStr = tmpdir + File.separator + sub;
+        String subDirStr =  Paths.get(tmpdir,sub).toString();
         File subDirFile = new File(subDirStr);
-        subDirFile.mkdirs();
+        FileUtil.mkdir(subDirFile);
         return subDirStr;
     }
 

@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.stat.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -135,7 +134,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
             Set<Integer> districtIds = Sets.newHashSet();
             try {
                 districtIds = districtService.getChildDistrictIdsByDistrictId(currentDistrictId);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("获取行政区域失败");
             }
             districtIds.add(currentDistrictId);
@@ -181,13 +180,14 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
      * @param screeningType 筛查类型
      * @param isKindergarten 是否是幼儿园
      */
-    public List<ScreeningResultStatistic> getStatisticByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, boolean isTotal,Integer screeningType,boolean isKindergarten)  {
-        if (ObjectsUtil.allNotNull(noticeId,currentDistrictId)){
-            LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = getQueryWrapper(noticeId, isTotal, screeningType,isKindergarten);
-            queryWrapper.eq(ScreeningResultStatistic::getDistrictId, currentDistrictId);
-            return this.list(queryWrapper);
+    public ScreeningResultStatistic getStatisticByNoticeIdAndCurrentDistrictId(Integer noticeId, Integer currentDistrictId, boolean isTotal,Integer screeningType,boolean isKindergarten)  {
+        if (ObjectsUtil.hasNull(noticeId, currentDistrictId)) {
+            return null;
         }
-        return Lists.newArrayList();
+        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = getQueryWrapper(noticeId, isTotal, screeningType,isKindergarten);
+        queryWrapper.eq(ScreeningResultStatistic::getDistrictId, currentDistrictId)
+                .eq(ScreeningResultStatistic::getSchoolId, -1);
+        return this.getOne(queryWrapper);
     }
 
     /**
@@ -206,39 +206,6 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return queryWrapper;
     }
 
-
-    /**
-     * 根据区域ID集合获取筛查结果统计集合
-     * @param districtIds 区域ID集合
-     * @param isTotal 是否是合计
-     */
-    public List<ScreeningResultStatistic> getStatisticByDistrictIds(Set<Integer> districtIds, Boolean isTotal) {
-        List<ScreeningResultStatistic> screeningResultStatistics=Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(districtIds)){
-            Lists.partition(Lists.newArrayList(districtIds),100).forEach(ids->{
-                LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper= new LambdaQueryWrapper<>();
-                Optional.ofNullable(isTotal).ifPresent(b->queryWrapper.eq(ScreeningResultStatistic::getIsTotal,b));
-                queryWrapper.in(ScreeningResultStatistic::getDistrictId,districtIds);
-                queryWrapper.orderByDesc(ScreeningResultStatistic::getUpdateTime);
-                screeningResultStatistics.addAll(baseMapper.selectList(queryWrapper));
-            });
-        }
-        return screeningResultStatistics;
-    }
-
-    /**
-     * 根据当前区域ID获取筛查结果统计数据集合
-     * @param districtId 区域ID
-     * @param isTotal 是否合计
-     */
-    public List<ScreeningResultStatistic> getStatisticByCurrentDistrictId(Integer districtId, Boolean isTotal) {
-        LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper= new LambdaQueryWrapper<>();
-        Optional.ofNullable(isTotal).ifPresent(b->queryWrapper.eq(ScreeningResultStatistic::getIsTotal,b));
-        queryWrapper.eq(ScreeningResultStatistic::getDistrictId,districtId);
-        queryWrapper.orderByDesc(ScreeningResultStatistic::getUpdateTime);
-        return baseMapper.selectList(queryWrapper);
-    }
-
     /**
      * 通过planId、学校ID获取列表
      * @param planIds 计划ID集合
@@ -255,7 +222,7 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId,noticeId);
         List<ScreeningResultStatistic> list = list(queryWrapper);
-        if (CollectionUtil.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)){
             return list.stream().map(ScreeningResultStatistic::getDistrictId).collect(Collectors.toSet());
         }
         return Sets.newHashSet();

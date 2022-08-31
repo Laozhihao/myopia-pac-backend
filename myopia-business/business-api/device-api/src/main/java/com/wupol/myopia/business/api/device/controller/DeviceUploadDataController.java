@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
@@ -72,7 +71,7 @@ public class DeviceUploadDataController {
      */
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
-        log.info("Data:{}", JSONObject.toJSONString(requestDTO));
+        log.info("Data:{}", JSON.toJSONString(requestDTO));
         return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
     }
 

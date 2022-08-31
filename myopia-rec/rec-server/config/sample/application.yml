@@ -1,0 +1,80 @@
+### 服务端口号
+server:
+  port: 8040
+
+### log4j2配置 ###
+logging:
+  config: classpath:log4j2.xml
+
+spring:
+  cloud:
+    ### 注册中心地址
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    ### sentinel dashboard
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+      # 取消Sentinel控制台懒加载
+      eager: true
+
+  ### 为true设置的是web开启sleuth功能
+  sleuth:
+    web:
+      client:
+        enabled: true
+    # 可以设置为小数，最大值为1.0，当设置为1.0时就是链路数据100%收集到zipkin-server，当设置为0.1时，即10%概率收集链路数据
+    sampler:
+      probability: 1.0
+
+  ### 指定了 Zipkin 服务器的地址
+  zipkin:
+    base-url: http://127.0.0.1:9411
+
+  servlet:
+    multipart:
+      # 上传限制：100MB
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+### feign 配置
+feign:
+  # 打开 Sentinel 对 Feign 的支持
+  sentinel:
+    enabled: true
+  # 超时时间（毫秒）
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
+
+# 上传相关
+upload:
+  # 保存到服务器地址
+  savePath: /myopia/uploadPic
+  # 可上传的文件类型后缀
+  suffixs: pdf,jpg,jpeg,png
+  # 上传S3的bucket
+  bucketName: test.vistel.cn
+  # 文件上传S3的prefix
+  prefix: vistel-appdata-myopia/upload
+  # 静态文件上传S3的prefix，该目录的链接要求不会过期
+  staticPrefix: vistel-appdata-myopia/public
+  # 静态文件访问的host
+  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
+  # S3链接失效时间（小时）
+  expiredHours: 2
+  region: cn-northwest-1
+
+
+### 健康监控 - actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

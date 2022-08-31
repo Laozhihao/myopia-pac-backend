@@ -11,6 +11,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -167,12 +168,12 @@ public class ScreeningOrganizationBizService {
      *
      * @param request 分页入参
      * @param orgId   机构ID
+     * @param currentUser   当前登录用户
      * @return {@link IPage}
      */
-    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId) {
-
+    public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId);
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser());
         List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;
@@ -197,7 +198,7 @@ public class ScreeningOrganizationBizService {
                 .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 设置筛查状态
-        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime()));
+        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime(), planResponse.getReleaseStatus()));
 
         // 获取学校ID
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
@@ -229,7 +230,7 @@ public class ScreeningOrganizationBizService {
         List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
         Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         // 调查问卷数据
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType());
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
 
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
@@ -409,7 +410,7 @@ public class ScreeningOrganizationBizService {
 
         // 筛查次数
         List<ScreeningPlan> planLists = screeningPlanService
-                .getByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
+                .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
                         .collect(Collectors.toList()));
         Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
                 .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));

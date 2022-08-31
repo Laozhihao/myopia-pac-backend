@@ -85,7 +85,7 @@ public class DeviationDO extends AbstractDiagnosisResult implements Serializable
         private final String name;
 
         public static VisionOrOptometryDeviationEnum getByCode(Integer code) {
-            return code == null ? null : Arrays.stream(values()).filter((item) -> code.equals(item.code)).findFirst().orElse(null);
+            return code == null ? null : Arrays.stream(values()).filter(item -> code.equals(item.code)).findFirst().orElse(null);
         }
     }
 
@@ -121,7 +121,7 @@ public class DeviationDO extends AbstractDiagnosisResult implements Serializable
         private final String name;
 
         public static HeightWeightDeviationEnum getByCode(Integer code) {
-            return code == null ? null : Arrays.stream(values()).filter((item) -> code.equals(item.code)).findFirst().orElse(null);
+            return code == null ? null : Arrays.stream(values()).filter(item -> code.equals(item.code)).findFirst().orElse(null);
         }
     }
 }

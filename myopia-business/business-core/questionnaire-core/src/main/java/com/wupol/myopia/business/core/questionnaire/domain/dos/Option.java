@@ -1,8 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.dos;
 
 import com.alibaba.fastjson.JSONObject;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.List;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class Option implements Serializable {
 
     private static final long serialVersionUID = 8172911895182556183L;
@@ -56,4 +54,5 @@ public class Option implements Serializable {
      * 转换里层的json
      */
     private JSONObject option;
+
 }

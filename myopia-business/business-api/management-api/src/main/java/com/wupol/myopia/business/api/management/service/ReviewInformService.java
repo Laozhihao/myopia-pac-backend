@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -217,7 +217,7 @@ public class ReviewInformService {
                     Map<Integer, List<ScreeningPlanSchoolStudent>> classGroup = gradeValue.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
                     classGroup.forEach((classKey, classValue) -> {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
-                        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
                         try {
                             if (ExportTypeConst.GRADE.equals(type)) {
                                 FileUtils.downloadFile(pdfResponseDTO.getUrl(),

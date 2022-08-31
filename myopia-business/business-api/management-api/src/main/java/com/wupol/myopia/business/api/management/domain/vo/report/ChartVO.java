@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -92,8 +92,8 @@ public class ChartVO {
         private BigDecimal maxValue;
 
         public BigDecimal getMaxValue() {
-            if (CollectionUtil.isNotEmpty(data)){
-                return CollectionUtil.max(data);
+            if (CollUtil.isNotEmpty(data)){
+                return CollUtil.max(data);
             }
             return new BigDecimal("0.00");
         }

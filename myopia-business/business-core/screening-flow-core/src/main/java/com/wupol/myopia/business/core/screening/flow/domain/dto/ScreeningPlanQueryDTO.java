@@ -64,6 +64,10 @@ public class ScreeningPlanQueryDTO extends ScreeningPlan implements HasCreatorNa
      * 排除的计划ID
      */
     private Integer excludedScreeningPlanId;
+    /**
+     * 需要排除作废的计划
+     */
+    private Boolean needFilterAbolishPlan;
 
     public LocalDate getEndCreateTime() {
         return Objects.isNull(endCreateTime) ? null : endCreateTime.plusDays(1L);

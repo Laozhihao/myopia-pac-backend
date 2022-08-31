@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import lombok.Data;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class SchoolClassScreeningMonitorVO {
     private List<ChartVO.GradeRatioExtremumChart> schoolClassScreeningMonitorChart;
 
     public Boolean notEmpty(){
-        return CollectionUtil.isNotEmpty(schoolClassScreeningMonitorTableList);
+        return CollUtil.isNotEmpty(schoolClassScreeningMonitorTableList);
     }
 
     @Data

@@ -3,6 +3,7 @@ package com.wupol.myopia.base.domain.vo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class FamilyInfoVO {
+public class FamilyInfoVO implements Serializable {
 
     /**
      * 家庭成员
@@ -23,7 +24,7 @@ public class FamilyInfoVO {
 
     @Getter
     @Setter
-    public static class MemberInfo {
+    public static class MemberInfo implements Serializable {
 
         /**
          * 名称

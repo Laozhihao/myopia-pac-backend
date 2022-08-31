@@ -57,14 +57,16 @@ public class CommUtil {
         boolean flag = true;
         if (number.length == FIFTEEN_ID_CARD) {
             for (char aNumber : number) {
-                if (!flag)
+                if (!flag){
                     return null;
+                }
                 flag = Character.isDigit(aNumber);
             }
         } else if (number.length == EIGHTEEN_ID_CARD) {
             for (int x = 0; x < number.length - 1; x++) {
-                if (!flag)
+                if (!flag){
                     return null;
+                }
                 flag = Character.isDigit(number[x]);
             }
         }

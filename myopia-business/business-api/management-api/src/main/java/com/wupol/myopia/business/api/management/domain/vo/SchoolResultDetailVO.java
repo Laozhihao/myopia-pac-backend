@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
@@ -39,7 +39,7 @@ public class SchoolResultDetailVO {
                             Integer screeningType,School school,
                             List<ScreeningResultStatistic> screeningResultStatistics) {
 
-        if (CollectionUtil.isNotEmpty(screeningResultStatistics)){
+        if (CollUtil.isNotEmpty(screeningResultStatistics)){
             Map<Integer, ScreeningResultStatistic> resultStatisticMap = screeningResultStatistics.stream().collect(Collectors.toMap(ScreeningResultStatistic::getSchoolType, Function.identity()));
             if (Objects.isNull(type)){
                 resultStatisticMap.forEach((schoolType,resultStatistic)-> setData(screeningNoticeId, schoolType, screeningType, school, resultStatistic));

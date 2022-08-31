@@ -1,70 +1,97 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
+import lombok.experimental.UtilityClass;
+
+import java.util.List;
+
 /**
  * 导出类型常量
  *
  * @author Simple4H
  */
-public interface ExportTypeConst {
+@UtilityClass
+public final class ExportTypeConst {
 
     /**
      * 计划
      */
-    Integer PLAN = 1;
+    public static final Integer PLAN = 1;
 
     /**
      * 学校
      */
-    Integer SCHOOL = 2;
+    public static final Integer SCHOOL = 2;
 
     /**
      * 年级
      */
-    Integer GRADE = 3;
+    public static final Integer GRADE = 3;
 
     /**
      * 班级
      */
-    Integer CLASS = 4;
+    public static final Integer CLASS = 4;
 
     /**
      * 区域
      */
-    Integer DISTRICT = 5;
+    public static final Integer DISTRICT = 5;
 
     /**
      * 问卷
      */
-    Integer QUESTIONNAIRE = 6;
+    public static final Integer QUESTIONNAIRE = 6;
 
     // ===============问卷模块=================
 
     /**
      * 工作台->机构筛查记录【问卷数据】
      */
-    Integer SCREENING_RECORD = 10;
+    public static final Integer SCREENING_RECORD = 10;
 
     /**
      * 工作台-问卷管理【页面级按钮：下载问卷数据】
      */
-    Integer QUESTIONNAIRE_PAGE = 11;
+    public static final Integer QUESTIONNAIRE_PAGE = 11;
     /**
      * 工作台-问卷管理【学校列表操作：下载问卷数据】
      */
-    Integer QUESTIONNAIRE_SCHOOL = 12;
+    public static final Integer QUESTIONNAIRE_SCHOOL = 12;
 
     /**
-     * 统计报表-按区域统计
+     * 统计报表-按区域统计-excel
      */
-    Integer DISTRICT_STATISTICS = 13;
+    public static final Integer DISTRICT_STATISTICS_EXCEL = 13;
 
     /**
-     * 统计报表-按学校统计
+     * 统计报表-按学校统计-excel
      */
-    Integer SCHOOL_STATISTICS = 14;
+    public static final Integer SCHOOL_STATISTICS_EXCEL = 14;
 
     /**
      * 多端管理-学校管理-筛查记录【问卷导出】
      */
-    Integer MULTI_TERMINAL_SCHOOL_SCREENING_RECORD = 15;
+    public static final Integer MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL = 15;
+
+    /**
+     * 统计报表-按区域统计-rec文件
+     */
+    public static final Integer DISTRICT_STATISTICS_REC = 16;
+
+    /**
+     * 统计报表-按学校统计-rec文件
+     */
+    public static final Integer SCHOOL_STATISTICS_REC = 17;
+
+    /**
+     * 工作台->机构筛查记录【rec文件】
+     */
+    public static final Integer SCREENING_RECORD_REC = 18;
+
+
+    public static List<Integer> getRecExportTypeList(){
+        return Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
+    }
+
 }

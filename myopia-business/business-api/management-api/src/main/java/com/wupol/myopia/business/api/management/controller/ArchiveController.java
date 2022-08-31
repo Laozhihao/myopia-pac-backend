@@ -1,15 +1,15 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
 import com.wupol.myopia.business.api.management.domain.dto.ArchiveExportCondition;
-import com.wupol.myopia.business.api.management.domain.dto.ArchiveRequestParam;
-import com.wupol.myopia.business.api.management.service.ArchiveService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CommonDiseaseArchiveCard;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ArchiveController {
      **/
     @GetMapping("/export")
     public ApiResult exportArchive(@Valid ArchiveExportCondition archiveExportCondition) throws IOException {
-        log.info("导出档案卡/监测表：{}", JSONObject.toJSONString(archiveExportCondition));
+        log.info("导出档案卡/监测表：{}", JSON.toJSONString(archiveExportCondition));
         // 构建导出条件
         Integer type = archiveExportCondition.getType();
         ExportCondition exportCondition = new ExportCondition()

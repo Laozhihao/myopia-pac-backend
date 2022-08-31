@@ -24,10 +24,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStud
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
-import com.wupol.myopia.business.api.management.service.ManagementScreeningPlanBizService;
-import com.wupol.myopia.business.api.management.service.ReviewInformService;
-import com.wupol.myopia.business.api.management.service.QuestionnaireLoginService;
-import com.wupol.myopia.business.api.management.service.ScreeningPlanSchoolStudentBizService;
+import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
@@ -111,6 +108,9 @@ public class ScreeningPlanController {
     private ReviewInformService reviewInformService;
     @Autowired
     private QuestionnaireLoginService questionnaireLoginService;
+    @Autowired
+    private ScreeningPlanApiService screeningPlanApiService;
+
     /**
      * 新增
      *
@@ -119,6 +119,7 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        Assert.notNull(screeningPlanDTO.getScreeningType(), "筛查类型不能为空");
         // 校验用户机构，政府部门，无法新增计划
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -135,6 +136,9 @@ public class ScreeningPlanController {
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
+        // 校验筛查类型权限
+        ScreeningOrganization organization = screeningOrganizationService.getById(screeningPlanDTO.getScreeningOrgId());
+        Assert.isTrue(organization.getScreeningTypeConfig().contains(String.valueOf(screeningPlanDTO.getScreeningType())), "暂未开通该筛查类型配置，如需开通，请联系管理员");
         // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
         if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
@@ -148,7 +152,6 @@ public class ScreeningPlanController {
             screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
         } else {
             // 用户自己新建的筛查计划需设置districtId
-            ScreeningOrganization organization = screeningOrganizationService.getById(user.getScreeningOrgId());
             screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
         screeningPlanDTO.setCreateUserId(user.getId());
@@ -198,6 +201,7 @@ public class ScreeningPlanController {
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             query.setScreeningOrgId(user.getScreeningOrgId());
         }
+        query.setNeedFilterAbolishPlan(!user.isPlatformAdminUser());
         return managementScreeningPlanBizService.getPage(query, page);
     }
 
@@ -740,5 +744,29 @@ public class ScreeningPlanController {
     @GetMapping("/government")
     public ApiResult checkGovernmentLogin(@RequestParam("orgId") Integer orgId) {
         return this.questionnaireLoginService.checkGovernmentLogin(orgId);
+    }
+
+    /**
+     * 作废计划
+     *
+     * @param planId 筛查计划ID
+     * @return void
+     **/
+    @PutMapping("/abolish/{planId}")
+    public void abolishScreeningPlan(@PathVariable("planId") @NotNull(message = "筛查计划ID不能为空") Integer planId) {
+        screeningPlanApiService.abolishScreeningPlan(planId);
+    }
+
+    /**
+     * 删除计划学校
+     *
+     * @param planId    计划ID
+     * @param schoolId  学校ID
+     * @return void
+     **/
+    @DeleteMapping("/school/{planId}/{schoolId}")
+    public void deletePlanSchool(@PathVariable("planId") @NotNull(message = "筛查计划ID不能为空") Integer planId,
+                                 @PathVariable("schoolId") @NotNull(message = "学校ID不能为空") Integer schoolId) {
+        screeningPlanApiService.deletePlanSchool(planId, schoolId);
     }
 }

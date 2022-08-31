@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.QueueInfo;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -30,14 +31,18 @@ public class ExportStrategy {
 
     @Autowired
     private SysUtilService sysUtilService;
-
     @Autowired
     private RedisUtil redisUtil;
+
+
+    @Value("${spring.cloud.nacos.discovery.ip:'1'}")
+    private String ip;
 
 
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
 
         ExportFileService exportFileService = getExportFileService(serviceName);
+
         // 数据校验
         exportFileService.validateBeforeExport(exportCondition);
 
@@ -52,7 +57,7 @@ public class ExportStrategy {
             sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         }
         // 设置进队列
-        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
+        redisUtil.lSet(String.format(RedisConstant.FILE_EXPORT_LIST,ip), new QueueInfo(exportCondition, serviceName));
     }
 
     private ExportFileService getExportFileService(String serviceName) {

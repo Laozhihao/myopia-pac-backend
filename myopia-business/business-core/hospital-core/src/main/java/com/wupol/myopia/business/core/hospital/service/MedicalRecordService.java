@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 public class MedicalRecordService extends BaseService<MedicalRecordMapper, MedicalRecord> {
 
     @Autowired
-    private MedicalRecordMapper medicalRecordMapper;
-    @Autowired
     private MedicalReportService medicalReportService;
     @Autowired
     private ResourceFileService resourceFileService;
@@ -62,7 +60,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (CollectionUtils.isEmpty(medicalRecordQueries)) {
             return Collections.emptySet();
         }
-        return medicalRecordMapper.selectBatchQuerys(medicalRecordQueries);
+        return baseMapper.selectBatchQuerys(medicalRecordQueries);
     }
 
     /**

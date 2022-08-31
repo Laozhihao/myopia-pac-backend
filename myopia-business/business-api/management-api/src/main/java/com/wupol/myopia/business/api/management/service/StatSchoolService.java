@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -89,7 +90,7 @@ public class StatSchoolService {
             return Lists.newArrayList();
         }
         if(user.isGovDeptUser()){
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
             return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
         }
 
@@ -103,7 +104,7 @@ public class StatSchoolService {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
         return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
     }
     private List<Integer> getSchoolType(boolean isKindergarten) {
@@ -168,7 +169,7 @@ public class StatSchoolService {
 
     public Map<String,Boolean> hasRescreenReportMap(List<Integer> planIds,List<Integer> schoolIds) {
         List<StatRescreen> statRescreenList = statRescreenService.getByPlanIdAndSchoolId(planIds, schoolIds);
-        if (CollectionUtil.isNotEmpty(statRescreenList)){
+        if (CollUtil.isNotEmpty(statRescreenList)){
             return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+ StrUtil.UNDERLINE+sr.getSchoolId(), sr->Boolean.TRUE,(r1, r2)->r2));
         }
         return Maps.newHashMap();
@@ -323,7 +324,7 @@ public class StatSchoolService {
             return Lists.newArrayList();
         }
         if(user.isGovDeptUser()){
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllPlanByNoticeId(noticeId);
+            List<ScreeningPlan> screeningPlans = screeningPlanService.getAllReleasePlanByNoticeId(noticeId);
             return getStatisticByPlanIdsAndSchoolId(screeningPlans, schoolId);
         }
 
@@ -336,7 +337,7 @@ public class StatSchoolService {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsAndUser(noticeIds, user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
         return getStatisticByPlanIdsAndSchoolId(screeningPlans, schoolId);
     }
 

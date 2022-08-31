@@ -3,7 +3,10 @@ package com.wupol.myopia.business.core.common.service;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -133,6 +136,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtCode 区域编码
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictCode(Long districtCode) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetail(districtCode);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
      * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
      *
      * @param list 区域ID
@@ -180,6 +201,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定区域下的所有区域ID(包括子集)
+     * @param districtId 区域ID
+     */
+    public List<Integer> filterDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            return null;
+        }
+        List<Integer> districtIdList = getSpecificDistrictTreeAllDistrictIds(districtId);
+        if (!districtIdList.contains(districtId)) {
+            districtIdList.add(districtId);
+        }
+        return districtIdList;
+
+    }
+
+    /**
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param rootCode 指定的行政区域代码编号
@@ -205,8 +242,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 获取指定行政区域所属省份的所有行政区域树
-     *
      * @param districtCode 行政区域代码，如 410102000
+     *
      * @return com.wupol.myopia.business.management.domain.model.District
      **/
     public District getProvinceDistrictTreePriorityCache(long districtCode) {
@@ -328,7 +365,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public List<District> getWholeCountryDistrictTreePriorityCache() {
         Object cacheList = redisUtil.get(DistrictCacheKey.DISTRICT_ALL_TREE);
         if (!Objects.isNull(cacheList)) {
-            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         List<District> districts = getWholeCountryDistrictTree();
         redisUtil.set(DistrictCacheKey.DISTRICT_ALL_TREE, districts);
@@ -346,28 +384,29 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
 
     /**
      * 行政区域集合转树形结构
+     *
      * @author hang.yuan
      * @date 2022/4/2
      */
-    private List<District> districtListToTree(List<District> list,Long parentCode){
-        Map<Long,District> map = new HashMap<>();
+    private List<District> districtListToTree(List<District> list, Long parentCode) {
+        Map<Long, District> map = new HashMap<>();
         List<District> rootList = new ArrayList<>();
         for (District district : list) {
-            if (Objects.equals(district.getParentCode(),parentCode)){
+            if (Objects.equals(district.getParentCode(), parentCode)) {
                 rootList.add(district);
             }
-            map.put(district.getCode(),district);
+            map.put(district.getCode(), district);
         }
         for (District district : list) {
             Long tmpParentCode = district.getParentCode();
-            if (Objects.equals(tmpParentCode,parentCode)){
+            if (Objects.equals(tmpParentCode, parentCode)) {
                 continue;
             }
             District parent = map.get(tmpParentCode);
-            if (parent != null&&CollectionUtils.isEmpty(parent.getChild())){
+            if (parent != null && CollectionUtils.isEmpty(parent.getChild())) {
                 parent.setChild(new ArrayList<>());
             }
-            if (parent != null){
+            if (parent != null) {
                 parent.getChild().add(district);
             }
         }
@@ -387,7 +426,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_CHILD, parentCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            List<District> districtList = JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            List<District> districtList = JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
             if (!CollectionUtils.isEmpty(districtList)) {
                 return districtList;
             }
@@ -435,7 +475,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         String key = String.format(DistrictCacheKey.DISTRICT_POSITION_DETAIL, districtCode);
         Object cacheList = redisUtil.get(key);
         if (!Objects.isNull(cacheList)) {
-            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {});
+            return JSON.parseObject(JSON.toJSONString(cacheList), new TypeReference<List<District>>() {
+            });
         }
         List<District> districtList = new ArrayList<>();
         searchParentDistrictDetail(districtList, getDistrictByCode(districtCode));
@@ -477,6 +518,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 根据行政区域Id，获取以其作为根节点的行政区区域树
      *
      * @param districtId 行政区域Id
+     *
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     public District getDistrictTree(Integer districtId) {
@@ -505,24 +547,25 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return com.wupol.myopia.business.management.domain.model.District
      **/
     public District getDistrictByCode(Long districtCode) {
-        return getDistrictByCode(districtCode,Boolean.TRUE);
+        return getDistrictByCode(districtCode, Boolean.TRUE);
     }
 
     /**
      * 根据code获取行政区域
      *
      * @param districtCode 行政区域code
-     * @param isSelect 是否查询
+     * @param isSelect     是否查询
+     *
      * @return 行政区域
      **/
-    public District getDistrictByCode(Long districtCode,boolean isSelect) {
+    public District getDistrictByCode(Long districtCode, boolean isSelect) {
         Assert.notNull(districtCode, "行政区域code为空");
         String codeStr = String.valueOf(districtCode);
         Object districtCache = redisUtil.hget(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr);
         if (Objects.nonNull(districtCache)) {
             return JSON.parseObject(JSON.toJSONString(districtCache), District.class);
         }
-        if (isSelect){
+        if (isSelect) {
             District district = findOne(new District().setCode(districtCode));
             redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_LIST, codeStr, district);
             return district;
@@ -643,12 +686,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 通过行政id获取行政名称
      *
      * @param ids 行政id
-     * @return Map<Integer, String>
+     * @return Map<Integer, District>
      */
-    public Map<Integer, String> getByIds(List<Integer> ids) {
+    public Map<Integer, District> getByIds(List<Integer> ids) {
         List<District> districts = baseMapper.selectList(new QueryWrapper<District>().in("id", ids));
         return districts.stream()
-                .collect(Collectors.toMap(District::getId, District::getName));
+                .collect(Collectors.toMap(District::getId, Function.identity()));
     }
 
     /**
@@ -693,7 +736,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId){
         District district = getById(districtId);
         return this.getChildDistrictByParentIdPriorityCache(district.getCode());
     }
@@ -760,9 +803,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取下级的所有地区
      *
      * @return
-     * @throws IOException
      */
-    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
+    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
         return districts.stream().map(District::getId).collect(Collectors.toSet());
     }
@@ -783,7 +825,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
+    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
                 cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));
@@ -835,4 +877,216 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         return new TwoTuple<>(getTopDistrictName(district.getParentCode()), district.getName());
     }
+
+    /**
+     * 获取当前节点前的数结构
+     *
+     * @param code code
+     *
+     * @return
+     */
+    public List<District> districtCodeToTree(Long code) {
+        return districtListToTree(getDistrictPositionDetail(code), 100000000L);
+    }
+
+    /**
+     * 根据code查地址
+     *
+     * @param parentCode code
+     *
+     * @return List<District>
+     */
+    public List<District> getByParentCode(Long parentCode) {
+        LambdaQueryWrapper<District> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(District::getParentCode, parentCode);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 获取下属节点，到Area级别
+     */
+    public List<District> getAreaTree(Integer districtId) {
+        try {
+            District district = getById(districtId);
+            // 只下而上获取节点
+            List<District> districts = getTopDistrictByCode(district.getCode());
+
+            // 获取当前节点下的节点，并且拍平
+            List<District> districtList = getAllDistrict(getSpecificDistrictTree(districtId), new ArrayList<>());
+
+            ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
+            // 只保留Area以上的节点
+            return keepAreaDistrictsTree(tempList);
+        } catch (IOException e) {
+            throw new BusinessException("异常");
+        }
+    }
+
+    /**
+     * 获取同级的行政区域，并且只保留到Area级别
+     *
+     * @param districtId 区域Id
+     *
+     * @return List<District>
+     */
+    public List<District> getSameLevelDistrictKeepArea(Integer districtId) {
+        District district = getById(districtId);
+
+        // 获取父节点
+        Long code = district.getCode();
+        List<District> districts = getAllDistrict(districtCodeToTree(code), new ArrayList<>());
+        Integer level = getLevel(districts, code, 1);
+
+        // 直辖市处理
+        String codeStr = String.valueOf(code).substring(0,2);
+        if (StringUtils.equalsAny(codeStr,"11", "12","31","50")) {
+            if (level == 1) {
+                // 获取下级的数据
+                List<District> parentCode = getByParentCode(code);
+                // 合并
+                return keepAreaTwoDistrictsTree(districts, parentCode);
+            }
+            if (level <= 2) {
+                // 获取同级的数据
+                List<District> parentCode = getByParentCode(district.getParentCode());
+                // 合并
+                return keepAreaTwoDistrictsTree(districts, parentCode);
+            }
+            if (level == 3) {
+                // 获取上级的数据
+                List<District> parentCode = getByParentCode(getByCode(district.getParentCode()).getParentCode());
+                // 合并
+                return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), code)).collect(Collectors.toList()), parentCode);
+            }
+        }
+
+        if (level == 2) {
+            // 获取下级的数据
+            List<District> parentCode = getByParentCode(code);
+            // 合并
+            return keepAreaTwoDistrictsTree(districts, parentCode);
+        }
+        if (level <= 3) {
+            // 获取同级的数据
+            List<District> parentCode = getByParentCode(district.getParentCode());
+            // 合并
+            return keepAreaTwoDistrictsTree(districts, parentCode);
+        }
+        if (level == 4) {
+            // 获取上级的数据
+            List<District> parentCode = getByParentCode(getByCode(district.getParentCode()).getParentCode());
+            // 合并
+            return keepAreaTwoDistrictsTree(districts.stream().filter(s -> !Objects.equals(s.getCode(), code)).collect(Collectors.toList()), parentCode);
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * 获取当前行政区域的结构树，最多到Area区域
+     *
+     * @return List<District>
+     *
+     * @see DistrictService#keepAreaDistrictsTree
+     */
+    public List<District> getCurrentAreaDistrict(Integer districtId) {
+        District district = getById(districtId);
+        List<District> allDistrict = getAllDistrict(getTopDistrictByCode(district.getCode()), new ArrayList<>());
+        return keepAreaDistrictsTree(allDistrict);
+    }
+
+    /**
+     * 只下而上获取区域，没有层级关系
+     * <p>
+     * 如石牌街道<br/>
+     * 则返回[广东省、广州市、天河区、石牌街道]
+     * </p>
+     *
+     * @return List<District>
+     */
+    public List<District> getTopDistrictByCode(Long code) {
+        String key = String.format(DistrictCacheKey.DISTRICT_LIST_TOP_TREE, code);
+        Object cacheList = redisUtil.get(key);
+        if (Objects.nonNull(cacheList)) {
+            return JSON.parseArray(JSON.toJSONString(cacheList), District.class);
+        }
+        List<District> topDistrictList = getTopDistrictList(code, new ArrayList<>());
+        // 重新加入到缓存
+        if (!CollectionUtils.isEmpty(topDistrictList)) {
+            redisUtil.set(key, topDistrictList);
+        }
+        return topDistrictList;
+    }
+
+    /**
+     * 循环获取区域
+     *
+     * @param code   code
+     * @param result 结果
+     *
+     * @return List<District>
+     */
+    private List<District> getTopDistrictList(Long code, List<District> result) {
+        District district = getByCode(code);
+        if (Objects.nonNull(district)) {
+            result.add(district);
+            getTopDistrictList(district.getParentCode(), result);
+        }
+        return result;
+    }
+
+    /**
+     * 拍平list
+     */
+    public List<District> getAllDistrict(List<District> list, List<District> result) {
+        if (CollectionUtils.isEmpty(list)) {
+            return result;
+        }
+        result.addAll(list);
+        list.forEach(l -> getAllDistrict(l.getChild(), result));
+        return result;
+    }
+
+    /**
+     * 获取区域层级
+     */
+    private Integer getLevel(List<District> list, Long code, Integer level) {
+        District district = list.get(0);
+        if (Objects.equals(district.getCode(), code)) {
+            return level;
+        }
+        level = level + 1;
+        return getLevel(district.getChild(), code, level);
+    }
+
+    /**
+     * 合并两个行政区域，并且返回树结构
+     */
+    private List<District> keepAreaTwoDistrictsTree(List<District> districts, List<District> districtList) {
+        List<District> result = Lists.newArrayList(Iterables.concat(districtList, districts)).stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new));
+        result.forEach(s -> s.setChild(null));
+        return districtListToTree(result, PROVINCE_PARENT_CODE);
+    }
+
+    /**
+     * 只保留到Area区域，并且构造成一棵树
+     * <p>
+     * 如：广东省-广州市-荔湾区-沙面街道-翠洲社区居民委员会，则返回<br/>
+     * 广东省<br/>
+     * --广州市<br/>
+     * ----荔湾区<br/>
+     * </p>
+     *
+     * @param allDistrict allDistrict
+     *
+     * @return List<District>
+     */
+    public List<District> keepAreaDistrictsTree(List<District> allDistrict) {
+        List<District> areaDistrictList = allDistrict.stream().filter(s -> StringUtils.equals(String.valueOf(s.getCode()).substring(6, 9), "000")).collect(Collectors.toList());
+        return districtListToTree(
+                areaDistrictList.stream()
+                        .collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                                new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new)),
+                PROVINCE_PARENT_CODE);
+    }
+
 }

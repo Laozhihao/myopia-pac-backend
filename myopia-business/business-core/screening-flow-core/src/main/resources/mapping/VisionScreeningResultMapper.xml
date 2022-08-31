@@ -23,6 +23,10 @@
         <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="deviation_data" property="deviationData"/>
     </resultMap>
 
+    <resultMap id="ResultWithPlanInfo" type="com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO" extends="BaseResultMap">
+
+    </resultMap>
+
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -77,20 +81,22 @@
         group by student_id
     </select>
 
-    <select id="getLatestResultByStudentId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where student_id = #{studentId}
-          and is_double_screen = 0
-        order by create_time desc
+    <select id="getLatestResultOfReleasePlanByStudentId" resultMap="BaseResultMap">
+        select mvsr.*
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.student_id = #{studentId}
+          and msp.release_status = 1
+          and mvsr.is_double_screen = 0
+        order by mvsr.create_time desc
         limit 1
     </select>
 
     <select id="getHaveSrcScreeningNoticePlanIdsByTime" resultType="java.lang.Integer">
-        SELECT DISTINCT plan_id
-        FROM m_vision_screening_result
-        WHERE DATE(update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
+        SELECT DISTINCT mvsr.plan_id
+        FROM m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        WHERE msp.release_status = 1 AND DATE(mvsr.update_time) BETWEEN DATE(#{mvsr.startTime}) AND DATE(#{mvsr.endTime})
     </select>
 
     <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
@@ -103,22 +109,25 @@
           and is_double_screen = 0
     </select>
 
-    <select id="getByStudentId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where student_id = #{studentId}
-        group by update_time
-        order by update_time desc
+    <select id="getReleasePlanResultByStudentId" resultMap="BaseResultMap">
+        select mvsr.*
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.student_id = #{studentId}
+          and msp.release_status = 1
+        group by mvsr.update_time
+        order by mvsr.update_time desc
     </select>
 
-    <select id="getByStudentIdWithPage" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_vision_screening_result
-        where student_id = #{studentId}
-        group by update_time
-        order by update_time desc
+    <select id="getByStudentIdWithPage" resultMap="ResultWithPlanInfo">
+        select mvsr.*, msp.title as plan_title, msp.release_status
+        from m_vision_screening_result mvsr left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.student_id = #{studentId}
+        <if test="needFilterAbolishPlan">
+            and msp.release_status = 1
+        </if>
+        group by mvsr.update_time
+        order by mvsr.update_time desc
     </select>
 
     <select id="getStudentResults" resultMap="BaseResultMap">
@@ -250,11 +259,13 @@
 
     <select id="getVisionScreeningCountBySchoolId"
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO">
-        select count(1) as count, student_id
-        from m_vision_screening_result
-        where is_double_screen = 0
-          and school_id = #{schoolId}
-          and screening_type = 0
-        group by student_id
+        select count(1) as count, mvsr.student_id, MAX(mvsr.update_time)
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.is_double_screen = 0
+          and mvsr.school_id = #{schoolId}
+          and mvsr.screening_type = 0
+          and msp.release_status = 1
+        group by mvsr.student_id
     </select>
 </mapper>

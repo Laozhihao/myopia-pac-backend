@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -23,8 +24,9 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/1/26
  **/
-@Component
 @Slf4j
+@Component
+@ConditionalOnProperty(name = "myopia.district-cache.enabled", havingValue = "true", matchIfMissing = true)
 public class DistrictCache implements CommandLineRunner {
     private static Logger logger = LoggerFactory.getLogger(DistrictCache.class);
 

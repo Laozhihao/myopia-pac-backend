@@ -44,7 +44,19 @@ public class ExcelStudentDataBO {
          * 答案
          */
         private String answer;
+        /**
+         * 操作ID
+         */
+        private String optionId;
+        /**
+         * qes字段
+         */
+        private String qesField;
 
+        public AnswerDataBO(Integer questionId, String answer) {
+            this.questionId = questionId;
+            this.answer = answer;
+        }
     }
 
     public Map<Integer,String> getAnswerDataMap(){

@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import cn.hutool.core.collection.CollUtil;
+import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -28,5 +30,24 @@ public class ListUtil {
                 .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * 多个list取交集
+     * @param qesIdList list集合
+     */
+    public static List<Integer> getIntersection(List<List<Integer>> qesIdList){
+        if (CollUtil.isEmpty(qesIdList)){
+            return Lists.newArrayList();
+        }
+        List<Integer> intersectionList = qesIdList.get(0);
+        if (qesIdList.size() == 1){
+            return intersectionList;
+        }
+        for (List<Integer> qesIds : qesIdList) {
+            intersectionList.retainAll(qesIds);
+        }
+        return intersectionList;
     }
 }

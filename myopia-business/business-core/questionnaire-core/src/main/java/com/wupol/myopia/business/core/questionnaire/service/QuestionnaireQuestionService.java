@@ -1,15 +1,20 @@
 package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesDataDO;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.EditQuestionnaireRequestDTO;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.QuestionnaireQuestionMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QuestionnaireQuestion;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author Simple4H
@@ -36,6 +41,15 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
             question.setIsNotShowNumber(detail.getIsNotShowNumber());
             question.setJumpIds(detail.getJumpIds());
             question.setIsLogic(detail.getIsLogic());
+            List<QesDataDO> qesData = detail.getQesData();
+            if (!CollectionUtils.isEmpty(qesData)) {
+                if (qesData.stream().map(QesDataDO::getOptionId).filter(StringUtils::isNotBlank).count() != qesData.size()) {
+                    throw new BusinessException("选项Id异常");
+                }
+                detail.setQesData(qesData.stream().filter(s -> !StringUtils.equals(s.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList()));
+            }
+            question.setQesData(qesData);
+            question.setIsHidden(detail.getIsHidden());
             baseMapper.insert(question);
             List<EditQuestionnaireRequestDTO.Detail> questionList = detail.getQuestionList();
             if (!CollectionUtils.isEmpty(questionList)) {
@@ -67,6 +81,12 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
                 .orderByAsc(QuestionnaireQuestion::getId));
     }
 
+    public List<QuestionnaireQuestion> listByQuestionnaireIds(List<Integer> questionnaireIds) {
+        LambdaQueryWrapper<QuestionnaireQuestion> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(QuestionnaireQuestion::getQuestionnaireId,questionnaireIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
     /**
      * 通过问卷、问题Id获取
      *
@@ -95,6 +115,27 @@ public class QuestionnaireQuestionService extends BaseService<QuestionnaireQuest
      */
     public void deletedLogic(Integer questionnaireId, Integer questionId) {
         baseMapper.deletedLogic(questionnaireId, questionId);
+    }
+
+    /**
+     * 通过问卷、问题Id获取
+     *
+     * @return QuestionnaireQuestion
+     */
+    public List<QuestionnaireQuestion> getByQuestionnaireIdAndQuestionIds(Integer questionnaireId, List<Integer> questionIds) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionnaireQuestion::getQuestionnaireId, questionnaireId);
+        wrapper.in(QuestionnaireQuestion::getQuestionId, questionIds);
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 通过Pid获取
+     */
+    public List<QuestionnaireQuestion> getByPids(List<Integer> pids) {
+        LambdaQueryWrapper<QuestionnaireQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(QuestionnaireQuestion::getPid, pids);
+        return baseMapper.selectList(wrapper);
     }
 
 }

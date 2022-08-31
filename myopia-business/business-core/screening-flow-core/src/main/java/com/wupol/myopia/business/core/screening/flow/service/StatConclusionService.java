@@ -48,6 +48,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
     }
 
     /**
+     * 获取list（已发布的计划的）
+     *
+     * @param statConclusionQueryDTO 查询条件
+     * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion>
+     **/
+    public List<StatConclusion> listOfReleasePlanByQuery(StatConclusionQueryDTO statConclusionQueryDTO) {
+        return baseMapper.listOfReleasePlanByQuery(statConclusionQueryDTO);
+    }
+
+    /**
      * 获取最后一个
      * @param statConclusionQueryDTO
      * @return
@@ -62,16 +72,21 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param screeningNoticeId
      * @return
      */
-    public List<StatConclusion> getBySrcScreeningNoticeId(Integer screeningNoticeId) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StatConclusion::getSrcScreeningNoticeId, screeningNoticeId);
-        return baseMapper.selectList(queryWrapper);
+    public List<StatConclusion> listOfReleasePlanByScreeningNoticeId(Integer screeningNoticeId) {
+        StatConclusionQueryDTO queryDTO = new StatConclusionQueryDTO();
+        queryDTO.setSrcScreeningNoticeId(screeningNoticeId);
+        return listOfReleasePlanByQuery(queryDTO);
     }
 
-    public List<StatConclusion> getBySrcScreeningNoticeIds(List<Integer> screeningNoticeIds) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(StatConclusion::getSrcScreeningNoticeId, screeningNoticeIds);
-        return baseMapper.selectList(queryWrapper);
+    /**
+     * 根据源通知ID集获取筛查数据
+     *
+     * @param screeningNoticeIds
+     * @param excludePlanIds
+     * @return
+     */
+    public List<StatConclusion> listOfReleasePlanByScreeningNoticeIds(List<Integer> screeningNoticeIds, List<Integer> excludePlanIds) {
+        return listOfReleasePlanByQuery(new StatConclusionQueryDTO().setScreeningNoticeIds(screeningNoticeIds).setExcludePlanIds(excludePlanIds));
     }
 
     /**

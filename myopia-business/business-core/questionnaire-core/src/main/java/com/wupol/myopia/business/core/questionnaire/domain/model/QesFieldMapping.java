@@ -31,9 +31,13 @@ public class QesFieldMapping implements Serializable {
     private Integer id;
 
     /**
-     * 问卷ID
+     * QES文件管理ID
      */
-    private Integer questionnaireId;
+    private Integer qesId;
+    /**
+     * 年份
+     */
+    private Integer year;
 
     /**
      * qes字段
@@ -44,6 +48,11 @@ public class QesFieldMapping implements Serializable {
      * 系统字段
      */
     private String systemField;
+
+    /**
+     * 选项ID
+     */
+    private String optionId;
 
     /**
      * 创建时间

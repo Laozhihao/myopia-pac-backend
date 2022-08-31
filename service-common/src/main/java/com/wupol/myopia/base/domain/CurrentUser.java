@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
  * @Date 2020/12/26
  **/
 @Data
-public class CurrentUser {
+public class CurrentUser implements Serializable {
 
     /**
      * 用户ID
@@ -130,6 +131,19 @@ public class CurrentUser {
         return UserType.QUESTIONNAIRE_STUDENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode);
     }
 
+    /**
+     * 是否政府用户
+     *
+     * @return
+     */
+    @JsonIgnore
+    public boolean isQuestionnaireGovUser() {
+        return (UserType.QUESTIONNAIRE_GOVERNMENT.getType().equals(userType) && SystemCode.QUESTIONNAIRE.getCode().equals(systemCode))
+                ||
+                (UserType.GOVERNMENT_ADMIN.getType().equals(userType) && SystemCode.MANAGEMENT_CLIENT.getCode().equals(systemCode));
+    }
+
+
     @JsonIgnore
     public Integer getQuestionnaireUserType() {
         if (isQuestionnaireSchoolUser()) {
@@ -138,7 +152,7 @@ public class CurrentUser {
         if (isQuestionnaireStudentUser()) {
             return QuestionnaireUserType.STUDENT.getType();
         }
-        if (isGovDeptUser()) {
+        if (isQuestionnaireGovUser()) {
             return QuestionnaireUserType.GOVERNMENT_DEPARTMENT.getType();
         }
         throw new BusinessException("获取用户类型异常");
@@ -152,8 +166,8 @@ public class CurrentUser {
             }
             return questionnaireUserId;
         }
-        if (isGovDeptUser()) {
-            return id;
+        if (isQuestionnaireGovUser()) {
+            return orgId;
         }
         throw new BusinessException("获取用户Id异常");
     }
