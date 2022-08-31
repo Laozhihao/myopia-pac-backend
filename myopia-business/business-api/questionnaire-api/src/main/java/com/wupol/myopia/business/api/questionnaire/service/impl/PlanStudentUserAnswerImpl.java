@@ -9,6 +9,7 @@ import com.wupol.myopia.business.api.questionnaire.service.IUserAnswerService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.constant.UserQuestionRecordEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
@@ -158,7 +159,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 获取问卷中是否存在序号为A01，A011，A02三个问题
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList("A01", "A011", "A02"));
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaireId, Lists.newArrayList(CommonConst.A01, CommonConst.A011, CommonConst.A02));
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }
@@ -208,20 +209,20 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
     }
 
     private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
-        if (StringUtils.equals(v, "A01")) {
+        if (StringUtils.equals(v, CommonConst.A01)) {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             optionAnswer.setValue(GradeCodeEnum.getByName(planStudent.getGradeName()).getCode());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
             return;
         }
 
-        if (StringUtils.equals(v, "A011")) {
+        if (StringUtils.equals(v, CommonConst.A011)) {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
-            optionAnswer.setOptionId(json.getString("id"));
+            optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
             if (StringUtils.isEmpty(planStudent.getCommonDiseaseId())) {
                 return;
             }
@@ -232,7 +233,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
             return;
         }
 
-        if (StringUtils.equals(v, "A02")) {
+        if (StringUtils.equals(v, CommonConst.A02)) {
             Optional<Option> optionOptional = options.stream().filter(s -> StringUtils.equals(s.getText(), GenderEnum.getName(planStudent.getGender()))).findFirst();
             if (optionOptional.isPresent()) {
                 OptionAnswer optionAnswer = new OptionAnswer();

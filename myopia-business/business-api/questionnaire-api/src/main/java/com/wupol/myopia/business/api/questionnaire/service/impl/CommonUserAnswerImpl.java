@@ -26,6 +26,12 @@ import java.util.stream.Collectors;
 /**
  * 保存答案公共类
  *
+ * <p>
+ * 待优化：<br/>
+ * 此处的公共类可以采用抽象类（这次不调整可以看看如何抽象）<br/>
+ * 结构描述：一个总接口,一个抽象类（用于实现公共方法）实现总接口,学校、政府、学生实现类继承抽象类
+ * </p>
+ *
  * @author Simple4H
  */
 @Service
@@ -59,38 +65,33 @@ public class CommonUserAnswerImpl {
             throw new BusinessException("该问卷已经提交，不能修改！！！");
         }
 
-        if (Objects.equals(isFinish, Boolean.TRUE)) {
-            Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
-            if (Objects.nonNull(questionnaire)) {
-                questionnaireIds.add(questionnaire.getId());
-            }
-            List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(userId, userType, questionnaireIds);
-            userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
-            userQuestionRecordService.updateBatchById(userQuestionRecordList);
-            // 清空用户答案进度表
-            UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, null, null, planId);
-            if (Objects.nonNull(userAnswerProgress)) {
-                userAnswerProgress.setCurrentStep(null);
-                userAnswerProgress.setCurrentSideBar(null);
-                userAnswerProgress.setStepJson(null);
-                userAnswerProgress.setDistrictCode(null);
-                userAnswerProgress.setSchoolId(null);
-                userAnswerProgress.setPlanId(null);
-                userAnswerProgress.setUpdateTime(new Date());
-                userAnswerProgressService.updateById(userAnswerProgress);
-            }
-            // 学生新增汇总信息
-            if (Objects.equals(userType, QuestionnaireUserType.STUDENT.getType())) {
-                // 新增一条汇总的数据
-                UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
-                totalRecord.setId(null);
-                totalRecord.setQuestionnaireId(-1);
-                totalRecord.setQuestionnaireType(null);
-                totalRecord.setRecordType(1);
-                totalRecord.setCreateTime(new Date());
-                totalRecord.setUpdateTime(new Date());
-                userQuestionRecordService.save(totalRecord);
-            }
+        if (Objects.equals(isFinish, Boolean.FALSE)) {
+            return userQuestionRecord.getId();
+        }
+
+        Questionnaire questionnaire = questionnaireService.getByType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType());
+        if (Objects.nonNull(questionnaire)) {
+            questionnaireIds.add(questionnaire.getId());
+        }
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getUserQuestionRecordList(userId, userType, questionnaireIds);
+        userQuestionRecordList.forEach(item -> item.setStatus(UserQuestionRecordEnum.FINISH.getType()));
+        userQuestionRecordService.updateBatchById(userQuestionRecordList);
+        // 清空用户答案进度表
+        UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, null, null, planId);
+        if (Objects.nonNull(userAnswerProgress)) {
+            userAnswerProgressService.removeById(userAnswerProgress);
+        }
+        // 学生新增汇总信息
+        if (Objects.equals(userType, QuestionnaireUserType.STUDENT.getType())) {
+            // 新增一条汇总的数据
+            UserQuestionRecord totalRecord = userQuestionRecordList.get(0);
+            totalRecord.setId(null);
+            totalRecord.setQuestionnaireId(-1);
+            totalRecord.setQuestionnaireType(null);
+            totalRecord.setRecordType(1);
+            totalRecord.setCreateTime(new Date());
+            totalRecord.setUpdateTime(new Date());
+            userQuestionRecordService.save(totalRecord);
         }
         return userQuestionRecord.getId();
     }
