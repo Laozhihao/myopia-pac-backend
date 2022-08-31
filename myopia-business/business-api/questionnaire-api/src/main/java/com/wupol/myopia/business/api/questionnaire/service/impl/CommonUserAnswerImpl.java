@@ -79,14 +79,7 @@ public class CommonUserAnswerImpl {
         // 清空用户答案进度表
         UserAnswerProgress userAnswerProgress = userAnswerProgressService.getUserAnswerProgressService(userId, userType, null, null, planId);
         if (Objects.nonNull(userAnswerProgress)) {
-            userAnswerProgress.setCurrentStep(null);
-            userAnswerProgress.setCurrentSideBar(null);
-            userAnswerProgress.setStepJson(null);
-            userAnswerProgress.setDistrictCode(null);
-            userAnswerProgress.setSchoolId(null);
-            userAnswerProgress.setPlanId(null);
-            userAnswerProgress.setUpdateTime(new Date());
-            userAnswerProgressService.updateById(userAnswerProgress);
+            userAnswerProgressService.removeById(userAnswerProgress);
         }
         // 学生新增汇总信息
         if (Objects.equals(userType, QuestionnaireUserType.STUDENT.getType())) {
