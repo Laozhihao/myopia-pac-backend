@@ -14,6 +14,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -52,6 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -127,6 +129,8 @@ public class ScreeningPlanStudentBizService {
         // 身份证或护照是否在同一计划下已经绑定了数据
         Integer planStudentId = requestDTO.getPlanStudentId();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        ScreeningPlan plan = screeningPlanService.getById(planStudent.getScreeningPlanId());
+        Assert.isTrue(CommonConst.STATUS_RELEASE.equals(plan.getReleaseStatus()), "学生所属筛查计划已作废！");
         if (!CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdIdCardAndPassport(planStudent.getScreeningPlanId(), requestDTO.getIdCard(), requestDTO.getPassport(), planStudentId))) {
             throw new BusinessException("身份证或护照重复，请检查");
         }
@@ -481,7 +485,7 @@ public class ScreeningPlanStudentBizService {
             return Collections.emptySet();
         }
         List<Integer> orgIds = screeningOrganizations.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
-        List<ScreeningPlan> screeningPlans = screeningPlanService.getByOrgIds(orgIds);
+        List<ScreeningPlan> screeningPlans = screeningPlanService.getReleasePlanByOrgIds(orgIds);
         return screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
     }
 
@@ -509,6 +513,7 @@ public class ScreeningPlanStudentBizService {
         }
         Integer screeningPlanId = screeningPlanSchoolStudent.getScreeningPlanId();
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+        Assert.isTrue(CommonConst.STATUS_RELEASE.equals(plan.getReleaseStatus()), "此二维码已作废！");
         return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 

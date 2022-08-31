@@ -38,3 +38,10 @@ alter table q_user_answer_progress
 
 alter table q_user_answer_progress
     add plan_id int null comment '计划Id' after district_code;
+
+
+-- 筛查机构表，新增筛查类型配置字段
+ALTER TABLE `m_screening_organization`
+  ADD COLUMN `screening_type_config` varchar(10) COMMENT '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';
+-- 处理历史数据，默认为视力筛查配置
+UPDATE `m_screening_organization` SET screening_type_config = '0';

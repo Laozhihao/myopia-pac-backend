@@ -238,7 +238,7 @@ public class StudentBizService {
      */
     public StudentDTO getStudentById(Integer id) {
         StudentDTO student = studentService.getStudentById(id);
-        student.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(id)));
+        student.setScreeningCodes(getScreeningCode(id));
         student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
         if (Objects.nonNull(student.getCommitteeCode())) {
             student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
@@ -286,7 +286,7 @@ public class StudentBizService {
         } else {
             studentDTO.setNumOfVisits(0);
         }
-        studentDTO.setScreeningCodes(getScreeningCodesByPlan(screeningPlanSchoolStudentService.getByStudentId(student.getId())));
+        studentDTO.setScreeningCodes(getScreeningCode(student.getId()));
         return studentDTO;
     }
 
@@ -567,11 +567,8 @@ public class StudentBizService {
      * @return 编号
      */
     private List<Long> getScreeningCode(Integer studentId) {
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getByStudentId(studentId);
-        if (CollectionUtils.isEmpty(planStudentList)) {
-            return Collections.emptyList();
-        }
-        return planStudentList.stream().map(ScreeningPlanSchoolStudent::getScreeningCode).collect(Collectors.toList());
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
+        return getScreeningCodesByPlan(planStudentList);
     }
 
     /**

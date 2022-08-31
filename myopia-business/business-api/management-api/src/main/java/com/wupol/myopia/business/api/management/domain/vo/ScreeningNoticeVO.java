@@ -20,7 +20,14 @@ public class ScreeningNoticeVO extends ScreeningNoticeDTO {
         BeanUtils.copyProperties(screeningNoticeDTO, this);
     }
 
-    /** 行政区明细 */
+    /**
+     * 行政区明细
+     */
     private List<District> districtDetail;
+
+    /**
+     * 是否可以创建计划
+     */
+    private Boolean canCreatePlan;
 
 }

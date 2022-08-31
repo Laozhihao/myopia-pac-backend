@@ -78,7 +78,7 @@ public class StatManagementController {
 
     @GetMapping("/plan-year")
     public List<Integer> getPlanYearsByUser() {
-        return screeningPlanService.getYears(managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser()));
+        return screeningPlanService.getYears(managementScreeningPlanBizService.getReleaseScreeningPlanByUser(CurrentUserUtil.getCurrentUser()));
     }
 
     /**
@@ -104,7 +104,7 @@ public class StatManagementController {
      */
     @GetMapping("/plan")
     public List<ScreeningPlanNameDTO> getPlanDetailByYearAndUser(@RequestParam Integer year) {
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getReleaseScreeningPlanByUser(CurrentUserUtil.getCurrentUser());
         return screeningPlanService.getScreeningPlanNameDTOs(screeningPlans, year);
     }
 

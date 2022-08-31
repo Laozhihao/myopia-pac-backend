@@ -179,7 +179,7 @@ public class StatReportService {
     public Map<String, Object> getDistrictStatData(int srcScreeningNoticeId, int districtId) {
         StatConclusionQueryDTO query = composeDistrictQuery(districtId);
         query.setSrcScreeningNoticeId(srcScreeningNoticeId);
-        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        List<StatConclusion> statConclusions = statConclusionService.listOfReleasePlanByQuery(query);
         if (CollectionUtil.isEmpty(statConclusions)) {
             return null;
         }

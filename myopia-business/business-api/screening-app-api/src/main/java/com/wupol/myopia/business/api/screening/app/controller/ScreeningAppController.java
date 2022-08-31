@@ -135,7 +135,7 @@ public class ScreeningAppController {
             //查找全部的年级
             return schoolGradeService.getBySchoolId(schoolId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByOrgIdAndSchoolId(schoolId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentReleasePlanStudentByOrgIdAndSchoolId(schoolId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
@@ -154,7 +154,7 @@ public class ScreeningAppController {
         if (all) {
             return schoolClassService.getByGradeId(gradeId);
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentPlanStudentByGradeIdAndScreeningOrgId(gradeId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getCurrentRelePlanStudentByGradeIdAndScreeningOrgId(gradeId, CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents)) {
             return Collections.emptyList();
         }
@@ -190,7 +190,7 @@ public class ScreeningAppController {
         if (Objects.nonNull(classId) && classId != -1) {
             screeningStudentQuery.setClassId(classId);
         }
-        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentPlanScreeningStudentList(screeningStudentQuery, page, size, channel);
+        IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentReleasePlanScreeningStudentList(screeningStudentQuery, page, size, channel);
         List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
                 .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
                 .map(StudentVO::getInstance).collect(Collectors.toList());
@@ -606,8 +606,7 @@ public class ScreeningAppController {
             // app 就是这么干的。
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getCode(), e.getMessage());
         }
-        ScreeningPlan currentPlan = screeningPlanService.getCurrentPlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue(), channel);
-
+        ScreeningPlan currentPlan = screeningPlanService.getCurrentReleasePlan(CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId().intValue(), channel);
         if (currentPlan == null) {
             log.error("根据orgId = [{}]，以及schoolId = [{}] 无法找到计划。", CurrentUserUtil.getCurrentUser().getOrgId(), appStudentDTO.getSchoolId());
             return ApiResult.failure(ErrorEnum.UNKNOWN_ERROR.getMessage());
@@ -670,10 +669,10 @@ public class ScreeningAppController {
                 .setScreeningType(channel)
         );
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
         if (screeningPlanStudentBizService.isNotMatchScreeningTime(screeningPlanSchoolStudent)) {
             throw new BusinessException(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
     }
 
@@ -829,7 +828,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/getSchoolHasScreeningData")
     public List<School> getSchoolHasScreeningData(@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return Collections.emptyList();
         }
@@ -848,7 +847,7 @@ public class ScreeningAppController {
      */
     @GetMapping("/getLatestScreeningStudent")
     public ScreeningPlanSchoolStudent getLatestScreeningStudent(@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
-        Set<Integer> currentPlanIds = screeningPlanService.getCurrentPlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
+        Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             return new ScreeningPlanSchoolStudent();
         }

@@ -21,6 +21,8 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -67,9 +69,8 @@ public class SchoolStudentBizService {
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(schoolId);
-        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId,
-                        StudentScreeningCountDTO::getCount));
+        Map<Integer, StudentScreeningCountDTO> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+                .toMap(StudentScreeningCountDTO::getStudentId, Function.identity()));
 
         // 获取就诊记录
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
@@ -77,8 +78,10 @@ public class SchoolStudentBizService {
                 .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
         studentList.forEach(s -> {
-            s.setScreeningCount(countMaps.getOrDefault(s.getStudentId(), 0));
+            s.setScreeningCount(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getCount).orElse(0));
             s.setNumOfVisits(Objects.nonNull(visitMap.get(s.getStudentId())) ? visitMap.get(s.getStudentId()).size() : 0);
+            // 由于作废计划的存在，需要动态获取最新的非作废计划的筛查数据更新时间，覆盖固化的最新筛查日期
+            s.setLastScreeningTime(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getUpdateTime).orElse(null));
         });
         return responseDTO;
     }

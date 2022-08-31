@@ -112,7 +112,7 @@ public class SchoolBizService {
      * @param schoolId    学校ID
      * @return {@link IPage}
      */
-    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId) {
+    public IPage<ScreeningPlanResponseDTO> getScreeningRecordLists(PageRequest pageRequest, Integer schoolId, CurrentUser currentUser) {
 
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(planSchoolList)) {
@@ -121,9 +121,7 @@ public class SchoolBizService {
 
         // 通过planIds查询计划
         IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
-                .getListByIds(pageRequest, planSchoolList.stream()
-                        .map(ScreeningPlanSchool::getScreeningPlanId)
-                        .collect(Collectors.toList()));
+                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 

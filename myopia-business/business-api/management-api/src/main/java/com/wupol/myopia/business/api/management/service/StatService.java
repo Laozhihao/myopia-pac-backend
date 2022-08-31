@@ -130,7 +130,7 @@ public class StatService {
                 .setIsRescreen(false)
                 .setIsCooperative(0);
         List<StatConclusion> warningConclusions =
-                statConclusionService.listByQuery(warningListQuery);
+                statConclusionService.listOfReleasePlanByQuery(warningListQuery);
         int total = warningConclusions.size();
         int warning0Num = (int)warningConclusions.stream()
                 .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
@@ -203,7 +203,7 @@ public class StatService {
         query.setSchoolId(schoolId);
         query.setSchoolGradeCode(schoolGradeCode);
         query.setSchoolClassName(schoolClass);
-        return composeScreeningDataContrast(statConclusionService.listByQuery(query),
+        return composeScreeningDataContrast(statConclusionService.listOfReleasePlanByQuery(query),
                 getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
                         , schoolAge, schoolId, schoolGradeCode, schoolClass));
     }
@@ -249,7 +249,7 @@ public class StatService {
         StatConclusionQueryDTO query = new StatConclusionQueryDTO();
         query.setDistrictIds(validDistrictIds);
         query.setSrcScreeningNoticeId(notificationId);
-        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        List<StatConclusion> statConclusions = statConclusionService.listOfReleasePlanByQuery(query);
         if (statConclusions == null) {
             return ScreeningClassStat.builder().build();
         }
@@ -712,7 +712,7 @@ public class StatService {
         Map<Integer, List<ContrastTypeYearItemsDTO>> contrastTypeFilterMap = new HashMap<>(5);
         boolean isPlatformAdmin = currentUser.isPlatformAdminUser();
         if (currentUser.isScreeningUser() || currentUser.isHospitalUser() || isPlatformAdmin) {
-            List<ScreeningPlan> planList = managementScreeningPlanBizService.getScreeningPlanByUser(currentUser);
+            List<ScreeningPlan> planList = managementScreeningPlanBizService.getReleaseScreeningPlanByUser(currentUser);
             contrastTypeFilterMap.put(ContrastTypeEnum.PLAN.code, getYearPlanList(planList));
         }
         if (currentUser.isGovDeptUser() || isPlatformAdmin) {
@@ -870,7 +870,7 @@ public class StatService {
                 query.setSchoolGradeCode(schoolGradeCode);
             }
         }
-        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(query);
+        List<StatConclusion> statConclusionList = statConclusionService.listOfReleasePlanByQuery(query);
         DataContrastFilterResultDTO dataContrastFilterResultDTO = new DataContrastFilterResultDTO(
                 getDataContrastFilter(statConclusionList, schoolId, schoolGradeCode, currentUser),
                 composeScreeningDataContrast(statConclusionList, planScreeningStudentNum));

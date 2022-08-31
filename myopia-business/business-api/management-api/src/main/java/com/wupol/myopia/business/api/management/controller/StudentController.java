@@ -177,7 +177,7 @@ public class StudentController {
      */
     @GetMapping("/screening")
     public IPage<StudentScreeningResultItemsDTO> getScreeningList(PageRequest pageRequest, @NotNull(message = "学生Id不能为空") Integer id) {
-        return studentFacade.getScreeningList(pageRequest, id);
+        return studentFacade.getScreeningList(pageRequest, id, CurrentUserUtil.getCurrentUser());
     }
 
     /**

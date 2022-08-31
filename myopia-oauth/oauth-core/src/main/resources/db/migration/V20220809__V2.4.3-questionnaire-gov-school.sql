@@ -4,4 +4,6 @@ INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `o
 VALUES (960, '通过key获取下拉值', 'getDropSelectKey', 'get:/management/questionnaire/select/list', 0, 0, 0, 911, 1),
        (961, '问卷系统', 'questionnaireSystem', null, 1, 1, 0, 0, 1),
        (962, '问卷系统get请求', 'questionnaireGet', 'get:/questionnaire/**', 0, 0, 0, 961, 1),
-       (963, '问卷系统post请求', 'questionnairePost', 'post:/questionnaire/**', 0, 0, 0, 961, 1);
+       (963, '问卷系统post请求', 'questionnairePost', 'post:/questionnaire/**', 0, 0, 0, 961, 1),
+       (965, '作废筛查计划', 'abolishScreeningPlanBtn', 'put:/management/screeningPlan/abolish/**', 0, 0, 1, 27, 1),
+       (966, '删除计划学校', 'deleteScreeningPlanSchoolBtn', 'delete:/management/screeningPlan/school/**/**', 0, 0, 1, 27, 1);
