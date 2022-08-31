@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 专项检查项目
  * @Author wulizhou
@@ -16,7 +18,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpecialMedical {
+public class SpecialMedical implements Serializable {
 
     /**
      * 红光反射

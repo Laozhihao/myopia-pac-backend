@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -72,7 +71,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
         // 获取筛查人员
         List<User> list = oauthServiceClient.getUserList(userQuery);
-        List<User> resultLists = JSONObject.parseArray(JSONObject.toJSONString(list), User.class);
+        List<User> resultLists = JSON.parseArray(JSON.toJSONString(list), User.class);
         if (CollectionUtils.isEmpty(resultLists)) {
             return new Page<>(request.getCurrent(), request.getSize());
         }

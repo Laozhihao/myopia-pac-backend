@@ -67,7 +67,7 @@ public class ScreeningPlanSchoolBizService {
 
         //学校ID对应的学生数集合
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType());
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType(),QuestionnaireStatusEnum.FINISH.getCode());
         Map<Integer, List<UserQuestionRecord>> schoolMap = getSchoolMap(userQuestionRecords);
         Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = getGradeStudentMap(userQuestionRecords);
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = getGradeMap(screeningPlanSchools);

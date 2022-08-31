@@ -29,7 +29,7 @@ public class OtherEyeDiseasesDO extends AbstractDiagnosisResult implements Seria
 
     @Data
     @Accessors(chain = true)
-    public static class OtherEyeDiseases {
+    public static class OtherEyeDiseases implements Serializable {
         /**
          * 0 为左眼 1 为右眼
          */

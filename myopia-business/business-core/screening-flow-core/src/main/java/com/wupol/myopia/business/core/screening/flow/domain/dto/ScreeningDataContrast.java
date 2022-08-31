@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ScreeningDataContrast {
+public class ScreeningDataContrast implements Serializable {
     /** 筛查学生数 */
     private long screeningNum;
 

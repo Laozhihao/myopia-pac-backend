@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -34,7 +34,7 @@ public class SchoolClassScreeningMonitorService {
      */
     public void getSchoolClassScreeningMonitorVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO) {
 
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         ScreeningNum.MAP.put(0, statConclusionList.size());
@@ -63,7 +63,7 @@ public class SchoolClassScreeningMonitorService {
     }
 
     private void getSchoolClassScreeningMonitorChart(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -146,20 +146,20 @@ public class SchoolClassScreeningMonitorService {
      * 各班级筛查情况-表格数据
      */
     private void getSchoolClassScreeningMonitorTableList(List<StatConclusion> statConclusionList, SchoolClassScreeningMonitorVO schoolClassScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
         Map<String, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolClassName));
         schoolStatConclusionMap.forEach((schoolClassName, list) -> getSchoolClassScreeningTable(schoolClassName, list, tableList));
 
-        CollectionUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaRatio).reversed());
+        CollUtil.sort(tableList, Comparator.comparing(ScreeningMonitorTable::getSaprodontiaRatio).reversed());
 
         schoolClassScreeningMonitorVO.setSchoolClassScreeningMonitorTableList(tableList);
     }
 
     private void getSchoolClassScreeningTable(String schoolClassName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 

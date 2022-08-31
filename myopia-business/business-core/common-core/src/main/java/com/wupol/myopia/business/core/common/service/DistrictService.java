@@ -136,6 +136,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtCode 区域编码
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictCode(Long districtCode) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetail(districtCode);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
      * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
      *
      * @param list 区域ID
@@ -180,6 +198,22 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             log.error("获取区域层级失败", e);
         }
         return childDistrictIds;
+    }
+
+    /**
+     * 获取指定区域下的所有区域ID(包括子集)
+     * @param districtId 区域ID
+     */
+    public List<Integer> filterDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            return null;
+        }
+        List<Integer> districtIdList = getSpecificDistrictTreeAllDistrictIds(districtId);
+        if (!districtIdList.contains(districtId)) {
+            districtIdList.add(districtId);
+        }
+        return districtIdList;
+
     }
 
     /**
@@ -702,7 +736,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId){
         District district = getById(districtId);
         return this.getChildDistrictByParentIdPriorityCache(district.getCode());
     }
@@ -769,9 +803,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取下级的所有地区
      *
      * @return
-     * @throws IOException
      */
-    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
+    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
         return districts.stream().map(District::getId).collect(Collectors.toSet());
     }
@@ -792,7 +825,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
+    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
                 cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));

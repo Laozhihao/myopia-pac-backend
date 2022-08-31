@@ -3,9 +3,11 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Builder
-public class RescreenStat {
+public class RescreenStat implements Serializable {
     /** 复测人数 */
     private long rescreenNum;
 

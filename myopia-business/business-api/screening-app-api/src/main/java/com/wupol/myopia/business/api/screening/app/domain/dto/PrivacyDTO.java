@@ -44,10 +44,7 @@ public class PrivacyDTO extends ScreeningResultBasicData {
 
     public boolean isValid() {
         // 如果为是则年龄必填
-        if (hasIncident && Objects.isNull(age)) {
-            return false;
-        }
-        return true;
+        return !hasIncident || !Objects.isNull(age);
     }
 
     public static PrivacyDTO getInstance(PrivacyDataDO privacyDataDO) {

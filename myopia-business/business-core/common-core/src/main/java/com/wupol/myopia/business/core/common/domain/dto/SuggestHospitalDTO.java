@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.common.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 建议医院
  *
@@ -10,7 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SuggestHospitalDTO {
+public class SuggestHospitalDTO implements Serializable {
 
     /**
      * 头像

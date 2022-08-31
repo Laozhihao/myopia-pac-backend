@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
  * @Date 2020/12/26
  **/
 @Data
-public class CurrentUser {
+public class CurrentUser implements Serializable {
 
     /**
      * 用户ID

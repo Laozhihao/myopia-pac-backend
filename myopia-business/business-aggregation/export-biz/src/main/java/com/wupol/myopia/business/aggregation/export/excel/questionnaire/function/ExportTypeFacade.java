@@ -101,8 +101,7 @@ public class ExportTypeFacade {
     public String getOrgOrSchoolKey(ExportCondition exportCondition,String allKey,String schoolKey){
         Integer schoolId = exportCondition.getSchoolId();
         if (Objects.isNull(schoolId)){
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-            return String.format(allKey,screeningOrganization.getName());
+            return getOrgKey(exportCondition.getScreeningOrgId(),allKey);
         }else {
             School school = schoolService.getById(schoolId);
             return String.format(schoolKey,school.getName());
@@ -134,6 +133,19 @@ public class ExportTypeFacade {
                 typeMap.put(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getDesc());
                 typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
                 typeMap.put(QuestionnaireTypeEnum.VISION_SPINE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getDesc());
+                typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
+                break;
+            case 16:
+                typeMap.put(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType(),QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getDesc());
+                typeMap.put(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL.getDesc());
+                typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
+                typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
+                break;
+            case 17:
+                typeMap.put(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getDesc());
+                typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
+                break;
+            case 18:
                 typeMap.put(QuestionnaireConstant.STUDENT_TYPE,QuestionnaireConstant.STUDENT_TYPE_DESC);
                 break;
             case 12:
@@ -173,4 +185,13 @@ public class ExportTypeFacade {
         Assert.notNull(exportCondition.getDistrictId(),"区域ID不能为空");
     }
 
+    /**
+     * 获取机构Key
+     * @param id 机构ID
+     * @param orgSchool key
+     */
+    public String getOrgKey(Integer id, String orgSchool) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(id);
+        return String.format(orgSchool,screeningOrganization.getName());
+    }
 }

@@ -102,7 +102,7 @@ public class ExcelFacade {
                 StringBuilder folder = new StringBuilder();
                 List<StatConclusionExportDTO> orDefault = schoolNameMap.getOrDefault(schoolName, Collections.emptyList());
                 //学校的区域id，以及该区域的上层id
-                if (Objects.nonNull(orDefault) && orDefault.size() > 0) {
+                if (Objects.nonNull(orDefault) && !orDefault.isEmpty()) {
                     folder.append(filePath);
                     folder.append("/").append(fileName);
                 }

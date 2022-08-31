@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
@@ -161,6 +163,15 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.selectList(queryWrapper);
     }
 
+    public List<VisionScreeningResult> getByPlanIdsAndIsDoubleScreenAndDistrictIds(List<Integer> planIds,Boolean isDoubleScreen,List<Integer> districtIdList,Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .in(VisionScreeningResult::getPlanId,planIds)
+                .in(CollUtil.isNotEmpty(districtIdList),VisionScreeningResult::getDistrictId,districtIdList)
+                .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId)
+                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen));
+    }
+
+
     /**
      * 获取学生的最新筛查报告
      *
@@ -284,7 +295,23 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     public List<VisionScreeningResult> getByPlanId(Integer planId) {
-        return baseMapper.getByPlanId(planId);
+        return baseMapper.selectList(
+                Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .eq(VisionScreeningResult::getPlanId, planId));
+    }
+
+    public List<VisionScreeningResult> getByPlanIdAndIsDoubleScreenBatch(List<Integer> planIds,Boolean isDoubleScreen,Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen)
+                .in(VisionScreeningResult::getPlanId,planIds)
+                .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
+    }
+
+    public List<VisionScreeningResult> getByPlanIdAndIsDoubleScreen(Integer planId,Boolean isDoubleScreen,Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen)
+                .eq(VisionScreeningResult::getPlanId,planId)
+                .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
     }
 
     /**

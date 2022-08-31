@@ -26,6 +26,6 @@ public enum SaprodontiaType {
     private final String flag;
 
     public static SaprodontiaType getByFlag(String flag) {
-        return flag == null ? null : Arrays.stream(values()).filter((item) -> flag.equals(item.flag)).findFirst().orElse(null);
+        return flag == null ? null : Arrays.stream(values()).filter(item -> flag.equals(item.flag)).findFirst().orElse(null);
     }
 }

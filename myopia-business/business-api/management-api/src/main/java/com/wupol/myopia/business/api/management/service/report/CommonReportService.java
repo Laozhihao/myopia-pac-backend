@@ -456,17 +456,17 @@ public class CommonReportService {
     public ConvertRatio getChainRatioProportion(String firstProportion, String thisTimeProportion) {
         BigDecimal bigDecimal = new BigDecimal(firstProportion).subtract(new BigDecimal(thisTimeProportion)).setScale(2, RoundingMode.HALF_UP);
         int i = bigDecimal.compareTo(new BigDecimal("0"));
-        String var = StringUtils.EMPTY;
+        String variable = StringUtils.EMPTY;
         if (i < 0) {
-            var = "下降";
+            variable = "下降";
         }
         if (i == 0) {
             return new ConvertRatio("没有变化", StringUtils.EMPTY);
         }
         if (i > 0) {
-            var = "上涨";
+            variable = "上涨";
         }
-        return new ConvertRatio(var, bigDecimal.abs().toString());
+        return new ConvertRatio(variable, bigDecimal.abs().toString());
     }
 
     public Integer getSchoolCount(List<StatConclusion> statConclusions) {

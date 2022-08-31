@@ -2,7 +2,8 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.ExcelUtil;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -35,11 +36,9 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
 
 
     @Override
-    public void generateExcelFile(ExportCondition exportCondition,String fileName) throws IOException {
+    public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
 
-        List<Integer> gradeTypeList = Lists.newArrayList(SchoolAge.PRIMARY.code,SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code,SchoolAge.UNIVERSITY.code);
-
-        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(QuestionnaireTypeEnum.VISION_SPINE, QuestionnaireTypeEnum.VISION_SPINE_NOTICE, gradeTypeList, exportCondition,Boolean.FALSE);
+        GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(buildGenerateDataCondition(exportCondition,Boolean.FALSE));
         if (Objects.isNull(generateExcelDataBO)){
             return;
         }
@@ -50,7 +49,15 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
             String file = getFileSavePath(fileName, excelFileName);
             ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
         }
-
     }
 
+    @Override
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
+        return new GenerateDataCondition()
+                .setMainBodyType(QuestionnaireTypeEnum.VISION_SPINE)
+                .setBaseInfoType(QuestionnaireTypeEnum.VISION_SPINE_NOTICE)
+                .setGradeTypeList(Lists.newArrayList(SchoolAge.PRIMARY.code,SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code,SchoolAge.UNIVERSITY.code))
+                .setExportCondition(exportCondition)
+                .setIsAsc(isAsc);
+    }
 }

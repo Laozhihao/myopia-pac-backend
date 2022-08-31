@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -10,7 +10,8 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class DistrictSchoolScreeningMonitorService {
      */
     public void getDistrictSchoolScreeningMonitorVO(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
 
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         ScreeningNum.MAP.put(0, statConclusionList.size());
@@ -46,7 +47,7 @@ public class DistrictSchoolScreeningMonitorService {
     }
 
     private void getSchoolScreeningMonitorChart(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -107,7 +108,7 @@ public class DistrictSchoolScreeningMonitorService {
      * 各学校筛查情况-说明变量
      */
     private void getSchoolScreeningMonitorVariableVO(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         Map<Integer, List<StatConclusion>> schoolStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
@@ -153,7 +154,7 @@ public class DistrictSchoolScreeningMonitorService {
      * 各学校筛查情况-表格数据
      */
     private void getSchoolScreeningMonitorTableList(List<StatConclusion> statConclusionList, Map<Integer, String> schoolMap, DistrictSchoolScreeningMonitorVO districtSchoolScreeningMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<ScreeningMonitorTable> tableList = Lists.newArrayList();
@@ -167,7 +168,7 @@ public class DistrictSchoolScreeningMonitorService {
     }
 
     private void getSchoolScreeningTable(String schoolName, List<StatConclusion> statConclusionList, List<ScreeningMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 

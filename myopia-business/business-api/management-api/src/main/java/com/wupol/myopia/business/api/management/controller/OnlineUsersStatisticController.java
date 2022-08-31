@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -29,7 +30,7 @@ public class OnlineUsersStatisticController {
     public OnlineUserStatisticVO getOnlineNum(){
         OnlineUserStatisticVO onlineUserStatisticVO= new OnlineUserStatisticVO();
         Set<String> keys = redisUtil.getOnline();
-        if (CollectionUtil.isNotEmpty(keys)){
+        if (CollUtil.isNotEmpty(keys)){
             long managementClientNum = keys.stream().filter(key->key.contains("online:1") || key.contains("online:6") ).count();
             long schoolClientNum = keys.stream().filter(key->key.contains("online:2")).count();
             long screeningClientNum = keys.stream().filter(key->key.contains("online:3")).count();

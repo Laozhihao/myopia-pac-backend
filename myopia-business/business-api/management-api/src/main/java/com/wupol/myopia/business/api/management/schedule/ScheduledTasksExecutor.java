@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.schedule;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -60,7 +60,7 @@ public class ScheduledTasksExecutor {
     @Transactional(rollbackFor = Exception.class)
     public void sendSMSNotice() {
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
-        if (CollectionUtil.isEmpty(studentResult)) {
+        if (CollUtil.isEmpty(studentResult)) {
             return;
         }
         // 获取学生信息

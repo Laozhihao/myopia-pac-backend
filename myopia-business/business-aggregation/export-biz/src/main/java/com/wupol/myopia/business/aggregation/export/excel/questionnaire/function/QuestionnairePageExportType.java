@@ -52,7 +52,7 @@ public class QuestionnairePageExportType implements ExportType {
     }
 
     @Override
-    public String getDistrictKey(Integer districtId) {
+    public String getFolder(Integer districtId) {
         return exportTypeFacade.getDistrictKey(districtId,DISTRICT_SCHOOL);
     }
 

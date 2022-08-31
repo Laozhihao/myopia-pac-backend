@@ -148,6 +148,7 @@ public class QuestionnaireManagementController {
      */
     @PostMapping("edit")
     public void editQuestionnaire(@RequestBody EditQuestionnaireRequestDTO requestDTO) {
+        //TODO:什么时候结束
         questionnaireService.editQuestionnaire(requestDTO);
     }
 
@@ -242,8 +243,8 @@ public class QuestionnaireManagementController {
      * @param screeningPlanId
      */
     @GetMapping("/dataSchool")
-    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId){
-        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId);
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId,Integer dataType){
+        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId,dataType);
     }
 
     /**
@@ -252,8 +253,8 @@ public class QuestionnaireManagementController {
      * @param exportType 导出类型
      */
     @GetMapping("/type")
-    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
-        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId,Integer schoolId,Integer districtId){
+        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId,schoolId,districtId);
     }
 
     /**
@@ -264,6 +265,30 @@ public class QuestionnaireManagementController {
     @GetMapping("select/list")
     public List<SelectDropResponseDTO> getSelectList() {
         return SelectKeyEnum.getSelectDropResponseDTO();
+    }
+
+
+    /**
+     * 导出Rec文件
+     *
+     * @param exportQuestionnaireDTO 导出问卷参数
+     */
+    @PostMapping("/rec/export")
+    public void exportRec(@RequestBody ExportQuestionnaireDTO exportQuestionnaireDTO) throws IOException {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(currentUser.getId())
+                .setPlanId(exportQuestionnaireDTO.getScreeningPlanId())
+                .setDistrictId(exportQuestionnaireDTO.getDistrictId())
+                .setSchoolId(exportQuestionnaireDTO.getSchoolId())
+                .setExportType(exportQuestionnaireDTO.getExportType())
+                .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
+                .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
+                .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
+                .setTaskId(exportQuestionnaireDTO.getTaskId())
+                .setDataType(exportQuestionnaireDTO.getDataType());
+
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }
 
 }

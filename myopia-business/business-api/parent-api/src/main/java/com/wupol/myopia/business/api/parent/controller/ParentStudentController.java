@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.parent.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.domain.ApiResult;
@@ -354,7 +355,7 @@ public class ParentStudentController {
         DateUtil.checkBirthday(workOrder.getBirthday());
         Parent parent = parentService.getParentByUserId(user.getId());
         List<WorkOrder> workOrderList = workOrderService.findByCreateUserIdAndStatus(parent.getUserId(), WorkOrderStatusEnum.UNTREATED.code);
-        if (CollectionUtil.isNotEmpty(workOrderList)){
+        if (CollUtil.isNotEmpty(workOrderList)){
             throw new BusinessException("你提交的工单正在处理中，请勿重复提交。");
         }
         workOrderService.addWorkOrder(workOrder,parent);

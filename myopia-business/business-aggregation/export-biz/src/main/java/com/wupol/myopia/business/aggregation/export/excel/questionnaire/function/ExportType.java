@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -38,9 +38,9 @@ public interface ExportType {
 
     /**
      * 获取地区学校
-     * @param districtId 地区ID
+     * @param id 地区ID
      */
-    default String getDistrictKey(Integer districtId){
+    default String getFolder(Integer id){
         return "";
     }
 
@@ -71,6 +71,6 @@ public interface ExportType {
      * @return 获取条件值
      */
     default List<Integer> getConditionValue(ExportCondition exportCondition){
-        return UserAnswerFacade.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        return AnswerUtil.defaultValue(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
     }
 }
