@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.UserType;
-import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
@@ -14,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.A
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +46,9 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
 
     @Override
     public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
+        TwoTuple<Answer, GenerateDataCondition> tuple = getAnswerService(exportCondition, Boolean.TRUE);
+
+
         GenerateExcelDataBO generateExcelDataBO = userAnswerFacade.generateStudentTypeExcelData(buildGenerateDataCondition(exportCondition,Boolean.TRUE));
         if (Objects.isNull(generateExcelDataBO)){
             return;
@@ -54,7 +57,7 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
         for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
             String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
             String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
+//            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
         }
     }
 
@@ -69,6 +72,11 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
             String recFileName = answerService.getRecFileName(new RecFileNameCondition(generateRecDataBO.getSchoolId(), getType()));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
+    }
+
+    private TwoTuple<Answer,GenerateDataCondition> getAnswerService(ExportCondition exportCondition, Boolean isAsc){
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        return TwoTuple.of(answerService,buildGenerateDataCondition(exportCondition,isAsc));
     }
 
 

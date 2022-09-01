@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionRecDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -24,7 +25,20 @@ public class UserQuestionnaireAnswerCondition {
      */
     private List<HideQuestionRecDataBO> hideQuestionDataBOList;
     /**
-     * 生成数据条件
+     * 问卷问题rec数据结构集合
      */
-    private GenerateDataCondition generateDataCondition;
+    private List<QuestionnaireQuestionRecDataBO> dataBuildList;
+    /**
+     * qes字段集合
+     */
+    private List<String> qesFieldList;
+
+    /**
+     * 最新问卷ID集合
+     */
+    private List<Integer> latestQuestionnaireIds;
+    /**
+     * qes文件地址
+     */
+    private String qesUrl;
 }

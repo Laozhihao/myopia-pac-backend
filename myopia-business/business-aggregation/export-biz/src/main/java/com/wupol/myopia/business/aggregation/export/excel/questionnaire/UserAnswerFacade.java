@@ -579,7 +579,7 @@ public class UserAnswerFacade {
             dataMap.put(entry.getKey(), getData(entry.getValue(), latestQuestionnaireIds,questionnaireId));
         }
 
-        generateExcelDataBO.setHead(head);
+//        generateExcelDataBO.setHead(head);
         generateExcelDataBO.setDataMap(dataMap);
 
         //根据问卷ID集合，移除计算分值问题ID

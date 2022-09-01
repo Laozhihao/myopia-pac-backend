@@ -90,8 +90,17 @@ public final class ExportTypeConst {
     public static final Integer SCREENING_RECORD_REC = 18;
 
 
+    /**
+     * rec文件导出类型集合
+     */
     public static List<Integer> getRecExportTypeList(){
-        return Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
+        return Lists.newArrayList(DISTRICT_STATISTICS_REC,SCHOOL_STATISTICS_REC,SCREENING_RECORD_REC);
     }
 
+    /**
+     * excel
+     */
+    public static List<Integer> getExcelExportTypeList(){
+        return Lists.newArrayList(SCREENING_RECORD,QUESTIONNAIRE_PAGE,QUESTIONNAIRE_SCHOOL,MULTI_TERMINAL_SCHOOL_SCREENING_RECORD_EXCEL);
+    }
 }

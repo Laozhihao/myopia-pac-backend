@@ -31,7 +31,7 @@ public interface Answer {
      *
      * @param generateDataCondition 生成数据条件
      */
-    GenerateExcelDataBO getExcelData(GenerateDataCondition generateDataCondition);
+    List<GenerateExcelDataBO> getExcelData(GenerateDataCondition generateDataCondition);
 
     /**
      * 导出REC文件

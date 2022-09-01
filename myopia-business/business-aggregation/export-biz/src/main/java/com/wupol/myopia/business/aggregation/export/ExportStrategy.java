@@ -35,10 +35,6 @@ public class ExportStrategy {
     private RedisUtil redisUtil;
 
 
-    @Value("${spring.cloud.nacos.discovery.ip:'1'}")
-    private String ip;
-
-
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
 
         ExportFileService exportFileService = getExportFileService(serviceName);
@@ -57,7 +53,7 @@ public class ExportStrategy {
             sysUtilService.isNoPlatformRepeatExport(key, lockKey);
         }
         // 设置进队列
-        redisUtil.lSet(String.format(RedisConstant.FILE_EXPORT_LIST,ip), new QueueInfo(exportCondition, serviceName));
+        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
 
     private ExportFileService getExportFileService(String serviceName) {

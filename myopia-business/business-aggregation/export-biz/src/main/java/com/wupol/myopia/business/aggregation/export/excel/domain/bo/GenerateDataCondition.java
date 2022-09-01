@@ -40,4 +40,9 @@ public class GenerateDataCondition {
      * 用户类型
      */
     private Integer userType;
+
+    /**
+     * 导出问卷类型
+     */
+    private String fileType;
 }

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -74,10 +74,10 @@ public class ScreeningRecordRecExportType implements ExportType {
             Assert.notNull(exportCondition.getScreeningOrgId(),"机构ID不能为空");
         }
         exportCondition.setDistrictId(null);
-        if (Objects.equals(RecExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
             exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
         }
-        if (Objects.equals(RecExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())){
+        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())){
             exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE));
         }
 
