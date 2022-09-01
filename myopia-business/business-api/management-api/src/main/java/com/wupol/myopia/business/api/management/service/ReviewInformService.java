@@ -108,15 +108,16 @@ public class ReviewInformService {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
 
         Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
-        matchRescreenResults.stream()
+        List<ScreeningPlanSchoolStudent> collect = matchRescreenResults.stream()
                 .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
                     if (StringUtils.isNotBlank(schoolName)) {
                         return StringUtils.countMatches(schoolName, s.getSchoolName()) > 0;
                     }
                     return true;
-                }).collect(Collectors.toList()).forEach(s -> s.setSchoolName(schoolMap.get(s.getSchoolId())));
-        return matchRescreenResults;
+                }).collect(Collectors.toList());
+        collect.forEach(s->s.setSchoolName(schoolMap.get(s.getSchoolId())));
+        return collect;
     }
 
     /**
