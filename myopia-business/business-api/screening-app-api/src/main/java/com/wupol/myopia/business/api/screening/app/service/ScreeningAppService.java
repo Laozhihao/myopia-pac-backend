@@ -648,7 +648,7 @@ public class ScreeningAppService {
                 .filter(item -> {
                     VisionScreeningResult result = firstPlanStudentVisionResultMap.get(item.getStudentId());
                     // 当视力，屈光不配合时不参与复测
-                    if ((Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) && result.getVisionData().getIsCooperative() == 1)
+                    if ((Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) && result.getVisionData().getIsCooperative() != null && result.getVisionData().getIsCooperative() == 1)
                             || (Objects.nonNull(result) && Objects.nonNull(result.getComputerOptometry()) && result.getComputerOptometry().getIsCooperative() == 1)) {
                         return false;
                     }
