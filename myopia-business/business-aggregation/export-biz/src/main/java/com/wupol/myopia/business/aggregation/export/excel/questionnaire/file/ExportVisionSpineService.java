@@ -43,12 +43,12 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
             return;
         }
 
-        Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
-        for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
-            String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
-            String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
-        }
+//        Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
+//        for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
+//            String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
+//            String file = getFileSavePath(fileName, excelFileName);
+//            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
+//        }
     }
 
     @Override

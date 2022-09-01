@@ -7,7 +7,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.RecFileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -51,12 +51,12 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
             return;
         }
 
-        Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
-        for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
-            String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
-            String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
-        }
+//        Map<Integer, List<List<String>>> dataMap = generateExcelDataBO.getDataMap();
+//        for (Map.Entry<Integer, List<List<String>>> entry : dataMap.entrySet()) {
+//            String excelFileName = userAnswerFacade.getExcelFileName(entry.getKey(), getType());
+//            String file = getFileSavePath(fileName, excelFileName);
+//            ExcelUtil.exportListToExcel(file, entry.getValue(), generateExcelDataBO.getHead());
+//        }
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            String recFileName = answerService.getRecFileName(new RecFileNameCondition(generateRecDataBO.getSchoolId(), getType()));
+            String recFileName = answerService.getFileName(new FileNameCondition(generateRecDataBO.getSchoolId(), getType()));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }

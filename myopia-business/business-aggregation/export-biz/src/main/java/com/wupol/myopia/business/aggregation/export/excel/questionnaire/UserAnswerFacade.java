@@ -580,7 +580,7 @@ public class UserAnswerFacade {
         }
 
 //        generateExcelDataBO.setHead(head);
-        generateExcelDataBO.setDataMap(dataMap);
+//        generateExcelDataBO.setDataMap(dataMap);
 
         //根据问卷ID集合，移除计算分值问题ID
         questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);

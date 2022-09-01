@@ -4,11 +4,12 @@ import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.RecFileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -44,9 +45,16 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            String recFileName = answerService.getRecFileName(new RecFileNameCondition(generateRecDataBO.getSchoolId(), getType()));
+            String recFileName = answerService.getFileName(buildFileNameCondition(generateRecDataBO.getSchoolId(), QuestionnaireConstant.REC_FILE));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
+    }
+
+    private FileNameCondition buildFileNameCondition(Integer schoolId,String fileType){
+        return new FileNameCondition()
+                .setSchoolId(schoolId)
+                .setQuestionnaireType(getType())
+                .setFileType(fileType);
     }
 
     @Override

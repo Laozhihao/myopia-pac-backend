@@ -13,7 +13,6 @@ import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
-import com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
 import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.service.*;
@@ -54,15 +53,16 @@ public class QuestionnaireFacade {
         if (Objects.isNull(questionnaireBaseInfo)){
             return null;
         }
-        return QuestionnaireInfoBuilder.buildQuestionnaireInfo(questionnaireBaseInfo.getFirst(),questionnaireBaseInfo.getSecond(),questionnaireBaseInfo.getThird());
+//        return com.wupol.myopia.business.core.questionnaire.domain.builder.QuestionnaireInfoBuilder.buildQuestionnaireInfo(questionnaireBaseInfo.getFirst(),questionnaireBaseInfo.getSecond(),questionnaireBaseInfo.getThird());
+        return null;
     }
 
     /**
      * 获取问卷数据构建结构
      * @param questionnaireIds 问卷ID集合
      */
-    public List<QuestionnaireQuestionRecDataBO> getDataBuildList(List<Integer> questionnaireIds){
-        List<QuestionnaireQuestionRecDataBO> dataBuildList = Lists.newArrayList();
+    public List<QuestionnaireQuestionDataBO> getDataBuildList(List<Integer> questionnaireIds){
+        List<QuestionnaireQuestionDataBO> dataBuildList = Lists.newArrayList();
         if (CollUtil.isEmpty(questionnaireIds)){
             return dataBuildList;
         }
@@ -74,12 +74,12 @@ public class QuestionnaireFacade {
      * 获取问卷rec数据信息
      * @param questionnaireId 问卷ID
      */
-    public QuestionnaireRecInfoBuilder getQuestionnaireRecInfoBO(Integer questionnaireId){
+    public QuestionnaireInfoBuilder getQuestionnaireRecInfoBO(Integer questionnaireId){
         ThreeTuple<Questionnaire, List<QuestionnaireQuestion>, List<Question>> questionnaireBaseInfo = getQuestionnaireBaseInfo(questionnaireId);
         if (Objects.isNull(questionnaireBaseInfo)){
             return null;
         }
-        return QuestionnaireRecInfoBuilder.build(questionnaireBaseInfo);
+        return QuestionnaireInfoBuilder.build(questionnaireBaseInfo);
     }
 
     /**

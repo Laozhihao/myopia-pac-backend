@@ -44,10 +44,10 @@ public interface Answer {
 
     /**
      * 获取rec问卷名称
-     * @param recFileNameCondition rec文件名生成条件
+     * @param fileNameCondition rec文件名生成条件
      * @return  问卷名称
      */
-    String getRecFileName(RecFileNameCondition recFileNameCondition);
+    String getFileName(FileNameCondition fileNameCondition);
 
 
     /**

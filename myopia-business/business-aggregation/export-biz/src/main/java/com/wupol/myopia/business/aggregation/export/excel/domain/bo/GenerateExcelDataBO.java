@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 import java.util.List;
@@ -14,12 +15,12 @@ import java.util.Map;
 public class GenerateExcelDataBO {
 
     /**
-     * excel表头信息
+     * 学校ID
      */
-    private List<List<String>> head;
+    private Integer schoolId;
 
     /**
      * excel导出数据
      */
-    private Map<Integer,List<List<String>>> dataMap;
+    private List<JSONObject> dataList;
 }

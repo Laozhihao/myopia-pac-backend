@@ -74,46 +74,82 @@ public class UserAnswerProcessBuilder {
      * @param dataBuildList                 问题Rec数据结构集合
      * @param qesFieldList                  有序问卷字段
      */
-    public Map<String, List<QuestionnaireRecDataBO>> getRecData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList,
-                                                                List<QuestionnaireQuestionRecDataBO> dataBuildList,
-                                                                List<String> qesFieldList) {
+    public Map<String, List<QuestionnaireDataBO>> getRecData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList,
+                                                             List<QuestionnaireQuestionDataBO> dataBuildList,
+                                                             List<String> qesFieldList) {
 
-        Map<String, List<QuestionnaireRecDataBO>> dataMap = Maps.newHashMap();
+        Map<String, List<QuestionnaireDataBO>> dataMap = Maps.newHashMap();
 
         //学校里的每个学生或者用户
         for (UserQuestionnaireAnswerBO userQuestionnaireAnswerBO : userQuestionnaireAnswerBOList) {
 
-            List<QuestionnaireRecDataBO> dataList = Lists.newArrayList();
+            List<QuestionnaireDataBO> dataList = Lists.newArrayList();
             Map<Integer, Map<String, OptionAnswer>> questionAnswerMap = userQuestionnaireAnswerBO.getAnswerMap();
             //每个学生或者用户完成数据
-            for (QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO : dataBuildList) {
-                if (Objects.equals(Boolean.TRUE, questionnaireQuestionRecDataBO.getIsHidden())) {
+            for (QuestionnaireQuestionDataBO questionnaireQuestionDataBO : dataBuildList) {
+                if (Objects.equals(Boolean.TRUE, questionnaireQuestionDataBO.getIsHidden())) {
                     //隐藏问题
-                    hideQuestionDataProcess(dataList, questionnaireQuestionRecDataBO, userQuestionnaireAnswerBO);
+                    hideQuestionDataProcess(dataList, questionnaireQuestionDataBO, userQuestionnaireAnswerBO);
                     continue;
                 }
-                processAnswerData(dataList, questionAnswerMap, questionnaireQuestionRecDataBO);
+                processAnswerData(dataList, questionAnswerMap, questionnaireQuestionDataBO);
             }
-            Map<String, QuestionnaireRecDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity(),(v1,v2)->v2));
-            List<QuestionnaireRecDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
+            Map<String, QuestionnaireDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity(),(v1, v2)->v2));
+            List<QuestionnaireDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
             dataMap.put(userQuestionnaireAnswerBO.getUserKey(), collect);
         }
         return dataMap;
+    }
+
+
+    /**
+     * 获取导出REC的数据
+     *
+     * @param userQuestionnaireAnswerBOList 用户问卷记录集合
+     * @param dataBuildList                 问题Rec数据结构集合
+     * @param qesFieldList                  有序问卷字段
+     */
+    public Map<String, List<GenerateExcelDataBO>> getExcelData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList,
+                                                                List<QuestionnaireQuestionDataBO> dataBuildList,
+                                                                List<String> qesFieldList) {
+
+//        Map<String, List<QuestionnaireExcelDataBO>> dataMap = Maps.newHashMap();
+//
+//        //学校里的每个学生或者用户
+//        for (UserQuestionnaireAnswerBO userQuestionnaireAnswerBO : userQuestionnaireAnswerBOList) {
+//
+//            List<QuestionnaireExcelDataBO> dataList = Lists.newArrayList();
+//            Map<Integer, Map<String, OptionAnswer>> questionAnswerMap = userQuestionnaireAnswerBO.getAnswerMap();
+//            //每个学生或者用户完成数据
+//            for (QuestionnaireQuestionDataBO questionnaireQuestionDataBO : dataBuildList) {
+//                if (Objects.equals(Boolean.TRUE, questionnaireQuestionDataBO.getIsHidden())) {
+//                    //隐藏问题
+//                    hideQuestionDataProcess(dataList, questionnaireQuestionDataBO, userQuestionnaireAnswerBO);
+//                    continue;
+//                }
+//                processAnswerData(dataList, questionAnswerMap, questionnaireQuestionDataBO);
+//            }
+//            Map<String, QuestionnaireExcelDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity(),(v1,v2)->v2));
+//            List<QuestionnaireExcelDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
+//            dataMap.put(userQuestionnaireAnswerBO.getUserKey(), collect);
+//        }
+//        return dataMap;
+        return null;
     }
 
     /**
      * 隐藏问题处理
      *
      * @param dataList                       结果集合
-     * @param questionnaireQuestionRecDataBO 问卷问题rec数据结构对象
+     * @param questionnaireQuestionDataBO 问卷问题rec数据结构对象
      * @param userQuestionnaireAnswerBO      用户问卷答案对象
      */
-    private void hideQuestionDataProcess(List<QuestionnaireRecDataBO> dataList,
-                                         QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO,
+    private void hideQuestionDataProcess(List<QuestionnaireDataBO> dataList,
+                                         QuestionnaireQuestionDataBO questionnaireQuestionDataBO,
                                          UserQuestionnaireAnswerBO userQuestionnaireAnswerBO) {
-        Question question = questionnaireQuestionRecDataBO.getQuestion();
-        List<QuestionnaireRecDataBO> questionnaireRecDataBOList = questionnaireQuestionRecDataBO.getQuestionnaireRecDataBOList();
-        Map<String, List<QuestionnaireRecDataBO>> questionnaireRecDataMap = questionnaireRecDataBOList.stream().collect(Collectors.groupingBy(QuestionnaireRecDataBO::getQesField));
+        Question question = questionnaireQuestionDataBO.getQuestion();
+        List<QuestionnaireDataBO> questionnaireDataBOList = questionnaireQuestionDataBO.getQuestionnaireDataBOList();
+        Map<String, List<QuestionnaireDataBO>> questionnaireRecDataMap = questionnaireDataBOList.stream().collect(Collectors.groupingBy(QuestionnaireDataBO::getQesField));
 
         List<QesFieldDataBO> qesFieldDataBOList = userQuestionnaireAnswerBO.getQesFieldDataBOList();
         if (CollUtil.isEmpty(qesFieldDataBOList)){
@@ -137,28 +173,28 @@ public class UserAnswerProcessBuilder {
      * @param qesFieldDataBOMap qes字段数据集合
      * @param recDataList       问卷Rec数据信息集合
      */
-    private void getHideInputData(List<QuestionnaireRecDataBO> dataList, Map<String, QesFieldDataBO> qesFieldDataBOMap, List<QuestionnaireRecDataBO> recDataList) {
+    private void getHideInputData(List<QuestionnaireDataBO> dataList, Map<String, QesFieldDataBO> qesFieldDataBOMap, List<QuestionnaireDataBO> recDataList) {
         if (CollUtil.isEmpty(recDataList)){
             return;
         }
-        for (QuestionnaireRecDataBO recDataBO : recDataList) {
-            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
-            String answer = Optional.ofNullable(qesFieldDataBOMap.get(questionnaireRecDataBO.getQesField())).map(qesFieldDataBO -> Optional.ofNullable(qesFieldDataBO.getRecAnswer()).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY);
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
-                if (Objects.equals(questionnaireRecDataBO.getQesField(), "ID1") || Objects.equals(questionnaireRecDataBO.getQesField(), "ID2")) {
-                    questionnaireRecDataBO.setRecAnswer(answer);
+        for (QuestionnaireDataBO recDataBO : recDataList) {
+            QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
+            String answer = Optional.ofNullable(qesFieldDataBOMap.get(questionnaireDataBO.getQesField())).map(qesFieldDataBO -> Optional.ofNullable(qesFieldDataBO.getRecAnswer()).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY);
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
+                if (Objects.equals(questionnaireDataBO.getQesField(), "ID1") || Objects.equals(questionnaireDataBO.getQesField(), "ID2")) {
+                    questionnaireDataBO.setRecAnswer(answer);
                 } else {
-                    questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
+                    questionnaireDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireDataBO.getRange()));
                 }
             }
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
-                if (Objects.equals(questionnaireRecDataBO.getQesField(), "date")) {
-                    questionnaireRecDataBO.setRecAnswer(answer);
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
+                if (Objects.equals(questionnaireDataBO.getQesField(), "date")) {
+                    questionnaireDataBO.setRecAnswer(answer);
                 } else {
-                    questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
+                    questionnaireDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
                 }
             }
-            dataList.add(questionnaireRecDataBO);
+            dataList.add(questionnaireDataBO);
         }
     }
 
@@ -169,38 +205,38 @@ public class UserAnswerProcessBuilder {
      * @param qesFieldDataBoMap      qes字段数据集合
      * @param recDataBO 问卷Rec数据信息
      */
-    private void getHideRadio(List<QuestionnaireRecDataBO> dataList,
+    private void getHideRadio(List<QuestionnaireDataBO> dataList,
                               Map<String, QesFieldDataBO> qesFieldDataBoMap,
-                              QuestionnaireRecDataBO recDataBO) {
+                              QuestionnaireDataBO recDataBO) {
         if (Objects.isNull(recDataBO)){
             return;
         }
-        QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
-        QesFieldDataBO qesFieldDataBO = qesFieldDataBoMap.get(questionnaireRecDataBO.getQesField());
+        QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
+        QesFieldDataBO qesFieldDataBO = qesFieldDataBoMap.get(questionnaireDataBO.getQesField());
         if (Objects.isNull(qesFieldDataBO)) {
             return;
         }
 
-        questionnaireRecDataBO.setRecAnswer(qesFieldDataBO.getRecAnswer());
-        dataList.add(questionnaireRecDataBO);
+        questionnaireDataBO.setRecAnswer(qesFieldDataBO.getRecAnswer());
+        dataList.add(questionnaireDataBO);
         //单选或者多选Input
-        getHideRadioInputData(dataList, qesFieldDataBoMap, questionnaireRecDataBO);
+        getHideRadioInputData(dataList, qesFieldDataBoMap, questionnaireDataBO);
     }
 
     /**
      * 获取隐藏单选输入数据类型数据
      * @param dataList 结果集合
      * @param qesFieldDataBOMap qes字段数据集合
-     * @param questionnaireRecDataBO  rec数据对象
+     * @param questionnaireDataBO  rec数据对象
      */
-    private void getHideRadioInputData(List<QuestionnaireRecDataBO> dataList,
+    private void getHideRadioInputData(List<QuestionnaireDataBO> dataList,
                                        Map<String, QesFieldDataBO> qesFieldDataBOMap,
-                                       QuestionnaireRecDataBO questionnaireRecDataBO) {
-        List<QuestionnaireRecDataBO> questionnaireRecDataBOList = questionnaireRecDataBO.getQuestionnaireRecDataBOList();
-        if (CollUtil.isEmpty(questionnaireRecDataBOList)) {
+                                       QuestionnaireDataBO questionnaireDataBO) {
+        List<QuestionnaireDataBO> questionnaireDataBOList = questionnaireDataBO.getQuestionnaireDataBOList();
+        if (CollUtil.isEmpty(questionnaireDataBOList)) {
             return;
         }
-        getHideInputData(dataList, qesFieldDataBOMap, questionnaireRecDataBOList);
+        getHideInputData(dataList, qesFieldDataBOMap, questionnaireDataBOList);
     }
 
 
@@ -210,12 +246,12 @@ public class UserAnswerProcessBuilder {
      *
      * @param dataList                       结果集合
      * @param questionAnswerMap              问题集合
-     * @param questionnaireQuestionRecDataBO 问卷问题Rec数据信息
+     * @param questionnaireQuestionDataBO 问卷问题Rec数据信息
      */
-    private void processAnswerData(List<QuestionnaireRecDataBO> dataList, Map<Integer, Map<String, OptionAnswer>> questionAnswerMap, QuestionnaireQuestionRecDataBO questionnaireQuestionRecDataBO) {
-        Question question = questionnaireQuestionRecDataBO.getQuestion();
+    private void processAnswerData(List<QuestionnaireDataBO> dataList, Map<Integer, Map<String, OptionAnswer>> questionAnswerMap, QuestionnaireQuestionDataBO questionnaireQuestionDataBO) {
+        Question question = questionnaireQuestionDataBO.getQuestion();
         Map<String, OptionAnswer> answerMap = questionAnswerMap.getOrDefault(question.getId(), Maps.newHashMap());
-        List<QuestionnaireRecDataBO> recDataList = questionnaireQuestionRecDataBO.getQuestionnaireRecDataBOList();
+        List<QuestionnaireDataBO> recDataList = questionnaireQuestionDataBO.getQuestionnaireDataBOList();
 
         if (Objects.equals(question.getType(), QuestionnaireConstant.INPUT)) {
             getInputData(dataList, answerMap, recDataList);
@@ -237,21 +273,21 @@ public class UserAnswerProcessBuilder {
      * @param answerMap   问题集合
      * @param recDataList 问卷Rec数据信息集合
      */
-    private void getInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
-        for (QuestionnaireRecDataBO recDataBO : recDataList) {
-            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
-            OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+    private void getInputData(List<QuestionnaireDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireDataBO> recDataList) {
+        for (QuestionnaireDataBO recDataBO : recDataList) {
+            QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
+            OptionAnswer optionAnswer = answerMap.get(questionnaireDataBO.getOptionId());
             String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
-                questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
+                questionnaireDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireDataBO.getRange()));
             }
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
-                questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
+                questionnaireDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
             }
-            if (Objects.equals(questionnaireRecDataBO.getDataType(),QuestionnaireConstant.SELECT)){
-                questionnaireRecDataBO.setRecAnswer(answer);
+            if (Objects.equals(questionnaireDataBO.getDataType(),QuestionnaireConstant.SELECT)){
+                questionnaireDataBO.setRecAnswer(answer);
             }
-            dataList.add(questionnaireRecDataBO);
+            dataList.add(questionnaireDataBO);
         }
     }
 
@@ -262,16 +298,16 @@ public class UserAnswerProcessBuilder {
      * @param answerMap      答案集合
      * @param recDataList 问卷Rec数据信息集合
      */
-    private void getRadioData(List<QuestionnaireRecDataBO> dataList,
+    private void getRadioData(List<QuestionnaireDataBO> dataList,
                               Map<String, OptionAnswer> answerMap,
-                              List<QuestionnaireRecDataBO> recDataList) {
+                              List<QuestionnaireDataBO> recDataList) {
         if (CollUtil.isEmpty(recDataList)){
             return;
         }
-        List<QuestionnaireRecDataBO> inputList = recDataList.stream().map(QuestionnaireRecDataBO::getQuestionnaireRecDataBOList).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
-        QuestionnaireRecDataBO questionnaireRecDataBO = getQuestionnaireRecDataBO(recDataList, answerMap);
-        if (!Objects.equals(questionnaireRecDataBO.getQesField(),QuestionnaireConstant.QM)){
-            dataList.add(questionnaireRecDataBO);
+        List<QuestionnaireDataBO> inputList = recDataList.stream().map(QuestionnaireDataBO::getQuestionnaireDataBOList).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
+        QuestionnaireDataBO questionnaireDataBO = getQuestionnaireRecDataBO(recDataList, answerMap);
+        if (!Objects.equals(questionnaireDataBO.getQesField(),QuestionnaireConstant.QM)){
+            dataList.add(questionnaireDataBO);
         }
         if (CollUtil.isEmpty(inputList)) {
             return;
@@ -285,22 +321,22 @@ public class UserAnswerProcessBuilder {
      * @param recDataList 问卷Rec数据信息集合
      * @param answerMap   答案集合
      */
-    private QuestionnaireRecDataBO getQuestionnaireRecDataBO(List<QuestionnaireRecDataBO> recDataList,
-                                                             Map<String, OptionAnswer> answerMap) {
+    private QuestionnaireDataBO getQuestionnaireRecDataBO(List<QuestionnaireDataBO> recDataList,
+                                                          Map<String, OptionAnswer> answerMap) {
         //初始化单选值
-        List<QuestionnaireRecDataBO> result = Lists.newArrayList();
+        List<QuestionnaireDataBO> result = Lists.newArrayList();
 
-        for (QuestionnaireRecDataBO questionnaireRecDataBO : recDataList) {
-            OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+        for (QuestionnaireDataBO questionnaireDataBO : recDataList) {
+            OptionAnswer optionAnswer = answerMap.get(questionnaireDataBO.getOptionId());
             if (Objects.isNull(optionAnswer)) {
                 continue;
             }
-            result.add(questionnaireRecDataBO);
+            result.add(questionnaireDataBO);
         }
         if (CollUtil.isEmpty(result)) {
-            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataList.get(0));
-            questionnaireRecDataBO.setRecAnswer(StrUtil.EMPTY);
-            return questionnaireRecDataBO;
+            QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataList.get(0));
+            questionnaireDataBO.setRecAnswer(StrUtil.EMPTY);
+            return questionnaireDataBO;
         }
         return result.get(0);
     }
@@ -311,24 +347,24 @@ public class UserAnswerProcessBuilder {
      * @param answerMap 问题集合
      * @param recDataList 问卷Rec数据信息集合
      */
-    private void getRadioInputData(List<QuestionnaireRecDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireRecDataBO> recDataList) {
+    private void getRadioInputData(List<QuestionnaireDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireDataBO> recDataList) {
 
-        for (QuestionnaireRecDataBO recDataBO : recDataList) {
-            QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
-            OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+        for (QuestionnaireDataBO recDataBO : recDataList) {
+            QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
+            OptionAnswer optionAnswer = answerMap.get(questionnaireDataBO.getOptionId());
             String answer = Optional.ofNullable(optionAnswer).map(OptionAnswer::getValue).orElse(StrUtil.EMPTY);
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
-                questionnaireRecDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireRecDataBO.getRange()));
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.NUMBER)) {
+                questionnaireDataBO.setRecAnswer(AnswerUtil.numberFormat(answer, questionnaireDataBO.getRange()));
             }
-            if (Objects.equals(questionnaireRecDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
-                questionnaireRecDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
+            if (Objects.equals(questionnaireDataBO.getDataType(), QuestionnaireConstant.TEXT)) {
+                questionnaireDataBO.setRecAnswer(AnswerUtil.textFormat(answer));
             }
-            if (Objects.equals(questionnaireRecDataBO.getDataType(),QuestionnaireConstant.SELECT)){
-                questionnaireRecDataBO.setRecAnswer(answer);
+            if (Objects.equals(questionnaireDataBO.getDataType(),QuestionnaireConstant.SELECT)){
+                questionnaireDataBO.setRecAnswer(answer);
             }
 
             if (Objects.nonNull(optionAnswer) && StrUtil.isNotBlank(answer) ){
-                dataList.add(questionnaireRecDataBO);
+                dataList.add(questionnaireDataBO);
             }
         }
     }
@@ -340,18 +376,18 @@ public class UserAnswerProcessBuilder {
      * @param answerMap              问题集合
      * @param recDataBO 问卷Rec数据信息
      */
-    private void getCheckboxData(List<QuestionnaireRecDataBO> dataList,
+    private void getCheckboxData(List<QuestionnaireDataBO> dataList,
                                  Map<String, OptionAnswer> answerMap,
-                                 QuestionnaireRecDataBO recDataBO) {
-        QuestionnaireRecDataBO questionnaireRecDataBO = ObjectUtil.cloneByStream(recDataBO);
-        OptionAnswer optionAnswer = answerMap.get(questionnaireRecDataBO.getOptionId());
+                                 QuestionnaireDataBO recDataBO) {
+        QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
+        OptionAnswer optionAnswer = answerMap.get(questionnaireDataBO.getOptionId());
         if (Objects.isNull(optionAnswer)) {
-            questionnaireRecDataBO.setRecAnswer("2");
+            questionnaireDataBO.setRecAnswer("2");
         }else {
-            questionnaireRecDataBO.setRecAnswer("1");
+            questionnaireDataBO.setRecAnswer("1");
         }
         //多选Input
-        getCheckboxInputData(dataList, answerMap, questionnaireRecDataBO);
+        getCheckboxInputData(dataList, answerMap, questionnaireDataBO);
     }
 
 
@@ -360,22 +396,22 @@ public class UserAnswerProcessBuilder {
      *
      * @param dataList               结果集合
      * @param answerMap              问题集合
-     * @param questionnaireRecDataBO 问卷Rec数据信息
+     * @param questionnaireDataBO 问卷Rec数据信息
      */
-    private void getCheckboxInputData(List<QuestionnaireRecDataBO> dataList,
+    private void getCheckboxInputData(List<QuestionnaireDataBO> dataList,
                                       Map<String, OptionAnswer> answerMap,
-                                      QuestionnaireRecDataBO questionnaireRecDataBO) {
-        List<QuestionnaireRecDataBO> questionnaireRecDataBOList = questionnaireRecDataBO.getQuestionnaireRecDataBOList();
-        if (CollUtil.isEmpty(questionnaireRecDataBOList)) {
-            dataList.add(questionnaireRecDataBO);
+                                      QuestionnaireDataBO questionnaireDataBO) {
+        List<QuestionnaireDataBO> questionnaireDataBOList = questionnaireDataBO.getQuestionnaireDataBOList();
+        if (CollUtil.isEmpty(questionnaireDataBOList)) {
+            dataList.add(questionnaireDataBO);
             return;
         }
 
-        if (!Objects.equals(questionnaireRecDataBO.getQesField(),QuestionnaireConstant.QM)){
-            questionnaireRecDataBO.setQuestionnaireRecDataBOList(null);
-            dataList.add(questionnaireRecDataBO);
+        if (!Objects.equals(questionnaireDataBO.getQesField(),QuestionnaireConstant.QM)){
+            questionnaireDataBO.setQuestionnaireDataBOList(null);
+            dataList.add(questionnaireDataBO);
         }
-        getInputData(dataList, answerMap, questionnaireRecDataBOList);
+        getInputData(dataList, answerMap, questionnaireDataBOList);
     }
 
     /**
@@ -385,7 +421,7 @@ public class UserAnswerProcessBuilder {
      * @param schoolId 学校ID
      * @param answersMap 答案集合
      */
-    public GenerateRecDataBO buildGenerateRecDataBO(List<String> qesFieldList, String qesUrl, Integer schoolId, Map<String, List<QuestionnaireRecDataBO>> answersMap) {
+    public GenerateRecDataBO buildGenerateRecDataBO(List<String> qesFieldList, String qesUrl, Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap) {
         List<String> dataTxt = getDataTxtList(qesFieldList, answersMap);
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
@@ -397,7 +433,7 @@ public class UserAnswerProcessBuilder {
      * @param governmentKey 政府唯一key
      * @param answersMap 答案集合
      */
-    public GenerateRecDataBO buildGovernmentGenerateRecDataBO(List<String> qesFieldList, String qesUrl, String governmentKey, Map<String, List<QuestionnaireRecDataBO>> answersMap) {
+    public GenerateRecDataBO buildGovernmentGenerateRecDataBO(List<String> qesFieldList, String qesUrl, String governmentKey, Map<String, List<QuestionnaireDataBO>> answersMap) {
         List<String> dataTxt = getDataTxtList(qesFieldList, answersMap);
         return new GenerateRecDataBO(governmentKey, qesUrl, dataTxt);
     }
@@ -407,7 +443,7 @@ public class UserAnswerProcessBuilder {
      * @param qesFieldList qes字段集合
      * @param answersMap 答案集合
      */
-    private static List<String> getDataTxtList(List<String> qesFieldList, Map<String, List<QuestionnaireRecDataBO>> answersMap) {
+    private static List<String> getDataTxtList(List<String> qesFieldList, Map<String, List<QuestionnaireDataBO>> answersMap) {
         List<List<String>> dataList = new ArrayList<>();
         answersMap.forEach((userKey, answerList) -> dataList.add(answerList.stream()
                 .map(answer -> Optional.ofNullable(answer)
