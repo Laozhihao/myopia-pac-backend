@@ -161,7 +161,7 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setStudentInfo(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         CardInfoVO studentInfo = commonDiseaseArchiveCard.getStudentInfo();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        TwoTuple<String, String> tuple = getNationInfo(getValueByString(studentInfo,CardInfoVO::getNationDesc));
+        TwoTuple<String, String> tuple = getNationInfo(getValue(studentInfo,CardInfoVO::getNationDesc,null));
         qesFieldDataBOList.add(new QesFieldDataBO("gender",AnswerUtil.getGenderRecData(getValue(studentInfo,CardInfoVO::getGender,null))));
         qesFieldDataBOList.add(new QesFieldDataBO("nation", tuple.getFirst()));
         qesFieldDataBOList.add(new QesFieldDataBO("nationother", tuple.getSecond()));
