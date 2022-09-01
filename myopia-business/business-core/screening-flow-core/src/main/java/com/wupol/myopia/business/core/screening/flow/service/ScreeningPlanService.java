@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -21,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -308,6 +310,21 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 根据通知ID或任务ID或计划ID查询筛查计划
+     * @param noticeId 通知ID
+     * @param taskId 任务ID
+     * @param planId 计划ID
+     */
+    public List<ScreeningPlan> getReleasePlanByNoticeIdOrTaskIdOrPlanId(Integer noticeId,Integer taskId,Integer planId) {
+        Assert.isTrue(!ObjectsUtil.allNull(noticeId,taskId,planId),"通知ID,任务ID,计划ID不能都为空");
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(Objects.nonNull(noticeId),ScreeningPlan::getSrcScreeningNoticeId, noticeId)
+                .eq(Objects.nonNull(taskId),ScreeningPlan::getScreeningTaskId, taskId)
+                .eq(Objects.nonNull(planId),ScreeningPlan::getId, planId)
+                .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
+    }
+
+    /**
      * 根据通知ID和发布状态查询筛查计划
      * @param noticeIds 通知ID集合
      * @param releaseStatus 发布状态
@@ -318,11 +335,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 .eq(ScreeningPlan::getReleaseStatus,releaseStatus));
     }
 
-    public List<ScreeningPlan> getPlanByNoticeIdAndStatus(Integer noticeId,Integer releaseStatus ) {
-        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
-                .eq(ScreeningPlan::getSrcScreeningNoticeId, noticeId)
-                .eq(ScreeningPlan::getReleaseStatus,releaseStatus));
-    }
     /**
      * 获取年度
      *
@@ -390,10 +402,4 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
     }
 
-    public ScreeningPlan getByIdAndStatus(Integer id,Integer status) {
-        List<ScreeningPlan> screeningPlanList = list(Wrappers.lambdaQuery(ScreeningPlan.class)
-                .eq(ScreeningPlan::getId, id)
-                .eq(ScreeningPlan::getReleaseStatus, status));
-        return CollUtil.isEmpty(screeningPlanList) ? null:screeningPlanList.get(0);
-    }
 }
