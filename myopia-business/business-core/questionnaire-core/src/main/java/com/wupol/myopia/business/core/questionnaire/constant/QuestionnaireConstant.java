@@ -220,7 +220,7 @@ public class QuestionnaireConstant {
      * @return 问卷类型集合
      */
     public static List<Integer> getVisionSpine(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
     }
 
 

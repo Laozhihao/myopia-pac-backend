@@ -7,16 +7,16 @@ import lombok.Getter;
  *
  * @author hang.yuan 2022/8/30 21:45
  */
-public enum RecExportDataTypeEnum {
+public enum ExportDataTypeEnum {
     ARCHIVE_REC(1,"监测表数据"),
-    QUESTIONNAIRE_REC(2,"问卷数据");
+    QUESTIONNAIRE(2,"问卷数据");
 
     @Getter
     private Integer code;
     @Getter
     private String desc;
 
-    RecExportDataTypeEnum(Integer code, String desc) {
+    ExportDataTypeEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 问卷问题rec数据结构
@@ -16,7 +15,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionnaireQuestionRecDataBO {
+public class QuestionnaireQuestionDataBO {
 
     /**
      * 问题
@@ -31,10 +30,6 @@ public class QuestionnaireQuestionRecDataBO {
     /**
      * 问题对应选项信息
      */
-    private List<QuestionnaireRecDataBO> questionnaireRecDataBOList;
-
-
-    private Map<String,List<QuestionnaireRecDataBO>> qesDataMap;
-
+    private List<QuestionnaireDataBO> questionnaireDataBOList;
 
 }

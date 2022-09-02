@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -605,14 +605,14 @@ public class QuestionnaireManagementService {
     public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId,Integer dataType) {
         List<QuestionnaireDataSchoolVO> schoolDataList = Lists.newArrayList();
         Set<Integer> schoolIds= null;
-        if (Objects.equals(dataType, RecExportDataTypeEnum.ARCHIVE_REC.getCode())){
+        if (Objects.equals(dataType, ExportDataTypeEnum.ARCHIVE_REC.getCode())){
             List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(screeningPlanId, Boolean.FALSE, null);
             if (CollUtil.isEmpty(visionScreeningResultList)){
                 return schoolDataList;
             }
             schoolIds = visionScreeningResultList.stream().map(VisionScreeningResult::getSchoolId).collect(Collectors.toSet());
         }
-         else if (Objects.equals(dataType,RecExportDataTypeEnum.QUESTIONNAIRE_REC.getCode())){
+         else if (Objects.equals(dataType, ExportDataTypeEnum.QUESTIONNAIRE.getCode())){
             List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());
             if (CollUtil.isEmpty(userQuestionRecordList)){
                 return schoolDataList;

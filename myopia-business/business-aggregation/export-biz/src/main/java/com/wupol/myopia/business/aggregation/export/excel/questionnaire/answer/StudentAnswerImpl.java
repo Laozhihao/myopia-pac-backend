@@ -52,6 +52,12 @@ public class StudentAnswerImpl extends AbstractUserAnswer {
         return userQuestionRecordList;
     }
 
+    /**
+     * 获取有效的用户问卷记录信息
+     * @param userQuestionRecordList 用户问卷记录集合
+     * @param districtId 地区ID
+     * @param gradeTypeList 年级类型集合
+     */
     private List<UserQuestionRecord> getUserQuestionRecordList(List<UserQuestionRecord> userQuestionRecordList, Integer districtId,List<Integer> gradeTypeList) {
         if (CollUtil.isEmpty(userQuestionRecordList)) {
             return userQuestionRecordList;

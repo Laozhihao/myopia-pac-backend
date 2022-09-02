@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class QuestionnaireRecDataBO implements Serializable {
+public class QuestionnaireDataBO implements Serializable {
 
     /**
      * qes字段
@@ -63,7 +63,17 @@ public class QuestionnaireRecDataBO implements Serializable {
      */
     private Integer length;
 
+    /**
+     * excel答案
+     */
+    private String excelAnswer;
 
-    private List<QuestionnaireRecDataBO> questionnaireRecDataBOList;
+    /**
+     * 展示序号
+     */
+    private String showSerialNumber;
+
+
+    private List<QuestionnaireDataBO> questionnaireDataBOList;
 
 }

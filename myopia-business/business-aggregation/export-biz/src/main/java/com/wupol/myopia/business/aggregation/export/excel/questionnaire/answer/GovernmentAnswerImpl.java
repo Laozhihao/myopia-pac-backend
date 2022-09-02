@@ -67,6 +67,12 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
         return districtIdList;
     }
 
+    /**
+     * 获取有效的用户问卷记录信息
+     * @param userQuestionRecordList 用户问卷记录集合
+     * @param districtId 地区ID
+     * @param questionnaireType 问卷类型
+     */
     private List<UserQuestionRecord> getUserQuestionRecordList(List<UserQuestionRecord> userQuestionRecordList,Integer districtId,QuestionnaireTypeEnum questionnaireType) {
         if (CollUtil.isEmpty(userQuestionRecordList)) {
             return userQuestionRecordList;

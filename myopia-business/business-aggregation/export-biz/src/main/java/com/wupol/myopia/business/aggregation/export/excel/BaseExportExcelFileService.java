@@ -50,7 +50,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     @Autowired
     private ResourceFileService resourceFileService;
 
-    private static String errorExcelMsg = "【导出Excel异常】{}";
+    private static final String errorExcelMsg = "【导出Excel异常】{}";
 
     /**
      * 导出文件

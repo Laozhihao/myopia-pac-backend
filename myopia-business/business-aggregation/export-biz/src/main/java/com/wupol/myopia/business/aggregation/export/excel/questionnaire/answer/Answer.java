@@ -31,7 +31,7 @@ public interface Answer {
      *
      * @param generateDataCondition 生成数据条件
      */
-    GenerateExcelDataBO getExcelData(GenerateDataCondition generateDataCondition);
+    List<GenerateExcelDataBO> getExcelData(GenerateDataCondition generateDataCondition);
 
     /**
      * 导出REC文件
@@ -44,10 +44,10 @@ public interface Answer {
 
     /**
      * 获取rec问卷名称
-     * @param recFileNameCondition rec文件名生成条件
+     * @param fileNameCondition rec文件名生成条件
      * @return  问卷名称
      */
-    String getRecFileName(RecFileNameCondition recFileNameCondition);
+    String getFileName(FileNameCondition fileNameCondition);
 
 
     /**
