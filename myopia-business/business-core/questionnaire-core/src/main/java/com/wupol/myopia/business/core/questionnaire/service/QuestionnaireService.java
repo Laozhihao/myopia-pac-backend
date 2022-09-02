@@ -360,7 +360,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                     }
                     tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class), tableItem, question.getId()));
                 }
-                return new ClassroomItemTable.Detail(question.getTitle().split("-")[0], tableItems);
+                return new ClassroomItemTable.Detail(specialTitleProcess(question.getTitle().split("-")[0]), tableItems);
             }).collect(Collectors.toList());
 
             List<ClassroomItemTable.Info> result = Lists.partition(collect, 3).stream()
