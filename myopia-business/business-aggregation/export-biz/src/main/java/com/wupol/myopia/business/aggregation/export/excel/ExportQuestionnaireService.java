@@ -149,9 +149,9 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         }
 
         //问卷数据
-//        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())) {
+        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())) {
             generateQuestionnaire(fileName,exportCondition,fileType);
-//        }
+        }
 
         return null;
     }

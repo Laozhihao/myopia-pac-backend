@@ -355,4 +355,28 @@ public class BigDecimalUtil {
         }
         return null;
     }
+
+    /**
+     * 获取小于指定值时取指定值
+     * @param num 对比值
+     * @param value 指定值
+     */
+    public static BigDecimal getNumLessThan(BigDecimal num,String value) {
+        if (Objects.nonNull(num) && BigDecimalUtil.lessThan(num,value)){
+            num = new BigDecimal(value);
+        }
+        return num;
+    }
+
+    /**
+     * 获取大于指定值时取指定值
+     * @param num 对比值
+     * @param value 指定值
+     */
+    public static BigDecimal getNumMoreThan(BigDecimal num,String value) {
+        if (Objects.nonNull(num) && BigDecimalUtil.moreThan(num,value)){
+            num = new BigDecimal(value);
+        }
+        return num;
+    }
 }
