@@ -227,7 +227,7 @@ public class UserAnswerProcessBuilder {
         List<QuestionnaireDataBO> recDataList = questionnaireQuestionDataBO.getQuestionnaireDataBOList();
 
         if (Objects.equals(question.getType(), QuestionnaireConstant.INPUT)) {
-            getInputData(dataList, answerMap, recDataList);
+            getInputData(dataList, answerMap, recDataList,QuestionnaireConstant.INPUT);
         }
         if (Objects.equals(question.getType(), QuestionnaireConstant.RADIO)) {
             answerMap.putAll(questionAnswerMap.getOrDefault(-1,Maps.newHashMap()));
@@ -246,7 +246,7 @@ public class UserAnswerProcessBuilder {
      * @param answerMap   问题集合
      * @param recDataList 问卷Rec数据信息集合
      */
-    private void getInputData(List<QuestionnaireDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireDataBO> recDataList) {
+    private void getInputData(List<QuestionnaireDataBO> dataList, Map<String, OptionAnswer> answerMap, List<QuestionnaireDataBO> recDataList,String type) {
         for (QuestionnaireDataBO recDataBO : recDataList) {
             QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataBO);
             OptionAnswer optionAnswer = answerMap.get(questionnaireDataBO.getOptionId());
@@ -260,7 +260,7 @@ public class UserAnswerProcessBuilder {
             if (Objects.equals(questionnaireDataBO.getDataType(),QuestionnaireConstant.SELECT)){
                 questionnaireDataBO.setRecAnswer(answer);
             }
-            questionnaireDataBO.setType(QuestionnaireConstant.INPUT);
+            questionnaireDataBO.setType(type);
             dataList.add(questionnaireDataBO);
         }
     }
@@ -379,15 +379,15 @@ public class UserAnswerProcessBuilder {
                                       QuestionnaireDataBO questionnaireDataBO) {
         List<QuestionnaireDataBO> questionnaireDataBOList = questionnaireDataBO.getQuestionnaireDataBOList();
         if (CollUtil.isEmpty(questionnaireDataBOList)) {
+            questionnaireDataBO.setType(QuestionnaireConstant.CHECKBOX);
             dataList.add(questionnaireDataBO);
             return;
         }
 
         if (!Objects.equals(questionnaireDataBO.getQesField(),QuestionnaireConstant.QM)){
-            questionnaireDataBO.setType(QuestionnaireConstant.CHECKBOX);
             dataList.add(questionnaireDataBO);
         }
-        getInputData(dataList, answerMap, questionnaireDataBOList);
+        getInputData(dataList, answerMap, questionnaireDataBOList,QuestionnaireConstant.CHECKBOX_INPUT);
     }
 
     /**
@@ -402,6 +402,11 @@ public class UserAnswerProcessBuilder {
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
 
+    /**
+     * 构建导出EXCEL数据实体
+     * @param schoolId 学校ID
+     * @param answersMap 答案集合
+     */
     public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap) {
         return new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap));
     }
@@ -418,7 +423,10 @@ public class UserAnswerProcessBuilder {
             List<JSONObject> dataExcelList = generateExcelDataBO.getDataList();
             School school = schoolMap.get(generateExcelDataBO.getSchoolId());
             List<String> districtList = schoolDistrictMap.get(generateExcelDataBO.getSchoolId());
-            dataExcelList.sort(Comparator.comparing(o -> o.getInteger("a01")));
+            JSONObject studentData = dataExcelList.get(0);
+            if (studentData.containsKey("a01")) {
+                dataExcelList.sort(Comparator.comparing(o -> o.getInteger("a01")));
+            }
             for (JSONObject jsonObject : dataExcelList) {
                 convertValue(school, districtList, jsonObject);
                 jsonObject.put("schoolName",school.getName());
@@ -509,6 +517,11 @@ public class UserAnswerProcessBuilder {
         return dataList;
     }
 
+    /**
+     * 设置数据集合
+     * @param dataList 数据集合
+     * @param answerList 答案集合
+     */
     private static void setDataList(List<JSONObject> dataList, List<QuestionnaireDataBO> answerList) {
         Map<Integer, List<QuestionnaireDataBO>> questionAnswerMap = answerList.stream().filter(Objects::nonNull).filter(questionnaireDataBO -> Objects.nonNull(questionnaireDataBO.getQuestionId())).collect(Collectors.groupingBy(QuestionnaireDataBO::getQuestionId));
         JSONObject data = new JSONObject();
@@ -516,19 +529,31 @@ public class UserAnswerProcessBuilder {
         dataList.add(data);
     }
 
+    /**
+     * 设置数据
+     * @param data 数据
+     * @param questionAnswerList 答案集合
+     */
     private static void setData(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
         String  placeholder = "-{%s}";
         QuestionnaireDataBO questionnaireDataBO = questionAnswerList.get(0);
         if (Objects.equals(questionnaireDataBO.getType(), QuestionnaireConstant.INPUT)){
             for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).orElse(StrUtil.EMPTY));
+                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
             }
         }
+
+        if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
+            for (QuestionnaireDataBO dataBo : questionAnswerList) {
+                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+            }
+        }
+
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO)){
-            String answerValue = getAnswerValue(questionnaireDataBO.getShowSerialNumber(), questionnaireDataBO.getExcelAnswer());
+            String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
             for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT) && Objects.nonNull(answerValue)){
-                    answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).orElse(StrUtil.EMPTY));
+                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
+                    answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
                 }
             }
             data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
@@ -537,29 +562,25 @@ public class UserAnswerProcessBuilder {
 
             List<String> answerDataList = Lists.newArrayList();
             for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                if (!Objects.equals(dataBO.getRecAnswer(),"1")){
+                if (Objects.equals(dataBO.getRecAnswer(),"2")){
                     continue;
                 }
-                answerDataList.add(getAnswerValue(dataBO.getShowSerialNumber(),dataBO.getExcelAnswer()));
+                answerDataList.add(Optional.ofNullable(dataBO.getExcelAnswer()).orElse(StrUtil.EMPTY));
             }
             if(CollUtil.isNotEmpty(answerDataList)){
-                String answerData = CollUtil.join(answerDataList, " ");
-                questionAnswerList.forEach(dataBO -> data.put(dataBO.getQesField().toLowerCase(),answerData));
+                String answerValue = CollUtil.join(answerDataList, " ");
+                for (QuestionnaireDataBO dataBO : questionAnswerList) {
+                    if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
+                        answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                    }
+                }
+                for (QuestionnaireDataBO dataBO : questionAnswerList) {
+                    data.put(dataBO.getQesField().toLowerCase(), answerValue);
+                }
             }
+
         }
     }
-
-
-    private String getAnswerValue(String showNum,String answer){
-        answer = Optional.ofNullable(answer).orElse(StrUtil.EMPTY);
-        if (StrUtil.isBlank(answer)){
-            return answer;
-        }
-        showNum = Optional.ofNullable(showNum).orElse(StrUtil.EMPTY);
-        return showNum+answer;
-    }
-
-
 
     /**
      * 构建获取答案数据条件

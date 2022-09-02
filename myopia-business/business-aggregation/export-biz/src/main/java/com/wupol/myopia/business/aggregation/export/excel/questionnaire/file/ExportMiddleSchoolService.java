@@ -55,10 +55,11 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
             return;
         }
         generateExcelDataBOList = userAnswerFacade.convertValue(generateExcelDataBOList);
+
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
             String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, exportMiddleSchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
+            ExcelUtil.exportExcel(file, exportMiddleSchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }
 

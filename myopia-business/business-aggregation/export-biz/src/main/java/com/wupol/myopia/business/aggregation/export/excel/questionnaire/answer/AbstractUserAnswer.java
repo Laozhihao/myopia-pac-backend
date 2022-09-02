@@ -132,6 +132,7 @@ public abstract class AbstractUserAnswer implements Answer {
             case UNIVERSITY_SCHOOL:
             case SCHOOL_ENVIRONMENT:
             case PRIMARY_SECONDARY_SCHOOLS:
+            case VISION_SPINE:
                 School school = schoolService.getById(fileNameCondition.getSchoolId());
                 name = school.getName();
                 break;
