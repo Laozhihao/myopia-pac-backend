@@ -341,7 +341,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
         List<ClassroomItemTable> tables = questionnaireQuestionList.stream().map(s -> {
             ClassroomItemTable table = new ClassroomItemTable();
-            table.setName(questionMap.get(s.getQuestionId()).getTitle());
+            table.setName(specialTitleProcess(questionMap.get(s.getQuestionId()).getTitle()));
             table.setQuestionId(s.getQuestionId());
             List<QuestionnaireQuestion> nextList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(s.getQuestionnaireId()).setPid(s.getId()));
 
