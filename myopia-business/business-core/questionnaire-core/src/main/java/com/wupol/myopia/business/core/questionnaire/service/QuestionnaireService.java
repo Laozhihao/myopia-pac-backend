@@ -67,11 +67,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         questionnaireQuestionService.remove(new QuestionnaireQuestion().setQuestionnaireId(questionnaireId));
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
-        // 更新问卷信息
-        updateTime(questionnaireId);
-        // 删除问卷中的page_json
+        // 更新问卷信息,删除问卷中的page_json
         Questionnaire questionnaire = getById(questionnaireId);
         questionnaire.setPageJson(null);
+        questionnaire.setUpdateTime(new Date());
         updateById(questionnaire);
     }
 
