@@ -106,13 +106,24 @@ public class QuestionnaireInfoBuilder {
      * @param questionnaireDataBO 问卷rec数据结构信息
      */
     private void setRadioOrCheckboxInputData(String typeInput, Map<String, QesDataDO> qesDataDoMap, Option option, QuestionnaireDataBO questionnaireDataBO) {
+        String  placeholder = "-{%s}";
         if (Objects.equals(option.getType(),typeInput)){
-            List<QuestionnaireDataBO> radioOrCheckboxInputList = option.getOption()
-                    .values().stream()
-                    .map(value -> JSON.parseObject(JSON.toJSONString(value), InputOption.class))
-                    .map(inputOption -> buildRadioOrCheckboxInputData(qesDataDoMap, inputOption,typeInput, questionnaireDataBO.getQuestionId()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            String excelAnswer = questionnaireDataBO.getExcelAnswer();
+            List<QuestionnaireDataBO> radioOrCheckboxInputList =Lists.newArrayList();
+
+            for (Map.Entry<String, Object> entry : option.getOption().entrySet()) {
+                InputOption inputOption = JSON.parseObject(JSON.toJSONString(entry.getValue()), InputOption.class);
+                QesDataDO radioInputQes = qesDataDoMap.get(inputOption.getId());
+                if (Objects.nonNull(radioInputQes)){
+                    excelAnswer = excelAnswer.replace(String.format(placeholder, entry.getKey()), String.format(placeholder,radioInputQes.getQesField()));
+                }
+                QuestionnaireDataBO dataBO = buildRadioOrCheckboxInputData(qesDataDoMap, inputOption, typeInput, questionnaireDataBO.getQuestionId());
+                if (Objects.isNull(dataBO)){
+                    continue;
+                }
+                radioOrCheckboxInputList.add(dataBO);
+            }
+            questionnaireDataBO.setExcelAnswer(excelAnswer);
             questionnaireDataBO.setQuestionnaireDataBOList(radioOrCheckboxInputList);
         }
     }

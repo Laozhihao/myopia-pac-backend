@@ -2,10 +2,13 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,10 +34,31 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
 
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
+    @Autowired
+    private UserAnswerFacade userAnswerFacade;
 
     @Override
     public Integer getType() {
         return QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType();
+    }
+
+    @Override
+    public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
+        Answer answerService = getAnswerService();
+        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        if (CollUtil.isEmpty(generateExcelDataBOList)){
+            return;
+        }
+
+        for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
+            String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
+            String file = getFileSavePath(fileName, excelFileName);
+            ExcelUtil.exportExcel(file, exportSchoolEnvironmentTemplate.getInputStream(),generateExcelDataBO.getDataList());
+        }
+    }
+
+    private Answer getAnswerService(){
+        return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
     }
 
 

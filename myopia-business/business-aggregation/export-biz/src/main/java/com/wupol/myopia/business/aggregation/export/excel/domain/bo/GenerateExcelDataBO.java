@@ -1,10 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 生成Excel数据业务实体
@@ -12,6 +13,8 @@ import java.util.Map;
  * @author hang.yuan 2022/7/30 11:14
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class GenerateExcelDataBO {
 
     /**
@@ -20,7 +23,22 @@ public class GenerateExcelDataBO {
     private Integer schoolId;
 
     /**
+     * 政府唯一Key
+     */
+    private String governmentKey;
+
+    /**
      * excel导出数据
      */
     private List<JSONObject> dataList;
+
+    public GenerateExcelDataBO(Integer schoolId, List<JSONObject> dataList) {
+        this.schoolId = schoolId;
+        this.dataList = dataList;
+    }
+
+    public GenerateExcelDataBO(String governmentKey, List<JSONObject> dataList) {
+        this.governmentKey = governmentKey;
+        this.dataList = dataList;
+    }
 }

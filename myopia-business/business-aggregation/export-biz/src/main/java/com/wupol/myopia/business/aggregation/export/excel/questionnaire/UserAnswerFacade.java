@@ -11,6 +11,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.builder.UserAnswerProcessBuilder;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -326,29 +327,6 @@ public class UserAnswerFacade {
     }
 
     /**
-     * 解析地区数据
-     * @param districtAreaCode 所属区/县行政区域编号
-     */
-    private List<String> getParseDistrict(Long districtAreaCode){
-        if (Objects.isNull(districtAreaCode)){
-            return Lists.newArrayList();
-        }
-        String code = districtAreaCode.toString();
-        Map<Long,String> codeMap = Maps.newLinkedHashMap();
-        codeMap.put(Long.parseLong(code.substring(0, 2))*10000000,"");
-        codeMap.put(Long.parseLong(code.substring(0, 4))*100000,"");
-        codeMap.put(Long.parseLong(code.substring(0, 6))*1000,"");
-        codeMap.forEach((k,v)->{
-            District district = districtService.getDistrictByCode(k, Boolean.FALSE);
-            if (Objects.nonNull(district)){
-                codeMap.put(k,district.getName());
-            }
-        });
-
-        return Lists.newArrayList(codeMap.values());
-    }
-
-    /**
      * 获取地区名称
      * @param districtList 区域名称集合
      * @param index 下标
@@ -585,5 +563,44 @@ public class UserAnswerFacade {
         //根据问卷ID集合，移除计算分值问题ID
         questionnaireFacade.removeScoreQuestionId(latestQuestionnaireIds);
         return generateExcelDataBO;
+    }
+
+
+    /**
+     * 转换值
+     * @param generateExcelDataList 生成excel数据集合
+     */
+    public List<GenerateExcelDataBO> convertValue(List<GenerateExcelDataBO> generateExcelDataList){
+        Set<Integer> schoolIds = generateExcelDataList.stream().map(GenerateExcelDataBO::getSchoolId).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.listByIds(schoolIds);
+        Map<Integer, List<String>> schoolDistrictMap =Maps.newHashMap();
+        for (School school : schoolList) {
+            schoolDistrictMap.put(school.getId(),getParseDistrict(school.getDistrictAreaCode()));
+        }
+        Map<Integer, School> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity(), (v1, v2) -> v2));
+        return UserAnswerProcessBuilder.convertValue(generateExcelDataList,schoolMap,schoolDistrictMap);
+    }
+
+    /**
+     * 解析地区数据
+     * @param districtAreaCode 所属区/县行政区域编号
+     */
+    private List<String> getParseDistrict(Long districtAreaCode){
+        if (Objects.isNull(districtAreaCode)){
+            return Lists.newArrayList();
+        }
+        String code = districtAreaCode.toString();
+        Map<Long,String> codeMap = Maps.newLinkedHashMap();
+        codeMap.put(Long.parseLong(code.substring(0, 2))*10000000,"");
+        codeMap.put(Long.parseLong(code.substring(0, 4))*100000,"");
+        codeMap.put(Long.parseLong(code.substring(0, 6))*1000,"");
+        codeMap.forEach((k,v)->{
+            District district = districtService.getDistrictByCode(k, Boolean.FALSE);
+            if (Objects.nonNull(district)){
+                codeMap.put(k,district.getName());
+            }
+        });
+
+        return Lists.newArrayList(codeMap.values());
     }
 }

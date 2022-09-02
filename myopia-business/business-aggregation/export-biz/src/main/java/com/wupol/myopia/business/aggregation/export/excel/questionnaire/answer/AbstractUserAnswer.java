@@ -20,8 +20,8 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.QesFieldMapping;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Questionnaire;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
@@ -194,6 +194,12 @@ public abstract class AbstractUserAnswer implements Answer {
         }
         UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition = getUserQuestionnaireAnswerCondition(tuple.getFirst(), generateDataCondition);
 
+        //政府，省、地市及区（县）管理部门学校卫生工作调查表
+        if (Objects.equals(generateDataCondition.getUserType(), UserType.QUESTIONNAIRE_GOVERNMENT.getType())
+                && Objects.equals(generateDataCondition.getMainBodyType(),QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)) {
+            return getGovernmentExcelData(userQuestionnaireAnswerCondition,generateDataCondition, tuple.getSecond());
+        }
+
         //学校对应用户问卷记录
         Map<Integer, List<UserQuestionRecord>> schoolRecordMap = tuple.getSecond().stream()
                 .filter(userQuestionRecord -> userQuestionnaireAnswerCondition.getLatestQuestionnaireIds().contains(userQuestionRecord.getQuestionnaireId()))
@@ -201,13 +207,17 @@ public abstract class AbstractUserAnswer implements Answer {
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
         //构建问卷Rec数据信息
-        Map<Integer, Map<String, List<GenerateExcelDataBO>>> schoolAnswerMap = Maps.newHashMap();
+        Map<Integer, Map<String, List<QuestionnaireDataBO>>> schoolAnswerMap = Maps.newHashMap();
         schoolRecordMap.forEach((schoolId, recordList) -> {
             userQuestionnaireAnswerCondition.setUserQuestionRecordList(recordList);
-            schoolAnswerMap.put(schoolId,buildExcelAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
+            schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
         });
 
-        return null;
+        //以学校维度 ，构建导出rec文件条件信息
+        return schoolAnswerMap.entrySet().stream()
+                .map(entry -> UserAnswerProcessBuilder.buildGenerateExcelDataBO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
     }
 
 
@@ -236,7 +246,7 @@ public abstract class AbstractUserAnswer implements Answer {
         Map<Integer, Map<String, List<QuestionnaireDataBO>>> schoolAnswerMap = Maps.newHashMap();
         schoolRecordMap.forEach((schoolId, recordList) -> {
             userQuestionnaireAnswerCondition.setUserQuestionRecordList(recordList);
-            schoolAnswerMap.put(schoolId,buildRecAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
+            schoolAnswerMap.put(schoolId, buildAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
         });
 
 
@@ -284,16 +294,19 @@ public abstract class AbstractUserAnswer implements Answer {
                 .map(qesFieldMapping -> AnswerUtil.getQesFieldStr(qesFieldMapping.getQesField()))
                 .collect(Collectors.toList());
 
-        //获取qes文件的地址信息
-        Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
-        String qesUrl = resourceFileService.getResourcePath(qesFileId);
-
-        return new UserQuestionnaireAnswerCondition()
+        UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition = new UserQuestionnaireAnswerCondition()
                 .setHideQuestionDataBOList(hideQuestionDataBOList)
                 .setDataBuildList(dataBuildList)
                 .setQesFieldList(qesFieldList)
-                .setLatestQuestionnaireIds(latestQuestionnaireIds)
-                .setQesUrl(qesUrl);
+                .setLatestQuestionnaireIds(latestQuestionnaireIds);
+        if (Objects.equals(generateDataCondition.getFileType(),QuestionnaireConstant.REC_FILE)){
+            //获取qes文件的地址信息
+            Integer qesFileId = questionnaireFacade.getQesFileId(qesFieldMappingList.get(0).getQesId());
+            String qesUrl = resourceFileService.getResourcePath(qesFileId);
+            userQuestionnaireAnswerCondition.setQesUrl(qesUrl);
+        }
+
+        return userQuestionnaireAnswerCondition;
     }
 
     /**
@@ -311,12 +324,37 @@ public abstract class AbstractUserAnswer implements Answer {
         Map<String, Map<String, List<QuestionnaireDataBO>>> governmentAnswerMap = Maps.newHashMap();
         governmentRecordMap.forEach((key, recordList) -> {
             userQuestionnaireAnswerCondition.setUserQuestionRecordList(recordList);
-            governmentAnswerMap.put(key,buildRecAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
+            governmentAnswerMap.put(key, buildAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
         });
 
 
         return governmentAnswerMap.entrySet().stream()
                 .map(entry -> UserAnswerProcessBuilder.buildGovernmentGenerateRecDataBO(userQuestionnaireAnswerCondition.getQesFieldList(), userQuestionnaireAnswerCondition.getQesUrl(), entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * 政府Excel文件数据
+     * @param userQuestionnaireAnswerCondition 用户问卷答案条件对象
+     * @param generateDataCondition 生成导出数据条件对象
+     */
+    private List<GenerateExcelDataBO> getGovernmentExcelData(UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition,GenerateDataCondition generateDataCondition,List<UserQuestionRecord> userQuestionRecordList){
+
+        Map<String, List<UserQuestionRecord>> governmentRecordMap = userQuestionRecordList.stream()
+                .filter(userQuestionRecord -> userQuestionnaireAnswerCondition.getLatestQuestionnaireIds().contains(userQuestionRecord.getQuestionnaireId()))
+                .sorted(Comparator.comparing(UserQuestionRecord::getId))
+                .collect(Collectors.groupingBy(userQuestionRecord -> UserQuestionnaireAnswerInfoBuilder.getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
+
+        Map<String, Map<String, List<QuestionnaireDataBO>>> governmentAnswerMap = Maps.newHashMap();
+        governmentRecordMap.forEach((key, recordList) -> {
+            userQuestionnaireAnswerCondition.setUserQuestionRecordList(recordList);
+            governmentAnswerMap.put(key, buildAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
+        });
+
+
+        return governmentAnswerMap.entrySet().stream()
+                .map(entry -> UserAnswerProcessBuilder.buildGovernmentGenerateExcelDataBO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -337,7 +375,7 @@ public abstract class AbstractUserAnswer implements Answer {
 
         //获取用户问卷记录
         List<UserQuestionRecord> userQuestionRecordList = getQuestionnaireRecordList(
-                questionnaireFacade.getQuestionnaireTypeList(mainBodyType, QuestionnaireConstant.REC_FILE),
+                questionnaireFacade.getQuestionnaireTypeList(mainBodyType, generateDataCondition.getFileType()),
                 getConditionValue(exportCondition),
                 generateDataCondition.getUserType());
 
@@ -357,12 +395,7 @@ public abstract class AbstractUserAnswer implements Answer {
      * @param generateDataCondition 生成数据条件
      * @param userQuestionnaireAnswerCondition 用户问卷答案条件
      */
-    private Map<String, List<GenerateExcelDataBO>> buildExcelAnswerMap(GenerateDataCondition generateDataCondition, UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition) {
-        List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(generateDataCondition,userQuestionnaireAnswerCondition);
-        return UserAnswerProcessBuilder.getExcelData(userQuestionnaireAnswerBOList, userQuestionnaireAnswerCondition.getDataBuildList(), userQuestionnaireAnswerCondition.getQesFieldList());
-    }
-
-    private Map<String, List<QuestionnaireDataBO>> buildRecAnswerMap(GenerateDataCondition generateDataCondition, UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition) {
+    private Map<String, List<QuestionnaireDataBO>> buildAnswerMap(GenerateDataCondition generateDataCondition, UserQuestionnaireAnswerCondition userQuestionnaireAnswerCondition) {
         List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = getUserQuestionnaireAnswerBOList(generateDataCondition,userQuestionnaireAnswerCondition);
         return UserAnswerProcessBuilder.getRecData(userQuestionnaireAnswerBOList, userQuestionnaireAnswerCondition.getDataBuildList(), userQuestionnaireAnswerCondition.getQesFieldList());
     }

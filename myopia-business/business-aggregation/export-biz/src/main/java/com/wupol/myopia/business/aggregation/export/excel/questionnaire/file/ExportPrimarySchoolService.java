@@ -4,10 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 导出学生健康状况及影响因素调查表（小学版）
@@ -39,6 +38,9 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
 
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
+    @Autowired
+    private UserAnswerFacade userAnswerFacade;
+
 
     @Override
     public Integer getType() {
@@ -53,10 +55,13 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
         if (CollUtil.isEmpty(generateExcelDataBOList)){
             return;
         }
+
+        generateExcelDataBOList = userAnswerFacade.convertValue(generateExcelDataBOList);
+
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
             String file = getFileSavePath(fileName, excelFileName);
-            ExcelUtil.exportListToExcel(file, exportPrimarySchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
+            ExcelUtil.exportExcel(file, exportPrimarySchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }
 

@@ -4,10 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 导出学生健康状况及影响因素调查表（中学版）
@@ -38,6 +36,8 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
     @Value("classpath:excel/ExportMiddleSchoolTemplate.xlsx")
     private Resource exportMiddleSchoolTemplate;
 
+    @Autowired
+    private UserAnswerFacade userAnswerFacade;
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
 
@@ -54,6 +54,7 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
         if (CollUtil.isEmpty(generateExcelDataBOList)){
             return;
         }
+        generateExcelDataBOList = userAnswerFacade.convertValue(generateExcelDataBOList);
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
             String file = getFileSavePath(fileName, excelFileName);

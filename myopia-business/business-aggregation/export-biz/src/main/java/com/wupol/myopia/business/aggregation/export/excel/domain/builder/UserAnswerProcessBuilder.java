@@ -6,15 +6,23 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.*;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
+import com.wupol.myopia.business.core.school.constant.AreaTypeEnum;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.constant.MonitorTypeEnum;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.rec.domain.RecExportDTO;
 import lombok.experimental.UtilityClass;
 
@@ -101,41 +109,6 @@ public class UserAnswerProcessBuilder {
         return dataMap;
     }
 
-
-    /**
-     * 获取导出REC的数据
-     *
-     * @param userQuestionnaireAnswerBOList 用户问卷记录集合
-     * @param dataBuildList                 问题Rec数据结构集合
-     * @param qesFieldList                  有序问卷字段
-     */
-    public Map<String, List<GenerateExcelDataBO>> getExcelData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList,
-                                                                List<QuestionnaireQuestionDataBO> dataBuildList,
-                                                                List<String> qesFieldList) {
-
-//        Map<String, List<QuestionnaireExcelDataBO>> dataMap = Maps.newHashMap();
-//
-//        //学校里的每个学生或者用户
-//        for (UserQuestionnaireAnswerBO userQuestionnaireAnswerBO : userQuestionnaireAnswerBOList) {
-//
-//            List<QuestionnaireExcelDataBO> dataList = Lists.newArrayList();
-//            Map<Integer, Map<String, OptionAnswer>> questionAnswerMap = userQuestionnaireAnswerBO.getAnswerMap();
-//            //每个学生或者用户完成数据
-//            for (QuestionnaireQuestionDataBO questionnaireQuestionDataBO : dataBuildList) {
-//                if (Objects.equals(Boolean.TRUE, questionnaireQuestionDataBO.getIsHidden())) {
-//                    //隐藏问题
-//                    hideQuestionDataProcess(dataList, questionnaireQuestionDataBO, userQuestionnaireAnswerBO);
-//                    continue;
-//                }
-//                processAnswerData(dataList, questionAnswerMap, questionnaireQuestionDataBO);
-//            }
-//            Map<String, QuestionnaireExcelDataBO> studentDataMap = dataList.stream().collect(Collectors.toMap(questionnaireRecDataBO -> AnswerUtil.getQesFieldStr(questionnaireRecDataBO.getQesField()), Function.identity(),(v1,v2)->v2));
-//            List<QuestionnaireExcelDataBO> collect = qesFieldList.stream().map(studentDataMap::get).collect(Collectors.toList());
-//            dataMap.put(userQuestionnaireAnswerBO.getUserKey(), collect);
-//        }
-//        return dataMap;
-        return null;
-    }
 
     /**
      * 隐藏问题处理
@@ -287,6 +260,7 @@ public class UserAnswerProcessBuilder {
             if (Objects.equals(questionnaireDataBO.getDataType(),QuestionnaireConstant.SELECT)){
                 questionnaireDataBO.setRecAnswer(answer);
             }
+            questionnaireDataBO.setType(QuestionnaireConstant.INPUT);
             dataList.add(questionnaireDataBO);
         }
     }
@@ -307,6 +281,7 @@ public class UserAnswerProcessBuilder {
         List<QuestionnaireDataBO> inputList = recDataList.stream().map(QuestionnaireDataBO::getQuestionnaireDataBOList).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toList());
         QuestionnaireDataBO questionnaireDataBO = getQuestionnaireRecDataBO(recDataList, answerMap);
         if (!Objects.equals(questionnaireDataBO.getQesField(),QuestionnaireConstant.QM)){
+            questionnaireDataBO.setType(QuestionnaireConstant.RADIO);
             dataList.add(questionnaireDataBO);
         }
         if (CollUtil.isEmpty(inputList)) {
@@ -336,6 +311,7 @@ public class UserAnswerProcessBuilder {
         if (CollUtil.isEmpty(result)) {
             QuestionnaireDataBO questionnaireDataBO = ObjectUtil.cloneByStream(recDataList.get(0));
             questionnaireDataBO.setRecAnswer(StrUtil.EMPTY);
+            questionnaireDataBO.setExcelAnswer(StrUtil.EMPTY);
             return questionnaireDataBO;
         }
         return result.get(0);
@@ -408,7 +384,7 @@ public class UserAnswerProcessBuilder {
         }
 
         if (!Objects.equals(questionnaireDataBO.getQesField(),QuestionnaireConstant.QM)){
-            questionnaireDataBO.setQuestionnaireDataBOList(null);
+            questionnaireDataBO.setType(QuestionnaireConstant.CHECKBOX);
             dataList.add(questionnaireDataBO);
         }
         getInputData(dataList, answerMap, questionnaireDataBOList);
@@ -426,6 +402,66 @@ public class UserAnswerProcessBuilder {
         return new GenerateRecDataBO(schoolId, qesUrl, dataTxt);
     }
 
+    public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap) {
+        return new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap));
+    }
+
+    /**
+     * 转换值
+     * @param generateExcelDataList 生成excel数据集合
+     * @param schoolMap 学校集合
+     * @param schoolDistrictMap 学校地区集合
+     */
+    public List<GenerateExcelDataBO> convertValue(List<GenerateExcelDataBO> generateExcelDataList,
+                                                  Map<Integer, School> schoolMap,Map<Integer, List<String>> schoolDistrictMap){
+        for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataList) {
+            List<JSONObject> dataExcelList = generateExcelDataBO.getDataList();
+            School school = schoolMap.get(generateExcelDataBO.getSchoolId());
+            List<String> districtList = schoolDistrictMap.get(generateExcelDataBO.getSchoolId());
+            dataExcelList.sort(Comparator.comparing(o -> o.getInteger("a01")));
+            for (JSONObject jsonObject : dataExcelList) {
+                convertValue(school, districtList, jsonObject);
+                jsonObject.put("schoolName",school.getName());
+            }
+            generateExcelDataBO.setDataList(dataExcelList);
+        }
+
+        return generateExcelDataList;
+    }
+
+    private static void convertValue(School school, List<String> districtList, JSONObject jsonObject) {
+        if (jsonObject.containsKey("province")){
+            jsonObject.put("province",getDistrictName(districtList,0));
+        }
+        if (jsonObject.containsKey("city")){
+            jsonObject.put("city",getDistrictName(districtList,1));
+        }
+        if (jsonObject.containsKey("county")){
+            jsonObject.put("county",getDistrictName(districtList,2));
+        }
+        if (jsonObject.containsKey("district")){
+            jsonObject.put("district", Optional.ofNullable(school.getAreaType()).map(type-> Optional.ofNullable(AreaTypeEnum.get(type)).map(AreaTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+        }
+        if (jsonObject.containsKey("point")){
+            jsonObject.put("point",Optional.ofNullable(school.getMonitorType()).map(type-> Optional.ofNullable(MonitorTypeEnum.get(type)).map(MonitorTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+        }
+        if (jsonObject.containsKey("a01")){
+            String gradeCode = jsonObject.getString("a01");
+            gradeCode = gradeCode.length()==1?"0"+gradeCode:gradeCode;
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
+            jsonObject.put("a01",gradeCodeEnum.getName());
+        }
+    }
+
+    /**
+     * 获取地区名称
+     * @param districtList 区域名称集合
+     * @param index 下标
+     */
+    private static String getDistrictName(List<String> districtList ,Integer index){
+        return CollUtil.isNotEmpty(districtList) ? districtList.get(index):StrUtil.EMPTY;
+    }
+
     /**
      * 构建政府导出rec数据实体
      * @param qesFieldList qes字段集合
@@ -436,6 +472,16 @@ public class UserAnswerProcessBuilder {
     public GenerateRecDataBO buildGovernmentGenerateRecDataBO(List<String> qesFieldList, String qesUrl, String governmentKey, Map<String, List<QuestionnaireDataBO>> answersMap) {
         List<String> dataTxt = getDataTxtList(qesFieldList, answersMap);
         return new GenerateRecDataBO(governmentKey, qesUrl, dataTxt);
+    }
+
+    /**
+     * 构建政府导出Excel数据实体
+     * @param governmentKey 政府唯一key
+     * @param answersMap 答案集合
+     */
+    public GenerateExcelDataBO buildGovernmentGenerateExcelDataBO(String governmentKey, Map<String, List<QuestionnaireDataBO>> answersMap) {
+        List<JSONObject> dataTxt = getDataExcelList(answersMap);
+        return new GenerateExcelDataBO(governmentKey, dataTxt);
     }
 
     /**
@@ -451,6 +497,66 @@ public class UserAnswerProcessBuilder {
                         .orElse(StrUtil.EMPTY))
                 .collect(Collectors.toList())));
         return EpiDataUtil.mergeDataTxt(qesFieldList, dataList);
+    }
+
+    /**
+     * 获取生成Excel文件的数据
+     * @param answersMap 答案集合
+     */
+    private static List<JSONObject> getDataExcelList(Map<String, List<QuestionnaireDataBO>> answersMap) {
+        List<JSONObject> dataList = new ArrayList<>();
+        answersMap.forEach((userKey, answerList) -> setDataList(dataList, answerList));
+        return dataList;
+    }
+
+    private static void setDataList(List<JSONObject> dataList, List<QuestionnaireDataBO> answerList) {
+        Map<Integer, List<QuestionnaireDataBO>> questionAnswerMap = answerList.stream().filter(Objects::nonNull).filter(questionnaireDataBO -> Objects.nonNull(questionnaireDataBO.getQuestionId())).collect(Collectors.groupingBy(QuestionnaireDataBO::getQuestionId));
+        JSONObject data = new JSONObject();
+        questionAnswerMap.forEach((questionId,questionAnswerList)-> setData(data, questionAnswerList));
+        dataList.add(data);
+    }
+
+    private static void setData(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
+        String  placeholder = "-{%s}";
+        QuestionnaireDataBO questionnaireDataBO = questionAnswerList.get(0);
+        if (Objects.equals(questionnaireDataBO.getType(), QuestionnaireConstant.INPUT)){
+            for (QuestionnaireDataBO dataBo : questionAnswerList) {
+                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).orElse(StrUtil.EMPTY));
+            }
+        }
+        if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO)){
+            String answerValue = getAnswerValue(questionnaireDataBO.getShowSerialNumber(), questionnaireDataBO.getExcelAnswer());
+            for (QuestionnaireDataBO dataBO : questionAnswerList) {
+                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT) && Objects.nonNull(answerValue)){
+                    answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).orElse(StrUtil.EMPTY));
+                }
+            }
+            data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
+        }
+        if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX)){
+
+            List<String> answerDataList = Lists.newArrayList();
+            for (QuestionnaireDataBO dataBO : questionAnswerList) {
+                if (!Objects.equals(dataBO.getRecAnswer(),"1")){
+                    continue;
+                }
+                answerDataList.add(getAnswerValue(dataBO.getShowSerialNumber(),dataBO.getExcelAnswer()));
+            }
+            if(CollUtil.isNotEmpty(answerDataList)){
+                String answerData = CollUtil.join(answerDataList, " ");
+                questionAnswerList.forEach(dataBO -> data.put(dataBO.getQesField().toLowerCase(),answerData));
+            }
+        }
+    }
+
+
+    private String getAnswerValue(String showNum,String answer){
+        answer = Optional.ofNullable(answer).orElse(StrUtil.EMPTY);
+        if (StrUtil.isBlank(answer)){
+            return answer;
+        }
+        showNum = Optional.ofNullable(showNum).orElse(StrUtil.EMPTY);
+        return showNum+answer;
     }
 
 
