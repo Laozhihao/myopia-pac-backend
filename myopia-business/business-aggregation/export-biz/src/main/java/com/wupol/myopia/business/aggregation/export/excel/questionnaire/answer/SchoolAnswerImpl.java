@@ -48,6 +48,12 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
     }
 
 
+    /**
+     * 获取有效的用户问卷记录信息
+     * @param userQuestionRecordList 用户问卷记录集合
+     * @param districtId 地区ID
+     * @param schoolId 学校ID
+     */
     private List<UserQuestionRecord> getUserQuestionRecordList(List<UserQuestionRecord> userQuestionRecordList, Integer districtId,Integer schoolId) {
         if (CollUtil.isEmpty(userQuestionRecordList)) {
             return userQuestionRecordList;
