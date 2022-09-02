@@ -16,6 +16,7 @@ import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
@@ -180,12 +181,22 @@ public abstract class AbstractUserAnswer implements Answer {
     /**
      * 过滤区域
      *
-     * @param districtId 区域ID
+     * @param districtList 区域集合
      */
-    protected List<Integer> filterDistrict(Integer districtId) {
-        return districtService.filterDistrict(districtId);
+    protected List<Integer> getDistrictIds(List<District> districtList) {
+        List<Integer> districtIds = Lists.newArrayList();
+        districtService.getAllIds(districtIds,districtList);
+        return districtIds;
     }
 
+    protected List<District> getDistrictList(Integer districtId) {
+        List<District> specificDistrictTree = districtService.getSpecificDistrictTree(districtId);
+        return districtService.getAllDistrict(specificDistrictTree,Lists.newArrayList());
+    }
+
+    protected List<Integer> filterDistrict(Integer districtId) {
+        return getDistrictIds(getDistrictList(districtId));
+    }
 
     @Override
     public List<GenerateExcelDataBO> getExcelData(GenerateDataCondition generateDataCondition) {

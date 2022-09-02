@@ -567,10 +567,10 @@ public class UserAnswerFacade {
 
 
     /**
-     * 转换值
+     * 转换学生值
      * @param generateExcelDataList 生成excel数据集合
      */
-    public List<GenerateExcelDataBO> convertValue(List<GenerateExcelDataBO> generateExcelDataList){
+    public List<GenerateExcelDataBO> convertStudentValue(List<GenerateExcelDataBO> generateExcelDataList){
         Set<Integer> schoolIds = generateExcelDataList.stream().map(GenerateExcelDataBO::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.listByIds(schoolIds);
         Map<Integer, List<String>> schoolDistrictMap =Maps.newHashMap();
@@ -579,6 +579,19 @@ public class UserAnswerFacade {
         }
         Map<Integer, School> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity(), (v1, v2) -> v2));
         return UserAnswerProcessBuilder.convertValue(generateExcelDataList,schoolMap,schoolDistrictMap);
+    }
+
+    /**
+     * 转换政府值
+     * @param generateExcelDataList 生成excel数据集合
+     */
+    public List<GenerateExcelDataBO> convertGovernmentValue(List<GenerateExcelDataBO> generateExcelDataList){
+        List<String> governmentKeyList = generateExcelDataList.stream().map(GenerateExcelDataBO::getGovernmentKey).collect(Collectors.toList());
+        Map<String, List<String>> governmentDistrictMap =Maps.newHashMap();
+        for (String governmentKey : governmentKeyList) {
+            governmentDistrictMap.put(governmentKey,getParseDistrict(Long.valueOf(governmentKey.split(StrUtil.UNDERLINE)[2])));
+        }
+        return UserAnswerProcessBuilder.convertGovernmentValue(generateExcelDataList,governmentDistrictMap);
     }
 
     /**

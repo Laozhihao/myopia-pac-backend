@@ -126,4 +126,15 @@ public enum DropSelectEnum {
                 .collect(Collectors.toList());
 
     }
+
+    /**
+     * 通过value获取
+     * @param value value
+     */
+    public static DropSelectEnum getDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item -> item.value.equals(value))
+                .findFirst().orElse(null);
+
+    }
 }

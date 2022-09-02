@@ -106,7 +106,6 @@ public class QuestionnaireInfoBuilder {
      * @param questionnaireDataBO 问卷rec数据结构信息
      */
     private void setRadioOrCheckboxInputData(String typeInput, Map<String, QesDataDO> qesDataDoMap, Option option, QuestionnaireDataBO questionnaireDataBO) {
-        String  placeholder = "-{%s}";
         if (Objects.equals(option.getType(),typeInput)){
             String excelAnswer = questionnaireDataBO.getExcelAnswer();
             List<QuestionnaireDataBO> radioOrCheckboxInputList =Lists.newArrayList();
@@ -115,7 +114,7 @@ public class QuestionnaireInfoBuilder {
                 InputOption inputOption = JSON.parseObject(JSON.toJSONString(entry.getValue()), InputOption.class);
                 QesDataDO radioInputQes = qesDataDoMap.get(inputOption.getId());
                 if (Objects.nonNull(radioInputQes)){
-                    excelAnswer = excelAnswer.replace(String.format(placeholder, entry.getKey()), String.format(placeholder,radioInputQes.getQesField()));
+                    excelAnswer = excelAnswer.replace(String.format(QuestionnaireConstant.PLACEHOLDER, entry.getKey()), String.format(QuestionnaireConstant.PLACEHOLDER,radioInputQes.getQesField()));
                 }
                 QuestionnaireDataBO dataBO = buildRadioOrCheckboxInputData(qesDataDoMap, inputOption, typeInput, questionnaireDataBO.getQuestionId());
                 if (Objects.isNull(dataBO)){

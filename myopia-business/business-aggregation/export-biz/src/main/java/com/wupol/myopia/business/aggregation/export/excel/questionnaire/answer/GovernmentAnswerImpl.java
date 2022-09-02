@@ -56,12 +56,13 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
 
     @Override
     protected List<Integer> filterDistrict(Integer districtId) {
-        List<Integer> districtIdList = super.filterDistrict(districtId);
+
+        List<District> districtList = super.getDistrictList(districtId);
+        List<Integer> districtIdList = super.getDistrictIds(districtList);
         if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
             if (Objects.isNull(districtIdList)){
                 return districtIdList;
             }
-            List<District> districtList = districtService.getDistrictByIds(districtIdList);
             return districtList.stream().map(district -> district.getCode().toString().substring(0, 6)).map(Integer::valueOf).distinct().collect(Collectors.toList());
         }
         return districtIdList;
