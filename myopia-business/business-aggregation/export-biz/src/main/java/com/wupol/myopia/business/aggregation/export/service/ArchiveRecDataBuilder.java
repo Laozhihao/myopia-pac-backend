@@ -26,7 +26,6 @@ import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -131,28 +130,30 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setStudentCommonDiseaseIdInfo(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         StudentCommonDiseaseIdInfo commonDiseaseIdInfo = commonDiseaseArchiveCard.getCommonDiseaseIdInfo();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("ID1",getValue(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCommonDiseaseId,StrUtil.EMPTY)));
-        qesFieldDataBOList.add(new QesFieldDataBO("province",getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getProvinceCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("city", getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCityCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("district",getValueByInteger(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getAreaType)));
-        qesFieldDataBOList.add(new QesFieldDataBO("county",getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getAreaCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("point",getValueByInteger(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getMonitorType)));
-        qesFieldDataBOList.add(new QesFieldDataBO("school",getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getSchoolCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("grade",getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getGradeCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("num",getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getSchoolCode)));
-        qesFieldDataBOList.add(new QesFieldDataBO("ID2",getValue(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCommonDiseaseId,StrUtil.EMPTY)));
+        qesFieldDataBOList.add(new QesFieldDataBO("ID1",AnswerUtil.getValue(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCommonDiseaseId,StrUtil.EMPTY)));
+        qesFieldDataBOList.add(new QesFieldDataBO("province",AnswerUtil.getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getProvinceCode)));
+        qesFieldDataBOList.add(new QesFieldDataBO("city", AnswerUtil.getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCityCode)));
+        qesFieldDataBOList.add(new QesFieldDataBO("district",AnswerUtil.getValueByInteger(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getAreaType)));
+        qesFieldDataBOList.add(new QesFieldDataBO("county",AnswerUtil.getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getAreaCode)));
+        qesFieldDataBOList.add(new QesFieldDataBO("point",AnswerUtil.getValueByInteger(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getMonitorType)));
+        qesFieldDataBOList.add(new QesFieldDataBO("school",AnswerUtil.getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getSchoolCode)));
+        qesFieldDataBOList.add(new QesFieldDataBO("grade",AnswerUtil.getValueByString(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getGradeCode)));
+        qesFieldDataBOList.add(new QesFieldDataBO("num",getNum(AnswerUtil.getValue(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCommonDiseaseId,StrUtil.EMPTY))));
+        qesFieldDataBOList.add(new QesFieldDataBO("ID2",AnswerUtil.getValue(commonDiseaseIdInfo,StudentCommonDiseaseIdInfo::getCommonDiseaseId,StrUtil.EMPTY)));
         return qesFieldDataBOList;
     }
 
-    private <T>String getValueByString(T t, Function<T,String> function){
-       return AnswerUtil.numberFormat(getValue(t,function,null));
+    /**
+     * 获取编码（常见病ID的后四位）
+     * @param commonDiseaseId 常见病ID
+     */
+    private String getNum(String commonDiseaseId){
+        if (StrUtil.isBlank(commonDiseaseId)){
+            return StrUtil.EMPTY;
+        }
+        return commonDiseaseId.substring(12, 16);
     }
-    private <T>String getValueByInteger(T t, Function<T,Integer> function){
-        return AnswerUtil.numberFormat(getValue(t,function,null));
-    }
-    private <T,U> U getValue(T t, Function<T,U> function,U u){
-        return Optional.ofNullable(t).map(function).orElse(u);
-    }
+
 
     /**
      * 学生信息
@@ -161,8 +162,8 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setStudentInfo(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         CardInfoVO studentInfo = commonDiseaseArchiveCard.getStudentInfo();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        TwoTuple<String, String> tuple = getNationInfo(getValue(studentInfo,CardInfoVO::getNationDesc,null));
-        qesFieldDataBOList.add(new QesFieldDataBO("gender",AnswerUtil.getGenderRecData(getValue(studentInfo,CardInfoVO::getGender,null))));
+        TwoTuple<String, String> tuple = getNationInfo(AnswerUtil.getValue(studentInfo,CardInfoVO::getNationDesc,null));
+        qesFieldDataBOList.add(new QesFieldDataBO("gender",AnswerUtil.getGenderRecData(AnswerUtil.getValue(studentInfo,CardInfoVO::getGender,null))));
         qesFieldDataBOList.add(new QesFieldDataBO("nation", tuple.getFirst()));
         qesFieldDataBOList.add(new QesFieldDataBO("nationother", tuple.getSecond()));
         qesFieldDataBOList.add(new QesFieldDataBO("birth", DateUtil.format(studentInfo.getBirthday(), QuestionnaireConstant.DATE_FORMAT)));
@@ -191,20 +192,26 @@ public class ArchiveRecDataBuilder {
      */
     private List<QesFieldDataBO> setVisionData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         VisionDataDO visionData = commonDiseaseArchiveCard.getVisionData();
-        VisionDataDO.VisionData leftEyeData = getValue(visionData,VisionDataDO::getLeftEyeData,null);
-        VisionDataDO.VisionData rightEyeData = getValue(visionData,VisionDataDO::getRightEyeData,null);
+        VisionDataDO.VisionData leftEyeData = AnswerUtil.getValue(visionData,VisionDataDO::getLeftEyeData,null);
+        VisionDataDO.VisionData rightEyeData = AnswerUtil.getValue(visionData,VisionDataDO::getRightEyeData,null);
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        ThreeTuple<String, String, String> tuple = getGlassType(getValue(rightEyeData, VisionDataDO.VisionData::getGlassesType,null),getValue(rightEyeData, VisionDataDO.VisionData::getOkDegree,null) , getValue(leftEyeData, VisionDataDO.VisionData::getOkDegree,null));
+        ThreeTuple<String, String, String> tuple = getGlassType(AnswerUtil.getValue(rightEyeData, VisionDataDO.VisionData::getGlassesType,null),AnswerUtil.getValue(rightEyeData, VisionDataDO.VisionData::getOkDegree,null) , AnswerUtil.getValue(leftEyeData, VisionDataDO.VisionData::getOkDegree,null));
         qesFieldDataBOList.add(new QesFieldDataBO("glasstype", tuple.getFirst()));
         qesFieldDataBOList.add(new QesFieldDataBO("OKR", tuple.getSecond()));
         qesFieldDataBOList.add(new QesFieldDataBO("OKL",tuple.getThird()));
-        qesFieldDataBOList.add(new QesFieldDataBO("visionR",getEyeDataValue(getValue(rightEyeData, VisionDataDO.VisionData::getNakedVision,null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("glassR",getEyeDataValue(getValue(rightEyeData, VisionDataDO.VisionData::getCorrectedVision,null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("visionL",getEyeDataValue(getValue(leftEyeData, VisionDataDO.VisionData::getNakedVision,null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("glassL",getEyeDataValue(getValue(leftEyeData, VisionDataDO.VisionData::getCorrectedVision,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("visionR",getEyeDataValue(AnswerUtil.getValue(rightEyeData, VisionDataDO.VisionData::getNakedVision,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("glassR",getEyeDataValue(AnswerUtil.getValue(rightEyeData, VisionDataDO.VisionData::getCorrectedVision,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("visionL",getEyeDataValue(AnswerUtil.getValue(leftEyeData, VisionDataDO.VisionData::getNakedVision,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("glassL",getEyeDataValue(AnswerUtil.getValue(leftEyeData, VisionDataDO.VisionData::getCorrectedVision,null))));
         return qesFieldDataBOList;
     }
 
+    /**
+     * 根据戴镜类型获取值
+     * @param glassType 戴镜类型
+     * @param okr ok右值
+     * @param okl ok左值
+     */
     private ThreeTuple<String,String,String> getGlassType(Integer glassType, BigDecimal okr,BigDecimal okl){
         if (Objects.equals(GlassesTypeEnum.NOT_WEARING.getCode(),glassType)){
             return new ThreeTuple<>("4",StrUtil.EMPTY,StrUtil.EMPTY);
@@ -222,15 +229,23 @@ public class ArchiveRecDataBuilder {
         return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
     }
 
+    /**
+     * 获取ok值
+     * @param num ok值
+     */
     private String getOkValue(BigDecimal num){
-        num = getNumLessThan(num,"-30.00");
-        num = getNumMoreThan(num,"0.00");
+        num = BigDecimalUtil.getNumLessThan(num,"-30.00");
+        num = BigDecimalUtil.getNumMoreThan(num,"0.00");
         return AnswerUtil.numberFormat(num,2);
     }
 
+    /**
+     * 获取视力数据值
+     * @param num 视力值
+     */
     private String getEyeDataValue(BigDecimal num){
-        num = getNumLessThan(num,"3.3");
-        num = getNumMoreThan(num,"5.6");
+        num = BigDecimalUtil.getNumLessThan(num,"3.3");
+        num = BigDecimalUtil.getNumMoreThan(num,"5.6");
         return AnswerUtil.numberFormat(num,1);
     }
 
@@ -240,16 +255,16 @@ public class ArchiveRecDataBuilder {
      */
     private List<QesFieldDataBO> setComputerOptometry(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         ComputerOptometryDO computerOptometryData = commonDiseaseArchiveCard.getComputerOptometryData();
-        ComputerOptometryDO.ComputerOptometry rightEyeData = getValue(computerOptometryData,ComputerOptometryDO::getRightEyeData,null);
-        ComputerOptometryDO.ComputerOptometry leftEyeData = getValue(computerOptometryData,ComputerOptometryDO::getLeftEyeData,null);
-        BigDecimal rightSph = getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getSph, null);
-        BigDecimal rightCyl = getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getCyl, null);
-        BigDecimal rightAxial = getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getAxial, null);
-        BigDecimal leftSph = getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getSph, null);
-        BigDecimal leftCyl = getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getCyl, null);
-        BigDecimal leftAxial = getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getAxial, null);
+        ComputerOptometryDO.ComputerOptometry rightEyeData = AnswerUtil.getValue(computerOptometryData,ComputerOptometryDO::getRightEyeData,null);
+        ComputerOptometryDO.ComputerOptometry leftEyeData = AnswerUtil.getValue(computerOptometryData,ComputerOptometryDO::getLeftEyeData,null);
+        BigDecimal rightSph = AnswerUtil.getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getSph, null);
+        BigDecimal rightCyl = AnswerUtil.getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getCyl, null);
+        BigDecimal rightAxial = AnswerUtil.getValue(rightEyeData, ComputerOptometryDO.ComputerOptometry::getAxial, null);
+        BigDecimal leftSph = AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getSph, null);
+        BigDecimal leftCyl = AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getCyl, null);
+        BigDecimal leftAxial = AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getAxial, null);
         ThreeTuple<String, String, String> rightConvertValue = getConvertValue(rightSph, rightCyl, rightAxial);
-        ThreeTuple<String, String, String> leftConvertValue = getConvertValue(getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getSph,null), getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getCyl,null),getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getAxial,null));
+        ThreeTuple<String, String, String> leftConvertValue = getConvertValue(AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getSph,null), AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getCyl,null),AnswerUtil.getValue(leftEyeData, ComputerOptometryDO.ComputerOptometry::getAxial,null));
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
         qesFieldDataBOList.add(new QesFieldDataBO("spherR",getSpherValue(rightSph)));
         qesFieldDataBOList.add(new QesFieldDataBO("cylinR",getCylinValue(rightCyl)));
@@ -268,25 +283,42 @@ public class ArchiveRecDataBuilder {
         return qesFieldDataBOList;
     }
 
-
+    /**
+     * 获取球镜值
+     * @param num 球镜值
+     */
     private String getSpherValue(BigDecimal num){
-        num = getNumLessThan(num,"-30.00");
-        num = getNumMoreThan(num,"30.00");
+        num = BigDecimalUtil.getNumLessThan(num,"-30.00");
+        num = BigDecimalUtil.getNumMoreThan(num,"30.00");
         return AnswerUtil.numberFormat(num,2);
     }
 
+    /**
+     * 获取柱镜值
+     * @param num 柱镜值
+     */
     private String getCylinValue(BigDecimal num){
-        num = getNumLessThan(num,"-15.00");
-        num = getNumMoreThan(num,"15.00");
+        num = BigDecimalUtil.getNumLessThan(num,"-15.00");
+        num = BigDecimalUtil.getNumMoreThan(num,"15.00");
         return AnswerUtil.numberFormat(num,2);
     }
 
+    /**
+     * 获取轴位值
+     * @param num 轴位值
+     */
     private String getAxisValue(BigDecimal num){
-        num = getNumLessThan(num,"0");
-        num = getNumMoreThan(num,"180");
+        num = BigDecimalUtil.getNumLessThan(num,"0");
+        num = BigDecimalUtil.getNumMoreThan(num,"180");
         return AnswerUtil.numberFormat(num,0);
     }
 
+    /**
+     * 获取转换值
+     * @param spher 球镜值
+     * @param cylin 柱镜值
+     * @param axis 轴位值
+     */
     private ThreeTuple<String,String,String> getConvertValue(BigDecimal spher,BigDecimal cylin, BigDecimal axis){
         if (ObjectsUtil.allNull(cylin,axis)){
             return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
@@ -336,14 +368,14 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setDiseasesHistoryData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         List<String> diseasesHistoryData = commonDiseaseArchiveCard.getDiseasesHistoryData();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q31",getValue(diseasesHistoryData,"肝炎")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q32",getValue(diseasesHistoryData,"肾炎")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q33",getValue(diseasesHistoryData,"心脏病")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q34",getValue(diseasesHistoryData,"高血压")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q35",getValue(diseasesHistoryData,"贫血")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q36",getValue(diseasesHistoryData,"糖尿病")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q37",getValue(diseasesHistoryData,"过敏性哮喘")));
-        qesFieldDataBOList.add(new QesFieldDataBO("q38",getValue(diseasesHistoryData,"身体残疾")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q31",getDiseasesValue(diseasesHistoryData,"肝炎")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q32",getDiseasesValue(diseasesHistoryData,"肾炎")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q33",getDiseasesValue(diseasesHistoryData,"心脏病")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q34",getDiseasesValue(diseasesHistoryData,"高血压")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q35",getDiseasesValue(diseasesHistoryData,"贫血")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q36",getDiseasesValue(diseasesHistoryData,"糖尿病")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q37",getDiseasesValue(diseasesHistoryData,"过敏性哮喘")));
+        qesFieldDataBOList.add(new QesFieldDataBO("q38",getDiseasesValue(diseasesHistoryData,"身体残疾")));
         return qesFieldDataBOList;
     }
 
@@ -352,7 +384,7 @@ public class ArchiveRecDataBuilder {
      * @param diseasesHistoryData 疾病史
      * @param diseasesName 疾病名
      */
-    private String getValue(List<String> diseasesHistoryData,String diseasesName){
+    private String getDiseasesValue(List<String> diseasesHistoryData,String diseasesName){
         if (CollUtil.isEmpty(diseasesHistoryData)){
             diseasesHistoryData = Lists.newArrayList();
         }
@@ -387,20 +419,29 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setHeightAndWeightData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         HeightAndWeightDataDO heightAndWeightData = commonDiseaseArchiveCard.getHeightAndWeightData();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q6",getHeightValue(heightAndWeightData.getHeight())));
-        qesFieldDataBOList.add(new QesFieldDataBO("q7",getWeightValue(heightAndWeightData.getWeight())));
+
+        qesFieldDataBOList.add(new QesFieldDataBO("q6",getHeightValue(AnswerUtil.getValue(heightAndWeightData,HeightAndWeightDataDO::getHeight,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("q7",getWeightValue(AnswerUtil.getValue(heightAndWeightData,HeightAndWeightDataDO::getWeight,null))));
         return qesFieldDataBOList;
     }
 
+    /**
+     * 获取身高值
+     * @param num 身高值
+     */
     private String getHeightValue(BigDecimal num){
-        num = getNumLessThan(num,"80");
-        num = getNumMoreThan(num,"210");
+        num = BigDecimalUtil.getNumLessThan(num,"80");
+        num = BigDecimalUtil.getNumMoreThan(num,"210");
         return AnswerUtil.numberFormat(num,1);
     }
 
+    /**
+     * 获取体重值
+     * @param num 体重值
+     */
     private String getWeightValue(BigDecimal num){
-        num = getNumLessThan(num,"10");
-        num = getNumMoreThan(num,"200");
+        num = BigDecimalUtil.getNumLessThan(num,"10");
+        num = BigDecimalUtil.getNumMoreThan(num,"200");
         return AnswerUtil.numberFormat(num,1);
     }
 
@@ -431,8 +472,8 @@ public class ArchiveRecDataBuilder {
      * @param spineItem 脊柱弯曲项
      */
     private TwoTuple<String,String> getSpineItemValue(SpineDataDO.SpineItem spineItem){
-        Integer type = Optional.ofNullable(spineItem).map(SpineDataDO.SpineItem::getType).orElse(null);
-        Integer level = Optional.ofNullable(spineItem).map(SpineDataDO.SpineItem::getLevel).orElse(null);
+        Integer type = AnswerUtil.getValue(spineItem, SpineDataDO.SpineItem::getType,null);
+        Integer level = AnswerUtil.getValue(spineItem, SpineDataDO.SpineItem::getLevel,null);
         return TwoTuple.of(AnswerUtil.numberFormat(type),AnswerUtil.numberFormat(level));
     }
 
@@ -444,19 +485,28 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setBloodPressureData(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         BloodPressureDataDO bloodPressureData = commonDiseaseArchiveCard.getBloodPressureData();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q81",getSbpValue(Optional.ofNullable(bloodPressureData).map(BloodPressureDataDO::getSbp).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q82",getDbpValue(Optional.ofNullable(bloodPressureData).map(BloodPressureDataDO::getDbp).orElse(null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("q81",getSbpValue(AnswerUtil.getValue(bloodPressureData,BloodPressureDataDO::getSbp,null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("q82",getDbpValue(AnswerUtil.getValue(bloodPressureData,BloodPressureDataDO::getDbp,null))));
         return qesFieldDataBOList;
     }
 
+    /**
+     * 获取收缩压
+     * @param num 收缩压值
+     */
     private String getSbpValue(BigDecimal num){
-        num = getNumLessThan(num,"0");
-        num = getNumMoreThan(num,"300");
+        num = BigDecimalUtil.getNumLessThan(num,"0");
+        num = BigDecimalUtil.getNumMoreThan(num,"300");
         return AnswerUtil.numberFormat(num,0);
     }
+
+    /**
+     * 获取舒张压值
+     * @param num 舒张压值
+     */
     private String getDbpValue(BigDecimal num){
-        num = getNumLessThan(num,"0");
-        num = getNumMoreThan(num,"200");
+        num = BigDecimalUtil.getNumLessThan(num,"0");
+        num = BigDecimalUtil.getNumMoreThan(num,"200");
         return AnswerUtil.numberFormat(num,0);
     }
 
@@ -498,19 +548,5 @@ public class ArchiveRecDataBuilder {
             return TwoTuple.of("1","");
         }).orElse(TwoTuple.of("1",""));
     }
-
-    private static BigDecimal getNumLessThan(BigDecimal num,String value) {
-        if (Objects.nonNull(num) && BigDecimalUtil.lessThan(num,value)){
-            num = new BigDecimal(value);
-        }
-        return num;
-    }
-    private static BigDecimal getNumMoreThan(BigDecimal num,String value) {
-        if (Objects.nonNull(num) && BigDecimalUtil.moreThan(num,value)){
-            num = new BigDecimal(value);
-        }
-        return num;
-    }
-
 
 }
