@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.builder.UserAnswerProcessBuilder;
+import com.wupol.myopia.business.aggregation.export.excel.domain.builder.AnswerConvertValueBuilder;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
@@ -578,7 +578,7 @@ public class UserAnswerFacade {
             schoolDistrictMap.put(school.getId(),getParseDistrict(school.getDistrictAreaCode()));
         }
         Map<Integer, School> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity(), (v1, v2) -> v2));
-        return UserAnswerProcessBuilder.convertValue(generateExcelDataList,schoolMap,schoolDistrictMap);
+        return AnswerConvertValueBuilder.convertValue(generateExcelDataList,schoolMap,schoolDistrictMap);
     }
 
     /**
@@ -591,7 +591,7 @@ public class UserAnswerFacade {
         for (String governmentKey : governmentKeyList) {
             governmentDistrictMap.put(governmentKey,getParseDistrict(Long.valueOf(governmentKey.split(StrUtil.UNDERLINE)[2])));
         }
-        return UserAnswerProcessBuilder.convertGovernmentValue(generateExcelDataList,governmentDistrictMap);
+        return AnswerConvertValueBuilder.convertGovernmentValue(generateExcelDataList,governmentDistrictMap);
     }
 
     /**

@@ -195,6 +195,9 @@ public abstract class AbstractUserAnswer implements Answer {
     }
 
     protected List<Integer> filterDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)){
+            return null;
+        }
         return getDistrictIds(getDistrictList(districtId));
     }
 
