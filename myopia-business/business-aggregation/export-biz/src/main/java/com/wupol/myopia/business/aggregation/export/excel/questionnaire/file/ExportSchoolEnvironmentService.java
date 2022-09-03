@@ -50,7 +50,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
             return;
         }
 
-        generateExcelDataBOList = userAnswerFacade.convertValue(generateExcelDataBOList);
+        generateExcelDataBOList = userAnswerFacade.convertStudentValue(generateExcelDataBOList);
 
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));

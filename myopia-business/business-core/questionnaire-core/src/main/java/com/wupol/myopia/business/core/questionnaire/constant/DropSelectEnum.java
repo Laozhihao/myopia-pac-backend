@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -121,9 +122,87 @@ public enum DropSelectEnum {
      */
     public static List<DropSelect> getSelect(String key) {
         return Arrays.stream(DropSelectEnum.values())
-                .filter(item -> item.key.equals(key))
+                .filter(item -> Objects.equals(item.key,key))
                 .map(s -> new DropSelect(s.getLabel(), s.getValue()))
                 .collect(Collectors.toList());
 
     }
+
+    /**
+     * 通过value获取甲乙病
+     * @param value 值
+     */
+    public static DropSelectEnum getAbDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_1.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取丙病
+     * @param value 值
+     */
+    public static DropSelectEnum getCDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_2.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取教师-类别
+     * @param value 值
+     */
+    public static DropSelectEnum getTeacherTypeDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_3.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取教师-专/兼职
+     * @param value 值
+     */
+    public static DropSelectEnum getWorkTypeDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_4.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取教师-学历
+     * @param value 值
+     */
+    public static DropSelectEnum getEducationTypeDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_5.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取教师-职称
+     * @param value 值
+     */
+    public static DropSelectEnum getJobTitleDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_6.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * 通过value获取教师-执业资格证书
+     * @param value 值
+     */
+    public static DropSelectEnum getQcDropSelect(String value) {
+        return Arrays.stream(DropSelectEnum.values())
+                .filter(item-> Objects.equals(item.key,SelectKeyEnum.KEY_7.getKey()))
+                .filter(item -> Objects.equals(item.value,value))
+                .findFirst().orElse(null);
+    }
+
 }

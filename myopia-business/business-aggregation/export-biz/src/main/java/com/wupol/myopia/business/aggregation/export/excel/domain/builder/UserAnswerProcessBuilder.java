@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.*;
+import com.wupol.myopia.business.core.questionnaire.constant.DropSelectEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
@@ -29,6 +30,7 @@ import lombok.experimental.UtilityClass;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
  */
 @UtilityClass
 public class UserAnswerProcessBuilder {
+
 
     /**
      * 构建导出条件
@@ -412,65 +415,6 @@ public class UserAnswerProcessBuilder {
     }
 
     /**
-     * 转换值
-     * @param generateExcelDataList 生成excel数据集合
-     * @param schoolMap 学校集合
-     * @param schoolDistrictMap 学校地区集合
-     */
-    public List<GenerateExcelDataBO> convertValue(List<GenerateExcelDataBO> generateExcelDataList,
-                                                  Map<Integer, School> schoolMap,Map<Integer, List<String>> schoolDistrictMap){
-        for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataList) {
-            List<JSONObject> dataExcelList = generateExcelDataBO.getDataList();
-            School school = schoolMap.get(generateExcelDataBO.getSchoolId());
-            List<String> districtList = schoolDistrictMap.get(generateExcelDataBO.getSchoolId());
-            JSONObject studentData = dataExcelList.get(0);
-            if (studentData.containsKey("a01")) {
-                dataExcelList.sort(Comparator.comparing(o -> o.getInteger("a01")));
-            }
-            for (JSONObject jsonObject : dataExcelList) {
-                convertValue(school, districtList, jsonObject);
-                jsonObject.put("schoolName",school.getName());
-            }
-            generateExcelDataBO.setDataList(dataExcelList);
-        }
-
-        return generateExcelDataList;
-    }
-
-    private static void convertValue(School school, List<String> districtList, JSONObject jsonObject) {
-        if (jsonObject.containsKey("province")){
-            jsonObject.put("province",getDistrictName(districtList,0));
-        }
-        if (jsonObject.containsKey("city")){
-            jsonObject.put("city",getDistrictName(districtList,1));
-        }
-        if (jsonObject.containsKey("county")){
-            jsonObject.put("county",getDistrictName(districtList,2));
-        }
-        if (jsonObject.containsKey("district")){
-            jsonObject.put("district", Optional.ofNullable(school.getAreaType()).map(type-> Optional.ofNullable(AreaTypeEnum.get(type)).map(AreaTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
-        }
-        if (jsonObject.containsKey("point")){
-            jsonObject.put("point",Optional.ofNullable(school.getMonitorType()).map(type-> Optional.ofNullable(MonitorTypeEnum.get(type)).map(MonitorTypeEnum::getName).orElse(StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
-        }
-        if (jsonObject.containsKey("a01")){
-            String gradeCode = jsonObject.getString("a01");
-            gradeCode = gradeCode.length()==1?"0"+gradeCode:gradeCode;
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
-            jsonObject.put("a01",gradeCodeEnum.getName());
-        }
-    }
-
-    /**
-     * 获取地区名称
-     * @param districtList 区域名称集合
-     * @param index 下标
-     */
-    private static String getDistrictName(List<String> districtList ,Integer index){
-        return CollUtil.isNotEmpty(districtList) ? districtList.get(index):StrUtil.EMPTY;
-    }
-
-    /**
      * 构建政府导出rec数据实体
      * @param qesFieldList qes字段集合
      * @param qesUrl qes url地址
@@ -535,17 +479,22 @@ public class UserAnswerProcessBuilder {
      * @param questionAnswerList 答案集合
      */
     private static void setData(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
-        String  placeholder = "-{%s}";
         QuestionnaireDataBO questionnaireDataBO = questionAnswerList.get(0);
         if (Objects.equals(questionnaireDataBO.getType(), QuestionnaireConstant.INPUT)){
             for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
             }
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
             for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),Optional.ofNullable(dataBo.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
+            }
+        }
+
+        if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
+            for (QuestionnaireDataBO dataBo : questionAnswerList) {
+                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
             }
         }
 
@@ -553,7 +502,10 @@ public class UserAnswerProcessBuilder {
             String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
             for (QuestionnaireDataBO dataBO : questionAnswerList) {
                 if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
-                    answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                    answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
+                }
+                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
+                    answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
                 }
             }
             data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
@@ -571,7 +523,7 @@ public class UserAnswerProcessBuilder {
                 String answerValue = CollUtil.join(answerDataList, " ");
                 for (QuestionnaireDataBO dataBO : questionAnswerList) {
                     if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
-                        answerValue = answerValue.replace(String.format(placeholder, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                        answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
                     }
                 }
                 for (QuestionnaireDataBO dataBO : questionAnswerList) {
@@ -580,6 +532,12 @@ public class UserAnswerProcessBuilder {
             }
 
         }
+    }
+
+    private String getAnswer(String answerStr){
+        return Optional.ofNullable(answerStr)
+                .map(answer-> answer.replace("\"",StrUtil.EMPTY))
+                .orElse(StrUtil.EMPTY);
     }
 
     /**
