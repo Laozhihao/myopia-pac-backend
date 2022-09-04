@@ -92,6 +92,7 @@ public class SlitLampDataDTO extends ScreeningResultBasicData implements Seriali
             slitLampDataDTO.setRightDiagnosis(rightEye.getDiagnosis());
             slitLampDataDTO.setRightPathologicalTissues(StringUtils.join(rightEye.getPathologicalTissues(), ","));
         }
+        slitLampDataDTO.setIsCooperative(slitLampDataDO.getIsCooperative());
         return slitLampDataDTO;
     }
 

@@ -61,6 +61,7 @@ public class OcularInspectionDataDTO extends ScreeningResultBasicData implements
         ocularInspectionDataDTO.setMeasureMethod(ocularInspectionDataDO.getMeasureMethod());
         ocularInspectionDataDTO.setEyeDiseases(ocularInspectionDataDO.getEyeDiseases());
         ocularInspectionDataDTO.setDiagnosis(ocularInspectionDataDO.getDiagnosis());
+        ocularInspectionDataDTO.setIsCooperative(ocularInspectionDataDO.getIsCooperative());
         return ocularInspectionDataDTO;
     }
 

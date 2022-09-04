@@ -51,6 +51,7 @@ public class FundusDataDTO extends ScreeningResultBasicData implements Serializa
             fundusDataDTO.setRightHasAbnormal(rightEye.getHasAbnormal());
         }
         fundusDataDTO.setRemark(fundusDataDO.getRemark());
+        fundusDataDTO.setIsCooperative(fundusDataDO.getIsCooperative());
         return fundusDataDTO;
     }
 

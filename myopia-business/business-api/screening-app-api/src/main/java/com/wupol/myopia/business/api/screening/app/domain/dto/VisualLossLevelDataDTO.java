@@ -46,6 +46,7 @@ public class VisualLossLevelDataDTO extends ScreeningResultBasicData implements 
         if (Objects.nonNull(rightEye)) {
             visualLossLevelDataDTO.setRightVisualLossLevel(rightEye.getLevel());
         }
+        visualLossLevelDataDTO.setIsCooperative(visualLossLevelDataDO.getIsCooperative());
         return visualLossLevelDataDTO;
     }
 
