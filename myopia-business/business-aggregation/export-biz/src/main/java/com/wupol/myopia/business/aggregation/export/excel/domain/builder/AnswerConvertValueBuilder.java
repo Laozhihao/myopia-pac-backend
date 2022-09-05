@@ -31,8 +31,10 @@ public class AnswerConvertValueBuilder {
     private static final String CITY = "city";
     private static final String COUNTY = "county";
     private static final String A01 = "a01";
+    private static final String A011 = "a011";
     private static final String SCHOOL_NAME = "schoolName";
     private static final String I1 = "i1";
+    private static final String ID1 = "id1";
 
     private static final String DJ211 ="dj211";
     private static final String DJ221 ="dj221";
@@ -135,6 +137,10 @@ public class AnswerConvertValueBuilder {
             gradeCode = gradeCode.length()==1?"0"+gradeCode:gradeCode;
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(gradeCode);
             jsonObject.put(A01,gradeCodeEnum.getName());
+        }
+        if (jsonObject.containsKey(A011) && jsonObject.containsKey(ID1)){
+            String id = jsonObject.getString(ID1);
+            jsonObject.put(A011,id.substring(12,16));
         }
     }
 
