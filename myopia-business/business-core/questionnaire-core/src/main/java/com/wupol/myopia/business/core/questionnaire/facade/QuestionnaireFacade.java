@@ -99,17 +99,23 @@ public class QuestionnaireFacade {
     public List<Integer> getScoreQuestionIds(Integer questionnaireId){
         QuestionnaireInfoBO questionnaireInfo = getQuestionnaireInfo(questionnaireId);
         List<QuestionnaireInfoBO.QuestionBO> questionList = questionnaireInfo.getQuestionList();
+
+        List<Integer> questionIds =Lists.newArrayList();
+
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
+            Integer questionId = questionBO.getId();
             if (Objects.equals(questionBO.getIsScore(),Boolean.TRUE)){
-                scoreMap.put(questionnaireId,Lists.newArrayList(questionBO.getId()));
+                scoreMap.put(questionId,Lists.newArrayList(questionId));
             }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollUtil.isNotEmpty(questionBOList)){
-                setScoreQuestion(questionBOList,questionnaireId);
+                setScoreQuestion(questionBOList, questionId);
             }
+            questionIds.addAll(scoreMap.getOrDefault(questionId, Lists.newArrayList()));
+            scoreMap.put(questionId,Lists.newArrayList());
         }
 
-        return scoreMap.getOrDefault(questionnaireId,Lists.newArrayList());
+        return questionIds;
     }
 
 
@@ -144,16 +150,16 @@ public class QuestionnaireFacade {
     /**
      * 递归设置Excel表头数据
      * @param questionList 问题集合
-     * @param questionnaireId 问卷ID
+     * @param questionId 问题ID
      */
-    private void setScoreQuestion(List<QuestionnaireInfoBO.QuestionBO> questionList,Integer questionnaireId){
+    private void setScoreQuestion(List<QuestionnaireInfoBO.QuestionBO> questionList,Integer questionId){
         for (QuestionnaireInfoBO.QuestionBO questionBO : questionList) {
-            if (CollUtil.isNotEmpty(scoreMap.get(questionnaireId))){
-                scoreMap.get(questionnaireId).add(questionBO.getId());
+            if (CollUtil.isNotEmpty(scoreMap.get(questionId))){
+                scoreMap.get(questionId).add(questionBO.getId());
             }
             List<QuestionnaireInfoBO.QuestionBO> questionBOList = questionBO.getQuestionBOList();
             if (CollUtil.isNotEmpty(questionBOList)){
-                setScoreQuestion(questionBOList,questionnaireId);
+                setScoreQuestion(questionBOList,questionId);
             }
         }
     }
