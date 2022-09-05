@@ -52,6 +52,7 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
             return;
         }
 
+        generateExcelDataBOList = userAnswerFacade.convertGovernmentValue(generateExcelDataBOList);
 
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String governmentKey = generateExcelDataBO.getGovernmentKey();
