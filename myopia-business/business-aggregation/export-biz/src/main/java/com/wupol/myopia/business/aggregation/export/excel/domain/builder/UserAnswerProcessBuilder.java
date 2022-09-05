@@ -481,57 +481,106 @@ public class UserAnswerProcessBuilder {
     private static void setData(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
         QuestionnaireDataBO questionnaireDataBO = questionAnswerList.get(0);
         if (Objects.equals(questionnaireDataBO.getType(), QuestionnaireConstant.INPUT)){
-            for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
-            }
+            setDataValue(data, questionAnswerList);
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
-            for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
-            }
+            setDataValue(data, questionAnswerList);
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
-            for (QuestionnaireDataBO dataBo : questionAnswerList) {
-                data.put(dataBo.getQesField().toLowerCase(),getAnswer(dataBo.getRecAnswer()));
-            }
+
+            setDataValue(data, questionAnswerList);
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO)){
             String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
+            boolean isCheckBox = false;
             for (QuestionnaireDataBO dataBO : questionAnswerList) {
                 if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
                     answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
                 }
                 if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
+                    isCheckBox = true;
                     answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
                 }
             }
             data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
+
+            if (Objects.equals(isCheckBox,Boolean.TRUE)){
+                List<String> checkboxDataList = getCheckboxDataList(questionAnswerList);
+                setCheckboxInputValue(data, questionAnswerList, questionnaireDataBO, checkboxDataList);
+            }
+
         }
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX)){
 
-            List<String> answerDataList = Lists.newArrayList();
-            for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                if (Objects.equals(dataBO.getRecAnswer(),"2")){
-                    continue;
-                }
-                answerDataList.add(Optional.ofNullable(dataBO.getExcelAnswer()).orElse(StrUtil.EMPTY));
-            }
+            List<String> answerDataList = getCheckboxDataList(questionAnswerList);
             if(CollUtil.isNotEmpty(answerDataList)){
-                String answerValue = CollUtil.join(answerDataList, " ");
-                for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                    if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
-                        answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer-> answer.replace("\"",StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
-                    }
-                }
+                String answerValue = getCheckboxInputToString(questionAnswerList, answerDataList);
                 for (QuestionnaireDataBO dataBO : questionAnswerList) {
                     data.put(dataBO.getQesField().toLowerCase(), answerValue);
                 }
             }
 
         }
+    }
+
+    /**
+     * 数据设置值
+     * @param data 数据
+     * @param questionAnswerList 问题答案集合
+     */
+    private static void setDataValue(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
+        for (QuestionnaireDataBO dataBo : questionAnswerList) {
+            data.put(dataBo.getQesField().toLowerCase(), getAnswer(dataBo.getRecAnswer()));
+        }
+    }
+
+    /**
+     * 设置多选加输入框值
+     * @param data 数据
+     * @param questionAnswerList 问题答案集合
+     * @param questionnaireDataBO 问卷数据
+     * @param checkboxDataList 多选选项集合
+     */
+    private static void setCheckboxInputValue(JSONObject data, List<QuestionnaireDataBO> questionAnswerList, QuestionnaireDataBO questionnaireDataBO, List<String> checkboxDataList) {
+        if(CollUtil.isNotEmpty(checkboxDataList)){
+            String checkboxValue = getCheckboxInputToString(questionAnswerList, checkboxDataList);
+            if (Objects.equals(questionnaireDataBO.getQesField(),"c101")){
+                data.put(questionnaireDataBO.getQesField().toLowerCase(), checkboxValue);
+            }
+        }
+    }
+
+    /**
+     * 获取多选加输入框的值转换
+     * @param questionAnswerList 问题答案集合
+     * @param checkboxDataList 多选数据选项集合
+     */
+    private static String getCheckboxInputToString(List<QuestionnaireDataBO> questionAnswerList, List<String> checkboxDataList) {
+        String checkboxValue = CollUtil.join(checkboxDataList, "、");
+        for (QuestionnaireDataBO dataBO : questionAnswerList) {
+            if (Objects.equals(dataBO.getType(), QuestionnaireConstant.CHECKBOX_INPUT)) {
+                checkboxValue = checkboxValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer -> answer.replace("\"", StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+            }
+        }
+        return checkboxValue;
+    }
+
+    /**
+     * 获取多选数据集合
+     * @param questionAnswerList 问题答案集合
+     */
+    private static List<String> getCheckboxDataList(List<QuestionnaireDataBO> questionAnswerList) {
+        List<String> answerDataList = Lists.newArrayList();
+        for (QuestionnaireDataBO dataBO : questionAnswerList) {
+            if (Objects.equals(dataBO.getRecAnswer(),"2")){
+                continue;
+            }
+            answerDataList.add(Optional.ofNullable(dataBO.getExcelAnswer()).orElse(StrUtil.EMPTY));
+        }
+        return answerDataList.stream().filter(answerData->!Objects.equals(answerData,StrUtil.EMPTY)).collect(Collectors.toList());
     }
 
     private String getAnswer(String answerStr){
