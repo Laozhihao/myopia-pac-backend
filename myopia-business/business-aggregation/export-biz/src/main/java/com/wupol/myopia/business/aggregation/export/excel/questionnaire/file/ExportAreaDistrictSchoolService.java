@@ -97,7 +97,7 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc)
+                .setIsScore(Boolean.FALSE)
                 .setUserType(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
     }
 }

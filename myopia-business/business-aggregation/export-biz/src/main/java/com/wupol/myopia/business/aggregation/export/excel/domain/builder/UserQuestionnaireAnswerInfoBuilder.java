@@ -240,7 +240,8 @@ public class UserQuestionnaireAnswerInfoBuilder {
                     return optionAnswer;
                 });
             }
-            if (Objects.equals(answer.getType(),"classTable")){
+            if (Objects.equals(answer.getType(),"classTable")
+                    || Objects.equals(answer.getType(),"classTable2")){
                 String tableJson = answer.getTableJson();
 
                 JSONObject jsonObject = JSON.parseObject(tableJson);

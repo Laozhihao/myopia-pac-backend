@@ -410,8 +410,8 @@ public class UserAnswerProcessBuilder {
      * @param schoolId 学校ID
      * @param answersMap 答案集合
      */
-    public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap) {
-        return new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap));
+    public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap,List<Integer> questionIds) {
+        return new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap,questionIds));
     }
 
     /**
@@ -432,7 +432,7 @@ public class UserAnswerProcessBuilder {
      * @param answersMap 答案集合
      */
     public GenerateExcelDataBO buildGovernmentGenerateExcelDataBO(String governmentKey, Map<String, List<QuestionnaireDataBO>> answersMap) {
-        List<JSONObject> dataTxt = getDataExcelList(answersMap);
+        List<JSONObject> dataTxt = getDataExcelList(answersMap,Lists.newArrayList());
         return new GenerateExcelDataBO(governmentKey, dataTxt);
     }
 
@@ -454,10 +454,11 @@ public class UserAnswerProcessBuilder {
     /**
      * 获取生成Excel文件的数据
      * @param answersMap 答案集合
+     * @param questionIds 记分问题集合
      */
-    private static List<JSONObject> getDataExcelList(Map<String, List<QuestionnaireDataBO>> answersMap) {
+    private static List<JSONObject> getDataExcelList(Map<String, List<QuestionnaireDataBO>> answersMap,List<Integer> questionIds) {
         List<JSONObject> dataList = new ArrayList<>();
-        answersMap.forEach((userKey, answerList) -> setDataList(dataList, answerList));
+        answersMap.forEach((userKey, answerList) -> setDataList(dataList, answerList,questionIds));
         return dataList;
     }
 
@@ -465,12 +466,31 @@ public class UserAnswerProcessBuilder {
      * 设置数据集合
      * @param dataList 数据集合
      * @param answerList 答案集合
+     * @param questionIds 记分问题集合
      */
-    private static void setDataList(List<JSONObject> dataList, List<QuestionnaireDataBO> answerList) {
+    private static void setDataList(List<JSONObject> dataList, List<QuestionnaireDataBO> answerList,List<Integer> questionIds) {
         Map<Integer, List<QuestionnaireDataBO>> questionAnswerMap = answerList.stream().filter(Objects::nonNull).filter(questionnaireDataBO -> Objects.nonNull(questionnaireDataBO.getQuestionId())).collect(Collectors.groupingBy(QuestionnaireDataBO::getQuestionId));
         JSONObject data = new JSONObject();
-        questionAnswerMap.forEach((questionId,questionAnswerList)-> setData(data, questionAnswerList));
+        List<QuestionnaireDataBO> questionnaireDataList =Lists.newArrayList();
+        questionAnswerMap.forEach((questionId,questionAnswerList)-> {
+            setData(data, questionAnswerList);
+            if (questionIds.contains(questionId)){
+                questionnaireDataList.addAll(questionAnswerList);
+            }
+        });
+        calculateScore(questionnaireDataList,data);
         dataList.add(data);
+    }
+
+    private void calculateScore(List<QuestionnaireDataBO> questionnaireDataList,JSONObject data){
+        if (CollUtil.isEmpty(questionnaireDataList)){
+            return;
+        }
+        int sum = questionnaireDataList.stream()
+                .map(QuestionnaireDataBO::getRecAnswer)
+                .filter(answer -> Objects.nonNull(answer) && StrUtil.isNotBlank(answer))
+                .mapToInt(Integer::parseInt).sum();
+        data.put("total",sum);
     }
 
     /**
@@ -548,6 +568,9 @@ public class UserAnswerProcessBuilder {
         if(CollUtil.isNotEmpty(checkboxDataList)){
             String checkboxValue = getCheckboxInputToString(questionAnswerList, checkboxDataList);
             if (Objects.equals(questionnaireDataBO.getQesField(),"c101")){
+                data.put(questionnaireDataBO.getQesField().toLowerCase(), checkboxValue);
+            }
+            if (Objects.equals(questionnaireDataBO.getQesField(),"c201")){
                 data.put(questionnaireDataBO.getQesField().toLowerCase(), checkboxValue);
             }
         }

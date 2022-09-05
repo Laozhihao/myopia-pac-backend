@@ -89,7 +89,7 @@ public class ExportPrimarySecondarySchoolsService implements QuestionnaireExcel 
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS)
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc)
+                .setIsScore(Boolean.FALSE)
                 .setUserType(UserType.QUESTIONNAIRE_SCHOOL.getType());
     }
 }

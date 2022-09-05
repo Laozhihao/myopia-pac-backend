@@ -98,7 +98,7 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
                 .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
                 .setGradeTypeList(Lists.newArrayList(SchoolAge.UNIVERSITY.code))
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc)
+                .setIsScore(Boolean.TRUE)
                 .setUserType(UserType.QUESTIONNAIRE_STUDENT.getType());
     }
 }

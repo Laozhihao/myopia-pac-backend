@@ -89,7 +89,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc)
+                .setIsScore(Boolean.FALSE)
                 .setUserType(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
     }
 }

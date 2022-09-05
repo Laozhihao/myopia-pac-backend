@@ -83,7 +83,7 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
                 .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)
                 .setGradeTypeList(Lists.newArrayList(SchoolAge.PRIMARY.code,SchoolAge.JUNIOR.code,SchoolAge.HIGH.code,SchoolAge.VOCATIONAL_HIGH.code,SchoolAge.UNIVERSITY.code))
                 .setExportCondition(exportCondition)
-                .setIsAsc(isAsc)
+                .setIsScore(Boolean.FALSE)
                 .setUserType(UserType.QUESTIONNAIRE_STUDENT.getType());
     }
 }
