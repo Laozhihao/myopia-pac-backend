@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -126,7 +126,7 @@ public abstract class AbstractUserAnswer implements Answer {
     @Override
     public String getFileName(FileNameCondition fileNameCondition) {
         QuestionnaireTypeEnum questionnaireTypeEnum = QuestionnaireTypeEnum.getQuestionnaireType(fileNameCondition.getQuestionnaireType());
-        String name;
+        String name = "default";
         switch (questionnaireTypeEnum){
             case PRIMARY_SCHOOL:
             case MIDDLE_SCHOOL:
@@ -141,9 +141,9 @@ public abstract class AbstractUserAnswer implements Answer {
                 name = districtService.getDistrictNameByDistrictCode(fileNameCondition.getDistrictCode());
                 break;
             default:
-                name = StrUtil.EMPTY;
                 break;
         }
+        name = FileNameUtil.cleanInvalid(name);
         if (Objects.equals(fileNameCondition.getFileType(),QuestionnaireConstant.EXCEL_FILE)){
             return String.format(EXCEL_FILE_NAME, name, questionnaireTypeEnum.getDesc());
         }else {
