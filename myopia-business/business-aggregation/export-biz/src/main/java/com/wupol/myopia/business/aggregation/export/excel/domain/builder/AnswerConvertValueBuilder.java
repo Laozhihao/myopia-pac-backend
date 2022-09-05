@@ -32,6 +32,7 @@ public class AnswerConvertValueBuilder {
     private static final String COUNTY = "county";
     private static final String A01 = "a01";
     private static final String SCHOOL_NAME = "schoolName";
+    private static final String I1 = "i1";
 
     private static final String DJ211 ="dj211";
     private static final String DJ221 ="dj221";
@@ -127,7 +128,8 @@ public class AnswerConvertValueBuilder {
      */
     private static void convertSchoolValue(School school, JSONObject jsonObject) {
         jsonObject.computeIfPresent(DISTRICT,(k,v)->getDistrict(school.getAreaType()));
-        jsonObject.computeIfPresent(POINT,(k,v)->getDistrict(school.getMonitorType()));
+        jsonObject.computeIfPresent(POINT,(k,v)->getPoint(school.getMonitorType()));
+        jsonObject.putIfAbsent(I1, 0);
         if (jsonObject.containsKey(A01)){
             String gradeCode = jsonObject.getString(A01);
             gradeCode = gradeCode.length()==1?"0"+gradeCode:gradeCode;
