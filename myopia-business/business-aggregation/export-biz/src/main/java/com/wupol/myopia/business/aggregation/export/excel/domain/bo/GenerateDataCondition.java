@@ -32,9 +32,9 @@ public class GenerateDataCondition {
      */
     private ExportCondition exportCondition;
     /**
-     * 是否顺序
+     * 是否记分
      */
-    private Boolean isAsc;
+    private Boolean isScore;
 
     /**
      * 用户类型

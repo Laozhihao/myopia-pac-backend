@@ -410,8 +410,10 @@ public class UserAnswerProcessBuilder {
      * @param schoolId 学校ID
      * @param answersMap 答案集合
      */
-    public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap) {
-        return new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap));
+    public GenerateExcelDataBO buildGenerateExcelDataBO(Integer schoolId, Map<String, List<QuestionnaireDataBO>> answersMap,List<Integer> questionIds) {
+        GenerateExcelDataBO generateExcelDataBO = new GenerateExcelDataBO(schoolId, getDataExcelList(answersMap));
+        generateExcelDataBO.setQuestionIds(questionIds);
+        return generateExcelDataBO;
     }
 
     /**

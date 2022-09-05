@@ -32,6 +32,11 @@ public class GenerateExcelDataBO {
      */
     private List<JSONObject> dataList;
 
+    /**
+     * 记分问题ID集合
+     */
+    private List<Integer> questionIds;
+
     public GenerateExcelDataBO(Integer schoolId, List<JSONObject> dataList) {
         this.schoolId = schoolId;
         this.dataList = dataList;

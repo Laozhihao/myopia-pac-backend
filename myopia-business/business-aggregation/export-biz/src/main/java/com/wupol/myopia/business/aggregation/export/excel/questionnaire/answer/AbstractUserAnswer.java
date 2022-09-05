@@ -221,6 +221,8 @@ public abstract class AbstractUserAnswer implements Answer {
                 .sorted(Comparator.comparing(UserQuestionRecord::getId))
                 .collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 
+        List<Integer> questionIds = getQuestionIds(tuple.getFirst(),generateDataCondition.getIsScore());
+
         //构建问卷Rec数据信息
         Map<Integer, Map<String, List<QuestionnaireDataBO>>> schoolAnswerMap = Maps.newHashMap();
         schoolRecordMap.forEach((schoolId, recordList) -> {
@@ -228,11 +230,30 @@ public abstract class AbstractUserAnswer implements Answer {
             schoolAnswerMap.put(schoolId,buildAnswerMap(generateDataCondition, userQuestionnaireAnswerCondition));
         });
 
-        //以学校维度 ，构建导出rec文件条件信息
+        //以学校维度 ，构建导出Excel文件条件信息
         return schoolAnswerMap.entrySet().stream()
-                .map(entry -> UserAnswerProcessBuilder.buildGenerateExcelDataBO(entry.getKey(), entry.getValue()))
+                .map(entry -> UserAnswerProcessBuilder.buildGenerateExcelDataBO(entry.getKey(), entry.getValue(),questionIds))
                 .collect(Collectors.toList());
 
+    }
+
+    /**
+     * 获取记分问题ID集合
+     * @param questionnaireList 问卷集合
+     */
+    public List<Integer> getQuestionIds(List<Questionnaire> questionnaireList,Boolean isScore){
+        List<Integer> questionIds = Lists.newArrayList();
+        if (Objects.equals(isScore,Boolean.FALSE)){
+            return questionIds;
+        }
+        List<Integer> questionnaireIds = questionnaireList.stream().map(Questionnaire::getId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(questionnaireIds)){
+            return questionIds;
+        }
+        for (Integer questionnaireId : questionnaireIds) {
+            questionIds.addAll(questionnaireFacade.getScoreQuestionIds(questionnaireId));
+        }
+        return questionIds;
     }
 
 
