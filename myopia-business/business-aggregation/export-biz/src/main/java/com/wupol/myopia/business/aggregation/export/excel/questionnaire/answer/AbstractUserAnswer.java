@@ -403,7 +403,7 @@ public abstract class AbstractUserAnswer implements Answer {
         QuestionnaireTypeEnum mainBodyType = generateDataCondition.getMainBodyType();
         ExportCondition exportCondition = generateDataCondition.getExportCondition();
         //根据问卷类型获取问卷集合
-        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType, QuestionnaireConstant.REC_FILE);
+        List<Questionnaire> questionnaireList = questionnaireFacade.getLatestQuestionnaire(mainBodyType, generateDataCondition.getFileType());
         if (CollUtil.isEmpty(questionnaireList)) {
             log.warn("暂无此问卷类型：{}", mainBodyType.getDesc());
             return null;

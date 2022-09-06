@@ -45,7 +45,9 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     @Override
     public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
         Answer answerService = getAnswerService();
-        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        GenerateDataCondition generateDataCondition = buildGenerateDataCondition(exportCondition);
+        generateDataCondition.setFileType(QuestionnaireConstant.EXCEL_FILE);
+        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(generateDataCondition);
         if (CollUtil.isEmpty(generateExcelDataBOList)){
             return;
         }
@@ -66,8 +68,10 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
-        List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        Answer answerService = getAnswerService();
+        GenerateDataCondition generateDataCondition = buildGenerateDataCondition(exportCondition);
+        generateDataCondition.setFileType(QuestionnaireConstant.REC_FILE);
+        List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(generateDataCondition);
         if (CollUtil.isEmpty(generateRecDataBOList)){
             return;
         }
@@ -85,7 +89,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     }
 
     @Override
-    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition) {
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)
                 .setExportCondition(exportCondition)
