@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.facade;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -10,7 +9,10 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.*;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBO;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireInfoBuilder;
+import com.wupol.myopia.business.core.questionnaire.domain.dos.QuestionnaireQuestionDataBO;
 import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.service.*;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

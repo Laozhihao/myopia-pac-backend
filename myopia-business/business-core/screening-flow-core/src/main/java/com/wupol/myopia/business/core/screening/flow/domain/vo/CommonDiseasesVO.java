@@ -14,7 +14,7 @@ import java.util.Date;
  * @Des: 常见病扩展类
  */
 @Data
-public class CommonDiseasesVO {
+public class CommonDiseasesVO implements Serializable {
     /**
      * 身高和体格检查误差卡片
      */

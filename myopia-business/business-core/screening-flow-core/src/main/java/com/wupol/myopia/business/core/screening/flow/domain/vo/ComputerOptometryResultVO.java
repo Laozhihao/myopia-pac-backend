@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -11,7 +12,7 @@ import java.math.BigDecimal;
  * @Des: 自动电脑验光检查结果
  */
 @Data
-public class ComputerOptometryResultVO {
+public class ComputerOptometryResultVO implements Serializable {
     /**
      * 等效球镜(右眼)
      */

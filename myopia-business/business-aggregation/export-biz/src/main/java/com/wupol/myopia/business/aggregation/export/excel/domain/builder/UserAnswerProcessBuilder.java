@@ -10,7 +10,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.*;
-import com.wupol.myopia.business.core.questionnaire.constant.DropSelectEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.OptionAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.QesFieldDataBO;
@@ -20,17 +19,12 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
-import com.wupol.myopia.business.core.school.constant.AreaTypeEnum;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.constant.MonitorTypeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.rec.domain.RecExportDTO;
 import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -509,40 +503,56 @@ public class UserAnswerProcessBuilder {
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
-
             setDataValue(data, questionAnswerList);
         }
 
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.RADIO)){
-            String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
-            boolean isCheckBox = false;
-            for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.RADIO_INPUT)){
-                    answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
-                }
-                if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
-                    isCheckBox = true;
-                    answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
-                }
-            }
-            data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
-
-            if (Objects.equals(isCheckBox,Boolean.TRUE)){
-                List<String> checkboxDataList = getCheckboxDataList(questionAnswerList);
-                setCheckboxInputValue(data, questionAnswerList, questionnaireDataBO, checkboxDataList);
-            }
+            setRadioDataValue(data, questionAnswerList, questionnaireDataBO);
 
         }
         if (Objects.equals(questionnaireDataBO.getType(),QuestionnaireConstant.CHECKBOX)){
+            setCheckboxDataValue(data, questionAnswerList);
 
-            List<String> answerDataList = getCheckboxDataList(questionAnswerList);
-            if(CollUtil.isNotEmpty(answerDataList)){
-                String answerValue = getCheckboxInputToString(questionAnswerList, answerDataList);
-                for (QuestionnaireDataBO dataBO : questionAnswerList) {
-                    data.put(dataBO.getQesField().toLowerCase(), answerValue);
-                }
+        }
+    }
+
+    /**
+     * 设置多选值
+     * @param data 数据
+     * @param questionAnswerList 问题答案集合
+     */
+    private static void setCheckboxDataValue(JSONObject data, List<QuestionnaireDataBO> questionAnswerList) {
+        List<String> answerDataList = getCheckboxDataList(questionAnswerList);
+        if(CollUtil.isNotEmpty(answerDataList)){
+            String answerValue = getCheckboxInputToString(questionAnswerList, answerDataList);
+            for (QuestionnaireDataBO dataBO : questionAnswerList) {
+                data.put(dataBO.getQesField().toLowerCase(), answerValue);
             }
+        }
+    }
 
+    /**
+     * 设置单选值
+     * @param data 数据
+     * @param questionAnswerList 问题答案集合
+     */
+    private static void setRadioDataValue(JSONObject data, List<QuestionnaireDataBO> questionAnswerList, QuestionnaireDataBO questionnaireDataBO) {
+        String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
+        boolean isCheckBox = false;
+        for (QuestionnaireDataBO dataBO : questionAnswerList) {
+            if (Objects.equals(dataBO.getType(), QuestionnaireConstant.RADIO_INPUT)){
+                answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
+            }
+            if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
+                isCheckBox = true;
+                answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
+            }
+        }
+        data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
+
+        if (Objects.equals(isCheckBox,Boolean.TRUE)){
+            List<String> checkboxDataList = getCheckboxDataList(questionAnswerList);
+            setCheckboxInputValue(data, questionAnswerList, questionnaireDataBO, checkboxDataList);
         }
     }
 

@@ -69,7 +69,7 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
             schoolStream = schoolStream.filter(school -> Objects.equals(school.getId(), schoolId));
         }
 
-        if (Objects.nonNull(districtIdList)) {
+        if (CollUtil.isNotEmpty(districtIdList)) {
             schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
         }
         List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());

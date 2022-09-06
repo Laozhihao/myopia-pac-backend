@@ -179,8 +179,7 @@ public abstract class AbstractUserAnswer implements Answer {
     }
 
     /**
-     * 过滤区域
-     *
+     * 获取层级所有子孙层级的ID
      * @param districtList 区域集合
      */
     protected List<Integer> getDistrictIds(List<District> districtList) {
@@ -189,14 +188,23 @@ public abstract class AbstractUserAnswer implements Answer {
         return districtIds;
     }
 
+    /**
+     * 获取以指定行政区域为根节点的行政区域集合（打平集合）
+     * @param districtId 区域ID
+     */
     protected List<District> getDistrictList(Integer districtId) {
         List<District> specificDistrictTree = districtService.getSpecificDistrictTree(districtId);
         return districtService.getAllDistrict(specificDistrictTree,Lists.newArrayList());
     }
 
+    /**
+     * 过滤区域
+     *
+     * @param districtId 区域ID
+     */
     protected List<Integer> filterDistrict(Integer districtId) {
         if (Objects.isNull(districtId)){
-            return null;
+            return Lists.newArrayList();
         }
         return getDistrictIds(getDistrictList(districtId));
     }
