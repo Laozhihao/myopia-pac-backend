@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,9 +7,6 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExce
 import com.wupol.myopia.business.aggregation.export.excel.domain.builder.AnswerConvertValueBuilder;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.ExcelStudentDataBO;
-import com.wupol.myopia.business.core.questionnaire.domain.dos.Option;
-import com.wupol.myopia.business.core.questionnaire.domain.model.Question;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import lombok.RequiredArgsConstructor;
@@ -38,27 +34,6 @@ public class UserAnswerFacade {
     private final SchoolService schoolService;
     private final DistrictService districtService;
 
-    /**
-     * 计算分数
-     * @param questionMap 计算分数的问题集合
-     * @param answerList 收集答案数据集合
-     * @param scoreAnswerList 分数答案数据集合
-     */
-    private void calculateScore(Map<Integer, Question> questionMap, List<ExcelStudentDataBO.AnswerDataBO> answerList, List<ExcelStudentDataBO.AnswerDataBO> scoreAnswerList) {
-        if (CollUtil.isNotEmpty(scoreAnswerList)){
-            int totalScore = scoreAnswerList.stream()
-                    .map(answerDataBO -> {
-                        Question question = questionMap.get(answerDataBO.getQuestionId());
-                        return question.getOptions().stream()
-                                .filter(option -> Objects.equals(option.getText(), answerDataBO.getAnswer()))
-                                .findFirst().orElse(null);
-                    })
-                    .filter(Objects::nonNull)
-                    .map(Option::getScoreValue)
-                    .filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
-            answerList.add(new ExcelStudentDataBO.AnswerDataBO(-1,String.valueOf(totalScore)));
-        }
-    }
 
     /**
      * 转换学生值

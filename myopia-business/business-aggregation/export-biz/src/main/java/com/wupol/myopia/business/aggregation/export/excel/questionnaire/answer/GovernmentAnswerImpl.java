@@ -81,7 +81,7 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
         if (Objects.equals(questionnaireType, QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
             questionnaireTypeEnum = QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL;
             List<Integer> districtIdList = filterDistrict(districtId);
-            if (Objects.nonNull(districtIdList)){
+            if (CollUtil.isNotEmpty(districtIdList)){
                 userQuestionRecordStream = userQuestionRecordStream.filter(userQuestionRecord -> {
                     if (Objects.isNull(userQuestionRecord)){
                         return false;
@@ -95,7 +95,7 @@ public class GovernmentAnswerImpl extends AbstractUserAnswer {
             Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
             Stream<School> schoolStream = schoolList.stream();
-            if (Objects.nonNull(districtIdList)) {
+            if (CollUtil.isNotEmpty(districtIdList)) {
                 schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
             }
             List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());

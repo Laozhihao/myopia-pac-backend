@@ -73,7 +73,7 @@ public class StudentAnswerImpl extends AbstractUserAnswer {
             studentStream = studentStream.filter(planSchoolStudent -> gradeTypeList.contains(planSchoolStudent.getGradeType()));
         }
 
-        if (Objects.nonNull(districtIdList)) {
+        if (CollUtil.isNotEmpty(districtIdList)) {
             studentStream = studentStream.filter(planSchoolStudent -> districtIdList.contains(planSchoolStudent.getSchoolDistrictId()));
         }
 

@@ -40,6 +40,32 @@ public class ArchiveRecDataBuilder {
     private static Map<String,String> nationMap = Maps.newHashMap();
 
     private static final String COMMA_CH = "，";
+    private static final String NUM_STR_0 = "0";
+    private static final String NUM_RANGE_0 = "0.00";
+    private static final String NUM_NEGATIVE_1 = "-1";
+    private static final String NUM_STR_1 = "1";
+    private static final String NUM_STR_2 = "2";
+    private static final String NUM_STR_3 = "3";
+    private static final String NUM_POINT_33 = "3.3";
+    private static final String NUM_STR_4 = "4";
+    private static final String NUM_POINT_56 = "5.6";
+    private static final String NUM_STR_8 = "8";
+    private static final String NUM_STR_10 = "10";
+    private static final String NUM_STR_15 = "15.00";
+    private static final String NUM_NEGATIVE_15 = "-15.00";
+    private static final String NUM_STR_30 = "30.00";
+    private static final String NUM_NEGATIVE_30 = "-30.00";
+    private static final String NUM_STR_80 = "80";
+    private static final String NUM_STR_90 = "90";
+    private static final String NUM_STR_180 = "180";
+    private static final String NUM_STR_200 = "200";
+    private static final String NUM_STR_210= "210";
+    private static final String NUM_STR_300= "300";
+    private static final String NUM_STR_999 = "999";
+
+    private static final Integer NUM_0 = 0;
+    private static final Integer NUM_1 = 1;
+    private static final Integer NUM_2 = 2;
 
 
     static {
@@ -185,7 +211,7 @@ public class ArchiveRecDataBuilder {
         if (Objects.nonNull(nation)){
             return TwoTuple.of(nation,AnswerUtil.textFormat(StrUtil.EMPTY));
         }
-        return TwoTuple.of("8",AnswerUtil.textFormat(nationDesc));
+        return TwoTuple.of(NUM_STR_8,AnswerUtil.textFormat(nationDesc));
     }
 
     /**
@@ -216,17 +242,17 @@ public class ArchiveRecDataBuilder {
      */
     private ThreeTuple<String,String,String> getGlassType(Integer glassType, BigDecimal okr,BigDecimal okl){
         if (Objects.equals(GlassesTypeEnum.NOT_WEARING.getCode(),glassType)){
-            return new ThreeTuple<>("4",StrUtil.EMPTY,StrUtil.EMPTY);
+            return new ThreeTuple<>(NUM_STR_4,StrUtil.EMPTY,StrUtil.EMPTY);
         }
         if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(),glassType)){
-            return new ThreeTuple<>("1",StrUtil.EMPTY,StrUtil.EMPTY);
+            return new ThreeTuple<>(NUM_STR_1,StrUtil.EMPTY,StrUtil.EMPTY);
         }
         if (Objects.equals(GlassesTypeEnum.CONTACT_LENS.getCode(),glassType)){
-            return new ThreeTuple<>("2",StrUtil.EMPTY,StrUtil.EMPTY);
+            return new ThreeTuple<>(NUM_STR_2,StrUtil.EMPTY,StrUtil.EMPTY);
         }
         if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.getCode(),glassType)){
 
-            return new ThreeTuple<>("3",getOkValue(okr),getOkValue(okl));
+            return new ThreeTuple<>(NUM_STR_3,getOkValue(okr),getOkValue(okl));
         }
         return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
     }
@@ -236,9 +262,9 @@ public class ArchiveRecDataBuilder {
      * @param num ok值
      */
     private String getOkValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"-30.00");
-        num = BigDecimalUtil.getNumMoreThan(num,"0.00");
-        return AnswerUtil.numberFormat(num,2);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_NEGATIVE_30);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_RANGE_0);
+        return AnswerUtil.numberFormat(num,NUM_2);
     }
 
     /**
@@ -246,9 +272,9 @@ public class ArchiveRecDataBuilder {
      * @param num 视力值
      */
     private String getEyeDataValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"3.3");
-        num = BigDecimalUtil.getNumMoreThan(num,"5.6");
-        return AnswerUtil.numberFormat(num,1);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_POINT_33);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_POINT_56);
+        return AnswerUtil.numberFormat(num,NUM_1);
     }
 
     /**
@@ -290,9 +316,9 @@ public class ArchiveRecDataBuilder {
      * @param num 球镜值
      */
     private String getSpherValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"-30.00");
-        num = BigDecimalUtil.getNumMoreThan(num,"30.00");
-        return AnswerUtil.numberFormat(num,2);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_NEGATIVE_30);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_30);
+        return AnswerUtil.numberFormat(num,NUM_2);
     }
 
     /**
@@ -300,9 +326,9 @@ public class ArchiveRecDataBuilder {
      * @param num 柱镜值
      */
     private String getCylinValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"-15.00");
-        num = BigDecimalUtil.getNumMoreThan(num,"15.00");
-        return AnswerUtil.numberFormat(num,2);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_NEGATIVE_15);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_15);
+        return AnswerUtil.numberFormat(num,NUM_2);
     }
 
     /**
@@ -310,9 +336,9 @@ public class ArchiveRecDataBuilder {
      * @param num 轴位值
      */
     private String getAxisValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"0");
-        num = BigDecimalUtil.getNumMoreThan(num,"180");
-        return AnswerUtil.numberFormat(num,0);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_STR_0);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_180);
+        return AnswerUtil.numberFormat(num,NUM_0);
     }
 
     /**
@@ -326,21 +352,21 @@ public class ArchiveRecDataBuilder {
             return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
         }
 
-        if (Objects.nonNull(cylin) && BigDecimalUtil.lessThanAndEqual(cylin,"0")){
-            return new ThreeTuple<>("999","999","999");
+        if (Objects.nonNull(cylin) && BigDecimalUtil.lessThanAndEqual(cylin,NUM_STR_0)){
+            return new ThreeTuple<>(NUM_STR_999,NUM_STR_999,NUM_STR_999);
         }
-        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,"0") && Objects.nonNull(axis) &&  BigDecimalUtil.moreThan(axis,"90")){
-            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal("0")).add(cylin);
+        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,NUM_STR_0) && Objects.nonNull(axis) &&  BigDecimalUtil.moreThan(axis,"90")){
+            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal(NUM_STR_0)).add(cylin);
             return new ThreeTuple<>(AnswerUtil.numberFormat(add,2),
-                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal("-1")),2),
-                    AnswerUtil.numberFormat(axis.subtract(new BigDecimal("90")),0));
+                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal(NUM_NEGATIVE_1)),NUM_2),
+                    AnswerUtil.numberFormat(axis.subtract(new BigDecimal(NUM_STR_90)),NUM_0));
         }
 
-        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,"0") && Objects.nonNull(axis) &&  BigDecimalUtil.lessThan(axis,"90")){
-            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal("0")).add(cylin);
+        if (Objects.nonNull(cylin) && BigDecimalUtil.moreThan(cylin,NUM_STR_0) && Objects.nonNull(axis) &&  BigDecimalUtil.lessThan(axis,"90")){
+            BigDecimal add = Optional.ofNullable(spher).orElse(new BigDecimal(NUM_STR_0)).add(cylin);
             return new ThreeTuple<>(AnswerUtil.numberFormat(add,2),
-                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal("-1")),2),
-                    AnswerUtil.numberFormat(axis.add(new BigDecimal("90")),0));
+                    AnswerUtil.numberFormat(cylin.multiply(new BigDecimal(NUM_NEGATIVE_1)),NUM_2),
+                    AnswerUtil.numberFormat(axis.add(new BigDecimal(NUM_STR_90)),NUM_0));
         }
 
         return new ThreeTuple<>(StrUtil.EMPTY,StrUtil.EMPTY,StrUtil.EMPTY);
@@ -378,11 +404,11 @@ public class ArchiveRecDataBuilder {
 
 
         if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isNotEmpty(rightEyeDiseases)){
-            return CollUtil.join(rightEyeDiseases,COMMA_CH);
+            return AnswerUtil.textFormat(CollUtil.join(rightEyeDiseases,COMMA_CH));
         }
 
         if (CollUtil.isNotEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
-            return CollUtil.join(leftEyeDiseases,COMMA_CH);
+            return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
         }
 
         if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
@@ -391,7 +417,7 @@ public class ArchiveRecDataBuilder {
         leftEyeDiseases.removeAll(rightEyeDiseases);
         leftEyeDiseases.addAll(rightEyeDiseases);
 
-        return CollUtil.join(leftEyeDiseases,COMMA_CH);
+        return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
     }
 
     /**
@@ -422,9 +448,9 @@ public class ArchiveRecDataBuilder {
             diseasesHistoryData = Lists.newArrayList();
         }
         if (diseasesHistoryData.contains(diseasesName)){
-            return "1";
+            return NUM_STR_1;
         }
-        return "2";
+        return NUM_STR_2;
     }
 
     /**
@@ -463,9 +489,9 @@ public class ArchiveRecDataBuilder {
      * @param num 身高值
      */
     private String getHeightValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"80");
-        num = BigDecimalUtil.getNumMoreThan(num,"210");
-        return AnswerUtil.numberFormat(num,1);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_STR_80);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_210);
+        return AnswerUtil.numberFormat(num,NUM_1);
     }
 
     /**
@@ -473,9 +499,9 @@ public class ArchiveRecDataBuilder {
      * @param num 体重值
      */
     private String getWeightValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"10");
-        num = BigDecimalUtil.getNumMoreThan(num,"200");
-        return AnswerUtil.numberFormat(num,1);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_STR_10);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_200);
+        return AnswerUtil.numberFormat(num,NUM_1);
     }
 
     /**
@@ -528,9 +554,9 @@ public class ArchiveRecDataBuilder {
      * @param num 收缩压值
      */
     private String getSbpValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"0");
-        num = BigDecimalUtil.getNumMoreThan(num,"300");
-        return AnswerUtil.numberFormat(num,0);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_STR_0);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_300);
+        return AnswerUtil.numberFormat(num,NUM_0);
     }
 
     /**
@@ -538,9 +564,9 @@ public class ArchiveRecDataBuilder {
      * @param num 舒张压值
      */
     private String getDbpValue(BigDecimal num){
-        num = BigDecimalUtil.getNumLessThan(num,"0");
-        num = BigDecimalUtil.getNumMoreThan(num,"200");
-        return AnswerUtil.numberFormat(num,0);
+        num = BigDecimalUtil.getNumLessThan(num,NUM_STR_0);
+        num = BigDecimalUtil.getNumMoreThan(num,NUM_STR_200);
+        return AnswerUtil.numberFormat(num,NUM_0);
     }
 
     /**
@@ -576,10 +602,10 @@ public class ArchiveRecDataBuilder {
     private TwoTuple<String,String> getPrivacyDataValue(PrivacyDataDO privacyData){
         return Optional.ofNullable(privacyData).map(privacyDataDO -> {
             if (Objects.equals(privacyDataDO.getHasIncident(), Boolean.TRUE)) {
-                return TwoTuple.of("2",AnswerUtil.numberFormat(privacyDataDO.getAge()));
+                return TwoTuple.of(NUM_STR_2,AnswerUtil.numberFormat(privacyDataDO.getAge()));
             }
-            return TwoTuple.of("1","");
-        }).orElse(TwoTuple.of("1",""));
+            return TwoTuple.of(NUM_STR_1,StrUtil.EMPTY);
+        }).orElse(TwoTuple.of(NUM_STR_1,StrUtil.EMPTY));
     }
 
 }
