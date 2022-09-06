@@ -64,6 +64,12 @@ public class DeviceDTO {
     private Integer bindingScreeningOrgId;
 
     /**
+     * 机构类型 0-筛查机构 1-医院 2-学校
+     */
+    @NotNull(message = "机构类型不能为空", groups = {DeviceUpdateValidatorGroup.class, DeviceAddValidatorGroup.class})
+    private Integer orgType;
+
+    /**
      * 绑定机构名称
      */
     private String bindingScreeningOrgName;
@@ -106,6 +112,11 @@ public class DeviceDTO {
      * 类型
      */
     private Integer type;
+
+    /**
+     * MAC地址
+     */
+    private String macAddress;
 
     /**
      * 筛查机构ID集

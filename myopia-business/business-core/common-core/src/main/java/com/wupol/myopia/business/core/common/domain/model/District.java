@@ -60,4 +60,9 @@ public class District implements Serializable, HasName {
         // 这里不包含child
         return Objects.hash(getId(), getName(), getCode(), getParentCode(), getAreaCode(), getMonitorCode());
     }
+
+    @Override
+    public Integer getDistrictId() {
+        return id;
+    }
 }

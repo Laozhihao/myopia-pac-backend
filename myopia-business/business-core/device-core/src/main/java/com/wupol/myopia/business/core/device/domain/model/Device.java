@@ -51,6 +51,11 @@ public class Device implements Serializable {
     private Integer bindingScreeningOrgId;
 
     /**
+     * 机构类型 0-筛查机构 1-医院 2-学校
+     */
+    private Integer orgType;
+
+    /**
      * 客户名字
      */
     private String customerName;
@@ -79,6 +84,11 @@ public class Device implements Serializable {
      * 类型 0-默认 1-vs666 2-灯箱
      */
     private Integer type;
+
+    /**
+     * MAC地址
+     */
+    private String macAddress;
 
     /**
      * 更新时间
