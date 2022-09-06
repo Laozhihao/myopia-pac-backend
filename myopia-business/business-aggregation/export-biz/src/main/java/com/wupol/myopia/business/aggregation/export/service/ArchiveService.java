@@ -242,7 +242,8 @@ public class ArchiveService {
                 .setSpineData(visionScreeningResult.getSpineData())
                 .setHeightAndWeightData(visionScreeningResult.getHeightAndWeightData())
                 .setPrivacyData(visionScreeningResult.getPrivacyData())
-                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, screeningPlan));
+                .setCommonDiseaseIdInfo(getStudentCommonDiseaseIdInfo(studentDTO, screeningPlan))
+                .setOtherEyeDiseases(visionScreeningResult.getOtherEyeDiseases());
     }
 
     /**
