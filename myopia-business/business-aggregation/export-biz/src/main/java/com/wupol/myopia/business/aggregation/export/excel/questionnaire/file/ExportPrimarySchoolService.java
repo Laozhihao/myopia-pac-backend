@@ -88,6 +88,11 @@ public class ExportPrimarySchoolService implements QuestionnaireExcel {
     }
 
 
+    /**
+     * 构建文件名条件对象
+     * @param schoolId 学校ID
+     * @param fileType 文件类型
+     */
     private FileNameCondition buildFileNameCondition(Integer schoolId,String fileType){
         return new FileNameCondition()
                 .setSchoolId(schoolId)

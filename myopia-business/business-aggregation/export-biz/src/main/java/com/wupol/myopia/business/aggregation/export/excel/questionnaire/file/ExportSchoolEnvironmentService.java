@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.A
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -76,11 +77,17 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+            EpiDataUtil.printJsonData(generateRecDataBO.getDataList());
             String recFileName = answerService.getFileName(buildFileNameCondition(generateRecDataBO.getSchoolId(), QuestionnaireConstant.REC_FILE));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
     }
 
+    /**
+     * 构建文件名条件对象
+     * @param schoolId 学校ID
+     * @param fileType 文件类型
+     */
     private FileNameCondition buildFileNameCondition(Integer schoolId,String fileType){
         return new FileNameCondition()
                 .setSchoolId(schoolId)

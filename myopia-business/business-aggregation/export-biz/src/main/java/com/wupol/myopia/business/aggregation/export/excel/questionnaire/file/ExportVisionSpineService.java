@@ -67,6 +67,10 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
     }
 
 
+    /**
+     * 构建文件名条件对象
+     * @param schoolId 学校ID
+     */
     private FileNameCondition buildFileNameCondition(Integer schoolId){
         return new FileNameCondition()
                 .setSchoolId(schoolId)
