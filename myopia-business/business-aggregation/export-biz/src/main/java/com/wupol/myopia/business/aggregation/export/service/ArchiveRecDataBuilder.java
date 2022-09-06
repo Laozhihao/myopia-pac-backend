@@ -404,11 +404,11 @@ public class ArchiveRecDataBuilder {
 
 
         if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isNotEmpty(rightEyeDiseases)){
-            return CollUtil.join(rightEyeDiseases,COMMA_CH);
+            return AnswerUtil.textFormat(CollUtil.join(rightEyeDiseases,COMMA_CH));
         }
 
         if (CollUtil.isNotEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
-            return CollUtil.join(leftEyeDiseases,COMMA_CH);
+            return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
         }
 
         if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
@@ -417,7 +417,7 @@ public class ArchiveRecDataBuilder {
         leftEyeDiseases.removeAll(rightEyeDiseases);
         leftEyeDiseases.addAll(rightEyeDiseases);
 
-        return CollUtil.join(leftEyeDiseases,COMMA_CH);
+        return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
     }
 
     /**

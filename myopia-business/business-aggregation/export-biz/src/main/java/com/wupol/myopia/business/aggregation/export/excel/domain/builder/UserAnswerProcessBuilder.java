@@ -476,6 +476,11 @@ public class UserAnswerProcessBuilder {
         dataList.add(data);
     }
 
+    /**
+     * 计算分数
+     * @param questionnaireDataList 问卷数据集合
+     * @param data 数据
+     */
     private void calculateScore(List<QuestionnaireDataBO> questionnaireDataList,JSONObject data){
         if (CollUtil.isEmpty(questionnaireDataList)){
             return;
@@ -540,12 +545,17 @@ public class UserAnswerProcessBuilder {
         String answerValue = Optional.ofNullable(questionnaireDataBO.getExcelAnswer()).orElse(StrUtil.EMPTY);
         boolean isCheckBox = false;
         for (QuestionnaireDataBO dataBO : questionAnswerList) {
+            String answer = getAnswer(dataBO.getRecAnswer());
             if (Objects.equals(dataBO.getType(), QuestionnaireConstant.RADIO_INPUT)){
-                answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
+                answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), answer);
             }
             if (Objects.equals(dataBO.getType(),QuestionnaireConstant.CHECKBOX_INPUT)){
                 isCheckBox = true;
-                answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
+                if (Objects.equals(questionnaireDataBO.getRecAnswer(),"2")){
+                    answerValue = StrUtil.EMPTY;
+                }else {
+                    answerValue = answerValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), answer);
+                }
             }
         }
         data.put(questionnaireDataBO.getQesField().toLowerCase(), answerValue);
@@ -595,7 +605,7 @@ public class UserAnswerProcessBuilder {
         String checkboxValue = CollUtil.join(checkboxDataList, "、");
         for (QuestionnaireDataBO dataBO : questionAnswerList) {
             if (Objects.equals(dataBO.getType(), QuestionnaireConstant.CHECKBOX_INPUT)) {
-                checkboxValue = checkboxValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), Optional.ofNullable(dataBO.getRecAnswer()).map(answer -> answer.replace("\"", StrUtil.EMPTY)).orElse(StrUtil.EMPTY));
+                checkboxValue = checkboxValue.replace(String.format(QuestionnaireConstant.PLACEHOLDER, dataBO.getQesField()), getAnswer(dataBO.getRecAnswer()));
             }
         }
         return checkboxValue;
