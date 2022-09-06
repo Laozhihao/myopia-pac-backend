@@ -22,6 +22,7 @@ import java.util.Objects;
 @Data
 @Accessors(chain = true)
 @TableName("m_district")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class District implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
@@ -63,7 +64,6 @@ public class District implements Serializable, HasName {
     }
 
     @Override
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public Integer getDistrictId() {
         return id;
     }
