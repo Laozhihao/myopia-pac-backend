@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -62,6 +63,7 @@ public class District implements Serializable, HasName {
     }
 
     @Override
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public Integer getDistrictId() {
         return id;
     }
