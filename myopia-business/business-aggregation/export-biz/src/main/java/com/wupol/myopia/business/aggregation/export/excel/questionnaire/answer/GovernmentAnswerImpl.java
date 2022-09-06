@@ -8,7 +8,6 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCo
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -29,8 +28,6 @@ import java.util.stream.Stream;
 @Service
 public class GovernmentAnswerImpl extends AbstractUserAnswer {
 
-    @Autowired
-    private DistrictService districtService;
     @Autowired
     private SchoolService schoolService;
 

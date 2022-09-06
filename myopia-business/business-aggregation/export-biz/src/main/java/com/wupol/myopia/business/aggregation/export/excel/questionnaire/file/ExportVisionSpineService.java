@@ -49,8 +49,10 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
 
     @Override
     public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
-        Answer answerService = getAnswerService();
-        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(buildGenerateDataCondition(exportCondition, Boolean.TRUE));
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        GenerateDataCondition generateDataCondition = buildGenerateDataCondition(exportCondition);
+        generateDataCondition.setFileType(QuestionnaireConstant.EXCEL_FILE);
+        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(generateDataCondition);
         if (CollUtil.isEmpty(generateExcelDataBOList)){
             return;
         }
@@ -58,26 +60,22 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
         generateExcelDataBOList = userAnswerFacade.convertStudentValue(generateExcelDataBOList);
 
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
-            String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
+            String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId()));
             String file = getFileSavePath(fileName, excelFileName);
             ExcelUtil.exportExcel(file, exportVisionSpineTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }
 
-    private Answer getAnswerService(){
-        return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
-    }
 
-
-    private FileNameCondition buildFileNameCondition(Integer schoolId, String fileType){
+    private FileNameCondition buildFileNameCondition(Integer schoolId){
         return new FileNameCondition()
                 .setSchoolId(schoolId)
                 .setQuestionnaireType(getType())
-                .setFileType(fileType);
+                .setFileType(QuestionnaireConstant.EXCEL_FILE);
     }
 
     @Override
-    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc) {
+    public GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition) {
         return new GenerateDataCondition()
                 .setMainBodyType(QuestionnaireTypeEnum.VISION_SPINE)
                 .setBaseInfoType(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE)

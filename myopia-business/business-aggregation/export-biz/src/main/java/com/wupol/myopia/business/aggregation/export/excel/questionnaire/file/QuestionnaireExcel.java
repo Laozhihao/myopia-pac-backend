@@ -55,9 +55,8 @@ public interface QuestionnaireExcel {
     /**
      * 构建生成数据条件对象
      * @param exportCondition 导出条件对象
-     * @param isAsc 是否顺序
      */
-    default GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc){
+    default GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition){
         return null;
     }
 
