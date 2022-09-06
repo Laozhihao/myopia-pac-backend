@@ -39,6 +39,8 @@ public class ArchiveRecDataBuilder {
 
     private static Map<String,String> nationMap = Maps.newHashMap();
 
+    private static final String COMMA_CH = "，";
+
 
     static {
         for (int i = 0; i < NationEnum.COMMON_NATION.size(); i++) {
@@ -351,7 +353,7 @@ public class ArchiveRecDataBuilder {
     private List<QesFieldDataBO> setOther(CommonDiseaseArchiveCard commonDiseaseArchiveCard){
         CardInfoVO studentInfo = commonDiseaseArchiveCard.getStudentInfo();
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("NOTE",AnswerUtil.textFormat(null)));
+        qesFieldDataBOList.add(new QesFieldDataBO("NOTE",getNoteValue(commonDiseaseArchiveCard.getOtherEyeDiseases())));
         if (Objects.equals(SchoolTypeEnum.KINDERGARTEN.getType(),studentInfo.getSchoolType())){
             qesFieldDataBOList.add(new QesFieldDataBO("name",AnswerUtil.textFormat(null)));
         }else {
@@ -359,6 +361,37 @@ public class ArchiveRecDataBuilder {
         }
         qesFieldDataBOList.add(new QesFieldDataBO("date",DateUtil.format(Optional.ofNullable(studentInfo.getScreeningDate()).orElse(new Date()),QuestionnaireConstant.DATE_FORMAT)));
         return qesFieldDataBOList;
+    }
+
+    /**
+     * 获取其它注意事项
+     * @param otherEyeDiseases 其它眼疾
+     */
+    private String getNoteValue(OtherEyeDiseasesDO otherEyeDiseases){
+        if (Objects.isNull(otherEyeDiseases)){
+            return AnswerUtil.textFormat(null);
+        }
+        OtherEyeDiseasesDO.OtherEyeDiseases leftEyeData = AnswerUtil.getValue(otherEyeDiseases, OtherEyeDiseasesDO::getLeftEyeData, null);
+        OtherEyeDiseasesDO.OtherEyeDiseases rightEyeData = AnswerUtil.getValue(otherEyeDiseases, OtherEyeDiseasesDO::getRightEyeData, null);
+        List<String> leftEyeDiseases = AnswerUtil.getValue(leftEyeData, OtherEyeDiseasesDO.OtherEyeDiseases::getEyeDiseases, null);
+        List<String> rightEyeDiseases = AnswerUtil.getValue(rightEyeData, OtherEyeDiseasesDO.OtherEyeDiseases::getEyeDiseases, null);
+
+
+        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isNotEmpty(rightEyeDiseases)){
+            return CollUtil.join(rightEyeDiseases,COMMA_CH);
+        }
+
+        if (CollUtil.isNotEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
+            return CollUtil.join(leftEyeDiseases,COMMA_CH);
+        }
+
+        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
+            return AnswerUtil.textFormat(null);
+        }
+        leftEyeDiseases.removeAll(rightEyeDiseases);
+        leftEyeDiseases.addAll(rightEyeDiseases);
+
+        return CollUtil.join(leftEyeDiseases,COMMA_CH);
     }
 
     /**
@@ -403,12 +436,12 @@ public class ArchiveRecDataBuilder {
         SaprodontiaStat.StatItem deciduous = Optional.ofNullable(saprodontiaData).map(SaprodontiaData::getSaprodontiaStat).map(SaprodontiaStat::getDeciduous).orElse(null);
         SaprodontiaStat.StatItem permanent = Optional.ofNullable(saprodontiaData).map(SaprodontiaData::getSaprodontiaStat).map(SaprodontiaStat::getPermanent).orElse(null);
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        qesFieldDataBOList.add(new QesFieldDataBO("q51",AnswerUtil.numberFormat(Optional.ofNullable(deciduous).map(SaprodontiaStat.StatItem::getDCount).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q52",AnswerUtil.numberFormat(Optional.ofNullable(deciduous).map(SaprodontiaStat.StatItem::getMCount).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q53",AnswerUtil.numberFormat(Optional.ofNullable(deciduous).map(SaprodontiaStat.StatItem::getFCount).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q54",AnswerUtil.numberFormat(Optional.ofNullable(permanent).map(SaprodontiaStat.StatItem::getDCount).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q55",AnswerUtil.numberFormat(Optional.ofNullable(deciduous).map(SaprodontiaStat.StatItem::getMCount).orElse(null))));
-        qesFieldDataBOList.add(new QesFieldDataBO("q56",AnswerUtil.numberFormat(Optional.ofNullable(deciduous).map(SaprodontiaStat.StatItem::getFCount).orElse(null))));
+        qesFieldDataBOList.add(new QesFieldDataBO("q51",AnswerUtil.getValueByInteger(deciduous, SaprodontiaStat.StatItem::getDCount)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q52",AnswerUtil.getValueByInteger(deciduous, SaprodontiaStat.StatItem::getMCount)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q53",AnswerUtil.getValueByInteger(deciduous, SaprodontiaStat.StatItem::getFCount)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q54",AnswerUtil.getValueByInteger(permanent, SaprodontiaStat.StatItem::getDCount)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q55",AnswerUtil.getValueByInteger(permanent, SaprodontiaStat.StatItem::getMCount)));
+        qesFieldDataBOList.add(new QesFieldDataBO("q56",AnswerUtil.getValueByInteger(permanent, SaprodontiaStat.StatItem::getFCount)));
         return qesFieldDataBOList;
     }
 
