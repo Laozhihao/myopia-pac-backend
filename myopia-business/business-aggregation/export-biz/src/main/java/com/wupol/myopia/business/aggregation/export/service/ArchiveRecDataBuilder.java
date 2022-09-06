@@ -39,7 +39,6 @@ public class ArchiveRecDataBuilder {
 
     private static Map<String,String> nationMap = Maps.newHashMap();
 
-    private static final String COMMA_CH = "，";
     private static final String NUM_STR_0 = "0";
     private static final String NUM_RANGE_0 = "0.00";
     private static final String NUM_NEGATIVE_1 = "-1";
@@ -393,8 +392,8 @@ public class ArchiveRecDataBuilder {
      * 获取其它注意事项
      * @param otherEyeDiseases 其它眼疾
      */
-    private String getNoteValue(OtherEyeDiseasesDO otherEyeDiseases){
-        if (Objects.isNull(otherEyeDiseases)){
+    private String getNoteValue(OtherEyeDiseasesDO otherEyeDiseases) {
+        if (Objects.isNull(otherEyeDiseases)) {
             return AnswerUtil.textFormat(null);
         }
         OtherEyeDiseasesDO.OtherEyeDiseases leftEyeData = AnswerUtil.getValue(otherEyeDiseases, OtherEyeDiseasesDO::getLeftEyeData, null);
@@ -402,22 +401,34 @@ public class ArchiveRecDataBuilder {
         List<String> leftEyeDiseases = AnswerUtil.getValue(leftEyeData, OtherEyeDiseasesDO.OtherEyeDiseases::getEyeDiseases, null);
         List<String> rightEyeDiseases = AnswerUtil.getValue(rightEyeData, OtherEyeDiseasesDO.OtherEyeDiseases::getEyeDiseases, null);
 
-
-        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isNotEmpty(rightEyeDiseases)){
-            return AnswerUtil.textFormat(CollUtil.join(rightEyeDiseases,COMMA_CH));
+        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isNotEmpty(rightEyeDiseases)) {
+            return AnswerUtil.textFormat(getAnswerValue(rightEyeDiseases));
         }
 
-        if (CollUtil.isNotEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
-            return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
+        if (CollUtil.isNotEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)) {
+            return AnswerUtil.textFormat(getAnswerValue(leftEyeDiseases));
         }
 
-        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)){
+        if (CollUtil.isEmpty(leftEyeDiseases) && CollUtil.isEmpty(rightEyeDiseases)) {
             return AnswerUtil.textFormat(null);
         }
+
         leftEyeDiseases.removeAll(rightEyeDiseases);
         leftEyeDiseases.addAll(rightEyeDiseases);
 
-        return AnswerUtil.textFormat(CollUtil.join(leftEyeDiseases,COMMA_CH));
+        return AnswerUtil.textFormat(getAnswerValue(leftEyeDiseases));
+    }
+
+    /**
+     * 获取答案值
+     * @param eyeDiseases 疾病集合
+     */
+    private static String getAnswerValue(List<String> eyeDiseases) {
+        String answerValue = CollUtil.join(eyeDiseases, StrUtil.COMMA);
+        if (StrUtil.isNotBlank(answerValue) && answerValue.length() > 20) {
+            answerValue = answerValue.substring(0, 20);
+        }
+        return answerValue;
     }
 
     /**
