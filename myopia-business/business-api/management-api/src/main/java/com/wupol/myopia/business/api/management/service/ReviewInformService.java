@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
@@ -105,6 +106,8 @@ public class ReviewInformService {
      */
     public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName) {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
+
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         return matchRescreenResults.stream()
                 .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
@@ -112,7 +115,7 @@ public class ReviewInformService {
                         return StringUtils.countMatches(schoolName, s.getSchoolName()) > 0;
                     }
                     return true;
-                }).collect(Collectors.toList());
+                }).map(s->s.setSchoolName(schoolMap.get(s.getSchoolId()))).collect(Collectors.toList());
     }
 
     /**
