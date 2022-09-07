@@ -1,19 +1,30 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.builder.AnswerConvertValueBuilder;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +44,7 @@ public class UserAnswerFacade {
 
     private final SchoolService schoolService;
     private final DistrictService districtService;
+    private final QuestionnaireFactory questionnaireFactory;
 
 
     /**
@@ -84,5 +96,55 @@ public class UserAnswerFacade {
         });
 
         return Lists.newArrayList(codeMap.values());
+    }
+
+    /**
+     * 生成学生excel
+     * @param generateDataCondition 生成数据条件
+     * @param fileNameCondition 生成文件名称条件
+     * @param exportPrimarySchoolTemplate 导出excel模板
+     * @param fileName 文件或者文件名
+     */
+    public void generateStudentExcel(GenerateDataCondition generateDataCondition,
+                                     FileNameCondition fileNameCondition,
+                                     Resource exportPrimarySchoolTemplate,
+                                     String fileName) throws IOException {
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        generateDataCondition.setFileType(QuestionnaireConstant.EXCEL_FILE);
+        List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(generateDataCondition);
+        if (CollUtil.isEmpty(generateExcelDataBOList)){
+            return;
+        }
+
+        generateExcelDataBOList = convertStudentValue(generateExcelDataBOList);
+
+        for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
+            fileNameCondition.setSchoolId(generateExcelDataBO.getSchoolId());
+            String excelFileName = answerService.getFileName(fileNameCondition);
+            String file = FileUtils.getFileSavePath(fileName, excelFileName);
+            ExcelUtil.exportExcel(file, exportPrimarySchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
+        }
+    }
+
+    /**
+     * 生成学生rec
+     * @param generateDataCondition 生成数据条件
+     * @param fileNameCondition 生成文件名称条件
+     * @param fileName 文件或者文件名
+     */
+    public void generateStudentRec(GenerateDataCondition generateDataCondition,
+                                   FileNameCondition fileNameCondition,
+                                   String fileName){
+        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        generateDataCondition.setFileType(QuestionnaireConstant.REC_FILE);
+        List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(generateDataCondition);
+        if (CollUtil.isEmpty(generateRecDataBOList)){
+            return;
+        }
+        for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
+            fileNameCondition.setSchoolId(generateRecDataBO.getSchoolId());
+            String recFileName = answerService.getFileName(fileNameCondition);
+            answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
+        }
     }
 }

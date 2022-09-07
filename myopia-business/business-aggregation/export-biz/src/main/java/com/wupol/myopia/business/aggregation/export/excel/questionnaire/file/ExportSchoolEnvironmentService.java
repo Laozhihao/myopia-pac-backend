@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnsw
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
 
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId(), QuestionnaireConstant.EXCEL_FILE));
-            String file = getFileSavePath(fileName, excelFileName);
+            String file = FileUtils.getFileSavePath(fileName, excelFileName);
             ExcelUtil.exportExcel(file, exportSchoolEnvironmentTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }

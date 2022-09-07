@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.A
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,7 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
 
         for (GenerateExcelDataBO generateExcelDataBO : generateExcelDataBOList) {
             String excelFileName = answerService.getFileName(buildFileNameCondition(generateExcelDataBO.getSchoolId()));
-            String file = getFileSavePath(fileName, excelFileName);
+            String file = FileUtils.getFileSavePath(fileName, excelFileName);
             ExcelUtil.exportExcel(file, exportVisionSpineTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }

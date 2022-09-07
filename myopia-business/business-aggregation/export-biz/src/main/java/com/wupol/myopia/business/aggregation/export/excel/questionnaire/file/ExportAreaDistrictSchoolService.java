@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnsw
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +61,7 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
             String governmentKey = generateExcelDataBO.getGovernmentKey();
             String[] key = governmentKey.split(StrUtil.UNDERLINE);
             String excelFileName = answerService.getFileName(buildFileNameCondition(Long.valueOf(key[2]), QuestionnaireConstant.EXCEL_FILE));
-            String file = getFileSavePath(fileName, excelFileName);
+            String file = FileUtils.getFileSavePath(fileName, excelFileName);
             ExcelUtil.exportExcel(file, exportAreaDistrictSchoolTemplate.getInputStream(),generateExcelDataBO.getDataList());
         }
     }
