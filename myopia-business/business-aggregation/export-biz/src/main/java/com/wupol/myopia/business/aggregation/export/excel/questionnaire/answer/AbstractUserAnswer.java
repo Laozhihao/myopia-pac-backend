@@ -163,7 +163,7 @@ public abstract class AbstractUserAnswer implements Answer {
     public void exportRecFile(String fileName, GenerateRecDataBO generateRecDataBO, String recFileName) {
         RecExportDTO recExportDTO = UserAnswerProcessBuilder.buildRecExportDTO(generateRecDataBO, recFileName);
 
-        log.info("请求参数：{}", JSON.toJSONString(recExportDTO));
+        log.debug("请求参数：{}", JSON.toJSONString(recExportDTO));
         CompletableFuture<RecExportVO> future = CompletableFuture.supplyAsync(() -> recServiceClient.export(recExportDTO), asyncServiceExecutor);
         try {
             RecExportVO recExportVO = future.get();
