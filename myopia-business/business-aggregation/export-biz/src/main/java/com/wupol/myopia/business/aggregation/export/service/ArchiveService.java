@@ -388,7 +388,7 @@ public class ArchiveService {
 
     private void exceptionInfo(Boolean condition){
         if (Objects.equals(condition,Boolean.TRUE)){
-            throw new BusinessException("暂无筛查计划数据");
+            throw new BusinessException("暂无数据");
         }
     }
 
