@@ -12,9 +12,9 @@ public enum ExportDataTypeEnum {
     QUESTIONNAIRE(2,"问卷数据");
 
     @Getter
-    private Integer code;
+    private final Integer code;
     @Getter
-    private String desc;
+    private final String desc;
 
     ExportDataTypeEnum(Integer code, String desc) {
         this.code = code;
