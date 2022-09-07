@@ -174,6 +174,10 @@ public class AnswerConvertValueBuilder {
         jsonObject.computeIfPresent(DY251, cFunction);
     }
 
+    /**
+     * 教师表格下拉框值转换
+     * @param jsonObject 转换对象
+     */
     private static void convertTeacherSelectValue(JSONObject jsonObject) {
         BiFunction<String, Object, String> teacherType = (k, v) -> getTeacherTypeDropSelectName(jsonObject.getString(k));
         jsonObject.computeIfPresent(B511, teacherType);
@@ -206,6 +210,10 @@ public class AnswerConvertValueBuilder {
         jsonObject.computeIfPresent(B546, qc);
     }
 
+    /**
+     * 甲乙病下拉框值转换
+     * @param value 值
+     */
     private String getAbDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getAbDropSelect(code))
@@ -213,6 +221,10 @@ public class AnswerConvertValueBuilder {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 丙病下拉框值转换
+     * @param value 值
+     */
     private String getCDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getCDropSelect(code))
@@ -220,6 +232,10 @@ public class AnswerConvertValueBuilder {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 教师-类型下拉框值转换
+     * @param value 值
+     */
     private String getTeacherTypeDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getTeacherTypeDropSelect(code))
@@ -227,6 +243,10 @@ public class AnswerConvertValueBuilder {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 教师-专/兼职下拉框值转换
+     * @param value 值
+     */
     private String getWorkTypeDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getWorkTypeDropSelect(code))
@@ -234,6 +254,10 @@ public class AnswerConvertValueBuilder {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 教师-学历下拉框值转换
+     * @param value 值
+     */
     private String getEducationTypeDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getEducationTypeDropSelect(code))
@@ -241,12 +265,21 @@ public class AnswerConvertValueBuilder {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 教师-职称下拉框值转换
+     * @param value 值
+     */
     private String getJobTitleDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getJobTitleDropSelect(code))
                         .map(DropSelectEnum::getLabel).orElse(StrUtil.EMPTY))
                 .orElse(StrUtil.EMPTY);
     }
+
+    /**
+     * 教师-执业资格证书下拉框值转换
+     * @param value 值
+     */
     private String getQcDropSelectName(String value){
         return Optional.ofNullable(value)
                 .map(code-> Optional.ofNullable(DropSelectEnum.getQcDropSelect(code))

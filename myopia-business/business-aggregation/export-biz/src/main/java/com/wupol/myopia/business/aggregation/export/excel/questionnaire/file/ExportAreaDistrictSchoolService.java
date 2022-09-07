@@ -88,6 +88,11 @@ public class ExportAreaDistrictSchoolService implements QuestionnaireExcel {
     }
 
 
+    /**
+     * 构建文件名条件对象
+     * @param districtCode 区域编码
+     * @param fileType 文件类型
+     */
     private FileNameCondition buildFileNameCondition(Long districtCode,String fileType){
         return new FileNameCondition()
                 .setDistrictCode(districtCode)

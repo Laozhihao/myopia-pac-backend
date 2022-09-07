@@ -80,11 +80,19 @@ public class ExportMiddleSchoolService implements QuestionnaireExcel{
         }
     }
 
+    /**
+     * 获取答案服务实现类
+     */
     private Answer getAnswerService(){
         return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
     }
 
 
+    /**
+     * 构建文件名条件对象
+     * @param schoolId 学校ID
+     * @param fileType 文件类型
+     */
     private FileNameCondition buildFileNameCondition(Integer schoolId,String fileType){
         return new FileNameCondition()
                 .setSchoolId(schoolId)
