@@ -6,7 +6,6 @@ import com.wupol.myopia.business.core.stat.domain.mapper.DistrictBigScreenStatis
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**

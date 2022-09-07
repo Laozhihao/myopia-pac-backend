@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
-import com.wupol.myopia.business.aggregation.export.excel.domain.ExportScreeningSchoolStudentCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.ExportScreeningSchoolStudentCondition;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;

@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.common.utils.util;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -16,7 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +95,17 @@ public final class FileUtils {
      **/
     public static String getFileSaveParentPath(String savePath) {
         return Paths.get(savePath, UUID.randomUUID().toString()).toString();
+    }
+
+    /**
+     * 获取文件保存路径
+     *
+     * @param parentPath 文件父路径
+     * @param fileName   文件名
+     * @return 文件保存路径
+     **/
+    public static String getFileSavePath(String parentPath, String fileName) {
+        return Paths.get(parentPath, fileName).toString();
     }
 
     /**

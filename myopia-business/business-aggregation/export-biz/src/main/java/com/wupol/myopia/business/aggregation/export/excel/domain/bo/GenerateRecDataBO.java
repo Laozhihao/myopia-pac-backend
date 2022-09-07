@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,12 +16,34 @@ import java.util.List;
 @AllArgsConstructor
 public class GenerateRecDataBO {
 
+    /**
+     * 学校ID
+     */
     private Integer schoolId;
 
+    /**
+     * 学校名称
+     */
+    private String schoolName;
+
+    /**
+     * 学校类型
+     */
+    private Integer schoolType;
+
+    /**
+     * 政府唯一Key
+     */
     private String governmentKey;
 
+    /**
+     * qes文件地址
+     */
     private String qesUrl;
 
+    /**
+     * 导出rec文件数据
+     */
     private List<String> dataList;
 
     public GenerateRecDataBO(Integer schoolId, String qesUrl, List<String> dataList) {

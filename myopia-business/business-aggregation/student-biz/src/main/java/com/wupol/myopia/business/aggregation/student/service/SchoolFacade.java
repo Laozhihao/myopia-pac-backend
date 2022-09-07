@@ -9,14 +9,15 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
-import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.service.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -24,7 +25,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,10 +65,14 @@ public class SchoolFacade {
 
     @Resource
     private ResourceFileService resourceFileService;
-    @Autowired
+    @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Autowired
+    @Resource
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Resource
+    private SchoolClassService schoolClassService;
+    @Resource
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 获取学校详情
@@ -181,4 +186,57 @@ public class SchoolFacade {
         // 批量更新
         screeningPlanSchoolStudentService.updateBatchById(planStudentList);
     }
+
+    /**
+     * 获取班级信息，并带有学校和年级名称
+     * @param classIds 班级ID集合
+     */
+    public List<SchoolClassDTO> getClassWithSchoolAndGradeName(List<Integer> classIds){
+        //班级
+        List<SchoolClass> schoolClassList = schoolClassService.listByIds(classIds);
+
+        //年级
+        Set<Integer> gradeIds = schoolClassList.stream().map(SchoolClass::getGradeId).collect(Collectors.toSet());
+        List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(gradeIds);
+        Map<Integer, SchoolGrade> schoolGradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity(), (v1, v2) -> v2));
+
+        //学校
+        Set<Integer> schoolIds = schoolGradeList.stream().map(SchoolGrade::getSchoolId).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.listByIds(schoolIds);
+        Map<Integer, School> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity(), (v1, v2) -> v2));
+
+        return schoolClassList.stream().map(schoolClass -> buildSchoolClassDTO(schoolGradeMap, schoolMap, schoolClass)).collect(Collectors.toList());
+    }
+
+    /**
+     * 构建班级信息
+     * @param schoolGradeMap 年级集合
+     * @param schoolMap 学校集合
+     * @param schoolClass 班级对象
+     */
+    private SchoolClassDTO buildSchoolClassDTO(Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, School> schoolMap, SchoolClass schoolClass) {
+
+        SchoolGrade schoolGrade = schoolGradeMap.get(schoolClass.getGradeId());
+        School school = schoolMap.get(schoolGrade.getSchoolId());
+        SchoolClassDTO schoolClassDTO = new SchoolClassDTO()
+                .setGradeName(schoolGrade.getName())
+                .setSchoolName(school.getName())
+                .setSchoolDistrictDetail(school.getDistrictDetail())
+                .setSchoolDistrictId(school.getDistrictId())
+                .setSchoolAreaType(school.getAreaType())
+                .setSchoolMonitorType(school.getMonitorType());
+
+        schoolClassDTO.setId(schoolClass.getId())
+                .setCreateUserId(schoolClass.getCreateUserId())
+                .setName(schoolClass.getName())
+                .setSeatCount(schoolClass.getSeatCount())
+                .setStatus(schoolClass.getStatus())
+                .setSchoolId(school.getId())
+                .setGradeId(schoolGrade.getId())
+                .setCreateTime(schoolClass.getCreateTime())
+                .setUpdateTime(schoolClass.getUpdateTime());
+
+        return schoolClassDTO;
+    }
+
 }

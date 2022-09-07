@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * EpiData数据出来工具
@@ -262,6 +261,6 @@ public class EpiDataUtil {
         for (int i = 0; i < qesFieldArr.length; i++) {
             list.add(new QesFieldDataBO(qesFieldArr[i],dataArr[i]));
         }
-        log.info(JSON.toJSONString(list));
+        log.info(JSON.toJSONString(list,true));
     }
 }

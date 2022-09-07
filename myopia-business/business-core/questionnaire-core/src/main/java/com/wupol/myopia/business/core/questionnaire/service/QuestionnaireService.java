@@ -67,11 +67,10 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         Integer questionnaireId = requestDTO.getQuestionnaireId();
         questionnaireQuestionService.remove(new QuestionnaireQuestion().setQuestionnaireId(questionnaireId));
         questionnaireQuestionService.insert(questionnaireId, requestDTO.getDetail(), -1);
-        // 更新问卷信息
-        updateTime(questionnaireId);
-        // 删除问卷中的page_json
+        // 更新问卷信息,删除问卷中的page_json
         Questionnaire questionnaire = getById(questionnaireId);
         questionnaire.setPageJson(null);
+        questionnaire.setUpdateTime(new Date());
         updateById(questionnaire);
     }
 
@@ -200,6 +199,9 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
             }
             if (StringUtils.equals(question.getType(), QuestionnaireConstant.TEACHER_TABLE)) {
                 setSchoolTeacher(childQuestionResponse, it, questionMap);
+            }
+            if (StringUtils.equals(question.getType(), QuestionnaireConstant.SCHOOL_CLASSROOM_TITLE_2)) {
+                setSchoolClassroom(childQuestionResponse, it, questionMap);
             }
         }
 
@@ -338,7 +340,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
         }
         List<ClassroomItemTable> tables = questionnaireQuestionList.stream().map(s -> {
             ClassroomItemTable table = new ClassroomItemTable();
-            table.setName(questionMap.get(s.getQuestionId()).getTitle());
+            table.setName(specialTitleProcess(questionMap.get(s.getQuestionId()).getTitle()));
             table.setQuestionId(s.getQuestionId());
             List<QuestionnaireQuestion> nextList = questionnaireQuestionService.findByList(new QuestionnaireQuestion().setQuestionnaireId(s.getQuestionnaireId()).setPid(s.getId()));
 
@@ -358,7 +360,7 @@ public class QuestionnaireService extends BaseService<QuestionnaireMapper, Quest
                     }
                     tableItems.add(getTableItem(JSON.parseObject(JSON.toJSONString(jsonObject.get(String.valueOf(i))), JSONObject.class), tableItem, question.getId()));
                 }
-                return new ClassroomItemTable.Detail(question.getTitle().split("-")[0], tableItems);
+                return new ClassroomItemTable.Detail(specialTitleProcess(question.getTitle().split("-")[0]), tableItems);
             }).collect(Collectors.toList());
 
             List<ClassroomItemTable.Info> result = Lists.partition(collect, 3).stream()

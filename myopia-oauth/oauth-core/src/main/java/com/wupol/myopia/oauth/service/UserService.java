@@ -42,6 +42,9 @@ public class UserService extends BaseService<UserMapper, User> {
     @Autowired
     private RolePermissionService rolePermissionService;
 
+    private static final String SYSTEM_CODE_MSG ="系统编号不能为空";
+    private static final String ORG_CONFIG_TYPE_MSG ="系统编号不能为空";
+
     /**
      * 根据用户名查询
      *
@@ -390,7 +393,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     public List<User> getUserBatchByPhones(List<String> phones, Integer systemCode) {
         Assert.notEmpty(phones, "手机号码不能为空");
-        Assert.notNull(systemCode, "系统编号不能为空");
+        Assert.notNull(systemCode, SYSTEM_CODE_MSG);
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
         queryParam.setPhones(phones);
@@ -407,7 +410,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     public List<User> getUserBatchByIdCards(List<String> idCards, Integer systemCode, Integer orgId) {
         Assert.notEmpty(idCards, "身份证号码不能为空");
-        Assert.notNull(systemCode, "系统编号不能为空");
+        Assert.notNull(systemCode, SYSTEM_CODE_MSG);
         Assert.notNull(orgId, "机构ID不能为空");
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
@@ -425,7 +428,7 @@ public class UserService extends BaseService<UserMapper, User> {
      **/
     public List<User> getIdsByOrgIds(List<Integer> orgIds, Integer systemCode, Integer userType) {
         Assert.notEmpty(orgIds, "机构orgId不能为空");
-        Assert.notNull(systemCode, "系统编号不能为空");
+        Assert.notNull(systemCode, SYSTEM_CODE_MSG);
         UserDTO queryParam = new UserDTO();
         queryParam.setSystemCode(systemCode);
         queryParam.setOrgIds(orgIds);
@@ -516,7 +519,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @return void
      **/
     private void updateScreeningOrgAdminRolePermission(Integer orgConfigType, Integer screeningOrgId) {
-        Assert.notNull(orgConfigType, "配置类型不能为空");
+        Assert.notNull(orgConfigType, ORG_CONFIG_TYPE_MSG);
         Assert.notNull(screeningOrgId, "筛查机构ID不能为空");
         List<User> userList = findByList(new User().setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setOrgId(screeningOrgId).setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType()));
         userList.forEach(x -> updateScreeningOrgRolePermission(orgConfigType, x.getId()));
@@ -528,7 +531,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param hospitalId
      */
     private void updateHospitalAdminRolePermission(Integer serviceType, Integer hospitalId) {
-        Assert.notNull(serviceType, "配置类型不能为空");
+        Assert.notNull(serviceType, ORG_CONFIG_TYPE_MSG);
         Assert.notNull(hospitalId, "医院ID不能为空");
         roleService.updateRolePermissionByHospital(hospitalId, PermissionTemplateType.getTemplateTypeByHospitalAdminServiceType(serviceType));
     }
@@ -539,7 +542,7 @@ public class UserService extends BaseService<UserMapper, User> {
      * @param overviewId
      */
     public void updateOverviewAdminRolePermission(Integer configType, Integer overviewId) {
-        Assert.notNull(configType, "配置类型不能为空");
+        Assert.notNull(configType, ORG_CONFIG_TYPE_MSG);
         Assert.notNull(overviewId, "总览机构ID不能为空");
         roleService.updateRolePermissionByOverview(overviewId, PermissionTemplateType.getTemplateTypeByOverviewAdminServiceType(configType));
     }

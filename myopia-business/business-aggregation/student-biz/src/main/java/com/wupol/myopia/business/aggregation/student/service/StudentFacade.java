@@ -718,6 +718,7 @@ public class StudentFacade {
 
         // 其他眼病,过滤掉五种特殊情况
         cardDetail.setOtherEyeDiseases(ListUtils.subtract(otherEyeDiseasesList, eyeDiseases()));
+        cardDetail.setResultOtherEyeDiseases(visionScreeningResult.getOtherEyeDiseases());
         cardDetail.setEyeDiseases(ListUtils.retainAll(eyeDiseases(), otherEyeDiseasesList));
         // 眼斜
         cardDetail.setSquint(getSquintList(otherEyeDiseasesList));

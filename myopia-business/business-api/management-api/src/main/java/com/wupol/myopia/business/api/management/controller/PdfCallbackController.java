@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
@@ -59,7 +59,7 @@ public class PdfCallbackController {
     public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
 
         if(Objects.equals(responseDTO.getStatus(), Boolean.FALSE))  {
-            log.error("report callback info:{}", JSONObject.toJSONString(responseDTO));
+            log.error("report callback info:{}", JSON.toJSONString(responseDTO));
             return;
         }
         String uuid = responseDTO.getUuid();

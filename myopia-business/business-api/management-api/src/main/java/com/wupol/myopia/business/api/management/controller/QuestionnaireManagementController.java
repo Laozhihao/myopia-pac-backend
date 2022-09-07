@@ -11,7 +11,6 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
-import com.wupol.myopia.business.api.management.service.ArchiveService;
 import com.wupol.myopia.business.api.management.service.QuestionBizService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireManagementService;
 import com.wupol.myopia.business.api.management.service.QuestionnaireQuestionBizService;
@@ -54,9 +53,6 @@ public class QuestionnaireManagementController {
     private QuestionBizService questionBizService;
     @Resource
     private QuestionnaireQuestionBizService questionnaireQuestionBizService;
-
-    @Resource
-    private ArchiveService archiveService;
 
     /**
      * 获得当前登录人的筛查任务
@@ -237,7 +233,8 @@ public class QuestionnaireManagementController {
                 .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
                 .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
                 .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
-                .setTaskId(exportQuestionnaireDTO.getTaskId());
+                .setTaskId(exportQuestionnaireDTO.getTaskId())
+                .setDataType(exportQuestionnaireDTO.getDataType());
 
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }
@@ -247,8 +244,8 @@ public class QuestionnaireManagementController {
      * @param screeningPlanId
      */
     @GetMapping("/dataSchool")
-    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId){
-        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId);
+    public List<QuestionnaireDataSchoolVO> questionnaireDataSchool(Integer screeningPlanId,Integer dataType){
+        return questionnaireManagementService.questionnaireDataSchool(screeningPlanId,dataType);
     }
 
     /**
@@ -257,8 +254,8 @@ public class QuestionnaireManagementController {
      * @param exportType 导出类型
      */
     @GetMapping("/type")
-    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId){
-        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId);
+    public QuestionnaireTypeVO questionnaireType(Integer screeningPlanId,Integer exportType,Integer taskId,Integer screeningNoticeId,Integer schoolId,Integer districtId){
+        return questionnaireManagementService.questionnaireType(screeningPlanId,exportType,taskId,screeningNoticeId,schoolId,districtId);
     }
 
     /**
@@ -292,7 +289,6 @@ public class QuestionnaireManagementController {
                 .setTaskId(exportQuestionnaireDTO.getTaskId())
                 .setDataType(exportQuestionnaireDTO.getDataType());
 
-        archiveService.setArchiveRecData(exportCondition);
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }
 

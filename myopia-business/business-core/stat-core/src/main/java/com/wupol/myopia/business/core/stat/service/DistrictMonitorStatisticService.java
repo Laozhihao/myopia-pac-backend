@@ -34,9 +34,8 @@ public class DistrictMonitorStatisticService extends BaseService<DistrictMonitor
      * @param user
      * @param istotal
      * @return
-     * @throws IOException
      */
-    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) throws IOException {
+    public List<DistrictMonitorStatistic> getStatisticDtoByNoticeIdAndCurrentChildDistrictIds(Integer noticeId, Integer currentDistrictId, CurrentUser user, boolean istotal) {
         if (noticeId == null || user == null) {
             return new ArrayList<>();
         }

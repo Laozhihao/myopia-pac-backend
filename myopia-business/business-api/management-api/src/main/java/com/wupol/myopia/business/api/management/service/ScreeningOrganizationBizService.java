@@ -11,6 +11,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -229,7 +230,7 @@ public class ScreeningOrganizationBizService {
         List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
         Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
         // 调查问卷数据
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType());
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
 
         Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
 

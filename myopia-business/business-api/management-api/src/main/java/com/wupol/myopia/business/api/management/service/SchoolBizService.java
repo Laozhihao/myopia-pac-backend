@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -147,7 +147,7 @@ public class SchoolBizService {
             plans.forEach(plan -> {
                 plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
                 List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
-                if (CollectionUtil.isEmpty(screeningResultStatistics)) {
+                if (CollUtil.isEmpty(screeningResultStatistics)) {
                     plan.setItems(new ArrayList<>());
                 } else {
                     SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();

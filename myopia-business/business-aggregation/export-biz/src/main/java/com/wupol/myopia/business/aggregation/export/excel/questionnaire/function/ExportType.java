@@ -38,9 +38,9 @@ public interface ExportType {
 
     /**
      * 获取地区学校
-     * @param districtId 地区ID
+     * @param id 地区ID
      */
-    default String getDistrictKey(Integer districtId){
+    default String getFolder(Integer id){
         return "";
     }
 

@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
@@ -48,6 +49,8 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     private OauthServiceClient oauthServiceClient;
     @Autowired
     private ResourceFileService resourceFileService;
+
+    private static final String ERROR_EXCEL_MSG = "【导出Excel异常】{}";
 
     /**
      * 导出文件
@@ -100,7 +103,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
     }
 
     public String getErrorMsg(){
-        return "【导出Excel异常】{}";
+        return ERROR_EXCEL_MSG;
     }
 
     /**
@@ -292,7 +295,7 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
             // 3.获取文件保存父目录路径
             excelFile = generateExcelFile(fileName, data, exportCondition);
             return resourceFileService.getResourcePath(s3Utils.uploadS3AndGetResourceFile(excelFile.getAbsolutePath(), excelFile.getName()).getId());
-        } catch (Exception e) {
+        } catch (UtilException | IOException e) {
             String requestData = JSON.toJSONString(exportCondition);
             log.error("【生成Excel异常】{}", requestData, e);
             // 发送失败通知

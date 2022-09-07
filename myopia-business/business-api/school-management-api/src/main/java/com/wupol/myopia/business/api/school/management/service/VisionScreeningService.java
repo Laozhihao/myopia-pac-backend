@@ -78,7 +78,7 @@ public class VisionScreeningService {
      * @return IPage<ScreeningListResponseDTO>
      */
     public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest, Integer schoolId) {
-        IPage<ScreeningListResponseDTO> responseDTO = screeningPlanSchoolService.getResponseBySchoolId(pageRequest, schoolId);
+        IPage<ScreeningListResponseDTO> responseDTO = screeningPlanSchoolService.getReleasePlanSchoolPageBySchoolId(pageRequest, schoolId);
         List<ScreeningListResponseDTO> schoolPlanList = responseDTO.getRecords();
 
         // 获取筛查计划

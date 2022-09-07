@@ -1,11 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -55,9 +54,8 @@ public interface QuestionnaireExcel {
     /**
      * 构建生成数据条件对象
      * @param exportCondition 导出条件对象
-     * @param isAsc 是否顺序
      */
-    default GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition, Boolean isAsc){
+    default GenerateDataCondition buildGenerateDataCondition(ExportCondition exportCondition){
         return null;
     }
 
@@ -67,17 +65,5 @@ public interface QuestionnaireExcel {
      * @return 问卷类型
      */
     Integer getType();
-
-
-    /**
-     * 获取文件保存路径
-     *
-     * @param parentPath 文件父路径
-     * @param fileName   文件名
-     * @return 文件保存路径
-     **/
-    default String getFileSavePath(String parentPath, String fileName) {
-        return Paths.get(parentPath, fileName).toString();
-    }
 
 }

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.device.util;
 
-import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
@@ -8,6 +7,7 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;

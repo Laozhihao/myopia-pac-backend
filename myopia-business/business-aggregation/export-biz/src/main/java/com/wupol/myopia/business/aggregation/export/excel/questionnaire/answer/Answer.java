@@ -1,8 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer;
 
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateDataCondition;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.GenerateRecDataBO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.*;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface Answer {
      *
      * @param generateDataCondition 生成数据条件
      */
-    GenerateExcelDataBO getExcelData(GenerateDataCondition generateDataCondition);
+    List<GenerateExcelDataBO> getExcelData(GenerateDataCondition generateDataCondition);
 
     /**
      * 导出REC文件
@@ -45,9 +44,15 @@ public interface Answer {
 
     /**
      * 获取rec问卷名称
-     * @param schoolId 学校ID
-     * @param questionnaireType 问卷类型
-     * @return  问卷类型
+     * @param fileNameCondition rec文件名生成条件
+     * @return  问卷名称
      */
-    String getRecFileName(Integer schoolId, Integer questionnaireType);
+    String getFileName(FileNameCondition fileNameCondition);
+
+
+    /**
+     * 根据条件过滤数据
+     * @param filterDataCondition 过滤数据条件
+     */
+    List<UserQuestionRecord> filterData(FilterDataCondition filterDataCondition);
 }

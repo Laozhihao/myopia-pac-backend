@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.UserQuestionnaireAnswerBO;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.questionnaire.domain.dos.HideQuestionRecDataBO;
@@ -39,15 +40,39 @@ import java.util.stream.Collectors;
 @Builder
 public class UserQuestionnaireAnswerInfoBuilder {
 
+    /**
+     * 用户问卷记录集合
+     */
     private List<UserQuestionRecord> userQuestionRecordList;
+    /**
+     * 用户问卷记录对应答案集合
+     */
     private Map<Integer, List<UserAnswer>> userAnswerMap;
+    /**
+     * 隐藏问题集合
+     */
     private List<HideQuestionRecDataBO> hideQuestionDataBOList;
+    /**
+     * 筛查计划下学生信息集合
+     */
     private Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap;
+    /**
+     * 学校集合
+     */
     private Map<Integer, School> schoolMap;
+    /**
+     * 用户类型
+     */
     private Integer userType;
+    /**
+     * 问卷类型
+     */
     private QuestionnaireTypeEnum questionnaireTypeEnum;
 
 
+    /**
+     * 构建用户问卷答案集合
+     */
     public List<UserQuestionnaireAnswerBO> dataBuild(){
         if (!ObjectsUtil.allNotNull(userQuestionRecordList, userAnswerMap,userType,questionnaireTypeEnum)
                 || (Objects.equals(userType,UserType.QUESTIONNAIRE_STUDENT.getType()) && Objects.isNull(planSchoolStudentMap))
@@ -57,40 +82,45 @@ public class UserQuestionnaireAnswerInfoBuilder {
 
         List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = Lists.newArrayList();
 
+        //问卷系统学生端处理
         if (Objects.equals(userType, UserType.QUESTIONNAIRE_STUDENT.getType())){
             //学生ID对应的问卷记录信息集合
             Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
             studentMap.forEach((studentId,recordList)-> userQuestionnaireAnswerBOList.add(processStudentData(studentId,recordList)));
         }
 
+        //问卷系统学校端处理
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
-            setSchoolData(userQuestionnaireAnswerBOList);
+            setSchoolData(userQuestionnaireAnswerBOList,UserType.QUESTIONNAIRE_SCHOOL.getType());
         }
 
-
+        //问卷系统政府端处理
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
             if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
 
                 Map<String, List<UserQuestionRecord>> governmentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(userQuestionRecord -> getGovernmentKey(userQuestionRecord.getUserType(),userQuestionRecord.getGovId(),userQuestionRecord.getDistrictCode())));
-                governmentMap.forEach((key,recordList)-> userQuestionnaireAnswerBOList.add(processGovernmentData(key,recordList)));
+                governmentMap.forEach((key,recordList)-> userQuestionnaireAnswerBOList.add(processGovernmentData(recordList)));
 
             }else if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT)){
 
-                setSchoolData(userQuestionnaireAnswerBOList);
+                setSchoolData(userQuestionnaireAnswerBOList,UserType.QUESTIONNAIRE_GOVERNMENT.getType());
             }
-
         }
-
         return userQuestionnaireAnswerBOList;
     }
 
-    private void setSchoolData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList) {
+    private void setSchoolData(List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList,Integer userType) {
         //学校ID对应的问卷记录信息集合
         Map<Integer, List<UserQuestionRecord>> schoolDataMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-        schoolDataMap.forEach((schoolId, recordList) -> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId, recordList)));
+        schoolDataMap.forEach((schoolId, recordList) -> userQuestionnaireAnswerBOList.add(processSchoolData(schoolId, recordList,userType)));
     }
 
-    private UserQuestionnaireAnswerBO processGovernmentData(String key, List<UserQuestionRecord> recordList) {
+    /**
+     * 处理政府数据
+     * @param recordList 问卷记录集合
+     */
+    private UserQuestionnaireAnswerBO processGovernmentData(List<UserQuestionRecord> recordList) {
+        Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
         UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
         for (UserQuestionRecord userQuestionRecord : recordList) {
             if (Objects.equals(userQuestionRecord.getRecordType(),1)){
@@ -99,8 +129,11 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
             userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
             userQuestionnaireAnswerBO.setSchoolId(userQuestionRecord.getSchoolId());
+            List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecord.getId());
+            //处理学生隐藏数据
+            hideQuestionRecDataGovernmentProcess(userAnswers, fillDate,userQuestionnaireAnswerBO);
             //处理非隐藏数据
-            questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
+            questionRecDataProcess(userAnswers, userQuestionnaireAnswerBO);
         }
         return userQuestionnaireAnswerBO;
     }
@@ -109,8 +142,13 @@ public class UserQuestionnaireAnswerInfoBuilder {
         return userType+StrUtil.UNDERLINE+govId+StrUtil.UNDERLINE+districtCode;
     }
 
-
-    private UserQuestionnaireAnswerBO processSchoolData(Integer schoolId, List<UserQuestionRecord> recordList){
+    /**
+     * 处理学校数据
+     * @param schoolId 学校ID
+     * @param recordList 问卷记录集合
+     * @param userType 用户类型
+     */
+    private UserQuestionnaireAnswerBO processSchoolData(Integer schoolId, List<UserQuestionRecord> recordList,Integer userType){
         UserQuestionnaireAnswerBO userQuestionnaireAnswerBO = new UserQuestionnaireAnswerBO();
         Date fillDate = recordList.stream().max(Comparator.comparing(UserQuestionRecord::getUpdateTime)).map(UserQuestionRecord::getUpdateTime).orElse(new Date());
         for (UserQuestionRecord userQuestionRecord : recordList) {
@@ -120,10 +158,12 @@ public class UserQuestionnaireAnswerInfoBuilder {
             userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
             userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
             userQuestionnaireAnswerBO.setSchoolId(userQuestionRecord.getSchoolId());
+            List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecord.getId());
             //处理学校隐藏数据
-            hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO);
+            hideSchoolQuestionRecDataProcess(schoolId, fillDate,userQuestionnaireAnswerBO,userAnswers,userType);
+
             //处理非隐藏数据
-            questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
+            questionRecDataProcess(userAnswers, userQuestionnaireAnswerBO);
         }
         return userQuestionnaireAnswerBO;
     }
@@ -139,14 +179,15 @@ public class UserQuestionnaireAnswerInfoBuilder {
         for (UserQuestionRecord userQuestionRecord : userQuestionRecordList) {
             userQuestionnaireAnswerBO.setUserId(userQuestionRecord.getUserId());
             userQuestionnaireAnswerBO.setUserType(userQuestionRecord.getUserType());
-            userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getSchoolId());
+            userQuestionnaireAnswerBO.setStudentId(userQuestionRecord.getStudentId());
             if (Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType())
                     || Objects.equals(userQuestionRecord.getQuestionnaireType(), QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType())){
                 //处理学生隐藏数据
                 hideQuestionRecDataProcess(studentId, fillDate,userQuestionnaireAnswerBO);
             }
             //处理非隐藏数据
-            questionRecDataProcess(userAnswerMap, userQuestionnaireAnswerBO, userQuestionRecord.getId());
+            List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecord.getId());
+            questionRecDataProcess(userAnswers, userQuestionnaireAnswerBO);
         }
 
         return userQuestionnaireAnswerBO;
@@ -155,22 +196,29 @@ public class UserQuestionnaireAnswerInfoBuilder {
 
     /**
      * 处理非隐藏数据
-     * @param userAnswerMap 用户答案集合
+     * @param userAnswers 用户答案集合
      * @param userQuestionnaireAnswerBO 用户问卷答案
-     * @param userQuestionRecordId 用户问卷记录ID
      */
-    private void questionRecDataProcess(Map<Integer, List<UserAnswer>> userAnswerMap, UserQuestionnaireAnswerBO userQuestionnaireAnswerBO, Integer userQuestionRecordId) {
-        List<UserAnswer> userAnswers = userAnswerMap.get(userQuestionRecordId);
+    private void questionRecDataProcess(List<UserAnswer> userAnswers, UserQuestionnaireAnswerBO userQuestionnaireAnswerBO) {
         if (CollUtil.isNotEmpty(userAnswers)){
-            Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
-            Map<Integer, List<OptionAnswer>> questionAnswerMap = Maps.newHashMap();
-            questionUserAnswerMap.forEach((questionId,list)->questionAnswerMap.put(questionId,getRecAnswerData(list)) );
+            Map<Integer, List<OptionAnswer>> questionAnswerMap = getQuestionAnswerMap(userAnswers);
             if (Objects.isNull(userQuestionnaireAnswerBO.getQuestionAnswerMap())) {
                 userQuestionnaireAnswerBO.setQuestionAnswerMap(questionAnswerMap);
             }else {
                 userQuestionnaireAnswerBO.getQuestionAnswerMap().putAll(questionAnswerMap);
             }
         }
+    }
+
+    /**
+     * 问卷对应的答案集合
+     * @param userAnswers 用户问题集合
+     */
+    private Map<Integer, List<OptionAnswer>> getQuestionAnswerMap(List<UserAnswer> userAnswers) {
+        Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
+        Map<Integer, List<OptionAnswer>> questionAnswerMap = Maps.newHashMap();
+        questionUserAnswerMap.forEach((questionId,list)->questionAnswerMap.put(questionId,getRecAnswerData(list)) );
+        return questionAnswerMap;
     }
 
 
@@ -186,13 +234,14 @@ public class UserQuestionnaireAnswerInfoBuilder {
                 String tableJson = answer.getTableJson();
                 JSONObject jsonObject = JSON.parseObject(tableJson);
                 return jsonObject.entrySet().stream().map(entry->{
-                            OptionAnswer optionAnswer = new OptionAnswer();
-                            optionAnswer.setOptionId(entry.getKey());
-                            optionAnswer.setValue(Optional.ofNullable(entry.getValue()).map(Object::toString).orElse(StrUtil.EMPTY));
-                            return optionAnswer;
-                        });
+                    OptionAnswer optionAnswer = new OptionAnswer();
+                    optionAnswer.setOptionId(entry.getKey());
+                    optionAnswer.setValue(Optional.ofNullable(entry.getValue()).map(Object::toString).orElse(StrUtil.EMPTY));
+                    return optionAnswer;
+                });
             }
-            if (Objects.equals(answer.getType(),"classTable")){
+            if (Objects.equals(answer.getType(),"classTable")
+                    || Objects.equals(answer.getType(),"classTable2")){
                 String tableJson = answer.getTableJson();
 
                 JSONObject jsonObject = JSON.parseObject(tableJson);
@@ -213,16 +262,20 @@ public class UserQuestionnaireAnswerInfoBuilder {
         }).collect(Collectors.toList());
 
     }
-    public void hideSchoolQuestionRecDataProcess(Integer schoolId, Date fillDate,UserQuestionnaireAnswerBO userQuestionnaireAnswerBO) {
+
+    /**
+     * 学校填写的隐藏数据处理
+     * @param schoolId 学校ID
+     * @param fillDate 填写日期
+     * @param userQuestionnaireAnswerBO 用户问卷答案
+     */
+    public void hideSchoolQuestionRecDataProcess(Integer schoolId, Date fillDate,UserQuestionnaireAnswerBO userQuestionnaireAnswerBO,List<UserAnswer> userAnswers,Integer userType) {
         if (CollUtil.isEmpty(hideQuestionDataBOList)){
             return;
         }
         List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
-        School school = schoolMap.get(schoolId);
-        if (Objects.isNull(school)){
-            return;
-        }
-        String schoolNo = school.getSchoolNo();
+
+        String schoolNo = getSchoolNo(schoolId,userAnswers,userType);
 
         for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
             QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
@@ -240,6 +293,29 @@ public class UserQuestionnaireAnswerInfoBuilder {
             qesFieldDataBOList.add(recAnswerDataBO);
         }
         userQuestionnaireAnswerBO.setQesFieldDataBOList(qesFieldDataBOList);
+    }
+
+    private String getSchoolNo(Integer schoolId, List<UserAnswer> userAnswers, Integer userType) {
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
+            School school = schoolMap.get(schoolId);
+            if (Objects.isNull(school)){
+                return StrUtil.EMPTY;
+            }
+            return school.getSchoolNo();
+        }
+
+        if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
+            if (CollUtil.isEmpty(userAnswers)){
+                return StrUtil.EMPTY;
+            }
+            Map<Integer, List<OptionAnswer>> questionAnswerMap = getQuestionAnswerMap(userAnswers);
+            return questionAnswerMap.values().stream().flatMap(Collection::stream)
+                    .filter(optionAnswer -> Objects.equals(optionAnswer.getQesField(), "ID2"))
+                    .map(OptionAnswer::getValue)
+                    .findFirst().orElse(StrUtil.EMPTY);
+        }
+
+        return StrUtil.EMPTY;
     }
 
     /**
@@ -280,52 +356,95 @@ public class UserQuestionnaireAnswerInfoBuilder {
         userQuestionnaireAnswerBO.setQesFieldDataBOList(qesFieldDataBOList);
     }
 
+    /**
+     * 政府填写的隐藏数据处理
+     * @param userAnswers 用户答案
+     * @param fillDate 填写日期
+     * @param userQuestionnaireAnswerBO 用户问卷答案
+     */
+    public void hideQuestionRecDataGovernmentProcess(List<UserAnswer> userAnswers, Date fillDate,UserQuestionnaireAnswerBO userQuestionnaireAnswerBO) {
+        if (CollUtil.isEmpty(hideQuestionDataBOList)){
+            return;
+        }
+        String id2=StrUtil.EMPTY;
+        if (CollUtil.isNotEmpty(userAnswers)){
+            Map<Integer, List<OptionAnswer>> questionAnswerMap = getQuestionAnswerMap(userAnswers);
+            id2 = questionAnswerMap.values().stream().flatMap(Collection::stream)
+                    .filter(optionAnswer -> Objects.equals(optionAnswer.getQesField(), "ID2"))
+                    .map(OptionAnswer::getValue)
+                    .findFirst().orElse(StrUtil.EMPTY);
+        }
+
+        List<QesFieldDataBO> qesFieldDataBOList = Lists.newArrayList();
+
+        for (HideQuestionRecDataBO hideQuestionDataBO : hideQuestionDataBOList) {
+            QesFieldDataBO recAnswerDataBO = new QesFieldDataBO();
+            List<HideQuestionRecDataBO.QesDataBO> qesDataList = hideQuestionDataBO.getQesData();
+            qesDataList = qesDataList.stream().filter(qesDataDO -> !Objects.equals(qesDataDO.getQesField(), QuestionnaireConstant.QM)).collect(Collectors.toList());
+            if (CollUtil.isEmpty(qesDataList)) {
+                continue;
+            }
+            if (Objects.equals(hideQuestionDataBO.getType(), QuestionnaireConstant.INPUT)) {
+                HideQuestionRecDataBO.QesDataBO qesDataBO = qesDataList.get(0);
+                recAnswerDataBO.setQesField(qesDataBO.getQesField());
+                setGovernmentQesFieldData(fillDate, id2, recAnswerDataBO, qesDataBO);
+
+            }
+            qesFieldDataBOList.add(recAnswerDataBO);
+        }
+        userQuestionnaireAnswerBO.setQesFieldDataBOList(qesFieldDataBOList);
+    }
+
 
     /**
-     * 设置qes字段数据
+     * 政府设置qes字段数据
      * @param fillDate 日期
-     * @param commonDiseaseId 常见病ID
+     * @param id2 常见病ID
      * @param qesFieldDataBO qes字段数据对象
      * @param qesDataBO qes数据对象
      */
-    private void setStudentQesFieldData(Date fillDate, String commonDiseaseId, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
+    private void setGovernmentQesFieldData(Date fillDate, String id2, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
         switch (qesDataBO.getQesField()) {
-            case "province":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 0, 2));
-                break;
-            case "city":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 2, 4));
-                break;
-            case "district":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 4, 5));
-                break;
-            case "county":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 5, 7));
-                break;
-            case "point":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 7, 8));
-                break;
-            case "school":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 8, 10));
-                break;
-            case "a01":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 10, 12));
-                break;
-            case "a011":
-                qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 12, 16));
-                break;
             case "ID1":
             case "ID2":
-                qesFieldDataBO.setRecAnswer(commonDiseaseId);
+                qesFieldDataBO.setRecAnswer(id2);
                 break;
             case "date":
-                qesFieldDataBO.setRecAnswer(DateUtil.format(fillDate, "yyyy/MM/dd"));
+                qesFieldDataBO.setRecAnswer(DateUtil.format(fillDate, QuestionnaireConstant.DATE_FORMAT));
                 break;
             default:
                 break;
         }
     }
 
+    /**
+     * 学校设置qes字段数据
+     * @param fillDate 日期
+     * @param commonDiseaseId 常见病ID
+     * @param qesFieldDataBO qes字段数据对象
+     * @param qesDataBO qes数据对象
+     */
+    private void setStudentQesFieldData(Date fillDate, String commonDiseaseId, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
+
+        if (Objects.equals(qesDataBO.getQesField(),"a01")){
+            qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 10, 12));
+            return;
+        }
+        if (Objects.equals(qesDataBO.getQesField(),"a011")){
+            qesFieldDataBO.setRecAnswer(AnswerUtil.getValue(commonDiseaseId, 12, 16));
+            return;
+        }
+        setSchoolQesFieldData(fillDate,commonDiseaseId,qesFieldDataBO,qesDataBO);
+
+    }
+
+    /**
+     * 学校qes字段数据
+     * @param fillDate 填写时间
+     * @param schoolNo 学生编码
+     * @param qesFieldDataBO qes字段对应答案
+     * @param qesDataBO qes数据
+     */
     private void setSchoolQesFieldData(Date fillDate, String schoolNo, QesFieldDataBO qesFieldDataBO, HideQuestionRecDataBO.QesDataBO qesDataBO) {
         switch (qesDataBO.getQesField()) {
             case "province":
@@ -351,12 +470,11 @@ public class UserQuestionnaireAnswerInfoBuilder {
                 qesFieldDataBO.setRecAnswer(schoolNo);
                 break;
             case "date":
-                qesFieldDataBO.setRecAnswer(DateUtil.format(fillDate, "yyyy/MM/dd"));
+                qesFieldDataBO.setRecAnswer(DateUtil.format(fillDate, QuestionnaireConstant.DATE_FORMAT));
                 break;
             default:
                 break;
         }
     }
-
 
 }

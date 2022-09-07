@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.service.report.EntityFunction;
@@ -129,7 +129,7 @@ public class DiseaseNum extends EntityFunction {
     }
 
     private Integer getSum(List<StatConclusion> statConclusionList, Function<DiseaseNumDO, Integer> function) {
-        if (CollectionUtil.isNotEmpty(statConclusionList)) {
+        if (CollUtil.isNotEmpty(statConclusionList)) {
             return statConclusionList.stream().map(StatConclusion::getDiseaseNum).filter(Objects::nonNull)
                     .map(function).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
         }

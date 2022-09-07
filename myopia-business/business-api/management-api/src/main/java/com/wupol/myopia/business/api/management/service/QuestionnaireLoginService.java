@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -93,7 +93,7 @@ public class QuestionnaireLoginService {
      */
     public ApiResult checkGovernmentLogin(Integer orgId) {
         List<ScreeningTask> screeningTasks = screeningTaskService.listCommonDiseaseByGovDeptId(orgId);
-        if (CollectionUtil.isNotEmpty(screeningTasks)) {
+        if (CollUtil.isNotEmpty(screeningTasks)) {
             return ApiResult.success();
         }
         return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());

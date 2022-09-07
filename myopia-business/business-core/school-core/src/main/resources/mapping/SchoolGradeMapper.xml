@@ -96,7 +96,11 @@
         SELECT
                msc.*,
                msg.name as grade_name,
-               ms.name as school_name
+               ms.name as school_name,
+               ms.district_detail as school_district_detail,
+               ms.district_Id as school_district_Id,
+               ms.area_type as school_area_type,
+               ms.monitor_type as school_monitor_type
         FROM
              m_school_class msc
                  LEFT JOIN m_school_grade msg ON msg.id = msc.grade_id

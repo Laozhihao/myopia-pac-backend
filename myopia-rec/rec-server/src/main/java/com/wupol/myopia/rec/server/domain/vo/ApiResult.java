@@ -1,6 +1,5 @@
 package com.wupol.myopia.rec.server.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wupol.myopia.rec.server.constant.ResultCode;
 import lombok.Data;
 import lombok.experimental.Accessors;

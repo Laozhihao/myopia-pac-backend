@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.ChartVO;
@@ -39,7 +39,7 @@ public class ReportSchoolAgeChart {
 
         chart.setX(x);
         chart.setY(y);
-        chart.setMaxValue(CollectionUtil.max(valueList));
+        chart.setMaxValue(CollUtil.max(valueList));
         setSchoolAgeChartVO(schoolAgeChartVO, chart);
     }
 

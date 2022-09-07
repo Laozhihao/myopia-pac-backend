@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class ScreeningRecordRecExportType implements ExportType {
 
     private static final String ALL_KEY = "%s筛查计划下的rec文件";
     private static final String SCHOOL_KEY = "%s的rec文件";
+    private static final String ORG_SCHOOL = "%s筛查各学校rec文件";
     private static final String FILE_EXPORT_REC_ALL = "file:export:rec:screeningRecordRecAll:%s-%s";
     private static final String FILE_EXPORT_REC_SCHOOL = "file:export:rec:screeningRecordSchoolRec:%s-%s-%s";
 
@@ -53,6 +56,11 @@ public class ScreeningRecordRecExportType implements ExportType {
     }
 
     @Override
+    public String getFolder(Integer id) {
+        return exportTypeFacade.getOrgKey(id,ORG_SCHOOL);
+    }
+
+    @Override
     public Map<Integer, String> getQuestionnaireType() {
         return exportTypeFacade.getQuestionnaireType(getType());
     }
@@ -66,6 +74,13 @@ public class ScreeningRecordRecExportType implements ExportType {
             Assert.notNull(exportCondition.getScreeningOrgId(),"机构ID不能为空");
         }
         exportCondition.setDistrictId(null);
-        exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE));
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
+        }
+        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE));
+        }
+
+
     }
 }

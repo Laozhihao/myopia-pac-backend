@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.domain.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
  * @date 2021-05-19
  */
 @Data
-public class MedicalRecordDate {
+public class MedicalRecordDate implements Serializable {
 
     /** 检查单id */
     private Integer medicalRecordId;

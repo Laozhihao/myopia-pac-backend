@@ -1,0 +1,1 @@
+drop index q_user_answer_progress_user_id_user_type_index on q_user_answer_progress;

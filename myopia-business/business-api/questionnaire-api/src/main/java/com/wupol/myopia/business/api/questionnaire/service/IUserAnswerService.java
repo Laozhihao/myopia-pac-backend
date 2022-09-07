@@ -130,5 +130,13 @@ public interface IUserAnswerService {
     /**
      * 获取答案
      */
-    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId);
+    UserAnswerDTO getUserAnswerList(Integer questionnaireId, Integer userId, Long districtCode, Integer schoolId, Integer planId);
+
+    /**
+     * 数据校验
+     *
+     * @param userAnswerDTO 请求参数
+     */
+    default void preCheck(UserAnswerDTO userAnswerDTO) {
+    }
 }

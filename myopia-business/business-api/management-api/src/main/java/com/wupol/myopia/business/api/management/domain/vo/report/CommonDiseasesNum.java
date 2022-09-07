@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.service.report.EntityFunction;
@@ -129,7 +129,7 @@ public class CommonDiseasesNum extends EntityFunction {
     private BigDecimal abnormalSpineCurvatureRatio;
 
     public CommonDiseasesNum build(List<StatConclusion> statConclusionList) {
-        if (CollectionUtil.isEmpty(statConclusionList)){
+        if (CollUtil.isEmpty(statConclusionList)){
             this.validScreeningNum =ReportConst.ZERO;
             this.dmftNum =ReportConst.ZERO;
             this.saprodontiaLossAndRepairTeethNum =ReportConst.ZERO;

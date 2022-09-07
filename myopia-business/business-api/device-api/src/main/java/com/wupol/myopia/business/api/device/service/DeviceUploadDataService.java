@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.device.service;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.ResultCode;
@@ -303,7 +303,7 @@ public class DeviceUploadDataService {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
             }
             // 保存原始数据
-            saveDeviceData(device, JSONObject.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), System.currentTimeMillis());
+            saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), System.currentTimeMillis());
             HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));

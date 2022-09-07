@@ -139,14 +139,10 @@ public class QuestionnaireConstant {
     }
 
     /**
-     * rec文件扩展名
+     * 文件扩展名
      */
     public static final String REC = ".rec";
-    /**
-     * TXT文件扩展名
-     */
     public static final String TXT = ".txt";
-
     public static final String  ZIP = ".zip";
 
     /**
@@ -165,6 +161,16 @@ public class QuestionnaireConstant {
 
     public static final String  NUMBER="number";
     public static final String  QM = "QM";
+
+    /**
+     * 日期格式化样式
+     */
+    public static final String DATE_FORMAT ="yyyy/MM/dd";
+
+    /**
+     * 站位符合
+     */
+    public static final String PLACEHOLDER = "-{%s}";
 
     /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
@@ -219,7 +225,7 @@ public class QuestionnaireConstant {
      * @return 问卷类型集合
      */
     public static List<Integer> getVisionSpine(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
     }
 
 
@@ -239,4 +245,9 @@ public class QuestionnaireConstant {
                 QuestionnaireTypeEnum.PRIMARY_SECONDARY_SCHOOLS.getType(),
                 QuestionnaireTypeEnum.SCHOOL_ENVIRONMENT.getType());
     }
+    /**
+     * 学校教室环境卫生
+     */
+    public static final String SCHOOL_CLASSROOM_TITLE_2 = "school-classroom-table-2";
+
 }

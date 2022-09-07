@@ -146,4 +146,9 @@ public class HaiNanCardDetail {
      */
     private Boolean isHyperopia;
 
+    /**
+     * 其他眼病
+     */
+    private OtherEyeDiseasesDO resultOtherEyeDiseases;
+
 }

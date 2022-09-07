@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -9,7 +9,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +28,7 @@ public class ReportAgeChart {
      * 不同年龄段-图表
      */
     public static void getAgeMonitorChart(List<StatConclusion> statConclusionList, AgeChartVO ageChartVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -34,7 +37,7 @@ public class ReportAgeChart {
             setAgeChartVO(ageChartVO,null);
             return;
         }
-        ageMap = CollectionUtil.sort(ageMap, Comparator.comparing(Integer::intValue));
+        ageMap = CollUtil.sort(ageMap, Comparator.comparing(Integer::intValue));
 
         List<String> x = Lists.newArrayList();
         List<ChartVO.ChartData> y = Lists.newArrayList();
@@ -51,20 +54,20 @@ public class ReportAgeChart {
             chart.setY(y);
             chart.setX(x);
             List<BigDecimal> collect = y.stream().flatMap(data -> data.getData().stream()).collect(Collectors.toList());
-            chart.setMaxValue(CollectionUtil.max(collect));
+            chart.setMaxValue(CollUtil.max(collect));
             setAgeChartVO(ageChartVO, Lists.newArrayList(chart));
         }
 
         if (Objects.equals(ageChartVO.type(),2)){
             List<ChartVO.Chart> chartList =Lists.newArrayList();
-            List<List<ChartVO.ChartData>> lists = CollectionUtil.splitList(y, 2);
+            List<List<ChartVO.ChartData>> lists = CollUtil.splitList(y, 2);
             for (int i = 0; i < lists.size(); i++) {
                 ChartVO.Chart chart = new ChartVO.Chart();
                 List<ChartVO.ChartData> chartDataList = lists.get(i);
                 chart.setY(chartDataList);
                 chart.setX(x);
                 List<BigDecimal> collect = chartDataList.stream().flatMap(data -> data.getData().stream()).collect(Collectors.toList());
-                chart.setMaxValue(CollectionUtil.max(collect));
+                chart.setMaxValue(CollUtil.max(collect));
                 chartList.add(chart);
             }
             setAgeChartVO(ageChartVO,chartList);

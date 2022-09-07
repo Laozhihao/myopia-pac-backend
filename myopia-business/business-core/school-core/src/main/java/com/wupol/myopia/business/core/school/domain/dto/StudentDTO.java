@@ -87,4 +87,19 @@ public class StudentDTO extends Student {
      */
     private List<District> committeeLists;
 
+    /**
+     * 学校行政区域ID
+     */
+    private Integer schoolDistrictId;
+
+    /**
+     * 片区类型：1好片、2中片、3差片
+     */
+    private Integer schoolAreaType;
+
+    /**
+     * 监测点类型：1城区、2郊县
+     */
+    private Integer schoolMonitorType;
+
 }

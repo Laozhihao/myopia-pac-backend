@@ -259,11 +259,13 @@
 
     <select id="getVisionScreeningCountBySchoolId"
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO">
-        select count(1) as count, student_id
-        from m_vision_screening_result
-        where is_double_screen = 0
-          and school_id = #{schoolId}
-          and screening_type = 0
-        group by student_id
+        select count(1) as count, mvsr.student_id, MAX(mvsr.update_time)
+        from m_vision_screening_result mvsr
+        left join m_screening_plan msp on mvsr.plan_id = msp.id
+        where mvsr.is_double_screen = 0
+          and mvsr.school_id = #{schoolId}
+          and mvsr.screening_type = 0
+          and msp.release_status = 1
+        group by mvsr.student_id
     </select>
 </mapper>

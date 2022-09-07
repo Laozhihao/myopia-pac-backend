@@ -15,6 +15,7 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppStudentDTO;
 import com.wupol.myopia.business.api.screening.app.domain.dto.AppUserInfo;
 import com.wupol.myopia.business.api.screening.app.domain.dto.SysStudent;
@@ -584,14 +585,15 @@ public class ScreeningAppService {
                 .filter(item -> {
                     VisionScreeningResult result = firstPlanStudentVisionResultMap.get(item.getStudentId());
                     // 当视力，屈光不配合时不参与复测
-                    if ((Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) && result.getVisionData().getIsCooperative() != null && result.getVisionData().getIsCooperative() == 1)
-                            || (Objects.nonNull(result) && Objects.nonNull(result.getComputerOptometry()) && result.getComputerOptometry().getIsCooperative() != null && result.getComputerOptometry().getIsCooperative() == 1)) {
+                    Integer visionCooperative = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getIsCooperative).orElse(null);
+                    Integer optometryCooperative = Optional.ofNullable(result).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getIsCooperative).orElse(null);
+                    if (VisionScreeningConst.IS_NOT_COOPERATE.equals(visionCooperative) || VisionScreeningConst.IS_NOT_COOPERATE.equals(optometryCooperative)) {
                         return false;
                     }
                     // 夜戴角膜镜不参与复测
-                    if (Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) &&
-                            (Objects.nonNull(result.getVisionData().getLeftEyeData()) && result.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)
-                                    || (Objects.nonNull(result.getVisionData().getRightEyeData()) && result.getVisionData().getRightEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)))) {
+                    Integer leftGlassesType = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+                    Integer rightGlassesType = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+                    if (WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(leftGlassesType) || WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(rightGlassesType)) {
                         return false;
                     }
                     return true;
@@ -648,21 +650,19 @@ public class ScreeningAppService {
                 .filter(item -> {
                     VisionScreeningResult result = firstPlanStudentVisionResultMap.get(item.getStudentId());
                     // 当视力，屈光不配合时不参与复测
-                    if ((Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) && result.getVisionData().getIsCooperative() != null && result.getVisionData().getIsCooperative() == 1)
-                            || (Objects.nonNull(result) && Objects.nonNull(result.getComputerOptometry()) && result.getComputerOptometry().getIsCooperative() == 1)) {
+                    Integer visionCooperative = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getIsCooperative).orElse(null);
+                    Integer optometryCooperative = Optional.ofNullable(result).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getIsCooperative).orElse(null);
+                    if (VisionScreeningConst.IS_NOT_COOPERATE.equals(visionCooperative) || VisionScreeningConst.IS_NOT_COOPERATE.equals(optometryCooperative)) {
                         return false;
                     }
                     // 夜戴角膜镜不参与复测
-                    if (Objects.nonNull(result) && Objects.nonNull(result.getVisionData()) &&
-                            (Objects.nonNull(result.getVisionData().getLeftEyeData()) && result.getVisionData().getLeftEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)
-                                    || (Objects.nonNull(result.getVisionData().getRightEyeData()) && result.getVisionData().getRightEyeData().getGlassesType().equals(WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)))) {
+                    Integer leftGlassesType = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+                    Integer rightGlassesType = Optional.ofNullable(result).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getGlassesType).orElse(null);
+                    if (WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(leftGlassesType) || WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY.equals(rightGlassesType)) {
                         return false;
                     }
                     // 复测完成的
-                    if (!item.getScreeningStatus().equals(3)) {
-                        return false;
-                    }
-                    return true;
+                    return item.getScreeningStatus().equals(3);
                 }).filter(item -> item.getScreeningStatus().equals(1) || item.getScreeningStatus().equals(3)).map(item -> {
                     RetestStudentVO vo = BeanCopyUtil.copyBeanPropertise(item, RetestStudentVO.class);
                     VisionScreeningResult firstPlan = firstPlanStudentVisionResultMap.get(item.getStudentId());

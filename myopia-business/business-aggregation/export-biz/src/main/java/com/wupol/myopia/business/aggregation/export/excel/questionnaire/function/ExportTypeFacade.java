@@ -101,8 +101,7 @@ public class ExportTypeFacade {
     public String getOrgOrSchoolKey(ExportCondition exportCondition,String allKey,String schoolKey){
         Integer schoolId = exportCondition.getSchoolId();
         if (Objects.isNull(schoolId)){
-            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(exportCondition.getScreeningOrgId());
-            return String.format(allKey,screeningOrganization.getName());
+            return getOrgKey(exportCondition.getScreeningOrgId(),allKey);
         }else {
             School school = schoolService.getById(schoolId);
             return String.format(schoolKey,school.getName());
@@ -186,4 +185,13 @@ public class ExportTypeFacade {
         Assert.notNull(exportCondition.getDistrictId(),"区域ID不能为空");
     }
 
+    /**
+     * 获取机构Key
+     * @param id 机构ID
+     * @param orgSchool key
+     */
+    public String getOrgKey(Integer id, String orgSchool) {
+        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(id);
+        return String.format(orgSchool,screeningOrganization.getName());
+    }
 }

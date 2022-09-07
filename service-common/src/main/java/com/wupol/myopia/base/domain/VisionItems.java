@@ -3,6 +3,7 @@ package com.wupol.myopia.base.domain;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-public class VisionItems {
+public class VisionItems implements Serializable {
 
     /**
      * 标题
@@ -38,7 +39,7 @@ public class VisionItems {
 
     @Getter
     @Setter
-    public static class Item {
+    public static class Item implements Serializable {
         /**
          * 视力
          */
