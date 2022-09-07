@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -30,7 +30,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果
      */
     public void getSchoolSaprodontiaMonitorVO(List<StatConclusion> statConclusionList, SchoolCommonDiseasesAnalysisVO schoolCommonDiseasesAnalysisVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO = new SchoolSaprodontiaMonitorVO();
@@ -54,7 +54,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-说明变量
      */
     private void getSaprodontiaMonitorVariableVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaMonitorVariableVO saprodontiaMonitorVariableVO = new SaprodontiaNum()
@@ -69,7 +69,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同性别
      */
     private void getSaprodontiaSexVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaSexVO saprodontiaSexVO = new SaprodontiaSexVO();
@@ -85,7 +85,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同性别-说明变量
      */
     private void getSaprodontiaSexVariableVO(List<StatConclusion> statConclusionList, SaprodontiaSexVO saprodontiaSexVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         Map<Integer, List<StatConclusion>> genderMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
@@ -115,7 +115,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同性别-表格数据
      */
     private void getSaprodontiaSexMonitorTableList(List<StatConclusion> statConclusionList, SaprodontiaSexVO saprodontiaSexVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
@@ -136,7 +136,7 @@ public class SchoolSaprodontiaMonitorService {
     }
 
     private SaprodontiaMonitorTable getSaprodontiaSexTable(List<StatConclusion> statConclusionList, Integer gender) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return null;
         }
         List<StatConclusion> conclusionlist;
@@ -161,7 +161,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同年级
      */
     private void getSaprodontiaGradeVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaGradeVO saprodontiaGradeVO = new SaprodontiaGradeVO();
@@ -177,7 +177,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同学龄段-说明变量
      */
     private void getSaprodontiaGradeVariableVO(List<StatConclusion> statConclusionList, SaprodontiaGradeVO saprodontiaGradeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaGradeVO.SaprodontiaGradeVariableVO saprodontiaGradeVariableVO = new SaprodontiaGradeVO.SaprodontiaGradeVariableVO();
@@ -199,29 +199,29 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同学龄段-表格数据
      */
     private void getSaprodontiaGradeMonitorTableList(List<StatConclusion> statConclusionList, SaprodontiaGradeVO saprodontiaGradeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
         List<SaprodontiaMonitorTable> primaryList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.PRIMARY.code);
-        if (CollectionUtil.isNotEmpty(primaryList)){
+        if (CollUtil.isNotEmpty(primaryList)){
             tableList.addAll(primaryList);
         }
         List<SaprodontiaMonitorTable> juniorList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.JUNIOR.code);
-        if (CollectionUtil.isNotEmpty(juniorList)){
+        if (CollUtil.isNotEmpty(juniorList)){
             tableList.addAll(juniorList);
         }
         List<SaprodontiaMonitorTable> normalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.HIGH.code);
-        if (CollectionUtil.isNotEmpty(normalHighList)){
+        if (CollUtil.isNotEmpty(normalHighList)){
             tableList.addAll(normalHighList);
         }
         List<SaprodontiaMonitorTable> vocationalHighList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.VOCATIONAL_HIGH.code);
-        if (CollectionUtil.isNotEmpty(vocationalHighList)){
+        if (CollUtil.isNotEmpty(vocationalHighList)){
             tableList.addAll(vocationalHighList);
         }
         List<SaprodontiaMonitorTable> universityList = getSaprodontiaSchoolAgeTable(statConclusionList, SchoolAge.UNIVERSITY.code);
-        if (CollectionUtil.isNotEmpty(universityList)){
+        if (CollUtil.isNotEmpty(universityList)){
             tableList.addAll(universityList);
         }
 
@@ -230,13 +230,13 @@ public class SchoolSaprodontiaMonitorService {
     }
 
     private List<SaprodontiaMonitorTable> getSaprodontiaSchoolAgeTable(List<StatConclusion> statConclusionList, Integer schoolAge) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return Lists.newArrayList();
         }
         List<StatConclusion> conclusionList = statConclusionList.stream().filter(sc -> Objects.equals(sc.getSchoolAge(), schoolAge)).collect(Collectors.toList());
 
         Map<String, List<StatConclusion>> gradeCodeMap = conclusionList.stream().sorted(Comparator.comparing(StatConclusion::getSchoolGradeCode)).collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap = CollUtil.sort(gradeCodeMap, String::compareTo);
         List<SaprodontiaMonitorTable> tableList = Lists.newArrayList();
         gradeCodeMap.forEach((grade, list) -> getSaprodontiaGrade(list, ReportUtil.getItemName(grade,schoolAge), tableList));
         getSaprodontiaGrade(conclusionList, ReportUtil.getItemNameTotal(schoolAge), tableList);
@@ -244,7 +244,7 @@ public class SchoolSaprodontiaMonitorService {
     }
 
     private void getSaprodontiaGrade(List<StatConclusion> statConclusionList, String grade, List<SaprodontiaMonitorTable> gradeList) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaMonitorTable saprodontiaMonitorTable = new SaprodontiaNum().build(statConclusionList).ratioNotSymbol().buildTable();
@@ -256,7 +256,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同年龄
      */
     private void getSaprodontiaAgeVO(List<StatConclusion> statConclusionList, SchoolSaprodontiaMonitorVO schoolSaprodontiaMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         SaprodontiaAgeVO saprodontiaAgeVO = new SaprodontiaAgeVO();
@@ -271,7 +271,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同年龄-说明变量
      */
     private void getSaprodontiaAgeVariableVO(List<StatConclusion> statConclusionList, SaprodontiaAgeVO saprodontiaAgeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         Map<Integer, List<StatConclusion>> ageMap = statConclusionList.stream().collect(Collectors.groupingBy(sc -> ReportUtil.getLessAge(sc.getAge())));
@@ -292,7 +292,7 @@ public class SchoolSaprodontiaMonitorService {
      * 龋齿监测结果-不同年龄-表格数据
      */
     private void getSaprodontiaAgeMonitorTableList(List<StatConclusion> statConclusionList, SaprodontiaAgeVO saprodontiaAgeVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -306,7 +306,7 @@ public class SchoolSaprodontiaMonitorService {
 
 
     private void getSaprodontiaAgeTable(Integer age, List<StatConclusion> conclusionlist, List<SaprodontiaMonitorTable> tableList) {
-        if (CollectionUtil.isEmpty(conclusionlist)) {
+        if (CollUtil.isEmpty(conclusionlist)) {
             return;
         }
         String itemName;

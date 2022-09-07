@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.AgeSegmentEnum;
@@ -32,7 +32,7 @@ public class ReportUtil {
      */
     public static <T, K, V> TwoTuple<K, V> getMaxMap(Map<K, T> map, Function<T, Integer> function, Function<T, V> mapper) {
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries, ((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0) - Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
+        CollUtil.sort(entries, ((o1, o2) -> Optional.ofNullable(o2.getValue()).map(function).orElse(0) - Optional.ofNullable(o1.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
         return TwoTuple.of(entry.getKey(), Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
@@ -42,7 +42,7 @@ public class ReportUtil {
      */
     public static <T, K, V> TwoTuple<K, V> getMinMap(Map<K, T> map, Function<T, Integer> function, Function<T, V> mapper) {
         List<Map.Entry<K, T>> entries = Lists.newArrayList(map.entrySet());
-        CollectionUtil.sort(entries, Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
+        CollUtil.sort(entries, Comparator.comparingInt(o -> Optional.ofNullable(o.getValue()).map(function).orElse(0)));
         Map.Entry<K, T> entry = entries.get(0);
         return TwoTuple.of(entry.getKey(), Optional.ofNullable(entry.getValue()).map(mapper).orElse(null));
     }
@@ -81,7 +81,7 @@ public class ReportUtil {
 
     public static List<Integer> dynamicAgeSegment(List<StatConclusion> statConclusionList) {
         List<Integer> ageSegmentList = Lists.newArrayList();
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return ageSegmentList;
         }
         Integer min = statConclusionList.stream().map(StatConclusion::getAge).min(Comparator.comparing(Integer::intValue)).orElse(null);
@@ -120,10 +120,10 @@ public class ReportUtil {
     }
 
     public <T extends Num> SexCompare getRatioCompare(List<T> sexList, Function<T, BigDecimal> function, Function<T, String> mapper) {
-        if (CollectionUtil.isEmpty(sexList)) {
+        if (CollUtil.isEmpty(sexList)) {
             return null;
         }
-        CollectionUtil.sort(sexList, Comparator.comparing(function).reversed());
+        CollUtil.sort(sexList, Comparator.comparing(function).reversed());
         SexCompare sex = new SexCompare();
         if (sexList.size() == 1) {
             T num = sexList.get(0);
@@ -175,7 +175,7 @@ public class ReportUtil {
 
 
     public static <T> GradeRatio getGradeRatio(Map<String, T> numMap, Function<T, Integer> function, Function<T, String> mapper) {
-        if (CollectionUtil.isEmpty(numMap)) {
+        if (CollUtil.isEmpty(numMap)) {
             return null;
         }
         GradeRatio gradeRatio = new GradeRatio();
@@ -186,7 +186,7 @@ public class ReportUtil {
     }
 
     public static <T> SchoolGradeRatio getSchoolGradeRatio(Map<String, T> numMap, Function<T, Integer> function, Function<T, String> mapper) {
-        if (CollectionUtil.isEmpty(numMap)) {
+        if (CollUtil.isEmpty(numMap)) {
             return null;
         }
         SchoolGradeRatio gradeRatio = new SchoolGradeRatio();

@@ -2,7 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -105,6 +105,8 @@ public class ReviewInformService {
      */
     public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName) {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
+
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         return matchRescreenResults.stream()
                 .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
@@ -112,7 +114,7 @@ public class ReviewInformService {
                         return StringUtils.countMatches(schoolName, s.getSchoolName()) > 0;
                     }
                     return true;
-                }).collect(Collectors.toList());
+                }).map(s->s.setSchoolName(schoolMap.get(s.getSchoolId()))).collect(Collectors.toList());
     }
 
     /**
@@ -217,7 +219,7 @@ public class ReviewInformService {
                     Map<Integer, List<ScreeningPlanSchoolStudent>> classGroup = gradeValue.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
                     classGroup.forEach((classKey, classValue) -> {
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
-                        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
                         try {
                             if (ExportTypeConst.GRADE.equals(type)) {
                                 FileUtils.downloadFile(pdfResponseDTO.getUrl(),

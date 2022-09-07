@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.domain.vo.OnlineUserStatisticVO;
@@ -29,16 +29,21 @@ public class OnlineUsersStatisticController {
     public OnlineUserStatisticVO getOnlineNum(){
         OnlineUserStatisticVO onlineUserStatisticVO= new OnlineUserStatisticVO();
         Set<String> keys = redisUtil.getOnline();
-        if (CollectionUtil.isNotEmpty(keys)){
+        if (CollUtil.isNotEmpty(keys)){
             long managementClientNum = keys.stream().filter(key->key.contains("online:1") || key.contains("online:6") ).count();
             long schoolClientNum = keys.stream().filter(key->key.contains("online:2")).count();
             long screeningClientNum = keys.stream().filter(key->key.contains("online:3")).count();
             long hospitalClientNum = keys.stream().filter(key->key.contains("online:4") ).count();
             long parentClientNum = keys.stream().filter(key->key.contains("online:5")).count();
             long zeroToSixClientNum = keys.stream().filter(key->key.contains("online:7")).count();
-            onlineUserStatisticVO.setManagementClientNum(managementClientNum).setSchoolClientNum(schoolClientNum)
-                    .setScreeningClientNum(screeningClientNum).setHospitalClientNum(hospitalClientNum).setParentClientNum(parentClientNum)
-                    .setZeroToSixClientNum(zeroToSixClientNum);
+            long questionnaireClientNum = keys.stream().filter(key->key.contains("online:8")).count();
+            onlineUserStatisticVO.setManagementClientNum(managementClientNum)
+                    .setSchoolClientNum(schoolClientNum)
+                    .setScreeningClientNum(screeningClientNum)
+                    .setHospitalClientNum(hospitalClientNum)
+                    .setParentClientNum(parentClientNum)
+                    .setZeroToSixClientNum(zeroToSixClientNum)
+                    .setQuestionnaireClientNum(questionnaireClientNum);
         }else {
             onlineUserStatisticVO.setManagementClientNum(0L).setSchoolClientNum(0L)
                     .setScreeningClientNum(0L).setHospitalClientNum(0L).setParentClientNum(0L)

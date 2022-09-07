@@ -1,14 +1,14 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.date.DateTime;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.constant.MonthAgeEnum;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.util.BusinessUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
@@ -97,7 +97,7 @@ public class PreSchoolNoticeService {
         MsgData msgData = new MsgData(phone, "+86", messageInfo);
         SmsResult smsResult = vistelToolsService.sendMsg(msgData);
         if (!smsResult.isSuccessful()) {
-            log.error("发送短信异常,医院学生Id:{},发送信息:{}, 错误信息:{}", hospitalStudent.getId(), JSONObject.toJSONString(msgData), smsResult.getErrorMsg());
+            log.error("发送短信异常,医院学生Id:{},发送信息:{}, 错误信息:{}", hospitalStudent.getId(), JSON.toJSONString(msgData), smsResult.getErrorMsg());
         }
     }
 

@@ -11,9 +11,9 @@ import lombok.Getter;
 @Getter
 public enum ResultCode {
     /** 请求成功 */
-    SUCCESS(200, "OK"),
+    SUCCESS(200, "成功"),
     /** 请求失败 */
-    BAD_REQUEST(400, "Bad Request"),
+    BAD_REQUEST(400, "失败"),
     /** 系统异常 */
     INTERNAL_SERVER_ERROR(500, "系统繁忙，请稍后重试"),
 

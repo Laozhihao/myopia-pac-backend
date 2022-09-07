@@ -8,8 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 /**
  * 大屏定时任务
  *
@@ -28,7 +26,7 @@ public class BigScreenScheduledTasksExecutor {
      * 筛查数据统计 测试环境暂时关闭
      */
     @Scheduled(cron = "0 0 23 * * ?")
-    public void statisticBigScreen() throws IOException {
+    public void statisticBigScreen() {
         bigScreeningStatService.statisticBigScreen();
     }
 

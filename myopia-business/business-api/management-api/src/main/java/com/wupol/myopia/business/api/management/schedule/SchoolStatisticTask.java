@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.schedule;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
@@ -50,8 +50,8 @@ public class SchoolStatisticTask {
 
         //根据筛查计划ID 获取筛查数据结论
         List<StatConclusion> statConclusions = statConclusionService.getByScreeningPlanIds(yesterdayScreeningPlanIds);
-        if(CollectionUtil.isEmpty(statConclusions)){
-            log.error("按学校-未找到筛查数据结论，planIds:{}",CollectionUtil.join(yesterdayScreeningPlanIds,","));
+        if(CollUtil.isEmpty(statConclusions)){
+            log.error("按学校-未找到筛查数据结论，planIds:{}",CollUtil.join(yesterdayScreeningPlanIds,","));
             return;
         }
 
@@ -79,7 +79,7 @@ public class SchoolStatisticTask {
     private void screeningResultStatistic(List<StatConclusion> statConclusionList,
                                                 List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                                                 List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList){
-        if(CollectionUtil.isEmpty(statConclusionList)){
+        if(CollUtil.isEmpty(statConclusionList)){
             return;
         }
         Map<Integer, List<StatConclusion>> screeningTypeStatConclusionMap = statConclusionList.stream().collect(Collectors.groupingBy(StatConclusion::getScreeningType));
@@ -103,7 +103,7 @@ public class SchoolStatisticTask {
     private void statistics(List<StatConclusion> statConclusions,
                             List<VisionScreeningResultStatistic> visionScreeningResultStatisticList,
                             List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList) {
-        if (CollectionUtil.isEmpty(statConclusions)){
+        if (CollUtil.isEmpty(statConclusions)){
             return;
         }
         //根据筛查数据结论 按计划ID分组
@@ -113,16 +113,16 @@ public class SchoolStatisticTask {
 
         //根据筛查计划ID 获取筛查计划数据
         List<ScreeningPlan> screeningPlans = screeningPlanService.getByIds(screeningPlanIds);
-        if(CollectionUtil.isEmpty(screeningPlans)){
-            log.error("未找到筛查计划数据，screeningPlanIds:{}",CollectionUtil.join(screeningPlanIds,","));
+        if(CollUtil.isEmpty(screeningPlans)){
+            log.error("未找到筛查计划数据，screeningPlanIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         Map<Integer, ScreeningPlan> screeningPlanMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(screeningPlanIds));
-        if (CollectionUtil.isEmpty(planSchoolStudents)){
-            log.error("未找到参与筛查计划的学生，screeningPlanIds:{}",CollectionUtil.join(screeningPlanIds,","));
+        if (CollUtil.isEmpty(planSchoolStudents)){
+            log.error("未找到参与筛查计划的学生，screeningPlanIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = planSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
@@ -131,7 +131,7 @@ public class SchoolStatisticTask {
         for (Integer screeningPlanId : screeningPlanIds) {
             // 排除空数据
             List<StatConclusion> statConclusionList = statConclusionMap.get(screeningPlanId);
-            if (CollectionUtil.isEmpty(statConclusionList)){
+            if (CollUtil.isEmpty(statConclusionList)){
                 return;
             }
             ScreeningPlan screeningPlan = screeningPlanMap.get(screeningPlanId);
@@ -150,7 +150,7 @@ public class SchoolStatisticTask {
 
             //获取学校信息
             List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIdStatConslusionMap.keySet()));
-            if (CollectionUtil.isEmpty(schoolList)){
+            if (CollUtil.isEmpty(schoolList)){
                 return;
             }
             Map<Integer, School> schoolIdMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity()));
@@ -160,7 +160,7 @@ public class SchoolStatisticTask {
 
 
             Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentNumMap= Maps.newHashMap();
-            if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
+            if (CollUtil.isNotEmpty(screeningPlanSchoolStudents)){
                 Map<Integer, List<ScreeningPlanSchoolStudent>> collect = screeningPlanSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
                 planSchoolStudentNumMap.putAll(collect);
             }

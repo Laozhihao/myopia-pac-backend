@@ -1,6 +1,6 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.builder;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,6 +8,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ImportExcelEnum;
+import com.wupol.myopia.business.aggregation.export.excel.domain.ImportScreeningSchoolStudentFailDTO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.UploadScreeningStudentVO;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.CheckProcessBO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -43,9 +46,9 @@ public class ImportScreeningSchoolStudentBuilder {
      * @param school 学校
      */
     public static TwoTuple<UploadScreeningStudentVO,List<ImportScreeningSchoolStudentFailDTO>> validData(List<Map<Integer, String>> listMap,
-                                     List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList,
-                                     List<SchoolGradeExportDTO> schoolGradeExportDTOList,
-                                     School school){
+                                                                                                         List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList,
+                                                                                                         List<SchoolGradeExportDTO> schoolGradeExportDTOList,
+                                                                                                         School school){
 
         UploadScreeningStudentVO uploadScreeningStudentVO  = new UploadScreeningStudentVO();
 
@@ -68,32 +71,35 @@ public class ImportScreeningSchoolStudentBuilder {
         while (it.hasNext()){
             Map<Integer, String> item = it.next();
             List<String> errorItemList = Lists.newArrayList();
-            checkProcess(item,errorItemList,screeningCodeList,idCardList,passportList,snoList,existPlanSchoolStudentList,gradeMaps,school.getId());
-            if (CollectionUtil.isNotEmpty(errorItemList)){
+            CheckProcessBO checkProcessBO = new CheckProcessBO().setItem(item).setErrorItemList(errorItemList).setScreeningCodeList(screeningCodeList)
+                    .setIdCardList(idCardList).setPassportList(passportList).setSnoList(snoList)
+                    .setExistPlanSchoolStudentList(existPlanSchoolStudentList).setGradeMaps(gradeMaps).setSchoolId(school.getId());
+            checkProcess(checkProcessBO);
+            if (CollUtil.isNotEmpty(errorItemList)){
                 List<String> requiredList = errorItemList.stream().filter(error -> error.contains(REQUIRED_TEXT)).map(s -> s.split(StrUtil.COLON)[1]).collect(Collectors.toList());
                 String requiredStr=StrUtil.EMPTY;
-                if (CollectionUtil.isNotEmpty(requiredList)){
-                    requiredStr = getRequiredText(CollectionUtil.join(requiredList, CommonConst.CN_PUNCTUATION_COMMA));
+                if (CollUtil.isNotEmpty(requiredList)){
+                    requiredStr = getRequiredText(CollUtil.join(requiredList, CommonConst.CN_PUNCTUATION_COMMA));
                 }
                 List<String> notRequiredList = errorItemList.stream().filter(error -> !error.contains(REQUIRED_TEXT)).collect(Collectors.toList());
                 if (StrUtil.isNotBlank(requiredStr)){
                     notRequiredList.add(requiredStr);
                 }
-                item.put(11,CollectionUtil.join(notRequiredList, "; "));
+                item.put(11,CollUtil.join(notRequiredList, "; "));
                 errorMapList.add(item);
                 it.remove();
             }
         }
 
         int errorSize = 0;
-        if (CollectionUtil.isNotEmpty(errorMapList)){
+        if (CollUtil.isNotEmpty(errorMapList)){
             errorSize = errorMapList.size();
         }
         uploadScreeningStudentVO.setFailStudentNum(errorSize);
         uploadScreeningStudentVO.setSuccessStudentNum(totalSize-errorSize);
 
         List<ImportScreeningSchoolStudentFailDTO> errorList =Lists.newArrayList();
-        if (CollectionUtil.isNotEmpty(errorMapList)){
+        if (CollUtil.isNotEmpty(errorMapList)){
             errorList = errorMapList.stream().map(item -> {
                 ImportScreeningSchoolStudentFailDTO failDTO = new ImportScreeningSchoolStudentFailDTO();
                 failDTO.setScreeningCode(item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null));
@@ -117,23 +123,11 @@ public class ImportScreeningSchoolStudentBuilder {
     /**
      * 每行数据校验处理
      *
-     * @param item 数据
-     * @param errorItemList 错误集合
-     * @param screeningCodeList 筛查编码集合
-     * @param idCardList 重复身份证号集合
-     * @param passportList 重复护照集合
-     * @param snoList 重复学号集合
-     * @param existPlanSchoolStudentList 筛查计划学校学生集合
-     * @param gradeMaps 年级和班级集合
-     * @param schoolId 学校ID
+     * @param checkProcessBO 检查条件实体
      */
-    private static void checkProcess(Map<Integer, String> item,
-                                     List<String> errorItemList,
-                                     List<String> screeningCodeList,
-                                     List<String> idCardList, List<String> passportList, List<String> snoList,
-                                     List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList,
-                                     Map<String, SchoolGradeExportDTO> gradeMaps,
-                                     Integer schoolId){
+    private static void checkProcess(CheckProcessBO checkProcessBO){
+        List<String> errorItemList = checkProcessBO.getErrorItemList();
+        Map<Integer, String> item = checkProcessBO.getItem();
         String screeningCode = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
         String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
         String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
@@ -145,7 +139,7 @@ public class ImportScreeningSchoolStudentBuilder {
         String studentNo = item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null);
         String phone = item.getOrDefault(ImportExcelEnum.PHONE.getIndex(), null);
         //筛查编号
-        if (Objects.nonNull(screeningCode) && !screeningCodeList.contains(screeningCode)){
+        if (Objects.nonNull(screeningCode) && !checkProcessBO.getScreeningCodeList().contains(screeningCode)){
             //校验编码是否存在于系统
             errorItemList.add("编码错误");
         }
@@ -157,7 +151,7 @@ public class ImportScreeningSchoolStudentBuilder {
         }
 
         boolean isIdCard = StringUtils.isNotBlank(idCard);
-        checkLicenseNumber(errorItemList, idCardList, passportList, idCard, passport,isIdCard);
+        checkLicenseNumber(errorItemList,checkProcessBO.getIdCardList() ,checkProcessBO.getPassportList(), idCard, passport,isIdCard);
 
         //姓名
         if (StrUtil.isBlank(name)){
@@ -169,14 +163,14 @@ public class ImportScreeningSchoolStudentBuilder {
         }
 
         checkBirthday(errorItemList, birthdayStr, isIdCard);
-        checkGradeAndClass(errorItemList, gradeMaps, gradeName, className);
+        checkGradeAndClass(errorItemList, checkProcessBO.getGradeMaps(), gradeName, className);
 
         //学号
         if (StrUtil.isNotBlank(studentNo) ){
-            if (Objects.equals(Boolean.TRUE,checkSno(existPlanSchoolStudentList,studentNo,idCard,passport,schoolId))) {
+            if (Objects.equals(Boolean.TRUE,checkSno(checkProcessBO.getExistPlanSchoolStudentList(),studentNo,idCard,passport,checkProcessBO.getSchoolId()))) {
                 errorItemList.add("学号错误");
             }
-            if (snoList.contains(studentNo)){
+            if (checkProcessBO.getSnoList().contains(studentNo)){
                 errorItemList.add("学号与其他重复");
             }
         }
@@ -240,7 +234,7 @@ public class ImportScreeningSchoolStudentBuilder {
                 // 获取年级内的班级信息
                 List<SchoolClassExportDTO> classExportDTOList = schoolGradeExportDTO.getChild();
                 Map<String, Integer> classExportMaps= Maps.newHashMap();
-                if (CollectionUtil.isNotEmpty(classExportDTOList)){
+                if (CollUtil.isNotEmpty(classExportDTOList)){
                     classExportMaps = classExportDTOList.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
                 }
                 // 转换成班级Maps 把班级名称作为key
@@ -341,7 +335,7 @@ public class ImportScreeningSchoolStudentBuilder {
                 || (StringUtils.isNotBlank(passport) && !Objects.equals(passport, s.getPassport())));
         // 学号是否被使用
         List<ScreeningPlanSchoolStudent> collect = existPlanSchoolStudentList.stream().filter(predicate).collect(Collectors.toList());
-        return CollectionUtil.isNotEmpty(collect);
+        return CollUtil.isNotEmpty(collect);
     }
 
     private static String getRequiredText(String text){

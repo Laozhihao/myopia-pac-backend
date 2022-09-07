@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 眼压
  * @author Chikong
@@ -12,7 +14,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class EyePressure {
+public class EyePressure implements Serializable {
     /** 学生id */
     private Integer studentId;
     /** 右眼压 */

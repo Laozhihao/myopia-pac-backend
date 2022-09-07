@@ -29,12 +29,12 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
     @Autowired
     private RedisUtil redisUtil;
 
-    private static String onlineUsersNum = "online:%s:%s";
     /** 有效时间：十分钟 10*60**/
     private static final long ONLINE_USERS_EXPIRED = 600L;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String onlineUsersNum = "online:%s:%s";
         ServerHttpRequest request = exchange.getRequest();
         String payload = request.getHeaders().getFirst(AuthConstants.JWT_PAYLOAD_KEY);
         if (StringUtils.isNotBlank(payload)) {

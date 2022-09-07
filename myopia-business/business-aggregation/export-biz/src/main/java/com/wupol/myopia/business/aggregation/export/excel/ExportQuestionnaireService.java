@@ -6,10 +6,13 @@ import cn.hutool.core.util.ZipUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.file.QuestionnaireExcel;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -38,14 +41,17 @@ import java.util.stream.Stream;
 @Service(ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE)
 public class ExportQuestionnaireService extends BaseExportExcelFileService {
 
-    private static List<Integer> schoolQuestionnaireType = Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE, QuestionnaireTypeEnum.VISION_SPINE.getType());
-
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
+    @Autowired
+    private ArchiveService archiveService;
+    @Autowired
+    private ScreeningFacade screeningFacade;
 
-    private List<Integer> recFileList = Lists.newArrayList(ExportTypeConst.DISTRICT_STATISTICS_REC,ExportTypeConst.SCHOOL_STATISTICS_REC,ExportTypeConst.SCREENING_RECORD_REC);
+
+    private static List<Integer> schoolQuestionnaireType = Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE, QuestionnaireTypeEnum.VISION_SPINE.getType());
 
     private volatile String fileType;
 
@@ -55,7 +61,7 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      */
     @Override
     public void preProcess(ExportCondition exportCondition) {
-        fileType = recFileList.contains(exportCondition.getExportType())?QuestionnaireConstant.REC_FILE:QuestionnaireConstant.EXCEL_FILE;
+        fileType = ExportTypeConst.getRecExportTypeList().contains(exportCondition.getExportType())?QuestionnaireConstant.REC_FILE:QuestionnaireConstant.EXCEL_FILE;
         ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
         exportTypeService.preProcess(exportCondition);
     }
@@ -110,14 +116,21 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      * 根据地区导出数据时，获取地区的各个学校问卷数据文件夹名称
      *
      * @param questionnaireType 问卷类型
-     * @param exportType 导出类型
-     * @param districtId 地区ID
+     * @param exportCondition 导出条件
      * @param fileName 文件路径
      */
-    private String getFileName(Integer questionnaireType,Integer exportType,Integer districtId,String fileName){
-        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(districtId)){
-            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportType);
-            String districtKey = exportTypeService.getDistrictKey(districtId);
+    private String getFileName(Integer questionnaireType,ExportCondition exportCondition,String fileName,String fileType){
+        if (schoolQuestionnaireType.contains(questionnaireType) && Objects.nonNull(exportCondition.getDistrictId()) && Objects.equals(fileType,QuestionnaireConstant.EXCEL_FILE)){
+            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+            String districtKey = exportTypeService.getFolder(exportCondition.getDistrictId());
+            return getFileSavePath(fileName,districtKey);
+        }
+
+        if (Objects.equals(ExportTypeConst.SCREENING_RECORD_REC,exportCondition.getExportType())
+                && Objects.isNull(exportCondition.getSchoolId())
+                && Objects.nonNull(exportCondition.getScreeningOrgId())){
+            ExportType exportTypeService = questionnaireFactory.getExportTypeService(exportCondition.getExportType());
+            String districtKey = exportTypeService.getFolder(exportCondition.getScreeningOrgId());
             return getFileSavePath(fileName,districtKey);
         }
         return fileName;
@@ -130,21 +143,53 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
      */
     public File generateFile(String fileName, ExportCondition exportCondition,String fileType) throws IOException {
 
+        //监测表数据
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())) {
+            generateArchiveRec(fileName,exportCondition);
+        }
+
+        //问卷数据
+        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())) {
+            generateQuestionnaire(fileName,exportCondition,fileType);
+        }
+
+        return null;
+    }
+
+    /**
+     * 生成问卷rec
+     * @param fileName 文件保存路径（含基础路径）
+     * @param exportCondition 导出条件
+     * @param fileType 文件类型
+     */
+    private void generateQuestionnaire(String fileName, ExportCondition exportCondition, String fileType) throws IOException {
         List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
         if (CollectionUtils.isEmpty(questionnaireTypeList)){
-            return null;
+            return ;
         }
         for (Integer questionnaireType : questionnaireTypeList) {
             if (Objects.equals(QuestionnaireConstant.STUDENT_TYPE,questionnaireType)){
-                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName);
+                String filePath = getFileName(QuestionnaireConstant.STUDENT_TYPE, exportCondition, fileName,fileType);
                 for (Integer type : QuestionnaireConstant.getStudentTypeList()) {
                     generateFile(filePath, exportCondition, type,fileType);
                 }
             }else {
-                generateFile(getFileName(questionnaireType, exportCondition.getExportType(), exportCondition.getDistrictId(), fileName), exportCondition, questionnaireType,fileType);
+                generateFile(getFileName(questionnaireType, exportCondition, fileName,fileType), exportCondition, questionnaireType,fileType);
             }
         }
-        return null;
+    }
+
+    /**
+     * 生成监测表rec
+     * @param fileName 文件保存路径（含基础路径）
+     * @param exportCondition 导出条件
+     */
+    private void generateArchiveRec(String fileName, ExportCondition exportCondition) throws IOException {
+        List<Integer> questionnaireTypeList = exportCondition.getQuestionnaireType();
+        if (CollectionUtils.isEmpty(questionnaireTypeList)){
+            return ;
+        }
+        generateFile(fileName, exportCondition, QuestionnaireTypeEnum.ARCHIVE_REC.getType(),QuestionnaireConstant.REC_FILE);
     }
 
     /**
@@ -186,14 +231,29 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
     public void validateBeforeExport(ExportCondition exportCondition) {
         this.preProcess(exportCondition);
 
-        if (ExportTypeConst.getRecExportTypeList().contains(exportCondition.getExportType()) && Objects.isNull(exportCondition.getDataType())) {
-            throw new IllegalArgumentException("导出rec数据类型不能为空");
+        if (Objects.equals(exportCondition.getDataType(), ExportDataTypeEnum.ARCHIVE_REC.getCode())){
+            archiveService.archiveDataValidate(exportCondition);
         }
 
-        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId(), QuestionnaireStatusEnum.FINISH.getCode());
-        if (CollectionUtils.isEmpty(userQuestionRecordList)){
-            throw new BusinessException("暂无数据");
+        if (Objects.equals(exportCondition.getDataType(), ExportDataTypeEnum.QUESTIONNAIRE.getCode())){
+            questionnaireDataValidate(exportCondition);
         }
+
+    }
+
+
+
+    /**
+     * 问卷数据校验
+     * @param exportCondition 导出条件
+     */
+    private void questionnaireDataValidate(ExportCondition exportCondition) {
+
+        if (Objects.isNull(exportCondition.getDataType())) {
+            throw new IllegalArgumentException("导出问卷数据类型不能为空");
+        }
+
+        List<UserQuestionRecord> userQuestionRecordList = getUserQuestionRecordList(exportCondition);
 
         Stream<UserQuestionRecord> userQuestionRecordStream = userQuestionRecordList.stream();
 
@@ -215,7 +275,24 @@ public class ExportQuestionnaireService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(userQuestionRecordList)){
             throw new BusinessException("暂无数据");
         }
+    }
 
+    /**
+     * 获取不作废的用户问卷记录
+     * @param exportCondition 导出条件
+     */
+    private List<UserQuestionRecord> getUserQuestionRecordList(ExportCondition exportCondition) {
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId(), QuestionnaireStatusEnum.FINISH.getCode());
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+
+        userQuestionRecordList =  screeningFacade.filterByPlanId(userQuestionRecordList);
+
+        if (CollectionUtils.isEmpty(userQuestionRecordList)){
+            throw new BusinessException("暂无数据");
+        }
+        return userQuestionRecordList;
     }
 
     /**

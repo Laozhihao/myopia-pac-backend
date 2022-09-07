@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.hospital.domain.interfaces.HasResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,6 +13,7 @@ import java.util.List;
  * @Author wulizhou
  * @Date 2022/1/6 19:25
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)
 public class OuterEye implements HasResult {

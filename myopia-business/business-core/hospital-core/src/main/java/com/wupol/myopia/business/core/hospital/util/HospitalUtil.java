@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.hospital.util;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.interfaces.HasParentInfoInterface;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * @Author wulizhou
  * @Date 2022/1/10 18:00
  */
+@UtilityClass
 public class HospitalUtil {
 
     /**

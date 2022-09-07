@@ -1,7 +1,6 @@
 package com.wupol.myopia.oauth.sdk.client;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.base.config.feign.BusinessServiceCustomDecoder;
 import com.wupol.myopia.base.config.feign.BusinessServiceFeignConfig;
 import com.wupol.myopia.base.domain.UserRequest;
 import com.wupol.myopia.oauth.sdk.domain.request.PermissionDTO;

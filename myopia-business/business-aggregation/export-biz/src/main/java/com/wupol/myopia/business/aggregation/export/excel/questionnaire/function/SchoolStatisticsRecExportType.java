@@ -1,11 +1,15 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
+import com.google.common.collect.Lists;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 按学校统计rec导出类型
@@ -18,8 +22,8 @@ public class SchoolStatisticsRecExportType implements ExportType {
     @Autowired
     private ExportTypeFacade exportTypeFacade;
 
-    private static final String KEY = "%s的%s的问卷数据";
-    private static final String FILE_EXPORT_EXCEL = "file:export:excel:schoolStatisticsRec:%s-%s-%s-%s";
+    private static final String KEY = "%s的%s的rec文件";
+    private static final String FILE_EXPORT_REC = "file:export:rec:schoolStatisticsRec:%s-%s-%s-%s";
 
 
     @Override
@@ -39,7 +43,7 @@ public class SchoolStatisticsRecExportType implements ExportType {
 
     @Override
     public String getLockKey(ExportCondition exportCondition) {
-        return String.format(FILE_EXPORT_EXCEL,
+        return String.format(FILE_EXPORT_REC,
                 exportCondition.getApplyExportFileUserId(),
                 exportCondition.getPlanId(),
                 exportCondition.getSchoolId(),
@@ -54,5 +58,9 @@ public class SchoolStatisticsRecExportType implements ExportType {
     @Override
     public void preProcess(ExportCondition exportCondition) {
         ExportTypeFacade.checkSchoolId(exportCondition);
+        exportCondition.setDistrictId(null);
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
+        }
     }
 }

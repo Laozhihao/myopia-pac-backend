@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
@@ -32,7 +32,7 @@ public class DistrictDiseaseMonitorService {
      * 疾病监测情况
      */
     public void getDistrictDiseaseMonitorVO(List<StatConclusion> statConclusionList, DistrictCommonDiseasesAnalysisVO districtCommonDiseasesAnalysisVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         DistrictDiseaseMonitorVO districtDiseaseMonitorVO = new DistrictDiseaseMonitorVO();
@@ -46,7 +46,7 @@ public class DistrictDiseaseMonitorService {
     }
 
     private void getDiseaseMonitorChart(List<StatConclusion> statConclusionList, DistrictDiseaseMonitorVO districtDiseaseMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         DiseaseNum diseaseNum = new DiseaseNum().build(statConclusionList).ratioNotSymbol().ratio();
@@ -69,7 +69,7 @@ public class DistrictDiseaseMonitorService {
      * 疾病监测情况-说明变量
      */
     private void getDiseaseMonitorVariableVO(List<StatConclusion> statConclusionList, DistrictDiseaseMonitorVO districtDiseaseMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
         DistrictDiseaseMonitorVO.DiseaseMonitorVariableVO diseaseMonitorVariableVO = new DiseaseNum()
@@ -115,7 +115,7 @@ public class DistrictDiseaseMonitorService {
      * 疾病监测情况-不同学龄段
      */
     private void getDiseaseMonitorTableList(List<StatConclusion> statConclusionList, DistrictDiseaseMonitorVO districtDiseaseMonitorVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -162,28 +162,28 @@ public class DistrictDiseaseMonitorService {
 
 
     private DistrictDiseaseMonitorVO.DiseaseMonitorTable getSchoolAgeTable(Map<Integer, List<StatConclusion>> conclusionMap, Integer schoolAge) {
-        if (CollectionUtil.isEmpty(conclusionMap)) {
+        if (CollUtil.isEmpty(conclusionMap)) {
             return null;
         }
 
         if (Objects.equals(schoolAge, 10)) {
             List<StatConclusion> mergeList = Lists.newArrayList();
             List<StatConclusion> highList = conclusionMap.get(SchoolAge.HIGH.code);
-            if (CollectionUtil.isNotEmpty(highList)) {
+            if (CollUtil.isNotEmpty(highList)) {
                 mergeList.addAll(highList);
             }
             List<StatConclusion> vocationalHighList = conclusionMap.get(SchoolAge.VOCATIONAL_HIGH.code);
-            if (CollectionUtil.isNotEmpty(vocationalHighList)) {
+            if (CollUtil.isNotEmpty(vocationalHighList)) {
                 mergeList.addAll(vocationalHighList);
             }
-            if (CollectionUtil.isEmpty(mergeList)) {
+            if (CollUtil.isEmpty(mergeList)) {
                 return null;
             }
             return getDiseaseMonitorTable(mergeList, ReportConst.HIGH);
         }
 
         List<StatConclusion> statConclusionList = conclusionMap.get(schoolAge);
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return null;
         }
         if (Objects.equals(schoolAge, SchoolAge.HIGH.code)) {
@@ -202,7 +202,7 @@ public class DistrictDiseaseMonitorService {
     }
 
     private DistrictDiseaseMonitorVO.DiseaseMonitorTable getDiseaseMonitorTable(List<StatConclusion> statConclusionList, String schoolAgeDesc) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return null;
         }
         DistrictDiseaseMonitorVO.DiseaseMonitorTable diseaseMonitorTable = new DiseaseNum().build(statConclusionList).ratioNotSymbol().buildTable();

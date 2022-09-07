@@ -224,8 +224,8 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      * @param schoolId    学校Id
      * @return IPage<ScreeningListResponseDTO>
      */
-    public IPage<ScreeningListResponseDTO> getResponseBySchoolId(PageRequest pageRequest, Integer schoolId) {
-        return baseMapper.getResponseBySchoolId(pageRequest.toPage(), schoolId);
+    public IPage<ScreeningListResponseDTO> getReleasePlanSchoolPageBySchoolId(PageRequest pageRequest, Integer schoolId) {
+        return baseMapper.getReleasePlanSchoolPageBySchoolId(pageRequest.toPage(), schoolId);
     }
 
 
@@ -244,5 +244,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
                 .in(!CollectionUtils.isEmpty(plans), ScreeningPlanSchool::getScreeningPlanId, plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()))
                 .like(Objects.nonNull(schoolName), ScreeningPlanSchool::getSchoolName, schoolName)
                 .orderByDesc(ScreeningPlanSchool::getCreateTime));
+    }
+
+    /**
+     * 根据学校ID获取筛查计划
+     *
+     * @param schoolId 学校ID
+     * @return ScreeningPlanSchool
+     */
+    public ScreeningPlanSchool getOneBySchoolId(Integer schoolId) {
+        return baseMapper.getBySchoolId(schoolId).stream().findFirst().orElse(null);
     }
 }

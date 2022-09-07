@@ -16,7 +16,10 @@ import java.util.List;
 public class QuestionAreaDTO {
     private List<District> districts;
 
-    private Integer defaultAreaId;
+    /**
+     * 登录用户区域
+     */
+    private List<Integer> defaultAreaIds;
 
     private String defaultAreaName;
 }

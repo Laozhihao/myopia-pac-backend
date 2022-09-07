@@ -1,7 +1,14 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,8 +19,10 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021/9/13
  **/
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class VisualLossLevelDataDTO implements Serializable {
+public class VisualLossLevelDataDTO extends ScreeningResultBasicData implements Serializable {
     /**
      * 左：0~9 级
      */
@@ -37,7 +46,31 @@ public class VisualLossLevelDataDTO implements Serializable {
         if (Objects.nonNull(rightEye)) {
             visualLossLevelDataDTO.setRightVisualLossLevel(rightEye.getLevel());
         }
+        visualLossLevelDataDTO.setIsCooperative(visualLossLevelDataDO.getIsCooperative());
         return visualLossLevelDataDTO;
     }
 
+
+    public boolean isValid() {
+        return ObjectUtils.anyNotNull(leftVisualLossLevel, rightVisualLossLevel);
+    }
+
+    @Override
+    public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
+        VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO();
+        VisualLossLevelDataDO.VisualLossLevelData leftData = new VisualLossLevelDataDO.VisualLossLevelData();
+        leftData.setLateriality(0).setLevel(leftVisualLossLevel);
+        VisualLossLevelDataDO.VisualLossLevelData rightData = new VisualLossLevelDataDO.VisualLossLevelData();
+        rightData.setLateriality(1).setLevel(rightVisualLossLevel);
+        visualLossLevelDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative());
+        visualLossLevelDataDO.setCreateUserId(getCreateUserId());
+        visualLossLevelDataDO.setUpdateTime(getUpdateTime());
+        visionScreeningResult.setVisualLossLevelData(visualLossLevelDataDO);
+        return visionScreeningResult;
+    }
+
+    @Override
+    public String getDataType() {
+        return ScreeningConstant.SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL;
+    }
 }

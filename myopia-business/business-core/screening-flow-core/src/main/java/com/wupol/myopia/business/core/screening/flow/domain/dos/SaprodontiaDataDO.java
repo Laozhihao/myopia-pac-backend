@@ -29,7 +29,7 @@ public class SaprodontiaDataDO extends AbstractDiagnosisResult implements Serial
     private List<SaprodontiaItem> underneath;
 
     @Data
-    public static class SaprodontiaItem {
+    public static class SaprodontiaItem implements Serializable {
         /**
          * 牙齿编码
          */

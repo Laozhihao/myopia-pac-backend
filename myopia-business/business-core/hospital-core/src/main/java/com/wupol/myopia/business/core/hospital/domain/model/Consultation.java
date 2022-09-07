@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Consultation {
+public class Consultation implements Serializable {
 
     /** 学生id */
     private Integer studentId;
@@ -30,7 +31,7 @@ public class Consultation {
     @Getter
     @Setter
     @Accessors(chain = true)
-    public static class Disease {
+    public static class Disease implements Serializable {
         private Integer id;
         /** 名称 */
         private String name;

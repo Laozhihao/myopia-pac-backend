@@ -46,6 +46,10 @@ public class QuestionnaireFactory {
                 .findFirst().orElseThrow(()->new BusinessException(String.format("不存在此类型实例,exportType=%s",exportType)));
     }
 
+    /**
+     * 获取用户类型实例
+     * @param userType 用户类型
+     */
     public Answer getAnswerService(Integer userType){
         return answerList.stream()
                 .filter(service->Objects.equals(service.getUserType(),userType))

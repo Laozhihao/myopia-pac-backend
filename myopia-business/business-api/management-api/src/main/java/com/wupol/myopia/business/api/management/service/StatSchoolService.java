@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -168,7 +168,7 @@ public class StatSchoolService {
 
     public Map<String,Boolean> hasRescreenReportMap(List<Integer> planIds,List<Integer> schoolIds) {
         List<StatRescreen> statRescreenList = statRescreenService.getByPlanIdAndSchoolId(planIds, schoolIds);
-        if (CollectionUtil.isNotEmpty(statRescreenList)){
+        if (CollUtil.isNotEmpty(statRescreenList)){
             return statRescreenList.stream().collect(Collectors.toMap(sr->sr.getPlanId()+ StrUtil.UNDERLINE+sr.getSchoolId(), sr->Boolean.TRUE,(r1, r2)->r2));
         }
         return Maps.newHashMap();

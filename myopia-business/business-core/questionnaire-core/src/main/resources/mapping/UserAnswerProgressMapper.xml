@@ -13,8 +13,9 @@
                 <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
                 <if test="@Ognl@isNotEmpty(userId)">and `user_id` = #{userId}</if>
                 <if test="@Ognl@isNotEmpty(userType)">and `user_type` = #{userType}</if>
-                <if test="@Ognl@isNotEmpty(districtId)">and `district_id` = #{districtId}</if>
+                <if test="@Ognl@isNotEmpty(districtCode)">and `district_code` = #{districtCode}</if>
                 <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(planId)">and `plan_id` = #{planId}</if>
                 <if test="@Ognl@isNotEmpty(currentStep)">and `current_step` = #{currentStep}</if>
                 <if test="@Ognl@isNotEmpty(currentSideBar)">and `current_side_bar` = #{currentSideBar}</if>
                 <if test="@Ognl@isNotEmpty(stepJson)">and `step_json` = #{stepJson}</if>
@@ -26,7 +27,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, user_type, district_id, school_id, current_step, current_side_bar, step_json, create_time, update_time
+        id, user_id, user_type, district_code, school_id, plan_id, current_step, current_side_bar, step_json, create_time, update_time
     </sql>
 
 </mapper>

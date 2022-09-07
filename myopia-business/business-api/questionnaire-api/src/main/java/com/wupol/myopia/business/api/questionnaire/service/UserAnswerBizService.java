@@ -9,8 +9,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.UserAnswerDTO;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerProgressService;
-import com.wupol.myopia.business.core.questionnaire.service.UserAnswerService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -19,6 +17,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -39,13 +38,7 @@ import java.util.stream.Collectors;
 public class UserAnswerBizService {
 
     @Resource
-    private UserAnswerService userAnswerService;
-
-    @Resource
     private UserAnswerFactory userAnswerFactory;
-
-    @Resource
-    private UserAnswerProgressService userAnswerProgressService;
 
     @Resource
     private GovDeptService govDeptService;
@@ -76,8 +69,12 @@ public class UserAnswerBizService {
         Integer questionnaireUserType = user.getQuestionnaireUserType();
 
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(questionnaireUserType);
+
+        // 数据校验
+        iUserAnswerService.preCheck(requestDTO);
+
         // 更新记录表
-        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds(), requestDTO.getDistrictId(), requestDTO.getSchoolId());
+        Integer recordId = iUserAnswerService.saveUserQuestionRecord(questionnaireId, userId, requestDTO.getIsFinish(), requestDTO.getQuestionnaireIds(), requestDTO.getDistrictCode(), requestDTO.getSchoolId());
 
         // 答案为空不保存
         if (!CollectionUtils.isEmpty(questionList)) {
@@ -127,9 +124,9 @@ public class UserAnswerBizService {
      *
      * @return 是否完成
      */
-    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user, Integer districtId, Integer schoolId) {
+    public Boolean questionnaireIsFinish(Integer questionnaireId, CurrentUser user, Long districtCode, Integer schoolId) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId, districtId, schoolId);
+        return iUserAnswerService.questionnaireIsFinish(user.getExQuestionnaireUserId(), questionnaireId, districtCode, schoolId);
     }
 
     /**
@@ -166,7 +163,10 @@ public class UserAnswerBizService {
         if (Objects.isNull(school)) {
             throw new BusinessException("数据异常!");
         }
-        return generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+        SchoolListResponseDTO responseDTO = generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOneBySchoolId(school.getId());
+        responseDTO.setPlanId(planSchool.getScreeningPlanId());
+        return responseDTO;
     }
 
     /**
@@ -186,7 +186,7 @@ public class UserAnswerBizService {
         responseDTO.setAreaNo(code.substring(4, 6));
         responseDTO.setAreaType(school.getAreaType());
         responseDTO.setMonitorType(school.getMonitorType());
-        Long areaCode = getAreaCode(school);
+        Long areaCode = getAreaCode(school, district);
         responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
         return responseDTO;
     }
@@ -199,10 +199,11 @@ public class UserAnswerBizService {
      */
     public List<District> govNextDistrict(CurrentUser user) {
         List<School> schoolList = getGovOrgSchoolList(null, user);
-        List<Long> areaCode = schoolList.stream().map(this::getAreaCode).collect(Collectors.toList());
+        Map<Integer, District> districtMap = districtService.getByIds(schoolList.stream().map(School::getDistrictId).collect(Collectors.toList()));
+        List<Long> areaCode = schoolList.stream().map(school -> getAreaCode(school, districtMap.get(school.getDistrictId()))).collect(Collectors.toList());
 
         List<District> result = new ArrayList<>();
-        areaCode.forEach(s-> result.addAll(districtService.getTopDistrictByCode(s)));
+        areaCode.forEach(s -> result.addAll(districtService.getTopDistrictByCode(s)));
         List<District> allDistrict = districtService.getAllDistrict(result, new ArrayList<>());
         return districtService.keepAreaDistrictsTree(allDistrict);
     }
@@ -210,18 +211,28 @@ public class UserAnswerBizService {
     /**
      * 获取区域Code
      *
-     * @param school 学校
+     * @param school   学校
+     * @param district 区域
      *
      * @return 区域Code
      */
-    private Long getAreaCode(School school) {
+    private Long getAreaCode(School school, District district) {
         Long areaCode = null;
         List<District> list = JSON.parseArray(school.getDistrictDetail(), District.class);
-        if (list.size() == 2) {
-            areaCode = list.get(1).getCode();
-        }
-        if (list.size() >= 3) {
-            areaCode = list.get(2).getCode();
+        if (StringUtils.equalsAny(String.valueOf(district.getCode()).substring(0,2), "11", "12", "31", "50")) {
+            if (list.size() == 1) {
+                areaCode = list.get(0).getCode();
+            }
+            if (list.size() >= 2) {
+                areaCode = list.get(1).getCode();
+            }
+        } else {
+            if (list.size() == 2) {
+                areaCode = list.get(1).getCode();
+            }
+            if (list.size() >= 3) {
+                areaCode = list.get(2).getCode();
+            }
         }
         return areaCode;
     }
@@ -278,9 +289,9 @@ public class UserAnswerBizService {
     /**
      * 获取用户答案
      */
-    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user, Integer districtId, Integer schoolId) {
+    public UserAnswerDTO getUserAnswerList(Integer questionnaireId, CurrentUser user, Long districtCode, Integer schoolId, Integer planId) {
         IUserAnswerService iUserAnswerService = userAnswerFactory.getUserAnswerService(user.getQuestionnaireUserType());
-        return iUserAnswerService.getUserAnswerList(questionnaireId, user.getExQuestionnaireUserId(), districtId, schoolId);
+        return iUserAnswerService.getUserAnswerList(questionnaireId, user.getExQuestionnaireUserId(), districtCode, schoolId, planId);
     }
 
 }

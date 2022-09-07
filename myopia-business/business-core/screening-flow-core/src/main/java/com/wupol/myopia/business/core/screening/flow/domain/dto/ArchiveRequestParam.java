@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import lombok.Data;
 

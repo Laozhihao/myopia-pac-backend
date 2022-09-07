@@ -34,6 +34,7 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         wrapper.eq(UserQuestionRecord::getUserId, userId);
         wrapper.eq(UserQuestionRecord::getUserType, userType);
         wrapper.in(UserQuestionRecord::getQuestionnaireId, questionnaireIds);
+        wrapper.orderByDesc(UserQuestionRecord::getCreateTime);
         return baseMapper.selectList(wrapper);
     }
 
@@ -45,13 +46,14 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return
      */
-    public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType) {
+    public List<UserQuestionRecord> findRecordByPlanIdAndUserType(List<Integer> planIds, Integer userType,Integer status) {
         if (CollectionUtils.isEmpty(planIds)) {
             return Lists.newArrayList();
         }
         return baseMapper.selectList(new LambdaQueryWrapper<UserQuestionRecord>()
                 .in(UserQuestionRecord::getPlanId, planIds)
                 .eq(UserQuestionRecord::getUserType, userType)
+                .eq(UserQuestionRecord::getStatus,status)
         );
     }
 
@@ -125,11 +127,12 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return UserQuestionRecord
      */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId) {
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer planId) {
         return findOne(new UserQuestionRecord()
                 .setUserId(userId)
                 .setUserType(userType)
-                .setQuestionnaireId(questionnaireId));
+                .setQuestionnaireId(questionnaireId)
+                .setPlanId(planId));
     }
 
     /**
@@ -137,13 +140,29 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
      *
      * @return UserQuestionRecord
      */
-    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Integer districtId) {
+    public UserQuestionRecord getUserQuestionRecord(Integer userId, Integer userType, Integer questionnaireId, Integer schoolId, Long districtCode, Integer taskId) {
         return getOne(new LambdaQueryWrapper<UserQuestionRecord>()
                 .eq(UserQuestionRecord::getUserId, userId)
                 .eq(UserQuestionRecord::getUserType, userType)
                 .eq(UserQuestionRecord::getQuestionnaireId, questionnaireId)
                 .eq(Objects.nonNull(schoolId), UserQuestionRecord::getSchoolId, schoolId)
-                .eq(Objects.nonNull(districtId), UserQuestionRecord::getDistrictId, districtId));
+                .eq(Objects.nonNull(districtCode), UserQuestionRecord::getDistrictCode, districtCode)
+                .eq(Objects.nonNull(taskId), UserQuestionRecord::getTaskId, taskId));
+    }
+
+
+    /**
+     * 根据任务Id和问卷类型查询
+     * @param taskId
+     * @param questionnaireType
+     * @param status
+     */
+    public List<UserQuestionRecord> listByTaskIdAndType(Integer taskId,Integer questionnaireType ,Integer status){
+        LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserQuestionRecord::getTaskId,taskId);
+        queryWrapper.eq(UserQuestionRecord::getQuestionnaireType,questionnaireType);
+        queryWrapper.eq(UserQuestionRecord::getStatus,status);
+        return baseMapper.selectList(queryWrapper);
     }
 
 }

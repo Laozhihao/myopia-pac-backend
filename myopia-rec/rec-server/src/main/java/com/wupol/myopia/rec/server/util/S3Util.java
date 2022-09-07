@@ -1,6 +1,7 @@
 package com.wupol.myopia.rec.server.util;
 
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.vistel.Interface.aws.S3Client;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.rec.server.config.UploadConfig;
@@ -29,10 +30,6 @@ public class S3Util {
      * 文件路径key
      */
     private static final String S3_KEY_FORMAT = "%s/%s/%s/%s";
-    /**
-     * 文件访问地址
-     */
-    private static final String FILE_URL = "file:url:key_%s";
 
     /**
      * 上传文件到S3
@@ -57,16 +54,9 @@ public class S3Util {
      * @return 文件链接
      */
     public String getResourcePathWithExpiredHours(String s3Key) {
-        String key = String.format(FILE_URL, s3Key);
-//        Object fileUrl = redisUtil.get(key);
-//        if (Objects.nonNull(fileUrl)) {
-//            return fileUrl.toString();
-//        }
-        Date expire = DateUtil.getRecentDate(uploadConfig.getExpiredHours());
+        Date expire = RecUtil.getRecentDate(uploadConfig.getExpiredHours());
         try {
-            String resourceS3Url = s3Client.getResourceS3Url(uploadConfig.getBucketName(), s3Key, expire);
-//            redisUtil.set(key, resourceS3Url, expiredHours * 60L * 60);
-            return resourceS3Url;
+            return s3Client.getResourceS3Url(uploadConfig.getBucketName(), s3Key, expire);
         } catch (UtilException e) {
             log.error(String.format("获取文件链接失败, bucket: %s, key: %s", uploadConfig.getBucketName(), s3Key), e);
             return null;

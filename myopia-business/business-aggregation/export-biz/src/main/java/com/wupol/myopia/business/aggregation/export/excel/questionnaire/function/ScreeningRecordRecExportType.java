@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -25,8 +26,9 @@ public class ScreeningRecordRecExportType implements ExportType {
 
     private static final String ALL_KEY = "%s筛查计划下的rec文件";
     private static final String SCHOOL_KEY = "%s的rec文件";
-    private static final String FILE_EXPORT_EXCEL_ALL = "file:export:excel:screeningRecordRecAll:%s-%s";
-    private static final String FILE_EXPORT_EXCEL_SCHOOL = "file:export:excel:screeningRecordSchoolRec:%s-%s-%s";
+    private static final String ORG_SCHOOL = "%s筛查各学校rec文件";
+    private static final String FILE_EXPORT_REC_ALL = "file:export:rec:screeningRecordRecAll:%s-%s";
+    private static final String FILE_EXPORT_REC_SCHOOL = "file:export:rec:screeningRecordSchoolRec:%s-%s-%s";
 
     @Override
     public Integer getType() {
@@ -47,10 +49,15 @@ public class ScreeningRecordRecExportType implements ExportType {
     public String getLockKey(ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
         if (Objects.isNull(schoolId)){
-            return String.format(FILE_EXPORT_EXCEL_ALL,exportCondition.getApplyExportFileUserId(),exportCondition.getPlanId());
+            return String.format(FILE_EXPORT_REC_ALL,exportCondition.getApplyExportFileUserId(),exportCondition.getPlanId());
         }else {
-            return String.format(FILE_EXPORT_EXCEL_SCHOOL,exportCondition.getApplyExportFileUserId(),exportCondition.getPlanId(),schoolId);
+            return String.format(FILE_EXPORT_REC_SCHOOL,exportCondition.getApplyExportFileUserId(),exportCondition.getPlanId(),schoolId);
         }
+    }
+
+    @Override
+    public String getFolder(Integer id) {
+        return exportTypeFacade.getOrgKey(id,ORG_SCHOOL);
     }
 
     @Override
@@ -66,7 +73,14 @@ public class ScreeningRecordRecExportType implements ExportType {
             //导出计划下的
             Assert.notNull(exportCondition.getScreeningOrgId(),"机构ID不能为空");
         }
+        exportCondition.setDistrictId(null);
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
+        }
+        if (Objects.equals(ExportDataTypeEnum.QUESTIONNAIRE.getCode(),exportCondition.getDataType())){
+            exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireConstant.STUDENT_TYPE));
+        }
 
-        exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE.getType(), QuestionnaireConstant.STUDENT_TYPE));
+
     }
 }

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  * @Des: 视力检查结果
  */
 @Data
-public class VisionResultVO {
+public class VisionResultVO implements Serializable {
     /**
      * 右眼视力
      */

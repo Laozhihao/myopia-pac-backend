@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.export.excel.domain;
+package com.wupol.myopia.business.aggregation.export.excel.domain.bo;
 
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -32,12 +32,17 @@ public class GenerateDataCondition {
      */
     private ExportCondition exportCondition;
     /**
-     * 是否顺序
+     * 是否记分
      */
-    private Boolean isAsc;
+    private Boolean isScore;
 
     /**
      * 用户类型
      */
     private Integer userType;
+
+    /**
+     * 导出问卷类型
+     */
+    private String fileType;
 }

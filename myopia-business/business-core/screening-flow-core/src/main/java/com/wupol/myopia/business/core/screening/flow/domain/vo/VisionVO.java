@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
  * @Des: 视力扩展类
  */
 @Data
-public class VisionVO {
+public class VisionVO implements Serializable {
     /**
      * 佩戴眼镜的类型： {@link com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation}
      */

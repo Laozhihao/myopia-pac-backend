@@ -24,7 +24,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +62,7 @@ public class BigScreeningStatService {
      * @return
      */
     @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
-    public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district) throws IOException {
+    public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district)  {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district.getId());
         //查找map数据
@@ -79,9 +78,8 @@ public class BigScreeningStatService {
      * @param screeningNotice
      * @param districtId
      * @return
-     * @throws IOException
      */
-    private DistrictBigScreenStatistic getDistrictBigScreenStatistic(ScreeningNotice screeningNotice, Integer districtId) throws IOException {
+    private DistrictBigScreenStatistic getDistrictBigScreenStatistic(ScreeningNotice screeningNotice, Integer districtId) {
         if (bigScreeningProperties.isDebug()) {
             return generateResult(districtId, screeningNotice);
         }
@@ -96,9 +94,8 @@ public class BigScreeningStatService {
     /**
      * 调用统计大屏数据
      *
-     * @throws IOException
      */
-    public void statisticBigScreen() throws IOException {
+    public void statisticBigScreen() {
         //找到所有省级部门
         List<GovDept> proviceGovDepts = govDeptService.getProvinceGovDept();
         Set<Integer> govDeptIds = proviceGovDepts.stream().map(GovDept::getId).collect(Collectors.toSet());
@@ -121,9 +118,8 @@ public class BigScreeningStatService {
      *
      * @param provinceDistrictId
      * @param districtIdNotices
-     * @throws IOException
      */
-    public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) throws IOException {
+    public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
             generateResultAndSave(provinceDistrictId, screeningNotice);
         }
@@ -135,10 +131,9 @@ public class BigScreeningStatService {
      * @param provinceDistrictId
      * @param screeningNotice
      * @return
-     * @throws IOException
      */
     @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX,key = "#result.screeningNoticeId + '_' + #result.districtId")
-    public DistrictBigScreenStatistic generateResultAndSave(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
+    public DistrictBigScreenStatistic generateResultAndSave(Integer provinceDistrictId, ScreeningNotice screeningNotice) {
         DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, screeningNotice);
         if (districtBigScreenStatistic != null) {
             districtBigScreenStatisticService.saveOrUpdateByDistrictIdAndNoticeId(districtBigScreenStatistic);
@@ -152,9 +147,8 @@ public class BigScreeningStatService {
      * @param provinceDistrictId
      * @param screeningNotice
      * @return
-     * @throws IOException
      */
-    public DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) throws IOException {
+    public DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) {
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = getByNoticeIdAndDistrictIds(screeningNotice.getId());
         //实际筛查数量

@@ -3,6 +3,8 @@ package com.wupol.myopia.business.common.utils.domain.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 结果通知配置
  *
@@ -10,7 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ResultNoticeConfig {
+public class ResultNoticeConfig implements Serializable {
 
     /**
      * 二维码文件地址

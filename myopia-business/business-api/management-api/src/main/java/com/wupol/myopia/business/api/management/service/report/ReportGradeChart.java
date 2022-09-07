@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.vo.report.*;
@@ -27,7 +27,7 @@ public class ReportGradeChart {
      * 不同班级
      */
     public static void getGradeMonitorChart(List<StatConclusion> statConclusionList, GradeChartVO gradeChartVO) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return;
         }
 
@@ -44,7 +44,7 @@ public class ReportGradeChart {
         List<ChartVO.ChartData> x = Lists.newArrayList();
         List<BigDecimal> valueList = Lists.newArrayList();
 
-        gradeCodeMap = CollectionUtil.sort(gradeCodeMap, String::compareTo);
+        gradeCodeMap = CollUtil.sort(gradeCodeMap, String::compareTo);
         gradeCodeMap.forEach((gradeCode, list) -> {
             String itemName = ReportUtil.getItemName(gradeCode, SchoolAge.VOCATIONAL_HIGH.code);
             x.add(new ChartVO.ChartData(itemName,Lists.newArrayList()));
@@ -59,7 +59,7 @@ public class ReportGradeChart {
 
         chart.setX(x);
         chart.setY(y);
-        chart.setMaxValue(CollectionUtil.max(valueList));
+        chart.setMaxValue(CollUtil.max(valueList));
         setGradeChartVO(gradeChartVO, chart);
     }
 

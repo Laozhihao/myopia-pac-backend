@@ -1,6 +1,6 @@
 package com.wupol.myopia.rec.feign;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.wupol.myopia.rec.domain.ApiResult;
 import com.wupol.myopia.rec.util.TypeUtils;
@@ -41,7 +41,7 @@ public class BusinessServiceCustomDecoder extends Decoder.Default {
             throw new DecodeException(response.status(), "没有返回有效的数据,响应状态: response = " + response.status(), response.request());
         }
         String bodyStr = Util.toString(response.body().asReader(Util.UTF_8));
-        ApiResult result = JSONObject.parseObject(bodyStr, ApiResult.class);
+        ApiResult result = JSON.parseObject(bodyStr, ApiResult.class);
         // 实际数据
         String data = this.parseResult(result);
         // 类型转换
@@ -58,7 +58,7 @@ public class BusinessServiceCustomDecoder extends Decoder.Default {
         int code = result.getCode();
         // code == 200 的情况:
         if (Objects.equals(200,code)) {
-            return JSONObject.toJSONString(result.getData(), SerializerFeature.WriteMapNullValue);
+            return JSON.toJSONString(result.getData(), SerializerFeature.WriteMapNullValue);
         } else {
             throw new RuntimeException(result.getMessage());
         }

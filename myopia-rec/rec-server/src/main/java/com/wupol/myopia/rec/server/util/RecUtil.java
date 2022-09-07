@@ -8,7 +8,7 @@ import java.util.Date;
  *
  * @author hang.yuan 2022/8/12 16:17
  */
-public class DateUtil extends cn.hutool.core.date.DateUtil {
+public class RecUtil extends cn.hutool.core.date.DateUtil {
 
     /**
      * 获取最近日期

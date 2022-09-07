@@ -1,6 +1,8 @@
 package com.wupol.myopia.rec.server.facade;
 
 import com.wupol.myopia.rec.server.util.EpiDataUtil;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -16,13 +18,15 @@ import java.util.Objects;
 @Slf4j
 @Component
 @Order(1)
+@Getter
+@Setter
 public class EpicInit implements CommandLineRunner {
 
-    public static Boolean initStatus = false;
+    private Boolean initStatus = false;
 
     @Override
     public void run(String... args) throws Exception {
-        initStatus = EpiDataUtil.initEpic();
+        setInitStatus(EpiDataUtil.initEpic());
         if(Objects.equals(initStatus,Boolean.TRUE)){
             log.info("EpiC initialized success!");
         }else {

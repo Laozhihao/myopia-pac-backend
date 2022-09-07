@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -136,6 +135,24 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 通过districtId获取层级全名（如：XX省XX市）
+     *
+     * @param districtCode 区域编码
+     * @return 名字
+     */
+    public String getDistrictNameByDistrictCode(Long districtCode) {
+        StringBuilder name = new StringBuilder();
+        List<District> list = getDistrictPositionDetail(districtCode);
+        if (CollectionUtils.isEmpty(list)) {
+            return name.toString();
+        }
+        for (District district : list) {
+            name.append(district.getName());
+        }
+        return name.toString();
+    }
+
+    /**
      * 通过 指定行政区域的层级位置 - 层级链(从省开始到当前层级)  获取层级全名（如：XX省XX市）
      *
      * @param list 区域ID
@@ -158,7 +175,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId 根节点行政区域
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getSpecificDistrictTree(Integer districtId) throws IOException {
+    public List<District> getSpecificDistrictTree(Integer districtId) {
         // 获取以指定行政区域为根节点的行政区域树
         District district = getById(districtId);
         return getSpecificDistrictTreePriorityCache(district.getCode());
@@ -183,12 +200,28 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 获取指定区域下的所有区域ID(包括子集)
+     * @param districtId 区域ID
+     */
+    public List<Integer> filterDistrict(Integer districtId) {
+        if (Objects.isNull(districtId)) {
+            return null;
+        }
+        List<Integer> districtIdList = getSpecificDistrictTreeAllDistrictIds(districtId);
+        if (!districtIdList.contains(districtId)) {
+            districtIdList.add(districtId);
+        }
+        return districtIdList;
+
+    }
+
+    /**
      * 从缓存获取以指定行政区域为根节点的行政区域树
      *
      * @param rootCode 指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) throws IOException {
+    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) {
         // 从缓存获取
         String key = String.format(DistrictCacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
@@ -296,7 +329,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param rootCode  指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public District getSubTreeFromDistrictTree(List<District> districts, long rootCode) throws IOException {
+    public District getSubTreeFromDistrictTree(List<District> districts, long rootCode) {
         String rootCodeStr = String.valueOf(rootCode);
         // 如果不包含“000”，则说明是街道、乡、镇，无下级行政区域。如：110119202-香营乡、110119200-大庄科乡、110119110-井庄镇
         if (!rootCodeStr.contains("000")) {
@@ -702,7 +735,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId) throws IOException {
+    public List<District> getChildDistrictByParentIdPriorityCache(Integer districtId){
         District district = getById(districtId);
         return this.getChildDistrictByParentIdPriorityCache(district.getCode());
     }
@@ -769,9 +802,8 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取下级的所有地区
      *
      * @return
-     * @throws IOException
      */
-    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) throws IOException {
+    public Set<Integer> getChildDistrictIdsByDistrictId(Integer districtId) {
         List<District> districts = getChildDistrictByParentIdPriorityCache(districtId);
         return districts.stream().map(District::getId).collect(Collectors.toSet());
     }
@@ -792,7 +824,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId
      * @return
      */
-    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) throws IOException {
+    public Map<District, Set<Integer>> getCityAllDistrictIds(Integer districtId) {
         List<District> cityDistrictList = getChildDistrictByParentIdPriorityCache(districtId);
         return cityDistrictList.stream().collect(Collectors.toMap(Function.identity(),
                 cityDistrict -> new HashSet<>(getSpecificDistrictTreeAllDistrictIds(cityDistrict.getId()))));
@@ -884,7 +916,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
             // 只保留Area以上的节点
             return keepAreaDistrictsTree(tempList);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BusinessException("异常");
         }
     }
@@ -962,7 +994,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
-     * 只下而上获取区域
+     * 只下而上获取区域，没有层级关系
+     * <p>
+     * 如石牌街道<br/>
+     * 则返回[广东省、广州市、天河区、石牌街道]
+     * </p>
      *
      * @return List<District>
      */

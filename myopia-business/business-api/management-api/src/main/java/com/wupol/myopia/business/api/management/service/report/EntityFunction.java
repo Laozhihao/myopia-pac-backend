@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 
@@ -19,14 +19,14 @@ public class EntityFunction {
 
 
     public <T> Integer getCount(List<T> statConclusionList, Function<T, Boolean> function) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return ReportConst.ZERO;
         }
         return (int) statConclusionList.stream().map(function).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
     }
 
     public <T> Integer getCount(List<T> statConclusionList, Function<T,Integer> mapper, Integer value) {
-        if (CollectionUtil.isEmpty(statConclusionList)) {
+        if (CollUtil.isEmpty(statConclusionList)) {
             return ReportConst.ZERO;
         }
         return (int) statConclusionList.stream().filter(sc -> Objects.equals(mapper.apply(sc), value)).count();
