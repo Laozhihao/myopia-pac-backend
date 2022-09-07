@@ -78,7 +78,6 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
             return;
         }
         for (GenerateRecDataBO generateRecDataBO : generateRecDataBOList) {
-            EpiDataUtil.printJsonData(generateRecDataBO.getDataList());
             String recFileName = answerService.getFileName(buildFileNameCondition(generateRecDataBO.getSchoolId(), QuestionnaireConstant.REC_FILE));
             answerService.exportRecFile(fileName, generateRecDataBO,recFileName);
         }
