@@ -39,7 +39,7 @@ public class VisionItems implements Serializable {
 
     @Getter
     @Setter
-    public static class Item {
+    public static class Item implements Serializable {
         /**
          * 视力
          */

@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.function;
 
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.aggregation.export.excel.constant.RecExportDataTypeEnum;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -59,7 +59,7 @@ public class SchoolStatisticsRecExportType implements ExportType {
     public void preProcess(ExportCondition exportCondition) {
         ExportTypeFacade.checkSchoolId(exportCondition);
         exportCondition.setDistrictId(null);
-        if (Objects.equals(RecExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
+        if (Objects.equals(ExportDataTypeEnum.ARCHIVE_REC.getCode(),exportCondition.getDataType())){
             exportCondition.setQuestionnaireType(Lists.newArrayList(QuestionnaireTypeEnum.ARCHIVE_REC.getType()));
         }
     }

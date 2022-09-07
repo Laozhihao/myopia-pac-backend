@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * 答案数据处理工具
@@ -132,6 +133,16 @@ public class AnswerUtil {
             return QUOTE + qesField.toLowerCase() + QUOTE;
         }
         return null;
+    }
+
+    public  <T>String getValueByString(T t, Function<T,String> function){
+        return numberFormat(getValue(t,function,null));
+    }
+    public  <T>String getValueByInteger(T t, Function<T,Integer> function){
+        return numberFormat(getValue(t,function,null));
+    }
+    public  <T,U> U getValue(T t, Function<T,U> function,U u){
+        return Optional.ofNullable(t).map(function).orElse(u);
     }
 
 }

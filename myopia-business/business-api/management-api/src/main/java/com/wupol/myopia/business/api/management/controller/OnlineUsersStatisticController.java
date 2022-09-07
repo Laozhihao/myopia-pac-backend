@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.api.management.domain.vo.OnlineUserStatisticVO;

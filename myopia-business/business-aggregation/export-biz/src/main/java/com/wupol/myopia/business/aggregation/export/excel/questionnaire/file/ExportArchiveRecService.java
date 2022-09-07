@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -79,6 +80,15 @@ public class ExportArchiveRecService implements QuestionnaireExcel {
 
     }
 
+    /**
+     * 构建生成rec数据对象
+     * @param qesUrlMap qes的地址集合
+     * @param generateRecDataBOList 生成rec数据集合
+     * @param schoolType 学校类型
+     * @param dataList 数据集合
+     * @param archiveQesFieldList 监测表qes字段集合
+     * @param schoolDataList 学校数据集合
+     */
     private void buildGenerateRecDataBO(Map<Integer, String> qesUrlMap, List<GenerateRecDataBO> generateRecDataBOList, Integer schoolType, List<CommonDiseaseArchiveCard> dataList, List<String> archiveQesFieldList, List<CommonDiseaseArchiveCard> schoolDataList) {
         GenerateRecDataBO generateRecDataBO = new GenerateRecDataBO();
         generateRecDataBO.setQesUrl(qesUrlMap.get(schoolType));
@@ -101,24 +111,43 @@ public class ExportArchiveRecService implements QuestionnaireExcel {
         generateRecDataBOList.add(generateRecDataBO);
     }
 
+    /**
+     * 获取文件名称
+     * @param schoolType 学校类型
+     * @param schoolName 学校名称
+     */
     private String getFileName(Integer schoolType, String schoolName) {
-        String fileNameTmp = "%s的%s(%s)的rec文件";
+
         if (Objects.equals(schoolType, SchoolTypeEnum.KINDERGARTEN.getType())) {
-            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.KINDERGARTEN.getDesc() + "版");
+            return getFormatName(schoolName,SchoolTypeEnum.KINDERGARTEN.getDesc());
         }
 
         if (Objects.equals(schoolType, SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType())) {
-            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.PRIMARY_AND_SECONDARY.getDesc() + "版");
+            return getFormatName(schoolName,SchoolTypeEnum.PRIMARY_AND_SECONDARY.getDesc());
         }
 
         if (Objects.equals(schoolType, SchoolTypeEnum.UNIVERSITY.getType())) {
-            return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), SchoolTypeEnum.UNIVERSITY.getDesc() + "版");
+            return getFormatName(schoolName,SchoolTypeEnum.UNIVERSITY.getDesc());
         }
         return StrUtil.EMPTY;
 
     }
 
+    /**
+     * 获取格式化后的名称
+     * @param schoolName 学校名称
+     * @param suffix 后缀
+     */
+    private String getFormatName(String schoolName,String suffix){
+        String fileNameTmp = "%s的%s(%s)的rec文件";
+        schoolName = FileNameUtil.cleanInvalid(schoolName);
+        return String.format(fileNameTmp, schoolName, QuestionnaireTypeEnum.ARCHIVE_REC.getDesc(), suffix+ "版");
+    }
 
+    /**
+     * 获取学校类型集合
+     * @param archiveData 监测数据
+     */
     private Map<Integer, List<CommonDiseaseArchiveCard>> getSchoolTypeMap(List<CommonDiseaseArchiveCard> archiveData) {
         Map<Integer, List<CommonDiseaseArchiveCard>> schoolTypeMap = Maps.newHashMap();
         for (CommonDiseaseArchiveCard archiveCard : archiveData) {
@@ -134,6 +163,9 @@ public class ExportArchiveRecService implements QuestionnaireExcel {
         return schoolTypeMap;
     }
 
+    /**
+     * 获取监测表qes文件地址集合
+     */
     private Map<Integer, String> getQesUrl() {
         List<QuestionnaireQes> archiveQesList = questionnaireQesService.getArchiveQesByName(QuestionnaireTypeEnum.ARCHIVE_REC.getDesc());
         if (CollUtil.isEmpty(archiveQesList)) {

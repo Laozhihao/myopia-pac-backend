@@ -5,11 +5,9 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -98,19 +96,11 @@ public class ArchiveService {
 
 
     /**
-     * 筛查计划ID和学校ID获取监测表数据
+     * 获取监测表数据
      * @param exportCondition 导出条件
      */
     public List<CommonDiseaseArchiveCard> getArchiveData(ExportCondition exportCondition){
-        List<ScreeningPlan> screeningPlanList = Lists.newArrayList();
-        if (Objects.nonNull(exportCondition.getPlanId())){
-            Optional.ofNullable(screeningPlanService.getByIdAndStatus(exportCondition.getPlanId(),CommonConst.STATUS_RELEASE))
-                    .ifPresent(screeningPlanList::add);
-        }
-        if (Objects.nonNull(exportCondition.getNotificationId())){
-            List<ScreeningPlan> screeningPlans = screeningPlanService.getPlanByNoticeIdAndStatus(exportCondition.getNotificationId(), CommonConst.STATUS_RELEASE);
-            screeningPlanList.addAll(screeningPlans);
-        }
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getReleasePlanByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(), exportCondition.getTaskId(), exportCondition.getPlanId());
 
         if (CollUtil.isEmpty(screeningPlanList)){
             throw new BusinessException("无法找到该筛查计划");
@@ -353,15 +343,12 @@ public class ArchiveService {
         if (!Objects.equals(exportCondition.getExportType(),ExportTypeConst.SCHOOL_STATISTICS_REC)){
             return;
         }
-        Set<Integer> planIds = Sets.newHashSet();
-        if (Objects.nonNull(exportCondition.getNotificationId())){
-            List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(exportCondition.getNotificationId());
-            Set<Integer> ids = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
-            planIds.addAll(ids);
+
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getReleasePlanByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        if (CollUtil.isEmpty(screeningPlanList)){
+            throw new BusinessException("暂无筛查计划");
         }
-        if (Objects.nonNull(exportCondition.getPlanId())){
-            planIds.add(exportCondition.getPlanId());
-        }
+        Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndIsDoubleScreenAndDistrictIds(Lists.newArrayList(planIds), Boolean.FALSE,null,exportCondition.getSchoolId());
         exceptionInfo(CollUtil.isEmpty(visionScreeningResultList));
     }
@@ -374,7 +361,10 @@ public class ArchiveService {
         if (!Objects.equals(exportCondition.getExportType(),ExportTypeConst.DISTRICT_STATISTICS_REC)){
             return;
         }
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getAllReleasePlanByNoticeId(exportCondition.getNotificationId());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getReleasePlanByNoticeIdOrTaskIdOrPlanId(exportCondition.getNotificationId(),exportCondition.getTaskId(),exportCondition.getPlanId());
+        if (CollUtil.isEmpty(screeningPlanList)){
+            throw new BusinessException("暂无筛查计划");
+        }
         Set<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
         List<Integer> districtIdList = districtService.filterDistrict(exportCondition.getDistrictId());
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndIsDoubleScreenAndDistrictIds(Lists.newArrayList(planIds), Boolean.FALSE,districtIdList,null);
@@ -388,6 +378,9 @@ public class ArchiveService {
     private void screeningRecord(ExportCondition exportCondition) {
         if (!Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCREENING_RECORD_REC)){
             return;
+        }
+        if (Objects.isNull(exportCondition.getPlanId())){
+            throw new BusinessException("筛查计划ID不能为空");
         }
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(exportCondition.getPlanId(), Boolean.FALSE,exportCondition.getSchoolId());
         exceptionInfo(CollUtil.isEmpty(visionScreeningResultList));
