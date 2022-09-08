@@ -3,7 +3,6 @@ alter table m_device
 alter table m_device
     add mac_address varchar(32) null comment 'MAC地址' after type;
 
--- auto-generated definition
 create table h_image_original
 (
     id          int auto_increment comment 'id'
