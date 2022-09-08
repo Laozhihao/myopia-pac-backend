@@ -85,6 +85,8 @@ public class StudentScreeningProgressVO {
     private Integer otherStatus;
     /** 身高体重 */
     private Integer heightWeightStatus;
+    /** 盲及视力损害分类 */
+    private Integer visualLossLevelStatus;
     /**
      * 未做检查说明
      */
@@ -141,7 +143,7 @@ public class StudentScreeningProgressVO {
         if (Objects.isNull(screeningResult)) {
             return studentScreeningProgressVO.setVisionStatus(UNCHECK_MUST).setEyePositionStatus(UNCHECK_MUST).setSliLampStatus(isKindergarten ? UNCHECK : UNCHECK_MUST).setDiopterStatus(isKindergarten ? UNCHECK : UNCHECK_MUST)
                     .setPupillaryOptometryStatus(UNCHECK).setBiometricsStatus(UNCHECK).setPressureStatus(UNCHECK).setFundusStatus(UNCHECK).setOtherStatus(UNCHECK)
-                    .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST)
+                    .setSaprodontiaStatus(UNCHECK).setSpineStatus(UNCHECK_MUST).setVisualLossLevelStatus(UNCHECK)
                     .setBloodPressureStatus(UNCHECK).setDiseasesHistoryStatus(UNCHECK_MUST).setPrivacyStatus(UNCHECK)
                     .setHeightWeightStatus(UNCHECK).setResult(false).setHasAbnormal(false)
                     .setGradeName(studentVO.getGrade()).setClassName(studentVO.getClazz())
@@ -155,6 +157,7 @@ public class StudentScreeningProgressVO {
         // 判断各个检查型的进度状态
         studentScreeningProgressVO.setVisionStatus(getProgress(screeningResult.getVisionData(), true, true));
         studentScreeningProgressVO.setEyePositionStatus(getProgress(screeningResult.getOcularInspectionData(), true,true));
+        studentScreeningProgressVO.setVisualLossLevelStatus(getProgress(screeningResult.getVisualLossLevelData(), false,false));
         Boolean firstCheckAbnormal = hasAbnormalInFirstCheck.get();
         studentScreeningProgressVO.setSliLampStatus(getProgress(screeningResult.getSlitLampData(), !isKindergarten, !isKindergarten || firstCheckAbnormal));
         studentScreeningProgressVO.setDiopterStatus(getProgress(screeningResult.getComputerOptometry(), !isKindergarten, !isKindergarten));
