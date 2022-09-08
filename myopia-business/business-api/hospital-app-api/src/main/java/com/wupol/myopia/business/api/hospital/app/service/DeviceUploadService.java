@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vistel.Interface.util.ReturnInformation;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomDTO;
@@ -69,6 +71,9 @@ public class DeviceUploadService {
     @Resource
     private ImageDetailService imageDetailService;
 
+    @Resource
+    private RedisUtil redisUtil;
+
 
     /**
      * 眼底检查数据上传
@@ -79,9 +84,13 @@ public class DeviceUploadService {
      */
     @Transactional(rollbackFor = Exception.class)
     public String fundusUpload(DeviceRequestDTO requestDTO) {
-        String path = null;
+        String path = StringUtils.EMPTY;
+        String md5 = StringUtils.EMPTY;
         try {
             DicomDTO dicomDTO = preCheckAndGetDicomDTO(requestDTO);
+            // 设置进行中,有效期30分钟
+            md5 = dicomDTO.getMd5();
+            redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_MD5, md5), true, 1800L);
             TwoTuple<String, String> upload = UploadUtil.upload(requestDTO.getPic(), uploadConfig.getSavePath());
             path = upload.getSecond();
             ZipUtil.unzip(path);
@@ -130,6 +139,8 @@ public class DeviceUploadService {
         } finally {
             // 删除临时文件
             deletedFile(path);
+            // 删除redis
+            redisUtil.del(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_MD5, md5));
         }
     }
 
