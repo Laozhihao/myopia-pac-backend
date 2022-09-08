@@ -145,11 +145,11 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         }
         if (Objects.nonNull(tosca)) medicalRecord.setTosca(tosca);
         if (Objects.nonNull(eyePressure)) medicalRecord.setEyePressure(eyePressure);
-        if (!updateById(medicalRecord)) {
-            throw new BusinessException("修改失败");
-        }
         if (Objects.nonNull(fundus)) {
             medicalRecord.setFundus(fundus);
+        }
+        if (!updateById(medicalRecord)) {
+            throw new BusinessException("修改失败");
         }
     }
 

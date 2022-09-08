@@ -167,8 +167,10 @@ public class MedicalRecordController {
 
     /**
      * 获取该学生的最新的眼底影像
+     *
      * @param studentId 学生Id
-     * @return
+     *
+     * @return FundusMedicalRecord
      */
     @GetMapping("/fundus")
     public FundusMedicalRecord getTodayLastFundusMedicalRecord(Integer studentId) {
@@ -177,6 +179,13 @@ public class MedicalRecordController {
         return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getFundus()) ? new FundusMedicalRecord() : medicalRecord.getFundus();
     }
 
+    /**
+     * 保存该学生的最新的眼底影像
+     *
+     * @param fundusMedicalRecord 眼底影像
+     *
+     * @return Boolean
+     */
     @PostMapping("/fundus")
     public Boolean createFundusMedicalRecord(@RequestBody FundusMedicalRecord fundusMedicalRecord) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
