@@ -68,7 +68,7 @@ public class MedicalRecord implements Serializable {
      * 眼底检查
      */
     @TableField(typeHandler = FundusMedicalRecordTypeHandler.class)
-    private ToscaMedicalRecord fundus;
+    private FundusMedicalRecord fundus;
 
     /** 眼压 */
     @TableField(typeHandler = EyePressureTypeHandler.class)

@@ -18,6 +18,11 @@ import java.util.List;
 public class FundusMedicalRecord implements Serializable {
 
     /**
+     * 学生id
+     */
+    private Integer studentId;
+
+    /**
      * 影像列表
      */
     private List<Integer> imageIdList;

@@ -110,15 +110,17 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     /**
      * 追加检查检查数据到检查单
-     * @param consultation    问诊
-     * @param vision    视力检查检查数据
-     * @param biometrics    生物测量检查数据
-     * @param diopter    屈光检查数据
-     * @param tosca    角膜地形图检查数据
-     * @param hospitalId 医院id
+     *
+     * @param consultation 问诊
+     * @param vision       视力检查检查数据
+     * @param biometrics   生物测量检查数据
+     * @param diopter      屈光检查数据
+     * @param tosca        角膜地形图检查数据
+     * @param fundus       眼底影像
+     * @param hospitalId   医院id
      * @param departmentId 科室id
-     * @param doctorId 医生id
-     * @param studentId 学生id
+     * @param doctorId     医生id
+     * @param studentId    学生id
      */
     public void addCheckDataToMedicalRecord(Consultation consultation,
                                             VisionMedicalRecord vision,
@@ -126,6 +128,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                             DiopterMedicalRecord diopter,
                                             ToscaMedicalRecord tosca,
                                             EyePressure eyePressure,
+                                            FundusMedicalRecord fundus,
                                             Integer hospitalId,
                                             Integer departmentId,
                                             Integer doctorId,
@@ -144,6 +147,9 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(eyePressure)) medicalRecord.setEyePressure(eyePressure);
         if (!updateById(medicalRecord)) {
             throw new BusinessException("修改失败");
+        }
+        if (Objects.nonNull(fundus)) {
+            medicalRecord.setFundus(fundus);
         }
     }
 
