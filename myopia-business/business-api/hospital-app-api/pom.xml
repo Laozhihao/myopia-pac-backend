@@ -38,6 +38,11 @@
             <artifactId>hospital-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>device-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 </project>
