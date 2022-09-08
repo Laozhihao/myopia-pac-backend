@@ -5,10 +5,13 @@ import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vistel.Interface.util.ReturnInformation;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomDTO;
+import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomJsonDTO;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
@@ -18,6 +21,10 @@ import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceService;
+import com.wupol.myopia.business.core.hospital.domain.model.ImageDetail;
+import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
+import com.wupol.myopia.business.core.hospital.service.ImageDetailService;
+import com.wupol.myopia.business.core.hospital.service.ImageOriginalService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +63,12 @@ public class DeviceUploadService {
     @Resource
     private StudentService studentService;
 
+    @Resource
+    private ImageOriginalService imageOriginalService;
+
+    @Resource
+    private ImageDetailService imageDetailService;
+
 
     /**
      * 眼底检查数据上传
@@ -93,18 +106,23 @@ public class DeviceUploadService {
             }
 
             // 上传原始文件
-            ResourceFile sourceFileZip = resourceFileService.uploadFileAndSave(requestDTO.getPic());
+            Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId());
 
             // 读取DICOM,JSON文件信息
             FileReader fileReader = new FileReader(StrUtil.removeSuffix(path, ".zip") + "/" + dicomDTO.getBase());
             String dicomJson = fileReader.readString();
+            if (StringUtils.isBlank(dicomJson)) {
+                throw new BusinessException("JSON数据为空");
+            }
+
+            List<ImageDetail> imageDetailList = new ArrayList<>();
 
             // 上传图片信息
             for (File imageFile : fileList) {
                 ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFileAndDeleteTempFile(imageFile, imageFile.getName());
+                imageDetailList.add(getImageDetail(originalImageId, resourceFile.getId(), dicomDTO, dicomJson));
             }
-
-
+            imageDetailService.saveBatch(imageDetailList);
             return ReturnInformation.returnSuccess();
         } catch (Exception e) {
             log.error("眼底影像上传异常,请求参数:{}", JSON.toJSONString(requestDTO), e);
@@ -130,6 +148,11 @@ public class DeviceUploadService {
         }
         DicomDTO dicomDTO = dicomDTOS.get(0);
         Integer deviceId = dicomDTO.getDeviceId();
+
+        if (Objects.isNull(dicomDTO.getMd5())) {
+            log.error("获取MD5异常！参数:{}", JSON.toJSONString(requestDTO));
+            throw new BusinessException("获取MD5异常！");
+        }
 
         Device device = deviceService.getById(deviceId);
         if (Objects.isNull(deviceId) || Objects.isNull(device)) {
@@ -170,5 +193,48 @@ public class DeviceUploadService {
         FileUtil.del(path);
         // 删除文件夹
         FileUtil.del(s);
+    }
+
+    /**
+     * 保存原始文件
+     *
+     * @param dicomDTO dicom数据
+     * @param fileId   文件Id
+     */
+    private Integer saveOriginalImage(DicomDTO dicomDTO, Integer fileId) {
+        if (Objects.nonNull(imageOriginalService.getByMd5(dicomDTO.getMd5()))) {
+            throw new BusinessException("DICOM数据重复！");
+        }
+        ImageOriginal imageOriginal = new ImageOriginal();
+        imageOriginal.setFileId(fileId);
+        imageOriginal.setPatientId(dicomDTO.getPatientId());
+        imageOriginal.setHospitalId(dicomDTO.getHospitalId());
+        imageOriginal.setDeviceId(dicomDTO.getDeviceId());
+        imageOriginal.setMd5(dicomDTO.getMd5());
+        imageOriginalService.save(imageOriginal);
+        return imageOriginal.getId();
+    }
+
+    /**
+     * 获取文件详情
+     *
+     * @param originalImageId 原始压缩包Id
+     * @param fileId          文件Id
+     * @param dicomDTO        dicomDTO
+     * @param dicomJson       dicomJson数据
+     *
+     * @return ImageDetail
+     */
+    private ImageDetail getImageDetail(Integer originalImageId, Integer fileId,
+                                       DicomDTO dicomDTO, String dicomJson) throws JsonProcessingException {
+        ImageDetail imageDetail = new ImageDetail();
+        imageDetail.setImageOriginalId(originalImageId);
+        imageDetail.setFileId(fileId);
+        imageDetail.setPatientId(dicomDTO.getPatientId());
+        imageDetail.setHospitalId(dicomDTO.getHospitalId());
+        imageDetail.setDcmJson(dicomJson);
+        DicomJsonDTO dicomJsonDTO = new ObjectMapper().readValue(dicomJson, DicomJsonDTO.class);
+        imageDetail.setBatchNo(dicomJsonDTO.getBatch());
+        return imageDetail;
     }
 }

@@ -51,6 +51,11 @@ public class ImageOriginal implements Serializable {
     private Integer deviceId;
 
     /**
+     * md5
+     */
+    private String md5;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

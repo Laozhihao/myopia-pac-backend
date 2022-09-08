@@ -1,15 +1,25 @@
 package com.wupol.myopia.business.core.hospital.service;
 
-import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
-import com.wupol.myopia.business.core.hospital.domain.mapper.ImageOriginalMapper;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.hospital.domain.mapper.ImageOriginalMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
 import org.springframework.stereotype.Service;
 
 /**
- * @Author Simple4H
- * @Date 2022-09-08
+ * @author Simple4H
  */
 @Service
 public class ImageOriginalService extends BaseService<ImageOriginalMapper, ImageOriginal> {
+
+    /**
+     * 通过md5获取
+     *
+     * @param md5 md5
+     *
+     * @return ImageOriginal
+     */
+    public ImageOriginal getByMd5(String md5) {
+        return findOne(new ImageOriginal().setMd5(md5));
+    }
 
 }
