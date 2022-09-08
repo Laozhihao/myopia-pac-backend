@@ -179,6 +179,9 @@ public class DeviceUploadService {
             log.error("患者信息异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("患者信息异常！");
         }
+
+        // TODO: 是否合作
+
         return dicomDTO;
     }
 
