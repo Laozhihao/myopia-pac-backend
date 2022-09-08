@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -14,6 +15,7 @@ import java.util.Arrays;
  * @Date 2021/4/012 16:50
  * @Author by xz
  */
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Accessors(chain = true)

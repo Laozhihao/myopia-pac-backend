@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo.report;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.service.report.EntityFunction;

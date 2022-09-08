@@ -203,6 +203,18 @@ public class ExcelUtil {
     }
 
     /**
+     * 根据模板导出excel
+     * @param fileNamePrefix 文件或文件夹
+     * @param templateInputStream 模板
+     * @param data 数据
+     */
+    public static File exportExcel(String fileNamePrefix, InputStream templateInputStream, List<?> data) throws IOException {
+        File outputFile = getFile(fileNamePrefix);
+        EasyExcelFactory.write(outputFile.getAbsolutePath()).withTemplate(templateInputStream).sheet().doFill(data);
+        return outputFile;
+    }
+
+    /**
      * 导出excel,表头动态生成
      * @param fileNamePrefix 文件名前缀
      * @param data 数据

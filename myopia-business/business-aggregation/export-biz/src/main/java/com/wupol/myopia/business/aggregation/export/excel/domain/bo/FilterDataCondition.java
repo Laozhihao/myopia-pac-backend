@@ -16,7 +16,16 @@ import java.util.List;
 @Accessors(chain = true)
 public class FilterDataCondition {
 
+    /**
+     * 用户问卷记录集合
+     */
     private List<UserQuestionRecord> userQuestionRecordList;
+    /**
+     * 问卷类型
+     */
     private QuestionnaireTypeEnum questionnaireTypeEnum;
+    /**
+     * 地区ID
+     */
     private Integer districtId;
 }
