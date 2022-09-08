@@ -298,4 +298,23 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         }
         return StringUtils.EMPTY;
     }
+
+    /**
+     * 获取学生今天最后一条眼底影像数据
+     *
+     * @param hospitalId 医院id
+     * @param studentId  学生id
+     */
+    public FundusMedicalRecord getTodayLastFundusMedicalRecord(Integer hospitalId, Integer studentId) {
+        MedicalRecord medicalRecord = getTodayLastMedicalRecord(hospitalId, studentId);
+        if (Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getFundus())) {
+            return new FundusMedicalRecord();
+        }
+        FundusMedicalRecord fundus = medicalRecord.getFundus();
+        List<Integer> imageIdList = fundus.getImageIdList();
+        if (!CollectionUtils.isEmpty(imageIdList)) {
+            fundus.setImageUrlList(resourceFileService.getBatchResourcePath(imageIdList));
+        }
+        return medicalRecord.getFundus();
+    }
 }

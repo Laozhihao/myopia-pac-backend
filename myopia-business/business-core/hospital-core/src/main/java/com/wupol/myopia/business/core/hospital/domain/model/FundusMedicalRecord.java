@@ -23,7 +23,12 @@ public class FundusMedicalRecord implements Serializable {
     private Integer studentId;
 
     /**
-     * 影像列表
+     * 影像FileIds列表
      */
     private List<Integer> imageIdList;
+
+    /**
+     * 影像列表
+     */
+    private List<String> imageUrlList;
 }

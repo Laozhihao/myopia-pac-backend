@@ -175,8 +175,7 @@ public class MedicalRecordController {
     @GetMapping("/fundus")
     public FundusMedicalRecord getTodayLastFundusMedicalRecord(Integer studentId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        MedicalRecord medicalRecord = medicalRecordService.getTodayLastMedicalRecord(user.getOrgId(), studentId);
-        return Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getFundus()) ? new FundusMedicalRecord() : medicalRecord.getFundus();
+        return medicalRecordService.getTodayLastFundusMedicalRecord(user.getOrgId(), studentId);
     }
 
     /**
