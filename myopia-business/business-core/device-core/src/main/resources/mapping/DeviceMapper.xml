@@ -59,6 +59,9 @@
             <if test="query.startSaleDate != null and query.endSaleDate != null">
                 and DATE(sale_date) between DATE(#{query.startSaleDate}) and DATE(#{query.endSaleDate})
             </if>
+            <if test="query.orgType != null and query.orgType != ''">
+                and org_type = #{query.orgType}
+            </if>
         </trim>
         order by id desc
     </select>
