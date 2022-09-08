@@ -294,7 +294,7 @@ public class DeviceBizService {
         Assert.notNull(pageRequest, "分页参数为空");
         // 获取指定名称的机构集
         if (Objects.nonNull(deviceDTO) && StringUtils.hasText(deviceDTO.getBindingScreeningOrgName())) {
-            List<Integer> ids = getAllByNames(deviceDTO.getBindingScreeningOrgName());
+            List<Integer> ids = getByNames(deviceDTO.getOrgType(), deviceDTO.getBindingScreeningOrgName()).stream().map(DeviceOrgListResponseDTO::getOrgId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(ids)) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
@@ -396,19 +396,5 @@ public class DeviceBizService {
      */
     private <T extends HasName> List<DeviceOrgListResponseDTO> convert2Dto(List<T> t) {
         return t.stream().map(s -> new DeviceOrgListResponseDTO(s.getId(), s.getName())).collect(Collectors.toList());
-    }
-
-    /**
-     * 通过名字获取机构
-     *
-     * @param name 名字
-     *
-     * @return ids
-     */
-    private List<Integer> getAllByNames(String name) {
-        List<Integer> collect1 = screeningOrganizationService.getByName(name).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
-        List<Integer> collect2 = hospitalService.getHospitalByName(name, null).stream().map(Hospital::getId).collect(Collectors.toList());
-        List<Integer> collect3 = schoolService.getBySchoolName(name).stream().map(School::getId).collect(Collectors.toList());
-        return Lists.newArrayList(Iterables.concat(collect1, collect2, collect3));
     }
 }
