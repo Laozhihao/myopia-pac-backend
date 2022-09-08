@@ -98,6 +98,17 @@ public final class FileUtils {
     }
 
     /**
+     * 获取文件保存路径
+     *
+     * @param parentPath 文件父路径
+     * @param fileName   文件名
+     * @return 文件保存路径
+     **/
+    public static String getFileSavePath(String parentPath, String fileName) {
+        return Paths.get(parentPath, fileName).toString();
+    }
+
+    /**
      * 是否包含文件
      * @param srcFile 父文件或父文件夹
      */

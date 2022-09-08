@@ -48,6 +48,12 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
     }
 
 
+    /**
+     * 获取有效的用户问卷记录信息
+     * @param userQuestionRecordList 用户问卷记录集合
+     * @param districtId 地区ID
+     * @param schoolId 学校ID
+     */
     private List<UserQuestionRecord> getUserQuestionRecordList(List<UserQuestionRecord> userQuestionRecordList, Integer districtId,Integer schoolId) {
         if (CollUtil.isEmpty(userQuestionRecordList)) {
             return userQuestionRecordList;
@@ -63,7 +69,7 @@ public class SchoolAnswerImpl extends AbstractUserAnswer {
             schoolStream = schoolStream.filter(school -> Objects.equals(school.getId(), schoolId));
         }
 
-        if (Objects.nonNull(districtIdList)) {
+        if (CollUtil.isNotEmpty(districtIdList)) {
             schoolStream = schoolStream.filter(school -> districtIdList.contains(school.getDistrictId()));
         }
         List<Integer> schoolIdList = schoolStream.map(School::getId).collect(Collectors.toList());

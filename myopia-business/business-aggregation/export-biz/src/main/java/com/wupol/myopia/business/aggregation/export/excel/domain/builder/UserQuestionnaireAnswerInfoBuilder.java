@@ -40,12 +40,33 @@ import java.util.stream.Collectors;
 @Builder
 public class UserQuestionnaireAnswerInfoBuilder {
 
+    /**
+     * 用户问卷记录集合
+     */
     private List<UserQuestionRecord> userQuestionRecordList;
+    /**
+     * 用户问卷记录对应答案集合
+     */
     private Map<Integer, List<UserAnswer>> userAnswerMap;
+    /**
+     * 隐藏问题集合
+     */
     private List<HideQuestionRecDataBO> hideQuestionDataBOList;
+    /**
+     * 筛查计划下学生信息集合
+     */
     private Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap;
+    /**
+     * 学校集合
+     */
     private Map<Integer, School> schoolMap;
+    /**
+     * 用户类型
+     */
     private Integer userType;
+    /**
+     * 问卷类型
+     */
     private QuestionnaireTypeEnum questionnaireTypeEnum;
 
 
@@ -61,16 +82,19 @@ public class UserQuestionnaireAnswerInfoBuilder {
 
         List<UserQuestionnaireAnswerBO> userQuestionnaireAnswerBOList = Lists.newArrayList();
 
+        //问卷系统学生端处理
         if (Objects.equals(userType, UserType.QUESTIONNAIRE_STUDENT.getType())){
             //学生ID对应的问卷记录信息集合
             Map<Integer, List<UserQuestionRecord>> studentMap = userQuestionRecordList.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
             studentMap.forEach((studentId,recordList)-> userQuestionnaireAnswerBOList.add(processStudentData(studentId,recordList)));
         }
 
+        //问卷系统学校端处理
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
             setSchoolData(userQuestionnaireAnswerBOList,UserType.QUESTIONNAIRE_SCHOOL.getType());
         }
 
+        //问卷系统政府端处理
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){
             if (Objects.equals(questionnaireTypeEnum,QuestionnaireTypeEnum.AREA_DISTRICT_SCHOOL)){
 
@@ -186,6 +210,10 @@ public class UserQuestionnaireAnswerInfoBuilder {
         }
     }
 
+    /**
+     * 问卷对应的答案集合
+     * @param userAnswers 用户问题集合
+     */
     private Map<Integer, List<OptionAnswer>> getQuestionAnswerMap(List<UserAnswer> userAnswers) {
         Map<Integer, List<UserAnswer>> questionUserAnswerMap  = userAnswers.stream().collect(Collectors.groupingBy(UserAnswer::getQuestionId));
         Map<Integer, List<OptionAnswer>> questionAnswerMap = Maps.newHashMap();
@@ -212,7 +240,8 @@ public class UserQuestionnaireAnswerInfoBuilder {
                     return optionAnswer;
                 });
             }
-            if (Objects.equals(answer.getType(),"classTable")){
+            if (Objects.equals(answer.getType(),"classTable")
+                    || Objects.equals(answer.getType(),"classTable2")){
                 String tableJson = answer.getTableJson();
 
                 JSONObject jsonObject = JSON.parseObject(tableJson);

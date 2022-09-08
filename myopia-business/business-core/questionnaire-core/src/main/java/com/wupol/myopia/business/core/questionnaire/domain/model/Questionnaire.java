@@ -1,9 +1,6 @@
 package com.wupol.myopia.business.core.questionnaire.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.questionnaire.domain.dto.QuestionnaireInfoDTO;
@@ -75,7 +72,7 @@ public class Questionnaire implements Serializable {
     /**
      * 页面json数据
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
+    @TableField(typeHandler = JacksonTypeHandler.class, updateStrategy = FieldStrategy.IGNORED)
     private List<QuestionnaireInfoDTO> pageJson;
 
     /**

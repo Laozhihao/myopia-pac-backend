@@ -65,4 +65,9 @@ public class CommonDiseaseArchiveCard {
      */
     private PrivacyDataDO privacyData;
 
+    /**
+     * 筛查结果--其他眼病
+     */
+    private OtherEyeDiseasesDO otherEyeDiseases;
+
 }

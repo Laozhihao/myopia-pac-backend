@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -176,7 +175,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param districtId 根节点行政区域
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getSpecificDistrictTree(Integer districtId) throws IOException {
+    public List<District> getSpecificDistrictTree(Integer districtId) {
         // 获取以指定行政区域为根节点的行政区域树
         District district = getById(districtId);
         return getSpecificDistrictTreePriorityCache(district.getCode());
@@ -222,7 +221,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param rootCode 指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) throws IOException {
+    public List<District> getSpecificDistrictTreePriorityCache(long rootCode) {
         // 从缓存获取
         String key = String.format(DistrictCacheKey.DISTRICT_TREE, rootCode);
         Object cacheList = redisUtil.get(key);
@@ -330,7 +329,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @param rootCode  指定的行政区域代码编号
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public District getSubTreeFromDistrictTree(List<District> districts, long rootCode) throws IOException {
+    public District getSubTreeFromDistrictTree(List<District> districts, long rootCode) {
         String rootCodeStr = String.valueOf(rootCode);
         // 如果不包含“000”，则说明是街道、乡、镇，无下级行政区域。如：110119202-香营乡、110119200-大庄科乡、110119110-井庄镇
         if (!rootCodeStr.contains("000")) {
@@ -917,7 +916,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             ArrayList<District> tempList = Lists.newArrayList(Iterables.concat(districts, districtList));
             // 只保留Area以上的节点
             return keepAreaDistrictsTree(tempList);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BusinessException("异常");
         }
     }

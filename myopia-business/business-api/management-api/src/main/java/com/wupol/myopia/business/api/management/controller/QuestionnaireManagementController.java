@@ -233,7 +233,8 @@ public class QuestionnaireManagementController {
                 .setQuestionnaireType(exportQuestionnaireDTO.getQuestionnaireType())
                 .setScreeningOrgId(exportQuestionnaireDTO.getScreeningOrgId())
                 .setNotificationId(exportQuestionnaireDTO.getScreeningNoticeId())
-                .setTaskId(exportQuestionnaireDTO.getTaskId());
+                .setTaskId(exportQuestionnaireDTO.getTaskId())
+                .setDataType(exportQuestionnaireDTO.getDataType());
 
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.QUESTIONNAIRE_SERVICE);
     }

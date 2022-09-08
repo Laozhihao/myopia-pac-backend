@@ -32,12 +32,17 @@ public class GenerateDataCondition {
      */
     private ExportCondition exportCondition;
     /**
-     * 是否顺序
+     * 是否记分
      */
-    private Boolean isAsc;
+    private Boolean isScore;
 
     /**
      * 用户类型
      */
     private Integer userType;
+
+    /**
+     * 导出问卷类型
+     */
+    private String fileType;
 }

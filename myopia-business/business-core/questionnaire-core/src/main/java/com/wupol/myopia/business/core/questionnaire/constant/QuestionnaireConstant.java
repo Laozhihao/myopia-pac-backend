@@ -168,6 +168,11 @@ public class QuestionnaireConstant {
     public static final String DATE_FORMAT ="yyyy/MM/dd";
 
     /**
+     * 站位符合
+     */
+    public static final String PLACEHOLDER = "-{%s}";
+
+    /**
      * 获取省、地市及区（县）管理部门学校卫生工作调查表问卷
      * @return 问卷类型集合
      */
@@ -220,7 +225,7 @@ public class QuestionnaireConstant {
      * @return 问卷类型集合
      */
     public static List<Integer> getVisionSpine(){
-        return Lists.newArrayList(QuestionnaireTypeEnum.VISION_SPINE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
+        return Lists.newArrayList(QuestionnaireTypeEnum.QUESTIONNAIRE_NOTICE.getType(),QuestionnaireTypeEnum.VISION_SPINE.getType());
     }
 
 
