@@ -86,9 +86,9 @@ public class Device implements Serializable {
     private Integer type;
 
     /**
-     * MAC地址
+     * 蓝牙MAC地址
      */
-    private String macAddress;
+    private String bluetoothMac;
 
     /**
      * 更新时间

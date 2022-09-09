@@ -22,7 +22,7 @@
                 <if test="@Ognl@isNotEmpty(saleDate)">and `sale_date` = #{saleDate}</if>
                 <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
                 <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
-                <if test="@Ognl@isNotEmpty(macAddress)">and `mac_address` = #{macAddress}</if>
+                <if test="@Ognl@isNotEmpty(bluetoothMac)">and `bluetooth_mac` = #{bluetoothMac}</if>
                 <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
                 <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
             </trim>
@@ -31,7 +31,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, device_sn, device_code, salesperson_name, salesperson_phone, binding_screening_org_id, org_type, customer_name, customer_phone, sale_date, remark, status, type, mac_address, update_time, create_time
+        id, device_sn, device_code, salesperson_name, salesperson_phone, binding_screening_org_id, org_type, customer_name, customer_phone, sale_date, remark, status, type, bluetooth_mac, update_time, create_time
     </sql>
 
     <select id="getPageByLikeQuery" resultMap="BaseResultMap">

@@ -114,9 +114,9 @@ public class DeviceDTO {
     private Integer type;
 
     /**
-     * MAC地址
+     * 蓝牙MAC地址
      */
-    private String macAddress;
+    private String bluetoothMac;
 
     /**
      * 筛查机构ID集

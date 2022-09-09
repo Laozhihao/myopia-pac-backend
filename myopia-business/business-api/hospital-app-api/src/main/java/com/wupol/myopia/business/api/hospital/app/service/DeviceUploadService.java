@@ -195,7 +195,7 @@ public class DeviceUploadService {
             throw new BusinessException("获取设备异常！");
         }
         // 检查mac地址是否相同
-        if (!StringUtils.equals(device.getMacAddress(), dicomDTO.getMacAddress())) {
+        if (!StringUtils.equals(device.getBluetoothMac(), dicomDTO.getMacAddress())) {
             log.error("mac地址异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("mac地址异常！");
         }
