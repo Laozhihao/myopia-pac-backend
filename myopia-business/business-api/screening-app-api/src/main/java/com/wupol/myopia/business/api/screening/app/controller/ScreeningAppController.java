@@ -1009,6 +1009,11 @@ public class ScreeningAppController {
      **/
     @PostMapping("/update/planStudent")
     public void updatePlanStudent(@RequestBody @Valid UpdatePlanStudentRequestDTO requestDTO) {
+        // 如果护照、身份证都为空，则直接更新筛查学生
+        if (StringUtils.isAllBlank(requestDTO.getIdCard(), requestDTO.getPassport())) {
+            screeningPlanStudentBizService.updateAppPlanStudent(requestDTO);
+            return;
+        }
         screeningPlanStudentBizService.updatePlanStudent(requestDTO);
     }
 
