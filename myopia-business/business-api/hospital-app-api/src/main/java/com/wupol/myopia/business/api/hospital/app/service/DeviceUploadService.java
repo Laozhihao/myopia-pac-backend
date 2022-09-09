@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vistel.Interface.util.ReturnInformation;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomDTO;
@@ -24,8 +25,10 @@ import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.domain.model.ImageDetail;
 import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.ImageDetailService;
 import com.wupol.myopia.business.core.hospital.service.ImageOriginalService;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -75,6 +78,9 @@ public class DeviceUploadService {
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private HospitalService hospitalService;
 
 
     /**
@@ -215,7 +221,14 @@ public class DeviceUploadService {
             throw new BusinessException("患者信息异常！");
         }
 
-        // TODO: 是否合作
+        Hospital hospital = hospitalService.getById(dicomDTO.getHospitalId());
+        if (Objects.isNull(dicomDTO.getHospitalId()) || Objects.isNull(hospital)) {
+            log.error("医院信息异常！参数:{}", JSON.toJSONString(requestDTO));
+            throw new BusinessException("医院信息异常！");
+        }
+        if (Objects.equals(StatusConstant.DISABLE, hospital.getCooperationStopStatus())) {
+            throw new BusinessException("医院已经禁用");
+        }
 
         return dicomDTO;
     }
