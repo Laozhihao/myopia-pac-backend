@@ -611,6 +611,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * @return 名称
      */
     public String getDistrictName(Long code) {
+        if (Objects.isNull(code)) {
+            return StringUtils.EMPTY;
+        }
         String key = String.format(DistrictCacheKey.DISTRICT_CN_NAME, code);
 
         // 先从缓存中取
