@@ -14,6 +14,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomJsonDTO;
+import com.wupol.myopia.business.api.hospital.app.domain.dto.FundusImageDTO;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 设备数据上传
@@ -85,12 +87,12 @@ public class DeviceUploadService {
     @Transactional(rollbackFor = Exception.class)
     public String fundusUpload(DeviceRequestDTO requestDTO) {
         String path = StringUtils.EMPTY;
-        String md5 = StringUtils.EMPTY;
+        Integer patientId = null;
         try {
             DicomDTO dicomDTO = preCheckAndGetDicomDTO(requestDTO);
+            patientId = dicomDTO.getPatientId();
             // 设置进行中,有效期30分钟
-            md5 = dicomDTO.getMd5();
-            redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_MD5, md5), true, 1800L);
+            redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId), "ing", 1800L);
             TwoTuple<String, String> upload = UploadUtil.upload(requestDTO.getPic(), uploadConfig.getSavePath());
             path = upload.getSecond();
             ZipUtil.unzip(path);
@@ -140,8 +142,30 @@ public class DeviceUploadService {
             // 删除临时文件
             deletedFile(path);
             // 删除redis
-            redisUtil.del(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_MD5, md5));
+            redisUtil.del(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
         }
+    }
+
+    /**
+     * 获取患者当天眼底影像
+     *
+     * @param patientId  患者Id
+     * @param hospitalId 医院Id
+     *
+     * @return 眼底影像
+     */
+    public List<FundusImageDTO> getPatientFundusFile(Integer patientId, Integer hospitalId) {
+        Object obj = redisUtil.get(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
+        if (Objects.nonNull(obj)) {
+            throw new BusinessException("正在解析影像中");
+        }
+        List<ImageDetail> todayPatientFundusFile = imageDetailService.getTodayPatientFundusFile(patientId, hospitalId);
+        return todayPatientFundusFile.stream().map(s -> {
+            FundusImageDTO fundusImageDTO = new FundusImageDTO();
+            fundusImageDTO.setFileId(s.getFileId());
+            fundusImageDTO.setFileUrl(resourceFileService.getResourcePath(s.getFileId()));
+            return fundusImageDTO;
+        }).collect(Collectors.toList());
     }
 
     /**

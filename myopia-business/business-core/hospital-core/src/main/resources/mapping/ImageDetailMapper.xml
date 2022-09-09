@@ -28,4 +28,12 @@
         id, image_original_id, file_id, patient_id, hospital_id, dcm_json, batch_no, create_time, update_time
     </sql>
 
+    <select id="getTodayPatientFundusFile" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from h_image_detail
+        where patient_id = #{patientId}
+          and hospital_id = #{hospitalId}
+          and date(create_time) = CURDATE()
+    </select>
 </mapper>

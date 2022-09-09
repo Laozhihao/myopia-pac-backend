@@ -194,6 +194,6 @@ public interface RedisConstant {
     /**
      * 医院眼底影像上传
      */
-    String HOSPITAL_DEVICE_UPLOAD_FUNDUS_MD5 = "hospital:device:upload:fundus:md5:%s";
+    String HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT = "hospital:device:upload:fundus:patient:%s";
 
 }
