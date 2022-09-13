@@ -102,4 +102,14 @@ public class CardInfoVO {
      * 学龄段
      */
     private Integer schoolType;
+
+    /**
+     * 市描述
+     */
+    private String cityDesc;
+
+    /**
+     * 区描述
+     */
+    private String areaDesc;
 }
