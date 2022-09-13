@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.hospital.app.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.FundusImageDTO;
 import com.wupol.myopia.business.api.hospital.app.service.DeviceUploadService;
@@ -42,14 +44,13 @@ public class DcmUploadController {
     /**
      * 获取眼底影像
      *
-     * @param patientId  患者Id
-     * @param hospitalId 医院Id
+     * @param patientId 患者Id
      *
      * @return ReturnInformation
      */
     @GetMapping(value = "/getPatientFundusFile")
-    public ApiResult<List<FundusImageDTO>> getPatientFundusFile(@NotNull(message = "患者Id不能为空") Integer patientId,
-                                                                @NotNull(message = "医院Id不能为空")Integer hospitalId) {
-        return ApiResult.success(deviceUploadService.getPatientFundusFile(patientId, hospitalId));
+    public ApiResult<List<FundusImageDTO>> getPatientFundusFile(@NotNull(message = "患者Id不能为空") Integer patientId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return ApiResult.success(deviceUploadService.getPatientFundusFile(patientId, user.getOrgId()));
     }
 }
