@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisualLossLevelDataDO;
@@ -59,9 +60,9 @@ public class VisualLossLevelDataDTO extends ScreeningResultBasicData implements 
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         VisualLossLevelDataDO visualLossLevelDataDO = new VisualLossLevelDataDO();
         VisualLossLevelDataDO.VisualLossLevelData leftData = new VisualLossLevelDataDO.VisualLossLevelData();
-        leftData.setLateriality(0).setLevel(leftVisualLossLevel);
+        leftData.setLateriality(CommonConst.LEFT_EYE).setLevel(leftVisualLossLevel);
         VisualLossLevelDataDO.VisualLossLevelData rightData = new VisualLossLevelDataDO.VisualLossLevelData();
-        rightData.setLateriality(1).setLevel(rightVisualLossLevel);
+        rightData.setLateriality(CommonConst.RIGHT_EYE).setLevel(rightVisualLossLevel);
         visualLossLevelDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative());
         visualLossLevelDataDO.setCreateUserId(getCreateUserId());
         visualLossLevelDataDO.setUpdateTime(getUpdateTime());

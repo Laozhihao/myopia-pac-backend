@@ -191,112 +191,13 @@ public class VisionScreeningBizService {
 
         // 初筛
         if (!isDoubleScreening && Objects.nonNull(firstResult)) {
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISION) && Objects.nonNull(firstResult.getVisionData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getVisionData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY) && Objects.nonNull(firstResult.getComputerOptometry())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getComputerOptometry().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_MULTI_CHECK) && Objects.nonNull(firstResult.getFundusData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getFundusData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_OCULAR_INSPECTION) && Objects.nonNull(firstResult.getOcularInspectionData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getOcularInspectionData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_FUNDUS) && Objects.nonNull(firstResult.getFundusData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getFundusData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SLIT_LAMP) && Objects.nonNull(firstResult.getSlitLampData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSlitLampData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL) && Objects.nonNull(firstResult.getVisualLossLevelData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getVisualLossLevelData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC) && Objects.nonNull(firstResult.getBiometricData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getBiometricData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_PUPIL_OPTOMETRY) && Objects.nonNull(firstResult.getPupilOptometryData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getPupilOptometryData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_EYE_PRESSURE) && Objects.nonNull(firstResult.getEyePressureData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getEyePressureData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_OTHER_EYE_DISEASE) && Objects.nonNull(firstResult.getOtherEyeDiseases())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getOtherEyeDiseases().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT) && Objects.nonNull(firstResult.getHeightAndWeightData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getHeightAndWeightData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_DEVIATION) && Objects.nonNull(firstResult.getDeviationData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getDeviationData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SAPRODONTIA) && Objects.nonNull(firstResult.getSaprodontiaData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSaprodontiaData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_SPINE) && Objects.nonNull(firstResult.getSpineData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getSpineData().getUpdateTime())){
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_BLOOD_PRESSURE) && Objects.nonNull(firstResult.getBloodPressureData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getBloodPressureData().getUpdateTime())){
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_DISEASES_HISTORY) && Objects.nonNull(firstResult.getDiseasesHistoryData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getDiseasesHistoryData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_PRIVACY) && Objects.nonNull(firstResult.getPrivacyData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(firstResult.getPrivacyData().getUpdateTime())) {
-                    throw exception;
-                }
+            if (!screeningResultBasicData.isNewerUpdateTime(screeningResultBasicData.getDataType(), firstResult)) {
+                throw exception;
             }
         } else if (Objects.nonNull(secondResult)){
             // 复测
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_VISION) && Objects.nonNull(secondResult.getVisionData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getVisionData().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY) && Objects.nonNull(secondResult.getComputerOptometry())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getComputerOptometry().getUpdateTime())) {
-                    throw exception;
-                }
-            }
-            if (screeningResultBasicData.getDataType().equals(ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT) && Objects.nonNull(secondResult.getHeightAndWeightData())) {
-                if (!screeningResultBasicData.isNewerUpdateTime(secondResult.getHeightAndWeightData().getUpdateTime())) {
-                    throw exception;
-                }
+            if (!screeningResultBasicData.isNewerUpdateTime(screeningResultBasicData.getDataType(), secondResult)) {
+                throw exception;
             }
         }
 

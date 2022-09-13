@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
@@ -64,10 +65,10 @@ public class FundusDataDTO extends ScreeningResultBasicData implements Serializa
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
         FundusDataDO fundusDataDO = new FundusDataDO();
         FundusDataDO.FundusData leftData = new FundusDataDO.FundusData();
-        leftData.setLateriality(0)
+        leftData.setLateriality(CommonConst.LEFT_EYE)
                 .setHasAbnormal(leftHasAbnormal);
         FundusDataDO.FundusData rightData = new FundusDataDO.FundusData();
-        rightData.setLateriality(1)
+        rightData.setLateriality(CommonConst.RIGHT_EYE)
                 .setHasAbnormal(rightHasAbnormal);
         fundusDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setRemark(remark).setIsCooperative(getIsCooperative());
         fundusDataDO.setCreateUserId(getCreateUserId());
