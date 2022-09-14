@@ -38,7 +38,7 @@ public class AppVersion implements Serializable {
     private String packageName;
 
     /**
-     * 渠道，例如：Official-官方、HaiKou-海口、KunMing-昆明、JinCheng-晋城、YunCheng-运城
+     * 渠道，例如：Official-官方、HaiNan-海南、KunMing-昆明、JinCheng-晋城、YunCheng-运城
      */
     private String channel;
 
