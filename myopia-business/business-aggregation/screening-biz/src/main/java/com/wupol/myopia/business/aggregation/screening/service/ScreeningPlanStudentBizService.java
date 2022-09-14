@@ -533,5 +533,4 @@ public class ScreeningPlanStudentBizService {
         checkStudentSno(updatePlanStudent);
         screeningPlanSchoolStudentService.updateById(updatePlanStudent);
     }
-
 }
