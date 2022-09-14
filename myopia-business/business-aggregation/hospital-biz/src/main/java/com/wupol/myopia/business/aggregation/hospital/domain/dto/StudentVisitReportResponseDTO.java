@@ -61,6 +61,11 @@ public class StudentVisitReportResponseDTO {
      */
     private EyePressure eyePressure;
 
+    /**
+     * 眼底影像列表
+     */
+    private List<String> fundusImageUrlList;
+
     @Getter
     @Setter
     public static class StudentInfo {
