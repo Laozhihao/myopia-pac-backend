@@ -470,14 +470,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      **/
     public String getLatestSchoolNo(String districtAreaCode, Integer areaType, Integer monitorType) {
         List<School> schoolList = findByList(new School().setDistrictAreaCode(Long.valueOf(districtAreaCode)));
-        // 学校编号（12位） = 省（2位）+ 市（2位）+ 片区（1位）+ 区/镇/县（2位）+ 监测点（1位） + 自增序号（4位）
+        // 学校编号（13位） = 省（2位）+ 市（2位）+ 片区（1位）+ 区/镇/县（2位）+ 监测点（1位） + 自增序号（5位）
         String schoolNoPrefix = districtAreaCode.substring(0, 4) + areaType + districtAreaCode.substring(4, 6) + monitorType;
         if (CollectionUtils.isEmpty(schoolList)) {
             return schoolNoPrefix + "01";
         }
         // 同一区/镇/县的行政区域的序号递增，不考虑片区、监测点。由原来的2位增加到4位，原因：海口美兰区的学校已经破百 20220914。
         int maxSerialNumber = schoolList.stream().map(School::getSchoolNo).mapToInt(x -> Integer.parseInt(x.substring(x.length() - 2))).max().orElse(0);
-        return schoolNoPrefix + String.format("%04d", maxSerialNumber + 1);
+        return schoolNoPrefix + String.format("%05d", maxSerialNumber + 1);
     }
 
     /**
