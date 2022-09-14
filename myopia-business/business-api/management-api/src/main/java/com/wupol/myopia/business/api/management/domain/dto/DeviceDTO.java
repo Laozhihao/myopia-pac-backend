@@ -36,7 +36,7 @@ public class DeviceDTO {
      * 设备唯一id
      */
     @NotBlank(message = "设备唯一标志码不能为空", groups = {DeviceUpdateValidatorGroup.class, DeviceAddValidatorGroup.class})
-    @Length(max = 30, message = "设备唯一标志码超长")
+    @Length(max = 32, message = "设备唯一标志码超长")
     private String deviceSn;
 
     /**
