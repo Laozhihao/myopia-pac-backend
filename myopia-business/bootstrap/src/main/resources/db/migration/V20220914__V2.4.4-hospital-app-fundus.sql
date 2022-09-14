@@ -35,3 +35,5 @@ create table h_image_detail
 
 alter table h_medical_record
     add fundus json null comment '眼底检查' after `tosca`;
+
+alter table m_device add constraint m_device_pk unique (bluetooth_mac);
