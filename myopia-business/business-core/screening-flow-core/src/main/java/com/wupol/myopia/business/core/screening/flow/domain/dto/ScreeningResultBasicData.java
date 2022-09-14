@@ -127,7 +127,7 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
             default: return false;
         }
 
-        if (Objects.isNull(abstractDiagnosisResult.getUpdateTime())) {return true;}
+        if (Objects.isNull(abstractDiagnosisResult) || Objects.isNull(abstractDiagnosisResult.getUpdateTime())) {return true;}
         if (Objects.isNull(updateTime)) {return false;}
         return updateTime > abstractDiagnosisResult.getUpdateTime();
 
