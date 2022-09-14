@@ -65,6 +65,10 @@ public enum GradeCodeEnum {
     /**
      * 幼儿园
      */
+
+    /**
+     * 托班
+     */
     CARE_CLASSES_KINDERGARTEN("托班", "50", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN"),
     ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN"),
     TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
