@@ -386,7 +386,7 @@ public class ScreeningOrganizationController {
     @GetMapping("getByName")
     public List<ScreeningOrganization> getByName(String name) {
         Assert.notNull(name, "筛查机构名称不能为空");
-        return screeningOrganizationService.getByNameLike(name);
+        return screeningOrganizationService.getByNameLike(name,Boolean.TRUE);
     }
 
     /**

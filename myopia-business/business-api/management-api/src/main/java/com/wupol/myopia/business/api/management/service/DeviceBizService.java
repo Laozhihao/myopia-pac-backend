@@ -277,7 +277,7 @@ public class DeviceBizService {
         Assert.notNull(pageRequest, "分页参数为空");
         // 获取指定名称的筛查机构集
         if (Objects.nonNull(deviceDTO) && StringUtils.hasText(deviceDTO.getBindingScreeningOrgName())) {
-            List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByNameLike(deviceDTO.getBindingScreeningOrgName());
+            List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByNameLike(deviceDTO.getBindingScreeningOrgName(),Boolean.FALSE);
             List<Integer> ids = screeningOrgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(ids)) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());

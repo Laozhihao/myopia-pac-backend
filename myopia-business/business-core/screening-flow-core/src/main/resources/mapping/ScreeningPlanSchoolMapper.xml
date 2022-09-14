@@ -176,10 +176,34 @@
                msps.school_id         as schoolId,
                msps.screening_org_id  as screeningOrgId
         from m_screening_plan_school msps
-                 left join m_screening_plan msp on msps.screening_plan_id = msp.id
+        left join m_screening_plan msp on msps.screening_plan_id = msp.id
         where msp.screening_type = 0
           and msp.release_status = 1
           and msps.school_id = #{schoolId}
+        order by msps.create_time desc
+    </select>
+
+    <select id="listByCondition"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
+        select msps.screening_plan_id as planId,
+               msps.school_id         as schoolId,
+               msp.screening_org_id  as screeningOrgId
+               msp.screening_org_type  as screeningOrgType
+        from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
+        left join m_screening_plan msp on msps.screening_plan_id = msp.id
+        where msp.release_status = 1
+        <if test="@Ognl@isNotEmpty(param.screeningType)">
+            and msp.screening_type = #{param.screeningType}
+        </if>
+        <if test="param.title != null and param.title != ''">
+            and msp.title like CONCAT('%', #{param.title}, '%')
+        </if>
+        <if test="param.screeningOrgIds != null and param.screeningOrgIds.size() != 0">
+            and msp.screening_org_id IN
+            <foreach collection="param.screeningOrgIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
         order by msps.create_time desc
     </select>
 

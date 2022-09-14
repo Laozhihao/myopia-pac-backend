@@ -480,7 +480,7 @@ public class ScreeningPlanStudentBizService {
         if (StringUtils.isBlank(mockPlanStudentQueryDTO.getScreeningOrgNameLike())) {
             return Collections.emptySet();
         }
-        List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike());
+        List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByNameLike(mockPlanStudentQueryDTO.getScreeningOrgNameLike(),Boolean.FALSE);
         if (CollectionUtils.isEmpty(screeningOrganizations)) {
             return Collections.emptySet();
         }

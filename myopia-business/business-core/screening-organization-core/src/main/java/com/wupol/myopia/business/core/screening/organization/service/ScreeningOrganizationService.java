@@ -236,9 +236,11 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param screeningOrgNameLike 机构名称
      * @return List<ScreeningOrganization>
      */
-    public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike) {
+    public List<ScreeningOrganization> getByNameLike(String screeningOrgNameLike,boolean isDistrictDetail) {
         List<ScreeningOrganization> orgList = baseMapper.getByName(screeningOrgNameLike);
-        orgList.forEach(org -> org.setDistrictDetailName(districtService.getDistrictName(org.getDistrictDetail())));
+        if (Objects.equals(isDistrictDetail,Boolean.TRUE)){
+            orgList.forEach(org -> org.setDistrictDetailName(districtService.getDistrictName(org.getDistrictDetail())));
+        }
         return orgList;
     }
 
@@ -358,7 +360,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param releaseStatus   计划状态
      * @return 筛查状态 0-未开始 1-进行中 2-已结束
      */
-    public Integer getScreeningStatus(Date startDate, Date endDate, Integer releaseStatus) {
+    public static Integer getScreeningStatus(Date startDate, Date endDate, Integer releaseStatus) {
         if (CommonConst.STATUS_ABOLISH.equals(releaseStatus)) {
             return 3;
         }

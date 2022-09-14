@@ -65,7 +65,7 @@ public class ManagementScreeningPlanBizService {
         }
 
         if (StringUtils.isNotBlank(query.getScreeningOrgNameLike())) {
-            List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike()).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+            List<Integer> orgIds = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameLike(),Boolean.FALSE).stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
                 // 可以直接返回空
                 return new Page<>();

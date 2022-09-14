@@ -146,7 +146,7 @@ public class StudentBizService {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // 筛查码
-            student.setScreeningCodes(getScreeningCodesByPlan(studentPlans.get(student.getId())));
+            student.setScreeningCodes(studentFacade.getScreeningCodesByPlan(studentPlans.get(student.getId())));
             // 就诊次数
             student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
             // 问卷次数
@@ -230,21 +230,6 @@ public class StudentBizService {
         studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
     }
 
-    /**
-     * 通过学生Id获取学生信息
-     *
-     * @param id 学生Id
-     * @return StudentDTO
-     */
-    public StudentDTO getStudentById(Integer id) {
-        StudentDTO student = studentService.getStudentById(id);
-        student.setScreeningCodes(getScreeningCode(id));
-        student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
-        if (Objects.nonNull(student.getCommitteeCode())) {
-            student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
-        }
-        return student;
-    }
 
     /**
      * 删除学生
@@ -286,7 +271,7 @@ public class StudentBizService {
         } else {
             studentDTO.setNumOfVisits(0);
         }
-        studentDTO.setScreeningCodes(getScreeningCode(student.getId()));
+        studentDTO.setScreeningCodes(studentFacade.getScreeningCode(student.getId()));
         return studentDTO;
     }
 
@@ -546,30 +531,6 @@ public class StudentBizService {
         }
     }
 
-    /**
-     * 获取学生编号
-     *
-     * @param studentPlans 筛查学生计划
-     * @return 编号
-     */
-    private List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
-        if (CollectionUtils.isEmpty(studentPlans)) {
-            return Collections.emptyList();
-        }
-        return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
-                .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    /**
-     * 通过学生Id获取编码
-     *
-     * @param studentId 学生Id
-     * @return 编号
-     */
-    private List<Long> getScreeningCode(Integer studentId) {
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
-        return getScreeningCodesByPlan(planStudentList);
-    }
 
     /**
      * 判断是否要修改委会行政区域

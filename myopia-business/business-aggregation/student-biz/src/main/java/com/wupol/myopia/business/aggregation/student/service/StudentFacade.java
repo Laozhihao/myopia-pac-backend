@@ -1337,4 +1337,44 @@ public class StudentFacade {
         }
     }
 
+    /**
+     * 通过学生Id获取学生信息
+     *
+     * @param id 学生Id
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = studentService.getStudentById(id);
+        student.setScreeningCodes(getScreeningCode(id));
+        student.setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(student.getBirthday(), new Date()));
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
+        }
+        return student;
+    }
+
+    /**
+     * 通过学生Id获取编码
+     *
+     * @param studentId 学生Id
+     * @return 编号
+     */
+    public List<Long> getScreeningCode(Integer studentId) {
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
+        return getScreeningCodesByPlan(planStudentList);
+    }
+
+    /**
+     * 获取学生编号
+     *
+     * @param studentPlans 筛查学生计划
+     * @return 编号
+     */
+    public List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
+        if (CollectionUtils.isEmpty(studentPlans)) {
+            return Collections.emptyList();
+        }
+        return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
+                .filter(Objects::nonNull).collect(Collectors.toList());
+    }
 }

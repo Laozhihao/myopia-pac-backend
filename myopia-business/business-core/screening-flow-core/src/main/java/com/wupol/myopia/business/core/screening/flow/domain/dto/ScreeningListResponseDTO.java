@@ -26,6 +26,11 @@ public class ScreeningListResponseDTO {
     private Integer screeningOrgId;
 
     /**
+     * 筛查机构类型
+     */
+    private Integer screeningOrgType;
+
+    /**
      * 筛查计划Id
      */
     private Integer planId;

@@ -20,6 +20,11 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
+import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
@@ -108,13 +113,13 @@ public class VisionScreeningController {
     /**
      * 获取学校计划
      *
-     * @param pageRequest 分页请求
+     * @param screeningPlanListDTO 筛查计划列表查询对象
      * @return IPage<ScreeningListResponseDTO>
      */
     @GetMapping("list")
-    public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest) {
+    public IPage<ScreeningListResponseDTO> getList(ScreeningPlanListDTO screeningPlanListDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return visionScreeningService.getList(pageRequest, currentUser.getOrgId());
+        return visionScreeningService.getList(screeningPlanListDTO, currentUser.getOrgId());
     }
 
     /**
@@ -386,5 +391,64 @@ public class VisionScreeningController {
     @GetMapping("/studentData")
     public VisionScreeningResult studentData(@RequestParam Integer resultId) {
         return visionScreeningResultService.getById(resultId);
+    }
+
+    /**
+     * 创建/编辑筛查计划
+     * @param screeningPlanDTO 创建/编辑筛查计划对象
+     */
+    @PostMapping("/save")
+    public void saveScreeningPlan(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        visionScreeningService.saveScreeningPlan(screeningPlanDTO,currentUser);
+    }
+
+    /**
+     * 删除筛查计划
+     * @param screeningPlanId 筛查计划ID
+     */
+    @DeleteMapping("/delete/{screeningPlanId}")
+    public void deleteScreeningPlan(@PathVariable("screeningPlanId") Integer screeningPlanId){
+        // 判断是否已发布
+        visionScreeningService.validateExistWithReleaseStatus(screeningPlanId);
+        visionScreeningService.deleteScreeningPlan(screeningPlanId);
+    }
+
+    /**
+     * 发布筛查计划
+     * @param screeningPlanId 筛查计划ID
+     */
+    @PutMapping("/release/{screeningPlanId}")
+    public void releaseScreeningPlan(@PathVariable("screeningPlanId") Integer screeningPlanId){
+        visionScreeningService.releaseScreeningPlan(screeningPlanId);
+    }
+
+    /**
+     * 获取筛查学生列表
+     * @param studentListDTO 学生查询条件对象
+     */
+    @GetMapping("/student/list")
+    public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO){
+        return visionScreeningService.studentList(studentListDTO);
+    }
+
+    /**
+     * 新增筛查学生
+     * @param addScreeningStudentDTO 新增筛查学校对象
+     */
+    @PostMapping("/addScreeningStudent")
+    public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO){
+        visionScreeningService.addScreeningStudent(addScreeningStudentDTO);
+    }
+
+    /**
+     * 学生筛查详情
+     * @param screeningPlanId 筛查计划ID
+     * @param screeningPlanStudentId 筛查计划学生ID
+     */
+    @GetMapping("/studentScreeningDetail")
+    public StudentScreeningDetailVO studentScreeningDetail(@RequestParam Integer screeningPlanId,
+                                                           @RequestParam Integer screeningPlanStudentId){
+        return visionScreeningService.studentScreeningDetail(screeningPlanId,screeningPlanStudentId);
     }
 }

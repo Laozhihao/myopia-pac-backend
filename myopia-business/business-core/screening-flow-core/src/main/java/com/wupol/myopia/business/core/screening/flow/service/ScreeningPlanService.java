@@ -13,11 +13,13 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,12 +87,23 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     /**
      * 发布计划
      *
-     * @param id
-     * @return
+     * @param id 筛查计划ID
+     * @param user 当前用户
      */
     public Boolean release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
         ScreeningPlan screeningPlan = getById(id);
+        return release(screeningPlan,user);
+    }
+
+    /**
+     * 发布计划
+     *
+     * @param screeningPlan 筛查计划
+     * @param user 当前用户
+     */
+    public Boolean release(ScreeningPlan screeningPlan, CurrentUser user) {
+        //1. 更新状态&发布时间
         screeningPlan.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         return updateById(screeningPlan, user.getId());
     }
@@ -401,4 +414,26 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         return list(new LambdaQueryWrapper<ScreeningPlan>().eq(ScreeningPlan::getScreeningTaskId, taskId));
     }
 
+    /**
+     * 学校自主筛查创建/编辑筛查计划
+     * @param screeningPlan 筛查计划
+     * @param screeningPlanSchool 筛查计划学校
+     * @param twoTuple 筛查计划学校学生
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple) {
+        boolean saveOrUpdate = saveOrUpdate(screeningPlan);
+        if (Objects.equals(Boolean.TRUE,saveOrUpdate)){
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
+            screeningPlanSchoolStudentService.deleteByStudentIds(twoTuple.getSecond());
+            screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
+            screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
+                if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
+                    screeningPlanSchoolStudent.setScreeningPlanId(screeningPlan.getId());
+                }
+            });
+            screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
+            screeningPlanSchoolStudentService.saveOrUpdateBatch(screeningPlanSchoolStudentList);
+        }
+    }
 }

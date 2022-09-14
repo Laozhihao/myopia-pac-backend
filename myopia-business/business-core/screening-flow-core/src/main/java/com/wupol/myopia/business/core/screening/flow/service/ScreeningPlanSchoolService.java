@@ -4,10 +4,12 @@ import cn.hutool.core.lang.Assert;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanListDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolMapper;
@@ -119,6 +121,16 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
+     * 删除筛查计划中学校信息
+     *
+     * @param screeningPlanId 筛查计划ID
+     */
+    public void deleteByPlanId(Integer screeningPlanId){
+        baseMapper.delete(Wrappers.lambdaQuery(ScreeningPlanSchool.class)
+                .eq(ScreeningPlanSchool::getScreeningPlanId,screeningPlanId));
+    }
+
+    /**
      * 查询已有计划的学校 （层级ID列表与筛查机构ID必须有一个不为空）
      *
      * @param districtIds             层级ID列表
@@ -226,6 +238,14 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public IPage<ScreeningListResponseDTO> getReleasePlanSchoolPageBySchoolId(PageRequest pageRequest, Integer schoolId) {
         return baseMapper.getReleasePlanSchoolPageBySchoolId(pageRequest.toPage(), schoolId);
+    }
+
+    /**
+     * 通过筛查条件查询列表
+     * @param screeningPlanListDTO 筛查条件对象
+     */
+    public IPage<ScreeningListResponseDTO> listByCondition(ScreeningPlanListDTO screeningPlanListDTO) {
+        return baseMapper.listByCondition(screeningPlanListDTO.toPage(), screeningPlanListDTO);
     }
 
 

@@ -116,15 +116,41 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     *  删除筛查计划中学校学生信息
+     *
+     * @param screeningPlanId 筛查计划ID
+     */
+    public void deleteByPlanId(Integer screeningPlanId){
+        baseMapper.delete(Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
+                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanId));
+    }
+
+    /**
      * 根据计划ID获取所有筛查学生
      *
      * @param screeningPlanId
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanId(screeningPlanId);
-        return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        return getByScreeningPlanId(screeningPlanId,Boolean.TRUE);
     }
+
+    /**
+     * 根据计划ID获取所有筛查学生
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param isSchoolDistrictId 是否获取学校区域ID
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId,Boolean isSchoolDistrictId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanId(screeningPlanId);
+        if (Objects.equals(Boolean.TRUE,isSchoolDistrictId)){
+            return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        }else {
+            return screeningPlanSchoolStudentList;
+        }
+    }
+
 
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
         if (CollectionUtils.isEmpty(screeningPlanIds)){

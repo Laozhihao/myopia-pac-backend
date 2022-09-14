@@ -109,7 +109,7 @@ public class StudentController {
      */
     @GetMapping("{id}")
     public StudentDTO getStudent(@PathVariable("id") Integer id) {
-        return studentBizService.getStudentById(id);
+        return studentFacade.getStudentById(id);
     }
 
     /**

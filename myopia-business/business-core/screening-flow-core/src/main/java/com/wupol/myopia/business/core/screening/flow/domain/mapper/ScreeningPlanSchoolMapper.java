@@ -3,10 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import org.apache.ibatis.annotations.Param;
 
@@ -50,6 +48,8 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
     Long getCurrentMaxScreeningCode();
 
     IPage<ScreeningListResponseDTO> getReleasePlanSchoolPageBySchoolId(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
+
+    IPage<ScreeningListResponseDTO> listByCondition(@Param("page") Page<?> page, @Param("param") ScreeningPlanListDTO screeningPlanListDTO);
 
     /**
      * 获取指定学校及筛查类型信息

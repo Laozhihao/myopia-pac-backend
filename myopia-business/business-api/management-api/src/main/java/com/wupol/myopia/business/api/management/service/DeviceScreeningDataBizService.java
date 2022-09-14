@@ -43,7 +43,7 @@ public class DeviceScreeningDataBizService {
         Page<DeviceScreeningData> page = (Page<DeviceScreeningData>) pageRequest.toPage();
         // 如果筛查条件有机构名称，转化为id
         if (StringUtils.isNotBlank(query.getScreeningOrgNameSearch())) {
-            List<ScreeningOrganization> byNameLike = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameSearch());
+            List<ScreeningOrganization> byNameLike = screeningOrganizationService.getByNameLike(query.getScreeningOrgNameSearch(),Boolean.FALSE);
             List<Integer> orgIds = byNameLike.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(orgIds)) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());

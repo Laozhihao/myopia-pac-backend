@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.school.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -254,6 +255,18 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      */
     public List<SchoolGrade> getBySchoolId(Integer schoolId) {
         return baseMapper.getBySchoolId(schoolId);
+    }
+
+    /**
+     * 根据学校Id获取所有年级
+     *
+     * @param schoolId 学校ID
+     * @return 年级集合
+     */
+    public List<SchoolGrade> listBySchoolId(Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolGrade.class)
+                .eq(SchoolGrade::getSchoolId,schoolId)
+                .eq(SchoolGrade::getStatus,0));
     }
 
     /**

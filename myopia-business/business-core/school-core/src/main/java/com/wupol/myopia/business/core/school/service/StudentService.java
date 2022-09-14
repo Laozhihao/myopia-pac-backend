@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.school.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -672,4 +674,15 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return SourceClientEnum.SCREENING_PLAN.type.equals(student.getSourceClient());
     }
 
+    /**
+     * 根据学校ID和年级ID获取学生集合
+     * @param schoolId 学校ID
+     * @param gradeIds 年级ID集合
+     */
+    public List<Student> listBySchoolIdAndGradeIds(Integer schoolId,List<Integer> gradeIds){
+        LambdaQueryWrapper<Student> queryWrapper = Wrappers.lambdaQuery(Student.class)
+                .eq(Student::getSchoolId, schoolId)
+                .in(Student::getGradeId, gradeIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }
