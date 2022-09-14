@@ -65,6 +65,7 @@ public enum GradeCodeEnum {
     /**
      * 幼儿园
      */
+    CARE_CLASSES_KINDERGARTEN("托班", "50", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN"),
     ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN"),
     TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
     THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN");
@@ -109,18 +110,18 @@ public enum GradeCodeEnum {
     }
 
     public static List<GradeCodeEnum> kindergartenSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN, GradeCodeEnum.TWO_KINDERGARTEN,
-                GradeCodeEnum.THREE_KINDERGARTEN);
+        return Lists.newArrayList(GradeCodeEnum.CARE_CLASSES_KINDERGARTEN, GradeCodeEnum.ONE_KINDERGARTEN,
+                GradeCodeEnum.TWO_KINDERGARTEN, GradeCodeEnum.THREE_KINDERGARTEN);
     }
 
     public static List<String> kindergartenSchoolName() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN.getName(), GradeCodeEnum.TWO_KINDERGARTEN.getName(),
-                GradeCodeEnum.THREE_KINDERGARTEN.getName());
+        return Lists.newArrayList(GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getName(), GradeCodeEnum.ONE_KINDERGARTEN.getName(),
+                GradeCodeEnum.TWO_KINDERGARTEN.getName(), GradeCodeEnum.THREE_KINDERGARTEN.getName());
     }
 
     public static List<String> kindergartenSchoolCode() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_KINDERGARTEN.getCode(), GradeCodeEnum.TWO_KINDERGARTEN.getCode(),
-                GradeCodeEnum.THREE_KINDERGARTEN.getCode());
+        return Lists.newArrayList(GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getName(), GradeCodeEnum.ONE_KINDERGARTEN.getCode(),
+                GradeCodeEnum.TWO_KINDERGARTEN.getCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode());
     }
 
     public static List<GradeCodeEnum> privateSchool() {
