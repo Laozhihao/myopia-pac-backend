@@ -54,4 +54,17 @@ public class DcmUploadController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return ApiResult.success(deviceUploadService.getPatientFundusFile(patientId, user.getOrgId()));
     }
+
+    /**
+     * 删除患者当天最后一批影像
+     *
+     * @param patientId 患者Id
+     *
+     * @return ReturnInformation
+     */
+    @DeleteMapping(value = "/deleted/{patientId}")
+    public ApiResult<Boolean> deletedPatientImage(@PathVariable("patientId") Integer patientId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return ApiResult.success(deviceUploadService.deletedPatientTodayLastBatchImage(patientId, user.getOrgId()));
+    }
 }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.hospital.domain.mapper;
 
 import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 图像原始表Mapper接口
@@ -10,5 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Date 2022-09-08
  */
 public interface ImageOriginalMapper extends BaseMapper<ImageOriginal> {
+
+    ImageOriginal getLastImage(@Param("patientId") Integer patientId, @Param("hospitalId") Integer hospitalId);
 
 }

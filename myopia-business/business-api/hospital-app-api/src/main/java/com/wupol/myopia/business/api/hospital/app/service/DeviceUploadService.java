@@ -175,6 +175,31 @@ public class DeviceUploadService {
     }
 
     /**
+     * 删除患者当天最后一批影像
+     *
+     * @param patientId  患者Id
+     * @param hospitalId 医院Id
+     *
+     * @return ReturnInformation
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean deletedPatientTodayLastBatchImage(Integer patientId, Integer hospitalId) {
+        Object obj = redisUtil.get(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
+        if (Objects.nonNull(obj)) {
+            throw new BusinessException("正在解析影像中");
+        }
+        ImageOriginal lastImage = imageOriginalService.getLastImage(patientId, hospitalId);
+        if (Objects.isNull(lastImage)) {
+            return false;
+        }
+        // 删除详情
+        imageDetailService.remove(new ImageDetail().setImageOriginalId(lastImage.getId()));
+        // 删除原始表
+        imageOriginalService.removeById(lastImage);
+        return true;
+    }
+
+    /**
      * 检查并且获取Dicom数据
      *
      * @param requestDTO 请求DTO

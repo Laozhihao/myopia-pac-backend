@@ -27,4 +27,13 @@
         id, file_id, patient_id, hospital_id, bluetooth_mac, md5, create_time, update_time
     </sql>
 
+    <select id="getLastImage" resultMap="BaseResultMap">
+        select *
+        from h_image_original
+        where patient_id = #{patientId}
+          and hospital_id = #{hospitalId}
+          and date(create_time) = CURDATE()
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>
