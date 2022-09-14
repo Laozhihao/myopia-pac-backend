@@ -259,7 +259,7 @@ public class DeviceUploadService {
         imageOriginal.setFileId(fileId);
         imageOriginal.setPatientId(dicomDTO.getPatientId());
         imageOriginal.setHospitalId(hospitalId);
-        imageOriginal.setBluetoothMac(dicomDTO.getDeviceId());
+        imageOriginal.setBluetoothMac(dicomDTO.getMacAddress());
         imageOriginal.setMd5(dicomDTO.getMd5());
         imageOriginalService.save(imageOriginal);
         return imageOriginal.getId();
