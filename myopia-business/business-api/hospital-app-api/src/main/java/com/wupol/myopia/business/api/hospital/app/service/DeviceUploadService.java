@@ -91,11 +91,11 @@ public class DeviceUploadService {
      * @return ReturnInformation
      */
     @Transactional(rollbackFor = Exception.class)
-    public String fundusUpload(DeviceRequestDTO requestDTO) {
+    public String fundusUpload(DeviceRequestDTO requestDTO, Integer hospitalId) {
         String path = StringUtils.EMPTY;
         Integer patientId = null;
         try {
-            DicomDTO dicomDTO = preCheckAndGetDicomDTO(requestDTO);
+            DicomDTO dicomDTO = preCheckAndGetDicomDTO(requestDTO, hospitalId);
             patientId = dicomDTO.getPatientId();
             // 设置进行中,有效期30分钟
             redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId), "ing", 1800L);
@@ -123,7 +123,7 @@ public class DeviceUploadService {
             }
 
             // 上传原始文件
-            Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId());
+            Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId(),hospitalId);
 
             // 读取DICOM,JSON文件信息
             FileReader fileReader = new FileReader(StrUtil.removeSuffix(path, ".zip") + "/" + dicomDTO.getBase());
@@ -137,7 +137,7 @@ public class DeviceUploadService {
             // 上传图片信息
             for (File imageFile : fileList) {
                 ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFileAndDeleteTempFile(imageFile, imageFile.getName());
-                imageDetailList.add(getImageDetail(originalImageId, resourceFile.getId(), dicomDTO, dicomJson));
+                imageDetailList.add(getImageDetail(originalImageId, resourceFile.getId(), dicomDTO, dicomJson, hospitalId));
             }
             imageDetailService.saveBatch(imageDetailList);
             return ReturnInformation.returnSuccess();
@@ -181,22 +181,21 @@ public class DeviceUploadService {
      *
      * @return DicomDTO
      */
-    private DicomDTO preCheckAndGetDicomDTO(DeviceRequestDTO requestDTO) {
+    private DicomDTO preCheckAndGetDicomDTO(DeviceRequestDTO requestDTO, Integer hospitalId) {
         List<DicomDTO> dicomDTOS = JSON.parseArray(requestDTO.getJson(), DicomDTO.class);
         if (CollectionUtils.isEmpty(dicomDTOS)) {
             log.error("获取影像数据异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("获取影像数据异常！");
         }
         DicomDTO dicomDTO = dicomDTOS.get(0);
-        Integer deviceId = dicomDTO.getDeviceId();
 
         if (Objects.isNull(dicomDTO.getMd5())) {
             log.error("获取MD5异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("获取MD5异常！");
         }
 
-        Device device = deviceService.getById(deviceId);
-        if (Objects.isNull(deviceId) || Objects.isNull(device)) {
+        Device device = deviceService.findOne(new Device().setBluetoothMac(dicomDTO.getMacAddress()));
+        if (Objects.isNull(device)) {
             log.error("获取设备异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("获取设备异常！");
         }
@@ -207,8 +206,8 @@ public class DeviceUploadService {
         }
 
         // 检查是否绑定
-        if (Objects.isNull(dicomDTO.getHospitalId())
-                || !Objects.equals(device.getBindingScreeningOrgId(), dicomDTO.getHospitalId())
+        if (Objects.isNull(hospitalId)
+                || !Objects.equals(device.getBindingScreeningOrgId(), hospitalId)
                 || !Objects.equals(device.getOrgType(), OrgTypeEnum.HOSPITAL.getCode())) {
             log.error("设备未绑定！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("设备未绑定！");
@@ -221,8 +220,8 @@ public class DeviceUploadService {
             throw new BusinessException("患者信息异常！");
         }
 
-        Hospital hospital = hospitalService.getById(dicomDTO.getHospitalId());
-        if (Objects.isNull(dicomDTO.getHospitalId()) || Objects.isNull(hospital)) {
+        Hospital hospital = hospitalService.getById(hospitalId);
+        if (Objects.isNull(hospital)) {
             log.error("医院信息异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("医院信息异常！");
         }
@@ -252,15 +251,15 @@ public class DeviceUploadService {
      * @param dicomDTO dicom数据
      * @param fileId   文件Id
      */
-    private Integer saveOriginalImage(DicomDTO dicomDTO, Integer fileId) {
+    private Integer saveOriginalImage(DicomDTO dicomDTO, Integer fileId, Integer hospitalId) {
         if (Objects.nonNull(imageOriginalService.getByMd5(dicomDTO.getMd5()))) {
             throw new BusinessException("DICOM数据重复！");
         }
         ImageOriginal imageOriginal = new ImageOriginal();
         imageOriginal.setFileId(fileId);
         imageOriginal.setPatientId(dicomDTO.getPatientId());
-        imageOriginal.setHospitalId(dicomDTO.getHospitalId());
-        imageOriginal.setDeviceId(dicomDTO.getDeviceId());
+        imageOriginal.setHospitalId(hospitalId);
+        imageOriginal.setBluetoothMac(dicomDTO.getDeviceId());
         imageOriginal.setMd5(dicomDTO.getMd5());
         imageOriginalService.save(imageOriginal);
         return imageOriginal.getId();
@@ -276,13 +275,12 @@ public class DeviceUploadService {
      *
      * @return ImageDetail
      */
-    private ImageDetail getImageDetail(Integer originalImageId, Integer fileId,
-                                       DicomDTO dicomDTO, String dicomJson) throws JsonProcessingException {
+    private ImageDetail getImageDetail(Integer originalImageId, Integer fileId, DicomDTO dicomDTO, String dicomJson, Integer hospitalId) throws JsonProcessingException {
         ImageDetail imageDetail = new ImageDetail();
         imageDetail.setImageOriginalId(originalImageId);
         imageDetail.setFileId(fileId);
         imageDetail.setPatientId(dicomDTO.getPatientId());
-        imageDetail.setHospitalId(dicomDTO.getHospitalId());
+        imageDetail.setHospitalId(hospitalId);
         imageDetail.setDcmJson(dicomJson);
         DicomJsonDTO dicomJsonDTO = new ObjectMapper().readValue(dicomJson, DicomJsonDTO.class);
         imageDetail.setBatchNo(dicomJsonDTO.getBatch());

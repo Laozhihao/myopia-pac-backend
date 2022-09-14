@@ -26,14 +26,4 @@ public class DicomDTO {
      * 患者Id
      */
     private Integer patientId;
-
-    /**
-     * 设备Id
-     */
-    private Integer deviceId;
-
-    /**
-     * 医院Id
-     */
-    private Integer hospitalId;
 }

@@ -46,9 +46,9 @@ public class ImageOriginal implements Serializable {
     private Integer hospitalId;
 
     /**
-     * 设备Id
+     * 设备mac地址
      */
-    private Integer deviceId;
+    private Integer bluetoothMac;
 
     /**
      * md5
