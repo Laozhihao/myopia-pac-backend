@@ -3,8 +3,6 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
@@ -15,6 +13,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
@@ -395,6 +394,11 @@ public class DeviceBizService {
      * 转换成DTO
      */
     private <T extends HasName> List<DeviceOrgListResponseDTO> convert2Dto(List<T> t) {
-        return t.stream().map(s -> new DeviceOrgListResponseDTO(s.getId(), s.getName())).collect(Collectors.toList());
+        List<Integer> districtIds = t.stream().map(HasName::getDistrictId).collect(Collectors.toList());
+        Map<Integer, District> districtMap = districtService.getByIds(districtIds);
+        return t.stream().map(s -> new DeviceOrgListResponseDTO(s.getId(),
+                        s.getName(),
+                        districtService.getTopDistrictName(districtMap.get(s.getDistrictId()).getCode())))
+                .collect(Collectors.toList());
     }
 }

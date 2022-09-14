@@ -25,4 +25,9 @@ public class DeviceOrgListResponseDTO {
      * 名称
      */
     private String name;
+
+    /**
+     * 区域名称
+     */
+    private String districtDetailName;
 }
