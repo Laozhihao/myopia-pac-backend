@@ -194,13 +194,13 @@ public class DeviceUploadService {
             throw new BusinessException("获取MD5异常！");
         }
 
-        Device device = deviceService.findOne(new Device().setBluetoothMac(dicomDTO.getMacAddress()));
+        Device device = deviceService.findOne(new Device().setDeviceSn(dicomDTO.getMacAddress()));
         if (Objects.isNull(device)) {
             log.error("获取设备异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("获取设备异常！");
         }
         // 检查mac地址是否相同
-        if (!StringUtils.equals(device.getBluetoothMac(), dicomDTO.getMacAddress())) {
+        if (!StringUtils.equals(device.getDeviceSn(), dicomDTO.getMacAddress())) {
             log.error("mac地址异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("mac地址异常！");
         }
