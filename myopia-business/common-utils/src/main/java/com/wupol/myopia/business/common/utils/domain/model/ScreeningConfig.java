@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.wupol.myopia.business.common.utils.domain.dto.DeviceGrantedDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -30,5 +31,5 @@ public class ScreeningConfig implements Serializable {
     /** 开通的检查项目列表 */
     private List<String> medicalProjectList;
     /** 已授权的设备列表 */
-    private List<String> grantedDeviceIdList;
+    private List<DeviceGrantedDTO> grantedDeviceIdList;
 }

@@ -157,7 +157,7 @@ public class ScreeningOrganizationController {
         if (Objects.nonNull(user.getScreeningOrgId())) {
             id = user.getScreeningOrgId();
         }
-        return screeningOrganizationService.getScreeningOrgDetails(id);
+        return screeningOrganizationBizService.getScreeningOrgDetails(id);
     }
 
     /**
