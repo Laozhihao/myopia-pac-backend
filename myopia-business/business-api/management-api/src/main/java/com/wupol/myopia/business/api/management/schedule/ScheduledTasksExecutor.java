@@ -50,7 +50,9 @@ public class ScheduledTasksExecutor {
      */
     @Scheduled(cron = "0 5 0 * * ?")
     public void statistic() {
+        log.info("开始统计昨天筛查数据......");
         statisticScheduledTaskService.statistic();
+        log.info("统计完成。");
     }
 
     /**

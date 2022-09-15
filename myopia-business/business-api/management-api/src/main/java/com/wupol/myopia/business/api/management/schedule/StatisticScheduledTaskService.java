@@ -86,6 +86,7 @@ public class StatisticScheduledTaskService {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
         }
+        log.info("昨天有新数据需要统计......");
         //2. 生成学校视力和监测情况统计数据（主要用于统计分析菜单）
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计数据

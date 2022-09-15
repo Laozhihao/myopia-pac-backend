@@ -20,6 +20,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswer;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolCommonDiseaseCode;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +61,10 @@ public class UserQuestionnaireAnswerInfoBuilder {
      * 学校集合
      */
     private Map<Integer, School> schoolMap;
+    /**
+     * 学校常见病编码集合
+     */
+    private Map<Integer, SchoolCommonDiseaseCode> schoolCommonDiseaseCodeMap;
     /**
      * 用户类型
      */
@@ -298,10 +303,15 @@ public class UserQuestionnaireAnswerInfoBuilder {
     private String getSchoolNo(Integer schoolId, List<UserAnswer> userAnswers, Integer userType) {
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_SCHOOL.getType())){
             School school = schoolMap.get(schoolId);
-            if (Objects.isNull(school)){
+            SchoolCommonDiseaseCode schoolCommonDiseaseCode = schoolCommonDiseaseCodeMap.get(schoolId);
+            if (Objects.isNull(school) || Objects.isNull(schoolCommonDiseaseCode)){
                 return StrUtil.EMPTY;
             }
-            return school.getSchoolNo();
+            String areaDistrictShortCode = schoolCommonDiseaseCode.getAreaDistrictShortCode();
+            if (Objects.isNull(school.getAreaType()) || Objects.isNull(school.getMonitorType())){
+                return StrUtil.EMPTY;
+            }
+            return areaDistrictShortCode.substring(0,4)+school.getAreaType()+areaDistrictShortCode.substring(4,6)+school.getMonitorType()+schoolCommonDiseaseCode.getCode();
         }
 
         if (Objects.equals(userType,UserType.QUESTIONNAIRE_GOVERNMENT.getType())){

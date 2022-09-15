@@ -188,6 +188,7 @@ public class UserAnswerBizService {
         responseDTO.setMonitorType(school.getMonitorType());
         Long areaCode = getAreaCode(school, district);
         responseDTO.setDistrict(districtService.districtCodeToTree(areaCode));
+        responseDTO.setSchoolCommonDiseaseCode(schoolService.getSchoolCommonDiseaseCode(code, school.getAreaType(), school.getMonitorType(), school.getId()));
         return responseDTO;
     }
 
