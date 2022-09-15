@@ -31,4 +31,8 @@ public class StudentListDTO extends PageRequest {
      * 班级Id
      */
     private Integer classId;
+    /**
+     * 学校ID
+     */
+    private Integer schoolId;
 }

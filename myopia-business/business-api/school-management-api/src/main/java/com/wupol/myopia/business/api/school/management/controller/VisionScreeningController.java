@@ -429,6 +429,8 @@ public class VisionScreeningController {
      */
     @GetMapping("/student/list")
     public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        studentListDTO.setSchoolId(currentUser.getOrgId());
         return visionScreeningService.studentList(studentListDTO);
     }
 

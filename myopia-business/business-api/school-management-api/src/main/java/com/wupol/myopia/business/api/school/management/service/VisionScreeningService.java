@@ -2,7 +2,9 @@ package com.wupol.myopia.business.api.school.management.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -403,6 +405,15 @@ public class VisionScreeningService {
      * @param studentListDTO 学生查询条件对象
      */
     public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
+                .eq(ScreeningPlanSchoolStudent::getSchoolId, studentListDTO.getSchoolId())
+                .like(StrUtil.isNotBlank(studentListDTO.getName()), ScreeningPlanSchoolStudent::getStudentName, studentListDTO.getName())
+                .like(StrUtil.isNotBlank(studentListDTO.getSno()), ScreeningPlanSchoolStudent::getStudentNo, studentListDTO.getSno())
+                .eq(Objects.nonNull(studentListDTO.getGradeId()), ScreeningPlanSchoolStudent::getGradeId, studentListDTO.getGradeId())
+                .eq(Objects.nonNull(studentListDTO.getClassId()), ScreeningPlanSchoolStudent::getClassId, studentListDTO.getClassId());
+        Page page = studentListDTO.toPage();
+        IPage<SchoolStudent> schoolStudentPage = screeningPlanSchoolStudentService.page(page, queryWrapper);
+        List<SchoolStudent> records = schoolStudentPage.getRecords();
         return null;
     }
 
