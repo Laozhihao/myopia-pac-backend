@@ -1,5 +1,5 @@
 alter table m_school
-    add vision_team_count int null comment '视力小分队人数';
+    add vision_team_count int not null  default 5 comment '视力小分队人数';
 
 alter table m_school
     add screening_config json null comment '筛查类型的配置';
