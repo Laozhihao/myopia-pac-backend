@@ -80,6 +80,7 @@ public class StatisticScheduledTaskService {
      * @return void
      **/
     public void statistic() {
+        log.info("开始统计昨天筛查数据......");
         //1. 查询出需要统计的计划（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
         if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
@@ -91,6 +92,7 @@ public class StatisticScheduledTaskService {
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计数据
         screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds, Collections.emptyList());
+        log.info("统计完成。");
     }
 
     /**
