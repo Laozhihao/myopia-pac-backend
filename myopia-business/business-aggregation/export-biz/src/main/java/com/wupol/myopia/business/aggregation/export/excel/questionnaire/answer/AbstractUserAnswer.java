@@ -33,6 +33,8 @@ import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordSe
 import com.wupol.myopia.business.core.questionnaire.util.AnswerUtil;
 import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolCommonDiseaseCode;
+import com.wupol.myopia.business.core.school.service.SchoolCommonDiseaseCodeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -82,6 +84,8 @@ public abstract class AbstractUserAnswer implements Answer {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private ScreeningFacade screeningFacade;
+    @Autowired
+    private SchoolCommonDiseaseCodeService schoolCommonDiseaseCodeService;
 
 
     private static final String REC_FILE_NAME = "%s的%s的rec文件";
@@ -461,6 +465,8 @@ public abstract class AbstractUserAnswer implements Answer {
 
         Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+        List<SchoolCommonDiseaseCode> schoolCommonDiseaseCodeList = schoolCommonDiseaseCodeService.listBySchoolIds(Lists.newArrayList(schoolIds));
+        schoolCommonDiseaseCodeList = schoolCommonDiseaseCodeList.stream().filter(schoolCommonDiseaseCode -> Objects.equals(schoolCommonDiseaseCode.getYear(),2021)).collect(Collectors.toList());
 
         UserQuestionnaireAnswerInfoBuilder build = UserQuestionnaireAnswerInfoBuilder.builder()
                 .userQuestionRecordList(userQuestionRecordList)
@@ -468,6 +474,7 @@ public abstract class AbstractUserAnswer implements Answer {
                 .hideQuestionDataBOList(hideQuestionDataBOList)
                 .planSchoolStudentMap(planSchoolStudentList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity())))
                 .schoolMap(schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity())))
+                .schoolCommonDiseaseCodeMap(schoolCommonDiseaseCodeList.stream().collect(Collectors.toMap(SchoolCommonDiseaseCode::getId, Function.identity(),(v1,v2)->v2)))
                 .questionnaireTypeEnum(generateDataCondition.getMainBodyType()).userType(generateDataCondition.getUserType())
                 .build();
 
