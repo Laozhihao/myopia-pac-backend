@@ -196,7 +196,7 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     public List<SchoolClass> listBySchoolId(Integer schoolId){
         return baseMapper.selectList(Wrappers.lambdaQuery(SchoolClass.class)
                 .eq(SchoolClass::getSchoolId,schoolId)
-                .eq(SchoolClass::getStatus,0));
+                .eq(SchoolClass::getStatus,CommonConst.STATUS_NOT_DELETED));
     }
 
     /**

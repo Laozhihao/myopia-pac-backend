@@ -187,11 +187,11 @@
             resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
         select msps.screening_plan_id as planId,
                msps.school_id         as schoolId,
-               msp.screening_org_id  as screeningOrgId
+               msp.screening_org_id   as screeningOrgId,
                msp.screening_org_type  as screeningOrgType
         from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
         left join m_screening_plan msp on msps.screening_plan_id = msp.id
-        where msp.release_status = 1
+        where 1 = 1
         <if test="@Ognl@isNotEmpty(param.screeningType)">
             and msp.screening_type = #{param.screeningType}
         </if>

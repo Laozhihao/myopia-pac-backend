@@ -28,11 +28,9 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanListDTO;
@@ -97,8 +95,6 @@ public class VisionScreeningService {
     @Resource
     private SchoolVisionStatisticService schoolVisionStatisticService;
     @Resource
-    private StudentService studentService;
-    @Resource
     private SchoolFacade schoolFacade;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -147,7 +143,6 @@ public class VisionScreeningService {
         List<Integer> planIds = schoolPlanList.stream().map(ScreeningListResponseDTO::getPlanId).collect(Collectors.toList());
         List<ScreeningPlan> screeningPlans = screeningPlanService.listByIds(planIds);
         Map<Integer, ScreeningPlan> planMap = screeningPlans.stream()
-                .filter(x -> CommonConst.STATUS_RELEASE.equals(x.getReleaseStatus()))
                 .filter(s->Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
                 .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
@@ -256,7 +251,8 @@ public class VisionScreeningService {
         responseDTO.setTitle(screeningPlan.getTitle());
         responseDTO.setStartTime(screeningPlan.getStartTime());
         responseDTO.setEndTime(screeningPlan.getEndTime());
-        responseDTO.setReleaseStatus(ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus()));
+        responseDTO.setReleaseStatus(screeningPlan.getReleaseStatus());
+        responseDTO.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus()));
         responseDTO.setReleaseTime(screeningPlan.getReleaseTime());
         responseDTO.setContent(screeningPlan.getContent());
     }
@@ -321,6 +317,9 @@ public class VisionScreeningService {
 
         //筛查学生
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(screeningPlanDTO,school);
+
+        screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
+
         screeningPlanService.savePlanInfo(screeningPlan,screeningPlanSchool,twoTuple);
     }
 
@@ -345,13 +344,13 @@ public class VisionScreeningService {
      */
     private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(ScreeningPlanDTO screeningPlanDTO, School school){
         List<Integer> gradeIds = screeningPlanDTO.getGradeIds();
-        List<Student> studentList = studentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(gradeIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
         if (Objects.nonNull(screeningPlanDTO.getId())){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanDTO.getId(),Boolean.FALSE);
         }
-        return ScreeningPlanBuilder.getScreeningPlanSchoolStudentList(studentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList);
+        return ScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList);
     }
 
 

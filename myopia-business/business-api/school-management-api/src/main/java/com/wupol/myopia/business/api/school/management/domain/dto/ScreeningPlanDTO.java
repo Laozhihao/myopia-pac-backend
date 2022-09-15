@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.school.management.domain.dto;
 
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -34,6 +36,7 @@ public class ScreeningPlanDTO {
      * 筛查计划--结束时间（时间戳）
      */
     @NotNull(message = "筛查计划结束时间不能为空")
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN,timezone = "GMT+8")
     private Date endTime;
 
     /**

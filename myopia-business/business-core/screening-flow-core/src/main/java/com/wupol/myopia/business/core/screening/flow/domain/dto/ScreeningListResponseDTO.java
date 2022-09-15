@@ -1,8 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Date;
 
@@ -11,8 +10,7 @@ import java.util.Date;
  *
  * @author Simple4H
  */
-@Getter
-@Setter
+@Data
 public class ScreeningListResponseDTO {
 
     /**
@@ -59,6 +57,11 @@ public class ScreeningListResponseDTO {
      * 发布状态 （0未发布 1已发布）
      */
     private Integer releaseStatus;
+
+    /**
+     * 筛查状态 0-未开始 1-进行中 2-已结束
+     */
+    private Integer screeningStatus;
 
     /**
      * 计划的学生数量

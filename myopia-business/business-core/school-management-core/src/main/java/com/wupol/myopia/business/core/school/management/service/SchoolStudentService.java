@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.school.management.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
@@ -116,15 +119,6 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.getByIdCards(idCards, schoolId);
     }
 
-    /**
-     * 通过学校获取学生
-     *
-     * @param schoolId 学校Id
-     * @return List<SchoolStudent>
-     */
-    public List<SchoolStudent> getBySchoolId(Integer schoolId) {
-        return baseMapper.getBySchoolId(schoolId);
-    }
 
     /**
      * 学号、身份证是否重复
@@ -246,5 +240,26 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return SourceClientEnum.SCREENING_PLAN.type.equals(schoolStudent.getSourceClient());
     }
 
+    /**
+     * 根据学校ID查询学生
+     * @param schoolId 学校ID
+     */
+    public List<SchoolStudent> listBySchoolId(Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(SchoolStudent::getSchoolId,schoolId)
+                .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
+    }
 
+    /**
+     * 根据学校ID和年级ID获取学生集合
+     * @param schoolId 学校ID
+     * @param gradeIds 年级ID集合
+     */
+    public List<SchoolStudent> listBySchoolIdAndGradeIds(Integer schoolId,List<Integer> gradeIds){
+        LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(SchoolStudent::getSchoolId, schoolId)
+                .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED)
+                .in(SchoolStudent::getGradeId, gradeIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }
