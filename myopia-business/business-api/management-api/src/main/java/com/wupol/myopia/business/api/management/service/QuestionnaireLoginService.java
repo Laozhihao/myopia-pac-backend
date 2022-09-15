@@ -102,11 +102,11 @@ public class QuestionnaireLoginService {
         ScreeningTask screeningTask = screeningTaskService.getOneByOrgId(orgId);
 
         if (Objects.isNull(screeningTask)) {
-            throw new BusinessException(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage(),ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode());
+            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
         List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(screeningPlanService.getByTaskId(screeningTask.getId()).stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(planSchools)) {
-            throw new BusinessException(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage(),ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode());
+            return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
         return ApiResult.success();
     }
