@@ -465,6 +465,7 @@ public abstract class AbstractUserAnswer implements Answer {
 
         Set<Integer> schoolIds = userQuestionRecordList.stream().map(UserQuestionRecord::getSchoolId).collect(Collectors.toSet());
         List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+        //TODO:年份与问卷年份一致
         List<SchoolCommonDiseaseCode> schoolCommonDiseaseCodeList = schoolCommonDiseaseCodeService.listBySchoolIds(Lists.newArrayList(schoolIds));
         schoolCommonDiseaseCodeList = schoolCommonDiseaseCodeList.stream().filter(schoolCommonDiseaseCode -> Objects.equals(schoolCommonDiseaseCode.getYear(),2021)).collect(Collectors.toList());
 
