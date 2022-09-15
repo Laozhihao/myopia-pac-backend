@@ -5,6 +5,7 @@ import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBiz
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author hang.yuan 2022/6/21 19:03
  */
+@Log4j2
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -91,6 +93,7 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("/triggerAll")
     public void statTaskTrigger() {
+        log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
         CompletableFuture.runAsync(()-> statisticScheduledTaskService.statistic(),asyncServiceExecutor);
     }
 }
