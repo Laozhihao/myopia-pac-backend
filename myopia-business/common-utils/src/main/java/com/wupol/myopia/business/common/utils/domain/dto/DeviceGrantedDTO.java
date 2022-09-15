@@ -3,6 +3,8 @@ package com.wupol.myopia.business.common.utils.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * 已经授权设备
  *
@@ -10,7 +12,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class DeviceGrantedDTO {
+public class DeviceGrantedDTO implements Serializable {
 
     /**
      * 设备唯一id
