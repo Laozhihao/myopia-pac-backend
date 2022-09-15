@@ -18,7 +18,7 @@ public class DeviceGrantedDTO {
     private String deviceSn;
 
     /**
-     * 类型 0-默认 1-vs666 2-灯箱
+     * 类型 0-默认 1-vs666 2-灯箱 3-体脂秤 4-电脑验光 5-生物测量仪 6-眼底相机
      */
     private Integer type;
 
