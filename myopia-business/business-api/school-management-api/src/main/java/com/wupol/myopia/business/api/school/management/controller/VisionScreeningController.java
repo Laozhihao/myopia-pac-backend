@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportSe
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
@@ -454,5 +455,14 @@ public class VisionScreeningController {
     public StudentScreeningDetailVO studentScreeningDetail(@RequestParam Integer screeningPlanId,
                                                            @RequestParam Integer screeningPlanStudentId){
         return visionScreeningService.studentScreeningDetail(screeningPlanId,screeningPlanStudentId);
+    }
+
+    /**
+     * 增加筛查时间
+     * @param screeningEndTimeDTO 筛查结束时间参数
+     */
+    @PostMapping("/increased/screeningTime")
+    public void updateScreeningEndTime (@RequestBody @Valid ScreeningEndTimeDTO screeningEndTimeDTO) {
+        visionScreeningService.updateScreeningEndTime(screeningEndTimeDTO);
     }
 }

@@ -26,13 +26,13 @@ public class ScreeningPlanDTO {
     /**
      * 筛查计划--开始时间
      */
-    @NotNull(message = "筛查计划开始时间不能为空")
+    @NotBlank(message = "筛查计划开始时间不能为空")
     private String startTime;
 
     /**
-     * 筛查计划--结束时间（时间戳）
+     * 筛查计划--结束时间
      */
-    @NotNull(message = "筛查计划结束时间不能为空")
+    @NotBlank(message = "筛查计划结束时间不能为空")
     private String endTime;
 
     /**

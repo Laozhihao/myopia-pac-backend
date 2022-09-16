@@ -188,12 +188,16 @@
         select msps.screening_plan_id as planId,
                msps.school_id         as schoolId,
                msp.screening_org_id   as screeningOrgId,
-               msp.screening_org_type  as screeningOrgType
+               msp.screening_org_type  as screeningOrgType,
+               msp.screening_type as screeningType
         from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
         left join m_screening_plan msp on msps.screening_plan_id = msp.id
         where 1 = 1
         <if test="@Ognl@isNotEmpty(param.screeningType)">
             and msp.screening_type = #{param.screeningType}
+        </if>
+        <if test="@Ognl@isNotEmpty(param.screeningBizType)">
+            and msp.screening_org_type = #{param.screeningBizType}
         </if>
         <if test="param.title != null and param.title != ''">
             and msp.title like CONCAT('%', #{param.title}, '%')

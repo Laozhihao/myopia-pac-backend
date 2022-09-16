@@ -27,7 +27,12 @@ public class ScreeningPlanListDTO extends PageRequest implements Serializable {
     private String screeningOrgName;
 
     /**
-     * 筛查类型
+     * 筛查业务类型（1:自主筛查，0:协助筛查）
+     */
+    private Integer screeningBizType;
+
+    /**
+     * 筛查业务类型（0:视力筛查，1:常见病）
      */
     private Integer screeningType;
 

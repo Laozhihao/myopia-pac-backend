@@ -106,4 +106,14 @@ public class ScreeningListResponseDTO {
      * 二维码配置, 英文逗号分隔, 1-普通二维码, 2-vs666, 3-虚拟二维码
      */
     private String qrCodeConfig;
+
+    /**
+     * 筛查类型（0:视力筛查，1:常见病）
+     */
+    private Integer screeningType;
+
+    /**
+     * 筛查业务类型（1:自主筛查，0:协助筛查）
+     */
+    private Integer screeningBizType;
 }

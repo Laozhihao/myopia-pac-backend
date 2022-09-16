@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.builder.ScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
@@ -38,6 +39,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -51,15 +53,17 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
-import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -130,6 +134,7 @@ public class VisionScreeningService {
         }
 
         screeningPlanListDTO.setSchoolId(schoolId);
+        screeningPlanListDTO.setScreeningType(ScreeningTypeEnum.VISION.getType());
         IPage<ScreeningListResponseDTO> responseDTO = screeningPlanSchoolService.listByCondition(screeningPlanListDTO);
 
         return screeningListResponseResult(responseDTO,organizationList,schoolId);
@@ -263,6 +268,7 @@ public class VisionScreeningService {
         responseDTO.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus()));
         responseDTO.setReleaseTime(screeningPlan.getReleaseTime());
         responseDTO.setContent(screeningPlan.getContent());
+        responseDTO.setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(responseDTO.getScreeningOrgType()).getType());
     }
 
     /**
@@ -475,7 +481,7 @@ public class VisionScreeningService {
                 .setGenderDesc(GenderEnum.getCnName(screeningPlanSchoolStudent.getGender()))
                 .setGradeName(schoolGrade.getName())
                 .setClassName(schoolClass.getName())
-                .setStateDesc(screeningPlanSchoolStudent.getState());
+                .setState(screeningPlanSchoolStudent.getState());
 
         setStudentVisionScreeningResult(screeningStudentListVO,visionScreeningResult);
         return screeningStudentListVO;
@@ -556,6 +562,21 @@ public class VisionScreeningService {
         }
         return screeningPlan;
 
+    }
+
+    /**
+     * 更新筛查结束时间
+     * @param screeningEndTimeDTO 筛查结束时间参数
+     */
+    public void updateScreeningEndTime(ScreeningEndTimeDTO screeningEndTimeDTO) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningEndTimeDTO.getScreeningPlanId());
+        Assert.isTrue(screeningPlan.getUpdateScreeningEndTimeStatus() == ScreeningPlan.NOT_CHANGED, "该计划已经增加过时间");
+
+        ScreeningPlan plan = new ScreeningPlan()
+                .setId(screeningEndTimeDTO.getScreeningPlanId())
+                .setEndTime(DateFormatUtil.parseDate(screeningEndTimeDTO.getEndTime(),SchoolConstant.END_TIME,DatePattern.NORM_DATETIME_PATTERN))
+                .setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
+        screeningPlanService.updateById(plan);
     }
 }
 

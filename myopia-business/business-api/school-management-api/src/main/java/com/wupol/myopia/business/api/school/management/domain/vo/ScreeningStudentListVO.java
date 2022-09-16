@@ -76,7 +76,7 @@ public class ScreeningStudentListVO {
     /**
      * 未做检查说明【0:无；1：请假；2：转学;3:其他】
      */
-    private Integer stateDesc;
+    private Integer state;
 
     /**
      * 数据完整性
