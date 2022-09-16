@@ -224,6 +224,10 @@ public class DeviceUploadService {
             log.error("获取设备异常！参数:{}", JSON.toJSONString(requestDTO));
             throw new BusinessException("获取设备异常！");
         }
+
+        if (Objects.equals(device.getStatus(), StatusConstant.DISABLE)) {
+            throw new BusinessException("设备已禁用！");
+        }
         // 检查mac地址是否相同
         if (!StringUtils.equals(device.getDeviceSn(), dicomDTO.getMacAddress())) {
             log.error("mac地址异常！参数:{}", JSON.toJSONString(requestDTO));
