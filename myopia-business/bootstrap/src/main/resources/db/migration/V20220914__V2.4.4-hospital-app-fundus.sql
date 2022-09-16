@@ -37,3 +37,9 @@ alter table h_medical_record
     add fundus json null comment '眼底检查' after `tosca`;
 
 alter table m_device add constraint m_device_pk unique (bluetooth_mac);
+
+alter table m_device
+    modify salesperson_name varchar(20) default '' null comment '销售名字';
+
+alter table m_device
+    modify customer_name varchar(20) default '' null comment '客户名字';
