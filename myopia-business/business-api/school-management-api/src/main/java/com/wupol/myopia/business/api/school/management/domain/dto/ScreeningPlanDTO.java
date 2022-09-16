@@ -1,13 +1,10 @@
 package com.wupol.myopia.business.api.school.management.domain.dto;
 
-import cn.hutool.core.date.DatePattern;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,17 +24,16 @@ public class ScreeningPlanDTO {
     private String title;
 
     /**
-     * 筛查计划--开始时间（时间戳）
+     * 筛查计划--开始时间
      */
     @NotNull(message = "筛查计划开始时间不能为空")
-    private Date startTime;
+    private String startTime;
 
     /**
      * 筛查计划--结束时间（时间戳）
      */
     @NotNull(message = "筛查计划结束时间不能为空")
-    @JsonFormat(pattern = DatePattern.NORM_DATETIME_PATTERN,timezone = "GMT+8")
-    private Date endTime;
+    private String endTime;
 
     /**
      * 筛查计划--内容

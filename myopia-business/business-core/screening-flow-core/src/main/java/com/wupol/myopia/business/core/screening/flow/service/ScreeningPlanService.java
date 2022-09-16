@@ -424,16 +424,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple) {
         boolean saveOrUpdate = saveOrUpdate(screeningPlan);
         if (Objects.equals(Boolean.TRUE,saveOrUpdate)){
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
-            screeningPlanSchoolStudentService.deleteByStudentIds(twoTuple.getSecond());
             screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
-            screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
-                if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
-                    screeningPlanSchoolStudent.setScreeningPlanId(screeningPlan.getId());
-                }
-            });
             screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
-            screeningPlanSchoolStudentService.saveOrUpdateBatch(screeningPlanSchoolStudentList);
+            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId());
         }
     }
 }

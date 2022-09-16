@@ -2,8 +2,6 @@ package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 /**
  * 眼压
  *
@@ -15,9 +13,9 @@ public class EyePressureDataVO {
     /**
      * 右眼眼压
      */
-    private BigDecimal rightEyePressure;
+    private String rightEyePressure;
     /**
      * 左眼眼压
      */
-    private BigDecimal leftEyePressure;
+    private String leftEyePressure;
 }

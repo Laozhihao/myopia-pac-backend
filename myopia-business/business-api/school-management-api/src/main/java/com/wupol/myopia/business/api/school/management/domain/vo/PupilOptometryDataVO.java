@@ -1,10 +1,9 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
-import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * 小瞳验光
@@ -24,18 +23,19 @@ public class PupilOptometryDataVO implements Serializable {
     private PupilOptometryData leftEyeData;
 
     @Data
+    @Accessors(chain = true)
     public static class PupilOptometryData implements Serializable {
         /**
          * 轴位
          */
-        private BigDecimal axial;
+        private String axial;
         /**
          * 球镜
          */
-        private BigDecimal sph;
+        private String sph;
         /**
          * 柱镜
          */
-        private BigDecimal cyl;
+        private String cyl;
     }
 }

@@ -1,13 +1,9 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
-import com.wupol.myopia.business.common.utils.interfaces.ValidResultDataInterface;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * 视力数据
@@ -31,15 +27,16 @@ public class VisionDataVO {
     private VisionData rightEyeData;
 
     @Data
+    @Accessors(chain = true)
     public static class VisionData implements Serializable {
         /**
          * 矫正视力
          */
-        private BigDecimal correctedVision;
+        private String correctedVision;
         /**
          * 裸眼视力
          */
-        private BigDecimal nakedVision;
+        private String nakedVision;
 
     }
 }

@@ -1,9 +1,9 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * 电脑验光
@@ -24,19 +24,20 @@ public class ComputerOptometryDataVO implements Serializable{
     private ComputerOptometry rightEyeData;
 
     @Data
+    @Accessors(chain = true)
     public static class ComputerOptometry implements Serializable {
         /**
          * 轴位
          */
-        private BigDecimal axial;
+        private String axial;
         /**
          * 球镜
          */
-        private BigDecimal sph;
+        private String sph;
         /**
          * 柱镜
          */
-        private BigDecimal cyl;
+        private String cyl;
 
     }
 }

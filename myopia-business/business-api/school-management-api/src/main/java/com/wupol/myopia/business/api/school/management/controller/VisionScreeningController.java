@@ -428,7 +428,7 @@ public class VisionScreeningController {
      * @param studentListDTO 学生查询条件对象
      */
     @GetMapping("/student/list")
-    public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO){
+    public IPage<ScreeningStudentListVO> studentList(@Valid StudentListDTO studentListDTO){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         studentListDTO.setSchoolId(currentUser.getOrgId());
         return visionScreeningService.studentList(studentListDTO);
@@ -439,7 +439,9 @@ public class VisionScreeningController {
      * @param addScreeningStudentDTO 新增筛查学校对象
      */
     @PostMapping("/addScreeningStudent")
-    public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO){
+    public void addScreeningStudent(@Valid AddScreeningStudentDTO addScreeningStudentDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        addScreeningStudentDTO.setSchoolId(currentUser.getOrgId());
         visionScreeningService.addScreeningStudent(addScreeningStudentDTO);
     }
 

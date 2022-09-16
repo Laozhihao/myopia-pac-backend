@@ -16,6 +16,10 @@ import java.util.List;
 public class GradeInfoVO implements Serializable {
 
     /**
+     * 学校所有年级信息
+     */
+    private List<GradeInfo> allList;
+    /**
      * 未选中的年级信息
      */
     private List<GradeInfo> noSelectList;
@@ -25,7 +29,7 @@ public class GradeInfoVO implements Serializable {
     private List<GradeInfo> selectList;
 
     @Data
-    public static class GradeInfo{
+    public static class GradeInfo implements Serializable{
         /**
          * 年级ID
          */

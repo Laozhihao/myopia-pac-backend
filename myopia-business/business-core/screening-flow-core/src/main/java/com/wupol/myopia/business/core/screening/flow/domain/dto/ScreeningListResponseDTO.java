@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
+import cn.hutool.core.date.DatePattern;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import lombok.Data;
 
@@ -46,11 +48,13 @@ public class ScreeningListResponseDTO {
     /**
      * 开始时间
      */
+    @JsonFormat(pattern = DatePattern.NORM_DATE_PATTERN,timezone = "GMT+8")
     private Date startTime;
 
     /**
      * 结束时间
      */
+    @JsonFormat(pattern = DatePattern.NORM_DATE_PATTERN,timezone = "GMT+8")
     private Date endTime;
 
     /**

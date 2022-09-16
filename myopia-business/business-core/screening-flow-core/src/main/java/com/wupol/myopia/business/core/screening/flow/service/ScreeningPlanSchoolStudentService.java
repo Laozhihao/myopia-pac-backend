@@ -13,6 +13,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -828,5 +829,22 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
                 .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
         ));
+    }
+
+    /**
+     * 新增筛查学生
+     * @param twoTuple 筛查计划学校学生
+     * @param screeningPlanId 筛查计划ID
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
+        deleteByStudentIds(twoTuple.getSecond());
+        screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
+            if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
+                screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
+            }
+        });
+        saveOrUpdateBatch(twoTuple.getFirst());
     }
 }

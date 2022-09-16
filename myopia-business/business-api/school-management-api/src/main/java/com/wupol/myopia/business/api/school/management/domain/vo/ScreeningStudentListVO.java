@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 筛查学校响应对象
@@ -8,6 +9,7 @@ import lombok.Data;
  * @author hang.yuan 2022/9/13 17:41
  */
 @Data
+@Accessors(chain = true)
 public class ScreeningStudentListVO {
 
 
@@ -80,5 +82,10 @@ public class ScreeningStudentListVO {
      * 数据完整性
      */
     private String dataIntegrity;
+
+    /**
+     * 是否已经筛查过
+     **/
+    private Boolean hasScreening;
 
 }

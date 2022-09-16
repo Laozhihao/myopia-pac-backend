@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -23,6 +24,7 @@ public class BiometricDataVO implements Serializable {
     private BiometricData rightEyeData;
 
     @Data
+    @Accessors(chain = true)
     public static class BiometricData implements Serializable {
 
         /**

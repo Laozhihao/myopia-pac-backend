@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
@@ -133,18 +135,21 @@ public class SchoolStudentBizService {
 
         //全部的年级+学生数
         List<GradeInfoVO.GradeInfo> gradeInfoVOList = schoolFacade.getGradeInfoBySchoolId(schoolId);
-        gradeInfoVO.setNoSelectList(gradeInfoVOList);
+        gradeInfoVO.setAllList(gradeInfoVOList);
 
         if (Objects.isNull(screeningPlanId)){
             return gradeInfoVO;
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+            //已选中的为空，未选中的就是等于全部的
+            gradeInfoVO.setNoSelectList(gradeInfoVOList);
             return gradeInfoVO;
         }
 
         //已选中的年级+学生数
         List<GradeInfoVO.GradeInfo> planGradeInfoList = getGradeInfos(gradeInfoVO, screeningPlanSchoolStudentList);
+
         //未选中的年级+学生数（全部的-已选中的）
         setNoSelectStudent(gradeInfoVO, gradeInfoVOList, planGradeInfoList);
         return gradeInfoVO;
@@ -158,16 +163,30 @@ public class SchoolStudentBizService {
      */
     private void setNoSelectStudent(GradeInfoVO gradeInfoVO, List<GradeInfoVO.GradeInfo> gradeInfoVOList, List<GradeInfoVO.GradeInfo> planGradeInfoList) {
         Map<Integer, GradeInfoVO.GradeInfo> planGradeInfoMap = planGradeInfoList.stream().collect(Collectors.toMap(GradeInfoVO.GradeInfo::getGradeId, Function.identity()));
-
         //未选中年级+学生数
-        for (GradeInfoVO.GradeInfo gradeInfo : gradeInfoVOList) {
-            GradeInfoVO.GradeInfo planGradeInfo = planGradeInfoMap.get(gradeInfo.getGradeId());
-            if (Objects.isNull(planGradeInfo)){
-                continue;
-            }
-            gradeInfo.setStudentNum(gradeInfo.getStudentNum()-planGradeInfo.getStudentNum());
+        List<GradeInfoVO.GradeInfo> noSelectList = Lists.newArrayList();
+        gradeInfoVOList.forEach(gradeInfo -> getNoSelect(planGradeInfoMap, noSelectList, gradeInfo));
+        gradeInfoVO.setNoSelectList(noSelectList);
+    }
+
+    /**
+     * 获取未选中的年级+学生数
+     * @param planGradeInfoMap 选中的年级+学生数对象集合
+     * @param noSelectList 未选中年级+学生数
+     * @param gradeInfo 全部的年级+学生数
+     */
+    private void getNoSelect(Map<Integer, GradeInfoVO.GradeInfo> planGradeInfoMap, List<GradeInfoVO.GradeInfo> noSelectList, GradeInfoVO.GradeInfo gradeInfo) {
+        GradeInfoVO.GradeInfo planGradeInfo = planGradeInfoMap.get(gradeInfo.getGradeId());
+        if (Objects.isNull(planGradeInfo)){
+            noSelectList.add(gradeInfo);
+            return;
         }
-        gradeInfoVO.setNoSelectList(gradeInfoVOList);
+        int noSelectNum = gradeInfo.getStudentNum() - planGradeInfo.getStudentNum();
+        if (noSelectNum > 0){
+            GradeInfoVO.GradeInfo noSelect = ObjectUtil.cloneByStream(gradeInfo);
+            noSelect.setStudentNum(noSelectNum);
+            noSelectList.add(noSelect);
+        }
     }
 
     /**

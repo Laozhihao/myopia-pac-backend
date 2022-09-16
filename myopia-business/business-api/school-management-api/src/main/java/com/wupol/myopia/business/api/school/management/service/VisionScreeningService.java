@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.school.management.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,8 +12,10 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
+import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.builder.ScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
@@ -20,6 +24,7 @@ import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStuden
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -34,31 +39,27 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanListDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningRequestDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentTrackWarningResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -100,6 +101,11 @@ public class VisionScreeningService {
     private SchoolFacade schoolFacade;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
+
+    private static final String DATA_INTEGRITY_FINISH = "数据完整";
+    private static final String DATA_INTEGRITY_MISS = "数据缺失";
 
     /**
      * 获取视力筛查列表
@@ -307,7 +313,7 @@ public class VisionScreeningService {
             throw new ValidationException("无权限");
         }
         // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
+        if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(screeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         //筛查计划
@@ -318,7 +324,7 @@ public class VisionScreeningService {
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(screeningPlanDTO, school);
 
         //筛查学生
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(screeningPlanDTO,school);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(screeningPlanDTO.getId(),screeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
 
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
 
@@ -341,18 +347,18 @@ public class VisionScreeningService {
 
     /**
      * 获取筛查计划学校学生
-     * @param screeningPlanDTO 筛查计划参数
+     * @param screeningPlanId 筛查计划ID
+     * @param gradeIds 年级ID集合
      * @param school 学校信息
      */
-    private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(ScreeningPlanDTO screeningPlanDTO, School school){
-        List<Integer> gradeIds = screeningPlanDTO.getGradeIds();
+    private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school,boolean isAdd){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(gradeIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
-        if (Objects.nonNull(screeningPlanDTO.getId())){
-            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanDTO.getId(),Boolean.FALSE);
+        if (Objects.nonNull(screeningPlanId)){
+            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
         }
-        return ScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList);
+        return ScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
     }
 
 
@@ -407,14 +413,101 @@ public class VisionScreeningService {
     public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
                 .eq(ScreeningPlanSchoolStudent::getSchoolId, studentListDTO.getSchoolId())
+                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,studentListDTO.getScreeningPlanId())
                 .like(StrUtil.isNotBlank(studentListDTO.getName()), ScreeningPlanSchoolStudent::getStudentName, studentListDTO.getName())
                 .like(StrUtil.isNotBlank(studentListDTO.getSno()), ScreeningPlanSchoolStudent::getStudentNo, studentListDTO.getSno())
                 .eq(Objects.nonNull(studentListDTO.getGradeId()), ScreeningPlanSchoolStudent::getGradeId, studentListDTO.getGradeId())
                 .eq(Objects.nonNull(studentListDTO.getClassId()), ScreeningPlanSchoolStudent::getClassId, studentListDTO.getClassId());
         Page page = studentListDTO.toPage();
-        IPage<SchoolStudent> schoolStudentPage = screeningPlanSchoolStudentService.page(page, queryWrapper);
-        List<SchoolStudent> records = schoolStudentPage.getRecords();
-        return null;
+        IPage<ScreeningPlanSchoolStudent> schoolStudentPage = screeningPlanSchoolStudentService.page(page, queryWrapper);
+        return processScreeningStudentList(schoolStudentPage);
+    }
+
+    /**
+     * 处理筛查学生信息
+     * @param schoolStudentPage 筛查学生分页对象
+     */
+    private IPage<ScreeningStudentListVO> processScreeningStudentList(IPage<ScreeningPlanSchoolStudent> schoolStudentPage) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = schoolStudentPage.getRecords();
+        IPage<ScreeningStudentListVO> screeningStudentListVoPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize());
+        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+            return screeningStudentListVoPage;
+        }
+
+        Set<Integer> gradeIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
+        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
+
+        Set<Integer> planSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+        List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(Lists.newArrayList(planSchoolStudentIds));
+        Map<Integer,VisionScreeningResult> visionScreeningResultMap = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+
+        List<ScreeningStudentListVO> screeningStudentListVOList = screeningPlanSchoolStudentList.stream()
+                .map(screeningPlanSchoolStudent -> getScreeningStudentListVO(schoolGradeAndClass, visionScreeningResultMap, screeningPlanSchoolStudent)).collect(Collectors.toList());
+        BeanUtil.copyProperties(schoolStudentPage,screeningStudentListVoPage);
+        screeningStudentListVoPage.setRecords(screeningStudentListVOList);
+        return screeningStudentListVoPage;
+    }
+
+    /**
+     * 获取筛查学生信息
+     * @param schoolGradeAndClass 年级和班级
+     * @param visionScreeningResultMap 筛查结果集合
+     * @param screeningPlanSchoolStudent 筛查学生信息
+     */
+    private ScreeningStudentListVO getScreeningStudentListVO(TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass, Map<Integer, VisionScreeningResult> visionScreeningResultMap, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(screeningPlanSchoolStudent.getId());
+        SchoolGrade schoolGrade = schoolGradeAndClass.getFirst().get(screeningPlanSchoolStudent.getGradeId());
+        SchoolClass schoolClass = schoolGradeAndClass.getSecond().get(screeningPlanSchoolStudent.getClassId());
+        return buildScreeningStudentListVO(screeningPlanSchoolStudent, visionScreeningResult, schoolGrade, schoolClass);
+    }
+
+    /**
+     * 构建筛查学生列表对象
+     * @param screeningPlanSchoolStudent 筛查学生对象
+     * @param visionScreeningResult 筛查结果集合
+     */
+    private ScreeningStudentListVO buildScreeningStudentListVO(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,VisionScreeningResult visionScreeningResult,SchoolGrade schoolGrade,SchoolClass schoolClass) {
+        ScreeningStudentListVO screeningStudentListVO = new ScreeningStudentListVO()
+                .setPlanStudentId(screeningPlanSchoolStudent.getId())
+                .setScreeningCode(screeningPlanSchoolStudent.getScreeningCode())
+                .setSno(screeningPlanSchoolStudent.getStudentNo())
+                .setName(screeningPlanSchoolStudent.getStudentName())
+                .setGenderDesc(GenderEnum.getCnName(screeningPlanSchoolStudent.getGender()))
+                .setGradeName(schoolGrade.getName())
+                .setClassName(schoolClass.getName())
+                .setStateDesc(screeningPlanSchoolStudent.getState());
+
+        setStudentVisionScreeningResult(screeningStudentListVO,visionScreeningResult);
+        return screeningStudentListVO;
+    }
+
+    /**
+     * 设置学生的筛查数据
+     * @param screeningStudentListVO 筛查学生
+     * @param visionScreeningResult 筛查学生的筛查结果
+     */
+    public void setStudentVisionScreeningResult(ScreeningStudentListVO screeningStudentListVO, VisionScreeningResult  visionScreeningResult) {
+        screeningStudentListVO.setHasScreening(Objects.nonNull(visionScreeningResult))
+                //是否戴镜情况
+                .setGlassesTypeDes(EyeDataUtil.glassesTypeString(visionScreeningResult))
+                //裸视力
+                .setNakedVision(EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult))
+                //矫正 视力
+                .setCorrectedVision(EyeDataUtil.correctedRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correctedLeftDataToStr(visionScreeningResult))
+                //球镜
+                .setSph(EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult))
+                //柱镜
+                .setCyl(EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult))
+                //眼轴
+                .setAxial(EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult));
+
+        //是否有做复测
+        if (Objects.isNull(visionScreeningResult)) {
+            screeningStudentListVO.setDataIntegrity(DATA_INTEGRITY_MISS);
+            return;
+        }
+        boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
+        screeningStudentListVO.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?DATA_INTEGRITY_FINISH:DATA_INTEGRITY_MISS);
     }
 
     /**
@@ -422,7 +515,9 @@ public class VisionScreeningService {
      * @param addScreeningStudentDTO 新增筛查学校对象
      */
     public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO) {
-
+        School school = schoolService.getById(addScreeningStudentDTO.getSchoolId());
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school,Boolean.TRUE);
+        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
     }
 
     /**
@@ -431,8 +526,8 @@ public class VisionScreeningService {
      * @param screeningPlanStudentId 筛查计划学生ID
      */
     public StudentScreeningDetailVO studentScreeningDetail(Integer screeningPlanId, Integer screeningPlanStudentId) {
-
-        return null;
+        VisionScreeningResultDTO studentScreeningResultDetail = visionScreeningResultService.getStudentScreeningResultDetail(screeningPlanId, screeningPlanStudentId);
+        return ScreeningPlanBuilder.getStudentScreeningDetailVO(studentScreeningResultDetail);
     }
 
     /**
