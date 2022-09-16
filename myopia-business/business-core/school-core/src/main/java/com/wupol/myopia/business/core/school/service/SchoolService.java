@@ -478,7 +478,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return schoolNoPrefix + "00001";
         }
         // 同一区/镇/县的行政区域的序号递增，不考虑片区、监测点。由原来的2位增加到5位，原因：海口美兰区的学校已经破百 2022-09-14。
-        int maxSerialNumber = schoolList.stream().map(School::getSchoolNo).mapToInt(x -> Integer.parseInt(x.substring(x.length() - 2))).max().orElse(0);
+        int maxSerialNumber = schoolList.stream().map(School::getSchoolNo).mapToInt(x -> Integer.parseInt(x.substring(x.length() - 5))).max().orElse(0);
+        Assert.isTrue(maxSerialNumber < 99999, "当前区域的学校超过了最大数量");
         return schoolNoPrefix + String.format("%05d", maxSerialNumber + 1);
     }
 
