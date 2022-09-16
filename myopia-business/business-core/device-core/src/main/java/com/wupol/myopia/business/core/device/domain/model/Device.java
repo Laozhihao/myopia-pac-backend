@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.device.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -38,11 +36,13 @@ public class Device implements Serializable {
     /**
      * 销售名字
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String salespersonName;
 
     /**
      * 销售电话
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String salespersonPhone;
 
     /**
@@ -58,11 +58,13 @@ public class Device implements Serializable {
     /**
      * 客户名字
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String customerName;
 
     /**
      * 客户电话
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String customerPhone;
 
     /**
