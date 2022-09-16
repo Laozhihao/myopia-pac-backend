@@ -67,7 +67,7 @@ public class HospitalInfoService {
             deviceGrantedDTO.setStatus(s.getStatus());
             return deviceGrantedDTO;
         }).collect(Collectors.toList());
-        return screeningConfig.setGrantedDeviceIdList(grantedDTOS);
+        return screeningConfig.setGrantedDeviceList(grantedDTOS);
     }
 
 

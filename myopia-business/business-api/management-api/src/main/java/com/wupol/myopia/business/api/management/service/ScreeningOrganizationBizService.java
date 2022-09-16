@@ -640,7 +640,7 @@ public class ScreeningOrganizationBizService {
             return;
         }
 
-        screeningConfig.setGrantedDeviceIdList(deviceList.stream().map(s->{
+        screeningConfig.setGrantedDeviceList(deviceList.stream().map(s->{
             DeviceGrantedDTO grantedDTO = new DeviceGrantedDTO();
             grantedDTO.setDeviceSn(s.getDeviceSn());
             grantedDTO.setType(s.getType());

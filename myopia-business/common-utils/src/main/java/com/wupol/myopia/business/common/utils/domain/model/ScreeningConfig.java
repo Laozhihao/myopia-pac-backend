@@ -5,7 +5,6 @@ import com.wupol.myopia.business.common.utils.domain.dto.DeviceGrantedDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import lombok.val;
 
 import java.io.Serializable;
 import java.util.List;
@@ -31,5 +30,5 @@ public class ScreeningConfig implements Serializable {
     /** 开通的检查项目列表 */
     private List<String> medicalProjectList;
     /** 已授权的设备列表 */
-    private List<DeviceGrantedDTO> grantedDeviceIdList;
+    private List<DeviceGrantedDTO> grantedDeviceList;
 }
