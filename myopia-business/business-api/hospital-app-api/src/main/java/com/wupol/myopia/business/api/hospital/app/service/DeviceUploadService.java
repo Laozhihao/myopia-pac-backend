@@ -225,7 +225,7 @@ public class DeviceUploadService {
             throw new BusinessException("获取设备异常！");
         }
 
-        if (Objects.equals(device.getStatus(), StatusConstant.ENABLE)) {
+        if (!Objects.equals(device.getStatus(), StatusConstant.ENABLE)) {
             throw new BusinessException("设备已禁用或删除！");
         }
         // 检查mac地址是否相同
