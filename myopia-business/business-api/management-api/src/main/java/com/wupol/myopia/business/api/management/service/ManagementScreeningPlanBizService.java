@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.aggregation.screening.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -51,6 +52,8 @@ public class ManagementScreeningPlanBizService {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ManagementScreeningPlanFacade managementScreeningPlanFacade;
 
     /**
      * 分页查询
@@ -104,36 +107,7 @@ public class ManagementScreeningPlanBizService {
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId()))) || user.isPlatformAdminUser()) {
             screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
         }
-        return this.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(screeningNoticeIds, null, user);
-    }
-
-    /**
-     * 查找用户在参与筛查通知（发布筛查通知，或者接收筛查通知）中，所有筛查计划
-     *
-     * @param noticeIds 通知ID集
-     * @param taskIds   任务ID集
-     * @param user      当前用户
-     * @return
-     */
-    public List<ScreeningPlan> getScreeningPlanByNoticeIdsOrTaskIdsAndUser(Set<Integer> noticeIds, Set<Integer> taskIds, CurrentUser user) {
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
-            screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
-        } else if (user.isGovDeptUser()) {
-            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
-            allGovDeptIds.add(user.getOrgId());
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
-        }
-        if (CollectionUtils.isEmpty(noticeIds) && CollectionUtils.isEmpty(taskIds)) {
-            return Collections.emptyList();
-        }
-        if (!CollectionUtils.isEmpty(noticeIds)) {
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getSrcScreeningNoticeId, noticeIds);
-        }
-        if (!CollectionUtils.isEmpty(taskIds)) {
-            screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getScreeningTaskId, taskIds);
-        }
-        return screeningPlanService.list(screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE));
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(screeningNoticeIds, null, user);
     }
 
     /**
@@ -149,7 +123,7 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> noticeSet = new HashSet<>();
         noticeSet.add(noticeId);
-        return getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user);
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user);
     }
 
     /**
@@ -163,7 +137,7 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> taskSet = new HashSet<>();
         taskSet.add(taskId);
-        return getScreeningPlanByNoticeIdsOrTaskIdsAndUser(null, taskSet, user);
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(null, taskSet, user);
     }
 
 }

@@ -7,7 +7,9 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
+import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -15,8 +17,14 @@ import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
+import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
+import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -42,6 +50,7 @@ import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -97,6 +106,13 @@ public class StudentFacade {
 
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private MedicalReportService medicalReportService;
+
+    @Autowired
+    private HospitalDoctorService hospitalDoctorService;
+    @Autowired
+    private MedicalReportBizService medicalReportBizService;
 
 
     /**
@@ -1376,5 +1392,126 @@ public class StudentFacade {
         }
         return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
                 .filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学生预警跟踪档案
+     *
+     * @param studentId 学生ID
+     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
+     **/
+    public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
+        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
+        if (CollectionUtils.isEmpty(statConclusionList)) {
+            return new ArrayList<>();
+        }
+        List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
+        for (StatConclusion conclusion : statConclusionList) {
+            StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
+            BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
+            studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
+            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
+            // 筛查信息
+            studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
+            ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
+            if (Objects.nonNull(screeningPlan)) {
+                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            }
+            // 就诊情况
+            setVisitInfo(studentWarningArchiveVO, conclusion);
+            // 课桌椅信息
+            setDeskAndChairInfo(studentWarningArchiveVO);
+            studentWarningArchiveVOList.add(studentWarningArchiveVO);
+        }
+        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
+        return studentWarningArchiveVOList;
+    }
+
+    /**
+     * 设置就诊信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪档案
+     * @param statConclusion          统计结果
+     */
+    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, StatConclusion statConclusion) {
+
+        Integer reportId = statConclusion.getReportId();
+        if (Objects.isNull(reportId)) {
+            studentWarningArchiveVO.setIsVisited(false);
+            return;
+        }
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (Objects.isNull(report)) {
+            studentWarningArchiveVO.setIsVisited(false);
+            return;
+        }
+        studentWarningArchiveVO.setIsVisited(true);
+        studentWarningArchiveVO.setVisitResult(report.getMedicalContent());
+        studentWarningArchiveVO.setGlassesSuggest(report.getGlassesSituation());
+    }
+
+    /**
+     * 设置课桌椅信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪信息
+     * @return void
+     **/
+    private void setDeskAndChairInfo(StudentWarningArchiveVO studentWarningArchiveVO) {
+        Float height = studentWarningArchiveVO.getHeight();
+        Integer schoolAge = studentWarningArchiveVO.getSchoolAge();
+        if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
+            return;
+        }
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
+        studentWarningArchiveVO.setDeskType(deskAndChairType);
+        studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
+        studentWarningArchiveVO.setChairType(deskAndChairType);
+        studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
+    }
+
+    /**
+     * 获取学生就诊列表
+     *
+     * @param pageRequest 分页请求
+     * @param studentId   学生ID
+     * @param currentUser 登录用户
+     * @param hospitalId  医院Id
+     * @return List<MedicalReportDO>
+     */
+    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser, Integer hospitalId) {
+        if (!currentUser.isPlatformAdminUser()) {
+            hospitalId = currentUser.getOrgId();
+        }
+        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId, hospitalId);
+        List<ReportAndRecordDO> records = pageReport.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return pageReport;
+        }
+        packageReportInfo(records);
+        return pageReport;
+    }
+
+    /**
+     * 设置报告信息
+     *
+     * @param records 报告
+     */
+    public void packageReportInfo(List<ReportAndRecordDO> records) {
+        // 收集医生Id
+        Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
+        Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
+        records.forEach(report -> {
+            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
+            if (Objects.nonNull(report.getBirthday())) {
+                report.setCreateTimeAge(com.wupol.myopia.base.util.DateUtil.getAgeInfo(report.getBirthday(), report.getCreateTime()));
+            }
+            ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
+            if (Objects.nonNull(reportConclusion)
+                    && Objects.nonNull(reportConclusion.getReport())
+                    && !CollectionUtils.isEmpty((reportConclusion.getReport().getImageIdList()))) {
+                report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
+            }
+            report.setCheckStatus(DateUtils.isSameDay(report.getCreateTime(), new Date()));
+        });
     }
 }

@@ -12,4 +12,18 @@
     <artifactId>stat-biz</artifactId>
     <description>各种维度的统计</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>stat-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>screening-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

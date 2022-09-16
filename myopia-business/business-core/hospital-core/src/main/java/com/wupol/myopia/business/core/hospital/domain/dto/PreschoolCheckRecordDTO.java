@@ -126,7 +126,7 @@ public class PreschoolCheckRecordDTO extends PreschoolCheckRecord implements Has
      */
     private String createTimeAge;
     /**
-        * 家庭信息
+     *  家庭信息
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private FamilyInfoVO familyInfo;

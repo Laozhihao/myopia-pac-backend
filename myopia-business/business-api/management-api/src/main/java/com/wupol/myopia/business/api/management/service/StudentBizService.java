@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
@@ -11,7 +13,6 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -153,81 +154,6 @@ public class StudentBizService {
             student.setQuestionnaireCount(0);
         }
         return pageStudents;
-    }
-
-    /**
-     * 获取学生预警跟踪档案
-     *
-     * @param studentId 学生ID
-     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
-     **/
-    public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
-        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
-        if (CollectionUtils.isEmpty(statConclusionList)) {
-            return new ArrayList<>();
-        }
-        List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
-        for (StatConclusion conclusion : statConclusionList) {
-            StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
-            BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
-            studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
-            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
-            // 筛查信息
-            studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
-            ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
-            if (Objects.nonNull(screeningPlan)) {
-                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
-            }
-            // 就诊情况
-            setVisitInfo(studentWarningArchiveVO, conclusion);
-            // 课桌椅信息
-            setDeskAndChairInfo(studentWarningArchiveVO);
-            studentWarningArchiveVOList.add(studentWarningArchiveVO);
-        }
-        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
-        return studentWarningArchiveVOList;
-    }
-
-    /**
-     * 设置就诊信息
-     *
-     * @param studentWarningArchiveVO 预警跟踪档案
-     * @param statConclusion          统计结果
-     */
-    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, StatConclusion statConclusion) {
-
-        Integer reportId = statConclusion.getReportId();
-        if (Objects.isNull(reportId)) {
-            studentWarningArchiveVO.setIsVisited(false);
-            return;
-        }
-        MedicalReport report = medicalReportService.getById(reportId);
-        if (Objects.isNull(report)) {
-            studentWarningArchiveVO.setIsVisited(false);
-            return;
-        }
-        studentWarningArchiveVO.setIsVisited(true);
-        studentWarningArchiveVO.setVisitResult(report.getMedicalContent());
-        studentWarningArchiveVO.setGlassesSuggest(report.getGlassesSituation());
-    }
-
-    /**
-     * 设置课桌椅信息
-     *
-     * @param studentWarningArchiveVO 预警跟踪信息
-     * @return void
-     **/
-    private void setDeskAndChairInfo(StudentWarningArchiveVO studentWarningArchiveVO) {
-        Float height = studentWarningArchiveVO.getHeight();
-        Integer schoolAge = studentWarningArchiveVO.getSchoolAge();
-        if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
-            return;
-        }
-        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
-        studentWarningArchiveVO.setDeskType(deskAndChairType);
-        studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
-        studentWarningArchiveVO.setChairType(deskAndChairType);
-        studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
     }
 
 
@@ -501,7 +427,7 @@ public class StudentBizService {
      */
     private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo, VisionScreeningResult result) {
         // 优先家长端绑定的手机号码
-        if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(mpParentPhone)) {
+        if (CollUtil.isNotEmpty(mpParentPhone)) {
             mpParentPhone.forEach(phone -> {
                 MsgData msgData = new MsgData(phone, "+86", noticeInfo);
                 SmsResult smsResult = vistelToolsService.sendMsg(msgData);
@@ -527,7 +453,7 @@ public class StudentBizService {
         if (smsResult.isSuccessful()) {
             result.setIsNotice(true);
         } else {
-            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSONObject.toJSONString(msgData), smsResult);
+            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSON.toJSONString(msgData), smsResult);
         }
     }
 

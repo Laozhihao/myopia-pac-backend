@@ -10,8 +10,8 @@ import com.wupol.myopia.business.aggregation.export.excel.imports.StudentExcelIm
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.VisionLabels;
@@ -234,6 +234,6 @@ public class StudentController {
      **/
     @GetMapping("/warning/archive/{studentId}")
     public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
-        return studentBizService.getStudentWarningArchive(studentId);
+        return studentFacade.getStudentWarningArchive(studentId);
     }
 }

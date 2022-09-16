@@ -4,35 +4,51 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
+import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.PreschoolCheckRecordVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
+import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,6 +82,10 @@ public class SchoolStudentBizService {
     private SchoolFacade schoolFacade;
     @Resource
     private SchoolGradeService schoolGradeService;
+    @Resource
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
     /**
      * 获取学生列表
@@ -229,5 +249,141 @@ public class SchoolStudentBizService {
         }
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(studentId);
+    }
+
+    /**
+     * 更新学生基本信息
+     * @param studentBaseInfoDTO 学生基本信息
+     * @param currentUser 当前用户
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStudentBaseInfo(StudentBaseInfoDTO studentBaseInfoDTO, CurrentUser currentUser) {
+        studentBaseInfoDTO.checkStudentInfo();
+        SchoolGrade schoolGrade = schoolGradeService.getById(studentBaseInfoDTO.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(studentBaseInfoDTO.getClassId());
+        SchoolStudent schoolStudent = schoolStudentService.getById(studentBaseInfoDTO.getId());
+        if (Objects.isNull(schoolStudent)){
+            throw new BusinessException("此学生不存在");
+        }
+        changeSchoolStudent(schoolStudent, studentBaseInfoDTO, schoolGrade, schoolClass);
+        this.saveStudent(schoolStudent,currentUser.getOrgId());
+    }
+
+    /**
+     * 构建学校学生信息
+     * @param studentBaseInfoDTO 修改学生信息
+     */
+    private void changeSchoolStudent(SchoolStudent schoolStudent,StudentBaseInfoDTO studentBaseInfoDTO,SchoolGrade schoolGrade,SchoolClass schoolClass) {
+
+        schoolStudent.setStudentId(studentBaseInfoDTO.getStudentId())
+                .setSchoolId(studentBaseInfoDTO.getSchoolId())
+                .setSno(studentBaseInfoDTO.getSno())
+                .setGradeId(studentBaseInfoDTO.getGradeId())
+                .setGradeName(schoolGrade.getName())
+                .setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType())
+                .setClassId(studentBaseInfoDTO.getClassId())
+                .setClassName(schoolClass.getName())
+                .setName(studentBaseInfoDTO.getName())
+                .setGender(studentBaseInfoDTO.getGender())
+                .setBirthday(studentBaseInfoDTO.getBirthday())
+                .setNation(studentBaseInfoDTO.getNation())
+                .setIdCard(studentBaseInfoDTO.getIdCard())
+                .setParentPhone(studentBaseInfoDTO.getParentPhone())
+                .setAddress(studentBaseInfoDTO.getAddress())
+                .setPassport(studentBaseInfoDTO.getPassport())
+                .setCommitteeCode(studentBaseInfoDTO.getCommitteeCode())
+                .setUpdateTime(new Date());
+
+        FamilyInfoVO familyInfo = new FamilyInfoVO();
+        List<FamilyInfoVO.MemberInfo> member = Lists.newArrayList();
+        if (Objects.nonNull(studentBaseInfoDTO.getFatherInfo())){
+            member.add(studentBaseInfoDTO.getFatherInfo());
+        }
+        if (Objects.nonNull(studentBaseInfoDTO.getMotherInfo())){
+            member.add(studentBaseInfoDTO.getMotherInfo());
+        }
+        if (CollUtil.isNotEmpty(member)){
+            familyInfo.setMember(member);
+            schoolStudent.setFamilyInfo(familyInfo);
+        }
+    }
+
+    /**
+     * 预警跟踪记录
+     * @param id 学校学生ID
+     */
+    public StudentWarningRecordVO warningArchive(Integer id) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        List<StudentWarningArchiveVO> studentWarningArchiveList = studentFacade.getStudentWarningArchive(schoolStudent.getStudentId());
+        return buildStudentWarningRecordVO(schoolStudent,studentWarningArchiveList);
+    }
+
+    /**
+     * 构建学生预警跟踪记录
+     * @param schoolStudent 学校学生信息
+     * @param studentWarningArchiveList 预警跟踪记录集合
+     */
+    private StudentWarningRecordVO buildStudentWarningRecordVO(SchoolStudent schoolStudent, List<StudentWarningArchiveVO> studentWarningArchiveList) {
+        StudentWarningRecordVO studentWarningRecordVO = new StudentWarningRecordVO();
+        StudentWarningRecordVO.StudentInfo studentInfo = new StudentWarningRecordVO.StudentInfo()
+                .setSno(schoolStudent.getSno())
+                .setGradeName(schoolStudent.getGradeName())
+                .setClassName(schoolStudent.getClassName())
+                .setGender(schoolStudent.getGender())
+                .setName(schoolStudent.getName());
+        studentWarningRecordVO.setStudentInfo(studentInfo);
+        studentWarningRecordVO.setStudentWarningArchiveList(studentWarningArchiveList);
+        return studentWarningRecordVO;
+    }
+
+    /**
+     * 筛查记录
+     * @param pageRequest 分页数据
+     * @param id 学校学生ID
+     */
+    public IPage<StudentScreeningResultItemsDTO> screeningRecord(PageRequest pageRequest, Integer id) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        return studentFacade.getScreeningList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser());
+    }
+
+    public PreschoolCheckRecordVO preschoolCheckList(PageRequest pageRequest, Integer id) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+
+        StudentDTO student = studentFacade.getStudentById(schoolStudent.getStudentId());
+        // 对应当前医院各年龄段状态
+        List<PreschoolCheckRecord> records = preschoolCheckRecordService.getStudentRecord(null, schoolStudent.getStudentId());
+        Map<Integer, MonthAgeStatusDTO> studentCheckStatus = preschoolCheckRecordService.getStudentCheckStatus(schoolStudent.getBirthday(), records);
+        List<MonthAgeStatusDTO> monthAgeStatusDTOList = preschoolCheckRecordService.createMonthAgeStatusDTOByMap(studentCheckStatus);
+        PreschoolCheckRecordVO preschoolCheckRecordVO = new PreschoolCheckRecordVO();
+        PreschoolCheckRecordVO.StudentInfo studentInfo = new PreschoolCheckRecordVO.StudentInfo()
+                .setName(schoolStudent.getName())
+                .setGender(schoolStudent.getGender())
+                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()))
+                .setRecordNo(student.getRecordNo())
+                .setAgeStageStatusList(monthAgeStatusDTOList);
+
+        preschoolCheckRecordVO.setStudentInfo(studentInfo);
+
+        PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
+        query.setStudentId(schoolStudent.getStudentId());
+        if (CollUtil.isNotEmpty(monthAgeStatusDTOList)){
+            query.setMonthAges(monthAgeStatusDTOList.stream().map(MonthAgeStatusDTO::getMonthAge).collect(Collectors.toList()));
+        }
+        IPage<PreschoolCheckRecordDTO> recordPage = preschoolCheckRecordService.getList(pageRequest, query);
+        preschoolCheckRecordVO.setPageData(recordPage);
+        return preschoolCheckRecordVO;
+    }
+
+    public StudentReportVO reportList(PageRequest pageRequest, Integer id) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        StudentReportVO studentReportVO = new StudentReportVO();
+        StudentReportVO.StudentInfo studentInfo = new StudentReportVO.StudentInfo()
+                .setName(schoolStudent.getName())
+                .setGender(schoolStudent.getGender())
+                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()));
+        studentReportVO.setStudentInfo(studentInfo);
+        IPage<ReportAndRecordDO> reportPage = studentFacade.getReportList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser(), null);
+        studentReportVO.setPageData(reportPage);
+        return studentReportVO;
     }
 }

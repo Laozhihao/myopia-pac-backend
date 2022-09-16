@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.stat.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.core.stat.domain.dos.FrontTableId;
@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KindergartenResultDetailVO  implements Serializable, FrontTableId,ResultDetailVO {
+public class KindergartenResultDetailVO implements Serializable, FrontTableId,ResultDetailVO {
 
 
     /**

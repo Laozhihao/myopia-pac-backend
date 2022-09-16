@@ -125,11 +125,15 @@ public class VisionScreeningService {
         //筛查机构名称条件查询
         if (StrUtil.isNotBlank(screeningPlanListDTO.getScreeningOrgName())){
             organizationList = screeningOrganizationService.getByNameLike(screeningPlanListDTO.getScreeningOrgName(), Boolean.FALSE);
-            if (CollUtil.isEmpty(organizationList)){
+            boolean isContains = "本校".contains(screeningPlanListDTO.getScreeningOrgName());
+            if (CollUtil.isEmpty(organizationList) && Objects.equals(Boolean.FALSE,isContains)){
                 // 可以直接返回空
                 return new Page<>();
             }
             Set<Integer> orgIds = organizationList.stream().map(ScreeningOrganization::getId).collect(Collectors.toSet());
+            if (Objects.equals(Boolean.TRUE,isContains)){
+                orgIds.add(schoolId);
+            }
             screeningPlanListDTO.setScreeningOrgIds(Lists.newArrayList(orgIds));
         }
 
@@ -163,8 +167,19 @@ public class VisionScreeningService {
         List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
         Map<Integer, SchoolVisionStatistic> schoolStatisticMap = statisticList.stream().collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
+
         // 筛查机构
         Map<Integer, ScreeningOrganization> orgMap = organizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+        if (CollUtil.isEmpty(organizationList)){
+            Set<Integer> orgIds = schoolPlanList.stream()
+                    .filter(screeningListResponseDTO -> Objects.equals(screeningListResponseDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                    .map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toSet());
+            if (CollUtil.isNotEmpty(orgIds)){
+                List<ScreeningOrganization> screeningOrganizationList = screeningOrganizationService.getByIds(orgIds);
+                Map<Integer, ScreeningOrganization> collect = screeningOrganizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+                orgMap.putAll(collect);
+            }
+        }
 
         // 获取学校告知书
         School school = schoolService.getBySchoolId(schoolId);
@@ -229,6 +244,7 @@ public class VisionScreeningService {
     private void setOrgInfo(ScreeningListResponseDTO responseDTO,Map<Integer, ScreeningOrganization> orgMap) {
         ScreeningOrganization screeningOrganization = orgMap.get(responseDTO.getScreeningOrgId());
         if (Objects.isNull(screeningOrganization)){
+            responseDTO.setScreeningOrgName("本校");
             return;
         }
         responseDTO.setScreeningOrgName(screeningOrganization.getName());

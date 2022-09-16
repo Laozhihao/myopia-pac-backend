@@ -1,13 +1,15 @@
 package com.wupol.myopia.business.api.management.service;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
-import com.wupol.myopia.business.api.management.domain.bo.StatisticDetailBO;
+import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
+import com.wupol.myopia.business.aggregation.stat.domain.vo.SchoolResultDetailVO;
+import com.wupol.myopia.business.aggregation.stat.facade.StatSchoolFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -97,6 +99,8 @@ public class StatService {
     private StatDistrictService statDistrictService;
     @Autowired
     private StatSchoolService statSchoolService;
+    @Autowired
+    private StatSchoolFacade statSchoolFacade;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -582,7 +586,7 @@ public class StatService {
         int totalScreeningNum = rescreenConclusions.size();
         Integer screeningType =null;
         List<Integer> typeList = rescreenConclusions.stream().map(StatConclusion::getScreeningType).distinct().collect(Collectors.toList());
-        if (CollectionUtil.isNotEmpty(typeList)){
+        if (CollUtil.isNotEmpty(typeList)){
             screeningType=typeList.get(0);
         }
 
@@ -1136,7 +1140,7 @@ public class StatService {
      * @param statisticDetailBO 统计详情业务流转实体
      */
     public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
-        return statSchoolService.getSchoolStatisticDetail(statisticDetailBO);
+        return statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO);
     }
 
     /**

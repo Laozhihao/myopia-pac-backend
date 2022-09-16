@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import com.wupol.myopia.business.aggregation.stat.domain.vo.KindergartenResultDetailVO;
+import com.wupol.myopia.business.aggregation.stat.domain.vo.PrimarySchoolAndAboveResultDetailVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
@@ -59,7 +62,7 @@ public class ScreeningResultStatisticDetailVO {
                             List<ScreeningResultStatistic> kindergartenVisionStatistics,
                             List<ScreeningResultStatistic> primarySchoolAndAboveVisionStatistics) {
         // 下级数据 + 当前数据 + 合计数据
-        if(CollectionUtil.isNotEmpty(kindergartenVisionStatistics)){
+        if(CollUtil.isNotEmpty(kindergartenVisionStatistics)){
 
             ScreeningResultStatistic kindergartenVisionStatistic = kindergartenVisionStatistics.stream().filter(vs -> Objects.equals(districtId, vs.getDistrictId())).findFirst().orElse(null);
             if (Objects.nonNull(kindergartenVisionStatistic)){
@@ -68,7 +71,7 @@ public class ScreeningResultStatisticDetailVO {
             }
         }
 
-        if (CollectionUtil.isNotEmpty(primarySchoolAndAboveVisionStatistics)){
+        if (CollUtil.isNotEmpty(primarySchoolAndAboveVisionStatistics)){
             ScreeningResultStatistic primarySchoolAndAboveVisionStatistic = primarySchoolAndAboveVisionStatistics.stream().filter(vs -> Objects.equals(districtId, vs.getDistrictId())).findFirst().orElse(null);
             if (Objects.nonNull(primarySchoolAndAboveVisionStatistic) ){
                 String statRangeName = "合计";

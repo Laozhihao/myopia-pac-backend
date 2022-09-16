@@ -12,6 +12,10 @@ import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentE
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.PreschoolCheckRecordVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -181,40 +185,54 @@ public class SchoolStudentController {
     public StudentDTO getBaseInfo(@PathVariable("id") Integer id){
         return studentFacade.getStudentById(id);
     }
+
+    /**
+     * 更新基本资料
+     * @param studentBaseInfoDTO 学生信息
+     */
+    @PutMapping("/baseInfo")
+    public void updateStudentBaseInfo(@RequestBody StudentBaseInfoDTO studentBaseInfoDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        schoolStudentBizService.updateStudentBaseInfo(studentBaseInfoDTO,currentUser);
+    }
+
     /**
      * 筛查记录
      * @param pageRequest 分页信息
+     * @param id 学校学生Id
      */
     @GetMapping("/screeningRecord")
-    public void screeningRecord(PageRequest pageRequest){
-
+    public IPage<StudentScreeningResultItemsDTO> screeningRecord(PageRequest pageRequest,@NotNull(message = "学校学生Id不能为空") Integer id){
+        return schoolStudentBizService.screeningRecord(pageRequest,id);
     }
 
     /**
      * 预警跟踪记录
-     * @param studentId 学生ID
+     * @param id 学校学生ID
      */
-    @GetMapping("/warning/archive/{studentId}")
-    public void warningArchive(@PathVariable("studentId") Integer studentId){
-
+    @GetMapping("/warning/archive/{id}")
+    public StudentWarningRecordVO warningArchive(@PathVariable("id") Integer id){
+        return schoolStudentBizService.warningArchive(id);
     }
 
 
     /**
      * 0-6岁检查记录
      * @param pageRequest 分页信息
+     * @param id 学校学生Id
      */
     @GetMapping("/preschool/check/list")
-    public void preschoolCheckList(PageRequest pageRequest){
-
+    public PreschoolCheckRecordVO preschoolCheckList(PageRequest pageRequest, @NotNull(message = "学校学生Id不能为空") Integer id){
+        return schoolStudentBizService.preschoolCheckList(pageRequest,id);
     }
 
     /**
      * 就诊记录
      * @param pageRequest 分页信息
+     * @param id 学校学生Id
      */
     @GetMapping("/report/list")
-    public void reportList(PageRequest pageRequest){
-
+    public StudentReportVO reportList(PageRequest pageRequest, @NotNull(message = "学校学生Id不能为空") Integer id){
+       return schoolStudentBizService.reportList(pageRequest,id);
     }
 }

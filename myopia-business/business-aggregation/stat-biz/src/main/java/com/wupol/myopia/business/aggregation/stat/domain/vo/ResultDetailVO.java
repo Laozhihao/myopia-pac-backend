@@ -1,9 +1,10 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.stat.domain.vo;
 
 import com.wupol.myopia.business.core.stat.domain.dos.*;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
  *
  * @author hang.yuan 2022/6/20 10:36
  */
-public interface ResultDetailVO {
+public interface ResultDetailVO extends Serializable {
 
     default void setScreeningType(Integer screeningType){}
     default void setDistrictId(Integer districtId){}
@@ -32,14 +33,14 @@ public interface ResultDetailVO {
 
 
 
-    default void setBaseData(Integer screeningNoticeId, Integer districtId, Integer screeningType, String  rangeName) {
+    default void setBaseData(Integer screeningNoticeId, Integer districtId, Integer screeningType, String rangeName) {
         setScreeningType(screeningType);
         setDistrictId(districtId);
         setRangeName(rangeName);
         setScreeningNoticeId(screeningNoticeId);
     }
 
-    default void setItemData(ScreeningResultStatistic screeningResultStatistic,Boolean isKindergarten) {
+    default void setItemData(ScreeningResultStatistic screeningResultStatistic, Boolean isKindergarten) {
         if (Objects.isNull(screeningResultStatistic)){
             return;
         }

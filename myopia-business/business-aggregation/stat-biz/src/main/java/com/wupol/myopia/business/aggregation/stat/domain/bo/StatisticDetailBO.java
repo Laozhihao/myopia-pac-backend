@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.bo;
+package com.wupol.myopia.business.aggregation.stat.domain.bo;
 
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.core.school.domain.model.School;
