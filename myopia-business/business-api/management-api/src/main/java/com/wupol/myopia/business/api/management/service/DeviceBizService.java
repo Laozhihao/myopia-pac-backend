@@ -395,6 +395,9 @@ public class DeviceBizService {
      */
     private <T extends HasName> List<DeviceOrgListResponseDTO> convert2Dto(List<T> t) {
         List<Integer> districtIds = t.stream().map(HasName::getDistrictId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return new ArrayList<>();
+        }
         Map<Integer, District> districtMap = districtService.getByIds(districtIds);
         return t.stream().map(s -> new DeviceOrgListResponseDTO(s.getId(),
                         s.getName(),
