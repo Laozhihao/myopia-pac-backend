@@ -24,8 +24,10 @@ import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningSt
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
+import com.wupol.myopia.business.api.school.management.facade.SchoolScreeningStatisticFacade;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
@@ -36,7 +38,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -110,6 +111,8 @@ public class VisionScreeningController {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Resource
+    private SchoolScreeningStatisticFacade schoolScreeningStatisticFacade;
 
     /**
      * 获取学校计划
@@ -166,8 +169,10 @@ public class VisionScreeningController {
      * @return ScreeningPlan
      */
     @GetMapping("/plan/{screeningPlanId}")
-    public ScreeningPlan getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
-        return screeningPlanService.getById(screeningPlanId);
+    public ScreeningPlanVO getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolScreeningStatisticFacade.getPlanInfo(screeningPlanId,currentUser);
+
     }
 
     /**
