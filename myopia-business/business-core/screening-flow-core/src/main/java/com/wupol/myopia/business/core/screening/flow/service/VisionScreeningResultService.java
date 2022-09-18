@@ -495,4 +495,22 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     public List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId) {
         return baseMapper.getVisionScreeningCountBySchoolId(schoolId);
     }
+
+    /**
+     * 根据条件查询筛查结果
+     * @param schoolIds 学校ID集合
+     * @param screeningPlanId 筛查计划ID
+     * @param screeningOrgId 筛查jigouID
+     * @param isDoubleScreen 是否复查
+     */
+    public List<VisionScreeningResult> listByCondition(List<Integer> schoolIds, Integer screeningPlanId, Integer screeningOrgId, Boolean isDoubleScreen) {
+        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .eq(VisionScreeningResult::getPlanId, screeningPlanId)
+                .eq(VisionScreeningResult::getScreeningOrgId, screeningOrgId)
+                .in(VisionScreeningResult::getSchoolId, schoolIds)
+                .eq(VisionScreeningResult::getIsDoubleScreen, isDoubleScreen)
+                .select(VisionScreeningResult::getId, VisionScreeningResult::getSchoolId);
+        return baseMapper.selectList(queryWrapper);
+
+    }
 }

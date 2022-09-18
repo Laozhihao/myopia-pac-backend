@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalReq
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -261,6 +262,15 @@ public class ScreeningOrganizationController {
             orgId = user.getScreeningOrgId();
         }
         return screeningOrganizationBizService.getRecordLists(request, orgId, user);
+    }
+
+    /**
+     * 获取筛查计划的学校信息
+     * @param screeningPlanId 筛查计划ID
+     */
+    @GetMapping("/record/schoolInfo")
+    public ScreeningRecordItems getRecordSchoolInfo(@RequestParam Integer screeningPlanId){
+        return screeningOrganizationBizService.getRecordSchoolInfo(screeningPlanId);
     }
 
     /**
