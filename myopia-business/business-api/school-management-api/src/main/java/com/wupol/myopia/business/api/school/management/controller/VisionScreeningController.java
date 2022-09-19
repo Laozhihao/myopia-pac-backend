@@ -133,7 +133,7 @@ public class VisionScreeningController {
      * @return SchoolVisionStatistic
      */
     @GetMapping("{schoolStatisticId}")
-    public SchoolVisionStatistic getSchoolStatistic(@PathVariable("schoolStatisticId") Integer schoolStatisticId) {
+    public SchoolVisionStatistic getSchoolStatistic(@PathVariable("schoolStatisticId") Integer schoolStatisticId,Integer type) {
         return schoolVisionStatisticService.getById(schoolStatisticId);
     }
 

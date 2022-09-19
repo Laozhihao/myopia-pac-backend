@@ -43,6 +43,11 @@ public class ScreeningTaskOrg implements Serializable {
     private Integer screeningOrgId;
 
     /**
+     * 筛查任务--筛查机构类型(0:筛查机构，1:学校，2:医院)
+     */
+    private Integer screeningOrgType;
+
+    /**
      * 筛查任务--机构质控员名字（长度限制未知）
      */
     private String qualityControllerName;
