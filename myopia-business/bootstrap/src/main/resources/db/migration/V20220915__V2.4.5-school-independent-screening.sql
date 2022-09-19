@@ -7,7 +7,7 @@ alter table m_school
 alter table m_school
     add screening_type_config varchar(16) null comment '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';
 
-update m_school set screening_config = '{"medicalProjectList":["vision","computer_optometry","other_eye_diseases"]}' where screening_config is null
+update m_school set screening_config = '{"medicalProjectList":["vision","computer_optometry","other_eye_diseases"]}' where screening_config is null;
 
 create table m_school_staff
 (
