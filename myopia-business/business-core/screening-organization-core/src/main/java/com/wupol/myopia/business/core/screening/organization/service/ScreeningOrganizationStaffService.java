@@ -254,7 +254,8 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setGender(staff.getGender())
                 .setPhone(staff.getPhone())
                 .setIdCard(staff.getIdCard())
-                .setRemark(staff.getRemark());
+                .setRemark(staff.getRemark())
+                .setUserType(UserType.SCREENING_STAFF_TYPE_ORG.getType());
         User user = oauthServiceClient.addMultiSystemUser(userDTO);
         tuple.setSecond(user.getId());
         return tuple;
