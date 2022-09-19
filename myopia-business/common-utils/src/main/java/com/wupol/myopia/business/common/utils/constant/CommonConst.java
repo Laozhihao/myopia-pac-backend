@@ -223,5 +223,9 @@ public class CommonConst {
      */
     public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList(A01, A011, A02, A03, A04);
 
-    public final Integer USER_ID = 1;
+    /**
+     * 学校账号前缀
+     */
+    public static final String SCHOOL_USERNAME_PREFIX = "jsfkxd";
+
 }

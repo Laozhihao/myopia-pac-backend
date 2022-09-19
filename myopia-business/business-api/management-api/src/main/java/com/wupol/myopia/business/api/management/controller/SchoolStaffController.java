@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStaffFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -54,17 +55,18 @@ public class SchoolStaffController {
      */
     @PostMapping("save/{schoolId}")
     public List<UsernameAndPasswordDTO> saveSchoolStaff(@PathVariable("schoolId") Integer schoolId, @RequestBody SchoolStaffSaveRequestDTO requestDTO) {
-        return schoolStaffFacade.saveSchoolStaff(schoolId, requestDTO);
+        return schoolStaffFacade.saveSchoolStaff(CurrentUserUtil.getCurrentUser(), schoolId, requestDTO);
     }
 
     /**
      * 启用/停用
      *
-     * @param id id
+     * @param id     id
+     * @param status 状态
      */
-    @PostMapping("editStatus/{id}")
-    public void editStatus(@PathVariable("id") Integer id) {
-
+    @PostMapping("editStatus/{id}/{status}")
+    public void editStatus(@PathVariable("id") Integer id, @PathVariable("status") Integer status) {
+        schoolStaffFacade.editStatus(id, status);
     }
 
     /**

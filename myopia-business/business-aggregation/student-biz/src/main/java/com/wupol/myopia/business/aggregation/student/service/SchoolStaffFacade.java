@@ -3,6 +3,8 @@ package com.wupol.myopia.business.aggregation.student.service;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -24,6 +26,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 学校员工
@@ -43,13 +46,14 @@ public class SchoolStaffFacade {
     /**
      * 保存员工
      *
-     * @param requestDTO 请求DTO
+     * @param user       登录用户
      * @param schoolId   学校ID
+     * @param requestDTO 请求DTO
      *
      * @return List<UsernameAndPasswordDTO>
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<UsernameAndPasswordDTO> saveSchoolStaff(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
+    public List<UsernameAndPasswordDTO> saveSchoolStaff(CurrentUser user, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
 
         Integer id = requestDTO.getId();
         SchoolStaff staff = schoolStaffService.getById(id);
@@ -67,14 +71,40 @@ public class SchoolStaffFacade {
         staff.setRemark(requestDTO.getRemark());
 
         // 学校管理后台
-        TwoTuple<UsernameAndPasswordDTO, AccountInfo> school = saveSchoolAccount(schoolId, requestDTO, staff.getAccountInfo());
+        TwoTuple<UsernameAndPasswordDTO, AccountInfo> school = saveSchoolAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId());
 
         // 筛查APP
-        TwoTuple<UsernameAndPasswordDTO, AccountInfo> app = saveAppAccount(schoolId, requestDTO, staff.getAccountInfo());
+        TwoTuple<UsernameAndPasswordDTO, AccountInfo> app = saveAppAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId());
 
         staff.setAccountInfo(Lists.newArrayList(app.getSecond(), school.getSecond()));
         schoolStaffService.saveOrUpdate(staff);
         return Lists.newArrayList(app.getFirst(), school.getFirst());
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param id     id
+     * @param status 状态
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void editStatus(Integer id, Integer status) {
+        SchoolStaff schoolStaff = schoolStaffService.getById(id);
+        if (Objects.isNull(schoolStaff) || CollectionUtils.isEmpty(schoolStaff.getAccountInfo())) {
+            throw new BusinessException("数据异常");
+        }
+        List<Integer> userIds = schoolStaff.getAccountInfo().stream().map(AccountInfo::getUserId).collect(Collectors.toList());
+        List<User> userList = oauthServiceClient.getUserBatchByIds(userIds);
+
+        if (CollectionUtils.isEmpty(userList)) {
+            throw new BusinessException("数据异常");
+        }
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserIds(userIds).setStatus(status);
+        oauthServiceClient.updateUserStatusBatch(userDTO);
+
+        schoolStaff.setStatus(status);
+        schoolStaffService.updateById(schoolStaff);
     }
 
     /**
@@ -83,10 +113,12 @@ public class SchoolStaffFacade {
      * @param schoolId     学校Id
      * @param requestDTO   请求入参
      * @param accountInfos 账号信息
+     * @param createUserId 创建人
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
+                                                                            List<AccountInfo> accountInfos, Integer createUserId) {
 
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
 
@@ -99,7 +131,7 @@ public class SchoolStaffFacade {
                 .setUsername(username)
                 .setPassword(password)
                 .setSystemCode(systemCode)
-                .setCreateUserId(CommonConst.USER_ID)
+                .setCreateUserId(createUserId)
                 .setRealName(requestDTO.getStaffName())
                 .setGender(requestDTO.getGender())
                 .setRemark(requestDTO.getRemark());
@@ -112,10 +144,12 @@ public class SchoolStaffFacade {
      * @param schoolId     学校Id
      * @param requestDTO   请求入参
      * @param accountInfos 账号信息
+     * @param createUserId 创建人
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
+                                                                         List<AccountInfo> accountInfos, Integer createUserId) {
 
         String username = requestDTO.getPhone();
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
@@ -130,7 +164,7 @@ public class SchoolStaffFacade {
                 .setUsername(username)
                 .setPassword(password)
                 .setSystemCode(systemCode)
-                .setCreateUserId(CommonConst.USER_ID)
+                .setCreateUserId(createUserId)
                 .setRealName(requestDTO.getStaffName())
                 .setGender(requestDTO.getGender())
                 .setPhone(requestDTO.getPhone())
@@ -178,9 +212,9 @@ public class SchoolStaffFacade {
         user.setSystemCode(SystemCode.SCREENING_CLIENT.getCode()).setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
         List<User> userList = oauthServiceClient.getUserList(user);
         if (CollectionUtils.isEmpty(userList)) {
-            return "jsfkxd0";
+            return CommonConst.SCHOOL_USERNAME_PREFIX + "0";
         }
-        return "jsfkxd" + userList.size();
+        return CommonConst.SCHOOL_USERNAME_PREFIX + userList.size();
     }
 
     /**
