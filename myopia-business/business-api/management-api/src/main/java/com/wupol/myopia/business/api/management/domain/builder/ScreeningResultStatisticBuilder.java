@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -268,7 +268,7 @@ public class ScreeningResultStatisticBuilder {
         Integer visionLabel3Num = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer visionWarningNum =visionLabel0Num+visionLabel1Num+visionLabel2Num+visionLabel3Num;
 
-        visionWarningDO.setVisionWarningNum(visionWarningNum)
+        visionWarningDO.setVisionWarningNum(visionWarningNum).setVisionWarningRatio(MathUtil.ratio(visionWarningNum,validScreeningNum))
                 .setVisionLabel0Num(visionLabel0Num).setVisionLabel0Ratio(MathUtil.ratio(visionLabel0Num,validScreeningNum))
                 .setVisionLabel1Num(visionLabel1Num).setVisionLabel1Ratio(MathUtil.ratio(visionLabel1Num,validScreeningNum))
                 .setVisionLabel2Num(visionLabel2Num).setVisionLabel2Ratio(MathUtil.ratio(visionLabel2Num,validScreeningNum))
@@ -458,7 +458,7 @@ public class ScreeningResultStatisticBuilder {
 
         Map<Integer,Integer> planSchoolStudentMap= Maps.newHashMap();
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = statisticResultBO.getPlanSchoolStudentList();
-        if (CollectionUtil.isNotEmpty(planSchoolStudentList)){
+        if (CollUtil.isNotEmpty(planSchoolStudentList)){
             int kindergarten = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
             int primary = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> !Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
             planSchoolStudentMap.put(SchoolEnum.TYPE_KINDERGARTEN.getType(),kindergarten);
@@ -470,7 +470,7 @@ public class ScreeningResultStatisticBuilder {
 
         schoolMap.forEach((schoolAge,list)->{
             statisticResultBO.setSchoolType(schoolAge);
-            if (CollectionUtil.isNotEmpty(planSchoolStudentMap)){
+            if (CollUtil.isNotEmpty(planSchoolStudentMap)){
                 Integer planSchoolStudentCount = planSchoolStudentMap.get(schoolAge);
                 statisticResultBO.setPlanStudentCount(planSchoolStudentCount);
             }

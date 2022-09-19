@@ -50,6 +50,7 @@ public interface ResultDetailVO extends Serializable {
             setScreeningSituation(screeningSituationDO);
             setKindergartenVisionAnalysis(Optional.ofNullable(screeningResultStatistic.getVisionAnalysis()).map(KindergartenVisionAnalysisDO.class::cast).orElse(new KindergartenVisionAnalysisDO()));
             setRescreenSituation(Optional.ofNullable(screeningResultStatistic.getRescreenSituation()).orElse(new RescreenSituationDO()));
+            setVisionWarning(Optional.ofNullable(screeningResultStatistic.getVisionWarning()).orElse(new VisionWarningDO()));
         }
 
         if (Objects.equals(isKindergarten,Boolean.FALSE)) {

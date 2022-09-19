@@ -20,10 +20,12 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
+import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
@@ -43,7 +45,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,12 +130,16 @@ public class VisionScreeningController {
     /**
      * 获取结果统计分析
      *
-     * @param schoolStatisticId 结果统计
-     * @return SchoolVisionStatistic
+     * @param screeningPlanId 筛查计划ID
+     * @param type tab类型(8:幼儿园，0:小学及以上)
      */
-    @GetMapping("{schoolStatisticId}")
-    public SchoolVisionStatistic getSchoolStatistic(@PathVariable("schoolStatisticId") Integer schoolStatisticId,Integer type) {
-        return schoolVisionStatisticService.getById(schoolStatisticId);
+    @GetMapping("{screeningPlanId}")
+    public SchoolStatistic getSchoolStatistic(@PathVariable("screeningPlanId") Integer screeningPlanId, @RequestParam Integer type) {
+        StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
+                .setScreeningPlanId(screeningPlanId)
+                .setSchoolId(CurrentUserUtil.getCurrentUser().getOrgId())
+                .setType(type);
+        return visionScreeningService.getSchoolStatistic(statisticDetailBO);
     }
 
     /**

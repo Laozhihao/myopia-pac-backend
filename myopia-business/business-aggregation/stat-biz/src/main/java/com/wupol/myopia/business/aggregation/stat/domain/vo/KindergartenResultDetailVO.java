@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.aggregation.stat.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wupol.myopia.business.core.stat.domain.dos.FrontTableId;
-import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
-import com.wupol.myopia.business.core.stat.domain.dos.RescreenSituationDO;
-import com.wupol.myopia.business.core.stat.domain.dos.ScreeningSituationDO;
+import com.wupol.myopia.business.core.stat.domain.dos.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -53,6 +50,11 @@ public class KindergartenResultDetailVO implements Serializable, FrontTableId,Re
      * 复测情况
      */
     private RescreenSituationDO rescreenSituation;
+
+    /**
+     * 视力预警
+     */
+    private VisionWarningDO visionWarning;
 
     @Override
     public Integer getSerialVersionUID() {

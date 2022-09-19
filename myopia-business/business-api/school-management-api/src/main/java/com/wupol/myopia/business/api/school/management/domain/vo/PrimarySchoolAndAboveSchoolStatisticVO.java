@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
  * @author hang.yuan 2022/9/18 17:02
  */
 @Data
+@Accessors(chain = true)
 public class PrimarySchoolAndAboveSchoolStatisticVO implements SchoolStatistic {
 
     // 视力筛查情况
@@ -34,10 +36,6 @@ public class PrimarySchoolAndAboveSchoolStatisticVO implements SchoolStatistic {
      */
     private Integer validScreeningNum;
 
-    /**
-     * 纳入统计的实际筛查学生比例
-     */
-    private String validScreeningRatio;
 
 
     //视力情况统计
@@ -132,7 +130,7 @@ public class PrimarySchoolAndAboveSchoolStatisticVO implements SchoolStatistic {
     /**
      *  视力预警比例
      */
-    private Integer visionWarningRatio;
+    private String visionWarningRatio;
 
     /**
      * 零级预警人数（默认0）

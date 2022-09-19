@@ -14,13 +14,19 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
+import com.wupol.myopia.business.aggregation.stat.domain.vo.KindergartenResultDetailVO;
+import com.wupol.myopia.business.aggregation.stat.domain.vo.PrimarySchoolAndAboveResultDetailVO;
+import com.wupol.myopia.business.aggregation.stat.facade.StatSchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
+import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
 import com.wupol.myopia.business.api.school.management.domain.builder.ScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
@@ -33,6 +39,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -107,6 +114,8 @@ public class VisionScreeningService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
+    @Resource
+    private StatSchoolFacade statSchoolFacade;
 
     private static final String DATA_INTEGRITY_FINISH = "数据完整";
     private static final String DATA_INTEGRITY_MISS = "数据缺失";
@@ -606,5 +615,20 @@ public class VisionScreeningService {
                 .setUpdateScreeningEndTimeStatus(ScreeningPlan.MODIFIED);
         screeningPlanService.updateById(plan);
     }
+
+    /**
+     * 获取学校结果统计分析
+     * @param statisticDetailBO 条件
+     */
+    public SchoolStatistic getSchoolStatistic(StatisticDetailBO statisticDetailBO) {
+        if (Objects.equals(statisticDetailBO.getType(), SchoolEnum.TYPE_KINDERGARTEN.getType())){
+            KindergartenResultDetailVO kindergartenResultDetail = statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getKindergartenResultDetail();
+            return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(kindergartenResultDetail);
+        }else {
+            PrimarySchoolAndAboveResultDetailVO primarySchoolAndAboveResultDetail = statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getPrimarySchoolAndAboveResultDetail();
+            return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(primarySchoolAndAboveResultDetail);
+        }
+    }
+
 }
 
