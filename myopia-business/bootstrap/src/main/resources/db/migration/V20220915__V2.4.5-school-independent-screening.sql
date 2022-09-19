@@ -16,7 +16,7 @@ create table m_school_staff
     staff_name   varchar(8)                           not null comment '姓名',
     gender       tinyint(1)                           null comment '性别：0-男、1-女',
     phone        varchar(16)                          not null comment '手机号码',
-    id_card      varchar(16)                          not null comment '身份证',
+    id_card      varchar(32)                          not null comment '身份证',
     staff_type   int                                  not null default 0 comment '角色 0-校医',
     account_info json                                 not null comment '用户表信息',
     status       tinyint(1) default 0                 not null comment '状态：0-启用 1-禁止 2-删除',

@@ -95,7 +95,14 @@ public class SchoolStaffFacade {
         UserDTO appUserDTO = userDTO.getFirst();
 
         String username = getSchoolUsername(userDTO);
-        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(CommonConst.USER_ID).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setRemark(requestDTO.getRemark());
+        appUserDTO.setOrgId(schoolId)
+                .setUsername(username)
+                .setPassword(password)
+                .setSystemCode(systemCode)
+                .setCreateUserId(CommonConst.USER_ID)
+                .setRealName(requestDTO.getStaffName())
+                .setGender(requestDTO.getGender())
+                .setRemark(requestDTO.getRemark());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 
@@ -118,7 +125,18 @@ public class SchoolStaffFacade {
         TwoTuple<UserDTO, Boolean> userDTO = getUserDTO(accountInfos, systemCode);
         UserDTO appUserDTO = userDTO.getFirst();
 
-        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(CommonConst.USER_ID).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setPhone(requestDTO.getPhone()).setIdCard(requestDTO.getIdCard()).setRemark(requestDTO.getRemark()).setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
+        appUserDTO
+                .setOrgId(schoolId)
+                .setUsername(username)
+                .setPassword(password)
+                .setSystemCode(systemCode)
+                .setCreateUserId(CommonConst.USER_ID)
+                .setRealName(requestDTO.getStaffName())
+                .setGender(requestDTO.getGender())
+                .setPhone(requestDTO.getPhone())
+                .setIdCard(requestDTO.getIdCard())
+                .setRemark(requestDTO.getRemark())
+                .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 
@@ -176,7 +194,8 @@ public class SchoolStaffFacade {
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO, String username, String password, Integer systemCode) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO,
+                                                                   String username, String password, Integer systemCode) {
         User user;
         if (Objects.equals(isInsert, Boolean.TRUE)) {
             user = oauthServiceClient.addMultiSystemUser(userDTO);
