@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.hospital.app.service;
+package com.wupol.myopia.business.api.device.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
@@ -12,10 +12,9 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.hospital.app.domain.dto.DeviceRequestDTO;
-import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomDTO;
-import com.wupol.myopia.business.api.hospital.app.domain.dto.DicomJsonDTO;
-import com.wupol.myopia.business.api.hospital.app.domain.dto.FundusImageDTO;
+import com.wupol.myopia.business.api.device.domain.dto.DeviceRequestDTO;
+import com.wupol.myopia.business.api.device.domain.dto.DicomDTO;
+import com.wupol.myopia.business.api.device.domain.dto.DicomJsonDTO;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.UploadUtil;
@@ -44,7 +43,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 设备数据上传
@@ -123,7 +121,7 @@ public class DeviceUploadService {
             }
 
             // 上传原始文件
-            Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId(),hospitalId);
+            Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId(), hospitalId);
 
             // 读取DICOM,JSON文件信息
             FileReader fileReader = new FileReader(StrUtil.removeSuffix(path, ".zip") + "/" + dicomDTO.getBase());
@@ -150,53 +148,6 @@ public class DeviceUploadService {
             // 删除redis
             redisUtil.del(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
         }
-    }
-
-    /**
-     * 获取患者当天眼底影像
-     *
-     * @param patientId  患者Id
-     * @param hospitalId 医院Id
-     *
-     * @return 眼底影像
-     */
-    public List<FundusImageDTO> getPatientFundusFile(Integer patientId, Integer hospitalId) {
-        Object obj = redisUtil.get(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
-        if (Objects.nonNull(obj)) {
-            throw new BusinessException("正在解析影像中");
-        }
-        List<ImageDetail> todayPatientFundusFile = imageDetailService.getTodayPatientFundusFile(patientId, hospitalId);
-        return todayPatientFundusFile.stream().map(s -> {
-            FundusImageDTO fundusImageDTO = new FundusImageDTO();
-            fundusImageDTO.setFileId(s.getFileId());
-            fundusImageDTO.setFileUrl(resourceFileService.getResourcePath(s.getFileId()));
-            return fundusImageDTO;
-        }).collect(Collectors.toList());
-    }
-
-    /**
-     * 删除患者当天最后一批影像
-     *
-     * @param patientId  患者Id
-     * @param hospitalId 医院Id
-     *
-     * @return ReturnInformation
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean deletedPatientTodayLastBatchImage(Integer patientId, Integer hospitalId) {
-        Object obj = redisUtil.get(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
-        if (Objects.nonNull(obj)) {
-            throw new BusinessException("正在解析影像中");
-        }
-        ImageOriginal lastImage = imageOriginalService.getLastImage(patientId, hospitalId);
-        if (Objects.isNull(lastImage)) {
-            return false;
-        }
-        // 删除详情
-        imageDetailService.remove(new ImageDetail().setImageOriginalId(lastImage.getId()));
-        // 删除原始表
-        imageOriginalService.removeById(lastImage);
-        return true;
     }
 
     /**
