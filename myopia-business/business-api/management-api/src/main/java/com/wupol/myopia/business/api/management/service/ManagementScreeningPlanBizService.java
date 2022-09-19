@@ -1,18 +1,22 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.CollectionUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.aggregation.screening.facade.ManagementScreeningPlanFacade;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -54,6 +58,8 @@ public class ManagementScreeningPlanBizService {
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ManagementScreeningPlanFacade managementScreeningPlanFacade;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 分页查询
@@ -75,23 +81,46 @@ public class ManagementScreeningPlanBizService {
             }
             query.setScreeningOrgIds(orgIds);
         }
-        IPage<ScreeningPlanPageDTO> screeningPlanIPage = screeningPlanService.selectPageByQuery(pageRequest.toPage(), query);
+        IPage<ScreeningPlanPageDTO> screeningPlanPage = screeningPlanService.selectPageByQuery(pageRequest.toPage(), query);
         // 设置创建人、地址、部门名称及机构名称
-        List<Integer> allGovDeptIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlanPageDTO::getGovDeptId).distinct().collect(Collectors.toList());
+        List<Integer> allGovDeptIds = screeningPlanPage.getRecords().stream().map(ScreeningPlanPageDTO::getGovDeptId).distinct().collect(Collectors.toList());
         Map<Integer, String> govDeptIdNameMap = org.springframework.util.CollectionUtils.isEmpty(allGovDeptIds) ? Collections.emptyMap() : govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
-        List<Integer> userIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
+        List<Integer> userIds = screeningPlanPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
-        List<Integer> screeningOrgIds = screeningPlanIPage.getRecords().stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+        List<Integer> screeningOrgIds = screeningPlanPage.getRecords().stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, ScreeningOrganization> orgMap = CollectionUtils.isEmpty(screeningOrgIds) ? new HashMap<>() : screeningOrganizationService.getByIds(screeningOrgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, x -> x));
-        screeningPlanIPage.getRecords().forEach(vo -> {
+
+        List<ScreeningPlanPageDTO> records = screeningPlanPage.getRecords();
+        if (CollUtil.isEmpty(records)){
+            return screeningPlanPage;
+        }
+        Set<Integer> schoolIds = records.stream()
+                .filter(screeningPlanPageDTO -> Objects.equals(screeningPlanPageDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                .map(ScreeningPlan::getScreeningOrgId)
+                .collect(Collectors.toSet());
+        Map<Integer,String> schoolNameMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(schoolIds)){
+            List<School> schoolList = schoolService.listByIds(schoolIds);
+            Map<Integer, String> collect = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+            schoolNameMap.putAll(collect);
+        }
+
+        records.forEach(vo -> {
             ScreeningOrganization org = orgMap.get(vo.getScreeningOrgId());
-            vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), ""))
+            String orgName;
+            if (Objects.equals(vo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                orgName = schoolNameMap.getOrDefault(vo.getScreeningOrgId(), StrUtil.EMPTY);
+            }else {
+                orgName = Optional.ofNullable(org).map(ScreeningOrganization::getName).orElse(StrUtil.EMPTY);
+            }
+            vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), StrUtil.EMPTY))
                     .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
-                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), ""))
-                    .setScreeningOrgName(Objects.nonNull(org) ? org.getName() : "")
-                    .setQrCodeConfig(Objects.nonNull(org) ? org.getQrCodeConfig() : "");
+                    .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), StrUtil.EMPTY))
+                    .setScreeningOrgName(orgName)
+                    .setQrCodeConfig(Optional.ofNullable(org).map(ScreeningOrganization::getQrCodeConfig).orElse(StrUtil.EMPTY));
+
         });
-        return screeningPlanIPage;
+        return screeningPlanPage;
     }
 
     /**
