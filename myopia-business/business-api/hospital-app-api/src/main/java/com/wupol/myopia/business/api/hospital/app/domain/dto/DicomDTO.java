@@ -12,14 +12,34 @@ import lombok.Setter;
 @Setter
 public class DicomDTO {
 
+    /**
+     * 文件名
+     */
     private String fileName;
+
+    /**
+     * mac地址
+     */
     private String macAddress;
+
+    /**
+     * dcm文件名
+     */
     private String dcmName;
-    // 判断是否重复上传
+
+    /**
+     * 判断是否重复上传
+     */
     private String md5;
-    // 基本信息-JSON文件名字
+
+    /**
+     * 基本信息-JSON文件名字
+     */
     private String base;
-    // 0-图片 1-pdf
+
+    /**
+     * 0-图片 1-pdf
+     */
     private Integer fileType;
 
     /**

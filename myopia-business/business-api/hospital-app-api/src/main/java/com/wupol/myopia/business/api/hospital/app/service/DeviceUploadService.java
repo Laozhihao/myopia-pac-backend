@@ -228,11 +228,6 @@ public class DeviceUploadService {
         if (!Objects.equals(device.getStatus(), StatusConstant.ENABLE)) {
             throw new BusinessException("设备已禁用或删除！");
         }
-        // 检查mac地址是否相同
-        if (!StringUtils.equals(device.getDeviceSn(), dicomDTO.getMacAddress())) {
-            log.error("mac地址异常！参数:{}", JSON.toJSONString(requestDTO));
-            throw new BusinessException("mac地址异常！");
-        }
 
         // 检查是否绑定
         if (Objects.isNull(hospitalId)

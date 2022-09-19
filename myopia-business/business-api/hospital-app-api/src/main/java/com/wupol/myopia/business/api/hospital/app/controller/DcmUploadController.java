@@ -37,7 +37,7 @@ public class DcmUploadController {
      * @return ReturnInformation
      */
     @PostMapping(value = "/uploadFundus", consumes = {"multipart/form-data"})
-    public String addV2(DeviceRequestDTO requestDTO) {
+    public String uploadFundus(DeviceRequestDTO requestDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return deviceUploadService.fundusUpload(requestDTO,user.getOrgId());
     }
