@@ -14,11 +14,11 @@ import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.PreschoolCheckRecordVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -179,11 +180,11 @@ public class SchoolStudentController {
 
     /**
      * 基本资料
-     * @param id 学生ID
+     * @param id 学校学生ID
      */
     @GetMapping("/baseInfo/{id}")
-    public StudentDTO getBaseInfo(@PathVariable("id") Integer id){
-        return studentFacade.getStudentById(id);
+    public StudentBaseInfoVO getBaseInfo(@PathVariable("id") Integer id){
+        return schoolStudentBizService.getBaseInfo(id);
     }
 
     /**
@@ -191,7 +192,7 @@ public class SchoolStudentController {
      * @param studentBaseInfoDTO 学生信息
      */
     @PutMapping("/baseInfo")
-    public void updateStudentBaseInfo(@RequestBody StudentBaseInfoDTO studentBaseInfoDTO){
+    public void updateStudentBaseInfo(@RequestBody @Valid StudentBaseInfoDTO studentBaseInfoDTO){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         schoolStudentBizService.updateStudentBaseInfo(studentBaseInfoDTO,currentUser);
     }

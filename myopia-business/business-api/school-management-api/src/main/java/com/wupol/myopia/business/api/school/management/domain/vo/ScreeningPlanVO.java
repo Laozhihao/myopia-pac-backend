@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.school.management.domain.vo;
 import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -56,5 +57,24 @@ public class ScreeningPlanVO implements Serializable {
     /**
      * 选项tab(8:幼儿园，0:小学及以上)
      */
-    private List<Integer> optionTabs;
+    private List<OptionTab> optionTabs;
+
+    @Data
+    @NoArgsConstructor
+    @Accessors(chain = true)
+    public static class OptionTab implements Serializable{
+        /**
+         * 学生类型 (8:幼儿园，0:小学及以上)
+         */
+        private Integer type;
+        /**
+         * 统计ID
+         */
+        private Integer schoolStatisticId;
+
+        public OptionTab(Integer type, Integer schoolStatisticId) {
+            this.type = type;
+            this.schoolStatisticId = schoolStatisticId;
+        }
+    }
 }

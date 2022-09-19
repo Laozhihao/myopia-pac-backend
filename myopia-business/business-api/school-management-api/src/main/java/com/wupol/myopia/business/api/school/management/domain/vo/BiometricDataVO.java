@@ -12,64 +12,56 @@ import java.io.Serializable;
  * @date 2022/9/13
  */
 @Data
+@Accessors(chain = true)
 public class BiometricDataVO implements Serializable {
 
     /**
-     * 左眼数据
+     * 0 为左眼 1 为右眼
      */
-    private BiometricData leftEyeData;
+    private Integer eyeType;
+
     /**
-     * 右眼数据
+     * 角膜前表面曲率K1
      */
-    private BiometricData rightEyeData;
+    private String k1;
+    /**
+     * 角膜前表面曲率K2
+     */
+    private String k2;
 
-    @Data
-    @Accessors(chain = true)
-    public static class BiometricData implements Serializable {
+    /**
+     * 垂直方向角膜散光度数
+     */
+    private String ast;
+    /**
+     * 瞳孔直径
+     */
+    private String pd;
+    /**
+     * 角膜白到白距离（角膜直径）
+     */
+    private String wtw;
+    /**
+     * 眼轴（眼轴总长度）
+     */
+    private String al;
+    /**
+     * 角膜中央厚度
+     */
+    private String cct;
 
-        /**
-         * 角膜前表面曲率K1
-         */
-        private String k1;
-        /**
-         * 角膜前表面曲率K2
-         */
-        private String k2;
+    /**
+     * 房水深度（前房深度）
+     */
+    private String ad;
 
-        /**
-         * 垂直方向角膜散光度数
-         */
-        private String ast;
-        /**
-         * 瞳孔直径
-         */
-        private String pd;
-        /**
-         * 角膜白到白距离（角膜直径）
-         */
-        private String wtw;
-        /**
-         * 眼轴（眼轴总长度）
-         */
-        private String al;
-        /**
-         * 角膜中央厚度
-         */
-        private String cct;
+    /**
+     * 晶状体厚度（晶体厚度）
+     */
+    private String lt;
 
-        /**
-         * 房水深度（前房深度）
-         */
-        private String ad;
-
-        /**
-         * 晶状体厚度（晶体厚度）
-         */
-        private String lt;
-
-        /**
-         * 玻璃体厚度
-         */
-        private String vt;
-    }
+    /**
+     * 玻璃体厚度
+     */
+    private String vt;
 }

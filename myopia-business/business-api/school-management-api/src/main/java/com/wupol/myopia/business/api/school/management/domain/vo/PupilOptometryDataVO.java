@@ -12,30 +12,24 @@ import java.io.Serializable;
  * @date 2022/9/13
  */
 @Data
+@Accessors(chain = true)
 public class PupilOptometryDataVO implements Serializable {
-    /**
-     * 右眼数据
-     */
-    private PupilOptometryData rightEyeData;
-    /**
-     * 左眼数据
-     */
-    private PupilOptometryData leftEyeData;
 
-    @Data
-    @Accessors(chain = true)
-    public static class PupilOptometryData implements Serializable {
-        /**
-         * 轴位
-         */
-        private String axial;
-        /**
-         * 球镜
-         */
-        private String sph;
-        /**
-         * 柱镜
-         */
-        private String cyl;
-    }
+    /**
+     * 0 为左眼 1 为右眼
+     */
+    private Integer eyeType;
+    /**
+     * 轴位
+     */
+    private String axial;
+    /**
+     * 球镜
+     */
+    private String sph;
+    /**
+     * 柱镜
+     */
+    private String cyl;
+
 }

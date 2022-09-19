@@ -1,6 +1,9 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * 眼压
@@ -9,13 +12,15 @@ import lombok.Data;
  * @date 2022/9/13
  */
 @Data
-public class EyePressureDataVO {
+@Accessors(chain = true)
+public class EyePressureDataVO implements Serializable {
     /**
-     * 右眼眼压
+     * 0 为左眼 1 为右眼
      */
-    private String rightEyePressure;
+    private Integer eyeType;
     /**
-     * 左眼眼压
+     * 眼压
      */
-    private String leftEyePressure;
+    private String pressure;
+
 }

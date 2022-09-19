@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * 更新筛查结束时间
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * @author hang.yuan 2022/9/16 10:10
  */
 @Data
-public class ScreeningEndTimeDTO {
+public class ScreeningEndTimeDTO implements Serializable {
     /**
      * 筛查计划ID
      */

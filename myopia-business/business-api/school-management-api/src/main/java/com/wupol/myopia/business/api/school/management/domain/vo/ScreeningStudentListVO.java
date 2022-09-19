@@ -3,6 +3,8 @@ package com.wupol.myopia.business.api.school.management.domain.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * 筛查学校响应对象
  *
@@ -10,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class ScreeningStudentListVO {
+public class ScreeningStudentListVO implements Serializable {
 
 
     /**

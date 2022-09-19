@@ -1,27 +1,29 @@
-package com.wupol.myopia.business.api.school.management.domain.dto;
+package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.StringUtils;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 学生基本信息
+ * 学校学生基本信息
  *
- * @author hang.yuan 2022/9/16 16:44
+ * @author hang.yuan 2022/9/18 16:22
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class StudentBaseInfoDTO extends AddressCode implements Serializable {
+@Accessors(chain = true)
+public class StudentBaseInfoVO extends AddressCode implements Serializable {
 
     /**
      * 学校学生ID
@@ -70,6 +72,11 @@ public class StudentBaseInfoDTO extends AddressCode implements Serializable {
     private Integer schoolId;
 
     /**
+     * 学校名称
+     */
+    private Integer schoolName;
+
+    /**
      * 详细地址
      */
     private String address;
@@ -105,18 +112,22 @@ public class StudentBaseInfoDTO extends AddressCode implements Serializable {
     /**
      * 委会行政区域code
      */
-    @NotNull(message = "委会行政区域编码不能为空")
     private Long committeeCode;
 
     /**
-     * 检查建档编码
+     * 委会区域List
      */
-    private String recordNo;
+    private List<District> committeeLists;
 
     /**
      * 是否新生儿暂无身份证 false-否 true-是
      */
     private Boolean isNewbornWithoutIdCard;
+
+    /**
+     * 检查建档编码
+     */
+    private String recordNo;
 
     /**
      * 父亲信息
@@ -127,17 +138,5 @@ public class StudentBaseInfoDTO extends AddressCode implements Serializable {
      * 母亲信息
      */
     private FamilyInfoVO.MemberInfo motherInfo;
-
-    /**
-     * 检查学生信息是否正确
-     * <p>
-     *     身份证和护照二选一
-     * </p>
-     */
-    public void checkStudentInfo() {
-        if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
-            throw new BusinessException("身份证、护照信息异常");
-        }
-    }
 
 }

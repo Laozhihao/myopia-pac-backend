@@ -25,7 +25,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_school_student")
+@TableName(value = "m_school_student", autoResultMap = true)
 public class SchoolStudent extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -215,6 +215,17 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 委会行政区域code
      */
     private Long committeeCode;
+
+    /**
+     * 是否新生儿暂无身份证 false-否 true-是
+     */
+    private Boolean isNewbornWithoutIdCard;
+
+    /**
+     * 检查建档编码
+     */
+    private String recordNo;
+
 
     /**
      * 检查学生信息是否正确

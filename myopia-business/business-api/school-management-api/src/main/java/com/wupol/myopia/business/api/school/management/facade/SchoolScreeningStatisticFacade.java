@@ -34,6 +34,11 @@ public class SchoolScreeningStatisticFacade {
     private final ScreeningResultStatisticService screeningResultStatisticService;
 
 
+    /**
+     * 获取筛查计划信息
+     * @param screeningPlanId 筛查计划ID
+     * @param currentUser 当前用户
+     */
     public ScreeningPlanVO getPlanInfo(Integer screeningPlanId,CurrentUser currentUser) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.listByPlanIdAndSchoolIdAndOrgId(screeningPlanId, currentUser.getOrgId(), screeningPlan.getScreeningOrgId());
@@ -46,12 +51,20 @@ public class SchoolScreeningStatisticFacade {
         return buildScreeningPlanVO(screeningPlan,screeningOrgName,screeningResultStatisticList);
     }
 
+    /**
+     * 构建筛查计划信息
+     * @param screeningPlan
+     * @param screeningOrgName
+     * @param screeningResultStatisticList
+     */
     private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,String screeningOrgName,List<ScreeningResultStatistic> screeningResultStatisticList) {
-        List<Integer> list = Lists.newArrayList();
+        List<ScreeningPlanVO.OptionTab> list = Lists.newArrayList();
         if (CollUtil.isNotEmpty(screeningResultStatisticList)){
             Map<Integer, List<ScreeningResultStatistic>> schoolTypeResultMap = screeningResultStatisticList.stream().collect(Collectors.groupingBy(ScreeningResultStatistic::getSchoolType));
-            list.addAll(schoolTypeResultMap.keySet());
-            list.sort(Comparator.comparing(Integer::intValue).reversed());
+            schoolTypeResultMap.forEach((type,statisticList)->{
+                ScreeningResultStatistic screeningResultStatistic = statisticList.get(0);
+                list.add(new ScreeningPlanVO.OptionTab(type,screeningResultStatistic.getId()));
+            });
         }
 
         return new ScreeningPlanVO()

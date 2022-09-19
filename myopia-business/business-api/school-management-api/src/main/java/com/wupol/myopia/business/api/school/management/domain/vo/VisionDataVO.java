@@ -12,31 +12,20 @@ import java.io.Serializable;
  * @date 2022/9/13
  */
 @Data
-public class VisionDataVO {
-    /**
-     * 戴镜类型
-     */
-    private Integer glassesType;
-    /**
-     * 左眼数据
-     */
-    private VisionData leftEyeData;
-    /**
-     * 右眼数据
-     */
-    private VisionData rightEyeData;
+@Accessors(chain = true)
+public class VisionDataVO implements Serializable {
 
-    @Data
-    @Accessors(chain = true)
-    public static class VisionData implements Serializable {
-        /**
-         * 矫正视力
-         */
-        private String correctedVision;
-        /**
-         * 裸眼视力
-         */
-        private String nakedVision;
+    /**
+     * 0 为左眼 1 为右眼
+     */
+    private Integer eyeType;
 
-    }
+    /**
+     * 矫正视力
+     */
+    private String correctedVision;
+    /**
+     * 裸眼视力
+     */
+    private String nakedVision;
 }

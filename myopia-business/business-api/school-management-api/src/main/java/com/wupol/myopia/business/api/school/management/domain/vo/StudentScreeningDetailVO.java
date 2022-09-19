@@ -2,26 +2,34 @@ package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * 学生筛查详情
  *
  * @author hang.yuan 2022/9/13 18:14
  */
 @Data
-public class StudentScreeningDetailVO {
+public class StudentScreeningDetailVO implements Serializable {
+
+    /**
+     * 戴镜类型
+     */
+    private Integer glassesType;
 
     /**
      * 视力数据
      */
-    private VisionDataVO visionData;
+    private List<VisionDataVO> visionData;
     /**
      * 电脑验光
      */
-    private ComputerOptometryDataVO computerOptometryData;
+    private List<ComputerOptometryDataVO> computerOptometryData;
     /**
      * 其它
      */
-    private OtherDataVO otherData;
+    private List<OtherDataVO> otherData;
     /**
      * 身高体重
      */
@@ -29,22 +37,15 @@ public class StudentScreeningDetailVO {
     /**
      * 生物测量
      */
-    private BiometricDataVO biometricData;
+    private List<BiometricDataVO> biometricData;
     /**
      * 小瞳验光
      */
-    private PupilOptometryDataVO pupilOptometryData;
+    private List<PupilOptometryDataVO> pupilOptometryData;
     /**
      * 眼压
      */
-    private EyePressureDataVO eyePressureData;
-
-
-
-
-
-
-
+    private List<EyePressureDataVO> eyePressureData;
 
 
 }

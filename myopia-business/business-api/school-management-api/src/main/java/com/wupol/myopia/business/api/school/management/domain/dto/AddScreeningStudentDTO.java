@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  * @author hang.yuan 2022/9/13 18:02
  */
 @Data
-public class AddScreeningStudentDTO {
+public class AddScreeningStudentDTO implements Serializable {
 
     /**
      * 筛查计划ID

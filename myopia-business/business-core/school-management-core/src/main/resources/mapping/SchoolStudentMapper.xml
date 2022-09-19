@@ -3,6 +3,7 @@
 <mapper namespace="com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStudentMapper">
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="family_info" property="familyInfo" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -41,7 +42,11 @@
         update_time,
         source_client,
         screening_myopia,
-        low_vision
+        low_vision,
+        family_info,
+        committee_code,
+        is_newborn_without_id_card,
+        record_no
     </sql>
 
     <select id="getList"
