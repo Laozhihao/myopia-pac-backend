@@ -122,7 +122,7 @@ INSERT INTO `o_permission` VALUES (141, '新增筛查通知', '', 'post:/managem
 INSERT INTO `o_permission` VALUES (142, '更新筛查计划', '', 'put:/management/screeningPlan', 0, 0, 3, 27, 1, '2021-02-04 15:46:02', '2021-02-04 20:05:23');
 INSERT INTO `o_permission` VALUES (143, '筛查机构相同时间段内的已有任务', '', 'post:/management/screeningTask/orgs/period/**', 0, 0, 1, 26, 1, '2021-02-04 15:46:46', '2021-02-04 20:05:23');
 INSERT INTO `o_permission` VALUES (144, '删除筛查计划', '', 'delete:/management/screeningPlan/**', 0, 0, 4, 27, 1, '2021-02-04 15:47:15', '2021-02-04 20:05:23');
-INSERT INTO `o_permission` VALUES (145, '新增筛查机构', '', 'post:/management/screeningTask/orgs', 0, 0, 2, 26, 1, '2021-02-04 15:47:41', '2021-02-19 03:41:37');
+INSERT INTO `o_permission` VALUES (145, '新增筛查机构', 'screeningTaskAddOrgBtn', 'post:/management/screeningTask/orgs', 0, 0, 2, 26, 1, '2021-02-04 15:47:41', '2021-02-19 03:41:37');
 INSERT INTO `o_permission` VALUES (146, '发布筛查计划', '', 'post:/management/screeningPlan/**', 0, 0, 5, 27, 1, '2021-02-04 15:48:17', '2021-02-04 20:05:23');
 INSERT INTO `o_permission` VALUES (147, '获取任务筛查机构', '', 'get:/management/screeningTask/orgs/**', 0, 0, 3, 26, 1, '2021-02-04 15:48:38', '2021-02-04 20:05:23');
 INSERT INTO `o_permission` VALUES (148, '更新筛查任务', '', 'put:/management/screeningTask', 0, 0, 4, 26, 1, '2021-02-04 15:49:12', '2021-02-04 20:05:23');

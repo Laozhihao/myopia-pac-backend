@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.core.school.service;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolCommonDiseaseCodeMapper;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -63,5 +67,17 @@ public class SchoolCommonDiseaseCodeService extends BaseService<SchoolCommonDise
         String code = String.format("%02d", total + 1);
         save(schoolCommonDiseaseCode.setCode(code).setSchoolId(schoolId));
         return code;
+    }
+
+    /**
+     * 根据学校ID查询数据
+     * @param schoolIds 学校ID集合
+     */
+    public List<SchoolCommonDiseaseCode> listBySchoolIds(List<Integer> schoolIds){
+        if (CollUtil.isEmpty(schoolIds)){
+            return Lists.newArrayList();
+        }
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolCommonDiseaseCode.class)
+                .in(SchoolCommonDiseaseCode::getSchoolId,schoolIds));
     }
 }
