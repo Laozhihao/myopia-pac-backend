@@ -43,6 +43,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 设备数据上传
@@ -96,7 +98,7 @@ public class DeviceUploadService {
             DicomDTO dicomDTO = preCheckAndGetDicomDTO(requestDTO, hospitalId);
             patientId = dicomDTO.getPatientId();
             // 设置进行中,有效期30分钟
-            redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId), "ing", 1800L);
+            redisUtil.set(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId), dicomDTO.getFileName(), 1800L);
             TwoTuple<String, String> upload = UploadUtil.upload(requestDTO.getPic(), uploadConfig.getSavePath());
             path = upload.getSecond();
             ZipUtil.unzip(path);
@@ -109,12 +111,7 @@ public class DeviceUploadService {
             }
 
             // 获取后缀威jpg的图像文件
-            List<File> fileList = new ArrayList<>();
-            for (File f : files) {
-                if (f.getName().endsWith(".jpg") || f.getName().endsWith(".pdf")) {
-                    fileList.add(f);
-                }
-            }
+            List<File> fileList = Stream.of(files).filter(f -> f.getName().endsWith(".jpg") || f.getName().endsWith(".pdf")).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(fileList)) {
                 throw new BusinessException("图像文件为空");
