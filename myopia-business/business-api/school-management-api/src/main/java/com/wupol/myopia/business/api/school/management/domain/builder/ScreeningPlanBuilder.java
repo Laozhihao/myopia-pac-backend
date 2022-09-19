@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningR
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -144,6 +145,13 @@ public class ScreeningPlanBuilder {
         });
     }
 
+    /**
+     * 获取筛查计划学生
+     * @param schoolStudentList 学校学生信息
+     * @param school 学校信息
+     * @param schoolGradeMap 年级信息
+     * @param schoolClassMap 班级信息
+     */
     private static List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap) {
         return schoolStudentList.stream().map(schoolStudent -> {
                     SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
@@ -162,6 +170,9 @@ public class ScreeningPlanBuilder {
      */
     private void updateScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,School school, SchoolStudent schoolStudent, SchoolGrade schoolGrade, SchoolClass schoolClass) {
         setStudentChangeData(screeningPlanSchoolStudent, school, schoolStudent);
+        if (Objects.isNull(screeningPlanSchoolStudent.getScreeningCode())){
+            screeningPlanSchoolStudent.setScreeningCode(ScreeningCodeGenerator.nextId());
+        }
         if (Objects.nonNull(schoolGrade)){
             screeningPlanSchoolStudent.setGradeName(schoolGrade.getName());
         }

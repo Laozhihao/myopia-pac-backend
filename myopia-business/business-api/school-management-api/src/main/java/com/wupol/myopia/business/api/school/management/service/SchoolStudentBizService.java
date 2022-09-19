@@ -322,18 +322,19 @@ public class SchoolStudentBizService {
      * 预警跟踪记录
      * @param id 学校学生ID
      */
-    public StudentWarningRecordVO warningArchive(Integer id) {
+    public StudentWarningRecordVO warningArchive(PageRequest pageRequest,Integer id) {
         SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        List<StudentWarningArchiveVO> studentWarningArchiveList = studentFacade.getStudentWarningArchive(schoolStudent.getStudentId());
-        return buildStudentWarningRecordVO(schoolStudent,studentWarningArchiveList);
+        IPage<StudentWarningArchiveVO> studentWarningArchivePage = studentFacade.getStudentWarningArchive(pageRequest,schoolStudent.getStudentId());
+        StudentWarningRecordVO studentWarningRecordVO = buildStudentWarningRecordVO(schoolStudent);
+        studentWarningRecordVO.setPageData(studentWarningArchivePage);
+        return studentWarningRecordVO;
     }
 
     /**
      * 构建学生预警跟踪记录
      * @param schoolStudent 学校学生信息
-     * @param studentWarningArchiveList 预警跟踪记录集合
      */
-    private StudentWarningRecordVO buildStudentWarningRecordVO(SchoolStudent schoolStudent, List<StudentWarningArchiveVO> studentWarningArchiveList) {
+    private StudentWarningRecordVO buildStudentWarningRecordVO(SchoolStudent schoolStudent) {
         StudentWarningRecordVO studentWarningRecordVO = new StudentWarningRecordVO();
         StudentWarningRecordVO.StudentInfo studentInfo = new StudentWarningRecordVO.StudentInfo()
                 .setSno(schoolStudent.getSno())
@@ -342,7 +343,6 @@ public class SchoolStudentBizService {
                 .setGender(schoolStudent.getGender())
                 .setName(schoolStudent.getName());
         studentWarningRecordVO.setStudentInfo(studentInfo);
-        studentWarningRecordVO.setStudentWarningArchiveList(studentWarningArchiveList);
         return studentWarningRecordVO;
     }
 

@@ -442,14 +442,14 @@ public class VisionScreeningService {
                 .eq(Objects.nonNull(studentListDTO.getClassId()), ScreeningPlanSchoolStudent::getClassId, studentListDTO.getClassId());
         Page page = studentListDTO.toPage();
         IPage<ScreeningPlanSchoolStudent> schoolStudentPage = screeningPlanSchoolStudentService.page(page, queryWrapper);
-        return processScreeningStudentList(schoolStudentPage);
+        return processScreeningStudentList(schoolStudentPage,studentListDTO.getSchoolId());
     }
 
     /**
      * 处理筛查学生信息
      * @param schoolStudentPage 筛查学生分页对象
      */
-    private IPage<ScreeningStudentListVO> processScreeningStudentList(IPage<ScreeningPlanSchoolStudent> schoolStudentPage) {
+    private IPage<ScreeningStudentListVO> processScreeningStudentList(IPage<ScreeningPlanSchoolStudent> schoolStudentPage,Integer schoolId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = schoolStudentPage.getRecords();
         IPage<ScreeningStudentListVO> screeningStudentListVoPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize());
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
@@ -459,12 +459,16 @@ public class VisionScreeningService {
         Set<Integer> gradeIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
 
+        Set<Integer> studentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toSet());
+        List<SchoolStudent> schoolStudentList = schoolStudentService.getByStudentIdsAndSchoolId(Lists.newArrayList(studentIds), schoolId);
+        Map<Integer, Integer> schoolStudentIdMap = schoolStudentList.stream().collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
+
         Set<Integer> planSchoolStudentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(Lists.newArrayList(planSchoolStudentIds));
         Map<Integer,VisionScreeningResult> visionScreeningResultMap = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         List<ScreeningStudentListVO> screeningStudentListVOList = screeningPlanSchoolStudentList.stream()
-                .map(screeningPlanSchoolStudent -> getScreeningStudentListVO(schoolGradeAndClass, visionScreeningResultMap, screeningPlanSchoolStudent)).collect(Collectors.toList());
+                .map(screeningPlanSchoolStudent -> getScreeningStudentListVO(schoolGradeAndClass, visionScreeningResultMap, screeningPlanSchoolStudent,schoolStudentIdMap)).collect(Collectors.toList());
         BeanUtil.copyProperties(schoolStudentPage,screeningStudentListVoPage);
         screeningStudentListVoPage.setRecords(screeningStudentListVOList);
         return screeningStudentListVoPage;
@@ -475,12 +479,16 @@ public class VisionScreeningService {
      * @param schoolGradeAndClass 年级和班级
      * @param visionScreeningResultMap 筛查结果集合
      * @param screeningPlanSchoolStudent 筛查学生信息
+     * @param schoolStudentIdMap 学校学生信息
      */
-    private ScreeningStudentListVO getScreeningStudentListVO(TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass, Map<Integer, VisionScreeningResult> visionScreeningResultMap, ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    private ScreeningStudentListVO getScreeningStudentListVO(TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass,
+                                                             Map<Integer, VisionScreeningResult> visionScreeningResultMap,
+                                                             ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
+                                                             Map<Integer, Integer> schoolStudentIdMap) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(screeningPlanSchoolStudent.getId());
         SchoolGrade schoolGrade = schoolGradeAndClass.getFirst().get(screeningPlanSchoolStudent.getGradeId());
         SchoolClass schoolClass = schoolGradeAndClass.getSecond().get(screeningPlanSchoolStudent.getClassId());
-        return buildScreeningStudentListVO(screeningPlanSchoolStudent, visionScreeningResult, schoolGrade, schoolClass);
+        return buildScreeningStudentListVO(screeningPlanSchoolStudent, visionScreeningResult, schoolGrade, schoolClass,schoolStudentIdMap);
     }
 
     /**
@@ -488,9 +496,13 @@ public class VisionScreeningService {
      * @param screeningPlanSchoolStudent 筛查学生对象
      * @param visionScreeningResult 筛查结果集合
      */
-    private ScreeningStudentListVO buildScreeningStudentListVO(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,VisionScreeningResult visionScreeningResult,SchoolGrade schoolGrade,SchoolClass schoolClass) {
+    private ScreeningStudentListVO buildScreeningStudentListVO(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
+                                                               VisionScreeningResult visionScreeningResult,
+                                                               SchoolGrade schoolGrade,SchoolClass schoolClass,
+                                                               Map<Integer, Integer> schoolStudentIdMap) {
         ScreeningStudentListVO screeningStudentListVO = new ScreeningStudentListVO()
                 .setPlanStudentId(screeningPlanSchoolStudent.getId())
+                .setId(schoolStudentIdMap.get(screeningPlanSchoolStudent.getStudentId()))
                 .setScreeningCode(screeningPlanSchoolStudent.getScreeningCode())
                 .setSno(screeningPlanSchoolStudent.getStudentNo())
                 .setName(screeningPlanSchoolStudent.getStudentName())

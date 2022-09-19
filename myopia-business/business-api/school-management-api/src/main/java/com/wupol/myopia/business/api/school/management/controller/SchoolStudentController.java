@@ -212,8 +212,8 @@ public class SchoolStudentController {
      * @param id 学校学生ID
      */
     @GetMapping("/warning/archive/{id}")
-    public StudentWarningRecordVO warningArchive(@PathVariable("id") Integer id){
-        return schoolStudentBizService.warningArchive(id);
+    public StudentWarningRecordVO warningArchive(PageRequest pageRequest,@PathVariable("id") Integer id){
+        return schoolStudentBizService.warningArchive(pageRequest,id);
     }
 
 

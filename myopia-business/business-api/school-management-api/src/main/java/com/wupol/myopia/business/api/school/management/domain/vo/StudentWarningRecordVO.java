@@ -1,11 +1,11 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 学生预警跟踪记录
@@ -22,7 +22,7 @@ public class StudentWarningRecordVO implements Serializable {
     /**
      * 预警跟踪记录集合
      */
-    private List<StudentWarningArchiveVO> studentWarningArchiveList;
+    private IPage<StudentWarningArchiveVO> pageData;
 
     @Data
     @Accessors(chain = true)

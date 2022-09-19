@@ -16,6 +16,10 @@ public class ScreeningStudentListVO implements Serializable {
 
 
     /**
+     * 学校学生ID
+     */
+    private Integer id;
+    /**
      * 筛查计划学生Id
      */
     private Integer planStudentId;

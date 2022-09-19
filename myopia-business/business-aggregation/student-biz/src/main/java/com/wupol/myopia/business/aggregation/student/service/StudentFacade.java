@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
@@ -361,18 +363,18 @@ public class StudentFacade {
      */
     private void packageBiometricDataResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--生物测量
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
+        leftDetails.setAd(result.getBiometricData().getLeftEyeData().getAd());
+        leftDetails.setAl(result.getBiometricData().getLeftEyeData().getAl());
+        leftDetails.setCct(result.getBiometricData().getLeftEyeData().getCct());
+        leftDetails.setLt(result.getBiometricData().getLeftEyeData().getLt());
+        leftDetails.setWtw(result.getBiometricData().getLeftEyeData().getWtw());
 
         // 右眼--生物测量
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
+        rightDetails.setAd(result.getBiometricData().getRightEyeData().getAd());
+        rightDetails.setAl(result.getBiometricData().getRightEyeData().getAl());
+        rightDetails.setCct(result.getBiometricData().getRightEyeData().getCct());
+        rightDetails.setLt(result.getBiometricData().getRightEyeData().getLt());
+        rightDetails.setWtw(result.getBiometricData().getRightEyeData().getWtw());
     }
 
     /**
@@ -1400,10 +1402,18 @@ public class StudentFacade {
      * @param studentId 学生ID
      * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
      **/
-    public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
-        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
+    public IPage<StudentWarningArchiveVO> getStudentWarningArchive(PageRequest pageRequest,Integer studentId) {
+        Page page = pageRequest.toPage();
+        LambdaQueryWrapper<StatConclusion> queryWrapper = Wrappers.lambdaQuery(StatConclusion.class)
+                .eq(StatConclusion::getStudentId, studentId)
+                .eq(StatConclusion::getIsRescreen, Boolean.FALSE)
+                .orderByDesc(StatConclusion::getUpdateTime);
+        IPage<StatConclusion> statConclusionPage = statConclusionService.page(page, queryWrapper);
+
+        IPage<StudentWarningArchiveVO> warningArchiveVoPage = new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+        List<StatConclusion> statConclusionList = statConclusionPage.getRecords();
         if (CollectionUtils.isEmpty(statConclusionList)) {
-            return new ArrayList<>();
+            return warningArchiveVoPage;
         }
         List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
         for (StatConclusion conclusion : statConclusionList) {
@@ -1424,7 +1434,8 @@ public class StudentFacade {
             studentWarningArchiveVOList.add(studentWarningArchiveVO);
         }
         studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
-        return studentWarningArchiveVOList;
+        warningArchiveVoPage.setRecords(studentWarningArchiveVOList);
+        return warningArchiveVoPage;
     }
 
     /**

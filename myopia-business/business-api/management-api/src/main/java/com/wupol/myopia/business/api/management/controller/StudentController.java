@@ -233,7 +233,7 @@ public class StudentController {
      * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
      **/
     @GetMapping("/warning/archive/{studentId}")
-    public List<StudentWarningArchiveVO> getStudentWarningArchive(@PathVariable("studentId") Integer studentId) {
-        return studentFacade.getStudentWarningArchive(studentId);
+    public IPage<StudentWarningArchiveVO> getStudentWarningArchive(PageRequest pageRequest,@PathVariable("studentId") Integer studentId) {
+        return studentFacade.getStudentWarningArchive(pageRequest,studentId);
     }
 }
