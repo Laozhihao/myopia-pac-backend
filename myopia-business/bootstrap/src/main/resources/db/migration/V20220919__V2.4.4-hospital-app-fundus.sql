@@ -10,7 +10,7 @@ create table h_image_original
     file_id       int                                 not null comment '文件Id',
     patient_id    int                                 not null comment '患者Id',
     hospital_id   int                                 not null comment '医院Id',
-    bluetooth_mac varchar(32)                         not null comment '设备mac地址',
+    bluetooth_mac varchar(32)                         not null comment '蓝牙mac地址',
     md5           varchar(128)                        not null comment 'md5',
     create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
@@ -36,7 +36,8 @@ create table h_image_detail
 alter table h_medical_record
     add fundus json null comment '眼底检查' after `tosca`;
 
-alter table m_device add constraint m_device_pk unique (bluetooth_mac);
+alter table m_device
+    add constraint m_device_pk unique (bluetooth_mac);
 
 alter table m_device
     modify salesperson_name varchar(20) default '' null comment '销售名字';
