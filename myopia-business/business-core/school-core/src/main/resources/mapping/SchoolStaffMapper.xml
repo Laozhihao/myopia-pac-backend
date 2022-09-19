@@ -4,6 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.SchoolStaff">
+        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="account_info" property="accountInfo"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -31,4 +32,10 @@
         id, school_id, staff_name, gender, phone, id_card, staff_type, account_info, status, remark, create_time, update_time
     </sql>
 
+    <select id="getSchoolStaff" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_staff
+        where school_id = #{schoolId}
+    </select>
 </mapper>

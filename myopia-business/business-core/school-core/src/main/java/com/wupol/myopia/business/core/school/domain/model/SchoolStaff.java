@@ -1,25 +1,29 @@
 package com.wupol.myopia.business.core.school.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wupol.myopia.business.core.school.domain.dos.AccountInfo;
+import com.wupol.myopia.business.core.school.domain.handle.AccountInfoHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 学校员工表
  *
- * @Author Simple4H
- * @Date 2022-09-16
+ * @author Simple4H
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_school_staff")
+@TableName(value = "m_school_staff", autoResultMap = true)
 public class SchoolStaff implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +47,7 @@ public class SchoolStaff implements Serializable {
     /**
      * 性别：0-男、1-女
      */
-    private Boolean gender;
+    private Integer gender;
 
     /**
      * 手机号码
@@ -63,7 +67,8 @@ public class SchoolStaff implements Serializable {
     /**
      * 用户表信息
      */
-    private String accountInfo;
+    @TableField(typeHandler = AccountInfoHandler.class)
+    private List<AccountInfo> accountInfo;
 
     /**
      * 状态：0-启用 1-禁止 2-删除

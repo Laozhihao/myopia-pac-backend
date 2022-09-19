@@ -27,7 +27,7 @@ public class CurrentUser implements Serializable {
     private Integer id;
 
     /**
-     * 机构组织ID（如政府部门ID、学校ID、医院ID）
+     * 机构组织ID（如政府部门ID、学校ID、医院ID、筛查机构ID）
      */
     private Integer orgId;
 

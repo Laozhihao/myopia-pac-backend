@@ -25,7 +25,7 @@ public class SchoolStaffSaveRequestDTO {
     /**
      * 性别：0-男、1-女
      */
-    private Boolean gender;
+    private Integer gender;
 
     /**
      * 手机号码
@@ -36,4 +36,9 @@ public class SchoolStaffSaveRequestDTO {
      * 身份证
      */
     private String idCard;
+
+    /**
+     * 备注
+     */
+    private String remark;
 }

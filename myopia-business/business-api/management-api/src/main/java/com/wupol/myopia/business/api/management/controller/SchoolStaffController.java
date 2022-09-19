@@ -2,12 +2,16 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStaffFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffSaveRequestDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
+import com.wupol.myopia.business.core.school.service.SchoolStaffService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,17 +24,26 @@ import java.util.List;
 @ResponseResultBody
 @CrossOrigin
 @RestController
-@RequestMapping("/management/school")
+@RequestMapping("/management/school/staff")
 public class SchoolStaffController {
+
+    @Resource
+    private SchoolStaffService schoolStaffService;
+
+    @Resource
+    private SchoolStaffFacade schoolStaffFacade;
 
     /**
      * 获取学校员工列表
      *
+     * @param pageRequest 分页
+     * @param schoolId    学校Id
+     *
      * @return IPage<SchoolStaff>
      */
     @GetMapping("list/{schoolId}")
-    public IPage<SchoolStaff> getSchoolStaffList(@PathVariable("schoolId") Integer schoolId) {
-        return null;
+    public IPage<SchoolStaff> getSchoolStaffList(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
+        return schoolStaffService.getSchoolStaff(pageRequest, schoolId);
     }
 
     /**
@@ -40,7 +53,8 @@ public class SchoolStaffController {
      * @param schoolId   学校ID
      */
     @PostMapping("save/{schoolId}")
-    public void saveSchoolStaff(@PathVariable("schoolId") Integer schoolId, @RequestBody SchoolStaffSaveRequestDTO requestDTO) {
+    public List<UsernameAndPasswordDTO> saveSchoolStaff(@PathVariable("schoolId") Integer schoolId, @RequestBody SchoolStaffSaveRequestDTO requestDTO) {
+        return schoolStaffFacade.saveSchoolStaff(schoolId, requestDTO);
     }
 
     /**

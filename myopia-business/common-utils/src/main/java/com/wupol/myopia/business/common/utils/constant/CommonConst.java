@@ -222,4 +222,6 @@ public class CommonConst {
      * 需要插入脊柱个人信息的序号
      */
     public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList(A01, A011, A02, A03, A04);
+
+    public final Integer USER_ID = 1;
 }
