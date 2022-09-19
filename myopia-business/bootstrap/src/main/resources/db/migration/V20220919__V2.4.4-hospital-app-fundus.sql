@@ -1,5 +1,5 @@
 alter table m_device
-    add org_type int default 0 not null comment '机构类型 0-筛查机构 1-医院 2-学校' after binding_screening_org_id;
+    add org_type tinyint(1) default 0 not null comment '机构类型 0-筛查机构 1-医院 2-学校' after binding_screening_org_id;
 alter table m_device
     add bluetooth_mac varchar(32) null comment '蓝牙MAC地址' after type;
 
