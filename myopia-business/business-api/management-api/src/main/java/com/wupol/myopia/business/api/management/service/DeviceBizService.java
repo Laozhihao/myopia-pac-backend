@@ -10,9 +10,13 @@ import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
@@ -21,6 +25,11 @@ import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
+import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +41,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,6 +68,12 @@ public class DeviceBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private DistrictService districtService;
+
+    @Autowired
+    private HospitalService hospitalService;
+
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 获取打印需要的信息
@@ -275,10 +291,9 @@ public class DeviceBizService {
      **/
     public Page<DeviceVO> getDeviceListByPage(DeviceDTO deviceDTO, PageRequest pageRequest) {
         Assert.notNull(pageRequest, "分页参数为空");
-        // 获取指定名称的筛查机构集
+        // 获取指定名称的机构集
         if (Objects.nonNull(deviceDTO) && StringUtils.hasText(deviceDTO.getBindingScreeningOrgName())) {
-            List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByNameLike(deviceDTO.getBindingScreeningOrgName());
-            List<Integer> ids = screeningOrgList.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+            List<Integer> ids = getByNames(deviceDTO.getOrgType(), deviceDTO.getBindingScreeningOrgName()).stream().map(DeviceOrgListResponseDTO::getOrgId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(ids)) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
@@ -298,23 +313,95 @@ public class DeviceBizService {
      * 填充筛查机构的名称和行政区域名称
      *
      * @param deviceList 设备列表
+     *
      * @return {@link java.util.List<com.wupol.myopia.business.api.management.domain.vo.DeviceVO>}
      **/
     private List<DeviceVO> fillScreeningOrgNameAndDistrictName(List<DeviceVO> deviceList) {
         if (CollectionUtils.isEmpty(deviceList)) {
             return deviceList;
         }
-        List<Integer> screeningOrgIdList = deviceList.stream().map(Device::getBindingScreeningOrgId).distinct().collect(Collectors.toList());
-        List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(screeningOrgIdList);
+        List<Integer> orgIdList = deviceList.stream().map(Device::getBindingScreeningOrgId).distinct().collect(Collectors.toList());
+
+        // 机构
+        List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(orgIdList);
         Map<Integer, ScreeningOrganization> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
-        return deviceList.stream().map(deviceVO -> {
-            ScreeningOrganization screeningOrg = screeningOrgNameMap.get(deviceVO.getBindingScreeningOrgId());
-            if (Objects.isNull(screeningOrg)) {
-                return deviceVO;
-            }
-            deviceVO.setBindingScreeningOrgName(screeningOrg.getName());
-            deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(screeningOrg.getDistrictId()));
+
+        // 医院
+        Map<Integer, Hospital> hospitalMap = hospitalService.listByIds(orgIdList).stream().collect(Collectors.toMap(Hospital::getId, Function.identity()));
+
+        // 学校
+        Map<Integer, School> schoolMap = schoolService.listByIds(orgIdList).stream().collect(Collectors.toMap(School::getId, Function.identity()));
+
+        return deviceList.stream().map(deviceVO -> getDeviceVO(screeningOrgNameMap, hospitalMap, schoolMap, deviceVO)).collect(Collectors.toList());
+    }
+
+    /**
+     * getDeviceVO
+     *
+     * @return DeviceVO
+     */
+    private DeviceVO getDeviceVO(Map<Integer, ScreeningOrganization> screeningOrgNameMap, Map<Integer, Hospital> hospitalMap, Map<Integer, School> schoolMap, DeviceVO deviceVO) {
+        Integer orgType = deviceVO.getOrgType();
+        if (Objects.equals(orgType, OrgTypeEnum.SCREENING.getCode())) {
+            return setBindingOrgNameDistrict(screeningOrgNameMap.get(deviceVO.getBindingScreeningOrgId()), deviceVO);
+        }
+        if (Objects.equals(orgType, OrgTypeEnum.HOSPITAL.getCode())) {
+            return setBindingOrgNameDistrict(hospitalMap.get(deviceVO.getBindingScreeningOrgId()), deviceVO);
+        }
+        if (Objects.equals(orgType, OrgTypeEnum.SCHOOL.getCode())) {
+            return setBindingOrgNameDistrict(schoolMap.get(deviceVO.getBindingScreeningOrgId()), deviceVO);
+        }
+        return deviceVO;
+    }
+
+    /**
+     * 通过机构/医院/学校
+     *
+     * @param type 类型
+     * @param name 名称
+     *
+     * @return List<DeviceOrgListResponseDTO>
+     */
+    public List<DeviceOrgListResponseDTO> getByNames(Integer type, String name) {
+        if (Objects.equals(type, OrgTypeEnum.SCREENING.getCode())) {
+            List<ScreeningOrganization> nameList = screeningOrganizationService.getByName(name);
+            return convert2Dto(nameList);
+        }
+        if (Objects.equals(type, OrgTypeEnum.HOSPITAL.getCode())) {
+            List<HospitalResponseDTO> nameList = hospitalService.getHospitalByName(name, null);
+            return convert2Dto(nameList);
+        }
+        if (Objects.equals(type, OrgTypeEnum.SCHOOL.getCode())) {
+            List<School> nameList = schoolService.getBySchoolName(name);
+            return convert2Dto(nameList);
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * 设置机构名字和区域
+     */
+    private <T extends HasName> DeviceVO setBindingOrgNameDistrict(T t, DeviceVO deviceVO) {
+        if (Objects.isNull(t)) {
             return deviceVO;
-        }).collect(Collectors.toList());
+        }
+        deviceVO.setBindingScreeningOrgName(t.getName());
+        deviceVO.setBindingScreeningOrgDistrictName(districtService.getDistrictNameByDistrictId(t.getDistrictId()));
+        return deviceVO;
+    }
+
+    /**
+     * 转换成DTO
+     */
+    private <T extends HasName> List<DeviceOrgListResponseDTO> convert2Dto(List<T> t) {
+        List<Integer> districtIds = t.stream().map(HasName::getDistrictId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(districtIds)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, District> districtMap = districtService.getByIds(districtIds);
+        return t.stream().map(s -> new DeviceOrgListResponseDTO(s.getId(),
+                        s.getName(),
+                        districtService.getTopDistrictName(districtMap.get(s.getDistrictId()).getCode())))
+                .collect(Collectors.toList());
     }
 }

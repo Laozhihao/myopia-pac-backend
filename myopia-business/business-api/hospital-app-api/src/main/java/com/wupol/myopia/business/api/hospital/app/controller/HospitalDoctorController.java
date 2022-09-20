@@ -43,6 +43,13 @@ public class HospitalDoctorController {
         return true;
     }
 
+    /**
+     * 医生列表
+     *
+     * @param query 条件
+     *
+     * @return List<DoctorDTO>
+     */
     @GetMapping("/list")
     public List<DoctorDTO> getDoctorList(DoctorQuery query) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();

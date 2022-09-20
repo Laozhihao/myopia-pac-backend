@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.api.hospital.app.controller;
 
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.hospital.app.service.HospitalInfoService;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,16 @@ public class HospitalInfoController {
     public Map<String, Object> getStudent() {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return hospitalInfoService.getHospitalInfo(user.getOrgId());
+    }
+
+    /**
+     * 获取医院配置
+     *
+     * @return ApiResult<ScreeningConfig>
+     */
+    @GetMapping("getHospitalScreeningConfig")
+    public ApiResult<ScreeningConfig> getHospitalScreeningConfig() {
+        return ApiResult.success(hospitalInfoService.getHospitalScreeningConfig(CurrentUserUtil.getCurrentUser().getOrgId()));
     }
 
 }

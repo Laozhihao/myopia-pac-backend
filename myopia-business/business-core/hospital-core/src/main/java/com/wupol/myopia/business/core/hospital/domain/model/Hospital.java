@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCooperation;
 import com.wupol.myopia.business.core.hospital.constant.HospitalEnum;
 import com.wupol.myopia.business.core.hospital.constant.HospitalLevelEnum;
@@ -31,7 +32,7 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("m_hospital")
-public class Hospital extends AddressCooperation implements Serializable {
+public class Hospital extends AddressCooperation implements HasName, Serializable {
 
     private static final long serialVersionUID = 1L;
 
