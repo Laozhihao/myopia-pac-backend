@@ -215,8 +215,12 @@ public class SchoolStaffFacade {
             throw new BusinessException("人数是否超出限制");
         }
         // 检查身份证、手机是否重复
-        if (Boolean.TRUE.equals(schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), id))) {
-            throw new BusinessException("手机号码、身份证重复");
+        if (Boolean.TRUE.equals(schoolStaffService.checkByPhone(requestDTO.getPhone(), id))) {
+            throw new BusinessException("手机号码重复!");
+        }
+
+        if (Boolean.TRUE.equals(schoolStaffService.checkByIdCard(requestDTO.getIdCard(), id))) {
+            throw new BusinessException("身份证重复");
         }
         List<User> userPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(requestDTO.getPhone()), SystemCode.SCREENING_CLIENT.getCode());
         if (CollectionUtils.isEmpty(userPhones)) {

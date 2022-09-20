@@ -27,4 +27,6 @@ public interface SchoolStaffMapper extends BaseMapper<SchoolStaff> {
 
     List<SchoolStaff> checkByIdCardAndPhone(@Param("idCard") String idCard, @Param("phone") String phone, @Param("id") Integer id);
 
+    List<SchoolStaff> checkByPhone(@Param("phone") String phone, @Param("id") Integer id);
+
 }

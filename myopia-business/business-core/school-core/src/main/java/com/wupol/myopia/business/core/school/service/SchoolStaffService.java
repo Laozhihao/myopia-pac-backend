@@ -8,6 +8,8 @@ import com.wupol.myopia.business.core.school.domain.mapper.SchoolStaffMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author Simple4H
  */
@@ -38,16 +40,31 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
     }
 
     /**
-     * 检查身份证、手机号码重复
+     * 检查手机号码重复
      *
      * @param idCard 身份证
-     * @param phone  手机号码
      * @param id     id
      *
      * @return 是否重复
      */
-    public boolean checkByIdCardAndPhone(String idCard, String phone, Integer id) {
-        return !baseMapper.checkByIdCardAndPhone(idCard, phone, id).isEmpty();
+    public boolean checkByIdCard(String idCard, Integer id) {
+        return !baseMapper.selectList(new LambdaQueryWrapper<SchoolStaff>()
+                .eq(SchoolStaff::getIdCard, idCard)
+                .ne(Objects.nonNull(id), SchoolStaff::getId, id)).isEmpty();
+    }
+
+    /**
+     * 检查手机号码重复
+     *
+     * @param phone 手机号码
+     * @param id    id
+     *
+     * @return 是否重复
+     */
+    public boolean checkByPhone(String phone, Integer id) {
+        return !baseMapper.selectList(new LambdaQueryWrapper<SchoolStaff>()
+                .eq(SchoolStaff::getPhone, phone)
+                .ne(Objects.nonNull(id), SchoolStaff::getId, id)).isEmpty();
     }
 
 }
