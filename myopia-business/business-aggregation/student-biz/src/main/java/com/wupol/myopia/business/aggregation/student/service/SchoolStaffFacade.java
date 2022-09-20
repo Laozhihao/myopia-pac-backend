@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
@@ -7,11 +9,16 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolStaffTypeEnum;
 import com.wupol.myopia.business.core.school.domain.dos.AccountInfo;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffListResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffSaveRequestDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.SchoolStaffService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.request.UserDTO;
@@ -24,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +50,42 @@ public class SchoolStaffFacade {
     @Resource
     private OauthServiceClient oauthServiceClient;
 
+    @Resource
+    private SchoolService schoolService;
+
+    /**
+     * 获取学校员工
+     *
+     * @param request  分页
+     * @param schoolId 学校Id
+     *
+     * @return IPage<SchoolStaff>
+     */
+    public IPage<SchoolStaffListResponseDTO> getSchoolStaff(PageRequest request, Integer schoolId) {
+        IPage<SchoolStaff> schoolStaff = schoolStaffService.getSchoolStaff(request, schoolId);
+        List<SchoolStaff> staffList = schoolStaff.getRecords();
+        if (CollectionUtils.isEmpty(staffList)) {
+            return new Page<>();
+        }
+        List<Integer> userIds = staffList.stream()
+                .map(SchoolStaff::getAccountInfo)
+                .flatMap(List::stream)
+                .map(AccountInfo::getUserId).collect(Collectors.toList());
+        Map<Integer, String> userMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getUsername));
+
+
+        IPage<SchoolStaffListResponseDTO> returnPage = new Page<>();
+        BeanUtils.copyProperties(schoolStaff, returnPage);
+
+        returnPage.setRecords(staffList.stream().map(s -> {
+            Optional<AccountInfo> accountInfoOptional = s.getAccountInfo().stream().filter(accountInfo -> Objects.equals(accountInfo.getSystemCode(), SystemCode.SCHOOL_CLIENT.getCode())).findFirst();
+            SchoolStaffListResponseDTO responseDTO = new SchoolStaffListResponseDTO();
+            BeanUtils.copyProperties(s, responseDTO);
+            accountInfoOptional.ifPresent(accountInfo -> responseDTO.setUsername(userMap.get(accountInfo.getUserId())));
+            return responseDTO;
+        }).collect(Collectors.toList()));
+        return returnPage;
+    }
 
     /**
      * 保存员工
@@ -56,6 +100,7 @@ public class SchoolStaffFacade {
     public List<UsernameAndPasswordDTO> saveSchoolStaff(CurrentUser user, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
 
         Integer id = requestDTO.getId();
+        preCheckStaff(user, schoolId, requestDTO);
         SchoolStaff staff = schoolStaffService.getById(id);
         if (Objects.isNull(staff)) {
             staff = new SchoolStaff();
@@ -64,7 +109,7 @@ public class SchoolStaffFacade {
         staff.setId(id);
         staff.setSchoolId(schoolId);
         staff.setStaffName(requestDTO.getStaffName());
-        staff.setGender(requestDTO.getGender());
+        staff.setGender(IdCardUtil.getGender(requestDTO.getIdCard()));
         staff.setPhone(requestDTO.getPhone());
         staff.setIdCard(requestDTO.getIdCard());
         staff.setStaffType(SchoolStaffTypeEnum.SCHOOL_DOCTOR.getType());
@@ -135,6 +180,33 @@ public class SchoolStaffFacade {
     }
 
     /**
+     * 校验
+     *
+     * @param currentUser 当前用户
+     * @param schoolId    学校Id
+     * @param requestDTO  请求入参
+     */
+    private void preCheckStaff(CurrentUser currentUser, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
+        School school = schoolService.getById(schoolId);
+
+        if (Objects.isNull(school)) {
+            throw new BusinessException("学校信息异常!");
+        }
+
+        if (!currentUser.isPlatformAdminUser()) {
+            Integer staffCount = schoolStaffService.countStaffBySchool(schoolId);
+            if (school.getVisionTeamCount() > staffCount) {
+                throw new BusinessException("人数是否超出限制");
+            }
+        }
+
+        // 检查身份证、手机是否重复
+        if (schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), requestDTO.getId())) {
+            throw new BusinessException("手机号码、身份证重复");
+        }
+    }
+
+    /**
      * 保存学校账号
      *
      * @param schoolId     学校Id
@@ -153,7 +225,14 @@ public class SchoolStaffFacade {
         UserDTO appUserDTO = userDTO.getFirst();
 
         String username = getSchoolUsername(userDTO);
-        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(createUserId).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setRemark(requestDTO.getRemark());
+        appUserDTO
+                .setOrgId(schoolId)
+                .setUsername(username)
+                .setPassword(password)
+                .setSystemCode(systemCode)
+                .setCreateUserId(createUserId)
+                .setRealName(requestDTO.getStaffName())
+                .setRemark(requestDTO.getRemark());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 
@@ -177,7 +256,17 @@ public class SchoolStaffFacade {
         TwoTuple<UserDTO, Boolean> userDTO = getUserDTO(accountInfos, systemCode);
         UserDTO appUserDTO = userDTO.getFirst();
 
-        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(createUserId).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setPhone(requestDTO.getPhone()).setIdCard(requestDTO.getIdCard()).setRemark(requestDTO.getRemark()).setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
+        appUserDTO.setOrgId(schoolId)
+                .setUsername(username)
+                .setPassword(password)
+                .setSystemCode(systemCode)
+                .setCreateUserId(createUserId)
+                .setRealName(requestDTO.getStaffName())
+                .setGender(IdCardUtil.getGender(requestDTO.getIdCard()))
+                .setPhone(requestDTO.getPhone())
+                .setIdCard(requestDTO.getIdCard())
+                .setRemark(requestDTO.getRemark())
+                .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 

@@ -23,11 +23,6 @@ public class SchoolStaffSaveRequestDTO {
     private String staffName;
 
     /**
-     * 性别：0-男、1-女
-     */
-    private Integer gender;
-
-    /**
      * 手机号码
      */
     private String phone;

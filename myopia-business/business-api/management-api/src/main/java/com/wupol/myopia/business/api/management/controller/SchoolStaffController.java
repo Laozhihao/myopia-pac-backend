@@ -6,14 +6,12 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStaffFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffListResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffSaveRequestDTO;
-import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
-import com.wupol.myopia.business.core.school.service.SchoolStaffService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,9 +27,6 @@ import java.util.List;
 public class SchoolStaffController {
 
     @Resource
-    private SchoolStaffService schoolStaffService;
-
-    @Resource
     private SchoolStaffFacade schoolStaffFacade;
 
     /**
@@ -40,11 +35,11 @@ public class SchoolStaffController {
      * @param pageRequest 分页
      * @param schoolId    学校Id
      *
-     * @return IPage<SchoolStaff>
+     * @return IPage<SchoolStaffListResponseDTO>
      */
     @GetMapping("list/{schoolId}")
-    public IPage<SchoolStaff> getSchoolStaffList(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
-        return schoolStaffService.getSchoolStaff(pageRequest, schoolId);
+    public IPage<SchoolStaffListResponseDTO> getSchoolStaffList(PageRequest pageRequest, @PathVariable("schoolId") Integer schoolId) {
+        return schoolStaffFacade.getSchoolStaff(pageRequest, schoolId);
     }
 
     /**

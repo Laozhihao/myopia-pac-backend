@@ -4,7 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.SchoolStaff">
-        <result typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" column="account_info" property="accountInfo"/>
+        <result typeHandler="com.wupol.myopia.business.core.school.domain.handle.AccountInfoHandler" column="account_info" property="accountInfo"/>
     </resultMap>
 
     <!-- 通用查询条件 -->
@@ -37,5 +37,24 @@
         <include refid="Base_Column_List"/>
         from m_school_staff
         where school_id = #{schoolId}
+    </select>
+
+    <select id="checkByIdCardAndPhone" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_staff
+        <where>
+            <trim prefixOverrides="and">
+                <if test="idCard != null and idCard != ''">
+                    and id_card = #{idCard}
+                </if>
+                <if test="phone != null and phone != ''">
+                    and phone = #{phone}
+                </if>
+                <if test="id != null">
+                    and id != #{id}
+                </if>
+            </trim>
+        </where>
     </select>
 </mapper>

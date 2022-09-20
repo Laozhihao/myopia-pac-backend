@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * 学校员工表Mapper接口
  *
@@ -22,5 +24,7 @@ public interface SchoolStaffMapper extends BaseMapper<SchoolStaff> {
      * @return IPage<SchoolStaff>
      */
     IPage<SchoolStaff> getSchoolStaff(@Param("page") Page<?> page, @Param("schoolId") Integer schoolId);
+
+    List<SchoolStaff> checkByIdCardAndPhone(@Param("idCard") String idCard, @Param("phone") String phone, @Param("id") Integer id);
 
 }

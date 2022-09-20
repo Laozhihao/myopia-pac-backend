@@ -7,9 +7,8 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStaffFacade;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffListResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStaffSaveRequestDTO;
-import com.wupol.myopia.business.core.school.domain.model.SchoolStaff;
-import com.wupol.myopia.business.core.school.service.SchoolStaffService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,9 +26,6 @@ import java.util.List;
 public class StaffController {
 
     @Resource
-    private SchoolStaffService schoolStaffService;
-
-    @Resource
     private SchoolStaffFacade schoolStaffFacade;
 
     /**
@@ -40,8 +36,8 @@ public class StaffController {
      * @return IPage<SchoolStaff>
      */
     @GetMapping("list")
-    public IPage<SchoolStaff> getSchoolStaffList(PageRequest pageRequest) {
-        return schoolStaffService.getSchoolStaff(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
+    public IPage<SchoolStaffListResponseDTO> getSchoolStaffList(PageRequest pageRequest) {
+        return schoolStaffFacade.getSchoolStaff(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     /**
