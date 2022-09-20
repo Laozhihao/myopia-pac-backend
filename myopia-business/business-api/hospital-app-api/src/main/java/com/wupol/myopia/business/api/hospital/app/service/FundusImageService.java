@@ -6,7 +6,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.hospital.app.domain.dto.FundusImageDTO;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.ImageDetail;
-import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
 import com.wupol.myopia.business.core.hospital.service.ImageDetailService;
 import com.wupol.myopia.business.core.hospital.service.ImageOriginalService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +61,7 @@ public class FundusImageService {
     }
 
     /**
-     * 删除患者当天最后一批影像
+     * 删除患者当天所有影像
      *
      * @param patientId  患者Id
      * @param hospitalId 医院Id
@@ -70,19 +69,16 @@ public class FundusImageService {
      * @return ReturnInformation
      */
     @Transactional(rollbackFor = Exception.class)
-    public Boolean deletedPatientTodayLastBatchImage(Integer patientId, Integer hospitalId) {
+    public Boolean deletedPatientTodayImage(Integer patientId, Integer hospitalId) {
         Object obj = redisUtil.get(String.format(RedisConstant.HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT, patientId));
         if (Objects.nonNull(obj)) {
             throw new BusinessException("正在解析影像中");
         }
-        ImageOriginal lastImage = imageOriginalService.getLastImage(patientId, hospitalId);
-        if (Objects.isNull(lastImage)) {
-            return false;
-        }
+        List<ImageDetail> imageDetails = imageDetailService.getTodayPatientFundusFile(patientId, hospitalId);
         // 删除详情
-        imageDetailService.remove(new ImageDetail().setImageOriginalId(lastImage.getId()));
+        imageDetailService.removeByIds(imageDetails.stream().map(ImageDetail::getId).collect(Collectors.toList()));
         // 删除原始表
-        imageOriginalService.removeById(lastImage);
+        imageOriginalService.removeByIds(imageDetails.stream().map(ImageDetail::getImageOriginalId).collect(Collectors.toList()));
         return true;
     }
 

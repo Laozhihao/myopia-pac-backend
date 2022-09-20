@@ -42,7 +42,7 @@ public class DcmUploadController {
     }
 
     /**
-     * 删除患者当天最后一批影像
+     * 删除患者当天所有影像
      *
      * @param patientId 患者Id
      *
@@ -51,6 +51,6 @@ public class DcmUploadController {
     @DeleteMapping(value = "/deleted/{patientId}")
     public ApiResult<Boolean> deletedPatientImage(@PathVariable("patientId") Integer patientId) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return ApiResult.success(fundusImageService.deletedPatientTodayLastBatchImage(patientId, user.getOrgId()));
+        return ApiResult.success(fundusImageService.deletedPatientTodayImage(patientId, user.getOrgId()));
     }
 }
