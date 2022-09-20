@@ -16,4 +16,8 @@ public class SchoolConstant {
 
     /** 无数据*/
     public static final String NO_DATA = "--";
+
+    public static final String OUR_SCHOOL = "本校";
+
+
 }

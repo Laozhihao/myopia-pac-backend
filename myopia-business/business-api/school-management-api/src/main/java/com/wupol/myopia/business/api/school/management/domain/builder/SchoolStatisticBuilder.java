@@ -1,13 +1,11 @@
 package com.wupol.myopia.business.api.school.management.domain.builder;
 
-import com.wupol.myopia.business.aggregation.stat.domain.vo.KindergartenResultDetailVO;
-import com.wupol.myopia.business.aggregation.stat.domain.vo.PrimarySchoolAndAboveResultDetailVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.KindergartenSchoolStatisticVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.PrimarySchoolAndAboveSchoolStatisticVO;
 import com.wupol.myopia.business.core.stat.domain.dos.KindergartenVisionAnalysisDO;
 import com.wupol.myopia.business.core.stat.domain.dos.PrimarySchoolAndAboveVisionAnalysisDO;
-import com.wupol.myopia.business.core.stat.domain.dos.ScreeningSituationDO;
 import com.wupol.myopia.business.core.stat.domain.dos.VisionWarningDO;
+import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
 import lombok.experimental.UtilityClass;
 
 import java.util.Objects;
@@ -22,21 +20,20 @@ public class SchoolStatisticBuilder {
 
     /**
      * 构建幼儿园筛查数据结果
-     * @param kindergartenResultDetail 幼儿园筛查结果
+     * @param visionScreeningResultStatistic 视力筛查结果
      */
-    public KindergartenSchoolStatisticVO buildKindergartenSchoolStatisticVO(KindergartenResultDetailVO kindergartenResultDetail) {
-        if (Objects.isNull(kindergartenResultDetail)){
+    public KindergartenSchoolStatisticVO buildKindergartenSchoolStatisticVO(VisionScreeningResultStatistic visionScreeningResultStatistic) {
+        if (Objects.isNull(visionScreeningResultStatistic)){
             return null;
         }
         KindergartenSchoolStatisticVO kindergartenSchoolStatisticVO = new KindergartenSchoolStatisticVO();
 
-        ScreeningSituationDO screeningSituation = kindergartenResultDetail.getScreeningSituation();
-        kindergartenSchoolStatisticVO.setPlanScreeningNum(screeningSituation.getPlanScreeningNum())
-                .setRealScreeningNum(screeningSituation.getRealScreeningNum())
-                .setFinishRatio(screeningSituation.getFinishRatio())
-                .setValidScreeningNum(screeningSituation.getValidScreeningNum());
+        kindergartenSchoolStatisticVO.setPlanScreeningNum(visionScreeningResultStatistic.getPlanScreeningNum())
+                .setRealScreeningNum(visionScreeningResultStatistic.getRealScreeningNum())
+                .setFinishRatio(visionScreeningResultStatistic.getFinishRatio())
+                .setValidScreeningNum(visionScreeningResultStatistic.getValidScreeningNum());
 
-        KindergartenVisionAnalysisDO visionAnalysis = kindergartenResultDetail.getKindergartenVisionAnalysis();
+        KindergartenVisionAnalysisDO visionAnalysis = (KindergartenVisionAnalysisDO)visionScreeningResultStatistic.getVisionAnalysis();
         kindergartenSchoolStatisticVO.setLowVisionNum(visionAnalysis.getLowVisionNum())
                 .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
                 .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
@@ -50,7 +47,17 @@ public class SchoolStatisticBuilder {
                 .setTreatmentAdviceNum(visionAnalysis.getTreatmentAdviceNum())
                 .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
         //视力监测预警
-
+        VisionWarningDO visionWarning = visionScreeningResultStatistic.getVisionWarning();
+        kindergartenSchoolStatisticVO.setVisionWarningNum(visionWarning.getVisionWarningNum())
+                .setVisionWarningRatio(visionWarning.getVisionWarningRatio())
+                .setVisionLabel0Num(visionWarning.getVisionLabel0Num())
+                .setVisionLabel1Num(visionWarning.getVisionLabel1Num())
+                .setVisionLabel2Num(visionWarning.getVisionLabel2Num())
+                .setVisionLabel3Num(visionWarning.getVisionLabel3Num())
+                .setVisionLabel0Ratio(visionWarning.getVisionLabel0Ratio())
+                .setVisionLabel1Ratio(visionWarning.getVisionLabel1Ratio())
+                .setVisionLabel2Ratio(visionWarning.getVisionLabel2Ratio())
+                .setVisionLabel3Ratio(visionWarning.getVisionLabel3Ratio());
 
         return kindergartenSchoolStatisticVO;
     }
@@ -58,21 +65,20 @@ public class SchoolStatisticBuilder {
 
     /**
      * 构建小学及以上筛查数据结果
-     * @param primarySchoolAndAboveResultDetail 小学及以上筛查数据结果
+     * @param visionScreeningResultStatistic 视力筛查数据结果
      */
-    public PrimarySchoolAndAboveSchoolStatisticVO buildPrimarySchoolAndAboveSchoolStatisticVO(PrimarySchoolAndAboveResultDetailVO primarySchoolAndAboveResultDetail) {
-        if (Objects.isNull(primarySchoolAndAboveResultDetail)){
+    public PrimarySchoolAndAboveSchoolStatisticVO buildPrimarySchoolAndAboveSchoolStatisticVO(VisionScreeningResultStatistic visionScreeningResultStatistic) {
+        if (Objects.isNull(visionScreeningResultStatistic)){
             return null;
         }
         PrimarySchoolAndAboveSchoolStatisticVO primarySchoolAndAboveSchoolStatisticVO = new PrimarySchoolAndAboveSchoolStatisticVO();
 
-        ScreeningSituationDO screeningSituation = primarySchoolAndAboveResultDetail.getScreeningSituation();
-        primarySchoolAndAboveSchoolStatisticVO.setPlanScreeningNum(screeningSituation.getPlanScreeningNum())
-                .setRealScreeningNum(screeningSituation.getRealScreeningNum())
-                .setFinishRatio(screeningSituation.getFinishRatio())
-                .setValidScreeningNum(screeningSituation.getValidScreeningNum());
+        primarySchoolAndAboveSchoolStatisticVO.setPlanScreeningNum(visionScreeningResultStatistic.getPlanScreeningNum())
+                .setRealScreeningNum(visionScreeningResultStatistic.getRealScreeningNum())
+                .setFinishRatio(visionScreeningResultStatistic.getFinishRatio())
+                .setValidScreeningNum(visionScreeningResultStatistic.getValidScreeningNum());
 
-        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = primarySchoolAndAboveResultDetail.getPrimarySchoolAndAboveVisionAnalysis();
+        PrimarySchoolAndAboveVisionAnalysisDO visionAnalysis = (PrimarySchoolAndAboveVisionAnalysisDO)visionScreeningResultStatistic.getVisionAnalysis();
         primarySchoolAndAboveSchoolStatisticVO.setLowVisionNum(visionAnalysis.getLowVisionNum())
                 .setLowVisionRatio(visionAnalysis.getLowVisionRatio())
                 .setAvgLeftVision(visionAnalysis.getAvgLeftVision())
@@ -93,7 +99,7 @@ public class SchoolStatisticBuilder {
                 .setTreatmentAdviceRatio(visionAnalysis.getTreatmentAdviceRatio());
 
 
-        VisionWarningDO visionWarning = primarySchoolAndAboveResultDetail.getVisionWarning();
+        VisionWarningDO visionWarning = visionScreeningResultStatistic.getVisionWarning();
         primarySchoolAndAboveSchoolStatisticVO.setVisionWarningNum(visionWarning.getVisionWarningNum())
                 .setVisionWarningRatio(visionWarning.getVisionWarningRatio())
                 .setVisionLabel0Num(visionWarning.getVisionLabel0Num())

@@ -1,13 +1,13 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import com.wupol.myopia.business.aggregation.stat.domain.vo.KindergartenResultDetailVO;
 import com.wupol.myopia.business.aggregation.stat.domain.vo.PrimarySchoolAndAboveResultDetailVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author hang.yuan 2022/4/7 17:30
  */
 @Data
-public class ScreeningResultStatisticDetailVO {
+public class ScreeningResultStatisticDetailVO implements Serializable {
 
     /**
      * 通知id

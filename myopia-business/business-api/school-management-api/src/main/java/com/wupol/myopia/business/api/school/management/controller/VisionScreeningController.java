@@ -20,7 +20,6 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
-import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
@@ -135,11 +134,7 @@ public class VisionScreeningController {
      */
     @GetMapping("{screeningPlanId}")
     public SchoolStatistic getSchoolStatistic(@PathVariable("screeningPlanId") Integer screeningPlanId, @RequestParam Integer type) {
-        StatisticDetailBO statisticDetailBO = new StatisticDetailBO()
-                .setScreeningPlanId(screeningPlanId)
-                .setSchoolId(CurrentUserUtil.getCurrentUser().getOrgId())
-                .setType(type);
-        return visionScreeningService.getSchoolStatistic(statisticDetailBO);
+        return visionScreeningService.getSchoolStatistic(screeningPlanId,CurrentUserUtil.getCurrentUser().getOrgId(),type);
     }
 
     /**

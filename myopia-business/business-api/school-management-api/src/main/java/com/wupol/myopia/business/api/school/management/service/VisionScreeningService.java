@@ -14,10 +14,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
-import com.wupol.myopia.business.aggregation.stat.domain.vo.KindergartenResultDetailVO;
-import com.wupol.myopia.business.aggregation.stat.domain.vo.PrimarySchoolAndAboveResultDetailVO;
-import com.wupol.myopia.business.aggregation.stat.facade.StatSchoolFacade;
+import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
@@ -58,7 +55,9 @@ import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
+import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,7 +114,7 @@ public class VisionScreeningService {
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
     @Resource
-    private StatSchoolFacade statSchoolFacade;
+    private StatFacade statFacade;
 
     private static final String DATA_INTEGRITY_FINISH = "数据完整";
     private static final String DATA_INTEGRITY_MISS = "数据缺失";
@@ -356,9 +355,7 @@ public class VisionScreeningService {
 
         //筛查学生
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(screeningPlanDTO.getId(),screeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
-
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
-
         screeningPlanService.savePlanInfo(screeningPlan,screeningPlanSchool,twoTuple);
     }
 
@@ -618,17 +615,36 @@ public class VisionScreeningService {
 
     /**
      * 获取学校结果统计分析
-     * @param statisticDetailBO 条件
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId 学校ID
+     * @param type 学校类型
      */
-    public SchoolStatistic getSchoolStatistic(StatisticDetailBO statisticDetailBO) {
-        if (Objects.equals(statisticDetailBO.getType(), SchoolEnum.TYPE_KINDERGARTEN.getType())){
-            KindergartenResultDetailVO kindergartenResultDetail = statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getKindergartenResultDetail();
-            return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(kindergartenResultDetail);
-        }else {
-            PrimarySchoolAndAboveResultDetailVO primarySchoolAndAboveResultDetail = statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getPrimarySchoolAndAboveResultDetail();
-            return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(primarySchoolAndAboveResultDetail);
+    public SchoolStatistic getSchoolStatistic(Integer screeningPlanId, Integer schoolId, Integer type) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+        TwoTuple<List<VisionScreeningResultStatistic>, List<CommonDiseaseScreeningResultStatistic>> realTimeSchoolStatisticList = statFacade.getRealTimeSchoolStatistics(screeningPlanId, schoolId);
+        if (Objects.equals(screeningPlan.getScreeningType(),ScreeningTypeEnum.VISION.getType())){
+            List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = realTimeSchoolStatisticList.getFirst();
+            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
+                VisionScreeningResultStatistic visionScreeningResultStatistic = visionScreeningResultStatisticList.stream().filter(visionStatistic -> Objects.equals(visionStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())).findFirst().orElse(null);
+                return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(visionScreeningResultStatistic);
+            }else {
+                VisionScreeningResultStatistic visionScreeningResultStatistic = visionScreeningResultStatisticList.stream().filter(visionStatistic -> Objects.equals(visionStatistic.getSchoolType(), SchoolEnum.TYPE_PRIMARY.getType())).findFirst().orElse(null);
+                return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(visionScreeningResultStatistic);
+            }
         }
-    }
 
+        if (Objects.equals(screeningPlan.getScreeningType(),ScreeningTypeEnum.COMMON_DISEASE.getType())){
+            List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = realTimeSchoolStatisticList.getSecond();
+            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
+                CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic = commonDiseaseScreeningResultStatisticList.stream().filter(commonDiseaseStatistic -> Objects.equals(commonDiseaseStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())).findFirst().orElse(null);
+                return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(commonDiseaseScreeningResultStatistic);
+            }else {
+                CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic = commonDiseaseScreeningResultStatisticList.stream().filter(commonDiseaseStatistic -> Objects.equals(commonDiseaseStatistic.getSchoolType(), SchoolEnum.TYPE_PRIMARY.getType())).findFirst().orElse(null);
+                return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(commonDiseaseScreeningResultStatistic);
+            }
+        }
+
+        return null;
+    }
 }
 

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.school.management.facade;
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -44,7 +45,7 @@ public class SchoolScreeningStatisticFacade {
         List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.listByPlanIdAndSchoolIdAndOrgId(screeningPlanId, currentUser.getOrgId(), screeningPlan.getScreeningOrgId());
         String screeningOrgName;
         if (Objects.equals(screeningPlan.getScreeningOrgId(),currentUser.getOrgId())){
-            screeningOrgName = "本校";
+            screeningOrgName = SchoolConstant.OUR_SCHOOL;
         }else {
             screeningOrgName = screeningOrganizationService.getNameById(screeningPlan.getScreeningOrgId());
         }

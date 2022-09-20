@@ -1,10 +1,10 @@
-package com.wupol.myopia.business.api.management.domain.builder;
+package com.wupol.myopia.business.aggregation.stat.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
+import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -39,8 +39,8 @@ public class ScreeningResultStatisticBuilder {
      * 视力筛查数据统计
      */
     public void visionScreening(StatisticResultBO totalStatistic,
-                                  List<StatConclusion> statConclusions,
-                                  List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
+                                List<StatConclusion> statConclusions,
+                                List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
 
         if (ObjectsUtil.hasNull(totalStatistic,statConclusions,visionScreeningResultStatisticList)){
             return;

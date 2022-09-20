@@ -9,7 +9,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.aggregation.stat.domain.vo.SchoolResultDetailVO;
-import com.wupol.myopia.business.aggregation.stat.facade.StatSchoolFacade;
+import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.api.management.domain.dto.*;
 import com.wupol.myopia.business.api.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -100,7 +100,7 @@ public class StatService {
     @Autowired
     private StatSchoolService statSchoolService;
     @Autowired
-    private StatSchoolFacade statSchoolFacade;
+    private StatFacade statFacade;
 
     @Value("classpath:excel/ExportStatContrastTemplate.xlsx")
     private Resource exportStatContrastTemplate;
@@ -1140,7 +1140,7 @@ public class StatService {
      * @param statisticDetailBO 统计详情业务流转实体
      */
     public SchoolResultDetailVO getSchoolStatisticDetail(StatisticDetailBO statisticDetailBO) {
-        return statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO);
+        return statFacade.getSchoolStatisticDetail(statisticDetailBO);
     }
 
     /**

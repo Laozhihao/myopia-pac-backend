@@ -101,7 +101,7 @@ public class KindergartenSchoolStatisticVO implements SchoolStatistic {
     /**
      *  视力预警比例
      */
-    private Integer visionWarningRatio;
+    private String visionWarningRatio;
 
     /**
      * 零级预警人数（默认0）

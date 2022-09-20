@@ -4,7 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.aggregation.stat.domain.vo.ResultDetailVO;
-import com.wupol.myopia.business.aggregation.stat.facade.StatSchoolFacade;
+import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class SchoolScreeningStatisticController {
 
     @Autowired
-    private StatSchoolFacade statSchoolFacade;
+    private StatFacade statFacade;
 
 
     /**
@@ -38,9 +38,9 @@ public class SchoolScreeningStatisticController {
                 .setSchoolId(CurrentUserUtil.getCurrentUser().getOrgId())
                 .setType(type);
         if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
-            return statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getKindergartenResultDetail();
+            return statFacade.getSchoolStatisticDetail(statisticDetailBO).getKindergartenResultDetail();
         }else {
-            return statSchoolFacade.getSchoolStatisticDetail(statisticDetailBO).getPrimarySchoolAndAboveResultDetail();
+            return statFacade.getSchoolStatisticDetail(statisticDetailBO).getPrimarySchoolAndAboveResultDetail();
         }
 
     }
