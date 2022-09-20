@@ -21,7 +21,7 @@ public class OrganizationService extends BaseService<OrganizationMapper, Organiz
 
     public Organization get(Integer orgId, Integer systemCode, Integer userType) {
         // 筛查或医院端，统一转化为筛查管理端或医院管理端查询
-        if (SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) && UserType.OTHER.getType().equals(userType)) {
+        if (SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) && UserType.SCREENING_STAFF_TYPE_ORG.getType().equals(userType)) {
             systemCode = SystemCode.MANAGEMENT_CLIENT.getCode();
             userType = UserType.SCREENING_ORGANIZATION_ADMIN.getType();
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode) && UserType.OTHER.getType().equals(userType)) {
