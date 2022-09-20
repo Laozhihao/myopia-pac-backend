@@ -34,6 +34,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -225,16 +226,17 @@ public class DeviceUploadService {
      * @param fileId   文件Id
      */
     private Integer saveOriginalImage(DicomDTO dicomDTO, Integer fileId, Integer hospitalId) {
-        if (Objects.nonNull(imageOriginalService.getByMd5(dicomDTO.getMd5()))) {
-            throw new BusinessException("DICOM数据重复！");
-        }
         ImageOriginal imageOriginal = new ImageOriginal();
         imageOriginal.setFileId(fileId);
         imageOriginal.setPatientId(dicomDTO.getPatientId());
         imageOriginal.setHospitalId(hospitalId);
-        imageOriginal.setBluetoothMac(dicomDTO.getMacAddress());
+        imageOriginal.setMacAddr(dicomDTO.getMacAddress());
         imageOriginal.setMd5(dicomDTO.getMd5());
-        imageOriginalService.save(imageOriginal);
+        try {
+            imageOriginalService.save(imageOriginal);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException("DICOM数据重复！");
+        }
         return imageOriginal.getId();
     }
 

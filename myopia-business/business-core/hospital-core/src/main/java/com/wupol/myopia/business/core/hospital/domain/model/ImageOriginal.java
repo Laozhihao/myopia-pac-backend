@@ -48,7 +48,7 @@ public class ImageOriginal implements Serializable {
     /**
      * 设备mac地址
      */
-    private String bluetoothMac;
+    private String macAddr;
 
     /**
      * md5

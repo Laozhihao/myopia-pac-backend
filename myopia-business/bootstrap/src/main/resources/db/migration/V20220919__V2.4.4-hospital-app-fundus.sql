@@ -5,15 +5,15 @@ alter table m_device
 
 create table h_image_original
 (
-    id            int auto_increment comment 'id'
+    id          int auto_increment comment 'id'
         primary key,
-    file_id       int                                 not null comment '文件Id',
-    patient_id    int                                 not null comment '患者Id',
-    hospital_id   int                                 not null comment '医院Id',
-    bluetooth_mac varchar(32)                         not null comment '蓝牙mac地址',
-    md5           varchar(128)                        not null comment 'md5',
-    create_time   timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time   timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    file_id     int                                 not null comment '文件Id',
+    patient_id  int                                 not null comment '患者Id',
+    hospital_id int                                 not null comment '医院Id',
+    mac_addr    varchar(32)                         not null comment 'mac地址',
+    md5         varchar(128)                        not null comment 'md5',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     constraint h_image_original_pk
         unique (md5)
 )
@@ -21,7 +21,8 @@ create table h_image_original
 
 create table h_image_detail
 (
-    id                int auto_increment primary key comment 'id',
+    id                int auto_increment comment 'id'
+        primary key,
     image_original_id int                                 not null comment '图像原始表Id',
     file_id           int                                 not null comment '文件Id',
     patient_id        int                                 not null comment '患者Id',
@@ -32,6 +33,9 @@ create table h_image_detail
     update_time       timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '图像详情表';
+
+create index h_image_detail_create_time_hospital_id_patient_id_index
+    on h_image_detail (create_time, hospital_id, patient_id);
 
 alter table h_medical_record
     add fundus json null comment '眼底检查' after `tosca`;
