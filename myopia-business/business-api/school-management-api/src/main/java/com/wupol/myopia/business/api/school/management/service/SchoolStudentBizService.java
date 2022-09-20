@@ -9,25 +9,18 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
-import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentInfoVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
-import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
-import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
@@ -48,7 +41,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -315,35 +311,6 @@ public class SchoolStudentBizService {
     }
 
 
-
-    /**
-     * 预警跟踪记录
-     * @param id 学校学生ID
-     */
-    public StudentWarningRecordVO warningArchive(PageRequest pageRequest,Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        IPage<StudentWarningArchiveVO> studentWarningArchivePage = studentFacade.getStudentWarningArchive(pageRequest,schoolStudent.getStudentId());
-        StudentWarningRecordVO studentWarningRecordVO = buildStudentWarningRecordVO(schoolStudent);
-        studentWarningRecordVO.setPageData(studentWarningArchivePage);
-        return studentWarningRecordVO;
-    }
-
-    /**
-     * 构建学生预警跟踪记录
-     * @param schoolStudent 学校学生信息
-     */
-    private StudentWarningRecordVO buildStudentWarningRecordVO(SchoolStudent schoolStudent) {
-        StudentWarningRecordVO studentWarningRecordVO = new StudentWarningRecordVO();
-        StudentWarningRecordVO.StudentInfo studentInfo = new StudentWarningRecordVO.StudentInfo()
-                .setSno(schoolStudent.getSno())
-                .setGradeName(schoolStudent.getGradeName())
-                .setClassName(schoolStudent.getClassName())
-                .setGender(schoolStudent.getGender())
-                .setName(schoolStudent.getName());
-        studentWarningRecordVO.setStudentInfo(studentInfo);
-        return studentWarningRecordVO;
-    }
-
     /**
      * 筛查记录
      * @param pageRequest 分页数据
@@ -354,23 +321,6 @@ public class SchoolStudentBizService {
         return studentFacade.getScreeningList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser());
     }
 
-    /**
-     * 报告列表信息
-     * @param pageRequest 分页对象
-     * @param id 学校学生ID
-     */
-    public StudentReportVO reportList(PageRequest pageRequest, Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        StudentReportVO studentReportVO = new StudentReportVO();
-        StudentReportVO.StudentInfo studentInfo = new StudentReportVO.StudentInfo()
-                .setName(schoolStudent.getName())
-                .setGender(schoolStudent.getGender())
-                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()));
-        studentReportVO.setStudentInfo(studentInfo);
-        IPage<ReportAndRecordDO> reportPage = studentFacade.getReportList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser(), null);
-        studentReportVO.setPageData(reportPage);
-        return studentReportVO;
-    }
 
     /**
      * 获取学校学生基础信息
@@ -385,22 +335,4 @@ public class SchoolStudentBizService {
         return SchoolStudentInfoBuilder.buildStudentBaseInfoVO(schoolStudent,districtPositionDetail);
     }
 
-
-    public StudentInfoVO getStudentInfo(Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        StudentDTO student = studentFacade.getStudentById(schoolStudent.getStudentId());
-        // 对应当前医院各年龄段状态
-        List<PreschoolCheckRecord> records = preschoolCheckRecordService.getStudentRecord(null, schoolStudent.getStudentId());
-        Map<Integer, MonthAgeStatusDTO> studentCheckStatus = preschoolCheckRecordService.getStudentCheckStatus(schoolStudent.getBirthday(), records);
-        List<MonthAgeStatusDTO> monthAgeStatusDTOList = preschoolCheckRecordService.createMonthAgeStatusDTOByMap(studentCheckStatus);
-        return new StudentInfoVO()
-                .setName(schoolStudent.getName())
-                .setId(schoolStudent.getId())
-                .setStudentId(schoolStudent.getStudentId())
-                .setGender(schoolStudent.getGender())
-                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()))
-                .setRecordNo(student.getRecordNo())
-                .setAgeStageStatusList(monthAgeStatusDTOList);
-
-    }
 }

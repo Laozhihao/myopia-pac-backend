@@ -41,10 +41,8 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -74,13 +72,7 @@ public class VisionScreeningController {
     private VisionScreeningService visionScreeningService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
-
-    @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-
-    @Resource
-    private ScreeningPlanService screeningPlanService;
 
     @Resource
     private ScreeningExportService screeningExportService;

@@ -156,6 +156,7 @@ public class ScreeningResultStatisticBuilder {
                 .setFinishRatio(MathUtil.ratio(realScreeningStudentNum,planScreeningNum))
                 .setValidScreeningNum(validScreeningNum)
                 .setValidScreeningRatio(MathUtil.ratio(validScreeningNum,realScreeningStudentNum));
+
     }
 
     /**
@@ -249,6 +250,14 @@ public class ScreeningResultStatisticBuilder {
                 .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(MathUtil.ratio(treatmentAdviceNum,validScreeningNum))
                 .setSchoolType(totalStatistic.getSchoolType());
         statistic.setVisionAnalysis(visionAnalysisDO);
+
+        //公众号
+        Integer bindMpNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsBindMp)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+
+        //去医院
+        Integer reviewNum = (int) statConclusions.stream().map(StatConclusion::getReportId).filter(Objects::nonNull).count();
     }
 
 
