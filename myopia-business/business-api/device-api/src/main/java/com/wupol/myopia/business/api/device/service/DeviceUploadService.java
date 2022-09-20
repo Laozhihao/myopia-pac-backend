@@ -40,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -103,8 +104,8 @@ public class DeviceUploadService {
             path = upload.getSecond();
             ZipUtil.unzip(path);
 
-            String s = StrUtil.removeSuffix(path, ".zip");
-            File file = new File(s);
+            String zipFilePrefixName = StrUtil.removeSuffix(path, ".zip");
+            File file = new File(zipFilePrefixName);
             File[] files = file.listFiles();
             if (Objects.isNull(files)) {
                 return null;
@@ -121,7 +122,7 @@ public class DeviceUploadService {
             Integer originalImageId = saveOriginalImage(dicomDTO, resourceFileService.uploadFileAndSave(requestDTO.getPic()).getId(), hospitalId);
 
             // 读取DICOM,JSON文件信息
-            FileReader fileReader = new FileReader(StrUtil.removeSuffix(path, ".zip") + "/" + dicomDTO.getBase());
+            FileReader fileReader = new FileReader(Paths.get(zipFilePrefixName, dicomDTO.getBase()).toString());
             String dicomJson = fileReader.readString();
             if (StringUtils.isBlank(dicomJson)) {
                 throw new BusinessException("JSON数据为空");
