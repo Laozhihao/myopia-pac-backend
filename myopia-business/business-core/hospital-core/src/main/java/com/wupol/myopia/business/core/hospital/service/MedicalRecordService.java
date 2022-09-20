@@ -110,15 +110,17 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
 
     /**
      * 追加检查检查数据到检查单
-     * @param consultation    问诊
-     * @param vision    视力检查检查数据
-     * @param biometrics    生物测量检查数据
-     * @param diopter    屈光检查数据
-     * @param tosca    角膜地形图检查数据
-     * @param hospitalId 医院id
+     *
+     * @param consultation 问诊
+     * @param vision       视力检查检查数据
+     * @param biometrics   生物测量检查数据
+     * @param diopter      屈光检查数据
+     * @param tosca        角膜地形图检查数据
+     * @param fundus       眼底影像
+     * @param hospitalId   医院id
      * @param departmentId 科室id
-     * @param doctorId 医生id
-     * @param studentId 学生id
+     * @param doctorId     医生id
+     * @param studentId    学生id
      */
     public void addCheckDataToMedicalRecord(Consultation consultation,
                                             VisionMedicalRecord vision,
@@ -126,6 +128,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                                             DiopterMedicalRecord diopter,
                                             ToscaMedicalRecord tosca,
                                             EyePressure eyePressure,
+                                            FundusMedicalRecord fundus,
                                             Integer hospitalId,
                                             Integer departmentId,
                                             Integer doctorId,
@@ -142,6 +145,9 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         }
         if (Objects.nonNull(tosca)) medicalRecord.setTosca(tosca);
         if (Objects.nonNull(eyePressure)) medicalRecord.setEyePressure(eyePressure);
+        if (Objects.nonNull(fundus)) {
+            medicalRecord.setFundus(fundus);
+        }
         if (!updateById(medicalRecord)) {
             throw new BusinessException("修改失败");
         }
@@ -291,5 +297,24 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
                     .setScale(2, RoundingMode.HALF_UP).toString();
         }
         return StringUtils.EMPTY;
+    }
+
+    /**
+     * 获取学生今天最后一条眼底影像数据
+     *
+     * @param hospitalId 医院id
+     * @param studentId  学生id
+     */
+    public FundusMedicalRecord getTodayLastFundusMedicalRecord(Integer hospitalId, Integer studentId) {
+        MedicalRecord medicalRecord = getTodayLastMedicalRecord(hospitalId, studentId);
+        if (Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getFundus())) {
+            return new FundusMedicalRecord();
+        }
+        FundusMedicalRecord fundus = medicalRecord.getFundus();
+        List<Integer> imageIdList = fundus.getImageIdList();
+        if (!CollectionUtils.isEmpty(imageIdList)) {
+            fundus.setImageUrlList(resourceFileService.getBatchResourcePath(imageIdList));
+        }
+        return medicalRecord.getFundus();
     }
 }

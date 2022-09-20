@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.api.management.validator.DeviceAddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.DeviceUpdateValidatorGroup;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,10 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -90,6 +93,19 @@ public class DeviceController {
     public Boolean updateDeviceStatus(@PathVariable @NotNull(message = "设备ID不能为空") Integer id, @PathVariable @NotNull(message = "状态值不能为空") Integer status) {
         Assert.isTrue(status == StatusConstant.DISABLE || status == StatusConstant.ENABLE, "无效状态值");
         return deviceService.updateById(new Device().setId(id).setStatus(status));
+    }
+
+    /**
+     * 获取机构名称
+     *
+     * @param type 类型
+     * @param name 名称
+     *
+     * @return List<DeviceOrgListResponseDTO>
+     */
+    @GetMapping("org/getByName")
+    public List<DeviceOrgListResponseDTO> getByNames(@NotNull(message = "类型不能为空") Integer type, @NotBlank(message = "名称不能为空") String name) {
+        return deviceBizService.getByNames(type, name);
     }
 
 }

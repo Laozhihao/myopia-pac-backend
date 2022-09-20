@@ -7,6 +7,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -20,8 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 医院-报告数据的业务模块
@@ -174,6 +178,7 @@ public class MedicalReportBizService {
             responseDTO.setDiopter(medicalRecord.getDiopter());
             responseDTO.setTosca(medicalRecord.getTosca());
             responseDTO.setEyePressure(medicalRecord.getEyePressure());
+            responseDTO.setFundusImageUrlList(getFundusImageUrls(medicalRecord));;
             // 问诊内容
             responseDTO.setConsultation(medicalRecord.getConsultation());
         }
@@ -254,5 +259,24 @@ public class MedicalReportBizService {
                 statConclusionService.updateById(statConclusion);
             }
         }
+    }
+
+    /**
+     * 设置眼底影像
+     *
+     * @param medicalRecord 记录
+     *
+     * @return 眼底影像
+     */
+    private List<String> getFundusImageUrls(MedicalRecord medicalRecord) {
+        Optional<MedicalRecord> optional = Optional.ofNullable(medicalRecord);
+        if (!optional.isPresent()) {
+            return new ArrayList<>();
+        }
+        List<Integer> imageIdList = optional.map(MedicalRecord::getFundus).map(FundusMedicalRecord::getImageIdList).orElse(new ArrayList<>());
+        if (CollectionUtils.isEmpty(imageIdList)) {
+            return new ArrayList<>();
+        }
+        return resourceFileService.getBatchResourcePath(imageIdList);
     }
 }

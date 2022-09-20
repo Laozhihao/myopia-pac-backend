@@ -29,8 +29,8 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
     @Autowired
     private RedisUtil redisUtil;
 
-    /** 有效时间：十分钟 10*60**/
-    private static final long ONLINE_USERS_EXPIRED = 600L;
+    /** 有效时间：五分钟 5*60 **/
+    private static final long ONLINE_USERS_EXPIRED = 300L;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -42,7 +42,7 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
             CurrentUser currentUser = JSON.parseObject(user, CurrentUser.class);
             if (Objects.nonNull(currentUser)) {
                 String format = String.format(onlineUsersNum, currentUser.getClientId(), currentUser.getId());
-                redisUtil.set(format,currentUser.getId(),ONLINE_USERS_EXPIRED);
+                redisUtil.set(format,currentUser.getRealName(),ONLINE_USERS_EXPIRED);
             }
         }else {
             String ip = RequestUtil.getIP(request);

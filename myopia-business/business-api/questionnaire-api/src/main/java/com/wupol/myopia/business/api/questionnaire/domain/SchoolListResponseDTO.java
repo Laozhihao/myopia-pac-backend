@@ -24,6 +24,10 @@ public class SchoolListResponseDTO {
      * 学校编号
      */
     private String schoolNo;
+    /**
+     * 学校常见病编号
+     */
+    private String schoolCommonDiseaseCode;
 
     /**
      * 学校名称

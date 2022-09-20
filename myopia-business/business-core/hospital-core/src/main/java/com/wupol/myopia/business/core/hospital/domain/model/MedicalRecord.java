@@ -63,6 +63,13 @@ public class MedicalRecord implements Serializable {
     /** 角膜地形图 */
     @TableField(typeHandler = ToscaMedicalRecordTypeHandler.class)
     private ToscaMedicalRecord tosca;
+
+    /**
+     * 眼底检查
+     */
+    @TableField(typeHandler = FundusMedicalRecordTypeHandler.class)
+    private FundusMedicalRecord fundus;
+
     /** 眼压 */
     @TableField(typeHandler = EyePressureTypeHandler.class)
     private EyePressure eyePressure;

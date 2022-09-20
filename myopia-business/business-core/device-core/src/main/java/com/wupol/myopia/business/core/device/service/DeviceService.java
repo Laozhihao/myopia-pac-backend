@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.device.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.service.BaseService;
@@ -8,6 +9,8 @@ import com.wupol.myopia.business.core.device.domain.mapper.DeviceMapper;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author jacob
@@ -35,5 +38,11 @@ public class DeviceService extends BaseService<DeviceMapper, Device> {
     public Device getDeviceByDeviceSn(String deviceSn) {
         Device device = new Device().setDeviceSn(deviceSn).setStatus(StatusConstant.ENABLE);
         return findOne(device);
+    }
+
+    public List<Device> getByOrgIdAndOrgType(Integer orgId, Integer orgType) {
+        return list(new LambdaQueryWrapper<Device>()
+                .eq(Device::getBindingScreeningOrgId, orgId)
+                .eq(Device::getOrgType, orgType));
     }
 }
