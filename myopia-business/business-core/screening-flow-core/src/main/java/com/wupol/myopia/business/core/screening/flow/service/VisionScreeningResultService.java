@@ -513,4 +513,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.selectList(queryWrapper);
 
     }
+
+    public List<VisionScreeningResult> getByPlanIdsAndSchoolId(List<Integer> screeningPlanIds, Integer schoolId, Boolean isDoubleScreen) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .in(VisionScreeningResult::getPlanId,screeningPlanIds)
+                .eq(VisionScreeningResult::getSchoolId,schoolId)
+                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen));
+    }
 }

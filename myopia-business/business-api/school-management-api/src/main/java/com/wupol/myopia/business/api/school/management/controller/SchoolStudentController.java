@@ -13,12 +13,15 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.PreschoolCheckRecordVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
+import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
+import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -64,6 +67,8 @@ public class SchoolStudentController {
 
     @Resource
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Resource
+    private PreschoolCheckRecordService preschoolCheckRecordService;
 
 
     /**
@@ -218,13 +223,22 @@ public class SchoolStudentController {
 
 
     /**
+     * 获取学生信息
+     * @param id 学校学生ID
+     */
+    @GetMapping("/preschool/check/studentInfo")
+    public StudentInfoVO getStudentInfo(@RequestParam Integer id){
+        return schoolStudentBizService.getStudentInfo(id);
+    }
+
+    /**
      * 0-6岁检查记录
      * @param pageRequest 分页信息
-     * @param id 学校学生Id
+     * @param preschoolCheckRecordQuery 查询条件
      */
     @GetMapping("/preschool/check/list")
-    public PreschoolCheckRecordVO preschoolCheckList(PageRequest pageRequest, @NotNull(message = "学校学生Id不能为空") Integer id){
-        return schoolStudentBizService.preschoolCheckList(pageRequest,id);
+    public IPage<PreschoolCheckRecordDTO> preschoolCheckList(PageRequest pageRequest, PreschoolCheckRecordQuery preschoolCheckRecordQuery){
+        return preschoolCheckRecordService.getList(pageRequest, preschoolCheckRecordQuery);
     }
 
     /**

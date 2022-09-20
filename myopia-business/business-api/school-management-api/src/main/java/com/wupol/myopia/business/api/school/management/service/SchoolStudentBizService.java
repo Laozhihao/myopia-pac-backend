@@ -14,8 +14,8 @@ import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.PreschoolCheckRecordVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.StudentInfoVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentReportVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentWarningRecordVO;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
@@ -24,9 +24,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
-import com.wupol.myopia.business.core.hospital.domain.dto.PreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.PreschoolCheckRecord;
-import com.wupol.myopia.business.core.hospital.domain.query.PreschoolCheckRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -356,34 +354,6 @@ public class SchoolStudentBizService {
         return studentFacade.getScreeningList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser());
     }
 
-    public PreschoolCheckRecordVO preschoolCheckList(PageRequest pageRequest, Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-
-        StudentDTO student = studentFacade.getStudentById(schoolStudent.getStudentId());
-        // 对应当前医院各年龄段状态
-        List<PreschoolCheckRecord> records = preschoolCheckRecordService.getStudentRecord(null, schoolStudent.getStudentId());
-        Map<Integer, MonthAgeStatusDTO> studentCheckStatus = preschoolCheckRecordService.getStudentCheckStatus(schoolStudent.getBirthday(), records);
-        List<MonthAgeStatusDTO> monthAgeStatusDTOList = preschoolCheckRecordService.createMonthAgeStatusDTOByMap(studentCheckStatus);
-        PreschoolCheckRecordVO preschoolCheckRecordVO = new PreschoolCheckRecordVO();
-        PreschoolCheckRecordVO.StudentInfo studentInfo = new PreschoolCheckRecordVO.StudentInfo()
-                .setName(schoolStudent.getName())
-                .setGender(schoolStudent.getGender())
-                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()))
-                .setRecordNo(student.getRecordNo())
-                .setAgeStageStatusList(monthAgeStatusDTOList);
-
-        preschoolCheckRecordVO.setStudentInfo(studentInfo);
-
-        PreschoolCheckRecordQuery query = new PreschoolCheckRecordQuery();
-        query.setStudentId(schoolStudent.getStudentId());
-        if (CollUtil.isNotEmpty(monthAgeStatusDTOList)){
-            query.setMonthAges(monthAgeStatusDTOList.stream().map(MonthAgeStatusDTO::getMonthAge).collect(Collectors.toList()));
-        }
-        IPage<PreschoolCheckRecordDTO> recordPage = preschoolCheckRecordService.getList(pageRequest, query);
-        preschoolCheckRecordVO.setPageData(recordPage);
-        return preschoolCheckRecordVO;
-    }
-
     /**
      * 报告列表信息
      * @param pageRequest 分页对象
@@ -416,4 +386,19 @@ public class SchoolStudentBizService {
     }
 
 
+    public StudentInfoVO getStudentInfo(Integer id) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        StudentDTO student = studentFacade.getStudentById(schoolStudent.getStudentId());
+        // 对应当前医院各年龄段状态
+        List<PreschoolCheckRecord> records = preschoolCheckRecordService.getStudentRecord(null, schoolStudent.getStudentId());
+        Map<Integer, MonthAgeStatusDTO> studentCheckStatus = preschoolCheckRecordService.getStudentCheckStatus(schoolStudent.getBirthday(), records);
+        List<MonthAgeStatusDTO> monthAgeStatusDTOList = preschoolCheckRecordService.createMonthAgeStatusDTOByMap(studentCheckStatus);
+        return new StudentInfoVO()
+                .setName(schoolStudent.getName())
+                .setGender(schoolStudent.getGender())
+                .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()))
+                .setRecordNo(student.getRecordNo())
+                .setAgeStageStatusList(monthAgeStatusDTOList);
+
+    }
 }

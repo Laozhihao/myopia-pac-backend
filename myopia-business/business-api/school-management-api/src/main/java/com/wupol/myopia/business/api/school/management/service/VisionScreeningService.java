@@ -24,6 +24,7 @@ import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTi
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatisticVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
@@ -56,7 +57,6 @@ import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
@@ -172,8 +172,8 @@ public class VisionScreeningService {
                 .collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         // 获取统计信息
-        List<SchoolVisionStatistic> statisticList = schoolVisionStatisticService.getByPlanIdsAndSchoolId(planIds, schoolId);
-        Map<Integer, SchoolVisionStatistic> schoolStatisticMap = statisticList.stream().collect(Collectors.toMap(SchoolVisionStatistic::getScreeningPlanId, Function.identity(), (o, n) -> o));
+        List<SchoolStatisticVO> schoolStatisticList = getSchoolStatistic(planIds, schoolId);
+        Map<Integer, SchoolStatisticVO> schoolStatisticMap = schoolStatisticList.stream().collect(Collectors.toMap(SchoolStatisticVO::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
 
         // 筛查机构
@@ -264,12 +264,11 @@ public class VisionScreeningService {
      * @param responseDTO 返回对象
      * @param schoolStatisticMap 统计信息集合
      */
-    private void setStatisticInfo(ScreeningListResponseDTO responseDTO, Map<Integer, SchoolVisionStatistic> schoolStatisticMap) {
-        SchoolVisionStatistic schoolVisionStatistic = schoolStatisticMap.get(responseDTO.getPlanId());
-        if (Objects.nonNull(schoolVisionStatistic)) {
-            responseDTO.setSchoolStatisticId(schoolVisionStatistic.getId());
-            responseDTO.setPlanScreeningNumbers(schoolVisionStatistic.getPlanScreeningNumbers());
-            responseDTO.setRealScreeningNumbers(schoolVisionStatistic.getRealScreeningNumbers());
+    private void setStatisticInfo(ScreeningListResponseDTO responseDTO, Map<Integer, SchoolStatisticVO> schoolStatisticMap) {
+        SchoolStatisticVO schoolStatisticVO = schoolStatisticMap.get(responseDTO.getPlanId());
+        if (Objects.nonNull(schoolStatisticVO)) {
+            responseDTO.setPlanScreeningNumbers(schoolStatisticVO.getPlanScreeningNum());
+            responseDTO.setRealScreeningNumbers(schoolStatisticVO.getRealScreeningNum());
         } else {
             responseDTO.setRealScreeningNumbers(0);
         }
@@ -645,6 +644,24 @@ public class VisionScreeningService {
         }
 
         return null;
+    }
+
+    public List<SchoolStatisticVO> getSchoolStatistic(List<Integer> screeningPlanIds, Integer schoolId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByPlanIdsAndSchoolId(screeningPlanIds, schoolId,Boolean.FALSE);
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndSchoolId(screeningPlanIds, schoolId,Boolean.FALSE);
+        Map<Integer, List<ScreeningPlanSchoolStudent>> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
+        Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
+        return screeningPlanIds.stream().map(screeningPlanId->buildSchoolStatistic(screeningPlanId,screeningPlanSchoolStudentMap,visionScreeningResultMap)).collect(Collectors.toList());
+    }
+
+    private SchoolStatisticVO buildSchoolStatistic(Integer screeningPlanId, Map<Integer, List<ScreeningPlanSchoolStudent>> screeningPlanSchoolStudentMap, Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentMap.getOrDefault(screeningPlanId, Lists.newArrayList());
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultMap.getOrDefault(screeningPlanId, Lists.newArrayList());
+
+        return new SchoolStatisticVO()
+                .setScreeningPlanId(screeningPlanId)
+                .setPlanScreeningNum(screeningPlanSchoolStudentList.size())
+                .setRealScreeningNum(visionScreeningResultList.size());
     }
 }
 

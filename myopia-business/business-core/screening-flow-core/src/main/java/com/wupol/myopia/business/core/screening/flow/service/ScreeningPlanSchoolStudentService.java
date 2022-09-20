@@ -702,6 +702,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
+    public List<ScreeningPlanSchoolStudent> getByPlanIdsAndSchoolId(List<Integer> planIds, Integer schoolId,Boolean isSchoolDistrict) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId, planIds)
+                .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        if (Objects.equals(Boolean.TRUE,isSchoolDistrict)){
+            return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        }
+        return screeningPlanSchoolStudentList;
+    }
+
+
     /**
      * 获取参与筛查计划的学生集合
      *
