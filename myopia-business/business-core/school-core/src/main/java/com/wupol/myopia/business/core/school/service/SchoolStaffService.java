@@ -46,8 +46,8 @@ public class SchoolStaffService extends BaseService<SchoolStaffMapper, SchoolSta
      *
      * @return 是否重复
      */
-    public Boolean checkByIdCardAndPhone(String idCard, String phone, Integer id) {
-        return baseMapper.checkByIdCardAndPhone(idCard, phone, id).size() > 0;
+    public boolean checkByIdCardAndPhone(String idCard, String phone, Integer id) {
+        return !baseMapper.checkByIdCardAndPhone(idCard, phone, id).isEmpty();
     }
 
 }

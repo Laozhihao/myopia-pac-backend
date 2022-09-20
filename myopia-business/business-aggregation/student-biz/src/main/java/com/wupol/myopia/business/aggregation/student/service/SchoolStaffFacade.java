@@ -201,7 +201,7 @@ public class SchoolStaffFacade {
         }
 
         // 检查身份证、手机是否重复
-        if (schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), requestDTO.getId())) {
+        if (Boolean.TRUE.equals(schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), requestDTO.getId()))) {
             throw new BusinessException("手机号码、身份证重复");
         }
     }
