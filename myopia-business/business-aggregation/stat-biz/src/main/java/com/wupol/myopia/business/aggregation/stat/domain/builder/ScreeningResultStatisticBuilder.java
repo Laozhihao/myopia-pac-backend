@@ -64,6 +64,9 @@ public class ScreeningResultStatisticBuilder {
         //设置基础数据
         setBasicData(statConclusions,totalStatistic,realScreeningStudentNum,validScreeningNum,statistic);
 
+        //设置其它数据
+        setOtherData(statConclusions, statistic);
+
         //设置视力分析数据
         if (Objects.equals(totalStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())){
             setKindergartenVisionAnalysis(totalStatistic, validStatConclusions, validScreeningNum, statistic);
@@ -250,14 +253,18 @@ public class ScreeningResultStatisticBuilder {
                 .setTreatmentAdviceNum(treatmentAdviceNum).setTreatmentAdviceRatio(MathUtil.ratio(treatmentAdviceNum,validScreeningNum))
                 .setSchoolType(totalStatistic.getSchoolType());
         statistic.setVisionAnalysis(visionAnalysisDO);
+    }
 
+    private static void setOtherData(List<StatConclusion> statConclusions, VisionScreeningResultStatistic statistic) {
         //公众号
         Integer bindMpNum = (int) statConclusions.stream()
                 .map(StatConclusion::getIsBindMp)
                 .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        statistic.setBindMpNum(bindMpNum).setBindMpRatio(MathUtil.ratio(bindMpNum,statistic.getRealScreeningNum()));
 
         //去医院
         Integer reviewNum = (int) statConclusions.stream().map(StatConclusion::getReportId).filter(Objects::nonNull).count();
+        statistic.setReviewNum(reviewNum).setReviewRatio(MathUtil.ratio(reviewNum,statistic.getRealScreeningNum()));
     }
 
 

@@ -68,6 +68,11 @@ public class ScreeningListResponseDTO {
     private Integer screeningStatus;
 
     /**
+     * 筛查状态与发布状态合并(0-未发布,1-未开始 2-进行中 3-已结束)
+     */
+    private Integer status;
+
+    /**
      * 计划的学生数量
      */
     private Integer planScreeningNumbers;
@@ -116,4 +121,9 @@ public class ScreeningListResponseDTO {
      * 筛查业务类型（1:自主筛查，0:协助筛查）
      */
     private Integer screeningBizType;
+
+    /**
+     * 是否有筛查结果（true:有，false:没有）
+     */
+    private Boolean hasScreeningResults;
 }

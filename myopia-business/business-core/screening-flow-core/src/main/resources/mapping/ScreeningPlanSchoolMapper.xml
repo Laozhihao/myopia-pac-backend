@@ -192,7 +192,7 @@
                msp.screening_type as screeningType
         from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
         left join m_screening_plan msp on msps.screening_plan_id = msp.id
-        where 1 = 1
+        where msp.release_status != 2
         <if test="@Ognl@isNotEmpty(param.screeningType)">
             and msp.screening_type = #{param.screeningType}
         </if>

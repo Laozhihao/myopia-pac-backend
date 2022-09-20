@@ -16,6 +16,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
+import com.wupol.myopia.business.api.school.management.constant.MergeStatusEnum;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
 import com.wupol.myopia.business.api.school.management.domain.builder.ScreeningPlanBuilder;
@@ -43,6 +44,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
@@ -58,7 +60,6 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Screen
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -98,15 +99,13 @@ public class VisionScreeningService {
 
     @Resource
     private ResourceFileService resourceFileService;
-
     @Resource
     private MedicalReportService medicalReportService;
-
     @Resource
     private SchoolService schoolService;
-
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
+    private SchoolGradeService schoolGradeService;
+
     @Resource
     private SchoolFacade schoolFacade;
     @Resource
@@ -175,7 +174,6 @@ public class VisionScreeningService {
         List<SchoolStatisticVO> schoolStatisticList = getSchoolStatistic(planIds, schoolId);
         Map<Integer, SchoolStatisticVO> schoolStatisticMap = schoolStatisticList.stream().collect(Collectors.toMap(SchoolStatisticVO::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
-
         // 筛查机构
         Map<Integer, ScreeningOrganization> orgMap = organizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
         if (CollUtil.isEmpty(organizationList)){
@@ -189,6 +187,9 @@ public class VisionScreeningService {
             }
         }
 
+        List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(schoolId);
+        boolean hasScreeningResults = CollUtil.isNotEmpty(schoolGradeList);
+
         // 获取学校告知书
         School school = schoolService.getBySchoolId(schoolId);
         TwoTuple<NotificationConfig, String> notificationInfo = getNotificationInfo(school);
@@ -197,10 +198,36 @@ public class VisionScreeningService {
             setStatisticInfo(schoolPlan,schoolStatisticMap);
             setOrgInfo(schoolPlan,orgMap);
             setNotificationInfo(schoolPlan,notificationInfo);
+            setMergeStatus(schoolPlan);
+            schoolPlan.setHasScreeningResults(hasScreeningResults);
         });
 
         responseDTO.setRecords(schoolPlanList);
         return responseDTO;
+    }
+
+    /**
+     * 筛查状态与发布状态合并(0-未发布,1-未开始 2-进行中 3-已结束)
+     * @param schoolPlan 筛查列表数据
+     */
+    private void setMergeStatus(ScreeningListResponseDTO schoolPlan) {
+        Integer releaseStatus = schoolPlan.getReleaseStatus();
+        if(Objects.equals(CommonConst.STATUS_NOT_RELEASE,releaseStatus)){
+            schoolPlan.setStatus(MergeStatusEnum.NOT_RELEASE.getCode());
+            return;
+        }
+        switch (schoolPlan.getScreeningStatus()){
+            case 0:
+                schoolPlan.setStatus(MergeStatusEnum.NOT_START.getCode());
+                break;
+            default:
+            case 1:
+                schoolPlan.setStatus(MergeStatusEnum.PROCESSING.getCode());
+                break;
+            case 2:
+                schoolPlan.setStatus(MergeStatusEnum.END.getCode());
+                break;
+        }
     }
 
     /**
@@ -252,7 +279,7 @@ public class VisionScreeningService {
     private void setOrgInfo(ScreeningListResponseDTO responseDTO,Map<Integer, ScreeningOrganization> orgMap) {
         ScreeningOrganization screeningOrganization = orgMap.get(responseDTO.getScreeningOrgId());
         if (Objects.isNull(screeningOrganization)){
-            responseDTO.setScreeningOrgName("本校");
+            responseDTO.setScreeningOrgName(SchoolConstant.OUR_SCHOOL);
             return;
         }
         responseDTO.setScreeningOrgName(screeningOrganization.getName());
