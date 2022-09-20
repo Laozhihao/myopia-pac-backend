@@ -111,6 +111,21 @@
                 #{id}
             </foreach>
         </if>
+        <choose>
+            <when test="query.createByUserId != null and query.createByUserId != '' and query.schoolIds != null and query.schoolIds.size() != 0">
+                and (ms.create_user_id = #{query.createByUserId}
+                    or ms.id in
+                <foreach collection="query.schoolIds" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                <if test="query.createByUserId != null and query.createByUserId != ''">
+                    and ms.create_user_id = #{query.createByUserId}
+                </if>
+            </otherwise>
+        </choose>
         order by ms.create_time desc
     </select>
 

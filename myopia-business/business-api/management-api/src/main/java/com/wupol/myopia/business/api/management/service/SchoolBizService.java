@@ -200,7 +200,7 @@ public class SchoolBizService {
                 userIds = userListPage.stream().map(User::getId).collect(Collectors.toList());
             }
         }
-        TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId());
+        TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId(), schoolQueryDTO.getAllProvince());
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
@@ -240,7 +240,7 @@ public class SchoolBizService {
      * @param districtId  行政区域ID
      * @return TwoTuple<Integer, Integer>
      */
-    private TwoTuple<Integer, Integer> packageSearchList(CurrentUser currentUser, Integer districtId) {
+    private TwoTuple<Integer, Integer> packageSearchList(CurrentUser currentUser, Integer districtId, Boolean allProvince) {
         // 管理员看到全部
         if (currentUser.isPlatformAdminUser()) {
             // 不为空说明是搜索条件
@@ -248,18 +248,27 @@ public class SchoolBizService {
                 return new TwoTuple<>(districtId, null);
             }
         } else if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && (Objects.nonNull(currentUser.getScreeningOrgId())))) {
-            if (null != districtId) {
-                // 不为空说明是搜索条件
-                return new TwoTuple<>(districtId, null);
-            }
-            // 只能看到所属的省级数据
-            ScreeningOrganization org = screeningOrganizationService.getById(currentUser.getScreeningOrgId());
-            return districtService.getDistrictPrefix(org.getDistrictId());
+            return getScreeningDistrict(currentUser.getScreeningOrgId(), districtId, allProvince);
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
             return districtService.getDistrictPrefix(govDept.getDistrictId());
         }
         return new TwoTuple<>(districtId, null);
+    }
+
+    private TwoTuple<Integer, Integer> getScreeningDistrict(Integer screeningOrgId, Integer districtId,
+                                                            Boolean allProvince) {
+        if (Objects.nonNull(districtId)) {
+            // 不为空说明是搜索条件
+            return new TwoTuple<>(districtId, null);
+        }
+
+        if (Objects.equals(allProvince, Boolean.TRUE)) {
+            ScreeningOrganization org = screeningOrganizationService.getById(screeningOrgId);
+            return districtService.getDistrictPrefix(org.getDistrictId());
+        } else {
+            return new TwoTuple<>(null, null);
+        }
     }
 
     /**
@@ -361,6 +370,36 @@ public class SchoolBizService {
             username = mainUsername + adminList.size();
         }
         return schoolService.generateAccountAndPassword(school, username);
+    }
+
+    /**
+     * 设置条件
+     *
+     * @param currentUser    当前登录用户
+     * @param schoolQueryDTO 条件
+     */
+    private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
+
+        if (currentUser.isPlatformAdminUser()) {
+            return;
+        }
+        if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
+            return;
+        }
+
+        if (!currentUser.isScreeningUser()) {
+            return;
+        }
+
+        // 自己创建的学校
+        schoolQueryDTO.setCreateByUserId(currentUser.getId());
+
+        // 自己筛查的学校
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByOrgId(currentUser.getScreeningOrgId());
+        if (CollectionUtils.isEmpty(planSchools)) {
+            return;
+        }
+        schoolQueryDTO.setSchoolIds(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
     }
 
 }
