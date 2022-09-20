@@ -201,6 +201,7 @@ public class SchoolBizService {
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId(), schoolQueryDTO.getAllProvince());
+        setSchoolQueryDTO(currentUser, schoolQueryDTO);
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
@@ -383,7 +384,7 @@ public class SchoolBizService {
         if (currentUser.isPlatformAdminUser()) {
             return;
         }
-        if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
+        if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.TRUE)) {
             return;
         }
 
