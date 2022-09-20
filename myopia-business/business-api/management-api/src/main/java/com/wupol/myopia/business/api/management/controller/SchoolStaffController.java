@@ -78,6 +78,6 @@ public class SchoolStaffController {
      */
     @PostMapping("resetPassword/{id}")
     public List<UsernameAndPasswordDTO> resetPassword(@PathVariable("id") Integer id) {
-        return new ArrayList<>();
+        return schoolStaffFacade.resetPassword(id);
     }
 }

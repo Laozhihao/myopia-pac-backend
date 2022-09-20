@@ -108,6 +108,33 @@ public class SchoolStaffFacade {
     }
 
     /**
+     * 重置密码
+     *
+     * @param id id
+     *
+     * @return List<UsernameAndPasswordDTO>
+     */
+    public List<UsernameAndPasswordDTO> resetPassword(Integer id) {
+        SchoolStaff schoolStaff = schoolStaffService.getById(id);
+        if (Objects.isNull(schoolStaff) || CollectionUtils.isEmpty(schoolStaff.getAccountInfo())) {
+            throw new BusinessException("数据异常");
+        }
+        String password = StringUtils.substring(schoolStaff.getPhone(), -4) + StringUtils.substring(schoolStaff.getIdCard(), -4);
+        return schoolStaff.getAccountInfo().stream().map(s -> {
+            UsernameAndPasswordDTO usernameAndPasswordDTO = new UsernameAndPasswordDTO();
+            if (Objects.equals(s.getSystemCode(), SystemCode.SCHOOL_CLIENT.getCode())) {
+                usernameAndPasswordDTO.setUsername(oauthServiceClient.getUserDetailByUserId(s.getUserId()).getUsername());
+            } else {
+                usernameAndPasswordDTO.setUsername(schoolStaff.getPhone());
+            }
+            usernameAndPasswordDTO.setPassword(password);
+            usernameAndPasswordDTO.setSystemCode(s.getSystemCode());
+            oauthServiceClient.resetPwd(s.getUserId(), password);
+            return usernameAndPasswordDTO;
+        }).collect(Collectors.toList());
+    }
+
+    /**
      * 保存学校账号
      *
      * @param schoolId     学校Id
@@ -117,8 +144,7 @@ public class SchoolStaffFacade {
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
-                                                                            List<AccountInfo> accountInfos, Integer createUserId) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos, Integer createUserId) {
 
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
 
@@ -127,14 +153,7 @@ public class SchoolStaffFacade {
         UserDTO appUserDTO = userDTO.getFirst();
 
         String username = getSchoolUsername(userDTO);
-        appUserDTO.setOrgId(schoolId)
-                .setUsername(username)
-                .setPassword(password)
-                .setSystemCode(systemCode)
-                .setCreateUserId(createUserId)
-                .setRealName(requestDTO.getStaffName())
-                .setGender(requestDTO.getGender())
-                .setRemark(requestDTO.getRemark());
+        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(createUserId).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setRemark(requestDTO.getRemark());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 
@@ -148,8 +167,7 @@ public class SchoolStaffFacade {
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
-                                                                         List<AccountInfo> accountInfos, Integer createUserId) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos, Integer createUserId) {
 
         String username = requestDTO.getPhone();
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
@@ -159,18 +177,7 @@ public class SchoolStaffFacade {
         TwoTuple<UserDTO, Boolean> userDTO = getUserDTO(accountInfos, systemCode);
         UserDTO appUserDTO = userDTO.getFirst();
 
-        appUserDTO
-                .setOrgId(schoolId)
-                .setUsername(username)
-                .setPassword(password)
-                .setSystemCode(systemCode)
-                .setCreateUserId(createUserId)
-                .setRealName(requestDTO.getStaffName())
-                .setGender(requestDTO.getGender())
-                .setPhone(requestDTO.getPhone())
-                .setIdCard(requestDTO.getIdCard())
-                .setRemark(requestDTO.getRemark())
-                .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
+        appUserDTO.setOrgId(schoolId).setUsername(username).setPassword(password).setSystemCode(systemCode).setCreateUserId(createUserId).setRealName(requestDTO.getStaffName()).setGender(requestDTO.getGender()).setPhone(requestDTO.getPhone()).setIdCard(requestDTO.getIdCard()).setRemark(requestDTO.getRemark()).setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
     }
 
@@ -228,8 +235,7 @@ public class SchoolStaffFacade {
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO,
-                                                                   String username, String password, Integer systemCode) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO, String username, String password, Integer systemCode) {
         User user;
         if (Objects.equals(isInsert, Boolean.TRUE)) {
             user = oauthServiceClient.addMultiSystemUser(userDTO);
