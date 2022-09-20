@@ -75,4 +75,16 @@ public class SchoolStaffController {
     public List<UsernameAndPasswordDTO> resetPassword(@PathVariable("id") Integer id) {
         return schoolStaffFacade.resetPassword(id);
     }
+
+    /**
+     * 是否超过人数配置
+     *
+     * @param schoolId 学校Id
+     *
+     * @return 是否超过人数配置
+     */
+    @GetMapping("checkTeamCount/{schoolId}")
+    public Boolean isMoreThanConfig(@PathVariable("schoolId") Integer schoolId) {
+        return schoolStaffFacade.isMoreThanConfig(CurrentUserUtil.getCurrentUser(), schoolId);
+    }
 }

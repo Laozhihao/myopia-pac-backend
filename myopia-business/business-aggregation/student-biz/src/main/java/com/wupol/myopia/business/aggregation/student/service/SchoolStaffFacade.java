@@ -180,6 +180,28 @@ public class SchoolStaffFacade {
     }
 
     /**
+     * 是否超过人数配置
+     *
+     * @param currentUser 登录用户
+     * @param schoolId    学校Id
+     *
+     * @return 是否超过人数配置
+     */
+    public Boolean isMoreThanConfig(CurrentUser currentUser, Integer schoolId) {
+        School school = schoolService.getById(schoolId);
+
+        if (Objects.isNull(school)) {
+            throw new BusinessException("学校信息异常!");
+        }
+        if (!currentUser.isPlatformAdminUser()) {
+            Integer staffCount = schoolStaffService.countStaffBySchool(schoolId);
+            return school.getVisionTeamCount() >= staffCount;
+        }
+        return false;
+    }
+
+
+    /**
      * 校验
      *
      * @param currentUser 当前用户
@@ -187,22 +209,28 @@ public class SchoolStaffFacade {
      * @param requestDTO  请求入参
      */
     private void preCheckStaff(CurrentUser currentUser, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
-        School school = schoolService.getById(schoolId);
-
-        if (Objects.isNull(school)) {
-            throw new BusinessException("学校信息异常!");
+        Integer id = requestDTO.getId();
+        // 是否超过配置
+        if (Boolean.TRUE.equals(isMoreThanConfig(currentUser, schoolId))) {
+            throw new BusinessException("人数是否超出限制");
         }
-
-        if (!currentUser.isPlatformAdminUser()) {
-            Integer staffCount = schoolStaffService.countStaffBySchool(schoolId);
-            if (school.getVisionTeamCount() > staffCount) {
-                throw new BusinessException("人数是否超出限制");
-            }
-        }
-
         // 检查身份证、手机是否重复
-        if (Boolean.TRUE.equals(schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), requestDTO.getId()))) {
+        if (Boolean.TRUE.equals(schoolStaffService.checkByIdCardAndPhone(requestDTO.getIdCard(), requestDTO.getPhone(), id))) {
             throw new BusinessException("手机号码、身份证重复");
+        }
+        List<User> userPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(requestDTO.getPhone()), SystemCode.SCREENING_CLIENT.getCode());
+        if (CollectionUtils.isEmpty(userPhones)) {
+            return;
+        }
+
+        // 新增的话，存在则抛出异常
+        if (Objects.isNull(id)) {
+            throw new BusinessException("手机号码重复");
+        } else {
+            // 过滤属于自己的
+            if (userPhones.stream().filter(s -> !Objects.equals(s.getId(), id)).anyMatch(s -> StringUtils.equals(s.getPhone(), requestDTO.getPhone()))) {
+                throw new BusinessException("手机号码重复");
+            }
         }
     }
 

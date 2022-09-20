@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 学校视力分队
+ * 学校端-学校视力分队
  *
  * @author Simple4H
  */
@@ -72,5 +72,16 @@ public class StaffController {
     @PostMapping("resetPassword/{id}")
     public List<UsernameAndPasswordDTO> resetPassword(@PathVariable("id") Integer id) {
         return schoolStaffFacade.resetPassword(id);
+    }
+
+    /**
+     * 是否超过人数配置
+     *
+     * @return 是否超过人数配置
+     */
+    @GetMapping("checkTeamCount")
+    public Boolean isMoreThanConfig() {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolStaffFacade.isMoreThanConfig(currentUser, currentUser.getOrgId());
     }
 }
