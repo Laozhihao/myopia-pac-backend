@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 用户在线统计
@@ -30,20 +32,29 @@ public class OnlineUsersStatisticController {
         OnlineUserStatisticVO onlineUserStatisticVO= new OnlineUserStatisticVO();
         Set<String> keys = redisUtil.getOnline();
         if (CollUtil.isNotEmpty(keys)){
-            long managementClientNum = keys.stream().filter(key->key.contains("online:1") || key.contains("online:6") ).count();
-            long schoolClientNum = keys.stream().filter(key->key.contains("online:2")).count();
-            long screeningClientNum = keys.stream().filter(key->key.contains("online:3")).count();
-            long hospitalClientNum = keys.stream().filter(key->key.contains("online:4") ).count();
-            long parentClientNum = keys.stream().filter(key->key.contains("online:5")).count();
-            long zeroToSixClientNum = keys.stream().filter(key->key.contains("online:7")).count();
-            long questionnaireClientNum = keys.stream().filter(key->key.contains("online:8")).count();
-            onlineUserStatisticVO.setManagementClientNum(managementClientNum)
-                    .setSchoolClientNum(schoolClientNum)
-                    .setScreeningClientNum(screeningClientNum)
-                    .setHospitalClientNum(hospitalClientNum)
-                    .setParentClientNum(parentClientNum)
-                    .setZeroToSixClientNum(zeroToSixClientNum)
-                    .setQuestionnaireClientNum(questionnaireClientNum);
+            Stream<String> managementClientUser = keys.stream().filter(key->key.contains("online:1") || key.contains("online:6") );
+            Stream<String> schoolClientUser = keys.stream().filter(key->key.contains("online:2"));
+            Stream<String> screeningClientUser = keys.stream().filter(key->key.contains("online:3"));
+            Stream<String> hospitalClientUser = keys.stream().filter(key->key.contains("online:4") );
+            Stream<String> parentClientUser = keys.stream().filter(key->key.contains("online:5"));
+            Stream<String> zeroToSixClientUser = keys.stream().filter(key->key.contains("online:7"));
+            Stream<String> questionnaireClientUser = keys.stream().filter(key->key.contains("online:8"));
+
+            onlineUserStatisticVO.setManagementClientNum(managementClientUser.count())
+                    .setSchoolClientNum(schoolClientUser.count())
+                    .setScreeningClientNum(screeningClientUser.count())
+                    .setHospitalClientNum(hospitalClientUser.count())
+                    .setParentClientNum(parentClientUser.count())
+                    .setZeroToSixClientNum(zeroToSixClientUser.count())
+                    .setQuestionnaireClientNum(questionnaireClientUser.count());
+
+            onlineUserStatisticVO.setManagementClientUserList(redisUtil.batchGet(managementClientUser.collect(Collectors.toList())))
+                    .setSchoolClientUserList(redisUtil.batchGet(schoolClientUser.collect(Collectors.toList())))
+                    .setScreeningClientUserList(redisUtil.batchGet(screeningClientUser.collect(Collectors.toList())))
+                    .setHospitalClientUserList(redisUtil.batchGet(hospitalClientUser.collect(Collectors.toList())))
+                    .setParentClientUserList(redisUtil.batchGet(parentClientUser.collect(Collectors.toList())))
+                    .setZeroToSixClientUserList(redisUtil.batchGet(zeroToSixClientUser.collect(Collectors.toList())))
+                    .setQuestionnaireClientUserList(redisUtil.batchGet(questionnaireClientUser.collect(Collectors.toList())));
         }else {
             onlineUserStatisticVO.setManagementClientNum(0L).setSchoolClientNum(0L)
                     .setScreeningClientNum(0L).setHospitalClientNum(0L).setParentClientNum(0L)

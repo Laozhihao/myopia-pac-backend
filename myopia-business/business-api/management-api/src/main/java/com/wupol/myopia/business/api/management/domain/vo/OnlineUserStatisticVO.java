@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 在线用户统计响应实体
@@ -37,10 +38,38 @@ public class OnlineUserStatisticVO implements Serializable {
      * 0-6岁客户端
      */
     private Long zeroToSixClientNum;
-
     /**
      * 问卷系统端
      */
     private Long questionnaireClientNum;
+
+    /**
+     * 管理端用户列表
+     */
+    private List<String> managementClientUserList;
+    /**
+     * 学校端用户列表
+     */
+    private List<String> schoolClientUserList;
+    /**
+     * 筛查端用户列表
+     */
+    private List<String> screeningClientUserList;
+    /**
+     * 医院端用户列表
+     */
+    private List<String> hospitalClientUserList;
+    /**
+     * 家长端用户列表
+     */
+    private List<String> parentClientUserList;
+    /**
+     * 0-6岁客户端用户列表
+     */
+    private List<String> zeroToSixClientUserList;
+    /**
+     * 问卷系统端用户列表
+     */
+    private List<String> questionnaireClientUserList;
 
 }
