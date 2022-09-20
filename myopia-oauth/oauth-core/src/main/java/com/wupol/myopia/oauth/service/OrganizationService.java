@@ -10,6 +10,8 @@ import com.wupol.myopia.oauth.domain.mapper.OrganizationMapper;
 import com.wupol.myopia.oauth.domain.model.Organization;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @Author wulizhou
  * @Date 2021-12-06
@@ -28,6 +30,9 @@ public class OrganizationService extends BaseService<OrganizationMapper, Organiz
         } else if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             // 家长端，返回一个id为-1，并状态为启用的机构
             return new Organization(-1, systemCode, userType, StatusConstant.ENABLE);
+        } else if (Objects.equals(systemCode, SystemCode.SCREENING_CLIENT.getCode()) && Objects.equals(userType, UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType())) {
+            systemCode = SystemCode.SCHOOL_CLIENT.getCode();
+            userType = -1;
         }
         Organization org = new Organization();
         org.setOrgId(orgId).setSystemCode(systemCode).setUserType(userType);
