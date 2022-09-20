@@ -16,6 +16,10 @@ import java.util.List;
 @Accessors(chain = true)
 public class StudentInfoVO implements Serializable {
     /**
+     * 学校学生ID
+     */
+    private Integer id;
+    /**
      * 学生姓名
      */
     private String name;
@@ -33,6 +37,11 @@ public class StudentInfoVO implements Serializable {
      * 年龄
      */
     private String birthdayInfo;
+
+    /**
+     * 学生ID
+     */
+    private Integer studentId;
 
     /**
      * 年龄段对应的检查的状态

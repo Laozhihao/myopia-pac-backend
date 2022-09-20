@@ -395,6 +395,8 @@ public class SchoolStudentBizService {
         List<MonthAgeStatusDTO> monthAgeStatusDTOList = preschoolCheckRecordService.createMonthAgeStatusDTOByMap(studentCheckStatus);
         return new StudentInfoVO()
                 .setName(schoolStudent.getName())
+                .setId(schoolStudent.getId())
+                .setStudentId(schoolStudent.getStudentId())
                 .setGender(schoolStudent.getGender())
                 .setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(schoolStudent.getBirthday(), new Date()))
                 .setRecordNo(student.getRecordNo())
