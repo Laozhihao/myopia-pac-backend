@@ -4,6 +4,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -44,22 +45,22 @@ public class SchoolScreeningStatisticFacade {
     public ScreeningPlanVO getPlanInfo(Integer screeningPlanId,CurrentUser currentUser) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(currentUser.getOrgId());
-        String screeningOrgName;
+        TwoTuple<Integer,String> screeningOrg;
         if (Objects.equals(screeningPlan.getScreeningOrgId(),currentUser.getOrgId())){
-            screeningOrgName = SchoolConstant.OUR_SCHOOL;
+            screeningOrg =TwoTuple.of(currentUser.getOrgId(),SchoolConstant.OUR_SCHOOL);
         }else {
-            screeningOrgName = screeningOrganizationService.getNameById(screeningPlan.getScreeningOrgId());
+            screeningOrg =TwoTuple.of(screeningPlan.getScreeningOrgId(),screeningOrganizationService.getNameById(screeningPlan.getScreeningOrgId()));
         }
-        return buildScreeningPlanVO(screeningPlan,screeningOrgName,schoolGradeList);
+        return buildScreeningPlanVO(screeningPlan,screeningOrg,schoolGradeList);
     }
 
     /**
      * 构建筛查计划信息
      * @param screeningPlan
-     * @param screeningOrgName
+     * @param screeningOrg
      * @param schoolGradeList
      */
-    private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,String screeningOrgName,List<SchoolGrade> schoolGradeList) {
+    private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,TwoTuple<Integer,String> screeningOrg,List<SchoolGrade> schoolGradeList) {
         List<Integer> optionTabs = schoolGradeList.stream().map(this::getSchoolType).filter(Objects::nonNull).distinct().sorted(Comparator.comparing(Integer::intValue).reversed()).collect(Collectors.toList());
 
         return new ScreeningPlanVO()
@@ -70,7 +71,8 @@ public class SchoolScreeningStatisticFacade {
                 .setScreeningType(screeningPlan.getScreeningType())
                 .setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())
                 .setStatus(VisionScreeningService.setMergeStatus(screeningPlan.getReleaseStatus(),ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus())))
-                .setScreeningOrgName(screeningOrgName)
+                .setScreeningOrgName(screeningOrg.getSecond())
+                .setScreeningOrgId(screeningOrg.getFirst())
                 .setOptionTabs(optionTabs);
     }
 

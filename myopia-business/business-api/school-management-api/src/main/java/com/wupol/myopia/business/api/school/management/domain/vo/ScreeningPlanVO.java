@@ -42,6 +42,10 @@ public class ScreeningPlanVO implements Serializable {
      * 筛查机构名称
      */
     private String screeningOrgName;
+    /**
+     * 筛查机构ID
+     */
+    private Integer screeningOrgId;
 
     /**
      * 筛查类型（0：视力筛查，1；常见病）

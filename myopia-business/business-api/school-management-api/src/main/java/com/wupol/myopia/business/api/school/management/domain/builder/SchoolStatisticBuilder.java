@@ -172,16 +172,6 @@ public class SchoolStatisticBuilder {
                 .setReviewNum(getValueByInteger(visionScreeningResultStatistic.getReviewNum()))
                 .setReviewRatio(getValueByString(visionScreeningResultStatistic.getReviewRatio()));
 
-        Optional.ofNullable(visionScreeningResultStatistic.getScreeningType()).ifPresent(type->primarySchoolAndAboveSchoolStatisticVO
-                    .setDmftNum(ZERO).setDmftRatio(ZERO_RATIO).setSaprodontiaNum(ZERO).setSaprodontiaRatio(ZERO_RATIO)
-                    .setSaprodontiaLossNum(ZERO).setSaprodontiaLossRatio(ZERO_RATIO).setSaprodontiaRepairNum(ZERO).setSaprodontiaRepairRatio(ZERO_RATIO)
-                    .setSaprodontiaLossAndRepairNum(ZERO).setSaprodontiaLossAndRepairRatio(ZERO_RATIO)
-                    .setSaprodontiaLossAndRepairTeethNum(ZERO).setSaprodontiaLossAndRepairTeethRatio(ZERO_RATIO)
-                    .setAbnormalSpineCurvatureNum(ZERO).setAbnormalSpineCurvatureRatio(ZERO_RATIO)
-                    .setHighBloodPressureNum(ZERO).setHighBloodPressureRatio(ZERO_RATIO)
-                    .setOverweightNum(ZERO).setOverweightRatio(ZERO_RATIO).setObeseNum(ZERO).setObeseRatio(ZERO_RATIO)
-                    .setMalnourishedNum(ZERO).setMalnourishedRatio(ZERO_RATIO).setStuntingNum(ZERO).setStuntingRatio(ZERO_RATIO)
-        );
         //常见病
         if (Objects.equals(visionScreeningResultStatistic.getScreeningType(), ScreeningTypeEnum.COMMON_DISEASE.getType())){
             CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic = (CommonDiseaseScreeningResultStatistic) visionScreeningResultStatistic;
@@ -218,6 +208,16 @@ public class SchoolStatisticBuilder {
                     .setMalnourishedRatio(getValueByString(commonDisease.getMalnourishedRatio()))
                     .setStuntingNum(getValueByInteger(commonDisease.getStuntingNum()))
                     .setStuntingRatio(getValueByString(commonDisease.getStuntingRatio()));
+        }else {
+            primarySchoolAndAboveSchoolStatisticVO
+                    .setDmftNum(ZERO).setDmftRatio(ZERO_POINT).setSaprodontiaNum(ZERO).setSaprodontiaRatio(ZERO_RATIO)
+                    .setSaprodontiaLossNum(ZERO).setSaprodontiaLossRatio(ZERO_RATIO).setSaprodontiaRepairNum(ZERO).setSaprodontiaRepairRatio(ZERO_RATIO)
+                    .setSaprodontiaLossAndRepairNum(ZERO).setSaprodontiaLossAndRepairRatio(ZERO_RATIO)
+                    .setSaprodontiaLossAndRepairTeethNum(ZERO).setSaprodontiaLossAndRepairTeethRatio(ZERO_RATIO)
+                    .setAbnormalSpineCurvatureNum(ZERO).setAbnormalSpineCurvatureRatio(ZERO_RATIO)
+                    .setHighBloodPressureNum(ZERO).setHighBloodPressureRatio(ZERO_RATIO)
+                    .setOverweightNum(ZERO).setOverweightRatio(ZERO_RATIO).setObeseNum(ZERO).setObeseRatio(ZERO_RATIO)
+                    .setMalnourishedNum(ZERO).setMalnourishedRatio(ZERO_RATIO).setStuntingNum(ZERO).setStuntingRatio(ZERO_RATIO);
         }
 
         return primarySchoolAndAboveSchoolStatisticVO;
