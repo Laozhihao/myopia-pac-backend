@@ -2,8 +2,6 @@ package com.wupol.myopia.base.cache;
 
 import com.wupol.myopia.base.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -612,14 +610,7 @@ public class RedisUtil {
      * @return java.util.List<java.lang.Object>
      **/
     public List<Object> batchGet(List<String> keys) {
-        return redisTemplate.executePipelined((RedisCallback<String>) connection -> {
-            StringRedisConnection src = (StringRedisConnection)connection;
-            for (String k : keys) {
-                src.get(k);
-            }
-            // 返回值必须返回为null
-            return null;
-        });
+        return redisTemplate.opsForValue().multiGet(keys);
     }
 }
 
