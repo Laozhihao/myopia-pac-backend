@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.core.device.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -38,11 +36,13 @@ public class Device implements Serializable {
     /**
      * 销售名字
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String salespersonName;
 
     /**
      * 销售电话
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String salespersonPhone;
 
     /**
@@ -51,13 +51,20 @@ public class Device implements Serializable {
     private Integer bindingScreeningOrgId;
 
     /**
+     * 机构类型 0-筛查机构 1-医院 2-学校
+     */
+    private Integer orgType;
+
+    /**
      * 客户名字
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String customerName;
 
     /**
      * 客户电话
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String customerPhone;
 
     /**
@@ -79,6 +86,11 @@ public class Device implements Serializable {
      * 类型 0-默认 1-vs666 2-灯箱
      */
     private Integer type;
+
+    /**
+     * 蓝牙MAC地址
+     */
+    private String bluetoothMac;
 
     /**
      * 更新时间

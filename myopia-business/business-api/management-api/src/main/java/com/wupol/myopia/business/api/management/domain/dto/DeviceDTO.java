@@ -36,7 +36,7 @@ public class DeviceDTO {
      * 设备唯一id
      */
     @NotBlank(message = "设备唯一标志码不能为空", groups = {DeviceUpdateValidatorGroup.class, DeviceAddValidatorGroup.class})
-    @Length(max = 30, message = "设备唯一标志码超长")
+    @Length(max = 32, message = "设备唯一标志码超长")
     private String deviceSn;
 
     /**
@@ -62,6 +62,12 @@ public class DeviceDTO {
      */
     @NotNull(message = "绑定机构不能为空", groups = {DeviceUpdateValidatorGroup.class, DeviceAddValidatorGroup.class})
     private Integer bindingScreeningOrgId;
+
+    /**
+     * 机构类型 0-筛查机构 1-医院 2-学校
+     */
+    @NotNull(message = "机构类型不能为空", groups = {DeviceUpdateValidatorGroup.class, DeviceAddValidatorGroup.class})
+    private Integer orgType;
 
     /**
      * 绑定机构名称
@@ -106,6 +112,11 @@ public class DeviceDTO {
      * 类型
      */
     private Integer type;
+
+    /**
+     * 蓝牙MAC地址
+     */
+    private String bluetoothMac;
 
     /**
      * 筛查机构ID集

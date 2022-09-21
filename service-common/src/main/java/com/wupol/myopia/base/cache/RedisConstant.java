@@ -191,4 +191,9 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_PDF_QRCODE_SCREENING = "file:export:pdf:qrcode:screening:%s-%s-%s-%s-%s-%s";
 
+    /**
+     * 医院眼底影像上传
+     */
+    String HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT = "hospital:device:upload:fundus:patient:%s";
+
 }

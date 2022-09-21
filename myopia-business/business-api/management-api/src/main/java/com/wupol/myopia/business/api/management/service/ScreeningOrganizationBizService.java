@@ -12,13 +12,18 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
+import com.wupol.myopia.business.common.utils.domain.dto.DeviceGrantedDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
+import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
+import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
@@ -117,6 +122,9 @@ public class ScreeningOrganizationBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private DeviceService deviceService;
 
 
     /**
@@ -682,5 +690,44 @@ public class ScreeningOrganizationBizService {
         detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
         buildReScreening(detail,screeningPlanId,schoolId,reScreenSchoolMap);
         details.add(detail);
+    }
+
+    /**
+     * 获取筛查机构信息
+     *
+     * @param id id
+     *
+     * @return ScreeningOrgResponseDTO
+     */
+    public ScreeningOrgResponseDTO getScreeningOrgDetails(Integer id) {
+        ScreeningOrgResponseDTO screeningOrgDetails = screeningOrganizationService.getScreeningOrgDetails(id);
+        setGrantedDevice(screeningOrgDetails);
+        return screeningOrgDetails;
+    }
+
+    /**
+     * 设置已授权的设备列表
+     *
+     * @param screeningOrgDetails 筛查机构返回体
+     */
+    private void setGrantedDevice(ScreeningOrgResponseDTO screeningOrgDetails) {
+        ScreeningConfig screeningConfig = screeningOrgDetails.getScreeningConfig();
+        if (Objects.isNull(screeningConfig)) {
+            screeningConfig = new ScreeningConfig();
+        }
+        List<Device> deviceList = deviceService.getByOrgIdAndOrgType(screeningOrgDetails.getId(), OrgTypeEnum.SCREENING.getCode());
+        if (CollectionUtils.isEmpty(deviceList)) {
+            return;
+        }
+
+        screeningConfig.setGrantedDeviceList(deviceList.stream().map(s->{
+            DeviceGrantedDTO grantedDTO = new DeviceGrantedDTO();
+            grantedDTO.setDeviceSn(s.getDeviceSn());
+            grantedDTO.setType(s.getType());
+            grantedDTO.setBluetoothMac(s.getBluetoothMac());
+            grantedDTO.setStatus(s.getStatus());
+            return grantedDTO;
+        }).collect(Collectors.toList()));
+        screeningOrgDetails.setScreeningConfig(screeningConfig);
     }
 }

@@ -36,15 +36,17 @@ public class MedicalRecordFacade {
 
     /**
      * 追加检查检查数据到检查单, 如果该学生未建档，则自动建档
-     *  @param consultation 问诊
+     *
+     * @param consultation 问诊
      * @param vision       视力检查检查数据
      * @param biometrics   生物测量检查数据
      * @param diopter      屈光检查数据
      * @param tosca        角膜地形图检查数据
+     * @param fundus       眼底影像
      * @param hospitalId   医院id
      * @param doctorId     医生id
      * @param studentId    学生id
-     * @param clientId   系统编码
+     * @param clientId     系统编码
      */
     @Transactional(rollbackFor = Exception.class)
     public void addCheckDataAndCreateStudent(Consultation consultation,
@@ -53,6 +55,7 @@ public class MedicalRecordFacade {
                                              DiopterMedicalRecord diopter,
                                              ToscaMedicalRecord tosca,
                                              EyePressure eyePressure,
+                                             FundusMedicalRecord fundus,
                                              Integer hospitalId,
                                              Integer doctorId,
                                              Integer studentId,
@@ -61,7 +64,7 @@ public class MedicalRecordFacade {
             throw new BusinessException("学生id不能为空");
         }
         // 追加检查单数据
-        medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, eyePressure, hospitalId, -1, doctorId, studentId);
+        medicalRecordService.addCheckDataToMedicalRecord(consultation, vision, biometrics, diopter, tosca, eyePressure, fundus, hospitalId, -1, doctorId, studentId);
         // 已建档则跳过
         String cacheKey = String.format(HospitalCacheKey.EXIST_HOSPITAL_STUDENT_ID, hospitalId, studentId);
         if (redisUtil.hasKey(cacheKey)) {

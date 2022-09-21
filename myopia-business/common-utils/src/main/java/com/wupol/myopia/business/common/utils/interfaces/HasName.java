@@ -7,4 +7,8 @@ package com.wupol.myopia.business.common.utils.interfaces;
  */
 public interface HasName {
     String getName();
+
+    Integer getId();
+
+    Integer getDistrictId();
 }

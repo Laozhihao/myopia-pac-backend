@@ -443,4 +443,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         updateById(org);
     }
 
+    /**
+     * 根据名称模糊查询
+     *
+     * @param screeningOrgNameLike 机构名称
+     * @return List<ScreeningOrganization>
+     */
+    public List<ScreeningOrganization> getByName(String screeningOrgNameLike) {
+        return baseMapper.getByName(screeningOrgNameLike);
+    }
+
 }
