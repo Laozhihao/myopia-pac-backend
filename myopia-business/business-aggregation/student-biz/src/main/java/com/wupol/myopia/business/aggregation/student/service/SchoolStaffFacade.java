@@ -105,7 +105,7 @@ public class SchoolStaffFacade {
         SchoolStaff staff = new SchoolStaff();
         if (Objects.nonNull(id)) {
             staff = schoolStaffService.getById(id);
-            if (Objects.equals(requestDTO.getPhone(), staff.getPhone()) && Objects.equals(requestDTO.getIdCard(), staff.getIdCard())) {
+            if (StringUtils.equals(requestDTO.getPhone(), staff.getPhone()) && StringUtils.equals(requestDTO.getIdCard(), staff.getIdCard())) {
                 isSameIdCardAndPhone = true;
             }
         }
@@ -377,9 +377,7 @@ public class SchoolStaffFacade {
             user = oauthServiceClient.addMultiSystemUser(userDTO);
             usernameAndPasswordDTO.setDisplay(true);
         } else {
-            if (isSameIdCardAndPhone) {
-                usernameAndPasswordDTO.setDisplay(false);
-            }
+            usernameAndPasswordDTO.setDisplay(!isSameIdCardAndPhone);
             user = oauthServiceClient.updateUser(userDTO);
         }
 
