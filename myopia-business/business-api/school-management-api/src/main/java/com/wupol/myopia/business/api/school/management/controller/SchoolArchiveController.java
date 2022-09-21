@@ -26,7 +26,7 @@ import java.util.List;
 @ResponseResultBody
 @RestController
 @RequestMapping("/school/archive")
-public class ArchiveController {
+public class SchoolArchiveController {
 
     @Autowired
     private ArchiveService archiveService;

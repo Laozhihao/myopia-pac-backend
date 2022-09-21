@@ -463,8 +463,4 @@ public class VisionScreeningController {
         visionScreeningService.updateScreeningEndTime(screeningEndTimeDTO);
     }
 
-    @GetMapping("/export/student/archiveCard")
-    public void exportStudentArchiveCard(@Valid StudentArchiveCardDTO studentArchiveCardDTO){
-
-    }
 }
