@@ -231,8 +231,10 @@ public class SchoolStaffFacade {
         if (Objects.isNull(id)) {
             throw new BusinessException("手机号码重复");
         } else {
+            SchoolStaff staff = schoolStaffService.getById(id);
+            AccountInfo staffAccount = staff.getAccountInfo().stream().filter(s -> Objects.equals(s.getSystemCode(), SystemCode.SCREENING_CLIENT.getCode())).findFirst().orElseThrow(()->new BusinessException("数据异常"));
             // 过滤属于自己的
-            if (userPhones.stream().filter(s -> !Objects.equals(s.getId(), id)).anyMatch(s -> StringUtils.equals(s.getPhone(), requestDTO.getPhone()))) {
+            if (userPhones.stream().filter(s -> !Objects.equals(s.getId(), staffAccount.getUserId())).anyMatch(s -> StringUtils.equals(s.getPhone(), requestDTO.getPhone()))) {
                 throw new BusinessException("手机号码重复");
             }
         }
