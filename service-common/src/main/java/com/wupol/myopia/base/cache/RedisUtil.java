@@ -611,7 +611,7 @@ public class RedisUtil {
      * @param keys key集
      * @return java.util.List<java.lang.Object>
      **/
-    public List batchGet(List<String> keys) {
+    public List<Object> batchGet(List<String> keys) {
         return redisTemplate.executePipelined((RedisCallback<String>) connection -> {
             StringRedisConnection src = (StringRedisConnection)connection;
             for (String k : keys) {

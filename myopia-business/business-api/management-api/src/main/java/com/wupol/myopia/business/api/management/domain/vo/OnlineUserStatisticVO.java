@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -15,61 +17,40 @@ import java.util.List;
 @Accessors(chain = true)
 public class OnlineUserStatisticVO implements Serializable {
     /**
-     * 管理端数
-     */
-    private Long managementClientNum;
-    /**
-     * 学校端数
-     */
-    private Long schoolClientNum;
-    /**
-     * 筛查端数
-     */
-    private Long screeningClientNum;
-    /**
-     * 医生端数
-     */
-    private Long hospitalClientNum;
-    /**
-     * 家长端数
-     */
-    private Long parentClientNum;
-    /**
-     * 0-6岁客户端
-     */
-    private Long zeroToSixClientNum;
-    /**
-     * 问卷系统端
-     */
-    private Long questionnaireClientNum;
-
-    /**
      * 管理端用户列表
      */
-    private List<String> managementClientUserList;
+    private OnlineUser managementClientUser;
     /**
      * 学校端用户列表
      */
-    private List<String> schoolClientUserList;
+    private OnlineUser schoolClientUser;
     /**
      * 筛查端用户列表
      */
-    private List<String> screeningClientUserList;
+    private OnlineUser screeningClientUser;
     /**
      * 医院端用户列表
      */
-    private List<String> hospitalClientUserList;
+    private OnlineUser hospitalClientUser;
     /**
      * 家长端用户列表
      */
-    private List<String> parentClientUserList;
+    private OnlineUser parentClientUser;
     /**
      * 0-6岁客户端用户列表
      */
-    private List<String> zeroToSixClientUserList;
+    private OnlineUser zeroToSixClientUser;
     /**
      * 问卷系统端用户列表
      */
-    private List<String> questionnaireClientUserList;
+    private OnlineUser questionnaireClientUser;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OnlineUser implements Serializable {
+        private Integer count;
+        private List<String> nameList;
+    }
 
 }
