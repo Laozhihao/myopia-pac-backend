@@ -16,8 +16,6 @@ import javax.annotation.Resource;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -162,39 +160,6 @@ public class UserAnswerController {
                                                @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                                @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType,
                                                @NotNull(message = "schoolId不能为空") Integer schoolId) {
-        return ApiResult.success(schoolService.getSchoolCommonDiseaseCode(districtAreaCode, areaType, monitorType,schoolId));
-    }
-
-    public static void main(String[] args) {
-        List<String> list = new ArrayList<>(Arrays.asList("A", "B", "C"));
-        System.out.println(getFullAssembly(list));
-    }
-
-    public static List<String> getFullAssembly(List<String> list) {
-        List<String> result = new ArrayList<>();
-
-        int size = list.size();
-        // n个数一共有(2^n)-1种
-        for (int i = 1; i <= (1 << size) - 1; i++) {
-            StringBuilder stringBuffer = new StringBuilder();
-            for (int j = 0; j < size; j++) {
-                int i1 = i >> j;
-
-                if ((i1 & 1) == 1) {
-                    String e = Integer.toBinaryString(i >> j);
-                    if (e.length() < 2) {
-                        e = "00" + e;
-                    }
-                    if (e.length() < 3) {
-                        e = "0" + e;
-                    }
-                    System.out.println(e);
-                    stringBuffer.append(list.get(j));
-                }
-            }
-            result.add(stringBuffer.toString());
-        }
-
-        return result;
+        return ApiResult.success(schoolService.getSchoolCommonDiseaseCode(districtAreaCode, areaType, monitorType, schoolId));
     }
 }
