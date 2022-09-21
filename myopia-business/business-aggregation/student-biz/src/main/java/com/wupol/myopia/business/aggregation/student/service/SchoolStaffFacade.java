@@ -33,7 +33,6 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -78,10 +77,13 @@ public class SchoolStaffFacade {
         BeanUtils.copyProperties(schoolStaff, returnPage);
 
         returnPage.setRecords(staffList.stream().map(s -> {
-            Optional<AccountInfo> accountInfoOptional = s.getAccountInfo().stream().filter(accountInfo -> Objects.equals(accountInfo.getSystemCode(), SystemCode.SCHOOL_CLIENT.getCode())).findFirst();
+            AccountInfo info = s.getAccountInfo().stream()
+                    .filter(accountInfo -> Objects.equals(accountInfo.getSystemCode(), SystemCode.SCHOOL_CLIENT.getCode()))
+                    .findFirst()
+                    .orElseThrow(() -> new BusinessException("员工数据异常"));
             SchoolStaffListResponseDTO responseDTO = new SchoolStaffListResponseDTO();
             BeanUtils.copyProperties(s, responseDTO);
-            accountInfoOptional.ifPresent(accountInfo -> responseDTO.setUsername(userMap.get(accountInfo.getUserId())));
+            responseDTO.setUsername(userMap.get(info.getUserId()));
             return responseDTO;
         }).collect(Collectors.toList()));
         return returnPage;
@@ -325,15 +327,12 @@ public class SchoolStaffFacade {
         if (CollectionUtils.isEmpty(accountInfos)) {
             return new TwoTuple<>(new UserDTO(), true);
         }
-        Optional<AccountInfo> result = accountInfos.stream().filter(s -> Objects.equals(s.getSystemCode(), systemCode)).findFirst();
-        if (result.isPresent()) {
-            Integer userId = result.get().getUserId();
-            User user = oauthServiceClient.getUserDetailByUserId(userId);
-            UserDTO userDTO = new UserDTO();
-            BeanUtils.copyProperties(user, userDTO);
-            return new TwoTuple<>(userDTO, false);
-        }
-        return new TwoTuple<>(new UserDTO(), true);
+        AccountInfo result = accountInfos.stream().filter(s -> Objects.equals(s.getSystemCode(), systemCode)).findFirst().orElseThrow(() -> new BusinessException("数据异常！"));
+        Integer userId = result.getUserId();
+        User user = oauthServiceClient.getUserDetailByUserId(userId);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        return new TwoTuple<>(userDTO, false);
     }
 
     /**
