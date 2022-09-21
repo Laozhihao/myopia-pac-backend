@@ -201,7 +201,7 @@ public class SchoolStaffFacade {
         }
         if (!currentUser.isPlatformAdminUser()) {
             Integer staffCount = schoolStaffService.countStaffBySchool(schoolId);
-            return school.getVisionTeamCount() >= staffCount;
+            return school.getVisionTeamCount() < staffCount;
         }
         return false;
     }
