@@ -70,12 +70,6 @@ public class SchoolStudentBizService {
     private SchoolFacade schoolFacade;
     @Resource
     private SchoolGradeService schoolGradeService;
-    @Resource
-    private SchoolClassService schoolClassService;
-    @Autowired
-    private PreschoolCheckRecordService preschoolCheckRecordService;
-    @Autowired
-    private DistrictService districtService;
 
     /**
      * 获取学生列表
