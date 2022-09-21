@@ -54,6 +54,11 @@ public class ScreeningPlanVO implements Serializable {
     private Integer screeningBizType;
 
     /**
+     * 筛查状态与发布状态合并(0-未发布,1-未开始 2-进行中 3-已结束)
+     */
+    private Integer status;
+
+    /**
      * 选项tab(8:幼儿园，0:小学及以上)
      */
     private List<Integer> optionTabs;

@@ -197,7 +197,6 @@ public class VisionScreeningService {
             setStatisticInfo(schoolPlan,schoolStatisticMap);
             setOrgInfo(schoolPlan,orgMap);
             setNotificationInfo(schoolPlan,notificationInfo);
-            setMergeStatus(schoolPlan);
             schoolPlan.setHasScreeningResults(hasScreeningResults);
         });
 
@@ -207,25 +206,21 @@ public class VisionScreeningService {
 
     /**
      * 筛查状态与发布状态合并(0-未发布,1-未开始 2-进行中 3-已结束)
-     * @param schoolPlan 筛查列表数据
+     * @param releaseStatus 发布状态
+     * @param screeningStatus 筛查状态
      */
-    private void setMergeStatus(ScreeningListResponseDTO schoolPlan) {
-        Integer releaseStatus = schoolPlan.getReleaseStatus();
+    public static Integer setMergeStatus(Integer releaseStatus,Integer screeningStatus) {
         if(Objects.equals(CommonConst.STATUS_NOT_RELEASE,releaseStatus)){
-            schoolPlan.setStatus(MergeStatusEnum.NOT_RELEASE.getCode());
-            return;
+            return MergeStatusEnum.NOT_RELEASE.getCode();
         }
-        switch (schoolPlan.getScreeningStatus()){
+        switch (screeningStatus){
             case 0:
-                schoolPlan.setStatus(MergeStatusEnum.NOT_START.getCode());
-                break;
+                return MergeStatusEnum.NOT_START.getCode();
             default:
             case 1:
-                schoolPlan.setStatus(MergeStatusEnum.PROCESSING.getCode());
-                break;
+                return MergeStatusEnum.PROCESSING.getCode();
             case 2:
-                schoolPlan.setStatus(MergeStatusEnum.END.getCode());
-                break;
+                return MergeStatusEnum.END.getCode();
         }
     }
 
@@ -318,6 +313,7 @@ public class VisionScreeningService {
         responseDTO.setReleaseTime(screeningPlan.getReleaseTime());
         responseDTO.setContent(screeningPlan.getContent());
         responseDTO.setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(responseDTO.getScreeningOrgType()).getType());
+        responseDTO.setStatus(setMergeStatus(responseDTO.getReleaseStatus(),responseDTO.getScreeningStatus()));
     }
 
     /**

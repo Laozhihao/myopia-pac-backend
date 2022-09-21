@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
+import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -33,6 +34,7 @@ public class SchoolScreeningStatisticFacade {
     private final ScreeningPlanService screeningPlanService;
     private final ScreeningOrganizationService screeningOrganizationService;
     private final SchoolGradeService schoolGradeService;
+    private final VisionScreeningService visionScreeningService;
 
 
     /**
@@ -67,6 +69,7 @@ public class SchoolScreeningStatisticFacade {
                 .setEndTime(screeningPlan.getEndTime())
                 .setScreeningType(screeningPlan.getScreeningType())
                 .setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())
+                .setStatus(VisionScreeningService.setMergeStatus(screeningPlan.getReleaseStatus(),ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus())))
                 .setScreeningOrgName(screeningOrgName)
                 .setOptionTabs(Lists.newArrayList(optionTabs));
     }
