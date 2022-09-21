@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.controller;
+package com.wupol.myopia.business.api.school.management.controller;
 
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -17,15 +17,16 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @Author HaoHao
- * @Date 2022/4/25
- **/
+ *  档案卡/监测表
+ *
+ * @author hang.yuan
+ * @date 2022/9/21
+ */
 @CrossOrigin
 @ResponseResultBody
 @RestController
-@RequestMapping("/management/archive")
+@RequestMapping("/school/archive")
 public class ArchiveController {
-
 
     @Autowired
     private ArchiveService archiveService;
