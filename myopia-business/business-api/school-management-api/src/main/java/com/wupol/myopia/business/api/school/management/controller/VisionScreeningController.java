@@ -20,10 +20,8 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
-import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
-import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.*;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
@@ -260,6 +258,8 @@ public class VisionScreeningController {
                 ExportExcelServiceNameConstant.STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE);
     }
 
+
+
     /**
      * 更新学校
      *
@@ -461,5 +461,10 @@ public class VisionScreeningController {
     @PostMapping("/increased/screeningTime")
     public void updateScreeningEndTime (@RequestBody @Valid ScreeningEndTimeDTO screeningEndTimeDTO) {
         visionScreeningService.updateScreeningEndTime(screeningEndTimeDTO);
+    }
+
+    @GetMapping("/export/student/archiveCard")
+    public void exportStudentArchiveCard(@Valid StudentArchiveCardDTO studentArchiveCardDTO){
+
     }
 }
