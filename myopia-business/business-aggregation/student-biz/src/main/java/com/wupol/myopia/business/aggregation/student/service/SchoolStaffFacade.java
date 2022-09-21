@@ -216,11 +216,11 @@ public class SchoolStaffFacade {
         }
         // 检查身份证、手机是否重复
         if (Boolean.TRUE.equals(schoolStaffService.checkByPhone(requestDTO.getPhone(), id))) {
-            throw new BusinessException("手机号码重复!");
+            throw new BusinessException("该手机号码已用，请更换!");
         }
 
         if (Boolean.TRUE.equals(schoolStaffService.checkByIdCard(requestDTO.getIdCard(), id))) {
-            throw new BusinessException("身份证重复");
+            throw new BusinessException("该身份证已用，请更换！");
         }
         List<User> userPhones = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(requestDTO.getPhone()), SystemCode.SCREENING_CLIENT.getCode());
         if (CollectionUtils.isEmpty(userPhones)) {
