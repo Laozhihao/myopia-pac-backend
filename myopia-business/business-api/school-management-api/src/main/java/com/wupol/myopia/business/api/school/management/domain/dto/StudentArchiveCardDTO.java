@@ -15,6 +15,12 @@ import java.util.List;
 public class StudentArchiveCardDTO implements Serializable {
 
     /**
+     * 筛查计划ID
+     */
+    @NotNull(message = "筛查计划ID不能为空")
+    private Integer screeningPlanId;
+
+    /**
      * 学校ID
      */
     @NotNull(message = "学校ID不能为空")
