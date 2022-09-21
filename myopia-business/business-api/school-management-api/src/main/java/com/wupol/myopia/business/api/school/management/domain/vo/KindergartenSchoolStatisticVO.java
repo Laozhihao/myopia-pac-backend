@@ -173,6 +173,6 @@ public class KindergartenSchoolStatisticVO implements SchoolStatistic {
     /**
      * 绑定公众号比例
      */
-    private Integer bindMpRatio;
+    private String bindMpRatio;
 
 }

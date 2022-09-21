@@ -38,7 +38,6 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -650,27 +649,11 @@ public class VisionScreeningService {
         TwoTuple<List<VisionScreeningResultStatistic>, List<CommonDiseaseScreeningResultStatistic>> realTimeSchoolStatisticList = statFacade.getRealTimeSchoolStatistics(screeningPlanId, schoolId);
         if (Objects.equals(screeningPlan.getScreeningType(),ScreeningTypeEnum.VISION.getType())){
             List<VisionScreeningResultStatistic> visionScreeningResultStatisticList = realTimeSchoolStatisticList.getFirst();
-            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
-                VisionScreeningResultStatistic visionScreeningResultStatistic = visionScreeningResultStatisticList.stream().filter(visionStatistic -> Objects.equals(visionStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())).findFirst().orElse(null);
-                return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(visionScreeningResultStatistic);
-            }else {
-                VisionScreeningResultStatistic visionScreeningResultStatistic = visionScreeningResultStatisticList.stream().filter(visionStatistic -> Objects.equals(visionStatistic.getSchoolType(), SchoolEnum.TYPE_PRIMARY.getType())).findFirst().orElse(null);
-                return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(visionScreeningResultStatistic);
-            }
-        }
-
-        if (Objects.equals(screeningPlan.getScreeningType(),ScreeningTypeEnum.COMMON_DISEASE.getType())){
+            return SchoolStatisticBuilder.buildVisionScreeningSchoolStatisticVO(visionScreeningResultStatisticList,type);
+        }else {
             List<CommonDiseaseScreeningResultStatistic> commonDiseaseScreeningResultStatisticList = realTimeSchoolStatisticList.getSecond();
-            if (Objects.equals(type, SchoolEnum.TYPE_KINDERGARTEN.getType())){
-                CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic = commonDiseaseScreeningResultStatisticList.stream().filter(commonDiseaseStatistic -> Objects.equals(commonDiseaseStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())).findFirst().orElse(null);
-                return SchoolStatisticBuilder.buildKindergartenSchoolStatisticVO(commonDiseaseScreeningResultStatistic);
-            }else {
-                CommonDiseaseScreeningResultStatistic commonDiseaseScreeningResultStatistic = commonDiseaseScreeningResultStatisticList.stream().filter(commonDiseaseStatistic -> Objects.equals(commonDiseaseStatistic.getSchoolType(), SchoolEnum.TYPE_PRIMARY.getType())).findFirst().orElse(null);
-                return SchoolStatisticBuilder.buildPrimarySchoolAndAboveSchoolStatisticVO(commonDiseaseScreeningResultStatistic);
-            }
+            return SchoolStatisticBuilder.buildCommonDiseaseScreeningResultStatisticVO(commonDiseaseScreeningResultStatisticList,type);
         }
-
-        return null;
     }
 
     public List<SchoolStatisticVO> getSchoolStatistic(List<Integer> screeningPlanIds, Integer schoolId) {
@@ -680,6 +663,7 @@ public class VisionScreeningService {
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
         return screeningPlanIds.stream().map(screeningPlanId->buildSchoolStatistic(screeningPlanId,screeningPlanSchoolStudentMap,visionScreeningResultMap)).collect(Collectors.toList());
     }
+
 
     private SchoolStatisticVO buildSchoolStatistic(Integer screeningPlanId, Map<Integer, List<ScreeningPlanSchoolStudent>> screeningPlanSchoolStudentMap, Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentMap.getOrDefault(screeningPlanId, Lists.newArrayList());
