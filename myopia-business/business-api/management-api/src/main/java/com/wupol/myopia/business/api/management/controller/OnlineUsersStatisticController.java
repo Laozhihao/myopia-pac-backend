@@ -45,7 +45,8 @@ public class OnlineUsersStatisticController {
                 .setHospitalClientUser(getClientOnlineUser(keys, SystemCode.HOSPITAL_CLIENT.getCode()))
                 .setParentClientUser(getClientOnlineUser(keys, SystemCode.PARENT_CLIENT.getCode()))
                 .setZeroToSixClientUser(getClientOnlineUser(keys, SystemCode.PRESCHOOL_CLIENT.getCode()))
-                .setQuestionnaireClientUser(getClientOnlineUser(keys, SystemCode.QUESTIONNAIRE.getCode()));
+                .setQuestionnaireClientUser(getClientOnlineUser(keys, SystemCode.QUESTIONNAIRE.getCode()))
+                .setNoTokenAccessUser(getClientOnlineUser(keys, -1));
         return onlineUserStatisticVO;
     }
 

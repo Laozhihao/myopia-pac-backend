@@ -44,6 +44,10 @@ public class OnlineUserStatisticVO implements Serializable {
      * 问卷系统端用户列表
      */
     private OnlineUser questionnaireClientUser;
+    /**
+     * 无token访问的用户列表
+     */
+    private OnlineUser noTokenAccessUser;
 
     @Data
     @AllArgsConstructor

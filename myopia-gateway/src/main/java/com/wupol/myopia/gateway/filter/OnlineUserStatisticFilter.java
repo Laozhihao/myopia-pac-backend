@@ -3,7 +3,6 @@ package com.wupol.myopia.gateway.filter;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.AuthConstants;
-import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.RequestUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -44,9 +43,10 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
                 String format = String.format(onlineUsersNum, currentUser.getClientId(), currentUser.getId());
                 redisUtil.set(format,currentUser.getRealName(),ONLINE_USERS_EXPIRED);
             }
-        }else {
+        } else {
+            // 无token的访问，例如白名单中的接口（家长端入口、报告端均有），统一归为同一个端
             String ip = RequestUtil.getIP(request);
-            String format = String.format(onlineUsersNum, SystemCode.MANAGEMENT_CLIENT.getCode(), ip);
+            String format = String.format(onlineUsersNum, -1, ip);
             redisUtil.set(format, ip + ", " + request.getURI().getPath(), ONLINE_USERS_EXPIRED);
         }
         return chain.filter(exchange);
