@@ -2,6 +2,9 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.AbstractDiagnosisResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
@@ -98,9 +101,36 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
     public abstract String getDataType();
 
     /** 传进来的时间是否为更加新的时间 */
-    public boolean isNewerUpdateTime(Long otherUpdateTime) {
-        if (Objects.isNull(otherUpdateTime)) {return true;}
+    public boolean isNewerUpdateTime(String dataType, VisionScreeningResult visionScreeningResult) {
+        if (visionScreeningResult == null) return false;
+        AbstractDiagnosisResult abstractDiagnosisResult = null;
+
+        switch (dataType) {
+            case ScreeningConstant.SCREENING_DATA_TYPE_VISION: abstractDiagnosisResult = visionScreeningResult.getVisionData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_COMPUTER_OPTOMETRY: abstractDiagnosisResult = visionScreeningResult.getComputerOptometry(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_MULTI_CHECK:
+            case ScreeningConstant.SCREENING_DATA_TYPE_FUNDUS: abstractDiagnosisResult = visionScreeningResult.getFundusData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_OCULAR_INSPECTION: abstractDiagnosisResult = visionScreeningResult.getOcularInspectionData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_SLIT_LAMP: abstractDiagnosisResult = visionScreeningResult.getSlitLampData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL: abstractDiagnosisResult = visionScreeningResult.getVisualLossLevelData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_BIOMETRIC: abstractDiagnosisResult = visionScreeningResult.getBiometricData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_PUPIL_OPTOMETRY: abstractDiagnosisResult = visionScreeningResult.getPupilOptometryData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_EYE_PRESSURE: abstractDiagnosisResult = visionScreeningResult.getEyePressureData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_OTHER_EYE_DISEASE: abstractDiagnosisResult = visionScreeningResult.getOtherEyeDiseases(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_HEIGHT_WEIGHT: abstractDiagnosisResult = visionScreeningResult.getHeightAndWeightData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_DEVIATION: abstractDiagnosisResult = visionScreeningResult.getDeviationData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_SAPRODONTIA: abstractDiagnosisResult = visionScreeningResult.getSaprodontiaData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_SPINE: abstractDiagnosisResult = visionScreeningResult.getSpineData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_BLOOD_PRESSURE: abstractDiagnosisResult = visionScreeningResult.getBloodPressureData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_DISEASES_HISTORY: abstractDiagnosisResult = visionScreeningResult.getDiseasesHistoryData(); break;
+            case ScreeningConstant.SCREENING_DATA_TYPE_PRIVACY: abstractDiagnosisResult = visionScreeningResult.getPrivacyData(); break;
+            default: return false;
+        }
+
+        if (Objects.isNull(abstractDiagnosisResult) || Objects.isNull(abstractDiagnosisResult.getUpdateTime())) {return true;}
         if (Objects.isNull(updateTime)) {return false;}
-        return updateTime > otherUpdateTime;
+        return updateTime > abstractDiagnosisResult.getUpdateTime();
+
+
     }
 }

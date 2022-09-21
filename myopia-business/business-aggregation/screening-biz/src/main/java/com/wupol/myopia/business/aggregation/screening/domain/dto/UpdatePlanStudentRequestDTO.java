@@ -111,6 +111,20 @@ public class UpdatePlanStudentRequestDTO {
             return screeningPlanSchoolStudent;
         }
         checkStudentInfo();
+        return getScreeningPlanSchoolStudent(screeningPlanSchoolStudent);
+    }
+
+    /**
+     * 更新筛查计划学生
+     */
+    public ScreeningPlanSchoolStudent handleAppPlanStudentData(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+        if (Objects.isNull(screeningPlanSchoolStudent)) {
+            return null;
+        }
+        return getScreeningPlanSchoolStudent(screeningPlanSchoolStudent);
+    }
+
+    private ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
         screeningPlanSchoolStudent.setStudentName(getName());
         screeningPlanSchoolStudent.setGender(getGender());
         screeningPlanSchoolStudent.setStudentAge(getStudentAge());

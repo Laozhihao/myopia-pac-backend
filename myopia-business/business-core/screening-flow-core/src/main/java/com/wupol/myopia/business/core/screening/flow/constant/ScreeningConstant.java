@@ -39,5 +39,13 @@ public class ScreeningConstant {
     public static final String SCREENING_DATA_TYPE_DISEASES_HISTORY = "diseases_history";
     /** 筛查数据类型，区分是哪种类型的数据，个人隐私 */
     public static final String SCREENING_DATA_TYPE_PRIVACY = "privacy";
+    /** 筛查数据类型，区分是哪种类型的数据，眼位 */
+    public static final String SCREENING_DATA_TYPE_OCULAR_INSPECTION = "ocular_inspection";
+    /** 筛查数据类型，区分是哪种类型的数据，眼底*/
+    public static final String SCREENING_DATA_TYPE_FUNDUS = "fundus";
+    /** 筛查数据类型，区分是哪种类型的数据，裂隙灯*/
+    public static final String SCREENING_DATA_TYPE_SLIT_LAMP = "slit_lamp";
+    /** 筛查数据类型，区分是哪种类型的数据，盲及视力损害*/
+    public static final String SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL = "visual_loss_level";
 
 }

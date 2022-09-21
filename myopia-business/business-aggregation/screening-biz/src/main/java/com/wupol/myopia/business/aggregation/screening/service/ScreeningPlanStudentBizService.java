@@ -517,4 +517,20 @@ public class ScreeningPlanStudentBizService {
         return !DateUtil.isBetweenDate(plan.getStartTime(), plan.getEndTime());
     }
 
+    /**
+     * 更新App筛查学生
+     *
+     * @param requestDTO 更新学生入参
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAppPlanStudent(UpdatePlanStudentRequestDTO requestDTO) {
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(requestDTO.getPlanStudentId());
+        ScreeningPlanSchoolStudent updatePlanStudent = requestDTO.handleAppPlanStudentData(planStudent);
+        // 检查学号是否重复
+        if (Objects.isNull(updatePlanStudent)) {
+            throw new BusinessException("筛查学生数据异常!");
+        }
+        checkStudentSno(updatePlanStudent);
+        screeningPlanSchoolStudentService.updateById(updatePlanStudent);
+    }
 }
