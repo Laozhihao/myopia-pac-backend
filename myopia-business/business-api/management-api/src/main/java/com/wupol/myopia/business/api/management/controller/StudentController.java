@@ -165,7 +165,7 @@ public class StudentController {
      */
     @GetMapping("nation")
     public List<Nation> getNationLists() {
-        return NationEnum.getNationList();
+        return studentFacade.getNationLists();
     }
 
 

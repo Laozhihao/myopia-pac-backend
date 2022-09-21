@@ -15,6 +15,7 @@ import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
+import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
@@ -202,6 +203,16 @@ public class SchoolStudentController {
     @GetMapping("/screeningRecord")
     public IPage<StudentScreeningResultItemsDTO> screeningRecord(PageRequest pageRequest,@NotNull(message = "学校学生Id不能为空") Integer id){
         return schoolStudentBizService.screeningRecord(pageRequest,id);
+    }
+
+    /**
+     * 获取民族列表
+     *
+     * @return 民族列表
+     */
+    @GetMapping("/nation")
+    public List<Nation> getNationLists() {
+        return studentFacade.getNationLists();
     }
 
 }

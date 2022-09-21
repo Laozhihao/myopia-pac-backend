@@ -14,6 +14,7 @@ import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningCon
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -1526,5 +1527,12 @@ public class StudentFacade {
             }
             report.setCheckStatus(DateUtils.isSameDay(report.getCreateTime(), new Date()));
         });
+    }
+
+    /**
+     * 获取民族信息
+     */
+    public List<Nation> getNationLists() {
+        return NationEnum.getNationList();
     }
 }
