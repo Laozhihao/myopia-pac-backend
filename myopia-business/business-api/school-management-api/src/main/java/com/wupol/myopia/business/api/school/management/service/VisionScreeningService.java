@@ -534,7 +534,7 @@ public class VisionScreeningService {
                 .setScreeningCode(screeningPlanSchoolStudent.getScreeningCode())
                 .setSno(screeningPlanSchoolStudent.getStudentNo())
                 .setName(screeningPlanSchoolStudent.getStudentName())
-                .setGenderDesc(GenderEnum.getCnName(screeningPlanSchoolStudent.getGender()))
+                .setGender(screeningPlanSchoolStudent.getGender())
                 .setGradeName(schoolGrade.getName())
                 .setClassName(schoolClass.getName())
                 .setState(screeningPlanSchoolStudent.getState());

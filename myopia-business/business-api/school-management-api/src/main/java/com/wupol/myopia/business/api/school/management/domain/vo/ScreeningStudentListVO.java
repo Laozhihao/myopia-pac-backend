@@ -40,9 +40,9 @@ public class ScreeningStudentListVO implements Serializable {
      */
     private String name;
     /**
-     * 性别描述
+     * 性别
      */
-    private String genderDesc;
+    private Integer gender;
 
     /**
      * 年级名称
