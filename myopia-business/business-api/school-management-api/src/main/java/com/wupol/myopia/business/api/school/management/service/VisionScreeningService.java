@@ -530,6 +530,7 @@ public class VisionScreeningService {
         ScreeningStudentListVO screeningStudentListVO = new ScreeningStudentListVO()
                 .setPlanStudentId(screeningPlanSchoolStudent.getId())
                 .setId(schoolStudentIdMap.get(screeningPlanSchoolStudent.getStudentId()))
+                .setStudentId(screeningPlanSchoolStudent.getStudentId())
                 .setScreeningCode(screeningPlanSchoolStudent.getScreeningCode())
                 .setSno(screeningPlanSchoolStudent.getStudentNo())
                 .setName(screeningPlanSchoolStudent.getStudentName())
