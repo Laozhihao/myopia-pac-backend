@@ -69,8 +69,8 @@ public class StaffController {
      *
      * @return List<UsernameAndPasswordDTO>
      */
-    @PostMapping("resetPassword/{id}")
-    public List<UsernameAndPasswordDTO> resetPassword(@PathVariable("id") Integer id) {
+    @PostMapping("resetPassword")
+    public List<UsernameAndPasswordDTO> resetPassword(Integer id) {
         return schoolStaffFacade.resetPassword(id);
     }
 
