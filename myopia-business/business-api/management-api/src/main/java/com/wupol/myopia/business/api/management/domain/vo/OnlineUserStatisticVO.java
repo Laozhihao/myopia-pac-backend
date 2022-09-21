@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 在线用户统计响应实体
@@ -14,33 +17,40 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class OnlineUserStatisticVO implements Serializable {
     /**
-     * 管理端数
+     * 管理端用户列表
      */
-    private Long managementClientNum;
+    private OnlineUser managementClientUser;
     /**
-     * 学校端数
+     * 学校端用户列表
      */
-    private Long schoolClientNum;
+    private OnlineUser schoolClientUser;
     /**
-     * 筛查端数
+     * 筛查端用户列表
      */
-    private Long screeningClientNum;
+    private OnlineUser screeningClientUser;
     /**
-     * 医生端数
+     * 医院端用户列表
      */
-    private Long hospitalClientNum;
+    private OnlineUser hospitalClientUser;
     /**
-     * 家长端数
+     * 家长端用户列表
      */
-    private Long parentClientNum;
+    private OnlineUser parentClientUser;
     /**
-     * 0-6岁客户端
+     * 0-6岁客户端用户列表
      */
-    private Long zeroToSixClientNum;
+    private OnlineUser zeroToSixClientUser;
+    /**
+     * 问卷系统端用户列表
+     */
+    private OnlineUser questionnaireClientUser;
 
-    /**
-     * 问卷系统端
-     */
-    private Long questionnaireClientNum;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OnlineUser implements Serializable {
+        private Integer count;
+        private List<String> nameList;
+    }
 
 }
