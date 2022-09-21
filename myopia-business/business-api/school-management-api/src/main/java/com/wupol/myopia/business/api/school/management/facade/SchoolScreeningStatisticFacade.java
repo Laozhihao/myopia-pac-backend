@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.school.management.facade;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +59,7 @@ public class SchoolScreeningStatisticFacade {
      * @param schoolGradeList
      */
     private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,String screeningOrgName,List<SchoolGrade> schoolGradeList) {
-        List<Integer> optionTabs = schoolGradeList.stream().map(this::getSchoolType).filter(Objects::nonNull).collect(Collectors.toList());
+        Set<Integer> optionTabs = schoolGradeList.stream().map(this::getSchoolType).filter(Objects::nonNull).collect(Collectors.toSet());
         return new ScreeningPlanVO()
                 .setId(screeningPlan.getId())
                 .setTitle(screeningPlan.getTitle())
@@ -66,7 +68,7 @@ public class SchoolScreeningStatisticFacade {
                 .setScreeningType(screeningPlan.getScreeningType())
                 .setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())
                 .setScreeningOrgName(screeningOrgName)
-                .setOptionTabs(optionTabs);
+                .setOptionTabs(Lists.newArrayList(optionTabs));
     }
 
     /**
