@@ -602,5 +602,15 @@ public class RedisUtil {
     public Set<String> getOnline(){
         return redisTemplate.keys("online:*");
     }
+
+    /**
+     * 批量获取
+     *
+     * @param keys key集
+     * @return java.util.List<java.lang.Object>
+     **/
+    public List<Object> batchGet(List<String> keys) {
+        return redisTemplate.opsForValue().multiGet(keys);
+    }
 }
 
