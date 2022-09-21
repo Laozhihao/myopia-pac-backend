@@ -263,15 +263,4 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.selectList(queryWrapper);
     }
 
-    /**
-     * 通过委会行政区域获取学生
-     *
-     * @param committeeCode 通过委会行政区域编码
-     * @return 学生
-     */
-    public SchoolStudent getOneByCommitteeCode(Long committeeCode){
-        return baseMapper.selectOne(Wrappers.lambdaQuery(SchoolStudent.class)
-                .eq(SchoolStudent::getCommitteeCode,committeeCode)
-                .orderByDesc(SchoolStudent::getRecordNo));
-    }
 }

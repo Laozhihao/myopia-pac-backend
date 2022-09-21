@@ -4,24 +4,17 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStudentInfoBuilder;
-import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
@@ -31,7 +24,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -248,91 +240,6 @@ public class SchoolStudentBizService {
         }
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(studentId);
-    }
-
-    /**
-     * 更新学生基本信息
-     * @param studentBaseInfoDTO 学生基本信息
-     * @param currentUser 当前用户
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void updateStudentBaseInfo(StudentBaseInfoDTO studentBaseInfoDTO, CurrentUser currentUser) {
-        studentBaseInfoDTO.checkStudentInfo();
-        if (!currentUser.isPlatformAdminUser() && !Objects.equals(studentBaseInfoDTO.getSchoolId(),currentUser.getOrgId())){
-            throw new BusinessException("此用户不是该学校的无权修改学生信息");
-        }
-        // 判断是否要修改委会行政区域
-        isUpdateCommitteeCode(studentBaseInfoDTO, currentUser);
-        SchoolGrade schoolGrade = schoolGradeService.getById(studentBaseInfoDTO.getGradeId());
-        SchoolClass schoolClass = schoolClassService.getById(studentBaseInfoDTO.getClassId());
-        SchoolStudent schoolStudent = schoolStudentService.getById(studentBaseInfoDTO.getId());
-        if (Objects.isNull(schoolStudent)){
-            throw new BusinessException("此学生不存在");
-        }
-        SchoolStudentInfoBuilder.changeSchoolStudent(schoolStudent, studentBaseInfoDTO, schoolGrade, schoolClass);
-        this.saveStudent(schoolStudent,studentBaseInfoDTO.getSchoolId());
-    }
-
-    /**
-     * 判断是否要修改委会行政区域
-     * @param studentBaseInfoDTO 学生信息
-     * @param currentUser 当前用户
-     */
-    private void isUpdateCommitteeCode(StudentBaseInfoDTO studentBaseInfoDTO, CurrentUser currentUser) {
-        Long newCommitteeCode = studentBaseInfoDTO.getCommitteeCode();
-        if (!currentUser.isPlatformAdminUser() || Objects.isNull(newCommitteeCode)) {
-            return;
-        }
-        SchoolStudent oldSchoolStudent = schoolStudentService.getById(studentBaseInfoDTO.getId());
-        // 如果旧数据没有委会行政区域，或旧数据与新委会行政区域不相同，则生成新的编码
-        if (Objects.isNull(oldSchoolStudent.getCommitteeCode()) || (!oldSchoolStudent.getCommitteeCode().equals(newCommitteeCode))) {
-            studentBaseInfoDTO.setRecordNo(getRecordNo(newCommitteeCode));
-        }
-    }
-
-    /**
-     * 获取RecordNo
-     *
-     * @param committeeCode 委会行政区域
-     * @return RecordNo
-     */
-    public String getRecordNo(Long committeeCode) {
-        if (Objects.isNull(committeeCode)) {
-            throw new BusinessException("委会行政区域code不能为空");
-        }
-        String recordNo;
-        SchoolStudent schoolStudent = schoolStudentService.getOneByCommitteeCode(committeeCode);
-        if (Objects.isNull(schoolStudent) || Objects.isNull(schoolStudent.getRecordNo())) {
-            recordNo = committeeCode + "00001";
-        } else {
-            recordNo = String.valueOf(Long.parseLong(schoolStudent.getRecordNo()) + 1);
-        }
-        return recordNo;
-    }
-
-
-    /**
-     * 筛查记录
-     * @param pageRequest 分页数据
-     * @param id 学校学生ID
-     */
-    public IPage<StudentScreeningResultItemsDTO> screeningRecord(PageRequest pageRequest, Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        return studentFacade.getScreeningList(pageRequest, schoolStudent.getStudentId(), CurrentUserUtil.getCurrentUser());
-    }
-
-
-    /**
-     * 获取学校学生基础信息
-     * @param id 学校学生ID
-     */
-    public StudentBaseInfoVO getBaseInfo(Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        List<District> districtPositionDetail=null;
-        if (Objects.nonNull(schoolStudent.getCommitteeCode())) {
-            districtPositionDetail = districtService.getDistrictPositionDetail(schoolStudent.getCommitteeCode());
-        }
-        return SchoolStudentInfoBuilder.buildStudentBaseInfoVO(schoolStudent,districtPositionDetail);
     }
 
 }

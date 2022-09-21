@@ -30,7 +30,6 @@ import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStuden
 import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;

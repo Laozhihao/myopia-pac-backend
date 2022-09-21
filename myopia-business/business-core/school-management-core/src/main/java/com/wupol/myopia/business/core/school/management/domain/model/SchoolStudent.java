@@ -1,9 +1,7 @@
 package com.wupol.myopia.business.core.school.management.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wupol.myopia.base.domain.vo.FamilyInfoVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.common.domain.model.AddressCode;
 import lombok.Data;
@@ -204,27 +202,6 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 学生来源客户端
      */
     private Integer sourceClient;
-
-    /**
-     * 家庭信息
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private FamilyInfoVO familyInfo;
-
-    /**
-     * 委会行政区域code
-     */
-    private Long committeeCode;
-
-    /**
-     * 是否新生儿暂无身份证 false-否 true-是
-     */
-    private Boolean isNewbornWithoutIdCard;
-
-    /**
-     * 检查建档编码
-     */
-    private String recordNo;
 
 
     /**

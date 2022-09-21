@@ -12,8 +12,6 @@ import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentE
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.school.management.domain.dto.StudentBaseInfoDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentBaseInfoVO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -176,34 +173,6 @@ public class SchoolStudentController {
         return schoolStudentBizService.getGradeInfo(screeningPlanId,currentUser.getOrgId());
     }
 
-    /**
-     * 基本资料
-     * @param id 学校学生ID
-     */
-    @GetMapping("/baseInfo/{id}")
-    public StudentBaseInfoVO getBaseInfo(@PathVariable("id") Integer id){
-        return schoolStudentBizService.getBaseInfo(id);
-    }
-
-    /**
-     * 更新基本资料
-     * @param studentBaseInfoDTO 学生信息
-     */
-    @PutMapping("/baseInfo")
-    public void updateStudentBaseInfo(@RequestBody @Valid StudentBaseInfoDTO studentBaseInfoDTO){
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        schoolStudentBizService.updateStudentBaseInfo(studentBaseInfoDTO,currentUser);
-    }
-
-    /**
-     * 筛查记录
-     * @param pageRequest 分页信息
-     * @param id 学校学生Id
-     */
-    @GetMapping("/screeningRecord")
-    public IPage<StudentScreeningResultItemsDTO> screeningRecord(PageRequest pageRequest,@NotNull(message = "学校学生Id不能为空") Integer id){
-        return schoolStudentBizService.screeningRecord(pageRequest,id);
-    }
 
     /**
      * 获取民族列表
