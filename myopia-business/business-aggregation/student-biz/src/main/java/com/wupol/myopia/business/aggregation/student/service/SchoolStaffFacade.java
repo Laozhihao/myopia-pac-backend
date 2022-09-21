@@ -99,11 +99,15 @@ public class SchoolStaffFacade {
     @Transactional(rollbackFor = Exception.class)
     public List<UsernameAndPasswordDTO> saveSchoolStaff(CurrentUser user, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO) {
 
+        boolean isSameIdCardAndPhone = false;
         Integer id = requestDTO.getId();
         preCheckStaff(user, schoolId, requestDTO);
-        SchoolStaff staff = schoolStaffService.getById(id);
-        if (Objects.isNull(staff)) {
-            staff = new SchoolStaff();
+        SchoolStaff staff = new SchoolStaff();
+        if (Objects.nonNull(id)) {
+            staff = schoolStaffService.getById(id);
+            if (Objects.equals(requestDTO.getPhone(), staff.getPhone()) && Objects.equals(requestDTO.getIdCard(), staff.getIdCard())) {
+                isSameIdCardAndPhone = true;
+            }
         }
 
         staff.setId(id);
@@ -116,10 +120,10 @@ public class SchoolStaffFacade {
         staff.setRemark(requestDTO.getRemark());
 
         // 学校管理后台
-        TwoTuple<UsernameAndPasswordDTO, AccountInfo> school = saveSchoolAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId());
+        TwoTuple<UsernameAndPasswordDTO, AccountInfo> school = saveSchoolAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId(), isSameIdCardAndPhone);
 
         // 筛查APP
-        TwoTuple<UsernameAndPasswordDTO, AccountInfo> app = saveAppAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId());
+        TwoTuple<UsernameAndPasswordDTO, AccountInfo> app = saveAppAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId(), isSameIdCardAndPhone);
 
         staff.setAccountInfo(Lists.newArrayList(app.getSecond(), school.getSecond()));
         schoolStaffService.saveOrUpdate(staff);
@@ -232,7 +236,7 @@ public class SchoolStaffFacade {
             throw new BusinessException("手机号码重复");
         } else {
             SchoolStaff staff = schoolStaffService.getById(id);
-            AccountInfo staffAccount = staff.getAccountInfo().stream().filter(s -> Objects.equals(s.getSystemCode(), SystemCode.SCREENING_CLIENT.getCode())).findFirst().orElseThrow(()->new BusinessException("数据异常"));
+            AccountInfo staffAccount = staff.getAccountInfo().stream().filter(s -> Objects.equals(s.getSystemCode(), SystemCode.SCREENING_CLIENT.getCode())).findFirst().orElseThrow(() -> new BusinessException("数据异常"));
             // 过滤属于自己的
             if (userPhones.stream().filter(s -> !Objects.equals(s.getId(), staffAccount.getUserId())).anyMatch(s -> StringUtils.equals(s.getPhone(), requestDTO.getPhone()))) {
                 throw new BusinessException("手机号码重复");
@@ -243,14 +247,17 @@ public class SchoolStaffFacade {
     /**
      * 保存学校账号
      *
-     * @param schoolId     学校Id
-     * @param requestDTO   请求入参
-     * @param accountInfos 账号信息
-     * @param createUserId 创建人
+     * @param schoolId             学校Id
+     * @param requestDTO           请求入参
+     * @param accountInfos         账号信息
+     * @param createUserId         创建人
+     * @param isSameIdCardAndPhone 是否相同的身份证和手机号码
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos, Integer createUserId) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveSchoolAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
+                                                                            List<AccountInfo> accountInfos, Integer createUserId,
+                                                                            boolean isSameIdCardAndPhone) {
 
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
 
@@ -259,28 +266,30 @@ public class SchoolStaffFacade {
         UserDTO appUserDTO = userDTO.getFirst();
 
         String username = getSchoolUsername(userDTO);
-        appUserDTO
-                .setOrgId(schoolId)
+        appUserDTO.setOrgId(schoolId)
                 .setUsername(username)
                 .setPassword(password)
                 .setSystemCode(systemCode)
                 .setCreateUserId(createUserId)
                 .setRealName(requestDTO.getStaffName())
                 .setRemark(requestDTO.getRemark());
-        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
+        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode, isSameIdCardAndPhone);
     }
 
     /**
      * 保存筛查端账号
      *
-     * @param schoolId     学校Id
-     * @param requestDTO   请求入参
-     * @param accountInfos 账号信息
-     * @param createUserId 创建人
+     * @param schoolId             学校Id
+     * @param requestDTO           请求入参
+     * @param accountInfos         账号信息
+     * @param createUserId         创建人
+     * @param isSameIdCardAndPhone 是否相同IdCard和手机号码
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, List<AccountInfo> accountInfos, Integer createUserId) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
+                                                                         List<AccountInfo> accountInfos, Integer createUserId,
+                                                                         Boolean isSameIdCardAndPhone) {
 
         String username = requestDTO.getPhone();
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
@@ -301,7 +310,7 @@ public class SchoolStaffFacade {
                 .setIdCard(requestDTO.getIdCard())
                 .setRemark(requestDTO.getRemark())
                 .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
-        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode);
+        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode, isSameIdCardAndPhone);
     }
 
     /**
@@ -350,23 +359,30 @@ public class SchoolStaffFacade {
     /**
      * 保存用户
      *
-     * @param isInsert   是否插入
-     * @param userDTO    userDTO
-     * @param username   账号
-     * @param password   密码
-     * @param systemCode 系统编码
+     * @param isInsert             是否插入
+     * @param userDTO              userDTO
+     * @param username             账号
+     * @param password             密码
+     * @param systemCode           系统编码
+     * @param isSameIdCardAndPhone 是否相同的身份证和手机号码
      *
      * @return TwoTuple<UsernameAndPasswordDTO, AccountInfo> left-账号密码 right-账号信息
      */
-    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO, String username, String password, Integer systemCode) {
+    private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveUser(Boolean isInsert, UserDTO userDTO,
+                                                                   String username, String password,
+                                                                   Integer systemCode, boolean isSameIdCardAndPhone) {
+        UsernameAndPasswordDTO usernameAndPasswordDTO = new UsernameAndPasswordDTO();
         User user;
         if (Objects.equals(isInsert, Boolean.TRUE)) {
             user = oauthServiceClient.addMultiSystemUser(userDTO);
+            usernameAndPasswordDTO.setDisplay(true);
         } else {
+            if (isSameIdCardAndPhone) {
+                usernameAndPasswordDTO.setDisplay(false);
+            }
             user = oauthServiceClient.updateUser(userDTO);
         }
 
-        UsernameAndPasswordDTO usernameAndPasswordDTO = new UsernameAndPasswordDTO();
         usernameAndPasswordDTO.setSystemCode(systemCode);
         usernameAndPasswordDTO.setUsername(username);
         usernameAndPasswordDTO.setPassword(password);
