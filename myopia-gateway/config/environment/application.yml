@@ -166,3 +166,4 @@ white-list:
   # 按区域/学校常见病报告
   - "/management/report/districtCommonDiseaseReport"
   - "/management/report/schoolCommonDiseaseReport"
+  - "/api/device/uploadFundus"

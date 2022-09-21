@@ -2,18 +2,22 @@ package com.wupol.myopia.business.api.device.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.DeviceDataRequestDTO;
 import com.wupol.myopia.business.api.device.config.DeviceDataFactory;
 import com.wupol.myopia.business.api.device.domain.dto.*;
 import com.wupol.myopia.business.api.device.domain.result.DeviceUploadResult;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
+import com.wupol.myopia.business.api.device.service.DeviceUploadService;
 import com.wupol.myopia.business.api.device.service.FkrDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 
@@ -34,6 +38,9 @@ public class DeviceUploadDataController {
 
     @Autowired
     private FkrDataService fkrDataService;
+
+    @Resource
+    private DeviceUploadService deviceUploadService;
 
     /**
      * 上传数据
@@ -97,6 +104,19 @@ public class DeviceUploadDataController {
     public ApiResult frkUpload(@RequestBody FkrRequestDTO requestDTO) {
         fkrDataService.uploadData(requestDTO);
         return ApiResult.success();
+    }
+
+    /**
+     * 眼底检查数据上传
+     *
+     * @param requestDTO 请求DTO
+     *
+     * @return ReturnInformation
+     */
+    @PostMapping(value = "/device/uploadFundus", consumes = {"multipart/form-data"})
+    public String uploadFundus(DeviceRequestDTO requestDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return deviceUploadService.fundusUpload(requestDTO,user.getOrgId());
     }
 
 }

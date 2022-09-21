@@ -126,7 +126,7 @@ upload:
   # 保存到服务器地址
   savePath: /myopia/uploadPic
   # 可上传的文件类型后缀
-  suffixs: pdf,jpg,jpeg,png,xlsx
+  suffixs: pdf,jpg,jpeg,png,xlsx,zip
   # 上传S3的bucket
   bucketName: ${AWS_S3_BUCKET}
   # 文件上传S3的prefix

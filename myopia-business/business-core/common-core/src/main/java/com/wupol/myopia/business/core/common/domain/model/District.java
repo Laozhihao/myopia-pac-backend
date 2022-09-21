@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -21,6 +22,7 @@ import java.util.Objects;
 @Data
 @Accessors(chain = true)
 @TableName("m_district")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class District implements Serializable, HasName {
 
     private static final long serialVersionUID = 1L;
@@ -59,5 +61,10 @@ public class District implements Serializable, HasName {
     public int hashCode() {
         // 这里不包含child
         return Objects.hash(getId(), getName(), getCode(), getParentCode(), getAreaCode(), getMonitorCode());
+    }
+
+    @Override
+    public Integer getDistrictId() {
+        return id;
     }
 }
