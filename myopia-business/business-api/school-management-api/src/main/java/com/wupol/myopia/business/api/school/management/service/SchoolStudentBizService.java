@@ -231,6 +231,10 @@ public class SchoolStudentBizService {
         }
 
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        if (Objects.isNull(screeningPlanSchool)){
+            throw new BusinessException("此筛查计划下没有此筛查学校");
+        }
+
         List<Integer> screeningGradeIds = getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
 
         if (CollUtil.isEmpty(screeningGradeIds)){

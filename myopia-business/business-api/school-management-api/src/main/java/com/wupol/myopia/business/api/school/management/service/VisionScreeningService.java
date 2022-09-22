@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -65,10 +66,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -188,11 +186,13 @@ public class VisionScreeningService {
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(schoolId);
         boolean hasScreeningResults = CollUtil.isNotEmpty(schoolGradeList);
 
+        Map<Integer, Integer> visionScreeningResultMap = getVisionScreeningResultMap(planIds);
+
         // 获取学校告知书
         School school = schoolService.getBySchoolId(schoolId);
         TwoTuple<NotificationConfig, String> notificationInfo = getNotificationInfo(school);
         schoolPlanList.forEach(schoolPlan -> {
-            setScreeningPlanInfo(schoolPlan, planMap);
+            setScreeningPlanInfo(schoolPlan, planMap ,visionScreeningResultMap);
             setStatisticInfo(schoolPlan,schoolStatisticMap);
             setOrgInfo(schoolPlan,orgMap);
             setNotificationInfo(schoolPlan,notificationInfo);
@@ -201,6 +201,22 @@ public class VisionScreeningService {
 
         responseDTO.setRecords(schoolPlanList);
         return responseDTO;
+    }
+
+    /**
+     * 获取筛查结果数
+     * @param planIds 筛查计划ID集合
+     */
+    private Map<Integer, Integer> getVisionScreeningResultMap(List<Integer> planIds) {
+        Map<Integer,Integer> visionScreeningResultMap = Maps.newHashMap();
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIds(planIds);
+        if (CollUtil.isEmpty(visionScreeningResultList)){
+            planIds.forEach(planId->visionScreeningResultMap.put(planId,0));
+        }else {
+            Map<Integer, Long> collect = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId, Collectors.counting()));
+            planIds.forEach(planId->visionScreeningResultMap.put(planId,collect.getOrDefault(planId,0L).intValue()));
+        }
+        return visionScreeningResultMap;
     }
 
     /**
@@ -299,7 +315,7 @@ public class VisionScreeningService {
      * @param responseDTO 返回对象
      * @param planMap 筛查计划集合
      */
-    private void setScreeningPlanInfo(ScreeningListResponseDTO responseDTO, Map<Integer, ScreeningPlan> planMap) {
+    private void setScreeningPlanInfo(ScreeningListResponseDTO responseDTO, Map<Integer, ScreeningPlan> planMap,Map<Integer,Integer> visionScreeningResultMap) {
         ScreeningPlan screeningPlan = planMap.get(responseDTO.getPlanId());
         if (Objects.isNull(screeningPlan)) {
             return;
@@ -308,11 +324,37 @@ public class VisionScreeningService {
         responseDTO.setStartTime(screeningPlan.getStartTime());
         responseDTO.setEndTime(screeningPlan.getEndTime());
         responseDTO.setReleaseStatus(screeningPlan.getReleaseStatus());
-        responseDTO.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus()));
+        responseDTO.setScreeningStatus(getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus(),visionScreeningResultMap.get(screeningPlan.getId())));
         responseDTO.setReleaseTime(screeningPlan.getReleaseTime());
         responseDTO.setContent(screeningPlan.getContent());
         responseDTO.setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(responseDTO.getScreeningOrgType()).getType());
         responseDTO.setStatus(setMergeStatus(responseDTO.getReleaseStatus(),responseDTO.getScreeningStatus()));
+    }
+
+    /**
+     * 获取筛查状态
+     *
+     * @param startDate 开始时间
+     * @param endDate   结束时间
+     * @param releaseStatus   计划状态
+     * @param screeningResultNum   筛查结果数
+     * @return 筛查状态 0-未开始 1-进行中 2-已结束
+     */
+    public static Integer getScreeningStatus(Date startDate, Date endDate, Integer releaseStatus , Integer screeningResultNum) {
+        if (CommonConst.STATUS_ABOLISH.equals(releaseStatus)) {
+            return 3;
+        }
+        Date nowDate = new Date();
+        if (nowDate.before(startDate)) {
+            return 0;
+        }
+        if (nowDate.after(startDate) && nowDate.before(endDate) && screeningResultNum > 0) {
+            return 1;
+        }
+        if (nowDate.after(endDate)) {
+            return 2;
+        }
+        return 0;
     }
 
     /**
