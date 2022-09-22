@@ -22,10 +22,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanScho
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.domain.dto.*;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
-import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.*;
 import com.wupol.myopia.business.api.school.management.facade.SchoolScreeningStatisticFacade;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
@@ -426,7 +423,7 @@ public class VisionScreeningController {
      * @param studentListDTO 学生查询条件对象
      */
     @GetMapping("/student/list")
-    public IPage<ScreeningStudentListVO> studentList(@Valid StudentListDTO studentListDTO){
+    public ScreeningStudentVO studentList(@Valid StudentListDTO studentListDTO){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         studentListDTO.setSchoolId(currentUser.getOrgId());
         return visionScreeningService.studentList(studentListDTO);

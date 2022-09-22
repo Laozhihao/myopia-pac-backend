@@ -253,7 +253,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         }
 
         // 需要插入到脊柱问卷的编号
-        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), CommonConst.VISION_SPINE_NOTICE);
+        List<QuestionnaireQuestion> questionnaireQuestions = questionnaireQuestionService.getBySerialNumbers(questionnaire.getId(), CommonConst.getVisionSpineNotice());
         if (CollectionUtils.isEmpty(questionnaireQuestions)) {
             return;
         }

@@ -16,6 +16,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
+import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.school.management.constant.MergeStatusEnum;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
@@ -25,10 +26,7 @@ import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningSt
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
-import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatisticVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.StudentScreeningDetailVO;
+import com.wupol.myopia.business.api.school.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
@@ -110,9 +108,9 @@ public class VisionScreeningService {
     private VisionScreeningResultService visionScreeningResultService;
     @Resource
     private StatFacade statFacade;
+    @Resource
+    private SchoolStudentBizService schoolStudentBizService;
 
-    private static final String DATA_INTEGRITY_FINISH = "数据完整";
-    private static final String DATA_INTEGRITY_MISS = "数据缺失";
 
     /**
      * 获取视力筛查列表
@@ -522,7 +520,7 @@ public class VisionScreeningService {
      * 分页获取筛查学生列表
      * @param studentListDTO 学生查询条件对象
      */
-    public IPage<ScreeningStudentListVO> studentList(StudentListDTO studentListDTO) {
+    public ScreeningStudentVO studentList(StudentListDTO studentListDTO) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
                 .eq(ScreeningPlanSchoolStudent::getSchoolId, studentListDTO.getSchoolId())
                 .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,studentListDTO.getScreeningPlanId())
@@ -532,7 +530,14 @@ public class VisionScreeningService {
                 .eq(Objects.nonNull(studentListDTO.getClassId()), ScreeningPlanSchoolStudent::getClassId, studentListDTO.getClassId());
         Page page = studentListDTO.toPage();
         IPage<ScreeningPlanSchoolStudent> schoolStudentPage = screeningPlanSchoolStudentService.page(page, queryWrapper);
-        return processScreeningStudentList(schoolStudentPage,studentListDTO.getSchoolId());
+        IPage<ScreeningStudentListVO> studentListVoPage = processScreeningStudentList(schoolStudentPage, studentListDTO.getSchoolId());
+
+        ScreeningStudentVO screeningStudentVO = new ScreeningStudentVO();
+        GradeInfoVO gradeInfo = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId());
+        List<GradeInfoVO.GradeInfo> noSelectList = gradeInfo.getNoSelectList();
+        screeningStudentVO.setHasScreeningStudent(CollUtil.isNotEmpty(noSelectList));
+        screeningStudentVO.setPageData(studentListVoPage);
+        return screeningStudentVO;
     }
 
     /**
@@ -626,13 +631,13 @@ public class VisionScreeningService {
                 //眼轴
                 .setAxial(EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult));
 
-        //是否有做复测
+        //是否数据完整性
         if (Objects.isNull(visionScreeningResult)) {
-            screeningStudentListVO.setDataIntegrity(DATA_INTEGRITY_MISS);
+            screeningStudentListVO.setDataIntegrity(CommonConst.DATA_INTEGRITY_MISS);
             return;
         }
         boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-        screeningStudentListVO.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?DATA_INTEGRITY_FINISH:DATA_INTEGRITY_MISS);
+        screeningStudentListVO.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?CommonConst.DATA_INTEGRITY_FINISH:CommonConst.DATA_INTEGRITY_MISS);
     }
 
     /**

@@ -179,4 +179,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 出生年月
      */
     private Date birthday;
+
+    /**
+     * 数据完整性
+     */
+    private String dataIntegrity;
 }

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -19,6 +20,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -124,10 +126,15 @@ public class ScreeningPlanSchoolStudentFacadeService {
         //是否有做复测
         if (Objects.isNull(visionScreeningResult)) {
             studentEyeInfo.setIsDoubleScreen(Boolean.FALSE);
+            studentEyeInfo.setDataIntegrity(CommonConst.DATA_INTEGRITY_MISS);
             return;
         }
         int reScreeningCount = visionScreeningResultService.count(new VisionScreeningResult().setScreeningPlanSchoolStudentId(visionScreeningResult.getScreeningPlanSchoolStudentId()).setIsDoubleScreen(true));
         studentEyeInfo.setIsDoubleScreen(reScreeningCount > 0);
+
+        //是否数据完整性
+        boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
+        studentEyeInfo.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?CommonConst.DATA_INTEGRITY_FINISH:CommonConst.DATA_INTEGRITY_MISS);
     }
 
     /**
