@@ -127,7 +127,7 @@ public class WxService {
         parentService.save(parent);
         // 新增用户
         UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PARENT_CLIENT.getCode());
+        userDTO.setUsername(wxUserInfo.getOpenId()).setPassword(parent.getHashKey()).setGender(wxUserInfo.getSex()).setOrgId(-1).setSystemCode(SystemCode.PARENT_CLIENT.getCode()).setRealName(wxUserInfo.getNickname());
         User user = oauthServiceClient.addUser(userDTO);
         // 更新家长
         parentService.updateById(new Parent()
