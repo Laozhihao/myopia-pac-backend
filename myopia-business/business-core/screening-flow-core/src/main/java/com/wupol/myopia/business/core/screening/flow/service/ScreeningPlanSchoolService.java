@@ -56,6 +56,19 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
+     * 批量查询计划的学校
+     *
+     * @param screeningPlanIds 计划ID集合
+     * @param schoolId        学校ID
+     * @return ScreeningPlanSchool
+     */
+    public List<ScreeningPlanSchool> listByPlanIdsAndSchoolId(List<Integer> screeningPlanIds, Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlanSchool.class)
+                .in(ScreeningPlanSchool::getScreeningPlanId,screeningPlanIds)
+                .eq(ScreeningPlanSchool::getSchoolId,schoolId));
+    }
+
+    /**
      * 批量更新或新增筛查计划的学校信息
      *
      * @param screeningPlanId  计划ID

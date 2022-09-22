@@ -48,4 +48,8 @@ public class ScreeningConstant {
     /** 筛查数据类型，区分是哪种类型的数据，盲及视力损害*/
     public static final String SCREENING_DATA_TYPE_VISUAL_LOSS_LEVEL = "visual_loss_level";
 
+    /** 筛查情况*/
+    public static final String NOT_START = "未开始";
+    public static final String IN_PROGRESS = "进行中";
+    public static final String END = "已结束";
 }

@@ -54,7 +54,7 @@ public class ScreeningPlanBuilder {
                 .setSrcScreeningNoticeId(CommonConst.DEFAULT_ID)
                 .setScreeningTaskId(CommonConst.DEFAULT_ID)
                 .setTitle(screeningPlanDTO.getTitle())
-                .setContent(screeningPlanDTO.getContent())
+                .setContent(Optional.ofNullable(screeningPlanDTO.getContent()).orElse(StrUtil.EMPTY))
                 .setStartTime(DateFormatUtil.parseDate(screeningPlanDTO.getStartTime(), SchoolConstant.START_TIME,DatePattern.NORM_DATETIME_PATTERN))
                 .setEndTime(DateFormatUtil.parseDate(screeningPlanDTO.getEndTime(),SchoolConstant.END_TIME,DatePattern.NORM_DATETIME_PATTERN))
                 .setGovDeptId(CommonConst.DEFAULT_ID)

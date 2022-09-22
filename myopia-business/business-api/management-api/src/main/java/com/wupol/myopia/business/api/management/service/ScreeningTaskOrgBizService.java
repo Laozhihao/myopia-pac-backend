@@ -21,6 +21,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
@@ -277,13 +278,13 @@ public class ScreeningTaskOrgBizService {
         AtomicInteger underWay = new AtomicInteger(0);
         AtomicInteger end = new AtomicInteger(0);
         schoolStatus.forEach(item->{
-            if(ScreeningPlanSchool.NOT_START.equals(item)){
+            if(Objects.equals(ScreeningConstant.NOT_START,item)){
                 notStart.addAndGet(1);
             }
-            if(ScreeningPlanSchool.END.equals(item)){
+            if(Objects.equals(ScreeningConstant.END,item)){
                 end.addAndGet(1);
             }
-            if(ScreeningPlanSchool.IN_PROGRESS.equals(item)){
+            if(Objects.equals(ScreeningConstant.IN_PROGRESS,item)){
                 underWay.addAndGet(1);
             }
         });

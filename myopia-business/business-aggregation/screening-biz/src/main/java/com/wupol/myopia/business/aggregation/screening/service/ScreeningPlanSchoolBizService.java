@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -11,6 +10,7 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -189,24 +188,23 @@ public class ScreeningPlanSchoolBizService {
      * 获得问卷完成学校的状态
      *
      * @return
-     * @throws IOException
      */
     public String getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
         if (plan.getEndTime().getTime() <= System.currentTimeMillis()) {
-            return ScreeningPlanSchool.END;
+            return ScreeningConstant.END;
         } else if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
-            return ScreeningPlanSchool.NOT_START;
+            return ScreeningConstant.NOT_START;
         } else if (!userRecordToStudentEnvironmentMap.get(schoolId).isEmpty()) {
-            return ScreeningPlanSchool.IN_PROGRESS;
+            return ScreeningConstant.IN_PROGRESS;
         }
-        return ScreeningPlanSchool.IN_PROGRESS;
+        return ScreeningConstant.IN_PROGRESS;
     }
 
     public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(), new Date()) > 0){
-            return ScreeningPlanSchool.END;
+        if (screeningPlan.getEndTime().getTime() <= System.currentTimeMillis()){
+            return ScreeningConstant.END;
         }
         int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(schoolId));
-        return count > 0 ? ScreeningPlanSchool.IN_PROGRESS : ScreeningPlanSchool.NOT_START;
+        return count > 0 ? ScreeningConstant.IN_PROGRESS : ScreeningConstant.NOT_START;
     }
 }

@@ -398,10 +398,23 @@ public class VisionScreeningService {
      * @param screeningPlanId 筛查计划ID
      * @param gradeIds 年级ID集合
      * @param school 学校信息
+     * @param isAdd 是否新增
      */
     private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school,boolean isAdd){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
-        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(gradeIds);
+        return getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school,isAdd);
+    }
+
+    /**
+     * 获取筛查计划学校学生
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolStudentList 学校学生集合
+     * @param school 学校信息
+     * @param isAdd 是否新增
+     */
+    public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school,boolean isAdd){
+        Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
+        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
         if (Objects.nonNull(screeningPlanId)){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);

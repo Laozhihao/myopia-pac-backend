@@ -857,6 +857,6 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
             }
         });
-        saveOrUpdateBatch(twoTuple.getFirst());
+        saveOrUpdateBatch(screeningPlanSchoolStudentList);
     }
 }
