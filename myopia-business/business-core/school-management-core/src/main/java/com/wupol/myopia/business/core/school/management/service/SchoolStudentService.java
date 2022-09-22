@@ -172,7 +172,18 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         List<SchoolStudent> studentList = baseMapper.getByIdCardAndSnoAndPassport(id, idCard, sno, passport, schoolId);
         return CollectionUtils.isEmpty(studentList);
     }
-
+    /**
+     * 获取 学号、身份证、护照重复数据
+     *
+     * @param id       id
+     * @param idCard   身份证
+     * @param sno      学号
+     * @param passport 护照
+     * @param schoolId 学校Id
+     */
+    public List<SchoolStudent> listByIdCardAndSnoAndPassport(Integer id, String idCard, String sno, String passport, Integer schoolId) {
+        return baseMapper.getByIdCardAndSnoAndPassport(id, idCard, sno, passport, schoolId);
+    }
     /**
      * 通过身份证、护照获取学生信息
      *

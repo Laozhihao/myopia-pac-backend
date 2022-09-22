@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -1343,9 +1344,7 @@ public class StudentFacade {
      */
     public void setSchoolStudentInfo(SchoolStudent schoolStudent, Integer schoolId) {
         schoolStudent.checkStudentInfo();
-        if (!schoolStudentService.getByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId)) {
-            throw new BusinessException("学号、身份证、护照重复");
-        }
+        checkSnoAndIdCardAndPassport(schoolStudent, schoolId);
         schoolStudent.setSchoolId(schoolId);
         SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
         schoolStudent.setGradeName(grade.getName());
@@ -1357,6 +1356,29 @@ public class StudentFacade {
         if (Objects.nonNull(havaDeletedStudent)) {
             schoolStudent.setId(havaDeletedStudent.getId());
             schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        }
+    }
+
+    /**
+     * 检查学号、身份证、护照是否重复
+     * @param schoolStudent
+     * @param schoolId
+     */
+    private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
+        if (CollUtil.isNotEmpty(schoolStudentList)){
+            List<SchoolStudent> snoList = schoolStudentList.stream().filter(student -> Objects.equals(student.getSno(), schoolStudent.getSno())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(snoList)){
+                throw new BusinessException("学号重复");
+            }
+            List<SchoolStudent> idCardList = schoolStudentList.stream().filter(student -> Objects.equals(student.getIdCard(), schoolStudent.getIdCard())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(idCardList)){
+                throw new BusinessException("身份证重复");
+            }
+            List<SchoolStudent> passportList = schoolStudentList.stream().filter(student -> Objects.equals(student.getPassport(), schoolStudent.getPassport())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(passportList)){
+                throw new BusinessException("护照重复");
+            }
         }
     }
 
@@ -1425,7 +1447,7 @@ public class StudentFacade {
             StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
             BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
             studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
-            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
+            studentWarningArchiveVO.setLowVision(getLowVision(conclusion.getIsLowVision()));
             // 筛查信息
             studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
             ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
@@ -1441,6 +1463,17 @@ public class StudentFacade {
         studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
         warningArchiveVoPage.setRecords(studentWarningArchiveVOList);
         return warningArchiveVoPage;
+    }
+
+    private Integer getLowVision(Boolean isLowVision){
+        if (Objects.isNull(isLowVision)){
+            return null;
+        }
+        if (Objects.equals(isLowVision,Boolean.TRUE)){
+            return 1;
+        }else {
+            return null;
+        }
     }
 
     /**
