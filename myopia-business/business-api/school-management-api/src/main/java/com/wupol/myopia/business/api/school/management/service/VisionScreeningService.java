@@ -390,7 +390,7 @@ public class VisionScreeningService {
         if (Objects.nonNull(screeningPlanDTO.getId())){
             screeningPlanSchoolDb = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanDTO.getId(),school.getId());
         }
-        return ScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school);
+        return ScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school,screeningPlanDTO.getGradeIds());
     }
 
     /**
@@ -433,8 +433,17 @@ public class VisionScreeningService {
         if (DateUtil.isDateBeforeToday(screeningPlan.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
+        //校验同一个学校相同时间段内只能创建1个筛查计划
+        if (Objects.equals(screeningPlanService.checkTimeLegal(screeningPlan),Boolean.TRUE)){
+            throw new BusinessException("学校该时间段已存在筛查计划");
+        }
+        //校验同一个学校下，筛查标题唯一性，要进行校验，标题不能相同。
+        if (Objects.equals(screeningPlanService.checkTitleExist(screeningPlan),Boolean.TRUE)){
+            throw new BusinessException("学校已存在相同标题筛查计划");
+        }
         screeningPlanService.release(screeningPlan, currentUser);
     }
+
 
     /**
      * 校验是否存在和权限
@@ -449,7 +458,7 @@ public class VisionScreeningService {
         }
         ScreeningPlan screeningPlan = validateExist(screeningPlanId);
         if (!(Objects.equals(screeningPlan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()) && Objects.equals(user.getOrgId(),screeningPlan.getScreeningOrgId()))){
-            throw new BusinessException("无该筛查机构权限");
+            throw new BusinessException("该筛查机构无权限");
         }
         return screeningPlan;
     }

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -71,17 +72,19 @@ public class ScreeningPlanBuilder {
      * @param screeningPlanSchoolDb 数据库的筛查计划学校
      * @param school 学校对象
      */
-    public ScreeningPlanSchool buildScreeningPlanSchool(ScreeningPlanSchool screeningPlanSchoolDb, School school) {
+    public ScreeningPlanSchool buildScreeningPlanSchool(ScreeningPlanSchool screeningPlanSchoolDb, School school,List<Integer> gradeIds) {
 
         if (Objects.nonNull(screeningPlanSchoolDb)){
             screeningPlanSchoolDb.setSchoolName(school.getName());
+            screeningPlanSchoolDb.setScreeningGradeIds(CollUtil.join(gradeIds, StrUtil.COMMA));
             return screeningPlanSchoolDb;
         }
 
         return new ScreeningPlanSchool()
                 .setScreeningOrgId(school.getId())
                 .setSchoolId(school.getId())
-                .setSchoolName(school.getName());
+                .setSchoolName(school.getName())
+                .setScreeningGradeIds(CollUtil.join(gradeIds, StrUtil.COMMA));
     }
 
     /**

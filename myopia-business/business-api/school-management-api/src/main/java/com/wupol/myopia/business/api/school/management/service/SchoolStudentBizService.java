@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
@@ -11,32 +12,27 @@ import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
-import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -70,6 +66,8 @@ public class SchoolStudentBizService {
     private SchoolFacade schoolFacade;
     @Resource
     private SchoolGradeService schoolGradeService;
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 获取学生列表
@@ -145,79 +143,82 @@ public class SchoolStudentBizService {
         if (Objects.isNull(screeningPlanId)){
             return gradeInfoVO;
         }
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
-        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        List<Integer> screeningGradeIds = getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+
+        if (CollUtil.isEmpty(screeningGradeIds)){
             //已选中的为空，未选中的就是等于全部的
             gradeInfoVO.setNoSelectList(gradeInfoVOList);
             return gradeInfoVO;
         }
-
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
         //已选中的年级+学生数
-        List<GradeInfoVO.GradeInfo> planGradeInfoList = getGradeInfos(gradeInfoVO, screeningPlanSchoolStudentList);
+        planGradeInfoList(gradeInfoVO, screeningPlanSchoolStudentList,screeningGradeIds);
 
         //未选中的年级+学生数（全部的-已选中的）
-        setNoSelectStudent(gradeInfoVO, gradeInfoVOList, planGradeInfoList);
+        setNoSelectStudent(gradeInfoVO, gradeInfoVOList, screeningGradeIds);
         return gradeInfoVO;
+    }
+
+    /**
+     * 获取筛查年级ID集合
+     * @param screeningGradeIds 筛查年级ID集合
+     */
+    private List<Integer> getScreeningGradeIds(String screeningGradeIds){
+        if (StrUtil.isBlank(screeningGradeIds)){
+            return Lists.newArrayList();
+        }
+        return Arrays.stream(screeningGradeIds.split(StrUtil.COMMA))
+                .map(Integer::valueOf).collect(Collectors.toList());
     }
 
     /**
      * 设置未选中的年级+学生数
      * @param gradeInfoVO 年级信息对象
      * @param gradeInfoVOList 全部的年级+学生数对象集合
-     * @param planGradeInfoList 选中的年级+学生数对象集合
+     * @param screeningGradeIds 选中的年级ID集合
      */
-    private void setNoSelectStudent(GradeInfoVO gradeInfoVO, List<GradeInfoVO.GradeInfo> gradeInfoVOList, List<GradeInfoVO.GradeInfo> planGradeInfoList) {
-        Map<Integer, GradeInfoVO.GradeInfo> planGradeInfoMap = planGradeInfoList.stream().collect(Collectors.toMap(GradeInfoVO.GradeInfo::getGradeId, Function.identity()));
+    private void setNoSelectStudent(GradeInfoVO gradeInfoVO, List<GradeInfoVO.GradeInfo> gradeInfoVOList, List<Integer> screeningGradeIds) {
         //未选中年级+学生数
         List<GradeInfoVO.GradeInfo> noSelectList = Lists.newArrayList();
-        gradeInfoVOList.forEach(gradeInfo -> getNoSelect(planGradeInfoMap, noSelectList, gradeInfo));
+        gradeInfoVOList.forEach(gradeInfo -> {
+            if (!screeningGradeIds.contains(gradeInfo.getGradeId())){
+                noSelectList.add(gradeInfo);
+            }
+        });
         gradeInfoVO.setNoSelectList(noSelectList);
     }
 
-    /**
-     * 获取未选中的年级+学生数
-     * @param planGradeInfoMap 选中的年级+学生数对象集合
-     * @param noSelectList 未选中年级+学生数
-     * @param gradeInfo 全部的年级+学生数
-     */
-    private void getNoSelect(Map<Integer, GradeInfoVO.GradeInfo> planGradeInfoMap, List<GradeInfoVO.GradeInfo> noSelectList, GradeInfoVO.GradeInfo gradeInfo) {
-        GradeInfoVO.GradeInfo planGradeInfo = planGradeInfoMap.get(gradeInfo.getGradeId());
-        if (Objects.isNull(planGradeInfo)){
-            noSelectList.add(gradeInfo);
-            return;
-        }
-        int noSelectNum = gradeInfo.getStudentNum() - planGradeInfo.getStudentNum();
-        if (noSelectNum > 0){
-            GradeInfoVO.GradeInfo noSelect = ObjectUtil.cloneByStream(gradeInfo);
-            noSelect.setStudentNum(noSelectNum);
-            noSelectList.add(noSelect);
-        }
-    }
 
     /**
      * 获取已选中的年级+学生数
      * @param gradeInfoVO 年级信息对象
      * @param screeningPlanSchoolStudentList 筛查计划学生集合
      */
-    private List<GradeInfoVO.GradeInfo> getGradeInfos(GradeInfoVO gradeInfoVO, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList) {
-        Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
-        List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(gradePlanSchoolStudentMap.keySet());
+    private void planGradeInfoList(GradeInfoVO gradeInfoVO, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList,List<Integer> screeningGradeIds) {
+        Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningPlanSchoolStudentList)){
+            Map<Integer, List<ScreeningPlanSchoolStudent>> map = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
+            gradePlanSchoolStudentMap.putAll(map);
+        }
+        List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(screeningGradeIds);
         Map<Integer, SchoolGrade> gradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-        List<GradeInfoVO.GradeInfo> planGradeInfoList = gradePlanSchoolStudentMap.entrySet().stream().map(entry -> buildGradeInfo(entry, gradeMap)).collect(Collectors.toList());
+        List<GradeInfoVO.GradeInfo> planGradeInfoList = screeningGradeIds.stream().map(gradeId -> buildGradeInfo(gradeId, gradeMap,gradePlanSchoolStudentMap)).collect(Collectors.toList());
         gradeInfoVO.setSelectList(planGradeInfoList);
-        return planGradeInfoList;
     }
 
     /**
      * 构建年级信息对象
-     * @param entry 筛查计划的学生集合
+     * @param gradeId 年级ID
      * @param gradeMap 年级集合
+     * @param gradePlanSchoolStudentMap 年级学生集合
      */
-    private GradeInfoVO.GradeInfo buildGradeInfo(Map.Entry<Integer, List<ScreeningPlanSchoolStudent>> entry, Map<Integer, SchoolGrade> gradeMap) {
+    private GradeInfoVO.GradeInfo buildGradeInfo(Integer gradeId, Map<Integer, SchoolGrade> gradeMap,Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap) {
         GradeInfoVO.GradeInfo gradeInfo = new GradeInfoVO.GradeInfo();
-        gradeInfo.setGradeId(entry.getKey());
-        gradeInfo.setGradeName(gradeMap.get(entry.getKey()).getName());
-        gradeInfo.setStudentNum(entry.getValue().size());
+        gradeInfo.setGradeId(gradeId);
+        gradeInfo.setGradeName(gradeMap.get(gradeId).getName());
+        gradeInfo.setStudentNum(gradePlanSchoolStudentMap.getOrDefault(gradeId,Lists.newArrayList()).size());
         return gradeInfo;
     }
 

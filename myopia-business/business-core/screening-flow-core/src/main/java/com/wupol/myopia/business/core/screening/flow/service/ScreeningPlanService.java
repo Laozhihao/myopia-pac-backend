@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
@@ -428,5 +430,35 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
             screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId());
         }
+    }
+
+    /**
+     * 检查筛查时间段
+     * @param screeningPlan 筛查计划
+     */
+    public Boolean checkTimeLegal(ScreeningPlan screeningPlan) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getScreeningType, screeningPlan.getScreeningType())
+                .eq(ScreeningPlan::getScreeningOrgId, screeningPlan.getScreeningOrgId())
+                .eq(ScreeningPlan::getScreeningOrgType, ScreeningOrgTypeEnum.SCHOOL.getType())
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE)
+                .le(ScreeningPlan::getStartTime, screeningPlan.getEndTime())
+                .ge(ScreeningPlan::getEndTime, screeningPlan.getStartTime());
+
+        return CollUtil.isNotEmpty(baseMapper.selectList(queryWrapper));
+    }
+
+    /**
+     * 检查筛查标题
+     * @param screeningPlan 筛查计划
+     */
+    public Boolean checkTitleExist(ScreeningPlan screeningPlan) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getTitle, screeningPlan.getTitle())
+                .eq(ScreeningPlan::getScreeningOrgId, screeningPlan.getScreeningOrgId())
+                .eq(ScreeningPlan::getScreeningOrgType, ScreeningOrgTypeEnum.SCHOOL.getType())
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+
+        return CollUtil.isNotEmpty(baseMapper.selectList(queryWrapper));
     }
 }

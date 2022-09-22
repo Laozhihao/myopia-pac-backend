@@ -57,6 +57,11 @@ public class ScreeningPlanSchool implements Serializable {
     private String schoolName;
 
     /**
+     * 筛查计划--筛查年级ID集合
+     */
+    private String screeningGradeIds;
+
+    /**
      * 机构质控员名字
      */
     @Length(max = 15)
