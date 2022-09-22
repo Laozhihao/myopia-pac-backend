@@ -1301,15 +1301,15 @@ public class StudentFacade {
         Integer studentId = saveStudent(student);
         // TODO: JS2.02.01-1学校管理后台-自主筛查 ,管理后台-多端管理-用户管理（学生）不同步到学校管理后台
 
-        if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {
-            return studentId;
-        }
-        SchoolStudent schoolStudent = new SchoolStudent();
-        BeanUtils.copyProperties(student, schoolStudent);
-        schoolStudent.setId(null);
-        schoolStudent.setStudentId(studentId);
-        setSchoolStudentInfo(schoolStudent, student.getSchoolId());
-        schoolStudentService.saveOrUpdate(schoolStudent);
+//        if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {
+//            return studentId;
+//        }
+//        SchoolStudent schoolStudent = new SchoolStudent();
+//        BeanUtils.copyProperties(student, schoolStudent);
+//        schoolStudent.setId(null);
+//        schoolStudent.setStudentId(studentId);
+//        setSchoolStudentInfo(schoolStudent, student.getSchoolId());
+//        schoolStudentService.saveOrUpdate(schoolStudent);
         return studentId;
     }
 
