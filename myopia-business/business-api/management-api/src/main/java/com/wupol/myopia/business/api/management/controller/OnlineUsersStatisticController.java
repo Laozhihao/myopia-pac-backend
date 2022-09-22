@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -81,6 +82,6 @@ public class OnlineUsersStatisticController {
         if (CollectionUtils.isEmpty(userNameList)) {
             return Collections.emptyList();
         }
-        return userNameList.stream().map(Object::toString).collect(Collectors.toList());
+        return userNameList.stream().map(JSONObject::toJSONString).collect(Collectors.toList());
     }
 }

@@ -28,8 +28,8 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
     @Autowired
     private RedisUtil redisUtil;
 
-    /** 有效时间：五分钟 5*60 **/
-    private static final long ONLINE_USERS_EXPIRED = 300L;
+    /** 有效时间：三分钟 = 3 * 60 **/
+    private static final long ONLINE_USERS_EXPIRED = 180L;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -41,13 +41,13 @@ public class OnlineUserStatisticFilter implements GlobalFilter, Ordered {
             CurrentUser currentUser = JSON.parseObject(user, CurrentUser.class);
             if (Objects.nonNull(currentUser)) {
                 String format = String.format(onlineUsersNum, currentUser.getClientId(), currentUser.getId());
-                redisUtil.set(format,currentUser.getRealName(),ONLINE_USERS_EXPIRED);
+                redisUtil.set(format, Objects.isNull(currentUser.getRealName()) ? currentUser.getId() : currentUser.getRealName(), ONLINE_USERS_EXPIRED);
             }
         } else {
-            // 无token的访问，例如白名单中的接口（家长端入口、报告端均有），统一归为同一个端
+            // 无token的访问，例如各个端的白名单中的接口，统一归为同一个端
             String ip = RequestUtil.getIP(request);
             String format = String.format(onlineUsersNum, -1, ip);
-            redisUtil.set(format, ip + ", " + request.getURI().getPath(), ONLINE_USERS_EXPIRED);
+            redisUtil.set(format, ip + ", " + request.getPath().toString(), ONLINE_USERS_EXPIRED);
         }
         return chain.filter(exchange);
     }
