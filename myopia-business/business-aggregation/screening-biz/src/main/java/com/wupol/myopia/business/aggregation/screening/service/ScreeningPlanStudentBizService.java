@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
@@ -169,7 +171,7 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
             fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
         }
-        List<ScreeningStudentDTO> planStudents = getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
+        List<ScreeningStudentDTO> planStudents = getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName,null);
         for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
             planStudent.setNoticeQrCodeFileUrl(fileUrl);
@@ -255,7 +257,7 @@ public class ScreeningPlanStudentBizService {
                                 isSchoolClient);
                         String fileName = SCREENING_NAME;
                         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
-                        log.info("response:{}", JSONObject.toJSONString(pdfResponseDTO));
+                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
                         try {
                             FileUtils.downloadFile(pdfResponseDTO.getUrl(),
                                     fileSaveParentPath +
@@ -368,9 +370,36 @@ public class ScreeningPlanStudentBizService {
      * @param planStudentName  学生名称
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName,Boolean isData) {
         List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
-        return screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Collections.singletonList(planId), schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
+
+        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(planId), schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
+        if (Objects.equals(Boolean.TRUE,isData)){
+            return getDataScreeningStudentDTOList(planId, schoolId, gradeId, classId, screeningStudentDTOList);
+        }
+        return screeningStudentDTOList;
+    }
+
+    /**
+     * 获取有数据的学生信息
+     * @param planId
+     * @param schoolId
+     * @param gradeId
+     * @param classId
+     * @param screeningStudentDTOList
+     */
+    private List<ScreeningStudentDTO> getDataScreeningStudentDTOList(Integer planId, Integer schoolId, Integer gradeId, Integer classId, List<ScreeningStudentDTO> screeningStudentDTOList) {
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
+        if (CollUtil.isEmpty(visionScreeningResultList)){
+            return Lists.newArrayList();
+        }
+        Set<Integer> planSchoolStudentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planSchoolStudentIds));
+        Set<Integer> planStudentIds = screeningPlanSchoolStudentList.stream()
+                .filter(screeningPlanSchoolStudent -> Objects.equals(screeningPlanSchoolStudent.getGradeId(), gradeId))
+                .filter(screeningPlanSchoolStudent -> Objects.equals(screeningPlanSchoolStudent.getClassId(), classId))
+                .map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toSet());
+        return screeningStudentDTOList.stream().filter(screeningStudentDTO -> planStudentIds.contains(screeningStudentDTO.getPlanStudentId())).collect(Collectors.toList());
     }
 
     /**
@@ -415,7 +444,7 @@ public class ScreeningPlanStudentBizService {
         if (!CollectionUtils.isEmpty(planStudents)) {
             DeletedArchive deletedArchive = new DeletedArchive();
             deletedArchive.setType(DeletedArchive.PLAN_STUDENT_TYPE);
-            deletedArchive.setContent(JSONObject.toJSONString(planStudents));
+            deletedArchive.setContent(JSON.toJSONString(planStudents));
             deletedArchiveService.save(deletedArchive);
         }
     }

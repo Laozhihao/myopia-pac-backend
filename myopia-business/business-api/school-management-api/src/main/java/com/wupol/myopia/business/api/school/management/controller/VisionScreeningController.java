@@ -131,9 +131,9 @@ public class VisionScreeningController {
      * @return List<SchoolGradeVo>
      */
     @GetMapping("grades/{screeningPlanId}")
-    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId) {
+    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId,Boolean isData) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, currentUser.getOrgId());
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, currentUser.getOrgId(),isData);
     }
 
     /**
@@ -311,25 +311,6 @@ public class VisionScreeningController {
         redisUtil.set(key, 1, 86400L);
     }
 
-    /**
-     * 通过条件获取筛查学生
-     *
-     * @param planId         计划Id
-     * @param schoolId       学校Id
-     * @param gradeId        年级Id
-     * @param classId        班级Id
-     * @param orgId          筛查机构Id
-     * @param planStudentIds 筛查学生Id
-     * @param isSchoolClient 是否学校端
-     * @return List<ScreeningStudentDTO>
-     */
-    @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId,
-                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-                                                                     String planStudentIds, @NotNull(message = "查询类型不能为空") Boolean isSchoolClient,
-                                                                     String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient, planStudentName);
-    }
 
     /**
      * 异步导出学生报告
@@ -373,8 +354,8 @@ public class VisionScreeningController {
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult/list")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName,Boolean isData) {
+        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName,isData);
     }
 
     /**
