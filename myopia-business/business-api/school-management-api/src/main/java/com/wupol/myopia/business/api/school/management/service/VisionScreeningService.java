@@ -205,7 +205,7 @@ public class VisionScreeningService {
      * 获取筛查结果数
      * @param planIds 筛查计划ID集合
      */
-    private Map<Integer, Integer> getVisionScreeningResultMap(List<Integer> planIds) {
+    public Map<Integer, Integer> getVisionScreeningResultMap(List<Integer> planIds) {
         Map<Integer,Integer> visionScreeningResultMap = Maps.newHashMap();
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIds(planIds);
         if (CollUtil.isEmpty(visionScreeningResultList)){

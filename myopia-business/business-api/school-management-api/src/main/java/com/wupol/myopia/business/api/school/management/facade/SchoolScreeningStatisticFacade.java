@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.school.management.facade;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -51,7 +53,10 @@ public class SchoolScreeningStatisticFacade {
         }else {
             screeningOrg =TwoTuple.of(screeningPlan.getScreeningOrgId(),screeningOrganizationService.getNameById(screeningPlan.getScreeningOrgId()));
         }
-        return buildScreeningPlanVO(screeningPlan,screeningOrg,schoolGradeList);
+
+        Map<Integer, Integer> visionScreeningResultMap = visionScreeningService.getVisionScreeningResultMap(Lists.newArrayList(screeningPlanId));
+        Integer screeningStatus = VisionScreeningService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus(), visionScreeningResultMap.get(screeningPlanId));
+        return buildScreeningPlanVO(screeningPlan,screeningOrg,schoolGradeList,screeningStatus);
     }
 
     /**
@@ -60,7 +65,7 @@ public class SchoolScreeningStatisticFacade {
      * @param screeningOrg
      * @param schoolGradeList
      */
-    private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,TwoTuple<Integer,String> screeningOrg,List<SchoolGrade> schoolGradeList) {
+    private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,TwoTuple<Integer,String> screeningOrg,List<SchoolGrade> schoolGradeList,Integer screeningStatus) {
         List<Integer> optionTabs = schoolGradeList.stream().map(this::getSchoolType).filter(Objects::nonNull).distinct().sorted(Comparator.comparing(Integer::intValue).reversed()).collect(Collectors.toList());
 
         return new ScreeningPlanVO()
@@ -70,7 +75,7 @@ public class SchoolScreeningStatisticFacade {
                 .setEndTime(screeningPlan.getEndTime())
                 .setScreeningType(screeningPlan.getScreeningType())
                 .setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())
-                .setStatus(VisionScreeningService.setMergeStatus(screeningPlan.getReleaseStatus(),ScreeningOrganizationService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus())))
+                .setStatus(VisionScreeningService.setMergeStatus(screeningPlan.getReleaseStatus(),screeningStatus))
                 .setScreeningOrgName(screeningOrg.getSecond())
                 .setScreeningOrgId(screeningOrg.getFirst())
                 .setOptionTabs(optionTabs);
