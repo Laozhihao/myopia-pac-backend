@@ -23,7 +23,7 @@ public class ScreeningPlanDTO implements Serializable {
      * 筛查计划--标题
      */
     @NotBlank(message = "筛查计划标题不能为空")
-    @Size(min = 1,max = 30,message = "筛查计划标题最大长度30字符")
+    @Size(min = 1,max = 25,message = "筛查计划标题最大长度25字符")
     private String title;
 
     /**

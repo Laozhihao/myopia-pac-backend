@@ -123,10 +123,11 @@ public class VisionScreeningService {
     public IPage<ScreeningListResponseDTO> getList(ScreeningPlanListDTO screeningPlanListDTO, Integer schoolId) {
 
         List<ScreeningOrganization> organizationList=Lists.newArrayList();
+
         //筛查机构名称条件查询
         if (StrUtil.isNotBlank(screeningPlanListDTO.getScreeningOrgName())){
             organizationList = screeningOrganizationService.getByNameLike(screeningPlanListDTO.getScreeningOrgName(), Boolean.FALSE);
-            boolean isContains = "本校".contains(screeningPlanListDTO.getScreeningOrgName());
+            boolean isContains = SchoolConstant.OUR_SCHOOL.contains(screeningPlanListDTO.getScreeningOrgName());
             if (CollUtil.isEmpty(organizationList) && Objects.equals(Boolean.FALSE,isContains)){
                 // 可以直接返回空
                 return new Page<>();
@@ -169,17 +170,7 @@ public class VisionScreeningService {
         Map<Integer, SchoolStatisticVO> schoolStatisticMap = schoolStatisticList.stream().collect(Collectors.toMap(SchoolStatisticVO::getScreeningPlanId, Function.identity(), (o, n) -> o));
 
         // 筛查机构
-        Map<Integer, ScreeningOrganization> orgMap = organizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
-        if (CollUtil.isEmpty(organizationList)){
-            Set<Integer> orgIds = schoolPlanList.stream()
-                    .filter(screeningListResponseDTO -> Objects.equals(screeningListResponseDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
-                    .map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toSet());
-            if (CollUtil.isNotEmpty(orgIds)){
-                List<ScreeningOrganization> screeningOrganizationList = screeningOrganizationService.getByIds(orgIds);
-                Map<Integer, ScreeningOrganization> collect = screeningOrganizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
-                orgMap.putAll(collect);
-            }
-        }
+        Map<Integer, ScreeningOrganization> orgMap = getScreeningOrganizationMap(organizationList, schoolPlanList);
 
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(schoolId);
         boolean hasScreeningResults = CollUtil.isNotEmpty(schoolGradeList);
@@ -199,6 +190,27 @@ public class VisionScreeningService {
 
         responseDTO.setRecords(schoolPlanList);
         return responseDTO;
+    }
+
+    /**
+     * 获取筛查机构
+     *
+     * @param organizationList
+     * @param schoolPlanList
+     */
+    private Map<Integer, ScreeningOrganization> getScreeningOrganizationMap(List<ScreeningOrganization> organizationList, List<ScreeningListResponseDTO> schoolPlanList) {
+        Map<Integer, ScreeningOrganization> orgMap = organizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+        if (CollUtil.isEmpty(organizationList)){
+            Set<Integer> orgIds = schoolPlanList.stream()
+                    .filter(screeningListResponseDTO -> Objects.equals(screeningListResponseDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                    .map(ScreeningListResponseDTO::getScreeningOrgId).collect(Collectors.toSet());
+            if (CollUtil.isNotEmpty(orgIds)){
+                List<ScreeningOrganization> screeningOrganizationList = screeningOrganizationService.getByIds(orgIds);
+                Map<Integer, ScreeningOrganization> collect = screeningOrganizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+                orgMap.putAll(collect);
+            }
+        }
+        return orgMap;
     }
 
     /**
@@ -227,9 +239,9 @@ public class VisionScreeningService {
             return MergeStatusEnum.NOT_RELEASE.getCode();
         }
         switch (screeningStatus){
+            default:
             case 0:
                 return MergeStatusEnum.NOT_START.getCode();
-            default:
             case 1:
                 return MergeStatusEnum.PROCESSING.getCode();
             case 2:
