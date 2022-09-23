@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -1367,20 +1368,37 @@ public class StudentFacade {
     private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
         List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
         if (CollUtil.isNotEmpty(schoolStudentList)){
-            List<SchoolStudent> snoList = schoolStudentList.stream().filter(student -> Objects.equals(student.getSno(), schoolStudent.getSno())).collect(Collectors.toList());
-            if(CollUtil.isNotEmpty(snoList)){
-                throw new BusinessException("学号重复");
-            }
-            List<SchoolStudent> idCardList = schoolStudentList.stream().filter(student -> Objects.equals(student.getIdCard(), schoolStudent.getIdCard())).collect(Collectors.toList());
-            if(CollUtil.isNotEmpty(idCardList)){
-                throw new BusinessException("身份证重复");
-            }
-            List<SchoolStudent> passportList = schoolStudentList.stream().filter(student -> Objects.equals(student.getPassport(), schoolStudent.getPassport())).collect(Collectors.toList());
-            if(CollUtil.isNotEmpty(passportList)){
-                throw new BusinessException("护照重复");
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学号重复");
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getIdCard,"身份证重复");
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getPassport,"护照重复");
+        }
+    }
+
+    /**
+     * 检查参数
+     * @param schoolStudent
+     * @param schoolStudentList
+     * @param function
+     * @param errorMsg
+     */
+    private void checkParam(SchoolStudent schoolStudent, List<SchoolStudent> schoolStudentList,Function<SchoolStudent,String> function,String errorMsg) {
+        if (StrUtil.isNotBlank(getValue(schoolStudent,function))){
+            List<SchoolStudent> schoolStudents = schoolStudentList.stream().filter(student -> Objects.equals(getValue(student,function),getValue(schoolStudent,function))).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(schoolStudents)){
+                throw new BusinessException(errorMsg);
             }
         }
     }
+
+    /**
+     * 获取学校学生的参数值
+     * @param schoolStudent
+     * @param function
+     */
+    private String getValue(SchoolStudent schoolStudent,Function<SchoolStudent,String> function){
+        return Optional.ofNullable(schoolStudent).map(function).orElse(null);
+    }
+
 
     /**
      * 通过学生Id获取学生信息
