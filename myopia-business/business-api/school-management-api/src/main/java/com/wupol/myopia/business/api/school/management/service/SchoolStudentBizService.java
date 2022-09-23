@@ -255,7 +255,7 @@ public class SchoolStudentBizService {
      * 获取筛查年级ID集合
      * @param screeningGradeIds 筛查年级ID集合
      */
-    private List<Integer> getScreeningGradeIds(String screeningGradeIds){
+    public static List<Integer> getScreeningGradeIds(String screeningGradeIds){
         if (StrUtil.isBlank(screeningGradeIds)){
             return Lists.newArrayList();
         }

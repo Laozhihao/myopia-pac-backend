@@ -294,6 +294,9 @@ public class SchoolFacade {
      */
     public TwoTuple<Map<Integer,SchoolGrade>,Map<Integer,SchoolClass>> getSchoolGradeAndClass(List<Integer> gradeIds){
         TwoTuple<Map<Integer,SchoolGrade>,Map<Integer,SchoolClass>> twoTuple = new TwoTuple<>();
+        if (CollUtil.isEmpty(gradeIds)){
+            return TwoTuple.of(Maps.newHashMap(),Maps.newHashMap());
+        }
         List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(gradeIds);
         if (CollUtil.isEmpty(schoolGradeList)){
             twoTuple.setFirst(Maps.newHashMap());

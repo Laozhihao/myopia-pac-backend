@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -852,6 +853,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
         deleteByStudentIds(twoTuple.getSecond());
+        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+            return;
+        }
         screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
             if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
                 screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);

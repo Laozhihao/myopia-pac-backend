@@ -644,9 +644,15 @@ public class VisionScreeningService {
      * 新增筛查学生
      * @param addScreeningStudentDTO 新增筛查学校对象
      */
+    @Transactional(rollbackFor = Exception.class)
     public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO) {
         School school = schoolService.getById(addScreeningStudentDTO.getSchoolId());
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school,Boolean.TRUE);
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(addScreeningStudentDTO.getScreeningPlanId(), school.getId());
+        List<Integer> screeningGradeIds = SchoolStudentBizService.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
+        screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds,StrUtil.COMMA));
+        screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
         screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
     }
 
