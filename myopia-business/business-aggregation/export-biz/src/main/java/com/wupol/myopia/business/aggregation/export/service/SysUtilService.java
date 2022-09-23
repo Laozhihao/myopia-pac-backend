@@ -2,6 +2,8 @@ package com.wupol.myopia.business.aggregation.export.service;
 
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import org.springframework.stereotype.Service;
@@ -43,9 +45,14 @@ public class SysUtilService {
      * @Date: 2022/1/17
      */
     public void isNoPlatformRepeatExport(String key, String lockKey) {
-        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
-            isExport(key, lockKey);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isPlatformAdminUser()) {
+            return;
         }
+        if (Objects.equals(currentUser.getClientId(), SystemCode.SCHOOL_CLIENT.getCode().toString())) {
+            return;
+        }
+        isExport(key, lockKey);
     }
 
     /**
