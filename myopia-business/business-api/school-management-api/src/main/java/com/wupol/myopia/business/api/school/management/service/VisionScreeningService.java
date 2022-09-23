@@ -648,11 +648,13 @@ public class VisionScreeningService {
     public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO) {
         School school = schoolService.getById(addScreeningStudentDTO.getSchoolId());
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school,Boolean.TRUE);
+        //新增学校年级
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(addScreeningStudentDTO.getScreeningPlanId(), school.getId());
         List<Integer> screeningGradeIds = SchoolStudentBizService.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
         screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds,StrUtil.COMMA));
         screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
+
         screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
     }
 
