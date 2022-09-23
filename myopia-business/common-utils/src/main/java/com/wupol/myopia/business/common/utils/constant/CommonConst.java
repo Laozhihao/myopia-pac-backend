@@ -230,4 +230,9 @@ public class CommonConst {
      */
     public static final String DATA_INTEGRITY_FINISH = "数据完整";
     public static final String DATA_INTEGRITY_MISS = "数据缺失";
+
+    /**
+     * 零值
+     */
+    public static final Long ZERO_L = 0L;
 }
