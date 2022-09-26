@@ -218,7 +218,7 @@ public class SchoolStaffFacade {
         Integer id = requestDTO.getId();
         // 是否超过配置
         if (Boolean.TRUE.equals(isMoreThanConfig(currentUser, schoolId))) {
-            throw new BusinessException("人数是否超出限制");
+            throw new BusinessException("人数超出限制");
         }
         // 检查身份证、手机是否重复
         if (Boolean.TRUE.equals(schoolStaffService.checkByPhone(requestDTO.getPhone(), id))) {
