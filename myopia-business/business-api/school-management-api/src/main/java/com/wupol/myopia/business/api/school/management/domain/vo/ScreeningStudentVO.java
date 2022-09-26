@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.domain.vo;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningStudentListVO;
 import lombok.Data;
 
 import java.io.Serializable;

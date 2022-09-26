@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.school.management.domain.builder;
+package com.wupol.myopia.business.aggregation.screening.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
@@ -9,10 +9,10 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.business.api.school.management.constant.EyeTypeEnum;
-import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
-import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.*;
+import com.wupol.myopia.business.aggregation.screening.constant.EyeTypeEnum;
+import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.*;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -31,7 +31,10 @@ import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,19 +48,19 @@ public class SchoolScreeningPlanBuilder {
 
     /**
      * 构建筛查计划
-     * @param screeningPlanDTO 筛查计划参数
+     * @param schoolScreeningPlanDTO 筛查计划参数
      * @param currentUser 当前用户
      * @param districtId 区域ID
      */
-    public ScreeningPlan buildScreeningPlan(ScreeningPlanDTO screeningPlanDTO, CurrentUser currentUser, Integer districtId) {
+    public ScreeningPlan buildScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Integer districtId) {
         return new ScreeningPlan()
-                .setId(screeningPlanDTO.getId())
+                .setId(schoolScreeningPlanDTO.getId())
                 .setSrcScreeningNoticeId(CommonConst.DEFAULT_ID)
                 .setScreeningTaskId(CommonConst.DEFAULT_ID)
-                .setTitle(screeningPlanDTO.getTitle())
-                .setContent(Optional.ofNullable(screeningPlanDTO.getContent()).orElse(StrUtil.EMPTY))
-                .setStartTime(DateFormatUtil.parseDate(screeningPlanDTO.getStartTime(), SchoolConstant.START_TIME,DatePattern.NORM_DATETIME_PATTERN))
-                .setEndTime(DateFormatUtil.parseDate(screeningPlanDTO.getEndTime(),SchoolConstant.END_TIME,DatePattern.NORM_DATETIME_PATTERN))
+                .setTitle(schoolScreeningPlanDTO.getTitle())
+                .setContent(Optional.ofNullable(schoolScreeningPlanDTO.getContent()).orElse(StrUtil.EMPTY))
+                .setStartTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME,DatePattern.NORM_DATETIME_PATTERN))
+                .setEndTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getEndTime(),SchoolConstant.END_TIME,DatePattern.NORM_DATETIME_PATTERN))
                 .setGovDeptId(CommonConst.DEFAULT_ID)
                 .setScreeningOrgId(currentUser.getOrgId())
                 .setScreeningOrgType(ScreeningOrgTypeEnum.SCHOOL.getType())
@@ -65,7 +68,7 @@ public class SchoolScreeningPlanBuilder {
                 .setReleaseStatus(CommonConst.STATUS_NOT_RELEASE)
                 .setCreateUserId(currentUser.getId())
                 .setOperatorId(currentUser.getId())
-                .setScreeningType(screeningPlanDTO.getScreeningType());
+                .setScreeningType(schoolScreeningPlanDTO.getScreeningType());
     }
 
     /**
@@ -97,7 +100,7 @@ public class SchoolScreeningPlanBuilder {
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
      */
     public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap,
-                                                                                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList,boolean isAdd) {
+                                                                                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList,Boolean isAdd) {
         if (CollUtil.isEmpty(screeningPlanSchoolStudentDbList)){
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(schoolStudentList, school, schoolGradeMap, schoolClassMap);
             return TwoTuple.of(screeningPlanSchoolStudentList, Lists.newArrayList());

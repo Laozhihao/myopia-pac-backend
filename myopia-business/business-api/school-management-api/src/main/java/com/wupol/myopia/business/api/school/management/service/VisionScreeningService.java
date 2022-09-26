@@ -15,16 +15,20 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
+import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningBizBuilder;
+import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningPlanBuilder;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolStatisticVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningStudentListVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
+import com.wupol.myopia.business.aggregation.screening.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
-import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
-import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningBizBuilder;
-import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
-import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
@@ -110,6 +114,8 @@ public class VisionScreeningService {
     private StatFacade statFacade;
     @Resource
     private SchoolStudentBizService schoolStudentBizService;
+    @Resource
+    private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
 
     /**
@@ -288,42 +294,42 @@ public class VisionScreeningService {
 
     /**
      * 保存筛查计划（创建/编辑）
-     * @param screeningPlanDTO 创建/编辑筛查计划对象
+     * @param schoolScreeningPlanDTO 创建/编辑筛查计划对象
      */
-    public void saveScreeningPlan(ScreeningPlanDTO screeningPlanDTO, CurrentUser currentUser) {
+    public void saveScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser) {
         // 校验用户机构，政府部门，无法新增计划
         if (currentUser.isGovDeptUser()) {
             throw new ValidationException("无权限");
         }
         // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(screeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
+        if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
-        ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(screeningPlanDTO, currentUser,school.getDistrictId());
+        ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId());
 
         //筛查计划学校
-        ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(screeningPlanDTO, school);
+        ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
 
         //筛查学生
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(screeningPlanDTO.getId(),screeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan,screeningPlanSchool,twoTuple);
     }
 
     /**
      * 获取筛查计划学校
-     * @param screeningPlanDTO 筛查计划参数
+     * @param schoolScreeningPlanDTO 筛查计划参数
      * @param school 学校信息
      */
-    private ScreeningPlanSchool getScreeningPlanSchool(ScreeningPlanDTO screeningPlanDTO,School school){
+    private ScreeningPlanSchool getScreeningPlanSchool(SchoolScreeningPlanDTO schoolScreeningPlanDTO, School school){
         //筛查计划学校
         ScreeningPlanSchool screeningPlanSchoolDb=null;
-        if (Objects.nonNull(screeningPlanDTO.getId())){
-            screeningPlanSchoolDb = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanDTO.getId(),school.getId());
+        if (Objects.nonNull(schoolScreeningPlanDTO.getId())){
+            screeningPlanSchoolDb = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(schoolScreeningPlanDTO.getId(),school.getId());
         }
-        return SchoolScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school,screeningPlanDTO.getGradeIds());
+        return SchoolScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school, schoolScreeningPlanDTO.getGradeIds());
     }
 
     /**
@@ -335,24 +341,7 @@ public class VisionScreeningService {
      */
     private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school,boolean isAdd){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
-        return getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school,isAdd);
-    }
-
-    /**
-     * 获取筛查计划学校学生
-     * @param screeningPlanId 筛查计划ID
-     * @param schoolStudentList 学校学生集合
-     * @param school 学校信息
-     * @param isAdd 是否新增
-     */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school,boolean isAdd){
-        Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
-        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
-        if (Objects.nonNull(screeningPlanId)){
-            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
-        }
-        return SchoolScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
+        return schoolScreeningBizFacade.getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school,isAdd);
     }
 
 
@@ -437,7 +426,7 @@ public class VisionScreeningService {
      * 处理筛查学生信息
      * @param schoolStudentPage 筛查学生分页对象
      */
-    private IPage<ScreeningStudentListVO> processScreeningStudentList(IPage<ScreeningPlanSchoolStudent> schoolStudentPage,Integer schoolId) {
+    private IPage<ScreeningStudentListVO> processScreeningStudentList(IPage<ScreeningPlanSchoolStudent> schoolStudentPage, Integer schoolId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = schoolStudentPage.getRecords();
         IPage<ScreeningStudentListVO> screeningStudentListVoPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize());
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){

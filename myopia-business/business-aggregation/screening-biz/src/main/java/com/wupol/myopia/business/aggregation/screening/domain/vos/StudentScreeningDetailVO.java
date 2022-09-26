@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.school.management.domain.vo;
+package com.wupol.myopia.business.aggregation.screening.domain.vos;
 
 import lombok.Data;
 

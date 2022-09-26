@@ -16,12 +16,14 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningPlanVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.domain.dto.*;
-import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.api.school.management.domain.vo.*;
 import com.wupol.myopia.business.api.school.management.facade.SchoolScreeningStatisticFacade;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
@@ -371,12 +373,12 @@ public class VisionScreeningController {
 
     /**
      * 创建/编辑筛查计划
-     * @param screeningPlanDTO 创建/编辑筛查计划对象
+     * @param schoolScreeningPlanDTO 创建/编辑筛查计划对象
      */
     @PostMapping("/save")
-    public void saveScreeningPlan(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO){
+    public void saveScreeningPlan(@RequestBody @Valid SchoolScreeningPlanDTO schoolScreeningPlanDTO){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        visionScreeningService.saveScreeningPlan(screeningPlanDTO,currentUser);
+        visionScreeningService.saveScreeningPlan(schoolScreeningPlanDTO,currentUser);
     }
 
     /**

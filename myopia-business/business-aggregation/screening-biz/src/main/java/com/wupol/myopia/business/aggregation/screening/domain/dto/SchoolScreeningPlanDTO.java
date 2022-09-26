@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.school.management.domain.dto;
+package com.wupol.myopia.business.aggregation.screening.domain.dto;
 
 import lombok.Data;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * @author hang.yuan 2022/9/13 14:39
  */
 @Data
-public class ScreeningPlanDTO implements Serializable {
+public class SchoolScreeningPlanDTO implements Serializable {
 
     private Integer id;
 

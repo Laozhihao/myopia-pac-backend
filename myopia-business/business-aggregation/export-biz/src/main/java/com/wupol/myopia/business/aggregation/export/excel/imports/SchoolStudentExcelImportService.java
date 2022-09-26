@@ -8,6 +8,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
+import com.wupol.myopia.business.aggregation.screening.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -49,18 +50,16 @@ public class SchoolStudentExcelImportService {
 
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private SchoolGradeService schoolGradeService;
-
     @Resource
     private StudentService studentService;
-
     @Resource
     private DistrictService districtService;
-
     @Resource
     private SchoolStudentService schoolStudentService;
+    @Resource
+    private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
     private static final String ERROR_MSG = "在系统中重复";
     private static final Integer PASSPORT_LENGTH = 7;
@@ -160,7 +159,22 @@ public class SchoolStudentExcelImportService {
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
         }
+
+        List<SchoolStudent> addSchoolStudentList = Lists.newArrayList();
+        if (CollUtil.isNotEmpty(schoolStudents)){
+            schoolStudents.forEach(schoolStudent -> {
+                boolean isAdd = Objects.isNull(schoolStudent.getId());
+                if (Objects.equals(isAdd,Boolean.TRUE)){
+                    addSchoolStudentList.add(schoolStudent);
+                }
+            });
+        }
+
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
+
+        if (CollUtil.isNotEmpty(addSchoolStudentList)){
+            addSchoolStudentList.forEach(schoolStudent -> schoolScreeningBizFacade.addScreeningStudent(schoolStudent,Boolean.TRUE));
+        }
     }
 
     /**

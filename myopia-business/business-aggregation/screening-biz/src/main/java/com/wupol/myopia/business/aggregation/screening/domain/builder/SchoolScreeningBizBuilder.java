@@ -1,12 +1,12 @@
-package com.wupol.myopia.business.api.school.management.domain.builder;
+package com.wupol.myopia.business.aggregation.screening.domain.builder;
 
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.api.school.management.constant.MergeStatusEnum;
-import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
-import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatisticVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
-import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentListVO;
+import com.wupol.myopia.business.aggregation.screening.constant.MergeStatusEnum;
+import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolStatisticVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningPlanVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningStudentListVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -178,9 +178,9 @@ public class SchoolScreeningBizBuilder {
      * @param schoolStudentIdMap 学校学生信息
      */
     public ScreeningStudentListVO getScreeningStudentListVO(TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass,
-                                                             Map<Integer, VisionScreeningResult> visionScreeningResultMap,
-                                                             ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
-                                                             Map<Integer, Integer> schoolStudentIdMap) {
+                                                            Map<Integer, VisionScreeningResult> visionScreeningResultMap,
+                                                            ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
+                                                            Map<Integer, Integer> schoolStudentIdMap) {
         VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(screeningPlanSchoolStudent.getId());
         SchoolGrade schoolGrade = schoolGradeAndClass.getFirst().get(screeningPlanSchoolStudent.getGradeId());
         SchoolClass schoolClass = schoolGradeAndClass.getSecond().get(screeningPlanSchoolStudent.getClassId());
