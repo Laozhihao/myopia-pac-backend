@@ -113,8 +113,8 @@ public class SchoolStudentExcelImportService {
 
         // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
-        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
 
