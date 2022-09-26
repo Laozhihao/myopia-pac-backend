@@ -3,6 +3,7 @@ package com.wupol.myopia.base.util;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.wupol.myopia.base.constant.OverviewConfigTypeKey;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,7 +22,9 @@ import java.util.stream.Collectors;
 public class OverviewConfigUtil {
 
     private static Map<String, Integer> getOverviewConfigMap() {
-        List<String> list = Lists.newArrayList("org", "hospital", "school");
+        List<String> list = Lists.newArrayList(OverviewConfigTypeKey.SCREENING_ORG.getKey(),
+                OverviewConfigTypeKey.HOSPITAL.getKey(),
+                OverviewConfigTypeKey.SCHOOL.getKey());
         HashMap<String, Integer> result = Maps.newHashMap();
         Integer type = 0;
         int size = list.size();

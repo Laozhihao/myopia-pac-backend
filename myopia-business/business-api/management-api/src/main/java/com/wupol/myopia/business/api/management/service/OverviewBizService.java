@@ -70,6 +70,7 @@ public class OverviewBizService {
         Overview overview = overviewService.getById(overviewId);
         OverviewDetailDTO detail = new OverviewDetailDTO();
         BeanUtils.copyProperties(overview, detail);
+        detail.setConfigTypeList(OverviewConfigUtil.configTypeList(overview.getConfigType()));
         packageBindInfo(detail);
         return detail;
     }

@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.constant.OverviewConfigType;
+import com.wupol.myopia.base.constant.OverviewConfigTypeKey;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -19,6 +20,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Overvi
 import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -172,15 +174,18 @@ public class OverviewController {
      * @param overview
      */
     private void clearOverview(OverviewRequestDTO overview) {
-        if (Objects.isNull(overview.getConfigType())) {
+        List<String> configTypeList = overview.getConfigTypeList();
+        if (CollectionUtils.isEmpty(configTypeList)) {
             return;
         }
-        // 配置筛查机构时，去除医院绑定信息
-        if (OverviewConfigType.SCREENING_ORG.getType().equals(overview.getConfigType())) {
-            overview.setHospitalIds(Collections.emptyList());
-            // 配置医院机构时，去除筛查机构绑定信息
-        } else if (OverviewConfigType.HOSPITAL.getType().equals(overview.getConfigType())) {
+        if (!configTypeList.contains(OverviewConfigTypeKey.SCREENING_ORG.getKey())) {
             overview.setScreeningOrganizationIds(Collections.emptyList());
+        }
+        if (!configTypeList.contains(OverviewConfigTypeKey.HOSPITAL.getKey())) {
+            overview.setHospitalIds(Collections.emptyList());
+        }
+        if (!configTypeList.contains(OverviewConfigTypeKey.SCHOOL.getKey())) {
+            overview.setSchoolIds(Collections.emptyList());
         }
     }
 

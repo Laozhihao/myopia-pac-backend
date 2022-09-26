@@ -86,7 +86,7 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         overviewHospitalService.batchSave(overview.getId(), overview.getHospitalIds());
         overviewScreeningOrganizationService.batchSave(overview.getId(), overview.getScreeningOrganizationIds());
         // 学校
-        overviewSchoolService.batchSave(overview.getId(), overview.getHospitalIds());
+        overviewSchoolService.batchSave(overview.getId(), overview.getSchoolIds());
 
         // oauth系统中增加总览机构状态信息
         oauthServiceClient.addOrganization(new Organization(overview.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -109,7 +109,7 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         super.updateById(overview);
         overviewHospitalService.updateBindInfo(overview.getId(), overview.getHospitalIds());
         overviewScreeningOrganizationService.updateBindInfo(overview.getId(), overview.getScreeningOrganizationIds());
-        overviewSchoolService.updateBindInfo(overview.getId(), overview.getScreeningOrganizationIds());
+        overviewSchoolService.updateBindInfo(overview.getId(), overview.getSchoolIds());
         removeOverviewCache(overview.getId());
 
         // 2.更新总览机构的账号权限及名称
