@@ -7,6 +7,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.api.school.management.constant.EyeTypeEnum;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
@@ -278,12 +279,12 @@ public class SchoolScreeningPlanBuilder {
 
         visionDataVoList.add(new VisionDataVO()
                 .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                .setNakedVision(getValueByBigDecimal(visionData.getLeftEyeData(), VisionDataDO.VisionData::getNakedVision))
-                .setCorrectedVision(getValueByBigDecimal(visionData.getLeftEyeData(), VisionDataDO.VisionData::getCorrectedVision)));
+                .setNakedVision(getValueByBigDecimal(visionData.getLeftEyeData(), VisionDataDO.VisionData::getNakedVision,SchoolConstant.SCALE_1,Boolean.FALSE))
+                .setCorrectedVision(getValueByBigDecimal(visionData.getLeftEyeData(), VisionDataDO.VisionData::getCorrectedVision,SchoolConstant.SCALE_1,Boolean.FALSE)));
         visionDataVoList.add(new VisionDataVO()
                 .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                .setNakedVision(getValueByBigDecimal(visionData.getRightEyeData(), VisionDataDO.VisionData::getNakedVision))
-                .setCorrectedVision(getValueByBigDecimal(visionData.getRightEyeData(), VisionDataDO.VisionData::getCorrectedVision)));
+                .setNakedVision(getValueByBigDecimal(visionData.getRightEyeData(), VisionDataDO.VisionData::getNakedVision,SchoolConstant.SCALE_1,Boolean.FALSE))
+                .setCorrectedVision(getValueByBigDecimal(visionData.getRightEyeData(), VisionDataDO.VisionData::getCorrectedVision,SchoolConstant.SCALE_1,Boolean.FALSE)));
 
         studentScreeningDetailVO.setVisionData(visionDataVoList);
     }
@@ -314,14 +315,14 @@ public class SchoolScreeningPlanBuilder {
 
         computerOptometryDataVoList.add(new ComputerOptometryDataVO()
                 .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                .setAxial(getComputerOptometryDataValue(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getAxial))
-                .setSph(getComputerOptometryDataValue(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getSph))
-                .setCyl(getComputerOptometryDataValue(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getCyl)));
+                .setAxial(getValueByBigDecimal(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getAxial,SchoolConstant.SCALE_0,Boolean.FALSE))
+                .setSph(getValueByBigDecimal(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getSph,SchoolConstant.SCALE_2,Boolean.TRUE))
+                .setCyl(getValueByBigDecimal(computerOptometry.getLeftEyeData(), ComputerOptometryDO.ComputerOptometry::getCyl,SchoolConstant.SCALE_2,Boolean.TRUE)));
         computerOptometryDataVoList.add(new ComputerOptometryDataVO()
                 .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                .setAxial(getComputerOptometryDataValue(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getAxial))
-                .setSph(getComputerOptometryDataValue(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getSph))
-                .setCyl(getComputerOptometryDataValue(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getCyl)));
+                .setAxial(getValueByBigDecimal(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getAxial,SchoolConstant.SCALE_0,Boolean.FALSE))
+                .setSph(getValueByBigDecimal(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getSph,SchoolConstant.SCALE_2,Boolean.TRUE))
+                .setCyl(getValueByBigDecimal(computerOptometry.getRightEyeData(), ComputerOptometryDO.ComputerOptometry::getCyl,SchoolConstant.SCALE_2,Boolean.TRUE)));
 
         studentScreeningDetailVO.setComputerOptometryData(computerOptometryDataVoList);
     }
@@ -402,21 +403,26 @@ public class SchoolScreeningPlanBuilder {
             otherDataVoList.get(1).setSlitLamp(SchoolConstant.NO_DATA);
         }else {
             otherDataVoList.get(0).setSlitLamp(getValueByBoolean(slitLampData.getLeftEyeData(), AbstractDiagnosisResult::isNormal));
-            otherDataVoList.get(0).setSlitLamp(getValueByBoolean(slitLampData.getRightEyeData(), AbstractDiagnosisResult::isNormal));
+            otherDataVoList.get(1).setSlitLamp(getValueByBoolean(slitLampData.getRightEyeData(), AbstractDiagnosisResult::isNormal));
         }
     }
 
-
-    private <T>String getValueByBigDecimal(T data, Function<T,BigDecimal> function){
-        return Optional.ofNullable(data).map(function).map(BigDecimal::toString).orElse(SchoolConstant.NO_DATA);
+    private <T>String getValueByBigDecimal(T data, Function<T,BigDecimal> function,int scale,Boolean symbol){
+        return Optional.ofNullable(data).map(function).map(bigDecimal -> {
+            BigDecimal decimalByFormat = BigDecimalUtil.getBigDecimalByFormat(bigDecimal, scale);
+            if (Objects.isNull(decimalByFormat)){
+                return null;
+            }else {
+                if (Objects.equals(symbol,Boolean.TRUE)){
+                    return BigDecimalUtil.moreThan(decimalByFormat,SchoolConstant.ZERO)?SchoolConstant.POSITIVE_SYMBOL+decimalByFormat.toString():decimalByFormat.toString();
+                }
+                return decimalByFormat.toString();
+            }
+        }).orElse(SchoolConstant.NO_DATA);
     }
 
     private <T>String getValueByString(T data, Function<T,String> function){
         return Optional.ofNullable(data).map(function).orElse(SchoolConstant.NO_DATA);
-    }
-
-    private <T>String getComputerOptometryDataValue(T data,Function<T,BigDecimal> function){
-        return Optional.ofNullable(data).map(function).map(BigDecimal::toString).orElse(SchoolConstant.NO_DATA);
     }
 
     private <T>String getValueByBoolean(T data,Function<T,Boolean> function){
@@ -446,8 +452,8 @@ public class SchoolScreeningPlanBuilder {
             return;
         }
 
-        heightAndWeightDataVO.setHeight(getValueByBigDecimal(heightAndWeightData, HeightAndWeightDataDO::getHeight));
-        heightAndWeightDataVO.setWeight(getValueByBigDecimal(heightAndWeightData, HeightAndWeightDataDO::getWeight));
+        heightAndWeightDataVO.setHeight(getValueByBigDecimal(heightAndWeightData, HeightAndWeightDataDO::getHeight,SchoolConstant.SCALE_1,Boolean.FALSE));
+        heightAndWeightDataVO.setWeight(getValueByBigDecimal(heightAndWeightData, HeightAndWeightDataDO::getWeight,SchoolConstant.SCALE_1,Boolean.FALSE));
         studentScreeningDetailVO.setHeightAndWeightData(heightAndWeightDataVO);
     }
 
@@ -526,14 +532,14 @@ public class SchoolScreeningPlanBuilder {
 
         pupilOptometryDataVoList.add(new PupilOptometryDataVO()
                 .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                .setAxial(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getAxial))
-                .setSph(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getSph))
-                .setCyl(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getCyl)));
+                .setAxial(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getAxial,SchoolConstant.SCALE_0,Boolean.FALSE))
+                .setSph(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getSph,SchoolConstant.SCALE_2,Boolean.TRUE))
+                .setCyl(getValueByBigDecimal(pupilOptometryData.getLeftEyeData(), PupilOptometryDataDO.PupilOptometryData::getCyl,SchoolConstant.SCALE_2,Boolean.TRUE)));
         pupilOptometryDataVoList.add(new PupilOptometryDataVO()
                 .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                .setAxial(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getAxial))
-                .setSph(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getSph))
-                .setCyl(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getCyl)));
+                .setAxial(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getAxial,SchoolConstant.SCALE_0,Boolean.FALSE))
+                .setSph(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getSph,SchoolConstant.SCALE_2,Boolean.TRUE))
+                .setCyl(getValueByBigDecimal(pupilOptometryData.getRightEyeData(), PupilOptometryDataDO.PupilOptometryData::getCyl,SchoolConstant.SCALE_2,Boolean.TRUE)));
 
         studentScreeningDetailVO.setPupilOptometryData(pupilOptometryDataVoList);
     }
@@ -559,10 +565,10 @@ public class SchoolScreeningPlanBuilder {
 
         eyePressureDataVoList.add(new EyePressureDataVO()
                 .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                .setPressure(getValueByBigDecimal(eyePressureData.getLeftEyeData(), EyePressureDataDO.EyePressureData::getPressure)));
+                .setPressure(getValueByBigDecimal(eyePressureData.getLeftEyeData(), EyePressureDataDO.EyePressureData::getPressure,SchoolConstant.SCALE_0,Boolean.FALSE)));
         eyePressureDataVoList.add(new EyePressureDataVO()
                 .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                .setPressure(getValueByBigDecimal(eyePressureData.getRightEyeData(), EyePressureDataDO.EyePressureData::getPressure)));
+                .setPressure(getValueByBigDecimal(eyePressureData.getRightEyeData(), EyePressureDataDO.EyePressureData::getPressure,SchoolConstant.SCALE_0,Boolean.FALSE)));
         studentScreeningDetailVO.setEyePressureData(eyePressureDataVoList);
     }
 }

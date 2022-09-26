@@ -19,5 +19,17 @@ public class SchoolConstant {
 
     public static final String OUR_SCHOOL = "本校";
 
+    /** 小数点位数*/
+    public static final Integer SCALE_0 = 0;
+    public static final Integer SCALE_1 = 1;
+    public static final Integer SCALE_2 = 2;
+
+
+    public static final String ZERO = "0";
+    /** 正号*/
+    public static final String POSITIVE_SYMBOL = "+";
+
+
+
 
 }
