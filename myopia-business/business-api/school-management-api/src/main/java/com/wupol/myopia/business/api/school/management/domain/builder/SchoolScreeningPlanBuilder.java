@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/9/14 17:17
  */
 @UtilityClass
-public class ScreeningPlanBuilder {
+public class SchoolScreeningPlanBuilder {
 
     /**
      * 构建筛查计划
@@ -127,7 +127,7 @@ public class ScreeningPlanBuilder {
      * @param screeningPlanSchoolStudentList 新增和更新筛查计划学校学生集合
      * @param addOrUpdateStudentIds 新增和更新学生ID集合
      */
-    private static void processAddAndUpdate(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+    private void processAddAndUpdate(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
                                             Map<Integer, SchoolClass> schoolClassMap, Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap,
                                             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList, List<Integer> addOrUpdateStudentIds) {
         if (CollUtil.isEmpty(schoolStudentList)){
@@ -155,7 +155,7 @@ public class ScreeningPlanBuilder {
      * @param schoolGradeMap 年级信息
      * @param schoolClassMap 班级信息
      */
-    private static List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap) {
+    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap) {
         return schoolStudentList.stream().map(schoolStudent -> {
                     SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
                     SchoolClass schoolClass = schoolClassMap.get(schoolStudent.getClassId());
@@ -257,7 +257,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param studentScreeningDetailVO 学生筛查结果详情（响应数据）
      */
-    private static void setVisionDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
+    private void setVisionDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         VisionDataDO visionData = studentScreeningResultDetail.getVisionData();
         List<VisionDataVO> visionDataVoList = Lists.newArrayList();
         if (Objects.isNull(visionData)){
@@ -294,7 +294,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param studentScreeningDetailVO 学生筛查结果详情（响应数据）
      */
-    private static void setComputerOptometryDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
+    private void setComputerOptometryDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         ComputerOptometryDO computerOptometry = studentScreeningResultDetail.getComputerOptometry();
         List<ComputerOptometryDataVO> computerOptometryDataVoList = Lists.newArrayList();
         if (Objects.isNull(computerOptometry)){
@@ -332,7 +332,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param studentScreeningDetailVO 学生筛查结果详情（响应数据）
      */
-    private static void setOtherDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
+    private void setOtherDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         List<OtherDataVO> otherDataVoList = Lists.newArrayList(new OtherDataVO(EyeTypeEnum.LEFT_EYE.getCode()),new OtherDataVO(EyeTypeEnum.RIGHT_EYE.getCode()));
         setSlitLampData(studentScreeningResultDetail, otherDataVoList);
         setOcularInspectionData(studentScreeningResultDetail, otherDataVoList);
@@ -346,7 +346,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private static void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
         OtherEyeDiseasesDO otherEyeDiseases = studentScreeningResultDetail.getOtherEyeDiseases();
         if (Objects.isNull(otherEyeDiseases)){
             otherDataVoList.get(0).setOtherEyeDiseases(SchoolConstant.NO_DATA);
@@ -362,7 +362,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private static void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
         FundusDataDO fundusData = studentScreeningResultDetail.getFundusData();
         if (Objects.isNull(fundusData)){
             otherDataVoList.get(0).setFundus(SchoolConstant.NO_DATA);
@@ -378,7 +378,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private static void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
         OcularInspectionDataDO ocularInspectionData = studentScreeningResultDetail.getOcularInspectionData();
         if (Objects.isNull(ocularInspectionData)){
             otherDataVoList.get(0).setOcularInspection(SchoolConstant.NO_DATA);
@@ -395,7 +395,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private static void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
         SlitLampDataDO slitLampData = studentScreeningResultDetail.getSlitLampData();
         if (Objects.isNull(slitLampData)){
             otherDataVoList.get(0).setSlitLamp(SchoolConstant.NO_DATA);
@@ -407,15 +407,15 @@ public class ScreeningPlanBuilder {
     }
 
 
-    private static <T>String getValueByBigDecimal(T data, Function<T,BigDecimal> function){
+    private <T>String getValueByBigDecimal(T data, Function<T,BigDecimal> function){
         return Optional.ofNullable(data).map(function).map(BigDecimal::toString).orElse(SchoolConstant.NO_DATA);
     }
 
-    private static <T>String getValueByString(T data, Function<T,String> function){
+    private <T>String getValueByString(T data, Function<T,String> function){
         return Optional.ofNullable(data).map(function).orElse(SchoolConstant.NO_DATA);
     }
 
-    private static <T>String getComputerOptometryDataValue(T data,Function<T,BigDecimal> function){
+    private <T>String getComputerOptometryDataValue(T data,Function<T,BigDecimal> function){
         return Optional.ofNullable(data).map(function).map(BigDecimal::toString).orElse(SchoolConstant.NO_DATA);
     }
 
@@ -506,7 +506,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param studentScreeningDetailVO 学生筛查结果详情（响应数据）
      */
-    private static void setPupilOptometryDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
+    private void setPupilOptometryDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         PupilOptometryDataDO pupilOptometryData = studentScreeningResultDetail.getPupilOptometryData();
         List<PupilOptometryDataVO> pupilOptometryDataVoList = Lists.newArrayList();
         if (Objects.isNull(pupilOptometryData)){
@@ -543,7 +543,7 @@ public class ScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param studentScreeningDetailVO 学生筛查结果详情（响应数据）
      */
-    private static void setEyePressureDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
+    private void setEyePressureDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         EyePressureDataDO eyePressureData = studentScreeningResultDetail.getEyePressureData();
         List<EyePressureDataVO> eyePressureDataVoList = Lists.newArrayList();
         if (Objects.isNull(eyePressureData)){

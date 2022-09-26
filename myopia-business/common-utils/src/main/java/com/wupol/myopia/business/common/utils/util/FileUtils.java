@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcelFactory;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -35,7 +37,9 @@ public final class FileUtils {
      * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
      **/
     public static List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
-        String fileName = IOUtils.getTempPath() + multipartFile.getName() + "_" + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
+        String tempPath = IOUtils.getTempPath();
+        String fileName =  multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
+        fileName = Paths.get(tempPath,fileName).toString();
         File file = new File(fileName);
         try {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
@@ -53,6 +57,8 @@ public final class FileUtils {
         } catch (Exception e) {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");
+        }finally {
+            FileUtil.del(file);
         }
     }
 

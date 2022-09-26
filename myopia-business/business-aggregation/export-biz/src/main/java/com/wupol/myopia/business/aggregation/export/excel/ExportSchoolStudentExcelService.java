@@ -74,15 +74,13 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountDTOList = visionScreeningResultService.countScreeningTime();
-        Map<Integer, Integer> countMaps = studentScreeningCountDTOList.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId,
-                        StudentScreeningCountDTO::getCount));
+        Map<Integer, Integer> countMap = studentScreeningCountDTOList.stream().collect(Collectors
+                .toMap(StudentScreeningCountDTO::getStudentId,StudentScreeningCountDTO::getCount));
 
         // 获取就诊记录
         List<Integer> studentIds = studentLists.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
-                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
         List<StudentExportDTO> exportList = new ArrayList<>();
         for (SchoolStudent item : studentLists) {
@@ -101,7 +99,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setAddress(item.getAddress())
                     .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
                     .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel(),item.getScreeningMyopia(),item.getLowVision()))
-                    .setScreeningCount(countMaps.getOrDefault(item.getStudentId(), 0))
+                    .setScreeningCount(countMap.getOrDefault(item.getStudentId(), 0))
                     .setQuestionCount(0)
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
@@ -129,7 +127,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
         School school = schoolService.getById(exportCondition.getSchoolId());
         String gradeName = Objects.nonNull(exportCondition.getGradeId()) ? schoolGradeService.getById(exportCondition.getGradeId()).getName() : StringUtils.EMPTY;
         // 行政区域
-        District district = districtService.findOne(new District().setId(school.getDistrictId()));
+        District district = districtService.getById(school.getDistrictId());
         return String.format(ExcelNoticeKeyContentConstant.STUDENT_EXCEL_NOTICE_KEY_CONTENT,
                 districtService.getTopDistrictName(district.getCode()),
                 school.getName(),

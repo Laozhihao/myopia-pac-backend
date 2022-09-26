@@ -18,10 +18,10 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
-import com.wupol.myopia.business.api.school.management.constant.MergeStatusEnum;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
+import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningBizBuilder;
+import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
-import com.wupol.myopia.business.api.school.management.domain.builder.ScreeningPlanBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningPlanDTO;
@@ -43,7 +43,6 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -51,8 +50,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
@@ -64,7 +61,10 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -181,10 +181,10 @@ public class VisionScreeningService {
         School school = schoolService.getBySchoolId(schoolId);
         TwoTuple<NotificationConfig, String> notificationInfo = getNotificationInfo(school);
         schoolPlanList.forEach(schoolPlan -> {
-            setScreeningPlanInfo(schoolPlan, planMap ,visionScreeningResultMap);
-            setStatisticInfo(schoolPlan,schoolStatisticMap);
-            setOrgInfo(schoolPlan,orgMap);
-            setNotificationInfo(schoolPlan,notificationInfo);
+            SchoolScreeningBizBuilder.setScreeningPlanInfo(schoolPlan, planMap ,visionScreeningResultMap);
+            SchoolScreeningBizBuilder.setStatisticInfo(schoolPlan,schoolStatisticMap);
+            SchoolScreeningBizBuilder.setOrgInfo(schoolPlan,orgMap);
+            SchoolScreeningBizBuilder.setNotificationInfo(schoolPlan,notificationInfo);
             schoolPlan.setHasScreeningResults(hasScreeningResults);
         });
 
@@ -230,40 +230,6 @@ public class VisionScreeningService {
     }
 
     /**
-     * 筛查状态与发布状态合并(0-未发布,1-未开始 2-进行中 3-已结束)
-     * @param releaseStatus 发布状态
-     * @param screeningStatus 筛查状态
-     */
-    public static Integer setMergeStatus(Integer releaseStatus,Integer screeningStatus) {
-        if(Objects.equals(CommonConst.STATUS_NOT_RELEASE,releaseStatus)){
-            return MergeStatusEnum.NOT_RELEASE.getCode();
-        }
-        switch (screeningStatus){
-            default:
-            case 0:
-                return MergeStatusEnum.NOT_START.getCode();
-            case 1:
-                return MergeStatusEnum.PROCESSING.getCode();
-            case 2:
-                return MergeStatusEnum.END.getCode();
-        }
-    }
-
-    /**
-     * 设置告知书配置
-     * @param responseDTO 返回对象
-     * @param notificationInfo 告知书配置
-     */
-    private void setNotificationInfo(ScreeningListResponseDTO responseDTO,TwoTuple<NotificationConfig, String> notificationInfo) {
-        if (Objects.isNull(notificationInfo)){
-            return;
-        }
-        // 设置告知书配置
-        responseDTO.setNotificationConfig(notificationInfo.getFirst());
-        responseDTO.setQrCodeFileUrl(notificationInfo.getSecond());
-    }
-
-    /**
      * 获取学校告知书配置信息
      * @param school 学校对象
      */
@@ -287,84 +253,6 @@ public class VisionScreeningService {
             twoTuple.setFirst(notificationConfig);
         }
         return twoTuple;
-    }
-
-
-    /**
-     * 设置机构信息
-     * @param responseDTO 返回对象
-     * @param orgMap 机构信息集合
-     */
-    private void setOrgInfo(ScreeningListResponseDTO responseDTO,Map<Integer, ScreeningOrganization> orgMap) {
-        ScreeningOrganization screeningOrganization = orgMap.get(responseDTO.getScreeningOrgId());
-        if (Objects.isNull(screeningOrganization)){
-            responseDTO.setScreeningOrgName(SchoolConstant.OUR_SCHOOL);
-            return;
-        }
-        responseDTO.setScreeningOrgName(screeningOrganization.getName());
-        responseDTO.setQrCodeConfig(screeningOrganization.getQrCodeConfig());
-    }
-
-    /**
-     * 设置统计信息
-     * @param responseDTO 返回对象
-     * @param schoolStatisticMap 统计信息集合
-     */
-    private void setStatisticInfo(ScreeningListResponseDTO responseDTO, Map<Integer, SchoolStatisticVO> schoolStatisticMap) {
-        SchoolStatisticVO schoolStatisticVO = schoolStatisticMap.get(responseDTO.getPlanId());
-        if (Objects.nonNull(schoolStatisticVO)) {
-            responseDTO.setPlanScreeningNumbers(schoolStatisticVO.getPlanScreeningNum());
-            responseDTO.setRealScreeningNumbers(schoolStatisticVO.getRealScreeningNum());
-        } else {
-            responseDTO.setRealScreeningNumbers(0);
-        }
-    }
-
-    /**
-     * 设置筛查计划信息
-     * @param responseDTO 返回对象
-     * @param planMap 筛查计划集合
-     */
-    private void setScreeningPlanInfo(ScreeningListResponseDTO responseDTO, Map<Integer, ScreeningPlan> planMap,Map<Integer,Integer> visionScreeningResultMap) {
-        ScreeningPlan screeningPlan = planMap.get(responseDTO.getPlanId());
-        if (Objects.isNull(screeningPlan)) {
-            return;
-        }
-        responseDTO.setTitle(screeningPlan.getTitle());
-        responseDTO.setStartTime(screeningPlan.getStartTime());
-        responseDTO.setEndTime(screeningPlan.getEndTime());
-        responseDTO.setReleaseStatus(screeningPlan.getReleaseStatus());
-        responseDTO.setScreeningStatus(getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus(),visionScreeningResultMap.get(screeningPlan.getId())));
-        responseDTO.setReleaseTime(screeningPlan.getReleaseTime());
-        responseDTO.setContent(screeningPlan.getContent());
-        responseDTO.setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(responseDTO.getScreeningOrgType()).getType());
-        responseDTO.setStatus(setMergeStatus(responseDTO.getReleaseStatus(),responseDTO.getScreeningStatus()));
-    }
-
-    /**
-     * 获取筛查状态
-     *
-     * @param startDate 开始时间
-     * @param endDate   结束时间
-     * @param releaseStatus   计划状态
-     * @param screeningResultNum   筛查结果数
-     * @return 筛查状态 0-未开始 1-进行中 2-已结束
-     */
-    public static Integer getScreeningStatus(Date startDate, Date endDate, Integer releaseStatus , Integer screeningResultNum) {
-        if (CommonConst.STATUS_ABOLISH.equals(releaseStatus)) {
-            return 3;
-        }
-        Date nowDate = new Date();
-        if (nowDate.before(startDate)) {
-            return 0;
-        }
-        if (nowDate.after(startDate) && nowDate.before(endDate) && screeningResultNum > 0) {
-            return 1;
-        }
-        if (nowDate.after(endDate)) {
-            return 2;
-        }
-        return 0;
     }
 
     /**
@@ -392,18 +280,11 @@ public class VisionScreeningService {
         Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds, schoolId).stream()
                 .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
 
-        trackList.forEach(track -> {
-            track.setSchoolStudentId(schoolStudentMap.get(track.getStudentId()));
-            track.setIsBindMp(track.getIsBindMp());
-            if (Objects.nonNull(track.getReportId())) {
-                MedicalReport report = reportMap.get(track.getReportId());
-                track.setIsReview(true);
-                track.setVisitResult(report.getMedicalContent());
-                track.setGlassesSuggest(report.getGlassesSituation());
-            }
-        });
+        trackList.forEach(track -> SchoolScreeningBizBuilder.setStudentTrackWarningInfo(reportMap, schoolStudentMap, track));
         return responseDTO;
     }
+
+
 
     /**
      * 保存筛查计划（创建/编辑）
@@ -420,7 +301,7 @@ public class VisionScreeningService {
         }
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
-        ScreeningPlan screeningPlan = ScreeningPlanBuilder.buildScreeningPlan(screeningPlanDTO, currentUser,school.getDistrictId());
+        ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(screeningPlanDTO, currentUser,school.getDistrictId());
 
         //筛查计划学校
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(screeningPlanDTO, school);
@@ -442,7 +323,7 @@ public class VisionScreeningService {
         if (Objects.nonNull(screeningPlanDTO.getId())){
             screeningPlanSchoolDb = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanDTO.getId(),school.getId());
         }
-        return ScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school,screeningPlanDTO.getGradeIds());
+        return SchoolScreeningPlanBuilder.buildScreeningPlanSchool(screeningPlanSchoolDb,school,screeningPlanDTO.getGradeIds());
     }
 
     /**
@@ -471,7 +352,7 @@ public class VisionScreeningService {
         if (Objects.nonNull(screeningPlanId)){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
         }
-        return ScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
+        return SchoolScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
     }
 
 
@@ -575,82 +456,12 @@ public class VisionScreeningService {
         Map<Integer,VisionScreeningResult> visionScreeningResultMap = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         List<ScreeningStudentListVO> screeningStudentListVOList = screeningPlanSchoolStudentList.stream()
-                .map(screeningPlanSchoolStudent -> getScreeningStudentListVO(schoolGradeAndClass, visionScreeningResultMap, screeningPlanSchoolStudent,schoolStudentIdMap)).collect(Collectors.toList());
+                .map(screeningPlanSchoolStudent ->SchoolScreeningBizBuilder.getScreeningStudentListVO(schoolGradeAndClass, visionScreeningResultMap, screeningPlanSchoolStudent,schoolStudentIdMap)).collect(Collectors.toList());
         BeanUtil.copyProperties(schoolStudentPage,screeningStudentListVoPage);
         screeningStudentListVoPage.setRecords(screeningStudentListVOList);
         return screeningStudentListVoPage;
     }
 
-    /**
-     * 获取筛查学生信息
-     * @param schoolGradeAndClass 年级和班级
-     * @param visionScreeningResultMap 筛查结果集合
-     * @param screeningPlanSchoolStudent 筛查学生信息
-     * @param schoolStudentIdMap 学校学生信息
-     */
-    private ScreeningStudentListVO getScreeningStudentListVO(TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass,
-                                                             Map<Integer, VisionScreeningResult> visionScreeningResultMap,
-                                                             ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
-                                                             Map<Integer, Integer> schoolStudentIdMap) {
-        VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(screeningPlanSchoolStudent.getId());
-        SchoolGrade schoolGrade = schoolGradeAndClass.getFirst().get(screeningPlanSchoolStudent.getGradeId());
-        SchoolClass schoolClass = schoolGradeAndClass.getSecond().get(screeningPlanSchoolStudent.getClassId());
-        return buildScreeningStudentListVO(screeningPlanSchoolStudent, visionScreeningResult, schoolGrade, schoolClass,schoolStudentIdMap);
-    }
-
-    /**
-     * 构建筛查学生列表对象
-     * @param screeningPlanSchoolStudent 筛查学生对象
-     * @param visionScreeningResult 筛查结果集合
-     */
-    private ScreeningStudentListVO buildScreeningStudentListVO(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,
-                                                               VisionScreeningResult visionScreeningResult,
-                                                               SchoolGrade schoolGrade,SchoolClass schoolClass,
-                                                               Map<Integer, Integer> schoolStudentIdMap) {
-        ScreeningStudentListVO screeningStudentListVO = new ScreeningStudentListVO()
-                .setPlanStudentId(screeningPlanSchoolStudent.getId())
-                .setId(schoolStudentIdMap.get(screeningPlanSchoolStudent.getStudentId()))
-                .setStudentId(screeningPlanSchoolStudent.getStudentId())
-                .setScreeningCode(screeningPlanSchoolStudent.getScreeningCode())
-                .setSno(screeningPlanSchoolStudent.getStudentNo())
-                .setName(screeningPlanSchoolStudent.getStudentName())
-                .setGender(screeningPlanSchoolStudent.getGender())
-                .setGradeName(schoolGrade.getName())
-                .setClassName(schoolClass.getName())
-                .setState(screeningPlanSchoolStudent.getState());
-
-        setStudentVisionScreeningResult(screeningStudentListVO,visionScreeningResult);
-        return screeningStudentListVO;
-    }
-
-    /**
-     * 设置学生的筛查数据
-     * @param screeningStudentListVO 筛查学生
-     * @param visionScreeningResult 筛查学生的筛查结果
-     */
-    public void setStudentVisionScreeningResult(ScreeningStudentListVO screeningStudentListVO, VisionScreeningResult  visionScreeningResult) {
-        screeningStudentListVO.setHasScreening(Objects.nonNull(visionScreeningResult))
-                //是否戴镜情况
-                .setGlassesTypeDes(EyeDataUtil.glassesTypeString(visionScreeningResult))
-                //裸视力
-                .setNakedVision(EyeDataUtil.visionRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.visionLeftDataToStr(visionScreeningResult))
-                //矫正 视力
-                .setCorrectedVision(EyeDataUtil.correctedRightDataToStr(visionScreeningResult)+"/"+EyeDataUtil.correctedLeftDataToStr(visionScreeningResult))
-                //球镜
-                .setSph(EyeDataUtil.computerRightSph(visionScreeningResult)+"/"+EyeDataUtil.computerLeftSph(visionScreeningResult))
-                //柱镜
-                .setCyl(EyeDataUtil.computerRightCyl(visionScreeningResult)+"/"+EyeDataUtil.computerLeftCyl(visionScreeningResult))
-                //眼轴
-                .setAxial(EyeDataUtil.computerRightAxial(visionScreeningResult)+"/"+EyeDataUtil.computerLeftAxial(visionScreeningResult));
-
-        //是否数据完整性
-        if (Objects.isNull(visionScreeningResult)) {
-            screeningStudentListVO.setDataIntegrity(CommonConst.DATA_INTEGRITY_MISS);
-            return;
-        }
-        boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-        screeningStudentListVO.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?CommonConst.DATA_INTEGRITY_FINISH:CommonConst.DATA_INTEGRITY_MISS);
-    }
 
     /**
      * 新增筛查学生
@@ -662,12 +473,22 @@ public class VisionScreeningService {
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school,Boolean.TRUE);
         //新增学校年级
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(addScreeningStudentDTO.getScreeningPlanId(), school.getId());
-        List<Integer> screeningGradeIds = SchoolStudentBizService.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
-        screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
-        screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds,StrUtil.COMMA));
+        changeScreeningGradeIds(addScreeningStudentDTO, screeningPlanSchool);
         screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
 
         screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
+    }
+
+    /**
+     * 修改筛查学校年级ID集合
+     * @param addScreeningStudentDTO
+     * @param screeningPlanSchool
+     */
+    private void changeScreeningGradeIds(AddScreeningStudentDTO addScreeningStudentDTO, ScreeningPlanSchool screeningPlanSchool) {
+        List<Integer> screeningGradeIds = SchoolStudentBizService.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
+        screeningGradeIds = screeningGradeIds.stream().distinct().collect(Collectors.toList());
+        screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds, StrUtil.COMMA));
     }
 
     /**
@@ -677,7 +498,7 @@ public class VisionScreeningService {
      */
     public StudentScreeningDetailVO studentScreeningDetail(Integer screeningPlanId, Integer screeningPlanStudentId) {
         VisionScreeningResultDTO studentScreeningResultDetail = visionScreeningResultService.getStudentScreeningResultDetail(screeningPlanId, screeningPlanStudentId);
-        return ScreeningPlanBuilder.getStudentScreeningDetailVO(studentScreeningResultDetail);
+        return SchoolScreeningPlanBuilder.getStudentScreeningDetailVO(studentScreeningResultDetail);
     }
 
     /**
@@ -741,23 +562,19 @@ public class VisionScreeningService {
         }
     }
 
+    /**
+     * 获取学校统计信息
+     * @param screeningPlanIds
+     * @param schoolId
+     */
     public List<SchoolStatisticVO> getSchoolStatistic(List<Integer> screeningPlanIds, Integer schoolId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByPlanIdsAndSchoolId(screeningPlanIds, schoolId,Boolean.FALSE);
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndSchoolId(screeningPlanIds, schoolId,Boolean.FALSE);
         Map<Integer, List<ScreeningPlanSchoolStudent>> screeningPlanSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
         Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
-        return screeningPlanIds.stream().map(screeningPlanId->buildSchoolStatistic(screeningPlanId,screeningPlanSchoolStudentMap,visionScreeningResultMap)).collect(Collectors.toList());
+        return screeningPlanIds.stream().map(screeningPlanId->SchoolScreeningBizBuilder.buildSchoolStatistic(screeningPlanId,screeningPlanSchoolStudentMap,visionScreeningResultMap)).collect(Collectors.toList());
     }
 
 
-    private SchoolStatisticVO buildSchoolStatistic(Integer screeningPlanId, Map<Integer, List<ScreeningPlanSchoolStudent>> screeningPlanSchoolStudentMap, Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentMap.getOrDefault(screeningPlanId, Lists.newArrayList());
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultMap.getOrDefault(screeningPlanId, Lists.newArrayList());
-
-        return new SchoolStatisticVO()
-                .setScreeningPlanId(screeningPlanId)
-                .setPlanScreeningNum(screeningPlanSchoolStudentList.size())
-                .setRealScreeningNum(visionScreeningResultList.size());
-    }
 }
 

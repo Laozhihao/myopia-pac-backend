@@ -37,6 +37,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -131,6 +132,7 @@ public class SchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
+        validSchoolStudent(schoolStudent);
         studentFacade.setSchoolStudentInfo(schoolStudent, schoolId);
 
         // 更新管理端的数据
@@ -142,6 +144,19 @@ public class SchoolStudentBizService {
         schoolStudentService.saveOrUpdate(schoolStudent);
         addScreeningStudent(schoolStudent,isAdd);
         return schoolStudent;
+    }
+
+    /**
+     * 校验学校学生信息
+     * @param schoolStudent 学校学生
+     */
+    private void validSchoolStudent(SchoolStudent schoolStudent) {
+        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getSno()),"学号不能为空");
+        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getName()),"姓名不能为空");
+        Assert.isTrue(Objects.nonNull(schoolStudent.getGender()),"性别不能为空");
+        Assert.isTrue(Objects.nonNull(schoolStudent.getGradeId()),"年级不能为空");
+        Assert.isTrue(Objects.nonNull(schoolStudent.getClassId()),"班级不能为空");
+        Assert.isTrue(Objects.nonNull(schoolStudent.getBirthday()),"出生日期不能为空");
     }
 
     /**
@@ -260,7 +275,7 @@ public class SchoolStudentBizService {
             return Lists.newArrayList();
         }
         return Arrays.stream(screeningGradeIds.split(StrUtil.COMMA))
-                .map(Integer::valueOf).collect(Collectors.toList());
+                .map(Integer::valueOf).distinct().collect(Collectors.toList());
     }
 
     /**

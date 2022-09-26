@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.school.management.facade;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
+import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningBizBuilder;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningPlanVO;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -55,44 +56,8 @@ public class SchoolScreeningStatisticFacade {
         }
 
         Map<Integer, Integer> visionScreeningResultMap = visionScreeningService.getVisionScreeningResultMap(Lists.newArrayList(screeningPlanId));
-        Integer screeningStatus = VisionScreeningService.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus(), visionScreeningResultMap.get(screeningPlanId));
-        return buildScreeningPlanVO(screeningPlan,screeningOrg,schoolGradeList,screeningStatus);
-    }
-
-    /**
-     * 构建筛查计划信息
-     * @param screeningPlan
-     * @param screeningOrg
-     * @param schoolGradeList
-     */
-    private ScreeningPlanVO buildScreeningPlanVO(ScreeningPlan screeningPlan,TwoTuple<Integer,String> screeningOrg,List<SchoolGrade> schoolGradeList,Integer screeningStatus) {
-        List<Integer> optionTabs = schoolGradeList.stream().map(this::getSchoolType).filter(Objects::nonNull).distinct().sorted(Comparator.comparing(Integer::intValue).reversed()).collect(Collectors.toList());
-
-        return new ScreeningPlanVO()
-                .setId(screeningPlan.getId())
-                .setTitle(screeningPlan.getTitle())
-                .setStartTime(screeningPlan.getStartTime())
-                .setEndTime(screeningPlan.getEndTime())
-                .setScreeningType(screeningPlan.getScreeningType())
-                .setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())
-                .setStatus(VisionScreeningService.setMergeStatus(screeningPlan.getReleaseStatus(),screeningStatus))
-                .setScreeningOrgName(screeningOrg.getSecond())
-                .setScreeningOrgId(screeningOrg.getFirst())
-                .setOptionTabs(optionTabs);
-    }
-
-    /**
-     * 获取学校类型
-     * @param schoolGrade 学校年级
-     */
-    private Integer getSchoolType(SchoolGrade schoolGrade) {
-        if (GradeCodeEnum.primaryAbove().contains(schoolGrade.getGradeCode())) {
-            return SchoolEnum.TYPE_PRIMARY.getType();
-        }
-        if (GradeCodeEnum.kindergartenSchoolCode().contains(schoolGrade.getGradeCode())) {
-            return SchoolEnum.TYPE_KINDERGARTEN.getType();
-        }
-        return null;
+        Integer screeningStatus = SchoolScreeningBizBuilder.getScreeningStatus(screeningPlan.getStartTime(), screeningPlan.getEndTime(), screeningPlan.getReleaseStatus(), visionScreeningResultMap.get(screeningPlanId));
+        return SchoolScreeningBizBuilder.buildScreeningPlanVO(screeningPlan,screeningOrg,schoolGradeList,screeningStatus);
     }
 
 }

@@ -843,7 +843,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         if (Objects.isNull(districtId)) {
             throw new BusinessException("行政区域id不能为空");
         }
-        District district = findOne(new District().setId(districtId));
+        District district = getById(districtId);
         if (Objects.isNull(district)) {
             throw new BusinessException("未找到该行政区域");
         }

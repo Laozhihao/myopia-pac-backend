@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -140,6 +141,11 @@ public class SchoolStudentExcelImportService {
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
             String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+
+            String name = item.get(SchoolStudentImportEnum.NAME.getIndex());
+            Assert.isTrue(StrUtil.isNotBlank(gradeName),name+"学生,年级不能为空");
+            Assert.isTrue(StrUtil.isNotBlank(className),name+"学生,班级不能为空");
+
             TwoTuple<Integer, Integer> gradeClassInfo = getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
             schoolStudent.setGradeId(gradeClassInfo.getFirst());
             schoolStudent.setGradeName(gradeName);
