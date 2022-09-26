@@ -8,6 +8,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.OverviewConfigUtil;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -58,6 +59,9 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
     @Autowired
     private UserCommonService userCommonService;
 
+    @Autowired
+    private OverviewSchoolService overviewSchoolService;
+
     /**
      * 总览机构信息缓存时间
      */
@@ -76,10 +80,13 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         if (checkOverviewName(overview.getName(), null)) {
             throw new BusinessException("总览机构名字重复，请确认");
         }
+        overview.setConfigType(OverviewConfigUtil.list2configType(overview.getConfigTypeList()));
         // 保存总览机构信息，总览机构-医院关系记录,生成总览机构-筛查机构
         super.save(overview);
         overviewHospitalService.batchSave(overview.getId(), overview.getHospitalIds());
         overviewScreeningOrganizationService.batchSave(overview.getId(), overview.getScreeningOrganizationIds());
+        // 学校
+        overviewSchoolService.batchSave(overview.getId(), overview.getHospitalIds());
 
         // oauth系统中增加总览机构状态信息
         oauthServiceClient.addOrganization(new Organization(overview.getId(), SystemCode.MANAGEMENT_CLIENT,
@@ -97,10 +104,12 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         if (checkOverviewName(overview.getName(), overview.getId())) {
             throw new BusinessException("医院名字重复，请确认");
         }
+        overview.setConfigType(OverviewConfigUtil.list2configType(overview.getConfigTypeList()));
         // 1.更新总览机构信息，总览机构-医院关系记录,生成总览机构-筛查机构，清空缓存
         super.updateById(overview);
         overviewHospitalService.updateBindInfo(overview.getId(), overview.getHospitalIds());
         overviewScreeningOrganizationService.updateBindInfo(overview.getId(), overview.getScreeningOrganizationIds());
+        overviewSchoolService.updateBindInfo(overview.getId(), overview.getScreeningOrganizationIds());
         removeOverviewCache(overview.getId());
 
         // 2.更新总览机构的账号权限及名称

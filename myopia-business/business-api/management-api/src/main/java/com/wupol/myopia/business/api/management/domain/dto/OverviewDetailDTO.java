@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import lombok.Data;
@@ -22,10 +23,16 @@ public class OverviewDetailDTO extends OverviewDTO {
      * 绑定医院
      */
     private List<HospitalResponseDTO> hospitals;
+
     /**
      * 绑定筛查机构
      */
     private List<ScreeningOrgResponseDTO> screeningOrganizations;
+
+    /**
+     * 绑定筛查机构
+     */
+    private List<SchoolResponseDTO> schools;
 
     /**
      * 已绑定的医院数量
@@ -43,6 +50,14 @@ public class OverviewDetailDTO extends OverviewDTO {
     @Override
     public Long getScreeningOrganizationNum() {
         return Objects.nonNull(super.getScreeningOrganizationNum()) ? super.getScreeningOrganizationNum() : CollectionUtils.isEmpty(screeningOrganizations) ? 0 : screeningOrganizations.size();
+    }
+
+    @Override
+    public Long getSchoolNum() {
+        if (Objects.nonNull(super.getSchoolNum())) {
+            return super.getSchoolNum();
+        }
+        return CollectionUtils.isEmpty(schools) ? 0L : schools.size();
     }
 
 }

@@ -21,4 +21,9 @@ public class OverviewRequestDTO extends Overview {
      */
     private List<Integer> screeningOrganizationIds;
 
+    /**
+     * 配置类型List
+     */
+    private List<String> configTypeList;
+
 }

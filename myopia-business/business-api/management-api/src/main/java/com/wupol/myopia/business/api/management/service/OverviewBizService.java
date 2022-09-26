@@ -2,21 +2,22 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.util.OverviewConfigUtil;
 import com.wupol.myopia.business.api.management.domain.dto.OverviewDetailDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
-import com.wupol.myopia.business.core.screening.organization.service.OverviewHospitalService;
-import com.wupol.myopia.business.core.screening.organization.service.OverviewScreeningOrganizationService;
-import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.screening.organization.service.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,12 @@ public class OverviewBizService {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private OverviewSchoolService overviewSchoolService;
+
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 获取总览机构详情
@@ -92,10 +99,11 @@ public class OverviewBizService {
         Map<Integer, Long> hospitalNumMap = overviewHospitalService.getOverviewHospitalNum(overviewIds);
         Map<Integer, Long> screeningOrganizationNumMap = overviewScreeningOrganizationService.getOverviewScreeningOrganizationNum(overviewIds);
         // 设置绑定的医院数量、筛查机构数量、行政区域名称
-        records.forEach(record -> {
-            record.setHospitalNum(hospitalNumMap.getOrDefault(record.getId(), 0L));
-            record.setScreeningOrganizationNum(screeningOrganizationNumMap.getOrDefault(record.getId(), 0L));
-            record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail()));
+        records.forEach(overviewDTO -> {
+            overviewDTO.setHospitalNum(hospitalNumMap.getOrDefault(overviewDTO.getId(), 0L));
+            overviewDTO.setScreeningOrganizationNum(screeningOrganizationNumMap.getOrDefault(overviewDTO.getId(), 0L));
+            overviewDTO.setDistrictName(districtService.getDistrictName(overviewDTO.getDistrictDetail()));
+            overviewDTO.setConfigTypeList(OverviewConfigUtil.configTypeList(overviewDTO.getConfigType()));
         });
     }
 
@@ -115,6 +123,7 @@ public class OverviewBizService {
                 return hospitalResponseDTO;
             }).collect(Collectors.toList()));
         }
+
         // 设置筛查机构
         List<Integer> screeningOrganizationIds = overviewScreeningOrganizationService.getScreeningOrganizationIdByOverviewId(detail.getId());
         if (CollectionUtils.isNotEmpty(screeningOrganizationIds)) {
@@ -124,6 +133,19 @@ public class OverviewBizService {
                 screeningOrgResponseDTO.setId(screeningOrganization.getId()).setName(screeningOrganization.getName());
                 screeningOrgResponseDTO.setDistrictName(districtService.getDistrictName(screeningOrganization.getDistrictDetail()));
                 return screeningOrgResponseDTO;
+            }).collect(Collectors.toList()));
+        }
+
+        // 设置学校
+        List<Integer> schoolIds = overviewSchoolService.getSchoolIdByOverviewId(detail.getId());
+        if (CollectionUtils.isNotEmpty(schoolIds)) {
+            List<School> schools = schoolService.listByIds(schoolIds);
+            detail.setSchools(schools.stream().map(school -> {
+                SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
+                schoolResponseDTO.setId(school.getId())
+                        .setName(school.getName());
+                schoolResponseDTO.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
+                return schoolResponseDTO;
             }).collect(Collectors.toList()));
         }
     }
