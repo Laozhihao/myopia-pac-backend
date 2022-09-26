@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -217,6 +218,9 @@ public class SchoolStudentExcelImportService {
 
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+        if (CollUtil.isEmpty(classExportVOS)){
+            throw new BusinessException(gradeName+"不存在班级");
+        }
         // 转换成班级Maps 把班级名称作为key
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
         Integer classId = classExportMaps.get(className);
