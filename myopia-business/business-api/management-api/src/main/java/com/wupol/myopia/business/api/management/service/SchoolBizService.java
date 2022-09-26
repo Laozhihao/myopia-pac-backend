@@ -29,6 +29,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
@@ -401,6 +402,16 @@ public class SchoolBizService {
             return;
         }
         schoolQueryDTO.setSchoolIds(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
+    }
+
+    public ScreeningOrgResponseDTO school2ScreeningOrgResponseDTO(Integer id) {
+        School school = schoolService.getById(id);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("获取学校异常！");
+        }
+        ScreeningOrgResponseDTO responseDTO = new ScreeningOrgResponseDTO();
+        BeanUtils.copyProperties(school, responseDTO);
+        return responseDTO;
     }
 
 }
