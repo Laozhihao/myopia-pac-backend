@@ -2,6 +2,9 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.OverviewConfigTypeKey;
+import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.OverviewConfigUtil;
 import com.wupol.myopia.business.api.management.domain.dto.OverviewDetailDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -13,6 +16,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -23,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -148,6 +153,44 @@ public class OverviewBizService {
                 schoolResponseDTO.setDistrictName(districtService.getDistrictName(school.getDistrictDetail()));
                 return schoolResponseDTO;
             }).collect(Collectors.toList()));
+        }
+    }
+
+    /**
+     * 增加总览基本信息并校验
+     *
+     * @param overview 请求入参
+     */
+    public void initAndCheckOverview(OverviewRequestDTO overview) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        CurrentUserUtil.isNeedPlatformAdminUser(user);
+        overview.setCreateUserId(user.getId());
+        overview.setGovDeptId(user.getOrgId());
+        // 检验总览机构合作信息
+        overviewService.checkOverviewCooperation(overview);
+        // 设置状态
+        overview.setStatus(overview.getCooperationStopStatus());
+        clearOverview(overview);
+    }
+
+    /**
+     * 修正数据
+     *
+     * @param overview 请求入参
+     */
+    public void clearOverview(OverviewRequestDTO overview) {
+        List<String> configTypeList = overview.getConfigTypeList();
+        if (org.springframework.util.CollectionUtils.isEmpty(configTypeList)) {
+            return;
+        }
+        if (!configTypeList.contains(OverviewConfigTypeKey.SCREENING_ORG.getKey())) {
+            overview.setScreeningOrganizationIds(Collections.emptyList());
+        }
+        if (!configTypeList.contains(OverviewConfigTypeKey.HOSPITAL.getKey())) {
+            overview.setHospitalIds(Collections.emptyList());
+        }
+        if (!configTypeList.contains(OverviewConfigTypeKey.SCHOOL.getKey())) {
+            overview.setSchoolIds(Collections.emptyList());
         }
     }
 

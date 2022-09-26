@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.constant.OverviewConfigType;
-import com.wupol.myopia.base.constant.OverviewConfigTypeKey;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -16,17 +14,13 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.OverviewRequestDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.query.OverviewQuery;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 总览机构控制层
@@ -49,11 +43,11 @@ public class OverviewController {
      * 保存总览机构
      *
      * @param overview 总览机构实体
-     * @return
+     * @return 账号密码
      */
     @PostMapping
     public UsernameAndPasswordDTO saveOverview(@RequestBody @Valid OverviewRequestDTO overview) {
-        initAndCheckOverview(overview);
+        overviewBizService.initAndCheckOverview(overview);
         return overviewService.saveOverview(overview);
     }
 
@@ -65,7 +59,7 @@ public class OverviewController {
      */
     @PutMapping
     public OverviewDetailDTO updateOverview(@RequestBody @Valid OverviewRequestDTO overview) {
-        initAndCheckOverview(overview);
+        overviewBizService.initAndCheckOverview(overview);
         overviewService.updateOverview(overview);
         return getOverview(overview.getId());
     }
@@ -95,7 +89,8 @@ public class OverviewController {
 
     /**
      * 获取当前登录用户的总览机构信息
-     * @return
+     *
+     * @return CacheOverviewInfoDTO
      */
     @GetMapping("/current/info")
     public CacheOverviewInfoDTO getOverviewInfo() {
@@ -148,45 +143,6 @@ public class OverviewController {
     @PostMapping("/add/account/{overviewId}")
     public UsernameAndPasswordDTO addAccount(@PathVariable("overviewId")  Integer overviewId) {
         return overviewService.addOverviewAdminUserAccount(overviewId);
-    }
-
-    /**
-     * 增加总览基本信息并校验
-     * @param overview
-     * @return
-     */
-    private Overview initAndCheckOverview(OverviewRequestDTO overview) {
-        CurrentUser user = CurrentUserUtil.getCurrentUser();
-        CurrentUserUtil.isNeedPlatformAdminUser(user);
-        overview.setCreateUserId(user.getId());
-        overview.setGovDeptId(user.getOrgId());
-        // 检验总览机构合作信息
-        overviewService.checkOverviewCooperation(overview);
-        // 设置状态
-        overview.setStatus(overview.getCooperationStopStatus());
-        clearOverview(overview);
-        return overview;
-    }
-
-    /**
-     * 修正数据
-     *
-     * @param overview
-     */
-    private void clearOverview(OverviewRequestDTO overview) {
-        List<String> configTypeList = overview.getConfigTypeList();
-        if (CollectionUtils.isEmpty(configTypeList)) {
-            return;
-        }
-        if (!configTypeList.contains(OverviewConfigTypeKey.SCREENING_ORG.getKey())) {
-            overview.setScreeningOrganizationIds(Collections.emptyList());
-        }
-        if (!configTypeList.contains(OverviewConfigTypeKey.HOSPITAL.getKey())) {
-            overview.setHospitalIds(Collections.emptyList());
-        }
-        if (!configTypeList.contains(OverviewConfigTypeKey.SCHOOL.getKey())) {
-            overview.setSchoolIds(Collections.emptyList());
-        }
     }
 
 }
