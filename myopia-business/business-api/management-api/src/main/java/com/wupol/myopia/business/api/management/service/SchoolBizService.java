@@ -404,8 +404,15 @@ public class SchoolBizService {
         schoolQueryDTO.setSchoolIds(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
     }
 
+    /**
+     * 转换成ScreeningOrgResponseDTO
+     *
+     * @param id 学校Id
+     *
+     * @return ScreeningOrgResponseDTO
+     */
     public ScreeningOrgResponseDTO school2ScreeningOrgResponseDTO(Integer id) {
-        School school = schoolService.getById(id);
+        School school = schoolService.getBySchoolId(id);
         if (Objects.isNull(school)) {
             throw new BusinessException("获取学校异常！");
         }
