@@ -58,4 +58,5 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
      */
     ScreeningPlanSchool getLastBySchoolIdAndScreeningType(@Param("schoolId") Integer schoolId, @Param("screeningType") Integer screeningType);
 
+    List<ScreeningPlanSchool> listBySchoolIdAndOrgId(@Param("schoolId") Integer schoolId,@Param("orgId") Integer orgId, @Param("screeningType") Integer screeningType,@Param("currentDate") Date currentDate);
 }

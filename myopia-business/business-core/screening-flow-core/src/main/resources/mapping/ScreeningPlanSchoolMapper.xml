@@ -219,4 +219,12 @@
         ORDER BY sps.create_time DESC LIMIT 1
     </select>
 
+    <select id="listBySchoolIdAndOrgId" resultMap="BaseResultMap">
+        select sps.*
+        from (select * from m_screening_plan_school where school_id = #{schoolId} and screening_org_id = #{orgId}) sps
+        left join (select * from m_screening_plan  where <![CDATA[ DATE(`start_time`) <= DATE(#{currentDate})]]> and
+        <![CDATA[ DATE(`end_time`) >= DATE(#{currentDate})]]> and screening_type =#{screeningType} and screening_org_id = #{orgId}  ) p
+        on p.id = sps.screening_plan_id
+    </select>
+
 </mapper>

@@ -301,4 +301,13 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public ScreeningPlanSchool getOneBySchoolId(Integer schoolId) {
         return baseMapper.getBySchoolId(schoolId).stream().findFirst().orElse(null);
     }
+
+    /**
+     * 根据学校ID和筛查机构ID查询
+     * @param schoolId
+     * @param orgId
+     */
+    public List<ScreeningPlanSchool> listBySchoolIdAndOrgId(Integer schoolId,Integer orgId,Integer screeningType) {
+       return baseMapper.listBySchoolIdAndOrgId(schoolId,orgId,screeningType,new Date());
+    }
 }

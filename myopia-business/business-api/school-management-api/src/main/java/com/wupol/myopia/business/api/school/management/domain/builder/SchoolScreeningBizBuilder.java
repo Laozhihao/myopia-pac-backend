@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.school.management.domain.builder;
 
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.api.school.management.constant.MergeStatusEnum;
 import com.wupol.myopia.business.api.school.management.constant.SchoolConstant;
@@ -290,5 +291,17 @@ public class SchoolScreeningBizBuilder {
             return SchoolEnum.TYPE_KINDERGARTEN.getType();
         }
         return null;
+    }
+
+    /**
+     * 获取筛查年级ID集合
+     * @param screeningGradeIds 筛查年级ID集合
+     */
+    public List<Integer> getScreeningGradeIds(String screeningGradeIds){
+        if (StrUtil.isBlank(screeningGradeIds)){
+            return Lists.newArrayList();
+        }
+        return Arrays.stream(screeningGradeIds.split(StrUtil.COMMA))
+                .map(Integer::valueOf).distinct().collect(Collectors.toList());
     }
 }

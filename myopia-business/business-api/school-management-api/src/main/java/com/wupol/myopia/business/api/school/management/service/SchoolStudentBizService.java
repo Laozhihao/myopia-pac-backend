@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentE
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.school.management.domain.builder.SchoolScreeningBizBuilder;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -218,7 +219,7 @@ public class SchoolStudentBizService {
         if (Objects.isNull(screeningPlanSchool)){
             return;
         }
-        List<Integer> screeningGradeIds = getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         if (!screeningGradeIds.contains(schoolStudent.getGradeId())){
             return;
         }
@@ -250,7 +251,7 @@ public class SchoolStudentBizService {
             throw new BusinessException("此筛查计划下没有此筛查学校");
         }
 
-        List<Integer> screeningGradeIds = getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
 
         if (CollUtil.isEmpty(screeningGradeIds)){
             //已选中的为空，未选中的就是等于全部的
@@ -266,17 +267,7 @@ public class SchoolStudentBizService {
         return gradeInfoVO;
     }
 
-    /**
-     * 获取筛查年级ID集合
-     * @param screeningGradeIds 筛查年级ID集合
-     */
-    public static List<Integer> getScreeningGradeIds(String screeningGradeIds){
-        if (StrUtil.isBlank(screeningGradeIds)){
-            return Lists.newArrayList();
-        }
-        return Arrays.stream(screeningGradeIds.split(StrUtil.COMMA))
-                .map(Integer::valueOf).distinct().collect(Collectors.toList());
-    }
+
 
     /**
      * 设置未选中的年级+学生数

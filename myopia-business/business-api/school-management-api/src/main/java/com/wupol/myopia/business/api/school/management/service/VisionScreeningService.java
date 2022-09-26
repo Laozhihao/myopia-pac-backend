@@ -485,7 +485,7 @@ public class VisionScreeningService {
      * @param screeningPlanSchool
      */
     private void changeScreeningGradeIds(AddScreeningStudentDTO addScreeningStudentDTO, ScreeningPlanSchool screeningPlanSchool) {
-        List<Integer> screeningGradeIds = SchoolStudentBizService.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
         screeningGradeIds = screeningGradeIds.stream().distinct().collect(Collectors.toList());
         screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds, StrUtil.COMMA));
