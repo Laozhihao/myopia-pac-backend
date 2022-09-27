@@ -52,7 +52,7 @@ public class ExportStrategy {
         if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
             if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
                 String key = "doExport:" + lockKey;
-                sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
             }
         }
         // 设置进队列
@@ -95,7 +95,7 @@ public class ExportStrategy {
         if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)) {
             if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
                 String key = "syncExport:" + lockKey;
-                sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
             }
         }
         return exportFileService.syncExport(exportCondition);
