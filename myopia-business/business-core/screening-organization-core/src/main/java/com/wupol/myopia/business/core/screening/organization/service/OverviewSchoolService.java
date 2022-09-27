@@ -28,13 +28,7 @@ public class OverviewSchoolService extends BaseService<OverviewSchoolMapper, Ove
         if (Objects.isNull(overviewId) || CollectionUtils.isEmpty(schoolIds)) {
             return;
         }
-        List<OverviewSchool> overviewSchools = schoolIds.stream().map(s -> {
-            OverviewSchool overviewSchool = new OverviewSchool();
-            overviewSchool.setOverviewId(overviewId);
-            overviewSchool.setSchoolId(s);
-            return overviewSchool;
-        }).collect(Collectors.toList());
-        batchUpdateOrSave(overviewSchools);
+        baseMapper.batchSave(overviewId, schoolIds);
     }
 
     /**

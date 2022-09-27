@@ -22,4 +22,11 @@
         overview_id, school_id, create_time
     </sql>
 
+    <insert id="batchSave">
+        insert into m_overview_school (overview_id, school_id)
+        values
+        <foreach collection="schoolIds" item="schoolId" index="index" separator=",">
+            (#{overviewId}, #{schoolId})
+        </foreach>
+    </insert>
 </mapper>
