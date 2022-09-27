@@ -42,7 +42,10 @@ public class SysUtilService {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/17
      */
-    public void isNoPlatformRepeatExport(String key, String lockKey) {
+    public void isNoPlatformRepeatExport(String key, String lockKey,Integer classId) {
+        if (Objects.nonNull(classId)){
+            return;
+        }
         if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
             isExport(key, lockKey);
         }
