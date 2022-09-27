@@ -3,6 +3,8 @@ package com.wupol.myopia.base.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * HTML转PDF
  *
@@ -10,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Accessors(chain = true)
 @Data
-public class PdfResponseDTO {
+public class PdfResponseDTO implements Serializable {
 
     /**
      * UUID

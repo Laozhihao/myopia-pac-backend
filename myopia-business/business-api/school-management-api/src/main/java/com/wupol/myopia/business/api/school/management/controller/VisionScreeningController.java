@@ -16,6 +16,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningPlanVO;
@@ -23,8 +24,11 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeni
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
-import com.wupol.myopia.business.api.school.management.domain.dto.*;
-import com.wupol.myopia.business.api.school.management.domain.vo.*;
+import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
+import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentVO;
 import com.wupol.myopia.business.api.school.management.facade.SchoolScreeningStatisticFacade;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
@@ -47,7 +51,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -317,47 +320,40 @@ public class VisionScreeningController {
     /**
      * 异步导出学生报告
      *
-     * @param planId           计划Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public void asyncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        screeningPlanStudentBizService.asyncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.TRUE);
+        generatorPdfDTO.setUserId(user.getId());
+        generatorPdfDTO.setSchoolId(user.getOrgId());
+        screeningPlanStudentBizService.asyncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 同步导出学生报告
      *
-     * @param planId           计划Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningPlanStudentBizService.syncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
+        generatorPdfDTO.setSchoolId(user.getOrgId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.TRUE);
+        generatorPdfDTO.setUserId(user.getId());
+        return screeningPlanStudentBizService.syncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param planStudentName  筛查学生名称
+     * @param generatorPdfDTO
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult/list")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName,Boolean isData) {
-        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName,isData);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@Valid GeneratorPdfDTO generatorPdfDTO) {
+        return screeningPlanStudentBizService.getScreeningStudentDTOS(generatorPdfDTO);
     }
 
     /**

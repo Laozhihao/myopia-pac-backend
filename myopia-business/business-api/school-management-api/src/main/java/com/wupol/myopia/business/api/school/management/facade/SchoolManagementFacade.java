@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.school.management.facade;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningBizBuilder;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;

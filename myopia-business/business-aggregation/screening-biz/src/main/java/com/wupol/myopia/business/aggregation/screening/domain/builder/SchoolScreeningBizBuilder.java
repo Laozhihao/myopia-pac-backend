@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.domain.builder;
 
-import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.aggregation.screening.constant.MergeStatusEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;

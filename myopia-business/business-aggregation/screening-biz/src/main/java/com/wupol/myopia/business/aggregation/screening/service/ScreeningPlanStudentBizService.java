@@ -13,6 +13,8 @@ import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.bo.GeneratorPdfBO;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.handler.CredentialModificationHandler;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -145,30 +147,21 @@ public class ScreeningPlanStudentBizService {
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param isSchoolClient   是否学校端
-     * @param planStudentName  学生名称
+     * @param generatorPdfDTO   导出条件
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(Integer planId, Integer schoolId, Integer gradeId,
-                                                                     Integer classId, Integer orgId, String planStudentIdStr,
-                                                                     Boolean isSchoolClient, String planStudentName) {
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(GeneratorPdfDTO generatorPdfDTO) {
         ResultNoticeConfig resultNoticeConfig;
-        if (Objects.equals(isSchoolClient,Boolean.TRUE)) {
-            resultNoticeConfig = schoolService.getBySchoolId(schoolId).getResultNoticeConfig();
+        if (Objects.equals(generatorPdfDTO.getIsSchoolClient(),Boolean.TRUE)) {
+            resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
         } else {
-            resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(orgId).getResultNoticeConfig();
+            resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(generatorPdfDTO.getOrgId()).getResultNoticeConfig();
         }
         String fileUrl = StringUtils.EMPTY;
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
             fileUrl = resourceFileService.getResourcePath(resultNoticeConfig.getQrCodeFileId());
         }
-        List<ScreeningStudentDTO> planStudents = getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName,null);
+        List<ScreeningStudentDTO> planStudents = getScreeningStudentDTOS(generatorPdfDTO);
         for (ScreeningStudentDTO planStudent : planStudents) {
             planStudent.setResultNoticeConfig(resultNoticeConfig);
             planStudent.setNoticeQrCodeFileUrl(fileUrl);
@@ -187,19 +180,12 @@ public class ScreeningPlanStudentBizService {
     /**
      * 异步导出学生报告
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param userId           用户Id
+     * @param generatorPdfDTO   导出条件
      */
     @Async
-    public void asyncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId,
-                                  Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
+    public void asyncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
 
-        List<ScreeningStudentDTO> screeningStudentDTOS = getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, null);
+        List<ScreeningStudentDTO> screeningStudentDTOS = getScreeningNoticeResultStudent(generatorPdfDTO);
         if (CollectionUtils.isEmpty(screeningStudentDTOS)) {
             return;
         }
@@ -216,13 +202,17 @@ public class ScreeningPlanStudentBizService {
 
         Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
-        String appendName = getAppendName(schoolId, orgId, isSchoolClient);
-        planInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planGroup);
+        String appendName = getAppendName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getOrgId(), generatorPdfDTO.getIsSchoolClient());
+        GeneratorPdfBO generatorPdfBO = new GeneratorPdfBO()
+                .setOrgId(generatorPdfDTO.getOrgId()).setPlanStudentIdStr(generatorPdfDTO.getPlanStudentIdStr())
+                .setIsSchoolClient(generatorPdfDTO.getIsSchoolClient()).setFileSaveParentPath(fileSaveParentPath)
+                .setSchoolMap(schoolMap).setGradeMap(gradeMap).setClassMap(classMap).setPlanGroup(planGroup);
+        planInfo(generatorPdfBO);
         File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), appendName + SCREENING_NAME + ".zip", true);
         try {
-            noticeService.sendExportSuccessNotice(userId, userId, appendName + SCREENING_NAME, s3Utils.uploadFileToS3(renameFile));
+            noticeService.sendExportSuccessNotice(generatorPdfDTO.getUserId(), generatorPdfDTO.getUserId(), appendName + SCREENING_NAME, s3Utils.uploadFileToS3(renameFile));
         } catch (UtilException e) {
-            noticeService.sendExportFailNotice(userId, userId, appendName + SCREENING_NAME);
+            noticeService.sendExportFailNotice(generatorPdfDTO.getUserId(), generatorPdfDTO.getUserId(), appendName + SCREENING_NAME);
             throw new BusinessException("发送通知异常");
         } finally {
             FileUtil.del(fileSaveParentPath);
@@ -232,148 +222,87 @@ public class ScreeningPlanStudentBizService {
     /**
      * 筛查计划信息
      *
-     * @param orgId
-     * @param planStudentIdStr
-     * @param isSchoolClient
-     * @param fileSaveParentPath
-     * @param schoolMap
-     * @param gradeMap
-     * @param classMap
-     * @param planGroup
+     * @param generatorPdfBO 导出条件
      */
-    private void planInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
-                          String fileSaveParentPath, Map<Integer, String> schoolMap,
-                          Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
-                          Map<Integer, List<ScreeningStudentDTO>> planGroup) {
-        for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
-            List<ScreeningStudentDTO> planList = planEntry.getValue();
-            if (CollectionUtils.isEmpty(planList)) {
-                continue;
+    private void planInfo(GeneratorPdfBO generatorPdfBO) {
+        generatorPdfBO.getPlanGroup().forEach((planId,planList)->{
+            if (CollUtil.isNotEmpty(planList)) {
+                Map<Integer, List<ScreeningStudentDTO>> schoolGroup = planList.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getSchoolId));
+                generatorPdfBO.setSchoolGroup(schoolGroup);
+                generatorPdfBO.setPlanId(planId);
+                schoolInfo(generatorPdfBO);
             }
-            Map<Integer, List<ScreeningStudentDTO>> schoolGroup = planList.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getSchoolId));
-            schoolInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolGroup);
-        }
+        });
     }
 
     /**
      * 学校信息
      *
-     * @param orgId
-     * @param planStudentIdStr
-     * @param isSchoolClient
-     * @param fileSaveParentPath
-     * @param schoolMap
-     * @param gradeMap
-     * @param classMap
-     * @param planEntry
-     * @param schoolGroup
+     * @param generatorPdfBO 导出条件
      */
-    private void schoolInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
-                            String fileSaveParentPath, Map<Integer, String> schoolMap,
-                            Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
-                            Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry, Map<Integer,
-                            List<ScreeningStudentDTO>> schoolGroup) {
-        for (Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry : schoolGroup.entrySet()) {
-            List<ScreeningStudentDTO> schoolList = schoolEntry.getValue();
-            if (CollectionUtils.isEmpty(schoolList)) {
-                continue;
+    private void schoolInfo(GeneratorPdfBO generatorPdfBO) {
+        generatorPdfBO.getSchoolGroup().forEach((schoolId,schoolList)->{
+            if (CollUtil.isNotEmpty(schoolList)){
+                Map<Integer, List<ScreeningStudentDTO>> gradeGroup = schoolList.stream().collect(Collectors.groupingBy(StudentDO::getGradeId));
+                generatorPdfBO.setSchoolId(schoolId);
+                generatorPdfBO.setGradeGroup(gradeGroup);
+                gradeInfo(generatorPdfBO);
             }
-            Map<Integer, List<ScreeningStudentDTO>> gradeGroup = schoolList.stream().collect(Collectors.groupingBy(StudentDO::getGradeId));
-            gradeInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolEntry, gradeGroup);
-        }
+        });
     }
 
     /**
      * 年级信息
      *
-     * @param orgId
-     * @param planStudentIdStr
-     * @param isSchoolClient
-     * @param fileSaveParentPath
-     * @param schoolMap
-     * @param gradeMap
-     * @param classMap
-     * @param planEntry
-     * @param schoolEntry
-     * @param gradeGroup
+     * @param generatorPdfBO 导出条件
      */
-    private void gradeInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
-                           String fileSaveParentPath, Map<Integer, String> schoolMap,
-                           Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
-                           Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
-                           Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
-                           Map<Integer, List<ScreeningStudentDTO>> gradeGroup) {
-        for (Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry : gradeGroup.entrySet()) {
-
+    private void gradeInfo(GeneratorPdfBO generatorPdfBO) {
+        generatorPdfBO.getGradeGroup().forEach((gradeId,gradeList)->{
             Map<Integer, List<ScreeningStudentDTO>> classGroup = Maps.newHashMap();
-            List<ScreeningStudentDTO> gradeList = gradeEntry.getValue();
             if (CollUtil.isNotEmpty(gradeList)) {
                 classGroup = gradeList.stream().collect(Collectors.groupingBy(StudentDO::getClassId));
             }
-
-            if (CollUtil.isEmpty(classGroup)) {
-                continue;
+            if (CollUtil.isNotEmpty(classGroup)) {
+                generatorPdfBO.setGradeId(gradeId);
+                generatorPdfBO.setClassGroup(classGroup);
+                classInfo(generatorPdfBO);
             }
-            classInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolEntry, gradeEntry, classGroup);
-        }
+        });
     }
 
     /**
      * 班级信息
      *
-     * @param orgId
-     * @param planStudentIdStr
-     * @param isSchoolClient
-     * @param fileSaveParentPath
-     * @param schoolMap
-     * @param gradeMap
-     * @param classMap
-     * @param planEntry
-     * @param schoolEntry
-     * @param gradeEntry
-     * @param classGroup
+     * @param generatorPdfBO 导出条件
      */
-    private void classInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
-                           String fileSaveParentPath, Map<Integer, String> schoolMap,
-                           Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
-                           Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
-                           Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
-                           Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry,
-                           Map<Integer, List<ScreeningStudentDTO>> classGroup) {
-        for (Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry : classGroup.entrySet()) {
-            List<ScreeningStudentDTO> classList = classEntry.getValue();
-            if (CollectionUtils.isEmpty(classList)) {
-                continue;
+    private void classInfo(GeneratorPdfBO generatorPdfBO) {
+        generatorPdfBO.getClassGroup().forEach((classId,classList)->{
+            if (CollUtil.isNotEmpty(classList)) {
+                generatorPdfBO.setClassId(classId);
+                String screeningNoticeResultHtmlUrl = getScreeningNoticeResultHtmlUrl(generatorPdfBO);
+                String fileName = SCREENING_NAME;
+                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
+                log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
+                generatorPdfBO.setFileName(fileName);
+                downloadPDFFile(generatorPdfBO, pdfResponseDTO);
             }
-            String screeningNoticeResultHtmlUrl = getScreeningNoticeResultHtmlUrl(orgId, planStudentIdStr, isSchoolClient, planEntry, schoolEntry, gradeEntry, classEntry);
-            String fileName = SCREENING_NAME;
-            PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
-            log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
-            downloadPDFFile(fileSaveParentPath, schoolMap, gradeMap, classMap, schoolEntry, gradeEntry, classEntry, fileName, pdfResponseDTO);
-        }
+        });
     }
 
     /**
      * 下载pdf文件
      *
-     * @param fileSaveParentPath
-     * @param schoolMap
-     * @param gradeMap
-     * @param classMap
-     * @param schoolEntry
-     * @param gradeEntry
-     * @param classEntry
-     * @param fileName
+     * @param generatorPdfBO
      * @param pdfResponseDTO
      */
-    private void downloadPDFFile(String fileSaveParentPath, Map<Integer, String> schoolMap, Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap, Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry, Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry, Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry, String fileName, PdfResponseDTO pdfResponseDTO) {
+    private void downloadPDFFile(GeneratorPdfBO generatorPdfBO, PdfResponseDTO pdfResponseDTO) {
         try {
             FileUtils.downloadFile(pdfResponseDTO.getUrl(),
-                    fileSaveParentPath +
-                            schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
-                            gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
-                            classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
-                            fileName + ".pdf");
+                    generatorPdfBO.getFileSaveParentPath() +
+                            generatorPdfBO.getSchoolMap().get(generatorPdfBO.getSchoolId()) + SCREENING_NAME + "/" +
+                            generatorPdfBO.getGradeMap().get(generatorPdfBO.getGradeId()).getName() + SCREENING_NAME + "/" +
+                            generatorPdfBO.getClassMap().get(generatorPdfBO.getClassId()).getName() + SCREENING_NAME + "/" +
+                            generatorPdfBO.getFileName() + ".pdf");
         } catch (Exception e) {
             log.error("Exception", e);
         }
@@ -381,28 +310,19 @@ public class ScreeningPlanStudentBizService {
 
     /**
      * 获取筛查通知结果html的url
-     * @param orgId
-     * @param planStudentIdStr
-     * @param isSchoolClient
-     * @param planEntry
-     * @param schoolEntry
-     * @param gradeEntry
-     * @param classEntry
+     *
+     * @param generatorPdfBO 导出条件
      */
-    private String getScreeningNoticeResultHtmlUrl(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
-                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
-                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
-                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry,
-                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry) {
+    private String getScreeningNoticeResultHtmlUrl(GeneratorPdfBO generatorPdfBO) {
         return String.format(SCREENING_NOTICE_RESULT_HTML_URL,
                 htmlUrlHost,
-                planEntry.getKey(),
-                Objects.nonNull(schoolEntry.getKey()) ? schoolEntry.getKey() : StringUtils.EMPTY,
-                Objects.nonNull(gradeEntry.getKey()) ? gradeEntry.getKey() : StringUtils.EMPTY,
-                Objects.nonNull(classEntry.getKey()) ? classEntry.getKey() : StringUtils.EMPTY,
-                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
-                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
-                isSchoolClient);
+                generatorPdfBO.getPlanId(),
+                Objects.nonNull(generatorPdfBO.getSchoolId()) ? generatorPdfBO.getSchoolId() : StringUtils.EMPTY,
+                Objects.nonNull(generatorPdfBO.getGradeId()) ? generatorPdfBO.getGradeId() : StringUtils.EMPTY,
+                Objects.nonNull(generatorPdfBO.getClassId()) ? generatorPdfBO.getClassId() : StringUtils.EMPTY,
+                Objects.nonNull(generatorPdfBO.getOrgId()) ? generatorPdfBO.getOrgId() : StringUtils.EMPTY,
+                Objects.nonNull(generatorPdfBO.getPlanStudentIdStr()) ? generatorPdfBO.getPlanStudentIdStr() : StringUtils.EMPTY,
+                generatorPdfBO.getIsSchoolClient());
     }
 
     /**
@@ -430,35 +350,32 @@ public class ScreeningPlanStudentBizService {
     /**
      * 同步导出学生报告
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param userId           用户Id
+     * @param generatorPdfDTO      导出条件
      */
-    public PdfResponseDTO syncGeneratorPDF(Integer planId, Integer schoolId, Integer gradeId, Integer classId,
-                                           Integer orgId, String planStudentIdStr, Boolean isSchoolClient, Integer userId) {
+    public PdfResponseDTO syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
 
         // 检查学生是否有筛查数据
-        if (StringUtils.isNotBlank(planStudentIdStr)) {
-            List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
+        if (StringUtils.isNotBlank(generatorPdfDTO.getPlanStudentIdStr())) {
+            List<Integer> planStudentId = ListUtil.str2List(generatorPdfDTO.getPlanStudentIdStr());
             List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanStudentIds(planStudentId);
             if (CollectionUtils.isEmpty(visionScreeningResults)) {
                 throw new BusinessException("学生无筛查数据，操作失败！");
             }
         }
-        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
-                htmlUrlHost,
-                planId,
-                Objects.nonNull(schoolId) ? schoolId : StringUtils.EMPTY,
-                Objects.nonNull(gradeId) ? gradeId : StringUtils.EMPTY,
-                Objects.nonNull(classId) ? classId : StringUtils.EMPTY,
-                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
-                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
-                isSchoolClient);
-        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, getFileName(schoolId, gradeId));
+        String screeningNoticeResultHtmlUrl1 = getScreeningNoticeResultHtmlUrl(generatorPdfDTOToBo(generatorPdfDTO));
+        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl1, getFileName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getGradeId()));
+    }
+
+    /**
+     * 实体转换
+     * @param generatorPdfDTO
+     */
+    private GeneratorPdfBO generatorPdfDTOToBo(GeneratorPdfDTO generatorPdfDTO){
+        return new GeneratorPdfBO()
+                .setPlanId(generatorPdfDTO.getPlanId()).setSchoolId(generatorPdfDTO.getSchoolId())
+                .setGradeId(generatorPdfDTO.getGradeId()).setClassId(generatorPdfDTO.getClassId())
+                .setOrgId(generatorPdfDTO.getOrgId()).setPlanStudentIdStr(generatorPdfDTO.getPlanStudentIdStr())
+                .setIsSchoolClient(generatorPdfDTO.getIsSchoolClient());
     }
 
     /**
@@ -484,20 +401,15 @@ public class ScreeningPlanStudentBizService {
     /**
      * 获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param planStudentName  学生名称
+     * @param generatorPdfDTO   导出条件
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningStudentDTOS(Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName,Boolean isData) {
-        List<Integer> planStudentId = ListUtil.str2List(planStudentIdStr);
+    public List<ScreeningStudentDTO> getScreeningStudentDTOS(GeneratorPdfDTO generatorPdfDTO) {
+        List<Integer> planStudentId = ListUtil.str2List(generatorPdfDTO.getPlanStudentIdStr());
 
-        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(planId), schoolId, gradeId, classId, CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, planStudentName);
-        if (Objects.equals(Boolean.TRUE,isData)){
-            return getDataScreeningStudentDTOList(planId, schoolId, gradeId, classId, screeningStudentDTOList);
+        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(generatorPdfDTO.getPlanId()),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId() ,generatorPdfDTO.getClassId() , CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, generatorPdfDTO.getPlanStudentName());
+        if (Objects.equals(Boolean.TRUE,generatorPdfDTO.getIsData())){
+            return getDataScreeningStudentDTOList(generatorPdfDTO.getPlanId(),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId(), generatorPdfDTO.getClassId(), screeningStudentDTOList);
         }
         return screeningStudentDTOList;
     }
