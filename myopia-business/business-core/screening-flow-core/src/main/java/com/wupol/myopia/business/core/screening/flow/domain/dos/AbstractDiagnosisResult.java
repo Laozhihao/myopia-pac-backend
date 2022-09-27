@@ -25,7 +25,6 @@ public abstract class AbstractDiagnosisResult {
      * 更新时间
      */
     private Long updateTime;
-
     /**
      * 诊断结果是否为正常
      *

@@ -49,7 +49,6 @@ public abstract class ScreeningResultBasicData implements ScreeningDataInterface
      * 更新时间
      */
     private Long updateTime;
-
     /**
      * 是否配合检查：0-配合、1-不配合
      */

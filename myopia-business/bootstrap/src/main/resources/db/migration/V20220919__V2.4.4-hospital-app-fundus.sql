@@ -3,6 +3,7 @@ alter table m_device
 alter table m_device
     add bluetooth_mac varchar(32) null comment '蓝牙MAC地址' after type;
 
+DROP TABLE IF EXISTS `h_image_original`;
 create table h_image_original
 (
     id          int auto_increment comment 'id'
@@ -19,6 +20,7 @@ create table h_image_original
 )
     comment '图像原始表';
 
+DROP TABLE IF EXISTS `h_image_detail`;
 create table h_image_detail
 (
     id                int auto_increment comment 'id'

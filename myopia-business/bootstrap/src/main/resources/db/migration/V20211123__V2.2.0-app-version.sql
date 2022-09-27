@@ -1,4 +1,5 @@
 -- APP的apk版本管理表
+DROP TABLE IF EXISTS `m_app_version`;
 CREATE TABLE `m_app_version` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID主键',
   `package_name` varchar(100) NOT NULL COMMENT '包名，例如：com.xbt.eyeproject',
@@ -21,6 +22,7 @@ CREATE TABLE `m_app_version` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='APP的apk版本管理表';
 
 -- APP渠道表
+DROP TABLE IF EXISTS `m_app_channel`;
 CREATE TABLE `m_app_channel` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `cn_name` varchar(50) NOT NULL COMMENT '中文名称',

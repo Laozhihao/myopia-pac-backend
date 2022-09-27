@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `m_overview`;
 CREATE TABLE `m_overview`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_user_id` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
@@ -23,6 +24,7 @@ CREATE TABLE `m_overview`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '总览机构信息表' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `m_overview_admin`;
 CREATE TABLE `m_overview_admin`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_user_id` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
@@ -34,6 +36,7 @@ CREATE TABLE `m_overview_admin`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '总览机构管理员表' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `m_overview_hospital`;
 CREATE TABLE `m_overview_hospital`  (
   `overview_id` int(11) NOT NULL COMMENT '总览机构id',
   `hospital_id` int(11) NOT NULL COMMENT '医院id',
@@ -41,6 +44,7 @@ CREATE TABLE `m_overview_hospital`  (
   PRIMARY KEY (`overview_id`, `hospital_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '总览机构医院关联表' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `m_overview_screening_organization`;
 CREATE TABLE `m_overview_screening_organization`  (
   `overview_id` int(11) NOT NULL COMMENT '总览机构id',
   `screening_organization_id` int(11) NOT NULL COMMENT '筛查机构id',
