@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,13 +25,13 @@ import java.io.IOException;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ExportPrimarySchoolService implements QuestionnaireExcel {
 
     @Value("classpath:excel/ExportPrimarySchoolTemplate.xlsx")
     private Resource exportPrimarySchoolTemplate;
 
-    @Autowired
-    private UserAnswerFacade userAnswerFacade;
+    private final UserAnswerFacade userAnswerFacade;
 
 
     @Override
