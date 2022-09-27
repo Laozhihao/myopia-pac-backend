@@ -35,9 +35,9 @@ public enum DeskChairTypeEnum {
     KINDERGARTEN_DESK_5(5, 83, 97),
     KINDERGARTEN_DESK_6(6, 0, 89);
 
-    Integer type;
-    Integer minHeight;
-    Integer maxHeight;
+    final Integer type;
+    final Integer minHeight;
+    final Integer maxHeight;
 
     private static final List<DeskChairTypeEnum> PRIMARY_SECONDARY_DESK_LIST = Arrays.asList(PRIMARY_AND_SECONDARY_DESK_0, PRIMARY_AND_SECONDARY_DESK_1,
             PRIMARY_AND_SECONDARY_DESK_2, PRIMARY_AND_SECONDARY_DESK_3,

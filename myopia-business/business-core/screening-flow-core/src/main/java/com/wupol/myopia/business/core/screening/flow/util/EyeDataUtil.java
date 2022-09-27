@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -536,7 +537,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 获取左眼轴位
+     * 获取身高
      * @param visionScreenResult 筛查结果
      * @return 身高
      */
@@ -546,7 +547,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 获取左眼轴位
+     * 获取体重
      * @param visionScreenResult 筛查结果
      * @return 体重
      */
@@ -623,5 +624,17 @@ public class EyeDataUtil {
     public static Integer glassesType(VisionScreeningResult visionScreenResult){
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
+    }
+
+    /**
+     * 合并左右眼数据
+     *
+     * @param right 右眼
+     * @param left  左眼
+     *
+     * @return 右眼/左眼
+     */
+    public static String mergeEyeData(String right, String left) {
+        return right + StrUtil.SLASH + left;
     }
 }
