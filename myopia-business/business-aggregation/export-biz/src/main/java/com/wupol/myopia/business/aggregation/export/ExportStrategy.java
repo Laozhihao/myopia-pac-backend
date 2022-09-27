@@ -4,6 +4,7 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.interfaces.ExportFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.QueueInfo;
@@ -15,6 +16,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,8 +50,10 @@ public class ExportStrategy {
         }
         // 导出限制(不做限制)
         if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
-            String key = "doExport:" + lockKey;
-            sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+            if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
+                String key = "doExport:" + lockKey;
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
+            }
         }
         // 设置进队列
         redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
@@ -87,9 +91,12 @@ public class ExportStrategy {
 
         String lockKey = exportFileService.getLockKey(exportCondition);
 
-        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
-            String key = "syncExport:"+ lockKey;
-            sysUtilService.isNoPlatformRepeatExport(key, lockKey);
+        // 班级不做限制
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)) {
+            if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
+                String key = "syncExport:" + lockKey;
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
+            }
         }
         return exportFileService.syncExport(exportCondition);
     }
