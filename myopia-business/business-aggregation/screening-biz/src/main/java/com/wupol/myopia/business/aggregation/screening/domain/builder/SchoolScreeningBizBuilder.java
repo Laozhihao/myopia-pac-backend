@@ -292,16 +292,4 @@ public class SchoolScreeningBizBuilder {
         }
         return null;
     }
-
-    /**
-     * 获取筛查年级ID集合
-     * @param screeningGradeIds 筛查年级ID集合
-     */
-    public List<Integer> getScreeningGradeIds(String screeningGradeIds){
-        if (StrUtil.isBlank(screeningGradeIds)){
-            return Lists.newArrayList();
-        }
-        return Arrays.stream(screeningGradeIds.split(StrUtil.COMMA))
-                .map(Integer::valueOf).distinct().collect(Collectors.toList());
-    }
 }

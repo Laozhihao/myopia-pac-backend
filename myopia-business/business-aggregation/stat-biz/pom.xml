@@ -18,10 +18,14 @@
             <artifactId>stat-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-biz</artifactId>
+            <artifactId>screening-flow-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>government-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

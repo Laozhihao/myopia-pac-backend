@@ -7,18 +7,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.screening.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolKindergartenResultVO;
 import com.wupol.myopia.business.api.management.domain.vo.SchoolPrimarySchoolAndAboveResultVO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
@@ -46,6 +44,7 @@ public class StatSchoolService {
     private final ScreeningResultStatisticService screeningResultStatisticService;
     private final ManagementScreeningPlanFacade managementScreeningPlanFacade;
     private final StatRescreenService statRescreenService;
+    private final GovDeptService govDeptService;
 
     /**
      * 按学校-获取幼儿园数据
@@ -101,9 +100,11 @@ public class StatSchoolService {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
+        List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user,allGovDeptIds);
         return getStatisticByPlanIdsAndDistrictId(screeningPlans, districtIds,isKindergarten);
     }
+
     private List<Integer> getSchoolType(boolean isKindergarten) {
         return isKindergarten?Lists.newArrayList(8):Lists.newArrayList(0,1,2,3,4,5,6,7);
     }

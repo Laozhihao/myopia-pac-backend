@@ -483,6 +483,12 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.getByIdsAndCreateTimeDesc(ids);
     }
 
+    /**
+     * 获取筛查区域
+     *
+     * @param districtIds 行政区域ID集合
+     * @param taskIds 任务ID集合
+     */
     public int selectScreeningResultByDistrictIdAndTaskId(List<Integer> districtIds, List<Integer> taskIds) {
         return baseMapper.selectScreeningResultByDistrictIdAndTaskId(districtIds,taskIds);
     }

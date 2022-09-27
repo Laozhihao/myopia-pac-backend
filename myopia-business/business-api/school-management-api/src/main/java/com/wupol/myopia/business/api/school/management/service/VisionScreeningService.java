@@ -22,15 +22,14 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreenin
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolStatisticVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningStudentListVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
-import com.wupol.myopia.business.aggregation.screening.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
-import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
 import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
-import com.wupol.myopia.business.api.school.management.domain.vo.*;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
+import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
@@ -43,16 +42,19 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -105,7 +107,7 @@ public class VisionScreeningService {
     private SchoolGradeService schoolGradeService;
 
     @Resource
-    private SchoolFacade schoolFacade;
+    private SchoolBizFacade schoolBizFacade;
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
@@ -434,7 +436,7 @@ public class VisionScreeningService {
         }
 
         Set<Integer> gradeIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
-        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
+        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClass = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
 
         Set<Integer> studentIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toSet());
         List<SchoolStudent> schoolStudentList = schoolStudentService.getByStudentIdsAndSchoolId(Lists.newArrayList(studentIds), schoolId);
@@ -474,7 +476,7 @@ public class VisionScreeningService {
      * @param screeningPlanSchool
      */
     private void changeScreeningGradeIds(AddScreeningStudentDTO addScreeningStudentDTO, ScreeningPlanSchool screeningPlanSchool) {
-        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         screeningGradeIds.addAll(addScreeningStudentDTO.getGradeIds());
         screeningGradeIds = screeningGradeIds.stream().distinct().collect(Collectors.toList());
         screeningPlanSchool.setScreeningGradeIds(CollUtil.join(screeningGradeIds, StrUtil.COMMA));

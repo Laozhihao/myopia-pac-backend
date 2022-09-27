@@ -5,11 +5,10 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
@@ -48,7 +47,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +69,7 @@ import java.util.stream.Collectors;
  * @Date 2021/9/16
  **/
 @Service
-@Log4j2
+@Slf4j
 public class ScreeningPlanStudentBizService {
 
     @Value("${report.html.url-host}")
@@ -83,8 +82,6 @@ public class ScreeningPlanStudentBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private Html2PdfService html2PdfService;
-    @Autowired
-    private RedisUtil redisUtil;
     @Resource
     private SchoolGradeService schoolGradeService;
     @Resource
@@ -220,58 +217,7 @@ public class ScreeningPlanStudentBizService {
         Map<Integer, List<ScreeningStudentDTO>> planGroup = screeningStudentDTOS.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getPlanId));
 
         String appendName = getAppendName(schoolId, orgId, isSchoolClient);
-        for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
-            List<ScreeningStudentDTO> planList = planEntry.getValue();
-            if (CollectionUtils.isEmpty(planList)) {
-                continue;
-            }
-            Map<Integer, List<ScreeningStudentDTO>> schoolGroup = planList.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getSchoolId));
-            for (Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry : schoolGroup.entrySet()) {
-                List<ScreeningStudentDTO> schoolList = schoolEntry.getValue();
-                if (CollectionUtils.isEmpty(schoolList)) {
-                    continue;
-                }
-                Map<Integer, List<ScreeningStudentDTO>> gradeGroup = schoolList.stream().collect(Collectors.groupingBy(StudentDO::getGradeId));
-                for (Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry : gradeGroup.entrySet()) {
-                    List<ScreeningStudentDTO> gradeList = gradeEntry.getValue();
-                    if (CollectionUtils.isEmpty(gradeList)) {
-                        continue;
-                    }
-                    Map<Integer, List<ScreeningStudentDTO>> classGroup = gradeList.stream().collect(Collectors.groupingBy(StudentDO::getClassId));
-                    if (CollectionUtils.isEmpty(classGroup)) {
-                        continue;
-                    }
-                    for (Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry : classGroup.entrySet()) {
-                        List<ScreeningStudentDTO> classList = classEntry.getValue();
-                        if (CollectionUtils.isEmpty(classList)) {
-                            continue;
-                        }
-                        String screeningNoticeResultHtmlUrl = String.format(SCREENING_NOTICE_RESULT_HTML_URL,
-                                htmlUrlHost,
-                                planEntry.getKey(),
-                                Objects.nonNull(schoolEntry.getKey()) ? schoolEntry.getKey() : StringUtils.EMPTY,
-                                Objects.nonNull(gradeEntry.getKey()) ? gradeEntry.getKey() : StringUtils.EMPTY,
-                                Objects.nonNull(classEntry.getKey()) ? classEntry.getKey() : StringUtils.EMPTY,
-                                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
-                                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
-                                isSchoolClient);
-                        String fileName = SCREENING_NAME;
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
-                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
-                        try {
-                            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
-                                    fileSaveParentPath +
-                                            schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
-                                            gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
-                                            classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
-                                            fileName + ".pdf");
-                        } catch (Exception e) {
-                            log.error("Exception", e);
-                        }
-                    }
-                }
-            }
-        }
+        planInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planGroup);
         File renameFile = FileUtil.rename(ZipUtil.zip(fileSaveParentPath), appendName + SCREENING_NAME + ".zip", true);
         try {
             noticeService.sendExportSuccessNotice(userId, userId, appendName + SCREENING_NAME, s3Utils.uploadFileToS3(renameFile));
@@ -281,6 +227,182 @@ public class ScreeningPlanStudentBizService {
         } finally {
             FileUtil.del(fileSaveParentPath);
         }
+    }
+
+    /**
+     * 筛查计划信息
+     *
+     * @param orgId
+     * @param planStudentIdStr
+     * @param isSchoolClient
+     * @param fileSaveParentPath
+     * @param schoolMap
+     * @param gradeMap
+     * @param classMap
+     * @param planGroup
+     */
+    private void planInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
+                          String fileSaveParentPath, Map<Integer, String> schoolMap,
+                          Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
+                          Map<Integer, List<ScreeningStudentDTO>> planGroup) {
+        for (Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry : planGroup.entrySet()) {
+            List<ScreeningStudentDTO> planList = planEntry.getValue();
+            if (CollectionUtils.isEmpty(planList)) {
+                continue;
+            }
+            Map<Integer, List<ScreeningStudentDTO>> schoolGroup = planList.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getSchoolId));
+            schoolInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolGroup);
+        }
+    }
+
+    /**
+     * 学校信息
+     *
+     * @param orgId
+     * @param planStudentIdStr
+     * @param isSchoolClient
+     * @param fileSaveParentPath
+     * @param schoolMap
+     * @param gradeMap
+     * @param classMap
+     * @param planEntry
+     * @param schoolGroup
+     */
+    private void schoolInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
+                            String fileSaveParentPath, Map<Integer, String> schoolMap,
+                            Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
+                            Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry, Map<Integer,
+                            List<ScreeningStudentDTO>> schoolGroup) {
+        for (Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry : schoolGroup.entrySet()) {
+            List<ScreeningStudentDTO> schoolList = schoolEntry.getValue();
+            if (CollectionUtils.isEmpty(schoolList)) {
+                continue;
+            }
+            Map<Integer, List<ScreeningStudentDTO>> gradeGroup = schoolList.stream().collect(Collectors.groupingBy(StudentDO::getGradeId));
+            gradeInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolEntry, gradeGroup);
+        }
+    }
+
+    /**
+     * 年级信息
+     *
+     * @param orgId
+     * @param planStudentIdStr
+     * @param isSchoolClient
+     * @param fileSaveParentPath
+     * @param schoolMap
+     * @param gradeMap
+     * @param classMap
+     * @param planEntry
+     * @param schoolEntry
+     * @param gradeGroup
+     */
+    private void gradeInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
+                           String fileSaveParentPath, Map<Integer, String> schoolMap,
+                           Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
+                           Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
+                           Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
+                           Map<Integer, List<ScreeningStudentDTO>> gradeGroup) {
+        for (Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry : gradeGroup.entrySet()) {
+
+            Map<Integer, List<ScreeningStudentDTO>> classGroup = Maps.newHashMap();
+            List<ScreeningStudentDTO> gradeList = gradeEntry.getValue();
+            if (CollUtil.isNotEmpty(gradeList)) {
+                classGroup = gradeList.stream().collect(Collectors.groupingBy(StudentDO::getClassId));
+            }
+
+            if (CollUtil.isEmpty(classGroup)) {
+                continue;
+            }
+            classInfo(orgId, planStudentIdStr, isSchoolClient, fileSaveParentPath, schoolMap, gradeMap, classMap, planEntry, schoolEntry, gradeEntry, classGroup);
+        }
+    }
+
+    /**
+     * 班级信息
+     *
+     * @param orgId
+     * @param planStudentIdStr
+     * @param isSchoolClient
+     * @param fileSaveParentPath
+     * @param schoolMap
+     * @param gradeMap
+     * @param classMap
+     * @param planEntry
+     * @param schoolEntry
+     * @param gradeEntry
+     * @param classGroup
+     */
+    private void classInfo(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
+                           String fileSaveParentPath, Map<Integer, String> schoolMap,
+                           Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
+                           Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
+                           Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
+                           Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry,
+                           Map<Integer, List<ScreeningStudentDTO>> classGroup) {
+        for (Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry : classGroup.entrySet()) {
+            List<ScreeningStudentDTO> classList = classEntry.getValue();
+            if (CollectionUtils.isEmpty(classList)) {
+                continue;
+            }
+            String screeningNoticeResultHtmlUrl = getScreeningNoticeResultHtmlUrl(orgId, planStudentIdStr, isSchoolClient, planEntry, schoolEntry, gradeEntry, classEntry);
+            String fileName = SCREENING_NAME;
+            PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
+            log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
+            downloadPDFFile(fileSaveParentPath, schoolMap, gradeMap, classMap, schoolEntry, gradeEntry, classEntry, fileName, pdfResponseDTO);
+        }
+    }
+
+    /**
+     * 下载pdf文件
+     *
+     * @param fileSaveParentPath
+     * @param schoolMap
+     * @param gradeMap
+     * @param classMap
+     * @param schoolEntry
+     * @param gradeEntry
+     * @param classEntry
+     * @param fileName
+     * @param pdfResponseDTO
+     */
+    private void downloadPDFFile(String fileSaveParentPath, Map<Integer, String> schoolMap, Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap, Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry, Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry, Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry, String fileName, PdfResponseDTO pdfResponseDTO) {
+        try {
+            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                    fileSaveParentPath +
+                            schoolMap.get(schoolEntry.getKey()) + SCREENING_NAME + "/" +
+                            gradeMap.get(gradeEntry.getKey()).getName() + SCREENING_NAME + "/" +
+                            classMap.get(classEntry.getKey()).getName() + SCREENING_NAME + "/" +
+                            fileName + ".pdf");
+        } catch (Exception e) {
+            log.error("Exception", e);
+        }
+    }
+
+    /**
+     * 获取筛查通知结果html的url
+     * @param orgId
+     * @param planStudentIdStr
+     * @param isSchoolClient
+     * @param planEntry
+     * @param schoolEntry
+     * @param gradeEntry
+     * @param classEntry
+     */
+    private String getScreeningNoticeResultHtmlUrl(Integer orgId, String planStudentIdStr, Boolean isSchoolClient,
+                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> planEntry,
+                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> schoolEntry,
+                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> gradeEntry,
+                                                   Map.Entry<Integer, List<ScreeningStudentDTO>> classEntry) {
+        return String.format(SCREENING_NOTICE_RESULT_HTML_URL,
+                htmlUrlHost,
+                planEntry.getKey(),
+                Objects.nonNull(schoolEntry.getKey()) ? schoolEntry.getKey() : StringUtils.EMPTY,
+                Objects.nonNull(gradeEntry.getKey()) ? gradeEntry.getKey() : StringUtils.EMPTY,
+                Objects.nonNull(classEntry.getKey()) ? classEntry.getKey() : StringUtils.EMPTY,
+                Objects.nonNull(orgId) ? orgId : StringUtils.EMPTY,
+                Objects.nonNull(planStudentIdStr) ? planStudentIdStr : StringUtils.EMPTY,
+                isSchoolClient);
     }
 
     /**

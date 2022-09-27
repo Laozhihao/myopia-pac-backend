@@ -6,6 +6,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningBizBuilder;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class SchoolManagementFacade {
      * @param screeningPlanSchool
      */
     private void changeScreeningGradeIds(Integer id, ScreeningPlanSchool screeningPlanSchool) {
-        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         Iterator<Integer> it = screeningGradeIds.iterator();
         while (it.hasNext()){
             Integer gradeId = it.next();

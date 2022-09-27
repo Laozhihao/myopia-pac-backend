@@ -27,7 +27,7 @@ public class SchoolStatisticBuilder {
     private static final Integer ZERO = 0;
     private static final String ZERO_POINT = "0.0";
     private static final String ZERO_RATIO = "0.00%";
-    private static final BigDecimal decimal = new BigDecimal(ZERO_POINT);
+    private static final BigDecimal DECIMAL = new BigDecimal(ZERO_POINT);
 
     /**
      * 构建幼儿园筛查数据结果
@@ -73,8 +73,9 @@ public class SchoolStatisticBuilder {
         kindergartenSchoolStatisticVO.setLowVisionNum(getValueByInteger(visionAnalysis.getLowVisionNum()))
                 .setLowVisionRatio(getValueByString(visionAnalysis.getLowVisionRatio()))
                 .setAvgLeftVision(getValueByBigDecimal(visionAnalysis.getAvgLeftVision()))
-                .setAvgRightVision(getValueByBigDecimal(visionAnalysis.getAvgRightVision()))
-                .setMyopiaLevelInsufficientNum(getValueByInteger(visionAnalysis.getMyopiaLevelInsufficientNum()))
+                .setAvgRightVision(getValueByBigDecimal(visionAnalysis.getAvgRightVision()));
+
+        kindergartenSchoolStatisticVO.setMyopiaLevelInsufficientNum(getValueByInteger(visionAnalysis.getMyopiaLevelInsufficientNum()))
                 .setMyopiaLevelInsufficientRatio(getValueByString(visionAnalysis.getMyopiaLevelInsufficientRatio()))
                 .setAnisometropiaNum(getValueByInteger(visionAnalysis.getAnisometropiaNum()))
                 .setAnisometropiaRatio(getValueByString(visionAnalysis.getAnisometropiaRatio()))
@@ -134,8 +135,9 @@ public class SchoolStatisticBuilder {
         primarySchoolAndAboveSchoolStatisticVO.setLowVisionNum(getValueByInteger(visionAnalysis.getLowVisionNum()))
                 .setLowVisionRatio(getValueByString(visionAnalysis.getLowVisionRatio()))
                 .setAvgLeftVision(getValueByBigDecimal(visionAnalysis.getAvgLeftVision()))
-                .setAvgRightVision(getValueByBigDecimal(visionAnalysis.getAvgRightVision()))
-                .setWearingGlassesNum(getValueByInteger(visionAnalysis.getWearingGlassesNum()))
+                .setAvgRightVision(getValueByBigDecimal(visionAnalysis.getAvgRightVision()));
+
+        primarySchoolAndAboveSchoolStatisticVO.setWearingGlassesNum(getValueByInteger(visionAnalysis.getWearingGlassesNum()))
                 .setWearingGlassesRatio(getValueByString(visionAnalysis.getWearingGlassesRatio()))
                 .setNightWearingOrthokeratologyLensesNum(getValueByInteger(visionAnalysis.getNightWearingOrthokeratologyLensesNum()))
                 .setNightWearingOrthokeratologyLensesRatio(getValueByString(visionAnalysis.getNightWearingOrthokeratologyLensesRatio()))
@@ -258,6 +260,6 @@ public class SchoolStatisticBuilder {
     }
 
     private BigDecimal getValueByBigDecimal(BigDecimal value){
-        return Optional.ofNullable(value).orElse(decimal);
+        return Optional.ofNullable(value).orElse(DECIMAL);
     }
 }

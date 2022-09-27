@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
@@ -22,12 +21,8 @@ import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
-import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
-import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
-import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -57,7 +52,6 @@ import com.wupol.myopia.business.core.system.service.TemplateDistrictService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -115,11 +109,6 @@ public class StudentFacade {
     private OauthServiceClient oauthServiceClient;
     @Resource
     private MedicalReportService medicalReportService;
-
-    @Autowired
-    private HospitalDoctorService hospitalDoctorService;
-    @Autowired
-    private MedicalReportBizService medicalReportBizService;
     @Autowired
     private SchoolService schoolService;
 
@@ -1318,19 +1307,8 @@ public class StudentFacade {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudentAndSchoolStudent(Student student) {
-        Integer studentId = saveStudent(student);
-        // TODO: JS2.02.01-1学校管理后台-自主筛查 ,管理后台-多端管理-用户管理（学生）不同步到学校管理后台
-
-//        if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {
-//            return studentId;
-//        }
-//        SchoolStudent schoolStudent = new SchoolStudent();
-//        BeanUtils.copyProperties(student, schoolStudent);
-//        schoolStudent.setId(null);
-//        schoolStudent.setStudentId(studentId);
-//        setSchoolStudentInfo(schoolStudent, student.getSchoolId());
-//        schoolStudentService.saveOrUpdate(schoolStudent);
-        return studentId;
+        // TODO: JS2.02.01-1学校管理后台-自主筛查 ,管理后台-多端管理-用户管理（学生）不同步到学校管理后台(代码移除，要看代码查看历史记录)
+        return saveStudent(student);
     }
 
     /**
@@ -1553,52 +1531,6 @@ public class StudentFacade {
         studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
         studentWarningArchiveVO.setChairType(deskAndChairType);
         studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
-    }
-
-    /**
-     * 获取学生就诊列表
-     *
-     * @param pageRequest 分页请求
-     * @param studentId   学生ID
-     * @param currentUser 登录用户
-     * @param hospitalId  医院Id
-     * @return List<MedicalReportDO>
-     */
-    public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser, Integer hospitalId) {
-        if (!currentUser.isPlatformAdminUser()) {
-            hospitalId = currentUser.getOrgId();
-        }
-        IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId, hospitalId);
-        List<ReportAndRecordDO> records = pageReport.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
-            return pageReport;
-        }
-        packageReportInfo(records);
-        return pageReport;
-    }
-
-    /**
-     * 设置报告信息
-     *
-     * @param records 报告
-     */
-    public void packageReportInfo(List<ReportAndRecordDO> records) {
-        // 收集医生Id
-        Set<Integer> doctorIds = records.stream().map(ReportAndRecordDO::getDoctorId).collect(Collectors.toSet());
-        Map<Integer, String> doctorMap = hospitalDoctorService.listByIds(doctorIds).stream().collect(Collectors.toMap(Doctor::getId, Doctor::getName));
-        records.forEach(report -> {
-            report.setDoctorName(doctorMap.getOrDefault(report.getDoctorId(), StringUtils.EMPTY));
-            if (Objects.nonNull(report.getBirthday())) {
-                report.setCreateTimeAge(com.wupol.myopia.base.util.DateUtil.getAgeInfo(report.getBirthday(), report.getCreateTime()));
-            }
-            ReportConclusion reportConclusion = medicalReportBizService.getReportConclusion(report.getReportId());
-            if (Objects.nonNull(reportConclusion)
-                    && Objects.nonNull(reportConclusion.getReport())
-                    && !CollectionUtils.isEmpty((reportConclusion.getReport().getImageIdList()))) {
-                report.setImageFileUrl(resourceFileService.getBatchResourcePath(reportConclusion.getReport().getImageIdList()));
-            }
-            report.setCheckStatus(DateUtils.isSameDay(report.getCreateTime(), new Date()));
-        });
     }
 
     /**

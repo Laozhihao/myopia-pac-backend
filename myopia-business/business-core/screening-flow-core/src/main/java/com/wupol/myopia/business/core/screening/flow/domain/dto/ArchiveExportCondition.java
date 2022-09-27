@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.aggregation.screening.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;

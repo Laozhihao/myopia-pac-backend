@@ -9,7 +9,6 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.business.aggregation.screening.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticDetailBO;
 import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.aggregation.stat.domain.builder.ScreeningResultStatisticBuilder;
@@ -19,12 +18,14 @@ import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
@@ -59,6 +60,7 @@ public class StatFacade {
     private final StatConclusionService statConclusionService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     private final DistrictService districtService;
+    private final GovDeptService govDeptService;
 
 
     /**
@@ -133,7 +135,9 @@ public class StatFacade {
 
         Set<Integer> noticeIds = new HashSet<>();
         noticeIds.add(noticeId);
-        List<ScreeningPlan> screeningPlans = managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user);
+
+        List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
+        List<ScreeningPlan> screeningPlans = managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeIds, null, user,allGovDeptIds);
         return getStatisticByPlanIdsAndSchoolId(screeningPlans, schoolId);
     }
 

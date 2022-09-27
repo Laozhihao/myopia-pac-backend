@@ -1,18 +1,17 @@
-package com.wupol.myopia.business.aggregation.screening.facade;
+package com.wupol.myopia.business.core.screening.flow.facade;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningBizBuilder;
-import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningPlanBuilder;
-import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -43,7 +42,7 @@ public class SchoolScreeningBizFacade {
     private final ScreeningPlanSchoolService screeningPlanSchoolService;
     private final ScreeningPlanService screeningPlanService;
     private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    private final SchoolFacade schoolFacade;
+    private final SchoolBizFacade schoolBizFacade;
 
 
     /**
@@ -105,7 +104,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.isNull(screeningPlanSchool)){
             return;
         }
-        List<Integer> screeningGradeIds = SchoolScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         if (!screeningGradeIds.contains(schoolStudent.getGradeId())){
             return;
         }
@@ -125,12 +124,12 @@ public class SchoolScreeningBizFacade {
      */
     public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school,Boolean isAdd){
         Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
-        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
+        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
         if (Objects.nonNull(screeningPlanId)){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
         }
-        return SchoolScreeningPlanBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
+        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
     }
 
 }

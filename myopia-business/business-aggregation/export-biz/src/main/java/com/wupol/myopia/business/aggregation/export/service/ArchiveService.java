@@ -10,8 +10,6 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.screening.domain.dto.ArchiveExportCondition;
-import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -23,11 +21,13 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
+import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseasesHistoryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaData;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveExportCondition;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -76,7 +76,7 @@ public class ArchiveService {
     @Autowired
     private DistrictService districtService;
     @Autowired
-    private SchoolFacade schoolFacade;
+    private SchoolBizFacade schoolBizFacade;
     @Autowired
     private ExportStrategy exportStrategy;
 
@@ -162,7 +162,7 @@ public class ArchiveService {
 
         //班级信息
         Set<Integer> classIds = planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toSet());
-        List<SchoolClassDTO> schoolClassDTOList = schoolFacade.getClassWithSchoolAndGradeName(Lists.newArrayList(classIds));
+        List<SchoolClassDTO> schoolClassDTOList = schoolBizFacade.getClassWithSchoolAndGradeName(Lists.newArrayList(classIds));
         Map<Integer, SchoolClassDTO> schoolClassDtoMap = schoolClassDTOList.stream().collect(Collectors.toMap(SchoolClass::getId, Function.identity(), (v1, v2) -> v2));
 
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreenBatch(Lists.newArrayList(planIds),Boolean.FALSE,exportCondition.getSchoolId());

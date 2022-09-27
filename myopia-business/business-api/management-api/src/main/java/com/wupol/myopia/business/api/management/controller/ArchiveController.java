@@ -3,7 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.export.service.ArchiveService;
-import com.wupol.myopia.business.aggregation.screening.domain.dto.ArchiveExportCondition;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveExportCondition;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.CommonDiseaseArchiveCard;
 import org.springframework.beans.factory.annotation.Autowired;

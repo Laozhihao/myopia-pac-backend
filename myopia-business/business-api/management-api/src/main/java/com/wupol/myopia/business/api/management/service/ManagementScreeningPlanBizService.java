@@ -5,10 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.business.aggregation.screening.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -21,6 +21,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanPag
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
@@ -136,7 +137,8 @@ public class ManagementScreeningPlanBizService {
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId()))) || user.isPlatformAdminUser()) {
             screeningNoticeIds.add(ScreeningConstant.NO_EXIST_NOTICE);
         }
-        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(screeningNoticeIds, null, user);
+        List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(screeningNoticeIds, null, user,allGovDeptIds);
     }
 
     /**
@@ -152,7 +154,8 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> noticeSet = new HashSet<>();
         noticeSet.add(noticeId);
-        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user);
+        List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user,allGovDeptIds);
     }
 
     /**
@@ -166,7 +169,8 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> taskSet = new HashSet<>();
         taskSet.add(taskId);
-        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(null, taskSet, user);
+        List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
+        return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(null, taskSet, user,allGovDeptIds);
     }
 
 }

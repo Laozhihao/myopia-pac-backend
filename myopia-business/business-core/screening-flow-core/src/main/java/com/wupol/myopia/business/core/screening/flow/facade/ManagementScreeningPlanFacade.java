@@ -1,10 +1,9 @@
-package com.wupol.myopia.business.aggregation.screening.facade;
+package com.wupol.myopia.business.core.screening.flow.facade;
 
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import java.util.Set;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ManagementScreeningPlanFacade {
 
-    private final GovDeptService govDeptService;
     private final ScreeningPlanService screeningPlanService;
 
 
@@ -35,14 +33,14 @@ public class ManagementScreeningPlanFacade {
      * @param noticeIds 通知ID集
      * @param taskIds   任务ID集
      * @param user      当前用户
+     * @param allGovDeptIds 所有政府部门ID集合
      * @return
      */
-    public List<ScreeningPlan> getScreeningPlanByNoticeIdsOrTaskIdsAndUser(Set<Integer> noticeIds, Set<Integer> taskIds, CurrentUser user) {
+    public List<ScreeningPlan> getScreeningPlanByNoticeIdsOrTaskIdsAndUser(Set<Integer> noticeIds, Set<Integer> taskIds, CurrentUser user,List<Integer> allGovDeptIds) {
         LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getScreeningOrgId, user.getScreeningOrgId());
         } else if (user.isGovDeptUser()) {
-            List<Integer> allGovDeptIds = govDeptService.getAllSubordinate(user.getOrgId());
             allGovDeptIds.add(user.getOrgId());
             screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getGovDeptId, allGovDeptIds);
         }
