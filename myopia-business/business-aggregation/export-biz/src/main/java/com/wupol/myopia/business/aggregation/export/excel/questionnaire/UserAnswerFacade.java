@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,13 +39,15 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/7/21 19:50
  */
 @Slf4j
-@Component
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@Service
 public class UserAnswerFacade {
 
-    private final SchoolService schoolService;
-    private final DistrictService districtService;
-    private final QuestionnaireFactory questionnaireFactory;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private DistrictService districtService;
+    @Autowired
+    private QuestionnaireFactory questionnaireFactory;
 
 
     /**

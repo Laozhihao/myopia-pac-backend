@@ -25,13 +25,13 @@ import java.io.IOException;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ExportMiddleSchoolService implements QuestionnaireExcel{
 
     @Value("classpath:excel/ExportMiddleSchoolTemplate.xlsx")
     private Resource exportMiddleSchoolTemplate;
 
-    private final UserAnswerFacade userAnswerFacade;
+    @Autowired
+    private UserAnswerFacade userAnswerFacade;
 
     @Override
     public Integer getType() {
