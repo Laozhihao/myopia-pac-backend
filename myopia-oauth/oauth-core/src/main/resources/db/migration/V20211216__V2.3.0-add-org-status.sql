@@ -1,4 +1,5 @@
 -- 增加o_organization信息表
+DROP TABLE IF EXISTS `o_organization`;
 CREATE TABLE `o_organization`  (
   `org_id` int(11) NOT NULL COMMENT '机构组织ID（如政府部门ID、学校ID、医院ID）',
   `system_code` tinyint(1) NOT NULL COMMENT '系统编号',
