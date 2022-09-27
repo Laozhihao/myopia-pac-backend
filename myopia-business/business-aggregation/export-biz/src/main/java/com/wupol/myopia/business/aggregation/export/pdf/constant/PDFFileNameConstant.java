@@ -45,4 +45,9 @@ public class PDFFileNameConstant {
      */
     public static final String COMMON_DISEASE_ARCHIVE = "监测表";
 
+    /**
+     * 眼健康数据
+     */
+    public static final String SCHOOL_EYE_HEALTH = "眼健康中心数据表";
+
 }

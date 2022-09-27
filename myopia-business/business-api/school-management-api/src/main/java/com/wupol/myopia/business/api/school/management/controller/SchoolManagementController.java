@@ -8,6 +8,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
@@ -258,5 +259,19 @@ public class SchoolManagementController {
     @PostMapping("/grades/batchSave")
     public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
         schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
+    }
+
+
+    /**
+     * 导出眼健康中心数据
+     */
+    @GetMapping("/eyeHealthData/Export")
+    public void eyeHealthDataExport() throws IOException {
+
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(currentUser.getId())
+                .setSchoolId(currentUser.getOrgId());
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE);
     }
 }
