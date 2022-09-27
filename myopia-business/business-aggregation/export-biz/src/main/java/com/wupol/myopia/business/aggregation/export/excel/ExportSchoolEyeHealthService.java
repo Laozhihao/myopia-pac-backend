@@ -4,13 +4,12 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
-import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.dto.EyeHealthDataExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -41,6 +40,8 @@ import java.util.stream.Collectors;
  */
 @Service(ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE)
 public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
+
+    private static final String EMPTY_DATA = "--";
 
     @Resource
     private SchoolStudentService schoolStudentService;
@@ -112,6 +113,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
                 exportDTO.setAxial(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightAxial(result), EyeDataUtil.computerLeftAxial(result)));
                 exportDTO.setCorrectedVision(EyeDataUtil.mergeEyeData(EyeDataUtil.correctedRightDataToStr(result), EyeDataUtil.correctedLeftDataToStr(result)));
                 exportDTO.setHeight(EyeDataUtil.height(result).toString());
+
             }
             if (Objects.nonNull(statConclusion)) {
                 exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), "--"));
@@ -127,8 +129,10 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
                 exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
                 exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
 
-//                exportDTO.setDesk();
-//                exportDTO.setChair();
+                TwoTuple<String, String> deskChairSuggest = getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
+                exportDTO.setDesk(deskChairSuggest.getFirst());
+                exportDTO.setChair(deskChairSuggest.getSecond());
+
 //                exportDTO.setSeat();
                 exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
             }
@@ -153,5 +157,24 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(schoolStudents)) {
             throw new BusinessException("数据为空！");
         }
+    }
+
+    /**
+     * 课桌椅建议
+     *
+     * @param heightStr 身高
+     * @param schoolAge 学龄
+     *
+     * @return TwoTuple<String, String>
+     */
+    private TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
+        if (Objects.isNull(heightStr) || Objects.isNull(schoolAge)) {
+            return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
+        }
+        float height = Long.parseLong(heightStr);
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
+        String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
+        return new TwoTuple<>(StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf(height * 0.43)),
+                StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf((height * 0.24))));
     }
 }
