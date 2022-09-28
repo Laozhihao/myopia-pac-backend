@@ -537,12 +537,22 @@ public class ScreeningPlanStudentBizService {
         if (Objects.isNull(student)) {
             return;
         }
+        buildStudentByPlanStudent(student, planStudent);
+        studentService.updateById(student);
+    }
+
+    /**
+     * 通过筛查学生构建多端学生
+     *
+     * @param student     多端学生
+     * @param planStudent 筛查学生
+     */
+    private void buildStudentByPlanStudent(Student student, ScreeningPlanSchoolStudent planStudent) {
         student.setName(planStudent.getStudentName());
         student.setGender(planStudent.getGender());
         student.setBirthday(planStudent.getBirthday());
         student.setSchoolId(planStudent.getSchoolId());
         student.setGradeId(planStudent.getGradeId());
         student.setClassId(planStudent.getClassId());
-        studentService.updateById(student);
     }
 }

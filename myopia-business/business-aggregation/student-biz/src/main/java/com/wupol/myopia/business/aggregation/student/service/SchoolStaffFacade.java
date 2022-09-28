@@ -112,14 +112,7 @@ public class SchoolStaffFacade {
             }
         }
 
-        staff.setId(id);
-        staff.setSchoolId(schoolId);
-        staff.setStaffName(requestDTO.getStaffName());
-        staff.setGender(IdCardUtil.getGender(requestDTO.getIdCard()));
-        staff.setPhone(requestDTO.getPhone());
-        staff.setIdCard(requestDTO.getIdCard());
-        staff.setStaffType(SchoolStaffTypeEnum.SCHOOL_DOCTOR.getType());
-        staff.setRemark(requestDTO.getRemark());
+        buildStaff(schoolId, requestDTO, id, staff);
 
         // 学校管理后台
         TwoTuple<UsernameAndPasswordDTO, AccountInfo> school = saveSchoolAccount(schoolId, requestDTO, staff.getAccountInfo(), user.getId(), isSameIdCardAndPhone);
@@ -130,6 +123,25 @@ public class SchoolStaffFacade {
         staff.setAccountInfo(Lists.newArrayList(app.getSecond(), school.getSecond()));
         schoolStaffService.saveOrUpdate(staff);
         return Lists.newArrayList(app.getFirst(), school.getFirst());
+    }
+
+    /**
+     * 构建员工实体
+     *
+     * @param schoolId   学校Id
+     * @param requestDTO 请求DTO
+     * @param id         id
+     * @param staff      员工
+     */
+    private void buildStaff(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO, Integer id, SchoolStaff staff) {
+        staff.setId(id);
+        staff.setSchoolId(schoolId);
+        staff.setStaffName(requestDTO.getStaffName());
+        staff.setGender(IdCardUtil.getGender(requestDTO.getIdCard()));
+        staff.setPhone(requestDTO.getPhone());
+        staff.setIdCard(requestDTO.getIdCard());
+        staff.setStaffType(SchoolStaffTypeEnum.SCHOOL_DOCTOR.getType());
+        staff.setRemark(requestDTO.getRemark());
     }
 
     /**
@@ -234,6 +246,7 @@ public class SchoolStaffFacade {
         }
 
         // 新增的话，存在则抛出异常
+        // 优化：可以简化if抛出异常，参考org.springframework.util.Assert.notNull() 方法
         if (Objects.isNull(id)) {
             throw new BusinessException("手机号码重复");
         } else {
@@ -268,13 +281,7 @@ public class SchoolStaffFacade {
         UserDTO appUserDTO = userDTO.getFirst();
 
         String username = getSchoolUsername(userDTO);
-        appUserDTO.setOrgId(schoolId)
-                .setUsername(username)
-                .setPassword(password)
-                .setSystemCode(systemCode)
-                .setCreateUserId(createUserId)
-                .setRealName(requestDTO.getStaffName())
-                .setRemark(requestDTO.getRemark());
+        buildUserDTO(appUserDTO, schoolId, requestDTO, systemCode, createUserId, username, password);
         return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode, isSameIdCardAndPhone);
     }
 
@@ -292,27 +299,45 @@ public class SchoolStaffFacade {
     private TwoTuple<UsernameAndPasswordDTO, AccountInfo> saveAppAccount(Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
                                                                          List<AccountInfo> accountInfos, Integer createUserId,
                                                                          Boolean isSameIdCardAndPhone) {
-
         String username = requestDTO.getPhone();
         String password = StringUtils.substring(requestDTO.getPhone(), -4) + StringUtils.substring(requestDTO.getIdCard(), -4);
 
         Integer systemCode = SystemCode.SCREENING_CLIENT.getCode();
-
         TwoTuple<UserDTO, Boolean> userDTO = getUserDTO(accountInfos, systemCode);
-        UserDTO appUserDTO = userDTO.getFirst();
+        UserDTO appUserDTO = buildUserDTO(userDTO.getFirst(), schoolId, requestDTO, systemCode, createUserId, username, password);
+        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode, isSameIdCardAndPhone);
+    }
 
-        appUserDTO.setOrgId(schoolId)
+    /**
+     * 生成UserDTO
+     *
+     * @param userDTO      userDTO
+     * @param schoolId     学校Id
+     * @param requestDTO   请求DTO
+     * @param systemCode   系统编号
+     * @param createUserId 创建人
+     * @param username     用户名
+     * @param password     密码
+     *
+     * @return UserDTO
+     */
+    private UserDTO buildUserDTO(UserDTO userDTO, Integer schoolId, SchoolStaffSaveRequestDTO requestDTO,
+                                 Integer systemCode, Integer createUserId, String username, String password) {
+        userDTO.setOrgId(schoolId)
                 .setUsername(username)
                 .setPassword(password)
                 .setSystemCode(systemCode)
                 .setCreateUserId(createUserId)
                 .setRealName(requestDTO.getStaffName())
-                .setGender(IdCardUtil.getGender(requestDTO.getIdCard()))
-                .setPhone(requestDTO.getPhone())
-                .setIdCard(requestDTO.getIdCard())
                 .setRemark(requestDTO.getRemark())
-                .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
-        return saveUser(userDTO.getSecond(), appUserDTO, username, password, systemCode, isSameIdCardAndPhone);
+                .setGender(IdCardUtil.getGender(requestDTO.getIdCard()));
+        if (Objects.equals(SystemCode.SCREENING_CLIENT.getCode(), systemCode)) {
+            userDTO.setGender(IdCardUtil.getGender(requestDTO.getIdCard()))
+                    .setPhone(requestDTO.getPhone())
+                    .setIdCard(requestDTO.getIdCard())
+                    .setUserType(UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType());
+        }
+        return userDTO;
     }
 
     /**
