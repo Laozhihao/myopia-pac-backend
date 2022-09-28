@@ -303,6 +303,18 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     }
 
     /**
+     * 通过机构Id获取
+     *
+     * @param orgId 机构Id
+     *
+     * @return List<ScreeningPlanSchool>
+     */
+    public List<ScreeningPlanSchool> getByOrgId(Integer orgId) {
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlanSchool>().
+                eq(ScreeningPlanSchool::getScreeningOrgId, orgId));
+    }
+
+    /**
      * 根据学校ID和筛查机构ID查询
      * @param schoolId
      * @param orgId

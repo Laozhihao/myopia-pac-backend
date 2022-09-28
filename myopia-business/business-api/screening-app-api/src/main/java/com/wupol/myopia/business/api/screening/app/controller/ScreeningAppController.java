@@ -1277,6 +1277,9 @@ public class ScreeningAppController {
     @GetMapping("/check/staffType")
     public Boolean checkStaffType() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isSchoolScreeningUser()) {
+            return false;
+        }
         ScreeningOrganizationStaff staff = screeningOrganizationStaffService.getStaffsByUserId(currentUser.getId());
         if (Objects.isNull(staff)) {
             throw new BusinessException("筛查人员信息异常");

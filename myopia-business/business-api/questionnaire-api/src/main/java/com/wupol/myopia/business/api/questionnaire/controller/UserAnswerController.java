@@ -160,7 +160,6 @@ public class UserAnswerController {
                                                @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                                @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType,
                                                @NotNull(message = "schoolId不能为空") Integer schoolId) {
-        return ApiResult.success(schoolService.getSchoolCommonDiseaseCode(districtAreaCode, areaType, monitorType,schoolId));
+        return ApiResult.success(schoolService.getSchoolCommonDiseaseCode(districtAreaCode, areaType, monitorType, schoolId));
     }
-
 }

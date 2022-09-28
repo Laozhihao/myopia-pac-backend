@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
@@ -73,6 +74,8 @@ public class ScreeningOrganizationController {
     private OverviewService overviewService;
     @Autowired
     private DistrictService districtService;
+    @Resource
+    private SchoolBizService schoolBizService;
 
     /**
      * 新增筛查机构
@@ -154,6 +157,11 @@ public class ScreeningOrganizationController {
     @GetMapping("{id}")
     public ScreeningOrgResponseDTO getScreeningOrganization(@PathVariable("id") Integer id) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+
+        if(user.isSchoolScreeningUser()) {
+            return schoolBizService.school2ScreeningOrgResponseDTO(id);
+        }
+
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), id);
         if (Objects.nonNull(user.getScreeningOrgId())) {
             id = user.getScreeningOrgId();

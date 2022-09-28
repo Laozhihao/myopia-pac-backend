@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -343,7 +344,6 @@ public class ScreeningAppService {
      *
      * @param currentUser
      * @param appStudentDTO
-     * @param school
      * @return
      */
     public Student getStudent(CurrentUser currentUser, AppStudentDTO appStudentDTO) throws ParseException {
@@ -371,24 +371,43 @@ public class ScreeningAppService {
     /**
      * 获取用户的详细信息
      *
-     * @param currentUser
-     * @return
+     * @param currentUser 用户
+     *
+     * @return AppUserInfo
      */
     public AppUserInfo getUserInfoByUser(CurrentUser currentUser) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
-        User user = oauthServiceClient.getUserDetailByUserId(currentUser.getId());
+        if (Objects.equals(currentUser.getUserType(), UserType.SCREENING_STAFF_TYPE_ORG.getType())) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(currentUser.getOrgId());
+            AppUserInfo appUserInfo = getAppUserInfo(currentUser.getId(), screeningOrganization.getName(), screeningOrganization.getId());
+            ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(currentUser.getId()));
+            if (screeningOrganizationStaff == null) {
+                throw new BusinessException("无法找到该员工");
+            }
+            String resourcePath = resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
+            appUserInfo.setAutImage(resourcePath);
+            return appUserInfo;
+        }
+        School school = schoolService.getById(currentUser.getOrgId());
+        return getAppUserInfo(currentUser.getId(), school.getName(), school.getId());
+    }
+
+    /**
+     * 获取用户基本信息
+     *
+     * @param userId   用户Id
+     * @param deptName 机构名称
+     * @param deptId   机构Id
+     *
+     * @return AppUserInfo
+     */
+    private AppUserInfo getAppUserInfo(Integer userId, String deptName, Integer deptId) {
+        User user = oauthServiceClient.getUserDetailByUserId(userId);
         AppUserInfo appUserInfo = new AppUserInfo();
         appUserInfo.setUsername(user.getRealName());
-        appUserInfo.setUserId(currentUser.getId());
-        appUserInfo.setDeptName(screeningOrganization.getName());
-        appUserInfo.setDeptId(screeningOrganization.getId());
+        appUserInfo.setUserId(userId);
+        appUserInfo.setDeptName(deptName);
+        appUserInfo.setDeptId(deptId);
         appUserInfo.setPhone(user.getPhone());
-        ScreeningOrganizationStaff screeningOrganizationStaff = screeningOrganizationStaffService.findOne(new ScreeningOrganizationStaff().setUserId(currentUser.getId()));
-        if (screeningOrganizationStaff == null) {
-            throw new BusinessException("无法找到该员工");
-        }
-        String resourcePath = resourceFileService.getResourcePath(screeningOrganizationStaff.getSignFileId());
-        appUserInfo.setAutImage(resourcePath);
         return appUserInfo;
     }
 
