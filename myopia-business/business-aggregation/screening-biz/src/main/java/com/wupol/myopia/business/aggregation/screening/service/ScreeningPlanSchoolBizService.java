@@ -211,14 +211,4 @@ public class ScreeningPlanSchoolBizService {
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
     }
-
-
-
-    public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (screeningPlan.getEndTime().getTime() <= System.currentTimeMillis()){
-            return ScreeningConstant.END;
-        }
-        int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(schoolId));
-        return count > 0 ? ScreeningConstant.IN_PROGRESS : ScreeningConstant.NOT_START;
-    }
 }

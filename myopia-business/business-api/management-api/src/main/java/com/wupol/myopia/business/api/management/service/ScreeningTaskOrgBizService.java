@@ -391,10 +391,21 @@ public class ScreeningTaskOrgBizService {
     }
 
 
+    /**
+     * 对象转map时 key值唯一标志
+     * @param one
+     * @param two
+     */
     private String getKey(Integer one, Integer two) {
         return one + StrUtil.UNDERLINE + two;
     }
 
+    /**
+     * 对象转map时 key值唯一标志
+     * @param one
+     * @param two
+     * @param three
+     */
     private String getThreeKey(Integer one, Integer two, Integer three) {
         return one + StrUtil.UNDERLINE + two + StrUtil.UNDERLINE + three;
     }
