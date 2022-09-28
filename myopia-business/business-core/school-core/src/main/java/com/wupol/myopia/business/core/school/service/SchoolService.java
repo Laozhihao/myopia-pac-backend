@@ -262,7 +262,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
     public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
-        return baseMapper.getByNoNeId(schoolNo, schoolId).size() > 0;
+        List<School> schoolList = baseMapper.getByNoNeId(schoolNo, schoolId);
+        return CollUtil.isNotEmpty(schoolList);
     }
 
     /**
