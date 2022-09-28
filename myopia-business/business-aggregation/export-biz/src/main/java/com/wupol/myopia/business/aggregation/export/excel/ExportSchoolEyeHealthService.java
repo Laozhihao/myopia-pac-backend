@@ -73,7 +73,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
-        List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolId(schoolId);
+        List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(schoolId);
         List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
 
         // 获取年级
@@ -154,7 +154,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
-        List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolId(schoolId);
+        List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(schoolStudents)) {
             throw new BusinessException("数据为空！");
         }
