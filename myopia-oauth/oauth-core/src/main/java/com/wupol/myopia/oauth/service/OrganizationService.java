@@ -10,6 +10,8 @@ import com.wupol.myopia.oauth.domain.mapper.OrganizationMapper;
 import com.wupol.myopia.oauth.domain.model.Organization;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @Author wulizhou
  * @Date 2021-12-06
@@ -19,7 +21,7 @@ public class OrganizationService extends BaseService<OrganizationMapper, Organiz
 
     public Organization get(Integer orgId, Integer systemCode, Integer userType) {
         // 筛查或医院端，统一转化为筛查管理端或医院管理端查询
-        if (SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) && UserType.OTHER.getType().equals(userType)) {
+        if (SystemCode.SCREENING_CLIENT.getCode().equals(systemCode) && UserType.SCREENING_STAFF_TYPE_ORG.getType().equals(userType)) {
             systemCode = SystemCode.MANAGEMENT_CLIENT.getCode();
             userType = UserType.SCREENING_ORGANIZATION_ADMIN.getType();
         } else if (SystemCode.HOSPITAL_CLIENT.getCode().equals(systemCode) && UserType.OTHER.getType().equals(userType)) {
@@ -28,6 +30,9 @@ public class OrganizationService extends BaseService<OrganizationMapper, Organiz
         } else if (SystemCode.PARENT_CLIENT.getCode().equals(systemCode)) {
             // 家长端，返回一个id为-1，并状态为启用的机构
             return new Organization(-1, systemCode, userType, StatusConstant.ENABLE);
+        } else if (Objects.equals(systemCode, SystemCode.SCREENING_CLIENT.getCode()) && Objects.equals(userType, UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType())) {
+            systemCode = SystemCode.SCHOOL_CLIENT.getCode();
+            userType = -1;
         }
         Organization org = new Organization();
         org.setOrgId(orgId).setSystemCode(systemCode).setUserType(userType);

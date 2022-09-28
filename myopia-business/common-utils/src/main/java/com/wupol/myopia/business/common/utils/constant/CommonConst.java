@@ -226,6 +226,12 @@ public class CommonConst {
     }
 
     /**
+     * 学校账号前缀
+     */
+    public static final String SCHOOL_USERNAME_PREFIX = "jsfkxd";
+
+
+    /**
      * 数据完整性
      */
     public static final String DATA_INTEGRITY_FINISH = "数据完整";

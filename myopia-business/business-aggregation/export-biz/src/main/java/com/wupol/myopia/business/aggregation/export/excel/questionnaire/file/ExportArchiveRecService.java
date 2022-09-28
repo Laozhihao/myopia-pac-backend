@@ -9,7 +9,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.builder.ArchiveDataFieldBuilder;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.ArchiveRecDataBuilder;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class ExportArchiveRecService implements QuestionnaireExcel {
 
     @Autowired
-    private QuestionnaireFactory questionnaireFactory;
+    private AnswerFactory answerFactory;
     @Autowired
     private ArchiveService archiveService;
     @Autowired
@@ -59,7 +59,7 @@ public class ExportArchiveRecService implements QuestionnaireExcel {
 
     @Override
     public void generateRecFile(ExportCondition exportCondition, String fileName) {
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        Answer answerService = answerFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
 
         List<CommonDiseaseArchiveCard> archiveData = archiveService.getArchiveData(exportCondition);
 

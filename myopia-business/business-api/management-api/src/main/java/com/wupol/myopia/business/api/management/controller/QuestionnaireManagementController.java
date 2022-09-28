@@ -82,7 +82,7 @@ public class QuestionnaireManagementController {
      * @return
      */
     @GetMapping("/school")
-    public QuestionSchoolVO getQuestionSchool(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
+    public QuestionSchoolVO getQuestionSchool(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) {
         return questionnaireManagementService.getQuestionSchool(taskId, areaId);
     }
 
@@ -92,7 +92,7 @@ public class QuestionnaireManagementController {
      * @return
      */
     @GetMapping("/backlog")
-    public List<QuestionBacklogVO> getQuestionBacklog(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) throws IOException {
+    public List<QuestionBacklogVO> getQuestionBacklog(@RequestParam(value = "taskId", required = false, defaultValue = "") Integer taskId, @RequestParam(value = "areaId", required = false, defaultValue = "") Integer areaId) {
         return questionnaireManagementService.getQuestionBacklog(taskId, areaId);
     }
 
@@ -103,7 +103,7 @@ public class QuestionnaireManagementController {
      * @return
      */
     @GetMapping("/schools/list")
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
         return questionnaireManagementService.getQuestionSchoolList(questionSearchDTO);
     }
 
@@ -113,7 +113,7 @@ public class QuestionnaireManagementController {
      * @return
      */
     @GetMapping("/backlog/list")
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         return questionnaireManagementService.getQuestionBacklogList(questionSearchDTO);
     }
 

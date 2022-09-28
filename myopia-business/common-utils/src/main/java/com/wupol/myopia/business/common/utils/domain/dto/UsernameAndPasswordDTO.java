@@ -20,6 +20,8 @@ public class UsernameAndPasswordDTO {
 
     private String realName;
 
+    private Integer systemCode;
+
     public UsernameAndPasswordDTO(String username, String password) {
         this.username = username;
         this.password = password;

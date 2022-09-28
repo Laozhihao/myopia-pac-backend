@@ -466,7 +466,7 @@ public class StudentFacade {
         responseDTO.setInfo(cardInfoVO);
 
         Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType(),Objects.equals(visionScreeningResult.getSchoolId(),visionScreeningResult.getScreeningOrgId()));
-        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
+        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO, screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId()));
     }
 
     /**
@@ -487,7 +487,12 @@ public class StudentFacade {
         List<StudentDTO> studentInfoList = studentService.getStudentInfoList(studentIds);
         Map<Integer, StudentDTO> studentMaps = studentInfoList.stream().collect(Collectors.toMap(Student::getId, Function.identity()));
 
-        return resultList.stream().map(r -> generateStudentCard(r, studentMaps.get(r.getStudentId()), templateId)).collect(Collectors.toList());
+        // 计划学生
+        List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        Map<Integer, ScreeningPlanSchoolStudent> planStudentMaps = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
+
+        return resultList.stream().map(r -> generateStudentCard(r, studentMaps.get(r.getStudentId()), templateId, planStudentMaps.get(r.getScreeningPlanSchoolStudentId()))).collect(Collectors.toList());
     }
 
     /**
@@ -496,9 +501,13 @@ public class StudentFacade {
      * @param visionScreeningResult 筛查结果
      * @param studentInfo           学生信息
      * @param templateId            模板Id
+     * @param planSchoolStudent     计划学生
+     *
      * @return 学生档案卡实体类
      */
-    public StudentCardResponseVO generateStudentCard(VisionScreeningResult visionScreeningResult, StudentDTO studentInfo, Integer templateId) {
+    public StudentCardResponseVO generateStudentCard(VisionScreeningResult visionScreeningResult,
+                                                     StudentDTO studentInfo, Integer templateId,
+                                                     ScreeningPlanSchoolStudent planSchoolStudent) {
         StudentCardResponseVO responseDTO = new StudentCardResponseVO();
 
         // 获取学生基本信息
@@ -506,7 +515,8 @@ public class StudentFacade {
         cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
         cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
-        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO);
+
+        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO, planSchoolStudent);
     }
 
     /**
@@ -634,9 +644,13 @@ public class StudentFacade {
      * @param studentInfo           学生信息
      * @param templateId            模板Id
      * @param responseDTO           档案卡实体类
+     * @param planSchoolStudent     计划学生
+     *
      * @return 学生档案卡实体类
      */
-    private StudentCardResponseVO generateCardDetail(VisionScreeningResult visionScreeningResult, StudentDTO studentInfo, Integer templateId, StudentCardResponseVO responseDTO) {
+    private StudentCardResponseVO generateCardDetail(VisionScreeningResult visionScreeningResult, StudentDTO studentInfo,
+                                                     Integer templateId, StudentCardResponseVO responseDTO,
+                                                     ScreeningPlanSchoolStudent planSchoolStudent) {
         int age = DateUtil.ageOfNow(studentInfo.getBirthday());
         // 是否全国模板
         if (templateId.equals(TemplateConstants.GLOBAL_TEMPLATE)) {
@@ -647,11 +661,13 @@ public class StudentFacade {
             Integer status = studentInfo.getSchoolAgeStatus();
             responseDTO.setStatus(status);
             responseDTO.setHaiNanCardDetail(packageHaiNanCardDetail(visionScreeningResult, age, status));
-        }else if (templateId.equals(TemplateConstants.SCREENING_TEMPLATE)) {
+            // 特殊处理海南学生的信息获取源头
+            responseDTO.setInfo(getHeiNanCardInfo(planSchoolStudent, responseDTO.getInfo()));
+        } else if (templateId.equals(TemplateConstants.SCREENING_TEMPLATE)) {
             //儿童青少年近视筛查结果记录表
             Integer status = studentInfo.getSchoolAgeStatus();
             responseDTO.setStatus(status);
-            responseDTO.setMyopiaScreeningResultCardDetail(packageMyopiaScreeningResultCardDetail(visionScreeningResult,responseDTO));
+            responseDTO.setMyopiaScreeningResultCardDetail(packageMyopiaScreeningResultCardDetail(visionScreeningResult, responseDTO));
         }
         return responseDTO;
     }
@@ -1355,6 +1371,28 @@ public class StudentFacade {
             schoolStudent.setId(havaDeletedStudent.getId());
             schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
         }
+    }
+
+    public CardInfoVO getHeiNanCardInfo(ScreeningPlanSchoolStudent planSchoolStudent, CardInfoVO cardInfoVO) {
+        cardInfoVO.setName(planSchoolStudent.getStudentName());
+        cardInfoVO.setBirthday(planSchoolStudent.getBirthday());
+        cardInfoVO.setIdCard(StringUtils.isNotBlank(planSchoolStudent.getIdCard()) ? MaskUtil.maskIdCard(planSchoolStudent.getIdCard()) : MaskUtil.maskPassport(planSchoolStudent.getPassport()));
+        cardInfoVO.setGender(planSchoolStudent.getGender());
+        cardInfoVO.setAge(DateUtil.ageOfNow(planSchoolStudent.getBirthday()));
+        cardInfoVO.setSno(planSchoolStudent.getStudentNo());
+        cardInfoVO.setParentPhone(planSchoolStudent.getParentPhone());
+        cardInfoVO.setSchoolName(planSchoolStudent.getSchoolName());
+        cardInfoVO.setSchoolId(planSchoolStudent.getSchoolId());
+        cardInfoVO.setClassName(planSchoolStudent.getClassName());
+        cardInfoVO.setGradeName(planSchoolStudent.getGradeName());
+        cardInfoVO.setDistrictName(districtService.getDistrictNameByDistrictId(planSchoolStudent.getSchoolDistrictId()));
+        cardInfoVO.setNation(planSchoolStudent.getNation());
+        cardInfoVO.setNationDesc(NationEnum.getName(planSchoolStudent.getNation()));
+        cardInfoVO.setPassport(planSchoolStudent.getPassport());
+        cardInfoVO.setSchoolType(SchoolAge.get(planSchoolStudent.getGradeType()).type);
+        cardInfoVO.setCityDesc(districtService.getDistrictName(planSchoolStudent.getCityCode()));
+        cardInfoVO.setAreaDesc(districtService.getDistrictName(planSchoolStudent.getAreaCode()));
+        return cardInfoVO;
     }
 
     /**

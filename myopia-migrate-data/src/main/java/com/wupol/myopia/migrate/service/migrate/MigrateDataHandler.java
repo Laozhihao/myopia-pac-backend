@@ -40,7 +40,7 @@ public class MigrateDataHandler {
 
 
     /**
-     * 迁移数据
+     * 迁移数据，仅涉及这三张表：sys_dept、sys_school、sys_student_eye
      *
      * @return void
      **/

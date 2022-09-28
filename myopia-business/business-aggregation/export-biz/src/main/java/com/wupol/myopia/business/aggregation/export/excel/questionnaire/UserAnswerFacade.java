@@ -18,11 +18,10 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,13 +37,15 @@ import java.util.stream.Collectors;
  * @author hang.yuan 2022/7/21 19:50
  */
 @Slf4j
-@Component
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@Service
 public class UserAnswerFacade {
 
-    private final SchoolService schoolService;
-    private final DistrictService districtService;
-    private final QuestionnaireFactory questionnaireFactory;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private DistrictService districtService;
+    @Autowired
+    private AnswerFactory answerFactory;
 
 
     /**
@@ -109,7 +110,7 @@ public class UserAnswerFacade {
                                      FileNameCondition fileNameCondition,
                                      Resource exportPrimarySchoolTemplate,
                                      String fileName) throws IOException {
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        Answer answerService = answerFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
         generateDataCondition.setFileType(QuestionnaireConstant.EXCEL_FILE);
         List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(generateDataCondition);
         if (CollUtil.isEmpty(generateExcelDataBOList)){
@@ -135,7 +136,7 @@ public class UserAnswerFacade {
     public void generateStudentRec(GenerateDataCondition generateDataCondition,
                                    FileNameCondition fileNameCondition,
                                    String fileName){
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        Answer answerService = answerFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
         generateDataCondition.setFileType(QuestionnaireConstant.REC_FILE);
         List<GenerateRecDataBO> generateRecDataBOList = answerService.getRecData(generateDataCondition);
         if (CollUtil.isEmpty(generateRecDataBOList)){

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.questionnaire.domain.SchoolListResponseDTO;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -164,7 +165,7 @@ public class UserAnswerBizService {
             throw new BusinessException("数据异常!");
         }
         SchoolListResponseDTO responseDTO = generateSchoolResponse(school, districtService.getById(school.getDistrictId()));
-        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getOneBySchoolId(school.getId());
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getLastBySchoolIdAndScreeningType(school.getId(), ScreeningTypeEnum.COMMON_DISEASE.getType());
         responseDTO.setPlanId(planSchool.getScreeningPlanId());
         return responseDTO;
     }

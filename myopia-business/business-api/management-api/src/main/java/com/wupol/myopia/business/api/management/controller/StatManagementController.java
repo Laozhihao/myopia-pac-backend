@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -116,7 +115,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/district")
-    public List<District> getDistrictByNoticeId(@RequestParam Integer noticeId) throws IOException {
+    public List<District> getDistrictByNoticeId(@RequestParam Integer noticeId) {
         ScreeningNotice screeningNotice = screeningNoticeService.getReleasedNoticeById(noticeId);
         if (screeningNotice == null) {
             throw new BusinessException(BizMsgConstant.CAN_NOT_FIND_NOTICE);
@@ -171,7 +170,7 @@ public class StatManagementController {
      * @return
      */
     @GetMapping("/district/attentive-objects-statistic/districtId")
-    public List<District> getAttenticeObjectsStatisticAllDistrictTree() throws IOException {
+    public List<District> getAttenticeObjectsStatisticAllDistrictTree() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = districtAttentiveObjectsStatisticBizService.getDataByUser(currentUser);
         Set<Integer> districtIds = districtAttentiveObjectsStatistics.stream().map(DistrictAttentiveObjectsStatistic::getDistrictId).collect(Collectors.toSet());

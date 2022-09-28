@@ -225,6 +225,13 @@ public class ScreeningTaskOrgBizService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 匹配名称模糊查询
+     * @param orgNameOrSchoolName
+     * @param orgVoLists
+     * @param screeningOrgNameMap
+     * @param schoolNameMap
+     */
     private void nameMatch(String orgNameOrSchoolName, List<ScreeningTaskOrg> orgVoLists, Map<Integer, String> screeningOrgNameMap, Map<Integer, String> schoolNameMap) {
         if (StrUtil.isNotBlank(orgNameOrSchoolName)){
             Iterator<ScreeningTaskOrg> it = orgVoLists.iterator();
@@ -239,6 +246,11 @@ public class ScreeningTaskOrgBizService {
         }
     }
 
+    /**
+     * 获取学校信息
+     * @param orgNameOrSchoolName
+     * @param sIds
+     */
     private Map<Integer, String> getSchoolNameMap(String orgNameOrSchoolName, Set<Integer> sIds) {
         Map<Integer, String> schoolNameMap;
         if (CollUtil.isNotEmpty(sIds)){
@@ -255,6 +267,11 @@ public class ScreeningTaskOrgBizService {
         return schoolNameMap;
     }
 
+    /**
+     * 获取筛查机构信息
+     * @param orgNameOrSchoolName
+     * @param orgIds
+     */
     private Map<Integer, String> getScreeningOrgNameMap(String orgNameOrSchoolName, Set<Integer> orgIds) {
         Map<Integer, String> screeningOrgNameMap;
         if (CollUtil.isNotEmpty(orgIds)){
@@ -381,10 +398,21 @@ public class ScreeningTaskOrgBizService {
     }
 
 
+    /**
+     * 对象转map时 key值唯一标志
+     * @param one
+     * @param two
+     */
     private String getKey(Integer one, Integer two) {
         return one + StrUtil.UNDERLINE + two;
     }
 
+    /**
+     * 对象转map时 key值唯一标志
+     * @param one
+     * @param two
+     * @param three
+     */
     private String getThreeKey(Integer one, Integer two, Integer three) {
         return one + StrUtil.UNDERLINE + two + StrUtil.UNDERLINE + three;
     }

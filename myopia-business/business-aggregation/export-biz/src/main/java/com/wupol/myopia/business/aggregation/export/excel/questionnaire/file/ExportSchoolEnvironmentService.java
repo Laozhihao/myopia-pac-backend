@@ -7,7 +7,7 @@ import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCond
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -34,7 +34,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     private Resource exportSchoolEnvironmentTemplate;
 
     @Autowired
-    private QuestionnaireFactory questionnaireFactory;
+    private AnswerFactory answerFactory;
     @Autowired
     private UserAnswerFacade userAnswerFacade;
 
@@ -63,7 +63,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     }
 
     private Answer getAnswerService(){
-        return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
+        return answerFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
     }
 
 

@@ -27,7 +27,7 @@ public class CurrentUser implements Serializable {
     private Integer id;
 
     /**
-     * 机构组织ID（如政府部门ID、学校ID、医院ID）
+     * 机构组织ID（如政府部门ID、学校ID、医院ID、筛查机构ID）
      */
     private Integer orgId;
 
@@ -170,6 +170,15 @@ public class CurrentUser implements Serializable {
             return orgId;
         }
         throw new BusinessException("获取用户Id异常");
+    }
+
+    /**
+     * 是否学校筛查用户
+     */
+    @JsonIgnore
+    public boolean isSchoolScreeningUser() {
+        return UserType.SCREENING_STAFF_TYPE_SCHOOL_DOCTOR.getType().equals(userType)
+                && SystemCode.SCREENING_CLIENT.getCode().equals(systemCode);
     }
 
 }

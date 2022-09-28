@@ -3,6 +3,7 @@ package com.wupol.myopia.migrate.service.migrate;
 import cn.hutool.core.date.DateUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -96,7 +97,9 @@ public class MigratePlanService {
                 .setReleaseTime(startDate)
                 .setOperatorId(screeningOrgAndStaffDO.getScreeningOrgAdminUserId())
                 .setOperateTime(startDate)
-                .setContent(titlePrefix + "筛查");
+                .setContent(titlePrefix + "筛查")
+                .setScreeningType(ScreeningTypeEnum.VISION.getType())
+                .setUpdateScreeningEndTimeStatus(0);
         // 根据学校ID分组
         Map<String, List<SysStudentEyeSimple>> currentPlanStudentGroupBySchoolIdMap = currentPlanStudentList.stream()
                 .collect(Collectors.groupingBy(SysStudentEyeSimple::getSchoolId))

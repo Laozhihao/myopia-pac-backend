@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.business.core.school.domain.mapper.SchoolStaffMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.business.core.school.domain.model.SchoolStaff">
+        <result typeHandler="com.wupol.myopia.business.core.school.domain.handle.AccountInfoHandler" column="account_info" property="accountInfo"/>
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(id)">and `id` = #{id}</if>
+                <if test="@Ognl@isNotEmpty(schoolId)">and `school_id` = #{schoolId}</if>
+                <if test="@Ognl@isNotEmpty(staffName)">and `staff_name` = #{staffName}</if>
+                <if test="@Ognl@isNotEmpty(gender)">and `gender` = #{gender}</if>
+                <if test="@Ognl@isNotEmpty(phone)">and `phone` = #{phone}</if>
+                <if test="@Ognl@isNotEmpty(idCard)">and `id_card` = #{idCard}</if>
+                <if test="@Ognl@isNotEmpty(staffType)">and `staff_type` = #{staffType}</if>
+                <if test="@Ognl@isNotEmpty(accountInfo)">and `account_info` = #{accountInfo}</if>
+                <if test="@Ognl@isNotEmpty(status)">and `status` = #{status}</if>
+                <if test="@Ognl@isNotEmpty(remark)">and `remark` = #{remark}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, school_id, staff_name, gender, phone, id_card, staff_type, account_info, status, remark, create_time, update_time
+    </sql>
+
+    <select id="getSchoolStaff" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_staff
+        where school_id = #{schoolId}
+    </select>
+
+    <select id="checkByIdCardAndPhone" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_staff
+        <where>
+            <trim prefixOverrides="and">
+                <if test="idCard != null and idCard != ''">
+                    and id_card = #{idCard}
+                </if>
+                <if test="phone != null and phone != ''">
+                    and phone = #{phone}
+                </if>
+                <if test="id != null">
+                    and id != #{id}
+                </if>
+            </trim>
+        </where>
+    </select>
+
+    <select id="checkByPhone" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_staff
+        where phone = #{phone}
+        <if test="id != null">
+            and id != #{id}
+        </if>
+    </select>
+</mapper>
