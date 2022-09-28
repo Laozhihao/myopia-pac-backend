@@ -4,6 +4,7 @@ import com.wupol.myopia.business.common.utils.constant.RescreeningStatisticEnum;
 import com.wupol.myopia.business.common.utils.domain.query.AppPageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  * @Date 2021/1/29 14:34
  * @Author by Jacob
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class ScreeningResultSearchDTO extends AppPageRequest {

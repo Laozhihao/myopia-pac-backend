@@ -9,6 +9,7 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -20,6 +21,7 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
@@ -303,4 +305,16 @@ public class SchoolController {
         return ApiResult.success(schoolService.getLatestSchoolNo(districtAreaCode, areaType, monitorType));
     }
 
+    /**
+     * 获取筛查机构列表
+     *
+     * @param pageRequest 分页请求
+     * @param query       查询条件
+     * @return 机构列表
+     */
+    @GetMapping("list")
+    public IPage<ScreeningSchoolOrgVO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        return schoolBizService.getScreeningOrganizationList(pageRequest, query, user);
+    }
 }

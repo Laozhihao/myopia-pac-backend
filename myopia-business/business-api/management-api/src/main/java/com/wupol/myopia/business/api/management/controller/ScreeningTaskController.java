@@ -7,6 +7,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.api.management.domain.dto.ScreeningTaskOrgInfoDTO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskOrgBizService;
@@ -229,17 +230,17 @@ public class ScreeningTaskController {
     /**
      * 新增筛查机构
      *
-     * @param screeningTaskOrgs 新增参数
+     * @param screeningTaskOrgInfoDTO
      */
     @PostMapping("orgs/{screeningTaskId}")
-    public void addOrgsInfo(@PathVariable Integer screeningTaskId, @RequestBody @Valid List<ScreeningTaskOrg> screeningTaskOrgs) {
-        if (CollectionUtils.isEmpty(screeningTaskOrgs)) {
+    public void addOrgsInfo( @RequestBody @Valid ScreeningTaskOrgInfoDTO screeningTaskOrgInfoDTO) {
+        if (CollectionUtils.isEmpty(screeningTaskOrgInfoDTO.getScreeningTaskOrgs())) {
             return;
         }
         // 任务状态判断
-        validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_NOT_RELEASE);
+        validateExistWithReleaseStatus(screeningTaskOrgInfoDTO.getScreeningTaskId(), CommonConst.STATUS_NOT_RELEASE);
         // 新增
-        screeningTaskOrgBizService.saveOrUpdateBatchByTaskId(CurrentUserUtil.getCurrentUser(), screeningTaskId, screeningTaskOrgs, true);
+        screeningTaskOrgBizService.saveOrUpdateBatchByTaskId(CurrentUserUtil.getCurrentUser(),screeningTaskOrgInfoDTO.getScreeningTaskId(),screeningTaskOrgInfoDTO.getScreeningTaskOrgs(), true);
     }
 
     /**

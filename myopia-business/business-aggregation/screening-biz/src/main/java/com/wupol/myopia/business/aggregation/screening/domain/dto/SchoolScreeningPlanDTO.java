@@ -54,4 +54,16 @@ public class SchoolScreeningPlanDTO implements Serializable {
      */
     @NotEmpty(message = "筛查学生年级不能为空")
     private List<Integer> gradeIds;
+
+    /**
+     * 所属的筛查源通知id ，自己创建时默认0
+     */
+    private Integer screeningNoticeId;
+
+    /**
+     * 所属的筛查任务id，自己创建时默认0
+     */
+    private Integer screeningTaskId;
+
+
 }
