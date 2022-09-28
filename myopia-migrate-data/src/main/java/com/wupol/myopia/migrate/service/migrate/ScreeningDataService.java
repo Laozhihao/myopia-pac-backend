@@ -4,11 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.OtherEyeDiseasesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +40,13 @@ public class ScreeningDataService {
     @Autowired
     private VisionScreeningBizService visionScreeningBizService;
     @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private StatConclusionService statConclusionService;
+    @Autowired
+    private StudentService studentService;
 
     /**
      * 逐个学校迁移筛查结果数据
@@ -65,9 +77,14 @@ public class ScreeningDataService {
                 // 屈光
                 migrateComputerOptometryData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
                 // TODO: 生物测量（同时间段内测的就属于同一个计划的）
-
                 // 其他眼病
                 migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
+                // 更新创建时间为实际时间
+                VisionScreeningResult visionScreeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+                visionScreeningResultService.updateById(new VisionScreeningResult().setId(visionScreeningResult.getId()).setCreateTime(sysStudentEye.getCreateTime()));
+                statConclusionService.update(new StatConclusion().setCreateTime(sysStudentEye.getCreateTime()), new StatConclusion().setResultId(visionScreeningResult.getId()));
+                // 更新最近筛查时间为实际时间
+                studentService.updateById(new Student().setLastScreeningTime(sysStudentEye.getCreateTime()).setId(visionScreeningResult.getStudentId()));
             } catch (Exception e) {
                 log.error("数据迁移异常：{}" + JSONObject.toJSONString(sysStudentEye));
                 throw new BusinessException("数据迁移异常", e);
@@ -206,7 +223,7 @@ public class ScreeningDataService {
      **/
     private static BigDecimal getBigDecimalValue(String valStr) {
         try {
-            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr.trim());
+            return StringUtils.isBlank(valStr) ? null : new BigDecimal(valStr.trim().replace("..", ".").replace("+.0", "+0").replace("-.0", "-0").replace("--", "-"));
         } catch (Exception e) {
             log.error("转换数值异常：[{}]", valStr, e);
             return null;

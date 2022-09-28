@@ -154,6 +154,7 @@ public class MigrateSchoolAndGradeClassService {
 
     private String getGradeCode(String gradeName, Integer schoolType) {
         String gradeCode = GradeCodeEnum.getByName(gradeName.trim()).getCode();
+        // 非规范名称，降级处理
         if (GradeCodeEnum.UNKNOWN.getCode().equals(gradeCode)) {
             if ("七年级".equals(gradeName)) {
                 return GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode();
