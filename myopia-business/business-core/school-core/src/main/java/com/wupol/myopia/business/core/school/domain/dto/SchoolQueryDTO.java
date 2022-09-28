@@ -78,4 +78,19 @@ public class SchoolQueryDTO extends School {
      * 筛查类型（0：视力筛查，1；常见病）
      */
     private Integer screeningType;
+
+    /**
+     * 是否展示全省数据
+     */
+    private Boolean allProvince;
+
+    /**
+     * 创建人
+     */
+    private Integer createByUserId;
+
+    /**
+     * 学校id集合
+     */
+    private List<Integer> schoolIds;
 }

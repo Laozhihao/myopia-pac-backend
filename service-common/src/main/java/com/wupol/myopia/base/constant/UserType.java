@@ -24,7 +24,9 @@ public enum UserType {
     QUESTIONNAIRE_STUDENT(0, "问卷系统学生端"),
     QUESTIONNAIRE_SCHOOL(1, "问卷系统学校端"),
     QUESTIONNAIRE_GOVERNMENT(2, "问卷系统政府端"),
-    ;
+
+    SCREENING_STAFF_TYPE_ORG(0,"筛查人员-筛查机构"),
+    SCREENING_STAFF_TYPE_SCHOOL_DOCTOR(1,"筛查人员-学校校医");
 
     private static final ImmutableMap<Integer, Integer> MANAGEMENT_MULTISYSTEM_USERTYPE_ROLETYPE_MAP;
 

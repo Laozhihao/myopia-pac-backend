@@ -255,4 +255,16 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public ScreeningPlanSchool getOneBySchoolId(Integer schoolId) {
         return baseMapper.getBySchoolId(schoolId).stream().findFirst().orElse(null);
     }
+
+    /**
+     * 通过机构Id获取
+     *
+     * @param orgId 机构Id
+     *
+     * @return List<ScreeningPlanSchool>
+     */
+    public List<ScreeningPlanSchool> getByOrgId(Integer orgId) {
+        return baseMapper.selectList(new LambdaQueryWrapper<ScreeningPlanSchool>().
+                eq(ScreeningPlanSchool::getScreeningOrgId, orgId));
+    }
 }

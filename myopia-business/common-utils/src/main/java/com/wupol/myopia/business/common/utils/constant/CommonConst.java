@@ -222,4 +222,10 @@ public class CommonConst {
      * 需要插入脊柱个人信息的序号
      */
     public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList(A01, A011, A02, A03, A04);
+
+    /**
+     * 学校账号前缀
+     */
+    public static final String SCHOOL_USERNAME_PREFIX = "jsfkxd";
+
 }
