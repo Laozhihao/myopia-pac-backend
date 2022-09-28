@@ -90,7 +90,7 @@ public class StudentDataService {
 
         // 迁移过的，不再处理，节省时间
         if (screeningPlanSchoolStudentService.count(new ScreeningPlanSchoolStudent().setScreeningPlanId(planId).setSchoolId(newSchoolId)) > 0) {
-            log.warn("【{}】的所有学生 - 已经迁移到计划，不需要再处理，id={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
+            log.warn("【{}】的所有学生 - 已经迁移到计划，不需要再处理，SchoolId={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
             return;
         }
 
