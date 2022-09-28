@@ -823,7 +823,7 @@ public class StatService {
      * @throws IOException io异常
      */
     public DataContrastFilterResultDTO getDataContrastFilter(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) throws IOException {
+            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
         if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
             params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
         }
@@ -922,7 +922,7 @@ public class StatService {
      * @throws IOException io异常
      */
     public DataContrastFilterDTO getDataContrastFilter(
-            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) throws IOException {
+            List<StatConclusion> statConclusionList, Integer schoolId, String schoolGradeCode, CurrentUser currentUser) {
         Set<Integer> districtIds = statConclusionList.stream().map(StatConclusion::getDistrictId)
                 .collect(Collectors.toSet());
 
