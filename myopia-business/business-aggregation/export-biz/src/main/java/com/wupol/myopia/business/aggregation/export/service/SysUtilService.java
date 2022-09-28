@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.aggregation.export.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import org.springframework.stereotype.Service;
@@ -42,10 +45,18 @@ public class SysUtilService {
      * @Author: 钓猫的小鱼
      * @Date: 2022/1/17
      */
-    public void isNoPlatformRepeatExport(String key, String lockKey) {
-        if (!CurrentUserUtil.getCurrentUser().isPlatformAdminUser()){
-            isExport(key, lockKey);
+    public void isNoPlatformRepeatExport(String key, String lockKey,Integer classId) {
+        if (Objects.nonNull(classId)){
+            return;
         }
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (currentUser.isPlatformAdminUser()) {
+            return;
+        }
+        if (Objects.equals(currentUser.getClientId(), SystemCode.SCHOOL_CLIENT.getCode().toString())) {
+            return;
+        }
+        isExport(key, lockKey);
     }
 
     /**
@@ -64,7 +75,7 @@ public class SysUtilService {
             redisUtil.cSet(key,param);
             return;
         }
-        Map<String, Integer> result = JSON.parseObject(JSON.toJSONString(object), HashMap.class);
+        Map<String, Integer> result = JSON.parseObject(JSON.toJSONString(object), new TypeReference<Map<String, Integer>>(){});
         int count = result.get(COUNT);
         if (count >= CALL_COUNT){
             if (Objects.nonNull(redisUtil.get(localKey))) {

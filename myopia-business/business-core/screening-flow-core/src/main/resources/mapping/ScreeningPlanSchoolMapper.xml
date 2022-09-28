@@ -26,7 +26,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, screening_plan_id, screening_org_id, school_id, school_name, quality_controller_name, quality_controller_commander, create_time
+        id, screening_plan_id, screening_org_id, school_id, school_name,screening_grade_ids, quality_controller_name, quality_controller_commander, create_time
     </sql>
 
     <select id="countScreeningTime" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolScreeningCountDTO">
@@ -176,10 +176,38 @@
                msps.school_id         as schoolId,
                msps.screening_org_id  as screeningOrgId
         from m_screening_plan_school msps
-                 left join m_screening_plan msp on msps.screening_plan_id = msp.id
+        left join m_screening_plan msp on msps.screening_plan_id = msp.id
         where msp.screening_type = 0
           and msp.release_status = 1
           and msps.school_id = #{schoolId}
+        order by msps.create_time desc
+    </select>
+
+    <select id="listByCondition"
+            resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningListResponseDTO">
+        select msps.screening_plan_id as planId,
+               msps.school_id         as schoolId,
+               msp.screening_org_id   as screeningOrgId,
+               msp.screening_org_type  as screeningOrgType,
+               msp.screening_type as screeningType
+        from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
+        left join m_screening_plan msp on msps.screening_plan_id = msp.id
+        where msp.release_status != 2
+        <if test="@Ognl@isNotEmpty(param.screeningType)">
+            and msp.screening_type = #{param.screeningType}
+        </if>
+        <if test="@Ognl@isNotEmpty(param.screeningBizType)">
+            and msp.screening_org_type = #{param.screeningBizType}
+        </if>
+        <if test="param.title != null and param.title != ''">
+            and msp.title like CONCAT('%', #{param.title}, '%')
+        </if>
+        <if test="param.screeningOrgIds != null and param.screeningOrgIds.size() != 0">
+            and msp.screening_org_id IN
+            <foreach collection="param.screeningOrgIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
         order by msps.create_time desc
     </select>
 
@@ -189,6 +217,14 @@
         WHERE sp.screening_type = #{screeningType}
           AND sps.school_id = #{schoolId}
         ORDER BY sps.create_time DESC LIMIT 1
+    </select>
+
+    <select id="listBySchoolIdAndOrgId" resultMap="BaseResultMap">
+        select sps.*
+        from (select * from m_screening_plan_school where school_id = #{schoolId} and screening_org_id = #{orgId}) sps
+        left join (select * from m_screening_plan  where <![CDATA[ DATE(`start_time`) <= DATE(#{currentDate})]]> and
+        <![CDATA[ DATE(`end_time`) >= DATE(#{currentDate})]]> and screening_type =#{screeningType} and screening_org_id = #{orgId}  ) p
+        on p.id = sps.screening_plan_id
     </select>
 
 </mapper>

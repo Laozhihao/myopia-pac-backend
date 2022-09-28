@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -15,10 +18,12 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
+import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,10 +66,49 @@ public class ScreeningPlanSchoolStudentFacadeService {
      * @param schoolId        学校Id
      * @return List<SchoolGradeVO>
      */
-    public List<SchoolGradeVO> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
+    public List<SchoolGradeVO> getSchoolGradeVoByPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId,Boolean isData) {
         //1. 获取该计划学校的筛查学生所有年级、班级
         List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, null);
-        return getSchoolGradeVOS(gradeClasses);
+        List<SchoolGradeVO> schoolGradeVoS = getSchoolGradeVOS(gradeClasses);
+        if (Objects.equals(Boolean.TRUE,isData)) {
+            return getDataSchoolGradeList(screeningPlanId, schoolId, schoolGradeVoS);
+        }
+        return schoolGradeVoS;
+    }
+
+    /**
+     * 获取有数据的学校年级和学校班级集合
+     * @param screeningPlanId
+     * @param schoolId
+     * @param schoolGradeVoS
+     */
+    private List<SchoolGradeVO> getDataSchoolGradeList(Integer screeningPlanId, Integer schoolId, List<SchoolGradeVO> schoolGradeVoS) {
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        if (CollUtil.isEmpty(visionScreeningResultList)){
+            return Lists.newArrayList();
+        }
+        Set<Integer> planSchoolStudentIds = visionScreeningResultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toSet());
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planSchoolStudentIds));
+        Set<Integer> gradeIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
+        Set<Integer> classIds = screeningPlanSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toSet());
+        return schoolGradeVoS.stream()
+                .filter(schoolGradeVO -> gradeIds.contains(schoolGradeVO.getId()))
+                .map(schoolGradeVO -> getSchoolGradeVO(classIds, schoolGradeVO))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取有数据的学校年级
+     * @param classIds
+     * @param schoolGradeVO
+     */
+    private SchoolGradeVO getSchoolGradeVO(Set<Integer> classIds, SchoolGradeVO schoolGradeVO) {
+        List<SchoolClassDTO> schoolClassList = schoolGradeVO.getClasses();
+        if (CollUtil.isNotEmpty(schoolClassList)){
+            List<SchoolClassDTO> collect = schoolClassList.stream().filter(schoolClassDTO -> classIds.contains(schoolClassDTO.getId())).collect(Collectors.toList());
+            schoolGradeVO.setClasses(collect);
+        }
+        return schoolGradeVO;
     }
 
     /**
@@ -124,10 +168,15 @@ public class ScreeningPlanSchoolStudentFacadeService {
         //是否有做复测
         if (Objects.isNull(visionScreeningResult)) {
             studentEyeInfo.setIsDoubleScreen(Boolean.FALSE);
+            studentEyeInfo.setDataIntegrity(CommonConst.DATA_INTEGRITY_MISS);
             return;
         }
         int reScreeningCount = visionScreeningResultService.count(new VisionScreeningResult().setScreeningPlanSchoolStudentId(visionScreeningResult.getScreeningPlanSchoolStudentId()).setIsDoubleScreen(true));
         studentEyeInfo.setIsDoubleScreen(reScreeningCount > 0);
+
+        //是否数据完整性
+        boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
+        studentEyeInfo.setDataIntegrity(Objects.equals(completedData,Boolean.TRUE)?CommonConst.DATA_INTEGRITY_FINISH:CommonConst.DATA_INTEGRITY_MISS);
     }
 
     /**
@@ -168,24 +217,41 @@ public class ScreeningPlanSchoolStudentFacadeService {
         //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
         //3. 组装SchoolGradeVo数据
-        return graderIdClasses.keySet().stream().map(gradeId -> {
-            SchoolGradeVO vo = new SchoolGradeVO();
-            vo.setUniqueId(UUID.randomUUID().toString());
-            List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
-            // 查询并设置年级名称
-            vo.setId(gradeId)
-                    .setName(gradeMap.get(gradeId).getName());
-            // 查询并设置班级名称
-            vo.setClasses(gradeClassesDTOS.stream().map(dto -> {
-                SchoolClassDTO schoolClass = new SchoolClassDTO();
-                schoolClass.setUniqueId(UUID.randomUUID().toString());
-                schoolClass.setId(dto.getClassId())
-                        .setName(classMap.get(dto.getClassId()).getName())
-                        .setGradeId(gradeId);
-                return schoolClass;
-            }).collect(Collectors.toList()));
-            return vo;
-        }).collect(Collectors.toList());
+        return graderIdClasses.keySet().stream().map(gradeId -> getSchoolGradeVO(gradeMap, classMap, graderIdClasses, gradeId)).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学校年级信息
+     * @param gradeMap
+     * @param classMap
+     * @param graderIdClasses
+     * @param gradeId
+     */
+    private SchoolGradeVO getSchoolGradeVO(Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap, Map<Integer, List<GradeClassesDTO>> graderIdClasses, Integer gradeId) {
+        SchoolGradeVO vo = new SchoolGradeVO();
+        vo.setUniqueId(UUID.randomUUID().toString());
+        List<GradeClassesDTO> gradeClassesDTOS = graderIdClasses.get(gradeId);
+        // 查询并设置年级名称
+        vo.setId(gradeId)
+                .setName(gradeMap.get(gradeId).getName());
+        // 查询并设置班级名称
+        vo.setClasses(gradeClassesDTOS.stream().map(dto -> getSchoolClassDTO(classMap, gradeId, dto)).collect(Collectors.toList()));
+        return vo;
+    }
+
+    /**
+     * 获取学校班级信息
+     * @param classMap
+     * @param gradeId
+     * @param dto
+     */
+    private SchoolClassDTO getSchoolClassDTO(Map<Integer, SchoolClass> classMap, Integer gradeId, GradeClassesDTO dto) {
+        SchoolClassDTO schoolClass = new SchoolClassDTO();
+        schoolClass.setUniqueId(UUID.randomUUID().toString());
+        schoolClass.setId(dto.getClassId())
+                .setName(classMap.get(dto.getClassId()).getName())
+                .setGradeId(gradeId);
+        return schoolClass;
     }
 
     /**

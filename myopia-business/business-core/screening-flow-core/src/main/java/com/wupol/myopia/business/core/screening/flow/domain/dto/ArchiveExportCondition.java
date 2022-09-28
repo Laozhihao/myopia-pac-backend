@@ -1,10 +1,11 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Set;
  * @Date 2022/4/25
  **/
 @Data
-public class ArchiveExportCondition {
+public class ArchiveExportCondition implements Serializable {
 
     /**
      * 导出类型，1-区域、2-学校、3-年级、4-班级、5-多个或单个学生

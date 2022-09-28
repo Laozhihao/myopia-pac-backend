@@ -23,7 +23,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_school_student")
+@TableName(value = "m_school_student")
 public class SchoolStudent extends AddressCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -202,6 +202,7 @@ public class SchoolStudent extends AddressCode implements Serializable {
      * 学生来源客户端
      */
     private Integer sourceClient;
+
 
     /**
      * 检查学生信息是否正确

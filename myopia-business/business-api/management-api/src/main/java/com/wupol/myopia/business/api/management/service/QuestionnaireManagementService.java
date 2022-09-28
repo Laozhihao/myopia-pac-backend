@@ -13,6 +13,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -87,6 +88,8 @@ public class QuestionnaireManagementService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private AnswerFactory answerFactory;
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
 
@@ -228,7 +231,7 @@ public class QuestionnaireManagementService {
      * @param areaId
      * @return
      */
-    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
+    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) {
         QuestionSchoolVO questionSchoolVO = QuestionSchoolVO.init();
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return questionSchoolVO;
@@ -267,7 +270,7 @@ public class QuestionnaireManagementService {
      * @param areaId
      * @return
      */
-    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
+    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) {
         List<QuestionBacklogVO> backlogVOList =Lists.newArrayList();
 
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
@@ -326,7 +329,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    private List<School> getSchool(Integer taskId, Integer areaId) throws IOException {
+    private List<School> getSchool(Integer taskId, Integer areaId) {
         List<ScreeningPlan> plans = screeningPlanService.getByTaskId(taskId);
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
         List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
@@ -341,7 +344,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
@@ -437,7 +440,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
@@ -579,7 +582,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    private Set<Integer> getAreaIdsBySchoolsAndTaskId(Integer taskId, Integer areaId, List<ScreeningPlan> screeningPlans) throws IOException {
+    private Set<Integer> getAreaIdsBySchoolsAndTaskId(Integer taskId, Integer areaId, List<ScreeningPlan> screeningPlans) {
         ScreeningTask task = screeningTaskService.getById(taskId);
         if (Objects.isNull(task)) {
             return Sets.newHashSet();
@@ -694,7 +697,7 @@ public class QuestionnaireManagementService {
                 FilterDataCondition filterDataCondition = new FilterDataCondition()
                         .setUserQuestionRecordList(entry.getValue())
                         .setDistrictId(districtId);
-                Answer answerService = questionnaireFactory.getAnswerService(entry.getKey());
+                Answer answerService = answerFactory.getAnswerService(entry.getKey());
                 List<UserQuestionRecord> userQuestionRecords = answerService.filterData(filterDataCondition);
                 dataList.addAll(userQuestionRecords);
             }

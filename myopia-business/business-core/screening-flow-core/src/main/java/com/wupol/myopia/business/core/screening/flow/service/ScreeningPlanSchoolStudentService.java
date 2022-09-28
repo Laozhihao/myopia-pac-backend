@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -116,15 +118,41 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
+     *  删除筛查计划中学校学生信息
+     *
+     * @param screeningPlanId 筛查计划ID
+     */
+    public void deleteByPlanId(Integer screeningPlanId){
+        baseMapper.delete(Wrappers.lambdaQuery(ScreeningPlanSchoolStudent.class)
+                .eq(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanId));
+    }
+
+    /**
      * 根据计划ID获取所有筛查学生
      *
      * @param screeningPlanId
      * @return
      */
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanId(screeningPlanId);
-        return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        return getByScreeningPlanId(screeningPlanId,Boolean.TRUE);
     }
+
+    /**
+     * 根据计划ID获取所有筛查学生
+     *
+     * @param screeningPlanId 筛查计划ID
+     * @param isSchoolDistrictId 是否获取学校区域ID
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getByScreeningPlanId(Integer screeningPlanId,Boolean isSchoolDistrictId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.findByPlanId(screeningPlanId);
+        if (Objects.equals(Boolean.TRUE,isSchoolDistrictId)){
+            return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        }else {
+            return screeningPlanSchoolStudentList;
+        }
+    }
+
 
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
         if (CollectionUtils.isEmpty(screeningPlanIds)){
@@ -675,6 +703,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 
+    public List<ScreeningPlanSchoolStudent> getByPlanIdsAndSchoolId(List<Integer> planIds, Integer schoolId,Boolean isSchoolDistrict) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId, planIds)
+                .eq(ScreeningPlanSchoolStudent::getSchoolId, schoolId);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
+        if (Objects.equals(Boolean.TRUE,isSchoolDistrict)){
+            return setSchoolDistrictId(screeningPlanSchoolStudentList);
+        }
+        return screeningPlanSchoolStudentList;
+    }
+
+
     /**
      * 获取参与筛查计划的学生集合
      *
@@ -802,5 +842,25 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 .in(ScreeningPlanSchoolStudent::getSchoolId, schoolIds)
                 .eq(ScreeningPlanSchoolStudent::getScreeningTaskId, taskId)
         ));
+    }
+
+    /**
+     * 新增筛查学生
+     * @param twoTuple 筛查计划学校学生
+     * @param screeningPlanId 筛查计划ID
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
+        deleteByStudentIds(twoTuple.getSecond());
+        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+            return;
+        }
+        screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
+            if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
+                screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
+            }
+        });
+        saveOrUpdateBatch(screeningPlanSchoolStudentList);
     }
 }

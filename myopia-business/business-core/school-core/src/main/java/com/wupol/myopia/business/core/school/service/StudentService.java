@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -91,10 +91,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return baseMapper.getByIdCardAndName(idCard, name);
     }
 
-    public List<Student> getByIdsAndName(List<Integer> ids, String name) {
-        return baseMapper.getByIdsAndName(ids, name);
-    }
-
     /**
      * 新增学生
      *
@@ -145,16 +141,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 通过条件查询
-     *
-     * @param query StudentQueryDTO
-     * @return List<Student>
-     */
-    public List<Student> getBy(StudentQueryDTO query) {
-        return baseMapper.getByQuery(query);
-    }
-
-    /**
      * 条件过滤
      *
      * @param gradeIdsStr     年级ID字符串
@@ -179,16 +165,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         return result;
     }
 
-    /**
-     * 分页查询
-     *
-     * @param page  分页
-     * @param query 条件
-     * @return {@link IPage} 分页结果
-     */
-    public IPage<Student> getByPage(Page<?> page, StudentQueryDTO query) {
-        return baseMapper.getByPage(page, query);
-    }
 
     /**
      * 通过id获取学生信息
@@ -242,7 +218,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public boolean checkIdCard(String idCard, Integer id) {
-        return baseMapper.getByIdCardNeIdAndStatus(idCard, id, CommonConst.STATUS_NOT_DELETED).size() > 0;
+        return CollUtil.isNotEmpty(baseMapper.getByIdCardNeIdAndStatus(idCard, id, CommonConst.STATUS_NOT_DELETED));
     }
 
     /**
@@ -266,7 +242,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public Boolean checkIdCards(List<String> idCards) {
-        return baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED).size() > 0;
+        return CollUtil.isNotEmpty(baseMapper.getByIdCardsAndStatus(idCards, CommonConst.STATUS_NOT_DELETED));
     }
 
     /**
@@ -545,7 +521,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public boolean checkIdCardAndId(String idCard, Integer id) {
-        return baseMapper.getByCardIdAndNotId(idCard, id).size() > 0;
+        return CollUtil.isNotEmpty(baseMapper.getByCardIdAndNotId(idCard, id));
     }
 
     /**
@@ -589,7 +565,7 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * @return 是否重复
      */
     public boolean checkIdCardAndPassport(String idCard, String passport, Integer id) {
-        return baseMapper.checkByIdCardAndPassport(idCard, passport, id).size() > 0;
+        return CollUtil.isNotEmpty(baseMapper.checkByIdCardAndPassport(idCard, passport, id));
     }
 
     /**

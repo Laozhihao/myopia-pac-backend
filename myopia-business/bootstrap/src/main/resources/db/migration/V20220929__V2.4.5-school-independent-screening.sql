@@ -1,13 +1,13 @@
 alter table m_school
-    add vision_team_count int not null  default 5 comment '视力小分队人数';
+    add vision_team_count int not null default 5 comment '视力小分队人数';
 
 alter table m_school
     add screening_config json null comment '筛查类型的配置';
 
 alter table m_school
-    add screening_type_config varchar(16) null comment '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';
+    add screening_type_config varchar(16) null default '0' comment '筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病';
 
-update m_school set screening_config = '{"channel":"Official","screeningTypeList":[0],"medicalProjectList":["vision","computer_optometry","other_eye_diseases"]}' where id is not null;
+update m_school set screening_config = '{"channel":"Official","screeningTypeList":[0],"medicalProjectList":["vision","computer_optometry","other_eye_diseases"]}';
 
 create table m_school_staff
 (
@@ -25,3 +25,13 @@ create table m_school_staff
     update_time  timestamp  default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '学校员工表';
+
+-- 新增筛查机构类型
+alter table `m_screening_plan`
+    add screening_org_type TINYINT(3) NOT NULL default 0 comment '筛查机构类型(0:筛查机构，1:学校，2:医院)' after `screening_org_id`;
+
+alter table `m_screening_task_org`
+    add screening_org_type TINYINT(3) NOT NULL default 0 comment '筛查机构类型(0:筛查机构，1:学校，2:医院)' after `screening_org_id`;
+
+alter table `m_screening_plan_school`
+    add screening_grade_ids varchar(255) NULL  comment '筛查年级ID集合';

@@ -2,8 +2,6 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.FundusDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.Data;
@@ -107,8 +105,8 @@ public class SlitLampDataDTO extends ScreeningResultBasicData implements Seriali
         SlitLampDataDO.SlitLampData leftData = new SlitLampDataDO.SlitLampData();
         leftData.setLateriality(CommonConst.LEFT_EYE).setPathologicalTissues(getLeftPathologicalTissueList()).setDiagnosis(leftDiagnosis);
         SlitLampDataDO.SlitLampData rightData = new SlitLampDataDO.SlitLampData();
-        rightData.setLateriality(CommonConst.RIGHT_EYE).setPathologicalTissues(getRightPathologicalTissueList());
-        slitLampDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative()).setDiagnosis(rightDiagnosis);
+        rightData.setLateriality(CommonConst.RIGHT_EYE).setPathologicalTissues(getRightPathologicalTissueList()).setDiagnosis(leftDiagnosis);
+        slitLampDataDO.setLeftEyeData(leftData).setRightEyeData(rightData).setIsCooperative(getIsCooperative()).setDiagnosis(getDiagnosis());
         slitLampDataDO.setCreateUserId(getCreateUserId());
         slitLampDataDO.setUpdateTime(getUpdateTime());
         visionScreeningResult.setSlitLampData(slitLampDataDO);

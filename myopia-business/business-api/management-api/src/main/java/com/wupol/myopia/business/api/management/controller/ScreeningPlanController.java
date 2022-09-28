@@ -14,6 +14,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.domain.UploadScreeningStudentVO;
 import com.wupol.myopia.business.aggregation.export.excel.imports.PlanStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -254,7 +255,7 @@ public class ScreeningPlanController {
     public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         // 任务状态判断
         screeningExportService.validateExist(screeningPlanId);
-        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId);
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId,null);
     }
 
     /**
@@ -486,66 +487,50 @@ public class ScreeningPlanController {
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param isSchoolClient   是否学校端
+     * @param generatorPdfDTO
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr, @NotNull(message = "查询类型不能为空") Boolean isSchoolClient, String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, isSchoolClient, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(GeneratorPdfDTO generatorPdfDTO) {
+        Assert.notNull(generatorPdfDTO.getIsSchoolClient(),"查询类型不能为空");
+        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(generatorPdfDTO);
     }
 
     /**
      * 异步导出学生报告
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO 导出学生报告条件
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public void asyncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        screeningPlanStudentBizService.asyncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.FALSE);
+        generatorPdfDTO.setUserId(user.getId());
+        screeningPlanStudentBizService.asyncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 同步导出学生报告
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO 导出条件
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningPlanStudentBizService.syncGeneratorPDF(planId, schoolId, gradeId, classId, orgId, planStudentIdStr, false, user.getId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.FALSE);
+        generatorPdfDTO.setUserId(user.getId());
+        return screeningPlanStudentBizService.syncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param planStudentName  筛查学生名称
+     * @param generatorPdfDTO  筛查学生名称
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult/list")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotNull(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@Valid GeneratorPdfDTO generatorPdfDTO) {
+        return screeningPlanStudentBizService.getScreeningStudentDTOS(generatorPdfDTO);
     }
 
     /**

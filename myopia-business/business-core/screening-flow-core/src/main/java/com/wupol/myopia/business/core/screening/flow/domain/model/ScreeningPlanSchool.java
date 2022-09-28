@@ -26,9 +26,6 @@ public class ScreeningPlanSchool implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String NOT_START = "未开始";
-    public static final String IN_PROGRESS = "进行中";
-    public static final String END = "已结束";
 
     /**
      * 主键id
@@ -55,6 +52,11 @@ public class ScreeningPlanSchool implements Serializable {
      * 筛查计划--学校名字
      */
     private String schoolName;
+
+    /**
+     * 筛查计划--筛查年级ID集合
+     */
+    private String screeningGradeIds;
 
     /**
      * 机构质控员名字

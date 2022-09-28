@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.stat.domain.vo;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;

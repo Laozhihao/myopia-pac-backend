@@ -22,6 +22,7 @@ public class BigDecimalUtil {
     private static Map<Integer,String> decimalFormat = Maps.newHashMap();
 
     static {
+        decimalFormat.put(0,"0");
         decimalFormat.put(1,"0.0");
         decimalFormat.put(2,"0.00");
         decimalFormat.put(3,"0.000");

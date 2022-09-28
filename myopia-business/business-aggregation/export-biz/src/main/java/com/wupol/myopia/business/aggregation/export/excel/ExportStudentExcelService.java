@@ -145,7 +145,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         School school = schoolService.getById(exportCondition.getSchoolId());
         String gradeName = Objects.nonNull(exportCondition.getGradeId()) ? schoolGradeService.getById(exportCondition.getGradeId()).getName() : StringUtils.EMPTY;
         // 行政区域
-        District district = districtService.findOne(new District().setId(school.getDistrictId()));
+        District district = districtService.getById(school.getDistrictId());
         return String.format(ExcelNoticeKeyContentConstant.STUDENT_EXCEL_NOTICE_KEY_CONTENT,
                 districtService.getTopDistrictName(district.getCode()),
                 school.getName(),

@@ -186,86 +186,8 @@ public class ScreeningOrganizationBizService {
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;
         }
-        tasks.forEach(taskResponse -> extractedDTO(taskResponse, orgId));
+        tasks.forEach(taskResponse -> taskResponse.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(taskResponse.getStartTime(), taskResponse.getEndTime(), taskResponse.getReleaseStatus())));
         return planPages;
-    }
-
-    /**
-     * 封装DTO
-     *
-     * @param planResponse 筛查端-记录详情
-     * @param orgId        机构ID
-     */
-    private void extractedDTO(ScreeningOrgPlanResponseDTO planResponse, Integer orgId) {
-        ScreeningRecordItems response = new ScreeningRecordItems();
-        List<RecordDetails> details = new ArrayList<>();
-
-        Integer planId = planResponse.getId();
-        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(planId, StringUtils.EMPTY);
-        Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream()
-                .collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
-
-        // 设置筛查状态
-        planResponse.setScreeningStatus(screeningOrganizationService.getScreeningStatus(planResponse.getStartTime(), planResponse.getEndTime(), planResponse.getReleaseStatus()));
-
-        // 获取学校ID
-        List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(schoolIds)) {
-            return;
-        }
-        // 学生统计
-        Map<Integer, Integer> planStudentMaps = schoolVos.stream()
-                .collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
-
-        // 设置学校总数
-        response.setSchoolCount(schoolIds.size());
-
-        // 学校名称
-        List<School> schools = schoolService.getByIds(schoolIds);
-        Map<Integer, School> schoolMaps = schools.stream()
-                .collect(Collectors.toMap(School::getId, Function.identity()));
-
-        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(planId, orgId);
-        // 员工信息
-        if (!CollectionUtils.isEmpty(createUserIds)) {
-            List<User> userLists = oauthServiceClient.getUserBatchByIds(createUserIds);
-            response.setStaffCount(createUserIds.size());
-            response.setStaffName(userLists.stream().map(User::getRealName).collect(Collectors.toList()));
-        } else {
-            response.setStaffCount(0);
-        }
-        // 筛查数据
-        List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(planId, schoolIds);
-        Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
-        // 调查问卷数据
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(planId), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
-
-        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
-
-        Set<Integer> planStudentIds = userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
-        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = CollectionUtils.isEmpty(planStudentIds) ? Maps.newHashMap() : screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
-
-        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
-        schoolIds.forEach(schoolId -> {
-            RecordDetails detail = new RecordDetails();
-            detail.setSchoolId(schoolId);
-            if (null != schoolMaps.get(schoolId)) {
-                detail.setSchoolName(schoolMaps.get(schoolId).getName());
-            }
-            detail.setRealScreeningNumbers(visionScreeningResultService.count(new VisionScreeningResult().setSchoolId(schoolId).setScreeningOrgId(orgId).setPlanId(planId).setIsDoubleScreen(Boolean.FALSE)));
-            detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
-            detail.setScreeningPlanId(planId);
-            detail.setStartTime(planResponse.getStartTime());
-            detail.setEndTime(planResponse.getEndTime());
-            detail.setPlanTitle(planResponse.getTitle());
-            buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
-            detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
-            detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
-            buildReScreening(detail,planId,schoolId,reScreenSchoolMap);
-            details.add(detail);
-        });
-        response.setDetails(details);
-        planResponse.setItems(response);
     }
 
     /**
@@ -304,12 +226,12 @@ public class ScreeningOrganizationBizService {
         Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils
                 .isEmpty(schoolMap.get(schoolId)) ? Maps.newHashMap() : schoolMap.get(schoolId).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
         if (detail.getPlanScreeningNumbers() == 0) {
-            detail.setQuestionnaire("0" + CommonConst.CH_COMMA + CommonConst.PERCENT_ZERO);
+            detail.setQuestionnaire(CommonConst.PERCENT_ZERO);
             detail.setQuestionnaireStudentCount(0);
         } else {
             detail.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
             BigDecimal questionNum = MathUtil.divide(schoolStudentMap.keySet().size(), detail.getPlanScreeningNumbers());
-            detail.setQuestionnaire(schoolStudentMap.keySet().size() + CommonConst.CH_COMMA + (questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%"));
+            detail.setQuestionnaire( questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%");
         }
         if (!CollectionUtils.isEmpty(gradeIdMap.get(schoolId)) && detail.getPlanScreeningNumbers() != 0) {
             detail.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(schoolId, gradeIdMap, userGradeIdMap,Boolean.TRUE));
@@ -610,6 +532,86 @@ public class ScreeningOrganizationBizService {
      */
     public List<String> getPermissionByConfigType(Integer configType) {
         return oauthServiceClient.getPermissionByConfigType(configType);
+    }
+
+    /**
+     * 获取筛查计划的学校信息
+     * @param screeningPlanId 筛查计划ID
+     */
+    public ScreeningRecordItems getRecordSchoolInfo(Integer screeningPlanId) {
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+
+        ScreeningRecordItems screeningRecordItems = new ScreeningRecordItems();
+        List<RecordDetails> details = Lists.newArrayList();
+
+        List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, StringUtils.EMPTY);
+        List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
+
+        // 设置学校总数
+        screeningRecordItems.setSchoolCount(schoolIds.size());
+
+        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(screeningPlanId, screeningPlan.getScreeningOrgId());
+        // 员工信息
+        if (!CollectionUtils.isEmpty(createUserIds)) {
+            List<User> userLists = oauthServiceClient.getUserBatchByIds(createUserIds);
+            screeningRecordItems.setStaffCount(createUserIds.size());
+            screeningRecordItems.setStaffName(userLists.stream().map(User::getRealName).collect(Collectors.toList()));
+        } else {
+            screeningRecordItems.setStaffCount(0);
+        }
+
+        // 学校名称
+        List<School> schools = schoolService.getByIds(schoolIds);
+        Map<Integer, School> schoolMaps = schools.stream().collect(Collectors.toMap(School::getId, Function.identity()));
+
+        Map<Integer, Integer> planStudentMaps = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
+
+        // 调查问卷数据
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
+        Map<Integer, List<UserQuestionRecord>> schoolMap =userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getSchoolId));
+
+        Set<Integer> planStudentIds = userQuestionRecords.stream().map(UserQuestionRecord::getUserId).collect(Collectors.toSet());
+        Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = CollectionUtils.isEmpty(planStudentIds) ? Maps.newHashMap() : screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
+
+        Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
+
+        Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
+
+        // 筛查数据
+        List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(screeningPlanId, schoolIds);
+        Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.listByCondition(schoolIds, screeningPlanId, screeningPlan.getScreeningOrgId(), Boolean.FALSE);
+        Map<Integer, Long> schoolScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId, Collectors.counting()));
+
+        schoolIds.forEach(schoolId -> buildRecordDetails(screeningPlanId, screeningPlan, details, schoolMaps, planStudentMaps, schoolMap, userGradeIdMap, gradeIdMap, schoolVoMaps, reScreenSchoolMap, schoolScreeningResultMap, schoolId));
+
+        screeningRecordItems.setDetails(details);
+        return screeningRecordItems;
+    }
+
+    /**
+     * 构建记录详情
+     */
+    private void buildRecordDetails(Integer screeningPlanId, ScreeningPlan screeningPlan, List<RecordDetails> details,
+                                    Map<Integer, School> schoolMaps, Map<Integer, Integer> planStudentMaps,
+                                    Map<Integer, List<UserQuestionRecord>> schoolMap, Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
+                                    Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap, Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps,
+                                    Map<Integer, List<StatConclusion>> reScreenSchoolMap, Map<Integer, Long> schoolScreeningResultMap, Integer schoolId) {
+        RecordDetails detail = new RecordDetails();
+        detail.setSchoolId(schoolId);
+        Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> detail.setSchoolName(school.getName()));
+        detail.setRealScreeningNumbers(schoolScreeningResultMap.getOrDefault(schoolId,0L).intValue());
+        detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
+        detail.setScreeningPlanId(screeningPlanId);
+        detail.setStartTime(screeningPlan.getStartTime());
+        detail.setEndTime(screeningPlan.getEndTime());
+        detail.setPlanTitle(screeningPlan.getTitle());
+        buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
+        detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
+        detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
+        buildReScreening(detail,screeningPlanId,schoolId,reScreenSchoolMap);
+        details.add(detail);
     }
 
     /**

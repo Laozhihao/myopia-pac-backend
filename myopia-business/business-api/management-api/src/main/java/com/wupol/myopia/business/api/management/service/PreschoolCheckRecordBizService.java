@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.wupol.myopia.business.aggregation.hospital.domain.vo.HospitalStudentVO;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.domain.dto.StudentPreschoolCheckRecordDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalStudentResponseDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.MonthAgeStatusDTO;
@@ -31,6 +32,8 @@ public class PreschoolCheckRecordBizService {
 
     @Autowired
     private HospitalStudentService hospitalStudentService;
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 获取学生信息
@@ -43,7 +46,7 @@ public class PreschoolCheckRecordBizService {
         HospitalStudentVO studentVO = new HospitalStudentVO();
         // 未区分医院时，取学生信息
         if (Objects.isNull(hospitalId)) {
-            StudentDTO student = studentBizService.getStudentById(studentId);
+            StudentDTO student = studentFacade.getStudentById(studentId);
             BeanUtils.copyProperties(student, studentVO);
         } else {
             // 区分医院时，取医院下患者信息

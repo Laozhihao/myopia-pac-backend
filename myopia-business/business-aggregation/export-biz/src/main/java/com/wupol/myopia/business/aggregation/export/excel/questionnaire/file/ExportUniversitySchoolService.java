@@ -29,7 +29,6 @@ public class ExportUniversitySchoolService implements QuestionnaireExcel {
     @Value("classpath:excel/ExportUniversitySchoolTemplate.xlsx")
     private Resource exportUniversitySchoolTemplate;
 
-
     @Autowired
     private UserAnswerFacade userAnswerFacade;
 

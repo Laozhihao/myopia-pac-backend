@@ -31,7 +31,6 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -80,6 +79,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ScreeningAppController {
     private static final Logger logger = LoggerFactory.getLogger(ScreeningAppController.class);
+
+    private static final String ERROR_MSG = "请输入正确的参数";
 
     @Autowired
     private ScreeningAppService screeningAppService;
@@ -176,7 +177,7 @@ public class ScreeningAppController {
     public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId, String nameLike,
                                               @RequestParam(value = "channel", defaultValue = "0") Integer channel,
                                               @RequestParam(value = "current", defaultValue = "1") Integer page,
-                                              @RequestParam(value = "size", defaultValue = "60") Integer size) {
+                                              @RequestParam(value = "size", defaultValue = "999") Integer size) {
         // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
         if (channel == 1) {
             size = 999;
@@ -421,7 +422,7 @@ public class ScreeningAppController {
             }
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -447,7 +448,7 @@ public class ScreeningAppController {
             }
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -462,7 +463,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(biometricDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -487,7 +488,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(multiCheckDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -502,7 +503,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(pupilOptometryDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -517,7 +518,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(eyePressureDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -532,7 +533,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(ocularInspectionDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -547,7 +548,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(fundusDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -562,7 +563,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(slitLampDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -577,7 +578,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(visualLossLevelDataDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -603,7 +604,7 @@ public class ScreeningAppController {
             }
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -1044,7 +1045,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(saprodontiaDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -1074,7 +1075,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(spineDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -1104,7 +1105,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(bloodPressureDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -1135,7 +1136,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(diseasesHistoryDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 
@@ -1166,7 +1167,7 @@ public class ScreeningAppController {
             visionScreeningBizService.saveOrUpdateStudentScreenData(privacyDTO);
             return ApiResult.success();
         } else {
-            return ApiResult.failure("请输入正确的参数");
+            return ApiResult.failure(ERROR_MSG);
         }
     }
 

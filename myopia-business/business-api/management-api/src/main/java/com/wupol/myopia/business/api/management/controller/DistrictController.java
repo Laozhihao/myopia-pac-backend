@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public class DistrictController extends BaseController<DistrictService, District
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
     @GetMapping("/structure")
-    public List<District> getCurrentUserDistrictTree() throws IOException {
+    public List<District> getCurrentUserDistrictTree() {
         return districtBizService.getCurrentUserDistrictTree(CurrentUserUtil.getCurrentUser());
     }
 

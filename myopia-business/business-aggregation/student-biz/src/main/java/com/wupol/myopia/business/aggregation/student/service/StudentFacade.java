@@ -1,30 +1,40 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
+import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
+import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.HospitalStudentService;
+import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -97,6 +107,10 @@ public class StudentFacade {
 
     @Resource
     private OauthServiceClient oauthServiceClient;
+    @Resource
+    private MedicalReportService medicalReportService;
+    @Autowired
+    private SchoolService schoolService;
 
 
     /**
@@ -151,7 +165,7 @@ public class StudentFacade {
                     .setGlassesTypeDes(Optional.ofNullable(result.getVisionData()).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getGlassesType).map(WearingGlassesSituation::getType).orElse(null))
                     .setResultId(result.getId())
                     .setIsDoubleScreen(result.getIsDoubleScreen())
-                    .setTemplateId(getTemplateId(result.getScreeningOrgId(), result.getScreeningType()))
+                    .setTemplateId(getTemplateId(result.getScreeningOrgId(), result.getScreeningType(),Objects.equals(result.getSchoolId(),result.getScreeningOrgId())))
                     .setOtherEyeDiseases(getOtherEyeDiseasesList(result))
                     .setPlanId(result.getPlanId())
                     .setHasScreening(ObjectUtils.anyNotNull(result.getVisionData(), result.getComputerOptometry(), result.getBiometricData(), result.getOtherEyeDiseases()))
@@ -345,18 +359,18 @@ public class StudentFacade {
      */
     private void packageBiometricDataResult(VisionScreeningResult result, StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
         // 左眼--生物测量
-        leftDetails.setAD(result.getBiometricData().getLeftEyeData().getAd());
-        leftDetails.setAL(result.getBiometricData().getLeftEyeData().getAl());
-        leftDetails.setCCT(result.getBiometricData().getLeftEyeData().getCct());
-        leftDetails.setLT(result.getBiometricData().getLeftEyeData().getLt());
-        leftDetails.setWTW(result.getBiometricData().getLeftEyeData().getWtw());
+        leftDetails.setAd(result.getBiometricData().getLeftEyeData().getAd());
+        leftDetails.setAl(result.getBiometricData().getLeftEyeData().getAl());
+        leftDetails.setCct(result.getBiometricData().getLeftEyeData().getCct());
+        leftDetails.setLt(result.getBiometricData().getLeftEyeData().getLt());
+        leftDetails.setWtw(result.getBiometricData().getLeftEyeData().getWtw());
 
         // 右眼--生物测量
-        rightDetails.setAD(result.getBiometricData().getRightEyeData().getAd());
-        rightDetails.setAL(result.getBiometricData().getRightEyeData().getAl());
-        rightDetails.setCCT(result.getBiometricData().getRightEyeData().getCct());
-        rightDetails.setLT(result.getBiometricData().getRightEyeData().getLt());
-        rightDetails.setWTW(result.getBiometricData().getRightEyeData().getWtw());
+        rightDetails.setAd(result.getBiometricData().getRightEyeData().getAd());
+        rightDetails.setAl(result.getBiometricData().getRightEyeData().getAl());
+        rightDetails.setCct(result.getBiometricData().getRightEyeData().getCct());
+        rightDetails.setLt(result.getBiometricData().getRightEyeData().getLt());
+        rightDetails.setWtw(result.getBiometricData().getRightEyeData().getWtw());
     }
 
     /**
@@ -403,6 +417,21 @@ public class StudentFacade {
     }
 
     /**
+     * 获取机构使用的模板
+     *
+     * @param screeningOrgId 筛查机构Id
+     * @param screeningType  筛查类型
+     * @param isSchool  筛查机构是否是学校
+     * @return 模板Id
+     */
+    private Integer getTemplateId(Integer screeningOrgId, Integer screeningType,Boolean isSchool) {
+        if (Objects.equals(isSchool,Boolean.FALSE)){
+            return getTemplateId(screeningOrgId,screeningType);
+        }
+        School school = schoolService.getById(screeningOrgId);
+        return templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(school.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(screeningType));
+    }
+    /**
      * 获取两眼别的病变
      *
      * @param visionScreeningResult 视力筛查结果
@@ -436,7 +465,7 @@ public class StudentFacade {
         cardInfoVO.setCountNotCooperate(getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
-        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType());
+        Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType(),Objects.equals(visionScreeningResult.getSchoolId(),visionScreeningResult.getScreeningOrgId()));
         return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO, screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId()));
     }
 
@@ -451,7 +480,7 @@ public class StudentFacade {
             return new ArrayList<>();
         }
         // 筛查结构的Id都相同，取第一个就行
-        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId(), resultList.get(0).getScreeningType());
+        Integer templateId = getTemplateId(resultList.get(0).getScreeningOrgId(), resultList.get(0).getScreeningType(),Objects.equals(resultList.get(0).getSchoolId(),resultList.get(0).getScreeningOrgId()));
 
         // 查询学生信息
         List<Integer> studentIds = resultList.stream().map(VisionScreeningResult::getStudentId).collect(Collectors.toList());
@@ -504,7 +533,7 @@ public class StudentFacade {
         }
         VisionScreeningResult visionScreeningResult = visionScreeningResultService.getById(result.getId());
 
-        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType()));
+        responseDTO.setTemplateId(getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType(),Objects.equals(visionScreeningResult.getSchoolId(),visionScreeningResult.getScreeningOrgId())));
         responseDTO.setStudentCardResponseVO(Lists.newArrayList(getStudentCardResponseDTO(visionScreeningResult)));
         return responseDTO;
     }
@@ -1294,17 +1323,8 @@ public class StudentFacade {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudentAndSchoolStudent(Student student) {
-        Integer studentId = saveStudent(student);
-        if (Objects.isNull(student.getSchoolId()) || StringUtils.isBlank(student.getSno())) {
-            return studentId;
-        }
-        SchoolStudent schoolStudent = new SchoolStudent();
-        BeanUtils.copyProperties(student, schoolStudent);
-        schoolStudent.setId(null);
-        schoolStudent.setStudentId(studentId);
-        setSchoolStudentInfo(schoolStudent, student.getSchoolId());
-        schoolStudentService.saveOrUpdate(schoolStudent);
-        return studentId;
+        // TODO: JS2.02.01-1学校管理后台-自主筛查 ,管理后台-多端管理-用户管理（学生）不同步到学校管理后台(代码移除，要看代码查看历史记录)
+        return saveStudent(student);
     }
 
     /**
@@ -1338,9 +1358,7 @@ public class StudentFacade {
      */
     public void setSchoolStudentInfo(SchoolStudent schoolStudent, Integer schoolId) {
         schoolStudent.checkStudentInfo();
-        if (!schoolStudentService.getByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId)) {
-            throw new BusinessException("学号、身份证、护照重复");
-        }
+        checkSnoAndIdCardAndPassport(schoolStudent, schoolId);
         schoolStudent.setSchoolId(schoolId);
         SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
         schoolStudent.setGradeName(grade.getName());
@@ -1377,4 +1395,186 @@ public class StudentFacade {
         return cardInfoVO;
     }
 
+    /**
+     * 检查学号、身份证、护照是否重复
+     * @param schoolStudent
+     * @param schoolId
+     */
+    private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
+        if (CollUtil.isNotEmpty(schoolStudentList)){
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学号重复");
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getIdCard,"身份证重复");
+            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getPassport,"护照重复");
+        }
+    }
+
+    /**
+     * 检查参数
+     * @param schoolStudent
+     * @param schoolStudentList
+     * @param function
+     * @param errorMsg
+     */
+    private void checkParam(SchoolStudent schoolStudent, List<SchoolStudent> schoolStudentList,Function<SchoolStudent,String> function,String errorMsg) {
+        if (StrUtil.isNotBlank(getValue(schoolStudent,function))){
+            List<SchoolStudent> schoolStudents = schoolStudentList.stream().filter(student -> Objects.equals(getValue(student,function),getValue(schoolStudent,function))).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(schoolStudents)){
+                throw new BusinessException(errorMsg);
+            }
+        }
+    }
+
+    /**
+     * 获取学校学生的参数值
+     * @param schoolStudent
+     * @param function
+     */
+    private String getValue(SchoolStudent schoolStudent,Function<SchoolStudent,String> function){
+        return Optional.ofNullable(schoolStudent).map(function).orElse(null);
+    }
+
+
+    /**
+     * 通过学生Id获取学生信息
+     *
+     * @param id 学生Id
+     * @return StudentDTO
+     */
+    public StudentDTO getStudentById(Integer id) {
+        StudentDTO student = studentService.getStudentById(id);
+        student.setScreeningCodes(getScreeningCode(id));
+        student.setBirthdayInfo(com.wupol.myopia.base.util.DateUtil.getAgeInfo(student.getBirthday(), new Date()));
+        if (Objects.nonNull(student.getCommitteeCode())) {
+            student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
+        }
+        return student;
+    }
+
+    /**
+     * 通过学生Id获取编码
+     *
+     * @param studentId 学生Id
+     * @return 编号
+     */
+    public List<Long> getScreeningCode(Integer studentId) {
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
+        return getScreeningCodesByPlan(planStudentList);
+    }
+
+    /**
+     * 获取学生编号
+     *
+     * @param studentPlans 筛查学生计划
+     * @return 编号
+     */
+    public List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
+        if (CollectionUtils.isEmpty(studentPlans)) {
+            return Collections.emptyList();
+        }
+        return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
+                .filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取学生预警跟踪档案
+     *
+     * @param studentId 学生ID
+     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
+     **/
+    public IPage<StudentWarningArchiveVO> getStudentWarningArchive(PageRequest pageRequest,Integer studentId) {
+        Page page = pageRequest.toPage();
+        LambdaQueryWrapper<StatConclusion> queryWrapper = Wrappers.lambdaQuery(StatConclusion.class)
+                .eq(StatConclusion::getStudentId, studentId)
+                .eq(StatConclusion::getIsRescreen, Boolean.FALSE)
+                .orderByDesc(StatConclusion::getUpdateTime);
+        IPage<StatConclusion> statConclusionPage = statConclusionService.page(page, queryWrapper);
+
+        IPage<StudentWarningArchiveVO> warningArchiveVoPage = new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+        List<StatConclusion> statConclusionList = statConclusionPage.getRecords();
+        if (CollectionUtils.isEmpty(statConclusionList)) {
+            return warningArchiveVoPage;
+        }
+        List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
+        for (StatConclusion conclusion : statConclusionList) {
+            StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
+            BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
+            studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
+            studentWarningArchiveVO.setLowVision(getLowVision(conclusion.getIsLowVision()));
+            // 筛查信息
+            studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
+            ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
+            if (Objects.nonNull(screeningPlan)) {
+                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
+            }
+            // 就诊情况
+            setVisitInfo(studentWarningArchiveVO, conclusion);
+            // 课桌椅信息
+            setDeskAndChairInfo(studentWarningArchiveVO);
+            studentWarningArchiveVOList.add(studentWarningArchiveVO);
+        }
+        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
+        warningArchiveVoPage.setRecords(studentWarningArchiveVOList);
+        return warningArchiveVoPage;
+    }
+
+    private Integer getLowVision(Boolean isLowVision){
+        if (Objects.isNull(isLowVision)){
+            return null;
+        }
+        if (Objects.equals(isLowVision,Boolean.TRUE)){
+            return 1;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * 设置就诊信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪档案
+     * @param statConclusion          统计结果
+     */
+    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, StatConclusion statConclusion) {
+
+        Integer reportId = statConclusion.getReportId();
+        if (Objects.isNull(reportId)) {
+            studentWarningArchiveVO.setIsVisited(false);
+            return;
+        }
+        MedicalReport report = medicalReportService.getById(reportId);
+        if (Objects.isNull(report)) {
+            studentWarningArchiveVO.setIsVisited(false);
+            return;
+        }
+        studentWarningArchiveVO.setIsVisited(true);
+        studentWarningArchiveVO.setVisitResult(report.getMedicalContent());
+        studentWarningArchiveVO.setGlassesSuggest(report.getGlassesSituation());
+    }
+
+    /**
+     * 设置课桌椅信息
+     *
+     * @param studentWarningArchiveVO 预警跟踪信息
+     * @return void
+     **/
+    private void setDeskAndChairInfo(StudentWarningArchiveVO studentWarningArchiveVO) {
+        Float height = studentWarningArchiveVO.getHeight();
+        Integer schoolAge = studentWarningArchiveVO.getSchoolAge();
+        if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
+            return;
+        }
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
+        studentWarningArchiveVO.setDeskType(deskAndChairType);
+        studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
+        studentWarningArchiveVO.setChairType(deskAndChairType);
+        studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
+    }
+
+    /**
+     * 获取民族信息
+     */
+    public List<Nation> getNationLists() {
+        return NationEnum.getNationList();
+    }
 }

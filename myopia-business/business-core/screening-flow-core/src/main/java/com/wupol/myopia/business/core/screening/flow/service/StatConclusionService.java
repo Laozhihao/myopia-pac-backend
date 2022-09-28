@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -100,10 +101,24 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 批量根据筛查计划ID获取筛查结论
+     * @param screeningPlanIds 筛查计划ID集合
+     */
     public List<StatConclusion> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper =new LambdaQueryWrapper<>();
-        queryWrapper.in(StatConclusion::getPlanId,screeningPlanIds);
-        return baseMapper.selectList(queryWrapper);
+        return baseMapper.selectList(Wrappers.lambdaQuery(StatConclusion.class)
+                .in(StatConclusion::getPlanId,screeningPlanIds));
+    }
+
+    /**
+     * 根据筛查计划ID和学校ID获取筛查结论
+     * @param screeningPlanId 筛查计划ID
+     * @param schoolId 学校ID
+     */
+    public List<StatConclusion> listByScreeningPlanIdAndSchoolId(Integer screeningPlanId,Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(StatConclusion.class)
+                .eq(StatConclusion::getPlanId,screeningPlanId)
+                .eq(StatConclusion::getSchoolId,schoolId));
     }
 
 

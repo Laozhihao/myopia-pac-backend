@@ -3,11 +3,11 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -34,7 +34,7 @@ public class ExportPrimarySecondarySchoolsService implements QuestionnaireExcel 
     private Resource exportPrimarySecondarySchoolsTemplate;
 
     @Autowired
-    private QuestionnaireFactory questionnaireFactory;
+    private AnswerFactory answerFactory;
     @Autowired
     private UserAnswerFacade userAnswerFacade;
 
@@ -63,7 +63,7 @@ public class ExportPrimarySecondarySchoolsService implements QuestionnaireExcel 
     }
 
     private Answer getAnswerService(){
-        return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_SCHOOL.getType());
+        return answerFactory.getAnswerService(UserType.QUESTIONNAIRE_SCHOOL.getType());
     }
 
 

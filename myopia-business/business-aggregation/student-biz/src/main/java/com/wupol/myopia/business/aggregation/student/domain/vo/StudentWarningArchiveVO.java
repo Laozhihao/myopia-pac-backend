@@ -1,9 +1,10 @@
-package com.wupol.myopia.business.api.management.domain.vo;
+package com.wupol.myopia.business.aggregation.student.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  **/
 @Accessors(chain = true)
 @Data
-public class StudentWarningArchiveVO {
+public class StudentWarningArchiveVO implements Serializable {
 
     /** 筛查计划学生ID */
     private Integer screeningPlanSchoolStudentId;

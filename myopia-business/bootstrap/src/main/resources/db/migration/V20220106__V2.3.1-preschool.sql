@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `h_preschool_check_record`;
 CREATE TABLE `h_preschool_check_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `student_id` int(11) NOT NULL COMMENT '学生id',
@@ -25,6 +26,7 @@ CREATE TABLE `h_preschool_check_record`  (
   UNIQUE INDEX `uniq_student_id_hospital_id_month_age`(`student_id`, `hospital_id`, `month_age`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '眼保健信息表' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `h_receipt_list`;
 CREATE TABLE `h_receipt_list`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `preschool_check_record_id` int(11) NOT NULL COMMENT '生成回执的眼保健检查单id',
@@ -41,6 +43,7 @@ CREATE TABLE `h_receipt_list`  (
   UNIQUE INDEX `uniq_pcr_id`(`preschool_check_record_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '回执单' ROW_FORMAT = Dynamic;
 
+DROP TABLE IF EXISTS `h_referral_record`;
 CREATE TABLE `h_referral_record`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `preschool_check_record_id` int(11) NOT NULL COMMENT '生成转诊的眼保健检查单id',

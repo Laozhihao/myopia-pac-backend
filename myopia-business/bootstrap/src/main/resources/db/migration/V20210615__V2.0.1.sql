@@ -1,4 +1,5 @@
 -- parent
+DROP TABLE IF EXISTS `m_org_cooperation_hospital`;
 create table m_org_cooperation_hospital
 (
   id               int auto_increment comment 'id'
@@ -24,6 +25,7 @@ alter table m_parent
   modify wx_nickname varchar(100) character set utf8mb4;
 
 -- add rescreen
+DROP TABLE IF EXISTS `m_stat_rescreen`;
 CREATE TABLE `m_stat_rescreen` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `screening_org_id` int(11) NOT NULL COMMENT '筛查结果--所属的机构id',

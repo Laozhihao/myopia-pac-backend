@@ -6,7 +6,6 @@ import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -15,6 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
     @Resource
     private ScreeningTaskService screeningTaskService;
     @Resource
-    private VisionScreeningBizService visionScreeningBizService;
+    private VisionScreeningResultService visionScreeningResultService;
     @Resource
     private DistrictService districtService;
     @Autowired
@@ -86,7 +86,7 @@ public class ExportDistrictArchivesService extends BaseExportPdfFileService {
         if (CollectionUtils.isEmpty(taskIds)){
             throw new BusinessException("该区域下暂无筛查任务，无法导出档案卡/监测表");
         }
-        int total = visionScreeningBizService.getScreeningResult(districtIdList, taskIds);
+        int total = visionScreeningResultService.selectScreeningResultByDistrictIdAndTaskId(districtIdList, taskIds);
         if (total <= 0) {
             throw new BusinessException("该区域下暂无筛查学生数据，无法导出档案卡/监测表");
         }

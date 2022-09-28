@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
@@ -11,17 +12,12 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
-import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
@@ -32,20 +28,15 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,19 +67,10 @@ public class StudentBizService {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     @Resource
-    private DistrictService districtService;
-
-    @Resource
     private MedicalReportService medicalReportService;
 
     @Resource
     private VistelToolsService vistelToolsService;
-
-    @Autowired
-    private StatConclusionService statConclusionService;
-
-    @Autowired
-    private ScreeningPlanService screeningPlanService;
 
     @Autowired
     private HospitalDoctorService hospitalDoctorService;
@@ -146,7 +128,7 @@ public class StudentBizService {
             // 筛查次数
             student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
             // 筛查码
-            student.setScreeningCodes(getScreeningCodesByPlan(studentPlans.get(student.getId())));
+            student.setScreeningCodes(studentFacade.getScreeningCodesByPlan(studentPlans.get(student.getId())));
             // 就诊次数
             student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
             // 问卷次数
@@ -155,96 +137,6 @@ public class StudentBizService {
         return pageStudents;
     }
 
-    /**
-     * 获取学生预警跟踪档案
-     *
-     * @param studentId 学生ID
-     * @return java.util.List<com.wupol.myopia.business.api.management.domain.vo.StudentWarningArchiveVO>
-     **/
-    public List<StudentWarningArchiveVO> getStudentWarningArchive(Integer studentId) {
-        List<StatConclusion> statConclusionList = statConclusionService.findByList(new StatConclusion().setStudentId(studentId).setIsRescreen(Boolean.FALSE));
-        if (CollectionUtils.isEmpty(statConclusionList)) {
-            return new ArrayList<>();
-        }
-        List<StudentWarningArchiveVO> studentWarningArchiveVOList = new LinkedList<>();
-        for (StatConclusion conclusion : statConclusionList) {
-            StudentWarningArchiveVO studentWarningArchiveVO = new StudentWarningArchiveVO();
-            BeanUtils.copyProperties(conclusion, studentWarningArchiveVO);
-            studentWarningArchiveVO.setVisionLabel(conclusion.getWarningLevel());
-            studentWarningArchiveVO.setLowVision(Optional.ofNullable(conclusion.getIsLowVision()).map(low-> low ? 1:null).orElse(null));
-            // 筛查信息
-            studentWarningArchiveVO.setScreeningDate(conclusion.getUpdateTime());
-            ScreeningPlan screeningPlan = screeningPlanService.getById(conclusion.getPlanId());
-            if (Objects.nonNull(screeningPlan)) {
-                studentWarningArchiveVO.setScreeningTitle(screeningPlan.getTitle());
-            }
-            // 就诊情况
-            setVisitInfo(studentWarningArchiveVO, conclusion);
-            // 课桌椅信息
-            setDeskAndChairInfo(studentWarningArchiveVO);
-            studentWarningArchiveVOList.add(studentWarningArchiveVO);
-        }
-        studentWarningArchiveVOList.sort(Comparator.comparing(StudentWarningArchiveVO::getScreeningDate).reversed());
-        return studentWarningArchiveVOList;
-    }
-
-    /**
-     * 设置就诊信息
-     *
-     * @param studentWarningArchiveVO 预警跟踪档案
-     * @param statConclusion          统计结果
-     */
-    private void setVisitInfo(StudentWarningArchiveVO studentWarningArchiveVO, StatConclusion statConclusion) {
-
-        Integer reportId = statConclusion.getReportId();
-        if (Objects.isNull(reportId)) {
-            studentWarningArchiveVO.setIsVisited(false);
-            return;
-        }
-        MedicalReport report = medicalReportService.getById(reportId);
-        if (Objects.isNull(report)) {
-            studentWarningArchiveVO.setIsVisited(false);
-            return;
-        }
-        studentWarningArchiveVO.setIsVisited(true);
-        studentWarningArchiveVO.setVisitResult(report.getMedicalContent());
-        studentWarningArchiveVO.setGlassesSuggest(report.getGlassesSituation());
-    }
-
-    /**
-     * 设置课桌椅信息
-     *
-     * @param studentWarningArchiveVO 预警跟踪信息
-     * @return void
-     **/
-    private void setDeskAndChairInfo(StudentWarningArchiveVO studentWarningArchiveVO) {
-        Float height = studentWarningArchiveVO.getHeight();
-        Integer schoolAge = studentWarningArchiveVO.getSchoolAge();
-        if (Objects.isNull(height) || Objects.isNull(schoolAge)) {
-            return;
-        }
-        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
-        studentWarningArchiveVO.setDeskType(deskAndChairType);
-        studentWarningArchiveVO.setDeskAdviseHeight((int) (height * 0.43));
-        studentWarningArchiveVO.setChairType(deskAndChairType);
-        studentWarningArchiveVO.setChairAdviseHeight((int) (height * 0.24));
-    }
-
-    /**
-     * 通过学生Id获取学生信息
-     *
-     * @param id 学生Id
-     * @return StudentDTO
-     */
-    public StudentDTO getStudentById(Integer id) {
-        StudentDTO student = studentService.getStudentById(id);
-        student.setScreeningCodes(getScreeningCode(id));
-        student.setBirthdayInfo(DateUtil.getAgeInfo(student.getBirthday(), new Date()));
-        if (Objects.nonNull(student.getCommitteeCode())) {
-            student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
-        }
-        return student;
-    }
 
     /**
      * 删除学生
@@ -286,7 +178,7 @@ public class StudentBizService {
         } else {
             studentDTO.setNumOfVisits(0);
         }
-        studentDTO.setScreeningCodes(getScreeningCode(student.getId()));
+        studentDTO.setScreeningCodes(studentFacade.getScreeningCode(student.getId()));
         return studentDTO;
     }
 
@@ -516,7 +408,7 @@ public class StudentBizService {
      */
     private void sendSMS(List<String> mpParentPhone, String parentPhone, String noticeInfo, VisionScreeningResult result) {
         // 优先家长端绑定的手机号码
-        if (com.wupol.framework.core.util.CollectionUtils.isNotEmpty(mpParentPhone)) {
+        if (CollUtil.isNotEmpty(mpParentPhone)) {
             mpParentPhone.forEach(phone -> {
                 MsgData msgData = new MsgData(phone, "+86", noticeInfo);
                 SmsResult smsResult = vistelToolsService.sendMsg(msgData);
@@ -542,34 +434,10 @@ public class StudentBizService {
         if (smsResult.isSuccessful()) {
             result.setIsNotice(true);
         } else {
-            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSONObject.toJSONString(msgData), smsResult);
+            log.error("发送通知到手机号码错误，提交信息:{}, 异常信息:{}", JSON.toJSONString(msgData), smsResult);
         }
     }
 
-    /**
-     * 获取学生编号
-     *
-     * @param studentPlans 筛查学生计划
-     * @return 编号
-     */
-    private List<Long> getScreeningCodesByPlan(List<ScreeningPlanSchoolStudent> studentPlans) {
-        if (CollectionUtils.isEmpty(studentPlans)) {
-            return Collections.emptyList();
-        }
-        return studentPlans.stream().map(ScreeningPlanSchoolStudent::getScreeningCode)
-                .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    /**
-     * 通过学生Id获取编码
-     *
-     * @param studentId 学生Id
-     * @return 编号
-     */
-    private List<Long> getScreeningCode(Integer studentId) {
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
-        return getScreeningCodesByPlan(planStudentList);
-    }
 
     /**
      * 判断是否要修改委会行政区域

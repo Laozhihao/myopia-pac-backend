@@ -22,6 +22,11 @@ public class VisionWarningDO implements Serializable,FrontTableId {
     private Integer visionWarningNum;
 
     /**
+     * 视力预警比例
+     */
+    private String visionWarningRatio;
+
+    /**
      * 小学及以上--零级预警人数（默认0）
      */
     private Integer visionLabel0Num;

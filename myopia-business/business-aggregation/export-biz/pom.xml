@@ -60,22 +60,12 @@
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
-            <artifactId>screening-biz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
             <artifactId>questionnaire-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.wupol.myopia</groupId>
             <artifactId>rec-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wupol.myopia</groupId>
-            <artifactId>student-biz</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

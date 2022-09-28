@@ -139,15 +139,18 @@ public class ImportScreeningSchoolStudentBuilder {
         String studentNo = item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null);
         String phone = item.getOrDefault(ImportExcelEnum.PHONE.getIndex(), null);
         //筛查编号
-        if (Objects.nonNull(screeningCode) && !checkProcessBO.getScreeningCodeList().contains(screeningCode)){
-            //校验编码是否存在于系统
-            errorItemList.add("编码错误");
-        }
-        if (StringUtils.isAllBlank(idCard,passport)){
-            errorItemList.add("身份证号和护照号，二选一必填");
-        }
-        if (StringUtils.isAllBlank(idCard,passport,screeningCode)){
-            errorItemList.add("身份证号、护照号、编码不能都为空");
+        if (Objects.nonNull(screeningCode)) {
+            if (!checkProcessBO.getScreeningCodeList().contains(screeningCode)) {
+                //校验编码是否存在于系统
+                errorItemList.add("编码错误");
+            }
+        } else {
+            if (StringUtils.isAllBlank(idCard, passport)) {
+                errorItemList.add("身份证号和护照号，二选一必填");
+            }
+            if (StringUtils.isAllBlank(idCard, passport, screeningCode)) {
+                errorItemList.add("身份证号、护照号、编码不能都为空");
+            }
         }
 
         boolean isIdCard = StringUtils.isNotBlank(idCard);
