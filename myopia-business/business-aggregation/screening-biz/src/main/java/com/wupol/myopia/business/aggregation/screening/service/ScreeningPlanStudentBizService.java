@@ -532,5 +532,17 @@ public class ScreeningPlanStudentBizService {
         }
         checkStudentSno(updatePlanStudent);
         screeningPlanSchoolStudentService.updateById(updatePlanStudent);
+        // 更新多端学生
+        Student student = studentService.getById(planStudent.getStudentId());
+        if (Objects.isNull(student)) {
+            return;
+        }
+        student.setName(planStudent.getStudentName());
+        student.setGender(planStudent.getGender());
+        student.setBirthday(planStudent.getBirthday());
+        student.setSchoolId(planStudent.getSchoolId());
+        student.setGradeId(planStudent.getGradeId());
+        student.setClassId(planStudent.getClassId());
+        studentService.updateById(student);
     }
 }
