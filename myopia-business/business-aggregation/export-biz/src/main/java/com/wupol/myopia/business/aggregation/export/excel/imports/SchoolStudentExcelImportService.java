@@ -162,7 +162,12 @@ public class SchoolStudentExcelImportService {
 
         List<SchoolStudent> addSchoolStudentList = Lists.newArrayList();
         if (CollUtil.isNotEmpty(schoolStudents)){
-            addSchoolStudentList = schoolStudents.stream().filter(s -> Objects.isNull(s.getId())).collect(Collectors.toList());
+            schoolStudents.forEach(schoolStudent -> {
+                boolean isAdd = Objects.isNull(schoolStudent.getId());
+                if (Objects.equals(isAdd,Boolean.TRUE)){
+                    addSchoolStudentList.add(schoolStudent);
+                }
+            });
         }
 
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
