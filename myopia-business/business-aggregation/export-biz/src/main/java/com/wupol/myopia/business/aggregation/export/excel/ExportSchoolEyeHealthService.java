@@ -132,8 +132,9 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
                 TwoTuple<String, String> deskChairSuggest = getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
                 exportDTO.setDesk(deskChairSuggest.getFirst());
                 exportDTO.setChair(deskChairSuggest.getSecond());
-
-//                exportDTO.setSeat();
+                if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+                    exportDTO.setSeat("座位与黑板相距5-6米");
+                }
                 exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
             }
             return exportDTO;

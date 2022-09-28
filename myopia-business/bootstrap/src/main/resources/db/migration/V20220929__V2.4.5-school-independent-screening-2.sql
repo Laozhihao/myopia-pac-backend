@@ -11,4 +11,4 @@ alter table m_overview
     add school_config_type int default 0 not null comment '学校配置 0-默认配置' after cooperation_end_time;
 
 alter table m_overview
-    add school_limit_num int null comment '学校限制数量' after school_config_type;
+    add school_limit_num int default 5 not null comment '学校限制数量' after school_config_type;
