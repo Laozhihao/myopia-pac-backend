@@ -176,7 +176,7 @@ public class ScreeningAppController {
     public Page<StudentVO> findAllStudentName(Integer schoolId, Integer gradeId, Integer classId, String nameLike,
                                               @RequestParam(value = "channel", defaultValue = "0") Integer channel,
                                               @RequestParam(value = "current", defaultValue = "1") Integer page,
-                                              @RequestParam(value = "size", defaultValue = "60") Integer size) {
+                                              @RequestParam(value = "size", defaultValue = "999") Integer size) {
         // 新版本不分页，这里需要兼容旧版本，数量为最大,学生数一般最多100,999比较合适
         if (channel == 1) {
             size = 999;
