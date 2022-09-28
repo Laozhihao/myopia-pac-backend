@@ -199,10 +199,10 @@ public class ScreeningTaskController {
      * @return Object
      */
     @GetMapping("orgs/{screeningTaskId}")
-    public List<ScreeningTaskOrgDTO> queryOrgsInfo(@PathVariable Integer screeningTaskId) {
+    public List<ScreeningTaskOrgDTO> queryOrgsInfo(@PathVariable Integer screeningTaskId,String orgNameOrSchoolName) {
         // 任务状态判断
         validateExist(screeningTaskId);
-        return screeningTaskOrgBizService.getOrgVoListsByTaskId(screeningTaskId);
+        return screeningTaskOrgBizService.getOrgVoListsByTaskId(screeningTaskId,orgNameOrSchoolName);
     }
 
     /**

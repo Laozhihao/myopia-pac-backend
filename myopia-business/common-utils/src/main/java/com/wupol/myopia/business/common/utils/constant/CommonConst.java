@@ -221,5 +221,24 @@ public class CommonConst {
     /**
      * 需要插入脊柱个人信息的序号
      */
-    public static final List<String> VISION_SPINE_NOTICE = Lists.newArrayList(A01, A011, A02, A03, A04);
+    public static final List<String> getVisionSpineNotice(){
+        return Lists.newArrayList(A01, A011, A02, A03, A04);
+    }
+
+    /**
+     * 学校账号前缀
+     */
+    public static final String SCHOOL_USERNAME_PREFIX = "jsfkxd";
+
+
+    /**
+     * 数据完整性
+     */
+    public static final String DATA_INTEGRITY_FINISH = "数据完整";
+    public static final String DATA_INTEGRITY_MISS = "数据缺失";
+
+    /**
+     * 零值
+     */
+    public static final Long ZERO_L = 0L;
 }

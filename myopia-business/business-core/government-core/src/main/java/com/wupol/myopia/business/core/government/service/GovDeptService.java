@@ -6,6 +6,7 @@ import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.constant.StatusConstant;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
@@ -269,6 +270,18 @@ public class GovDeptService extends BaseService<GovDeptMapper, GovDept> {
                     UserType.GOVERNMENT_ADMIN, govDept.getStatus()));
         }
         return result;
+    }
+
+    /**
+     * 获取政府部门ID集合
+     * @param user
+     */
+    public List<Integer> getGovDetIds(CurrentUser user) {
+        List<Integer> allGovDeptIds = Lists.newArrayList();
+        if (user.isGovDeptUser()) {
+            allGovDeptIds = this.getAllSubordinate(user.getOrgId());
+        }
+        return allGovDeptIds;
     }
 
 }

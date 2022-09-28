@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -23,6 +25,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,18 +50,16 @@ public class SchoolStudentExcelImportService {
 
     @Resource
     private SchoolService schoolService;
-
     @Resource
     private SchoolGradeService schoolGradeService;
-
     @Resource
     private StudentService studentService;
-
     @Resource
     private DistrictService districtService;
-
     @Resource
     private SchoolStudentService schoolStudentService;
+    @Resource
+    private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
     private static final String ERROR_MSG = "在系统中重复";
     private static final Integer PASSPORT_LENGTH = 7;
@@ -112,8 +113,8 @@ public class SchoolStudentExcelImportService {
 
         // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
-        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMaps = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
 
@@ -140,6 +141,11 @@ public class SchoolStudentExcelImportService {
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
             String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+
+            String name = item.get(SchoolStudentImportEnum.NAME.getIndex());
+            Assert.isTrue(StrUtil.isNotBlank(gradeName),name+"学生,年级不能为空");
+            Assert.isTrue(StrUtil.isNotBlank(className),name+"学生,班级不能为空");
+
             TwoTuple<Integer, Integer> gradeClassInfo = getSchoolStudentClassInfo(schoolId, schoolGradeMaps, gradeName, className);
             schoolStudent.setGradeId(gradeClassInfo.getFirst());
             schoolStudent.setGradeName(gradeName);
@@ -153,7 +159,22 @@ public class SchoolStudentExcelImportService {
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
         }
+
+        List<SchoolStudent> addSchoolStudentList = Lists.newArrayList();
+        if (CollUtil.isNotEmpty(schoolStudents)){
+            schoolStudents.forEach(schoolStudent -> {
+                boolean isAdd = Objects.isNull(schoolStudent.getId());
+                if (Objects.equals(isAdd,Boolean.TRUE)){
+                    addSchoolStudentList.add(schoolStudent);
+                }
+            });
+        }
+
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
+
+        if (CollUtil.isNotEmpty(addSchoolStudentList)){
+            addSchoolStudentList.forEach(schoolStudent -> schoolScreeningBizFacade.addScreeningStudent(schoolStudent,Boolean.TRUE));
+        }
     }
 
     /**
@@ -211,6 +232,9 @@ public class SchoolStudentExcelImportService {
 
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> classExportVOS = schoolGradeExportDTO.getChild();
+        if (CollUtil.isEmpty(classExportVOS)){
+            throw new BusinessException(gradeName+"不存在班级");
+        }
         // 转换成班级Maps 把班级名称作为key
         Map<String, Integer> classExportMaps = classExportVOS.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
         Integer classId = classExportMaps.get(className);

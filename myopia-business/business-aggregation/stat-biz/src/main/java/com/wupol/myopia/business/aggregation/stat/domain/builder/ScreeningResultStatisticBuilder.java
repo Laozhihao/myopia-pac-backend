@@ -1,10 +1,10 @@
-package com.wupol.myopia.business.api.management.domain.builder;
+package com.wupol.myopia.business.aggregation.stat.domain.builder;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.api.management.domain.bo.StatisticResultBO;
+import com.wupol.myopia.business.aggregation.stat.domain.bo.StatisticResultBO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -39,8 +39,8 @@ public class ScreeningResultStatisticBuilder {
      * 视力筛查数据统计
      */
     public void visionScreening(StatisticResultBO totalStatistic,
-                                  List<StatConclusion> statConclusions,
-                                  List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
+                                List<StatConclusion> statConclusions,
+                                List<VisionScreeningResultStatistic> visionScreeningResultStatisticList){
 
         if (ObjectsUtil.hasNull(totalStatistic,statConclusions,visionScreeningResultStatisticList)){
             return;
@@ -63,6 +63,9 @@ public class ScreeningResultStatisticBuilder {
         VisionScreeningResultStatistic statistic = new VisionScreeningResultStatistic();
         //设置基础数据
         setBasicData(statConclusions,totalStatistic,realScreeningStudentNum,validScreeningNum,statistic);
+
+        //设置其它数据
+        setOtherData(statConclusions, statistic);
 
         //设置视力分析数据
         if (Objects.equals(totalStatistic.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())){
@@ -156,6 +159,7 @@ public class ScreeningResultStatisticBuilder {
                 .setFinishRatio(MathUtil.ratio(realScreeningStudentNum,planScreeningNum))
                 .setValidScreeningNum(validScreeningNum)
                 .setValidScreeningRatio(MathUtil.ratio(validScreeningNum,realScreeningStudentNum));
+
     }
 
     /**
@@ -251,6 +255,18 @@ public class ScreeningResultStatisticBuilder {
         statistic.setVisionAnalysis(visionAnalysisDO);
     }
 
+    private static void setOtherData(List<StatConclusion> statConclusions, VisionScreeningResultStatistic statistic) {
+        //公众号
+        Integer bindMpNum = (int) statConclusions.stream()
+                .map(StatConclusion::getIsBindMp)
+                .filter(Objects::nonNull).filter(Boolean::booleanValue).count();
+        statistic.setBindMpNum(bindMpNum).setBindMpRatio(MathUtil.ratio(bindMpNum,statistic.getRealScreeningNum()));
+
+        //去医院
+        Integer reviewNum = (int) statConclusions.stream().map(StatConclusion::getReportId).filter(Objects::nonNull).count();
+        statistic.setReviewNum(reviewNum).setReviewRatio(MathUtil.ratio(reviewNum,statistic.getRealScreeningNum()));
+    }
+
 
     /**
      * 设置视力预警数据 (基于初筛数据)
@@ -268,7 +284,7 @@ public class ScreeningResultStatisticBuilder {
         Integer visionLabel3Num = visionLabelNumberMap.getOrDefault(WarningLevel.THREE.code, 0L).intValue();
         Integer visionWarningNum =visionLabel0Num+visionLabel1Num+visionLabel2Num+visionLabel3Num;
 
-        visionWarningDO.setVisionWarningNum(visionWarningNum)
+        visionWarningDO.setVisionWarningNum(visionWarningNum).setVisionWarningRatio(MathUtil.ratio(visionWarningNum,validScreeningNum))
                 .setVisionLabel0Num(visionLabel0Num).setVisionLabel0Ratio(MathUtil.ratio(visionLabel0Num,validScreeningNum))
                 .setVisionLabel1Num(visionLabel1Num).setVisionLabel1Ratio(MathUtil.ratio(visionLabel1Num,validScreeningNum))
                 .setVisionLabel2Num(visionLabel2Num).setVisionLabel2Ratio(MathUtil.ratio(visionLabel2Num,validScreeningNum))
@@ -458,7 +474,7 @@ public class ScreeningResultStatisticBuilder {
 
         Map<Integer,Integer> planSchoolStudentMap= Maps.newHashMap();
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = statisticResultBO.getPlanSchoolStudentList();
-        if (CollectionUtil.isNotEmpty(planSchoolStudentList)){
+        if (CollUtil.isNotEmpty(planSchoolStudentList)){
             int kindergarten = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
             int primary = (int)planSchoolStudentList.stream().filter(planSchoolStudent -> !Objects.equals(planSchoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
             planSchoolStudentMap.put(SchoolEnum.TYPE_KINDERGARTEN.getType(),kindergarten);
@@ -470,7 +486,7 @@ public class ScreeningResultStatisticBuilder {
 
         schoolMap.forEach((schoolAge,list)->{
             statisticResultBO.setSchoolType(schoolAge);
-            if (CollectionUtil.isNotEmpty(planSchoolStudentMap)){
+            if (CollUtil.isNotEmpty(planSchoolStudentMap)){
                 Integer planSchoolStudentCount = planSchoolStudentMap.get(schoolAge);
                 statisticResultBO.setPlanStudentCount(planSchoolStudentCount);
             }

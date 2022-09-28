@@ -4,25 +4,24 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
+import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,9 +52,6 @@ public class SchoolStudentController {
     private SchoolStudentService schoolStudentService;
 
     @Resource
-    private StudentService studentService;
-
-    @Resource
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
@@ -63,9 +59,6 @@ public class SchoolStudentController {
 
     @Resource
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
-
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
 
     /**
@@ -78,8 +71,7 @@ public class SchoolStudentController {
     @GetMapping
     public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Integer schoolId = currentUser.getOrgId();
-        return schoolStudentBizService.getList(pageRequest, requestDTO, schoolId);
+        return schoolStudentBizService.getList(pageRequest, requestDTO, currentUser.getOrgId());
     }
 
     /**
@@ -91,9 +83,8 @@ public class SchoolStudentController {
     @PostMapping
     public SchoolStudent save(@RequestBody SchoolStudent student) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Integer schoolId = currentUser.getOrgId();
         student.setCreateUserId(currentUser.getId());
-        return schoolStudentBizService.saveStudent(student, schoolId);
+        return schoolStudentBizService.saveStudent(student, currentUser.getOrgId());
     }
 
     /**
@@ -127,13 +118,7 @@ public class SchoolStudentController {
      */
     @DeleteMapping("{id}")
     public Boolean deletedStudent(@PathVariable("id") Integer id) {
-        SchoolStudent schoolStudent = schoolStudentService.getById(id);
-        Integer studentId = schoolStudent.getStudentId();
-        if (screeningPlanSchoolStudentService.checkStudentHavePlan(studentId)) {
-            throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
-        }
-        schoolStudentService.deletedStudent(id);
-        studentService.deletedStudent(studentId);
+        schoolStudentBizService.deletedStudent(id);
         return Boolean.TRUE;
     }
 
@@ -177,4 +162,26 @@ public class SchoolStudentController {
         schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
         return ApiResult.success();
     }
+
+    /**
+     * 获取筛查学生
+     * @param screeningPlanId 筛查计划ID
+     */
+    @GetMapping("/screeningStudent")
+    public GradeInfoVO getGradeInfo(@RequestParam(required = false) Integer screeningPlanId){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolStudentBizService.getGradeInfo(screeningPlanId,currentUser.getOrgId());
+    }
+
+
+    /**
+     * 获取民族列表
+     *
+     * @return 民族列表
+     */
+    @GetMapping("/nation")
+    public List<Nation> getNationLists() {
+        return studentFacade.getNationLists();
+    }
+
 }

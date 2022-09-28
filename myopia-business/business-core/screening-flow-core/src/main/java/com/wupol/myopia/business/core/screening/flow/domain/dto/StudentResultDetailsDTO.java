@@ -63,29 +63,29 @@ public class StudentResultDetailsDTO {
     private BigDecimal cyl;
 
     /**
-     * AD
+     * 房水深度（前房深度）
      */
-    private String AD;
+    private String ad;
 
     /**
      * 眼轴
      */
-    private String AL;
+    private String al;
 
     /**
      * 角膜中央厚度
      */
-    private String CCT;
+    private String cct;
 
     /**
      * 晶状体厚度
      */
-    private String LT;
+    private String lt;
 
     /**
      * 角膜白到白距离
      */
-    private String WTW;
+    private String wtw;
 
     /**
      * 眼部疾病

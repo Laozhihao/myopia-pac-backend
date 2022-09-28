@@ -7,7 +7,6 @@ import com.wupol.myopia.business.core.hospital.domain.model.*;
 import com.wupol.myopia.business.core.hospital.domain.query.HospitalStudentQuery;
 import com.wupol.myopia.business.core.hospital.domain.query.MedicalRecordQuery;
 import com.wupol.myopia.business.core.hospital.service.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -178,7 +176,7 @@ public class MedicalReportBizService {
             responseDTO.setDiopter(medicalRecord.getDiopter());
             responseDTO.setTosca(medicalRecord.getTosca());
             responseDTO.setEyePressure(medicalRecord.getEyePressure());
-            responseDTO.setFundusImageUrlList(getFundusImageUrls(medicalRecord));;
+            responseDTO.setFundusImageUrlList(getFundusImageUrls(medicalRecord));
             // 问诊内容
             responseDTO.setConsultation(medicalRecord.getConsultation());
         }

@@ -7,6 +7,7 @@ import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.core.common.domain.model.AddressCooperation;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -16,6 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -164,6 +166,23 @@ public class School extends AddressCooperation implements Serializable, HasName 
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private NotificationConfig notificationConfig;
+
+    /**
+     * 视力小分队人数
+     */
+    private Integer visionTeamCount;
+
+    /**
+     * 筛查类型的配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private ScreeningConfig screeningConfig;
+
+    /**
+     * 筛查类型配置, 英文逗号分隔, 0-视力筛查，1-常见病
+     */
+    @Pattern(regexp = "[0-1](,[0-1])?", message = "screeningTypeConfig不合法")
+    private String screeningTypeConfig;
 
     /**
      * 转化成SchoolExportDTO

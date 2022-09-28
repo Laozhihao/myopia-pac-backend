@@ -2,12 +2,14 @@ package com.wupol.myopia.business.core.school.domain.dto;
 
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
  * @Author wulizhou
  * @Date 2021/4/23 17:07
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class StudentExtraDTO extends Student {

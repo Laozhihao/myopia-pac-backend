@@ -16,7 +16,6 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -262,7 +261,7 @@ public class VisionScreeningBizService {
         VisionScreeningResult currentVisionScreeningResult = null;
         VisionScreeningResult anotherVisionScreeningResult = null;
         for (VisionScreeningResult visionScreeningResult : visionScreeningResults) {
-            if (visionScreeningResult.getIsDoubleScreen() == (screeningResultBasicData.getIsState() == 1)) {
+            if (Objects.equals(visionScreeningResult.getIsDoubleScreen(),(screeningResultBasicData.getIsState() == 1))) {
                 currentVisionScreeningResult = visionScreeningResult;
             } else {
                 anotherVisionScreeningResult = visionScreeningResult;
@@ -362,12 +361,4 @@ public class VisionScreeningBizService {
         statConclusion.setIsBindMp(Objects.isNull(student) ? Boolean.FALSE : StringUtils.isNotBlank(student.getMpParentPhone()));
     }
 
-    /**
-     * 获取筛查区域
-     *
-     * @param districtIds 行政区域ids
-     */
-    public int getScreeningResult(List<Integer> districtIds, List<Integer> taskIds) {
-        return visionScreeningResultService.selectScreeningResultByDistrictIdAndTaskId(districtIds, taskIds);
-    }
 }

@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.screening.domain.vos;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @Date 2020/12/22
  **/
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class SchoolGradeVO extends SchoolGrade {

@@ -8,7 +8,6 @@ import com.wupol.myopia.business.core.stat.service.DistrictAttentiveObjectsStati
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class DistrictAttentiveObjectsStatisticBizService {
      * @param user
      * @return
      */
-    public List<DistrictAttentiveObjectsStatistic> getDataByUser(CurrentUser user) throws IOException {
+    public List<DistrictAttentiveObjectsStatistic> getDataByUser(CurrentUser user) {
         List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
         if (user.isPlatformAdminUser()) {
             return districtAttentiveObjectsStatisticService.list(new LambdaQueryWrapper<>());

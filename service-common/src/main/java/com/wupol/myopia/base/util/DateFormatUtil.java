@@ -1,5 +1,8 @@
 package com.wupol.myopia.base.util;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -51,6 +54,18 @@ public final class DateFormatUtil {
         //设置SimpleDateFormat的宽容解析为false,传入的dateStr必须严格按照pattern解析
         sdf.setLenient(false);
         return sdf.parse(dateStr);
+    }
+
+    /**
+     * 解析日期字符串为日期类型
+     *
+     * @param dateStr 年月日
+     * @param timeStr 时分秒
+     * @param dateFormat 格式
+     * @return java.lang.String
+     **/
+    public static Date parseDate(String dateStr,String timeStr,String dateFormat){
+        return DateUtil.parse(dateStr+ StrUtil.SPACE+timeStr, dateFormat);
     }
 
     /**

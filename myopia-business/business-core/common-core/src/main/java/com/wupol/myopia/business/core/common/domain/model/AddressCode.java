@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * 省市区镇Code
@@ -12,7 +15,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AddressCode {
+@Accessors(chain = true)
+public class AddressCode implements Serializable {
 
     /**
      * 省代码

@@ -6,8 +6,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.aggregation.export.ExportStrategy;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -19,11 +21,13 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
+import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseasesHistoryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaData;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveExportCondition;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -35,6 +39,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCommonDise
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +47,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,6 +59,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2022/5/6
  **/
+@Slf4j
 @Service
 public class ArchiveService {
 
@@ -68,8 +76,40 @@ public class ArchiveService {
     @Autowired
     private DistrictService districtService;
     @Autowired
-    private SchoolFacade schoolFacade;
+    private SchoolBizFacade schoolBizFacade;
+    @Autowired
+    private ExportStrategy exportStrategy;
 
+    /**
+     * 导出档案卡/监测表
+     *
+     * @param archiveExportCondition 导出条件
+     * @return 链接地址
+     **/
+    public String exportArchive(@Valid ArchiveExportCondition archiveExportCondition) throws IOException {
+        log.info("导出档案卡/监测表：{}", JSON.toJSONString(archiveExportCondition));
+        // 构建导出条件
+        Integer type = archiveExportCondition.getType();
+        ExportCondition exportCondition = new ExportCondition()
+                .setNotificationId(archiveExportCondition.getNoticeId())
+                .setDistrictId(archiveExportCondition.getDistrictId())
+                .setPlanId(archiveExportCondition.getPlanId())
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
+                .setSchoolId(archiveExportCondition.getSchoolId())
+                .setGradeId(archiveExportCondition.getGradeId())
+                .setClassId(archiveExportCondition.getClassId())
+                .setPlanStudentIds(archiveExportCondition.getPlanStudentIdsStr())
+                .setType(type);
+
+        ArchiveExportTypeEnum archiveExportType = ArchiveExportTypeEnum.getByType(type);
+        // 同步导出
+        if (Boolean.FALSE.equals(archiveExportType.getAsyncExport())) {
+            return exportStrategy.syncExport(exportCondition, archiveExportType.getServiceClassName());
+        }
+        // 异步导出
+        exportStrategy.doExport(exportCondition, archiveExportType.getServiceClassName());
+        return null;
+    }
 
 
     /**
@@ -122,7 +162,7 @@ public class ArchiveService {
 
         //班级信息
         Set<Integer> classIds = planSchoolStudentList.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toSet());
-        List<SchoolClassDTO> schoolClassDTOList = schoolFacade.getClassWithSchoolAndGradeName(Lists.newArrayList(classIds));
+        List<SchoolClassDTO> schoolClassDTOList = schoolBizFacade.getClassWithSchoolAndGradeName(Lists.newArrayList(classIds));
         Map<Integer, SchoolClassDTO> schoolClassDtoMap = schoolClassDTOList.stream().collect(Collectors.toMap(SchoolClass::getId, Function.identity(), (v1, v2) -> v2));
 
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreenBatch(Lists.newArrayList(planIds),Boolean.FALSE,exportCondition.getSchoolId());
@@ -386,6 +426,10 @@ public class ArchiveService {
         exceptionInfo(CollUtil.isEmpty(visionScreeningResultList));
     }
 
+    /**
+     * 异常处理
+     * @param condition 条件
+     */
     private void exceptionInfo(Boolean condition){
         if (Objects.equals(condition,Boolean.TRUE)){
             throw new BusinessException("暂无数据");
