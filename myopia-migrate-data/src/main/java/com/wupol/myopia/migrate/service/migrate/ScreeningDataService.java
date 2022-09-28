@@ -81,6 +81,9 @@ public class ScreeningDataService {
                 migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
                 // 更新创建时间为实际时间
                 VisionScreeningResult visionScreeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
+                if (Objects.isNull(visionScreeningResult)) {
+                    return;
+                }
                 visionScreeningResultService.updateById(new VisionScreeningResult().setId(visionScreeningResult.getId()).setCreateTime(sysStudentEye.getCreateTime()));
                 statConclusionService.update(new StatConclusion().setCreateTime(sysStudentEye.getCreateTime()), new StatConclusion().setResultId(visionScreeningResult.getId()));
                 // 更新最近筛查时间为实际时间
