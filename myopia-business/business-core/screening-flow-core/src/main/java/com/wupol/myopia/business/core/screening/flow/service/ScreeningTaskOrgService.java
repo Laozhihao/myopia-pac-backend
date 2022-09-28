@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
-import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningTaskOrgMapper;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * @author Alix
@@ -67,16 +69,35 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     /**
      * 删除筛查任务中，除了指定筛查机构ID的其它筛查机构信息
      * @param screeningTaskId
-     * @param excludeOrgIds
+     * @param excludeTypeIdMap
      */
-    public void deleteByTaskIdAndExcludeOrgIds(Integer screeningTaskId, List<Integer> excludeOrgIds) {
+    public void deleteByTaskIdAndExcludeOrgIds(Integer screeningTaskId, Map<Integer,List<Integer>> excludeTypeIdMap) {
         Assert.notNull(screeningTaskId);
-        // TODO 待优化，需去除字符串数据库字段名
-        QueryWrapper<ScreeningTaskOrg> query = new QueryWrapper<ScreeningTaskOrg>().eq("screening_task_id", screeningTaskId);
-        if (!CollectionUtils.isEmpty(excludeOrgIds)) {
-            query.notIn("screening_org_id", excludeOrgIds);
+        LambdaQueryWrapper<ScreeningTaskOrg> queryWrapper = Wrappers.lambdaQuery(ScreeningTaskOrg.class)
+                .eq(ScreeningTaskOrg::getScreeningTaskId, screeningTaskId);
+        if (CollUtil.isNotEmpty(excludeTypeIdMap)) {
+
+            List<Integer> orgIds = excludeTypeIdMap.getOrDefault(ScreeningOrgTypeEnum.ORG.getType(), Lists.newArrayList());
+            List<Integer> schoolIds = excludeTypeIdMap.getOrDefault(ScreeningOrgTypeEnum.SCHOOL.getType(), Lists.newArrayList());
+
+            if (CollUtil.isNotEmpty(orgIds) && CollUtil.isNotEmpty(schoolIds)){
+              queryWrapper.and(q->
+                       q.and(q1->q1.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.ORG.getType()).notIn(ScreeningTaskOrg::getScreeningOrgId,orgIds))
+                      .or()
+                      .and(q2->q2.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.SCHOOL.getType()).notIn(ScreeningTaskOrg::getScreeningOrgId,schoolIds))
+              );
+            }
+
+            if (CollUtil.isNotEmpty(orgIds)){
+                queryWrapper.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.ORG.getType())
+                        .notIn(ScreeningTaskOrg::getScreeningOrgId,orgIds);
+            }
+            if (CollUtil.isNotEmpty(schoolIds)){
+                queryWrapper.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.SCHOOL.getType())
+                        .notIn(ScreeningTaskOrg::getScreeningOrgId,schoolIds);
+            }
         }
-        baseMapper.delete(query);
+        baseMapper.delete(queryWrapper);
     }
 
     /**
@@ -86,10 +107,10 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param endTime 查询任务的结束时间
      * @return
      */
-    public List<Integer> getHaveTaskOrgIds(Integer govDeptId, LocalDate startTime, LocalDate endTime) {
+    public List<ScreeningTaskOrgDTO> getHaveTaskOrgIds(Integer govDeptId, LocalDate startTime, LocalDate endTime) {
         ScreeningTaskQueryDTO taskQuery = new ScreeningTaskQueryDTO();
         taskQuery.setGovDeptId(govDeptId);
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
-        return baseMapper.selectHasTaskInPeriod(null, taskQuery).stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
+        return baseMapper.selectHasTaskInPeriod(null, taskQuery);
     }
 }

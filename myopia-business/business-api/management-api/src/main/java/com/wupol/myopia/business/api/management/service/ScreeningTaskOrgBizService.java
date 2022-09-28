@@ -99,9 +99,16 @@ public class ScreeningTaskOrgBizService {
      */
     public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
         // 删除掉已有的不存在的机构信息
-        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.emptyList() : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
-        if (!CollectionUtils.isEmpty(screeningOrgs)) {
+        Map<Integer,List<Integer>> typeIdMap =Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningOrgs)) {
+            Map<Integer, List<ScreeningTaskOrg>> typeMap = screeningOrgs.stream().collect(Collectors.groupingBy(ScreeningTaskOrg::getScreeningOrgType));
+            typeMap.forEach((type,orgList)->{
+                List<Integer> orgIds = orgList.stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
+                typeIdMap.put(type,orgIds);
+            });
+        }
+        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, typeIdMap);
+        if (CollUtil.isNotEmpty(screeningOrgs)) {
             saveOrUpdateBatchByTaskId(user, screeningTaskId, screeningOrgs, false);
         }
     }
@@ -112,7 +119,7 @@ public class ScreeningTaskOrgBizService {
      * @param screeningOrgs
      */
     public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, boolean needNotice) {
-        // 1. 查出剩余的
+        // 1. 查出剩余的 TODO:机构和学校
         Map<Integer, Integer> orgIdMap = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
         // 2. 更新id，并批量新增或修改
         screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));

@@ -488,7 +488,9 @@ public class ScreeningOrganizationBizService {
      */
     private List<Integer> getHaveTaskOrgIds(ScreeningOrganizationQueryDTO query) {
         if (Objects.nonNull(query.getNeedCheckHaveTask()) && Objects.equals(query.getNeedCheckHaveTask(),Boolean.TRUE)) {
-            return screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
+            List<ScreeningTaskOrgDTO> haveTaskOrgIds = screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
+            return haveTaskOrgIds.stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
+
         }
         return Collections.emptyList();
     }

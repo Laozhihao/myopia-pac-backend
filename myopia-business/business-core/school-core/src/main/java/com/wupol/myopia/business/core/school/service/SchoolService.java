@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.school.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -18,10 +20,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
@@ -533,5 +532,19 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         queryWrapper.in(School::getId,schoolIds);
         queryWrapper.in(School::getDistrictId,districtIds);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 根据条件查询学校
+     * @param pageRequest
+     * @param query
+     * @param districtId
+     */
+    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, Integer districtId) {
+        Page page = pageRequest.toPage();
+        LambdaQueryWrapper<School> queryWrapper = Wrappers.lambdaQuery(School.class)
+                .eq(School::getDistrictId, districtId)
+                .eq(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds());
+        return baseMapper.selectPage(page,queryWrapper);
     }
 }

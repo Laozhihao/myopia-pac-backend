@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * 筛查通知
  * @Author Alix
@@ -32,4 +34,9 @@ public class ScreeningNoticeDTO extends ScreeningNotice {
     private String releaserName;
     /** 筛查机构名称 */
     private String screeningOrgName;
+
+    /**
+     * 通知接收时间
+     */
+    private Date acceptTime;
 }
