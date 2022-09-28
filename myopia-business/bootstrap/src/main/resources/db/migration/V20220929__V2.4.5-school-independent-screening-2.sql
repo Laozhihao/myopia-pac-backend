@@ -6,3 +6,9 @@ create table m_overview_school
     primary key (overview_id, school_id)
 )
     comment '总览机构学校关联表';
+
+alter table m_overview
+    add school_config_type int default 0 not null comment '学校配置 0-默认配置' after cooperation_end_time;
+
+alter table m_overview
+    add school_limit_num int null comment '学校限制数量' after school_config_type;

@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -301,6 +302,18 @@ public class SchoolController {
                                        @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                        @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
         return ApiResult.success(schoolService.getLatestSchoolNo(districtAreaCode, areaType, monitorType));
+    }
+
+    /**
+     * 模糊查询指定省份下学校
+     *
+     * @param name                 学校名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     */
+    @GetMapping("/province/list")
+    public List<SchoolResponseDTO> getListByProvinceCodeAndNameLike(@NotBlank(message = "学校名称不能为空") String name,
+                                                         @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return schoolService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
 
 }

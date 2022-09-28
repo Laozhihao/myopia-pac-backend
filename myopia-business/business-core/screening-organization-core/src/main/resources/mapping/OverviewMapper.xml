@@ -49,7 +49,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, create_user_id, gov_dept_id, `name`, contact_person, phone, `illustrate`, district_id, district_detail, config_type, hospital_service_type, hospital_limit_num, screening_organization_config_type, screening_organization_limit_num, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, `status`, create_time, update_time
+        id, create_user_id, gov_dept_id, `name`, contact_person, phone, `illustrate`, district_id, district_detail, config_type, hospital_service_type, hospital_limit_num, screening_organization_config_type, screening_organization_limit_num, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, `status`, school_config_type, school_limit_num, create_time, update_time
     </sql>
 
     <select id="getByNameNeId" resultMap="BaseResultMap">

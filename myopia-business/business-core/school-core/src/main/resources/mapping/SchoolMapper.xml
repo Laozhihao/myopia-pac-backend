@@ -250,4 +250,12 @@
           and msg.id = #{gradeId}
           and msc.id = #{classId}
     </select>
+
+    <select id="getListByProvinceCodeAndNameLike" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school
+        where name like concat('%', #{name}, '%')
+          and json_extract(cast(district_detail as json), '$[0].code') = #{provinceDistrictCode}
+    </select>
 </mapper>

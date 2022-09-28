@@ -104,6 +104,16 @@ public class Overview extends Cooperation implements Serializable {
     private Integer screeningOrganizationLimitNum;
 
     /**
+     * 学校配置 0-默认配置
+     */
+    private Integer schoolConfigType;
+
+    /**
+     * 学校限制数量
+     */
+    private Integer schoolLimitNum;
+
+    /**
      * 创建时间
      */
     private Date createTime;

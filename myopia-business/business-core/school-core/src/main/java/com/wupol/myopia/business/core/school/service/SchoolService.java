@@ -34,6 +34,7 @@ import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -533,5 +534,26 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         queryWrapper.in(School::getId,schoolIds);
         queryWrapper.in(School::getDistrictId,districtIds);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 模糊查询指定省份下学校
+     *
+     * @param name                 学校名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     *
+     * @return List<SchoolResponseDTO>
+     */
+    public List<SchoolResponseDTO> getListByProvinceCodeAndNameLike(String name, Long provinceDistrictCode) {
+        List<School> schools = baseMapper.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
+        if (CollectionUtils.isEmpty(schools)) {
+            return new ArrayList<>();
+        }
+        return schools.stream().map(s->{
+            SchoolResponseDTO responseDTO = new SchoolResponseDTO();
+            BeanUtils.copyProperties(s, responseDTO);
+            responseDTO.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+            return responseDTO;
+        }).collect(Collectors.toList());
     }
 }
