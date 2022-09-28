@@ -13,10 +13,28 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class StatisticDetailBO {
+     /**
+      * 筛查计划ID
+      */
      private Integer screeningPlanId;
+     /**
+      * 筛查通知ID
+      */
      private Integer screeningNoticeId;
+     /**
+      * 学校ID
+      */
      private Integer schoolId;
+     /**
+      * 学校类型（幼儿园和小学及以上）
+      */
      private Integer type;
+     /**
+      * 学校信息
+      */
      private School school;
+     /**
+      * 当前用户
+      */
      private CurrentUser user;
 }
