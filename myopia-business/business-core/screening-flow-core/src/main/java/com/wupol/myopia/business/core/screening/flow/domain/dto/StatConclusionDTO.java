@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
@@ -10,6 +11,7 @@ import lombok.experimental.Accessors;
  * @Date 2021/3/5
  **/
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class StatConclusionDTO extends StatConclusion {

@@ -231,7 +231,7 @@ public class QuestionnaireManagementService {
      * @param areaId
      * @return
      */
-    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) throws IOException {
+    public QuestionSchoolVO getQuestionSchool(Integer taskId, Integer areaId) {
         QuestionSchoolVO questionSchoolVO = QuestionSchoolVO.init();
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
             return questionSchoolVO;
@@ -270,7 +270,7 @@ public class QuestionnaireManagementService {
      * @param areaId
      * @return
      */
-    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) throws IOException {
+    public List<QuestionBacklogVO> getQuestionBacklog(Integer taskId, Integer areaId) {
         List<QuestionBacklogVO> backlogVOList =Lists.newArrayList();
 
         if (Objects.isNull(areaId) || Objects.isNull(taskId)) {
@@ -329,7 +329,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    private List<School> getSchool(Integer taskId, Integer areaId) throws IOException {
+    private List<School> getSchool(Integer taskId, Integer areaId) {
         List<ScreeningPlan> plans = screeningPlanService.getByTaskId(taskId);
         Set<Integer> districtIds = getAreaIdsBySchoolsAndTaskId(taskId, areaId, plans);
         List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
@@ -344,7 +344,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionSchoolRecordVO> getQuestionSchoolList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
@@ -440,7 +440,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) throws IOException {
+    public IPage<QuestionBacklogRecordVO> getQuestionBacklogList(QuestionSearchDTO questionSearchDTO) {
         if (Objects.isNull(questionSearchDTO.getAreaId()) || Objects.isNull(questionSearchDTO.getTaskId())) {
             return new Page<>();
         }
@@ -582,7 +582,7 @@ public class QuestionnaireManagementService {
      * @return
      * @throws IOException
      */
-    private Set<Integer> getAreaIdsBySchoolsAndTaskId(Integer taskId, Integer areaId, List<ScreeningPlan> screeningPlans) throws IOException {
+    private Set<Integer> getAreaIdsBySchoolsAndTaskId(Integer taskId, Integer areaId, List<ScreeningPlan> screeningPlans) {
         ScreeningTask task = screeningTaskService.getById(taskId);
         if (Objects.isNull(task)) {
             return Sets.newHashSet();

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -122,6 +123,17 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     }
 
     /**
+     * 通过年级ID获取班级信息
+     *
+     * @param gradeIds 年级ID集合
+     * @return 班级信息集合
+     */
+    public List<SchoolClass> listByGradeIds(List<Integer> gradeIds) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolClass.class)
+                .in(SchoolClass::getGradeId,gradeIds));
+    }
+
+    /**
      * 批量通过id获取实体
      *
      * @param ids ids
@@ -173,6 +185,18 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClassDTO> getVoBySchoolId(Integer schoolId) {
         return baseMapper.selectVoList(new SchoolClass().setSchoolId(schoolId));
+    }
+
+    /**
+     * 根据学校Id获取所有班级
+     *
+     * @param schoolId 学校ID
+     * @return 班级集合
+     */
+    public List<SchoolClass> listBySchoolId(Integer schoolId){
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolClass.class)
+                .eq(SchoolClass::getSchoolId,schoolId)
+                .eq(SchoolClass::getStatus,CommonConst.STATUS_NOT_DELETED));
     }
 
     /**

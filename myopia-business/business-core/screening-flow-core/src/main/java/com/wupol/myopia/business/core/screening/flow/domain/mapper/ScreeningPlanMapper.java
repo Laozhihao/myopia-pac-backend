@@ -27,8 +27,6 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
-    List<ScreeningPlan> getByOrgId(@Param("orgId") Integer orgId);
-
     /**
      * 查找学校的id
      *

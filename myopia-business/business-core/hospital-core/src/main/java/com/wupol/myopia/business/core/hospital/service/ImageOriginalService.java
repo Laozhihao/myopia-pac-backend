@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.hospital.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.hospital.domain.mapper.ImageOriginalMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;

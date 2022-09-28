@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
+import com.wupol.myopia.business.api.school.management.facade.SchoolManagementFacade;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.*;
@@ -49,6 +50,9 @@ public class SchoolManagementController {
     private SchoolFacade schoolFacade;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    @Autowired
+    private SchoolManagementFacade schoolManagementFacade;
+
     /**
      * 保存班级
      *
@@ -126,7 +130,7 @@ public class SchoolManagementController {
     @DeleteMapping("/grade/{id}")
     public Integer deletedGrade(@PathVariable("id") Integer id) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return schoolGradeService.deletedGrade(id, currentUser);
+        return schoolManagementFacade.deletedGrade(id, currentUser);
     }
 
     /**
@@ -240,8 +244,8 @@ public class SchoolManagementController {
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setPlanStudentIds(planStudentIds)
-                .setType(type)
-                ;
+                .setType(type);
+
         if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));
         }

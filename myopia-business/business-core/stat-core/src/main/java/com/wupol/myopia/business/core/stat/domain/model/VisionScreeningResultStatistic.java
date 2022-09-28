@@ -128,4 +128,22 @@ public class VisionScreeningResultStatistic implements Serializable {
     private VisionWarningDO visionWarning;
 
 
+    /**
+     * 去医院就诊数
+     */
+    private Integer reviewNum;
+
+    /**
+     * 去医院就诊比例
+     */
+    private String reviewRatio;
+
+    /**
+     * 绑定公众号人数
+     */
+    private Integer bindMpNum;
+    /**
+     * 绑定公众号比例
+     */
+    private String bindMpRatio;
 }

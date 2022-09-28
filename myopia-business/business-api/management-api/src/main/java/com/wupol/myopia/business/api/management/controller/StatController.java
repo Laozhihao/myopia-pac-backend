@@ -126,8 +126,7 @@ public class StatController {
             @RequestParam(value = "schoolAge", required = false) Integer schoolAge,
             @RequestParam(value = "schoolId", required = false) Integer schoolId,
             @RequestParam(value = "schoolGradeCode", required = false) String schoolGradeCode,
-            @RequestParam(value = "schoolClass", required = false) String schoolClass
-    ) throws IOException {
+            @RequestParam(value = "schoolClass", required = false) String schoolClass) {
         DataContrastFilterParamsDTO.Params params = new DataContrastFilterParamsDTO.Params();
         params.setContrastId(contrastId);
         params.setDistrictId(districtId);

@@ -90,6 +90,11 @@ public class ScreeningPlan implements Serializable {
     private Integer screeningOrgId;
 
     /**
+     * 筛查计划--筛查机构类型(0:筛查机构，1:学校，2:医院)
+     */
+    private Integer screeningOrgType;
+
+    /**
      * 筛查计划--所处区域id
      */
     private Integer districtId;

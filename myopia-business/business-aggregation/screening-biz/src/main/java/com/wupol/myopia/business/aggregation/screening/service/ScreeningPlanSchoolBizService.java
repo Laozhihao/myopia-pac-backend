@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
-import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -11,12 +12,14 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeQuestionnaireInfo;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanSchoolDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
@@ -26,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,8 @@ public class ScreeningPlanSchoolBizService {
     private UserQuestionRecordService userQuestionRecordService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private VisionScreeningResultFacade visionScreeningResultFacade;
 
     /**
      * 通过筛查计划ID获取所有关联的学校vo信息
@@ -68,33 +71,57 @@ public class ScreeningPlanSchoolBizService {
         //学校ID对应的学生数集合
         Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType(),QuestionnaireStatusEnum.FINISH.getCode());
-        Map<Integer, List<UserQuestionRecord>> schoolMap = getSchoolMap(userQuestionRecords);
+        Map<Integer, List<UserQuestionRecord>> userQuestionRecordMap = getSchoolMap(userQuestionRecords);
         Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = getGradeStudentMap(userQuestionRecords);
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = getGradeMap(screeningPlanSchools);
 
-        // TODO：不在循环内查询数据库
-        screeningPlanSchools.forEach(vo -> {
-            vo.setStudentCount(schoolIdStudentCountMap.getOrDefault(vo.getSchoolId(), 0L).intValue());
-            vo.setPracticalStudentCount(visionScreeningResultService.getBySchoolIdAndOrgIdAndPlanId(vo.getSchoolId(), vo.getScreeningOrgId(), vo.getScreeningPlanId()).size());
-            BigDecimal num = MathUtil.divide(vo.getPracticalStudentCount(), vo.getStudentCount());
-            vo.setScreeningProportion(num.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : num.toString() + "%");
-            vo.setScreeningSituation(findSituation(vo.getSchoolId(), screeningPlan));
-            // 完成数
-            // 总数占比
-            Map<Integer, List<UserQuestionRecord>> schoolStudentMap = CollectionUtils.isEmpty(schoolMap.get(vo.getSchoolId())) ? Maps.newHashMap() : schoolMap.get(vo.getSchoolId()).stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId));
-            vo.setQuestionnaireStudentCount(schoolStudentMap.keySet().size());
-            if (vo.getStudentCount() == 0) {
-                vo.setQuestionnaireProportion(CommonConst.PERCENT_ZERO);
-            } else {
-                BigDecimal questionNum = MathUtil.divide(vo.getQuestionnaireStudentCount(), vo.getStudentCount());
-                vo.setQuestionnaireProportion(questionNum.equals(BigDecimal.ZERO) ? CommonConst.PERCENT_ZERO : questionNum.toString() + "%");
-            }
-            vo.setQuestionnaireSituation(getCountBySchool(screeningPlan, vo.getSchoolId(), schoolMap));
-            if (!CollectionUtils.isEmpty(gradeIdMap.get(vo.getSchoolId())) && vo.getStudentCount() != 0) {
-                vo.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(vo.getSchoolId(), gradeIdMap, userGradeIdMap,Boolean.TRUE));
-            }
-        });
+        Set<Integer> schoolIds = screeningPlanSchools.stream().map(ScreeningPlanSchoolDTO::getSchoolId).collect(Collectors.toSet());
+        Set<Integer> orgIds = screeningPlanSchools.stream().map(ScreeningPlanSchoolDTO::getScreeningOrgId).collect(Collectors.toSet());
+
+        Map<String, Long> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, schoolIds, orgIds);
+
+        screeningPlanSchools.forEach(vo -> setScreeningData(screeningPlan, schoolIdStudentCountMap, userQuestionRecordMap, userGradeIdMap, gradeIdMap, screeningResultCountMap, vo));
         return screeningPlanSchools;
+    }
+
+    /**
+     * 设值筛查数据
+     * @param screeningPlan
+     * @param schoolIdStudentCountMap
+     * @param userQuestionRecordMap
+     * @param userGradeIdMap
+     * @param gradeIdMap
+     * @param screeningResultCountMap
+     * @param planSchoolDTO
+     */
+    private void setScreeningData(ScreeningPlan screeningPlan, Map<Integer, Long> schoolIdStudentCountMap,
+                                  Map<Integer, List<UserQuestionRecord>> userQuestionRecordMap,
+                                  Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
+                                  Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
+                                  Map<String, Long> screeningResultCountMap, ScreeningPlanSchoolDTO planSchoolDTO) {
+        planSchoolDTO.setStudentCount(schoolIdStudentCountMap.getOrDefault(planSchoolDTO.getSchoolId(), CommonConst.ZERO_L).intValue());
+        planSchoolDTO.setPracticalStudentCount(screeningResultCountMap.getOrDefault(VisionScreeningResultFacade.getThreeKey(planSchoolDTO.getScreeningPlanId(),planSchoolDTO.getScreeningOrgId(),planSchoolDTO.getSchoolId()),CommonConst.ZERO_L).intValue());
+        planSchoolDTO.setScreeningProportion(MathUtil.ratio(planSchoolDTO.getPracticalStudentCount(), planSchoolDTO.getStudentCount()));
+        planSchoolDTO.setScreeningSituation(ScreeningBizBuilder.getSituation(screeningResultCountMap.getOrDefault(VisionScreeningResultFacade.getThreeKey(planSchoolDTO.getScreeningPlanId(),planSchoolDTO.getScreeningOrgId(),planSchoolDTO.getSchoolId()),CommonConst.ZERO_L).intValue(),screeningPlan));
+        planSchoolDTO.setQuestionnaireStudentCount(getQuestionnaireStudentCount(userQuestionRecordMap,planSchoolDTO));
+        planSchoolDTO.setQuestionnaireProportion(MathUtil.ratio(planSchoolDTO.getQuestionnaireStudentCount(),planSchoolDTO.getStudentCount()));
+        planSchoolDTO.setQuestionnaireSituation(ScreeningBizBuilder.getCountBySchool(screeningPlan, planSchoolDTO.getSchoolId(), userQuestionRecordMap));
+        if (!CollectionUtils.isEmpty(gradeIdMap.get(planSchoolDTO.getSchoolId())) && planSchoolDTO.getStudentCount() != 0) {
+            planSchoolDTO.setGradeQuestionnaireInfos(GradeQuestionnaireInfo.buildGradeInfo(planSchoolDTO.getSchoolId(), gradeIdMap, userGradeIdMap,Boolean.TRUE));
+        }
+    }
+
+    /**
+     * 获取问卷学生数
+     * @param userQuestionRecordMap
+     * @param screeningPlanSchoolDTO
+     */
+    private Integer getQuestionnaireStudentCount(Map<Integer, List<UserQuestionRecord>> userQuestionRecordMap,ScreeningPlanSchoolDTO screeningPlanSchoolDTO){
+        List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordMap.get(screeningPlanSchoolDTO.getSchoolId());
+        if (CollUtil.isEmpty(userQuestionRecordList)){
+            return 0;
+        }
+        return (int)userQuestionRecordList.stream().map(UserQuestionRecord::getStudentId).distinct().count();
     }
 
     /**
@@ -183,30 +210,5 @@ public class ScreeningPlanSchoolBizService {
             return new ArrayList<>();
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
-    }
-
-    /**
-     * 获得问卷完成学校的状态
-     *
-     * @return
-     * @throws IOException
-     */
-    public String getCountBySchool(ScreeningPlan plan, Integer schoolId, Map<Integer, List<UserQuestionRecord>> userRecordToStudentEnvironmentMap) {
-        if (plan.getEndTime().getTime() <= System.currentTimeMillis()) {
-            return ScreeningPlanSchool.END;
-        } else if (CollectionUtils.isEmpty(userRecordToStudentEnvironmentMap.get(schoolId))) {
-            return ScreeningPlanSchool.NOT_START;
-        } else if (!userRecordToStudentEnvironmentMap.get(schoolId).isEmpty()) {
-            return ScreeningPlanSchool.IN_PROGRESS;
-        }
-        return ScreeningPlanSchool.IN_PROGRESS;
-    }
-
-    public String findSituation(Integer schoolId, ScreeningPlan screeningPlan) {
-        if (DateUtil.betweenDay(screeningPlan.getEndTime(), new Date()) > 0){
-            return ScreeningPlanSchool.END;
-        }
-        int count = visionScreeningResultService.count(new VisionScreeningResult().setPlanId(screeningPlan.getId()).setSchoolId(schoolId));
-        return count > 0 ? ScreeningPlanSchool.IN_PROGRESS : ScreeningPlanSchool.NOT_START;
     }
 }

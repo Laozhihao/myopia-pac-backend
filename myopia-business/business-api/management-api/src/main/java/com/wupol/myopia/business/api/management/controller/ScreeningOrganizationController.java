@@ -26,6 +26,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalReq
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -272,6 +273,15 @@ public class ScreeningOrganizationController {
     }
 
     /**
+     * 获取筛查计划的学校信息
+     * @param screeningPlanId 筛查计划ID
+     */
+    @GetMapping("/record/schoolInfo")
+    public ScreeningRecordItems getRecordSchoolInfo(@RequestParam Integer screeningPlanId){
+        return screeningOrganizationBizService.getRecordSchoolInfo(screeningPlanId);
+    }
+
+    /**
      * 根据部门ID获取筛查机构列表
      *
      * @param query 请求体
@@ -394,7 +404,7 @@ public class ScreeningOrganizationController {
     @GetMapping("getByName")
     public List<ScreeningOrganization> getByName(String name) {
         Assert.notNull(name, "筛查机构名称不能为空");
-        return screeningOrganizationService.getByNameLike(name);
+        return screeningOrganizationService.getByNameLike(name,Boolean.TRUE);
     }
 
     /**

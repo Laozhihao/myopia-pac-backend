@@ -38,13 +38,7 @@ public class GradeQuestionnaireInfo implements Serializable {
     public static List<GradeQuestionnaireInfo> buildGradeInfo(Integer schoolId, Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
                                                               Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap, Boolean isTotal){
         List<GradeQuestionnaireInfo> collect = gradeIdMap.get(schoolId).stream()
-                .map(grade -> {
-                    GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
-                    questionnaireInfo.setGradeName(grade.getName());
-                    questionnaireInfo.setGradeId(grade.getId());
-                    questionnaireInfo.setStudentCount(Optional.ofNullable(userGradeIdMap.get(grade.getId())).map(List::size).orElse(0));
-                    return questionnaireInfo;
-                })
+                .map(grade -> getGradeQuestionnaireInfo(userGradeIdMap, grade))
                 .sorted(Comparator.comparing(gradeInfo -> Integer.valueOf(GradeCodeEnum.getByName(gradeInfo.getGradeName()).getCode())))
                 .collect(Collectors.toList());
 
@@ -53,5 +47,18 @@ public class GradeQuestionnaireInfo implements Serializable {
             collect.add(new GradeQuestionnaireInfo().setGradeName("合计").setStudentCount(sum));
         }
         return collect;
+    }
+
+    /**
+     * 获取年级问卷信息
+     * @param userGradeIdMap 年级信息集合
+     * @param grade 年级信息
+     */
+    private static GradeQuestionnaireInfo getGradeQuestionnaireInfo(Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap, SchoolGradeExportDTO grade) {
+        GradeQuestionnaireInfo questionnaireInfo = new GradeQuestionnaireInfo();
+        questionnaireInfo.setGradeName(grade.getName());
+        questionnaireInfo.setGradeId(grade.getId());
+        questionnaireInfo.setStudentCount(Optional.ofNullable(userGradeIdMap.get(grade.getId())).map(List::size).orElse(0));
+        return questionnaireInfo;
     }
 }

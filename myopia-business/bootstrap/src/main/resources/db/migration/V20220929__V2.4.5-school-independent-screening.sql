@@ -25,3 +25,13 @@ create table m_school_staff
     update_time  timestamp  default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 )
     comment '学校员工表';
+
+-- 新增筛查机构类型
+alter table `m_screening_plan`
+    add screening_org_type TINYINT(3) NOT NULL default 0 comment '筛查机构类型(0:筛查机构，1:学校，2:医院)' after `screening_org_id`;
+
+alter table `m_screening_task_org`
+    add screening_org_type TINYINT(3) NOT NULL default 0 comment '筛查机构类型(0:筛查机构，1:学校，2:医院)' after `screening_org_id`;
+
+alter table `m_screening_plan_school`
+    add screening_grade_ids varchar(255) NULL  comment '筛查年级ID集合';

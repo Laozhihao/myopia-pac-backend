@@ -27,6 +27,7 @@ public class ParsePlanStudentUtils {
         }
     }
 
+    //TODO: 此代码应该放在单元测试里面
     public static void main(String[] args) {
         System.out.println(parsePlanStudentId("[VS@138_166712,166712,FM,25,null,0,null,null,null]"));
     }

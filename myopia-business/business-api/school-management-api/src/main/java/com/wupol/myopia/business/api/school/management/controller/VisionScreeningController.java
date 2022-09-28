@@ -16,10 +16,20 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDTO;
+import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningPlanVO;
+import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
+import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.ScreeningEndTimeDTO;
+import com.wupol.myopia.business.api.school.management.domain.dto.StudentListDTO;
+import com.wupol.myopia.business.api.school.management.domain.vo.SchoolStatistic;
+import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningStudentVO;
+import com.wupol.myopia.business.api.school.management.facade.SchoolScreeningStatisticFacade;
 import com.wupol.myopia.business.api.school.management.service.VisionScreeningService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
@@ -30,14 +40,10 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
-import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -45,7 +51,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
@@ -67,13 +72,7 @@ public class VisionScreeningController {
     private VisionScreeningService visionScreeningService;
 
     @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
-
-    @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-
-    @Resource
-    private ScreeningPlanService screeningPlanService;
 
     @Resource
     private ScreeningExportService screeningExportService;
@@ -104,28 +103,30 @@ public class VisionScreeningController {
 
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
+    @Resource
+    private SchoolScreeningStatisticFacade schoolScreeningStatisticFacade;
 
     /**
      * 获取学校计划
      *
-     * @param pageRequest 分页请求
+     * @param screeningPlanListDTO 筛查计划列表查询对象
      * @return IPage<ScreeningListResponseDTO>
      */
     @GetMapping("list")
-    public IPage<ScreeningListResponseDTO> getList(PageRequest pageRequest) {
+    public IPage<ScreeningListResponseDTO> getList(ScreeningPlanListDTO screeningPlanListDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return visionScreeningService.getList(pageRequest, currentUser.getOrgId());
+        return visionScreeningService.getList(screeningPlanListDTO, currentUser.getOrgId());
     }
 
     /**
      * 获取结果统计分析
      *
-     * @param schoolStatisticId 结果统计
-     * @return SchoolVisionStatistic
+     * @param screeningPlanId 筛查计划ID
+     * @param type tab类型(8:幼儿园，0:小学及以上)
      */
-    @GetMapping("{schoolStatisticId}")
-    public SchoolVisionStatistic getSchoolStatistic(@PathVariable("schoolStatisticId") Integer schoolStatisticId) {
-        return schoolVisionStatisticService.getById(schoolStatisticId);
+    @GetMapping("{screeningPlanId}")
+    public SchoolStatistic getSchoolStatistic(@PathVariable("screeningPlanId") Integer screeningPlanId, @RequestParam Integer type) {
+        return visionScreeningService.getSchoolStatistic(screeningPlanId,CurrentUserUtil.getCurrentUser().getOrgId(),type);
     }
 
     /**
@@ -135,9 +136,9 @@ public class VisionScreeningController {
      * @return List<SchoolGradeVo>
      */
     @GetMapping("grades/{screeningPlanId}")
-    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId) {
+    public List<SchoolGradeVO> queryGradesInfo(@PathVariable Integer screeningPlanId,Boolean isData) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, currentUser.getOrgId());
+        return screeningPlanSchoolStudentFacadeService.getSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, currentUser.getOrgId(),isData);
     }
 
     /**
@@ -160,8 +161,10 @@ public class VisionScreeningController {
      * @return ScreeningPlan
      */
     @GetMapping("/plan/{screeningPlanId}")
-    public ScreeningPlan getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
-        return screeningPlanService.getById(screeningPlanId);
+    public ScreeningPlanVO getPlanInfo(@PathVariable("screeningPlanId") Integer screeningPlanId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolScreeningStatisticFacade.getPlanInfo(screeningPlanId,currentUser);
+
     }
 
     /**
@@ -257,6 +260,8 @@ public class VisionScreeningController {
                 ExportExcelServiceNameConstant.STUDENT_WARNING_ARCHIVE_EXCEL_SERVICE);
     }
 
+
+
     /**
      * 更新学校
      *
@@ -311,70 +316,44 @@ public class VisionScreeningController {
         redisUtil.set(key, 1, 86400L);
     }
 
-    /**
-     * 通过条件获取筛查学生
-     *
-     * @param planId         计划Id
-     * @param schoolId       学校Id
-     * @param gradeId        年级Id
-     * @param classId        班级Id
-     * @param orgId          筛查机构Id
-     * @param planStudentIds 筛查学生Id
-     * @param isSchoolClient 是否学校端
-     * @return List<ScreeningStudentDTO>
-     */
-    @GetMapping("screeningNoticeResult")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(@NotNull(message = "计划Id不能为空") Integer planId,
-                                                                     Integer schoolId, Integer gradeId, Integer classId, Integer orgId,
-                                                                     String planStudentIds, @NotNull(message = "查询类型不能为空") Boolean isSchoolClient,
-                                                                     String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningNoticeResultStudent(planId, schoolId, gradeId, classId, orgId, planStudentIds, isSchoolClient, planStudentName);
-    }
 
     /**
      * 异步导出学生报告
      *
-     * @param planId           计划Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO
      */
     @GetMapping("screeningNoticeResult/asyncGeneratorPDF")
-    public void asyncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public void asyncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        screeningPlanStudentBizService.asyncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.TRUE);
+        generatorPdfDTO.setUserId(user.getId());
+        generatorPdfDTO.setSchoolId(user.getOrgId());
+        screeningPlanStudentBizService.asyncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 同步导出学生报告
      *
-     * @param planId           计划Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param orgId            筛查机构Id
-     * @param planStudentIdStr 筛查学生Ids
+     * @param generatorPdfDTO
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(@NotNull(message = "计划Id不能为空") Integer planId, Integer gradeId, Integer classId, Integer orgId, String planStudentIdStr) {
+    public PdfResponseDTO syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        return screeningPlanStudentBizService.syncGeneratorPDF(planId, user.getOrgId(), gradeId, classId, orgId, planStudentIdStr, true, user.getId());
+        generatorPdfDTO.setSchoolId(user.getOrgId());
+        generatorPdfDTO.setIsSchoolClient(Boolean.TRUE);
+        generatorPdfDTO.setUserId(user.getId());
+        return screeningPlanStudentBizService.syncGeneratorPDF(generatorPdfDTO);
     }
 
     /**
      * 通过条件获取筛查学生
      *
-     * @param planId           计划Id
-     * @param schoolId         学校Id
-     * @param gradeId          年级Id
-     * @param classId          班级Id
-     * @param planStudentIdStr 筛查学生Ids
-     * @param planStudentName  筛查学生名称
+     * @param generatorPdfDTO
      * @return List<ScreeningStudentDTO>
      */
     @GetMapping("screeningNoticeResult/list")
-    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@NotBlank(message = "计划Id不能为空") Integer planId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIdStr, String planStudentName) {
-        return screeningPlanStudentBizService.getScreeningStudentDTOS(planId, schoolId, gradeId, classId, planStudentIdStr, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultLists(@Valid GeneratorPdfDTO generatorPdfDTO) {
+        return screeningPlanStudentBizService.getScreeningStudentDTOS(generatorPdfDTO);
     }
 
     /**
@@ -387,4 +366,77 @@ public class VisionScreeningController {
     public VisionScreeningResult studentData(@RequestParam Integer resultId) {
         return visionScreeningResultService.getById(resultId);
     }
+
+    /**
+     * 创建/编辑筛查计划
+     * @param schoolScreeningPlanDTO 创建/编辑筛查计划对象
+     */
+    @PostMapping("/save")
+    public void saveScreeningPlan(@RequestBody @Valid SchoolScreeningPlanDTO schoolScreeningPlanDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        visionScreeningService.saveScreeningPlan(schoolScreeningPlanDTO,currentUser);
+    }
+
+    /**
+     * 删除筛查计划
+     * @param screeningPlanId 筛查计划ID
+     */
+    @DeleteMapping("/delete/{screeningPlanId}")
+    public void deleteScreeningPlan(@PathVariable("screeningPlanId") Integer screeningPlanId){
+        // 判断是否已发布
+        visionScreeningService.validateExistWithReleaseStatus(screeningPlanId);
+        visionScreeningService.deleteScreeningPlan(screeningPlanId);
+    }
+
+    /**
+     * 发布筛查计划
+     * @param screeningPlanId 筛查计划ID
+     */
+    @PutMapping("/release/{screeningPlanId}")
+    public void releaseScreeningPlan(@PathVariable("screeningPlanId") Integer screeningPlanId){
+        visionScreeningService.releaseScreeningPlan(screeningPlanId);
+    }
+
+    /**
+     * 获取筛查学生列表
+     * @param studentListDTO 学生查询条件对象
+     */
+    @GetMapping("/student/list")
+    public ScreeningStudentVO studentList(@Valid StudentListDTO studentListDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        studentListDTO.setSchoolId(currentUser.getOrgId());
+        return visionScreeningService.studentList(studentListDTO);
+    }
+
+    /**
+     * 新增筛查学生
+     * @param addScreeningStudentDTO 新增筛查学校对象
+     */
+    @PostMapping("/addScreeningStudent")
+    public void addScreeningStudent(@Valid AddScreeningStudentDTO addScreeningStudentDTO){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        addScreeningStudentDTO.setSchoolId(currentUser.getOrgId());
+        visionScreeningService.addScreeningStudent(addScreeningStudentDTO);
+    }
+
+    /**
+     * 学生筛查详情
+     * @param screeningPlanId 筛查计划ID
+     * @param screeningPlanStudentId 筛查计划学生ID
+     */
+    @GetMapping("/studentScreeningDetail")
+    public StudentScreeningDetailVO studentScreeningDetail(@RequestParam Integer screeningPlanId,
+                                                           @RequestParam Integer screeningPlanStudentId){
+        return visionScreeningService.studentScreeningDetail(screeningPlanId,screeningPlanStudentId);
+    }
+
+    /**
+     * 增加筛查时间
+     * @param screeningEndTimeDTO 筛查结束时间参数
+     */
+    @PostMapping("/increased/screeningTime")
+    public void updateScreeningEndTime (@RequestBody @Valid ScreeningEndTimeDTO screeningEndTimeDTO) {
+        visionScreeningService.updateScreeningEndTime(screeningEndTimeDTO);
+    }
+
 }

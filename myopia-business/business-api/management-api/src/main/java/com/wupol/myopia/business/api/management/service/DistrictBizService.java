@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.screening.organization.service.ScreeningOr
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -127,7 +126,7 @@ public class DistrictBizService {
      * @param districtIds 待求交集的行政区域ID集
      * @return List<District>
      */
-    public List<District> getChildDistrictValidDistrictTree(CurrentUser user, Set<Integer> districtIds) throws IOException {
+    public List<District> getChildDistrictValidDistrictTree(CurrentUser user, Set<Integer> districtIds) {
         List<District> districts = new ArrayList<>();
         if (user == null) {
             return districts;
@@ -147,7 +146,7 @@ public class DistrictBizService {
      * @param currentUser 当前登录用户
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<District> getCurrentUserDistrictTree(CurrentUser currentUser) throws IOException {
+    public List<District> getCurrentUserDistrictTree(CurrentUser currentUser) {
         // 平台管理员，可看到全国的
         if (currentUser.isPlatformAdminUser()) {
             return districtService.getWholeCountryDistrictTreePriorityCache();
@@ -164,7 +163,7 @@ public class DistrictBizService {
      * @param currentUser 当前登录用户
      * @return java.util.List<com.wupol.myopia.business.management.domain.model.District>
      **/
-    public List<Integer> getCurrentUserDistrictTreeAllIds(CurrentUser currentUser) throws IOException {
+    public List<Integer> getCurrentUserDistrictTreeAllIds(CurrentUser currentUser) {
         List<District> districtTrees = getCurrentUserDistrictTree(currentUser);
         List<Integer> districtIds = new ArrayList<>();
         districtService.getAllIds(districtIds, districtTrees);

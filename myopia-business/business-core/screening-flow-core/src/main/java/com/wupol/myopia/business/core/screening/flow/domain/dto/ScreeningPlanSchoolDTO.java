@@ -45,6 +45,10 @@ public class ScreeningPlanSchoolDTO extends ScreeningPlanSchool {
      */
     private String questionnaireSituation;
 
+    /**
+     * 筛查机构类型
+     */
+    private Integer screeningOrgType;
 
     /**
      * 年级详情

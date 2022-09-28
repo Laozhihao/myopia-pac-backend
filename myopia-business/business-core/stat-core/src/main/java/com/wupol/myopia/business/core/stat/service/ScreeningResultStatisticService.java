@@ -16,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -218,6 +221,10 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return list(queryWrapper);
     }
 
+    /**
+     * 根据通知ID获取区域Id集合
+     * @param noticeId
+     */
     public Set<Integer> getDistrictIdByNoticeId(Integer noticeId){
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId,noticeId);
@@ -228,9 +235,14 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
         return Sets.newHashSet();
     }
 
+    /**
+     * 根据筛查计划删除
+     * @param planId
+     */
     public boolean deleteByPlanId(Integer planId){
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScreeningResultStatistic::getScreeningPlanId,planId);
         return remove(queryWrapper);
     }
+
 }
