@@ -40,6 +40,10 @@ public class TemplateConfigType {
         TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_SCREENING_ORG.getType(), OverviewConfigType.SCREENING_ORG.getType());
         TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_HOSPITAL.getType(), OverviewConfigType.HOSPITAL.getType());
         TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_SCREENING_ORG_HOSPITAL.getType(), OverviewConfigType.SCREENING_ORG_HOSPITAL.getType());
+        TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_SCHOOL.getType(), OverviewConfigType.SCHOOL.getType());
+        TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_SCREENING_ORG_SCHOOL.getType(), OverviewConfigType.SCREENING_ORG_SCHOOL.getType());
+        TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_HOSPITAL_SCHOOL.getType(), OverviewConfigType.HOSPITAL_SCHOOL.getType());
+        TEMPLATE_TO_OVERVIEW_CONFIG_TYPE.put(PermissionTemplateType.OVERVIEW_SCREENING_ORG_HOSPITAL_SCHOOL.getType(), OverviewConfigType.SCREENING_ORG_HOSPITAL_SCHOOL.getType());
     }
 
 }
