@@ -3,18 +3,17 @@ package com.wupol.myopia.business.aggregation.export.excel.questionnaire.file;
 import cn.hutool.core.collection.CollUtil;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateRecDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.questionnaire.constant.QuestionnaireConstant;
-import com.wupol.myopia.business.core.questionnaire.util.EpiDataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -35,7 +34,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     private Resource exportSchoolEnvironmentTemplate;
 
     @Autowired
-    private QuestionnaireFactory questionnaireFactory;
+    private AnswerFactory answerFactory;
     @Autowired
     private UserAnswerFacade userAnswerFacade;
 
@@ -64,7 +63,7 @@ public class ExportSchoolEnvironmentService implements QuestionnaireExcel {
     }
 
     private Answer getAnswerService(){
-        return questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
+        return answerFactory.getAnswerService(UserType.QUESTIONNAIRE_GOVERNMENT.getType());
     }
 
 

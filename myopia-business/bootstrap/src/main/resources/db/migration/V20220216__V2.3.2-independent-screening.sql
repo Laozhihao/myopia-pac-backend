@@ -28,6 +28,7 @@ alter table h_hospital_student
 alter table m_student
     add source_client tinyint default 0 null comment '源客户端 0-多端 1-学校端 2-筛查计划';
 
+DROP TABLE IF EXISTS `m_deleted_archive`;
 create table m_deleted_archive
 (
     id          int auto_increment

@@ -13,6 +13,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportDataTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FilterDataCondition;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.function.ExportType;
@@ -87,6 +88,8 @@ public class QuestionnaireManagementService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private AnswerFactory answerFactory;
     @Autowired
     private QuestionnaireFactory questionnaireFactory;
 
@@ -694,7 +697,7 @@ public class QuestionnaireManagementService {
                 FilterDataCondition filterDataCondition = new FilterDataCondition()
                         .setUserQuestionRecordList(entry.getValue())
                         .setDistrictId(districtId);
-                Answer answerService = questionnaireFactory.getAnswerService(entry.getKey());
+                Answer answerService = answerFactory.getAnswerService(entry.getKey());
                 List<UserQuestionRecord> userQuestionRecords = answerService.filterData(filterDataCondition);
                 dataList.addAll(userQuestionRecords);
             }

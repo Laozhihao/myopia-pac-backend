@@ -23,19 +23,19 @@ public enum ArchiveExportTypeEnum {
     /**
      * 类型
      */
-    private Integer type;
+    private final Integer type;
     /**
      * 描述
      */
-    private String descr;
+    private final String descr;
     /**
      * 业务类名
      */
-    private String serviceClassName;
+    private final String serviceClassName;
     /**
      * 是否异步导出
      */
-    private Boolean asyncExport;
+    private final Boolean asyncExport;
 
     ArchiveExportTypeEnum(Integer type, String descr, String serviceClassName, boolean asyncExport) {
         this.type = type;

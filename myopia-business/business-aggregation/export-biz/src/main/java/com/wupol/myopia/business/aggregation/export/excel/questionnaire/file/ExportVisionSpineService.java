@@ -7,7 +7,7 @@ import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.FileNameCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateDataCondition;
 import com.wupol.myopia.business.aggregation.export.excel.domain.bo.GenerateExcelDataBO;
-import com.wupol.myopia.business.aggregation.export.excel.questionnaire.QuestionnaireFactory;
+import com.wupol.myopia.business.aggregation.export.excel.questionnaire.AnswerFactory;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.UserAnswerFacade;
 import com.wupol.myopia.business.aggregation.export.excel.questionnaire.answer.Answer;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -40,7 +40,7 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
     private UserAnswerFacade userAnswerFacade;
 
     @Autowired
-    private QuestionnaireFactory questionnaireFactory;
+    private AnswerFactory answerFactory;
 
     @Override
     public Integer getType() {
@@ -50,7 +50,7 @@ public class ExportVisionSpineService implements QuestionnaireExcel {
 
     @Override
     public void generateExcelFile(ExportCondition exportCondition, String fileName) throws IOException {
-        Answer answerService = questionnaireFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
+        Answer answerService = answerFactory.getAnswerService(UserType.QUESTIONNAIRE_STUDENT.getType());
         GenerateDataCondition generateDataCondition = buildGenerateDataCondition(exportCondition);
         generateDataCondition.setFileType(QuestionnaireConstant.EXCEL_FILE);
         List<GenerateExcelDataBO> generateExcelDataBOList = answerService.getExcelData(generateDataCondition);

@@ -62,7 +62,12 @@ public class DeviceUploadDataController {
         return DeviceUploadResult.SUCCESS;
     }
 
-
+    /**
+     * 南京灯箱视力表
+     *
+     * @param requestDTO
+     * @return com.wupol.myopia.base.domain.ApiResult<java.lang.String>
+     **/
     @PostMapping("/device/uploadData")
     public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());

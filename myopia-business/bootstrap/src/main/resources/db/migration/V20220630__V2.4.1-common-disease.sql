@@ -62,6 +62,7 @@ ALTER TABLE m_student ADD low_vision TINYINT(3) NULL COMMENT '视力低下';
 
 
 -- 新增筛查数据结果统计表
+DROP TABLE IF EXISTS `m_screening_result_statistic`;
 CREATE TABLE `m_screening_result_statistic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',
   `screening_notice_id` int NOT NULL COMMENT '所属的通知id',
@@ -114,6 +115,7 @@ alter table m_school
     modify type tinyint not null comment '学校类型 0-小学,1-初级中学,2-高级中学,3-完全中学,4-九年一贯制学校,5-十二年一贯制学校,6-职业高中,7其他,8幼儿园,9大学';
 
 -- 学生常见病ID表，m_student_common_disease_id
+DROP TABLE IF EXISTS `m_student_common_disease_id`;
 CREATE TABLE `m_student_common_disease_id` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID主键',
   `student_id` int(11) NOT NULL COMMENT '学生ID',
@@ -131,6 +133,7 @@ CREATE TABLE `m_student_common_disease_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='学生常见病ID';
 
 -- 学校常见病编码表，m_school_common_disease_code
+DROP TABLE IF EXISTS `m_school_common_disease_code`;
 CREATE TABLE `m_school_common_disease_code` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `area_district_short_code` varchar(6) NOT NULL COMMENT '区/县行政区域编码简称（6位）',
