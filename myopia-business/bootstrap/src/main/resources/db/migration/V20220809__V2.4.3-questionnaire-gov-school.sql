@@ -61,6 +61,7 @@ ALTER TABLE q_qes_field_mapping ADD `year` INT NOT NULL COMMENT '年份' AFTER `
 
 
 -- qes管理表
+DROP TABLE IF EXISTS `q_questionnaire_qes`;
 CREATE TABLE `q_questionnaire_qes` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `district_id` int(11) DEFAULT NULL COMMENT '区域ID',

@@ -3,7 +3,9 @@ package com.wupol.myopia.migrate.service.migrate;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
@@ -180,7 +182,11 @@ public class MigrateScreeningOrganizationService {
                 // 默认为医院，迁移完后需要去管理平台修改
                 .setType(0)
                 // 普通二维码
-                .setQrCodeConfig("1");
+                .setQrCodeConfig("1")
+                // 筛查类型
+                .setScreeningTypeConfig(String.valueOf(ScreeningTypeEnum.VISION.getType()))
+                // 可筛查项目配置
+                .setScreeningConfig(JSON.parseObject("{\"screeningTypeList\":[0],\"channel\":\"Official\",\"medicalProjectList\":[\"vision\",\"computer_optometry\",\"other_eye_diseases\"]}", ScreeningConfig.class));
         // 设置行政区域信息
         Long areaDistrictCode = districtService.getCodeByName(sysDept.getRegion());
         District areaDistrict = districtService.getByCode(areaDistrictCode);
