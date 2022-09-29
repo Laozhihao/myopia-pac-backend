@@ -3,15 +3,19 @@ package com.wupol.myopia.business.api.school.management.service;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
-import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -25,11 +29,17 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBiz
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -78,6 +88,9 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+
+    @Resource
+    private StatConclusionService statConclusionService;
 
     /**
      * 获取学生列表
@@ -256,6 +269,79 @@ public class SchoolStudentBizService {
         }
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(studentId);
+    }
+
+    /**
+     * 获取眼健康列表
+     *
+     * @param schoolId    学校Id
+     * @param pageRequest 分页请求
+     * @param requestDTO  请求参数
+     *
+     * @return IPage<EyeHealthResponseDTO>
+     */
+    public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+
+        IPage<SchoolStudentListResponseDTO> studentListPage = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
+        List<SchoolStudentListResponseDTO> schoolStudents = studentListPage.getRecords();
+        if (CollectionUtils.isEmpty(schoolStudents)) {
+            return new Page<>();
+        }
+        IPage<EyeHealthResponseDTO> page = new Page<>();
+        BeanUtils.copyProperties(studentListPage, page);
+        List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
+
+        // 结果表
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentIds);
+        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+        // 结论表
+        List<StatConclusion> statConclusions = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
+        Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+
+
+        page.setRecords(schoolStudents.stream().map(schoolStudent -> {
+
+            VisionScreeningResult result = resultMap.get(schoolStudent.getStudentId());
+            StatConclusion statConclusion = statConclusionMap.get(schoolStudent.getStudentId());
+
+            EyeHealthResponseDTO responseDTO = new EyeHealthResponseDTO();
+            responseDTO.setStudentId(schoolStudent.getStudentId());
+            responseDTO.setSchoolStudentId(schoolStudent.getId());
+            responseDTO.setSno(schoolStudent.getSno());
+            responseDTO.setName(schoolStudent.getName());
+            responseDTO.setGradeName(schoolStudent.getGradeName());
+            responseDTO.setClassName(schoolStudent.getClassName());
+            responseDTO.setWearingGlasses(Objects.nonNull(schoolStudent.getGlassesType()) ? GlassesTypeEnum.get(schoolStudent.getGlassesType()).getDesc() : null);
+
+            boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
+            if (isKindergarten) {
+                responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), 1) ? "视力低常" : "视力正常");
+                responseDTO.setRefractiveResult(EyeDataUtil.getRrefractiveResultdesc(statConclusion, true));
+            } else {
+                responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), 1) ? "视力低下" : "视力正常");
+                responseDTO.setRefractiveResult(EyeDataUtil.getRrefractiveResultdesc(statConclusion, false));
+            }
+            responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
+
+            if (Objects.nonNull(statConclusion)) {
+                responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
+                if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+                    responseDTO.setSeatSuggest(true);
+                    responseDTO.setHeight(EyeDataUtil.height(result).toString());
+                    TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
+                    responseDTO.setDesk(deskChairSuggest.getFirst());
+                    responseDTO.setChair(deskChairSuggest.getSecond());
+                }
+            }
+            responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
+            responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
+            return responseDTO;
+        }).collect(Collectors.toList()));
+        return page;
     }
 
 }

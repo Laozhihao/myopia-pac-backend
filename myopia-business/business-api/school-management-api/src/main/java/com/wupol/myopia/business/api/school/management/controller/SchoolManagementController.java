@@ -264,18 +264,4 @@ public class SchoolManagementController {
     public void batchSaveGrade(@RequestBody @Valid List<BatchSaveGradeRequestDTO> requestDTO) {
         schoolGradeService.batchSaveGrade(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
-
-
-    /**
-     * 导出眼健康中心数据
-     */
-    @GetMapping("/eyeHealthData/Export")
-    public void eyeHealthDataExport() throws IOException {
-
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        ExportCondition exportCondition = new ExportCondition()
-                .setApplyExportFileUserId(currentUser.getId())
-                .setSchoolId(currentUser.getOrgId());
-        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE);
-    }
 }

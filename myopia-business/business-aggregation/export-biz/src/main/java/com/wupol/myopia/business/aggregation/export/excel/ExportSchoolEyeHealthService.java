@@ -41,8 +41,6 @@ import java.util.stream.Collectors;
 @Service(ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE)
 public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
 
-    private static final String EMPTY_DATA = "--";
-
     @Resource
     private SchoolStudentService schoolStudentService;
 
@@ -129,7 +127,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
                 exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
                 exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
 
-                TwoTuple<String, String> deskChairSuggest = getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
+                TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
                 exportDTO.setDesk(deskChairSuggest.getFirst());
                 exportDTO.setChair(deskChairSuggest.getSecond());
                 if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
@@ -158,24 +156,5 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (CollectionUtils.isEmpty(schoolStudents)) {
             throw new BusinessException("数据为空！");
         }
-    }
-
-    /**
-     * 课桌椅建议
-     *
-     * @param heightStr 身高
-     * @param schoolAge 学龄
-     *
-     * @return TwoTuple<String, String>
-     */
-    private TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
-        if (Objects.isNull(heightStr) || Objects.isNull(schoolAge)) {
-            return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
-        }
-        float height = Long.parseLong(heightStr);
-        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
-        String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
-        return new TwoTuple<>(StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf(height * 0.43)),
-                StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf((height * 0.24))));
     }
 }

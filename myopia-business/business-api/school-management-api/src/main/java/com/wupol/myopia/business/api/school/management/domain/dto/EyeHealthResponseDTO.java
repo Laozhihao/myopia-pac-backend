@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 眼健康数据DTO
@@ -17,12 +18,12 @@ public class EyeHealthResponseDTO implements Serializable {
     /**
      * 学生Id
      */
-    private String studentId;
+    private Integer studentId;
 
     /**
      * 学校学生Id
      */
-    private String schoolStudentId;
+    private Integer schoolStudentId;
 
     /**
      * 学籍号
@@ -33,7 +34,6 @@ public class EyeHealthResponseDTO implements Serializable {
      * 姓名
      */
     private String name;
-
 
     /**
      * 年级
@@ -56,9 +56,34 @@ public class EyeHealthResponseDTO implements Serializable {
     private String lowVision;
 
     /**
+     * 屈光情况
+     */
+    private String refractiveResult;
+
+    /**
+     * 近视矫正
+     */
+    private String visionCorrection;
+
+    /**
+     * 戴镜建议
+     */
+    private String glassesSuggest;
+
+    /**
      * 视力预警
      */
     private String warningLevel;
+
+    /**
+     * 座位
+     */
+    private Boolean seatSuggest;
+
+    /**
+     * 身高
+     */
+    private String height;
 
     /**
      * 课桌
@@ -71,11 +96,6 @@ public class EyeHealthResponseDTO implements Serializable {
     private String chair;
 
     /**
-     * 座位
-     */
-    private Boolean seat;
-
-    /**
      * 是否绑定公众号在线档案
      */
     private Boolean isBindMp;
@@ -83,5 +103,5 @@ public class EyeHealthResponseDTO implements Serializable {
     /**
      * 最新筛查日期
      */
-    private String screeningTime;
+    private Date screeningTime;
 }

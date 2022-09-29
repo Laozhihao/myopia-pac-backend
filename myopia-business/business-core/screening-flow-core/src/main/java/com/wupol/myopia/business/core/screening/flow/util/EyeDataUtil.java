@@ -1,14 +1,16 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import cn.hutool.core.util.StrUtil;
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,6 +31,8 @@ import java.util.*;
 @Slf4j
 @UtilityClass
 public class EyeDataUtil {
+
+    private static final String EMPTY_DATA = "--";
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
@@ -636,5 +641,58 @@ public class EyeDataUtil {
      */
     public static String mergeEyeData(String right, String left) {
         return right + StrUtil.SLASH + left;
+    }
+
+    /**
+     * 课桌椅建议
+     *
+     * @param heightStr 身高
+     * @param schoolAge 学龄
+     *
+     * @return TwoTuple<String, String>
+     */
+    public static TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
+        if (Objects.isNull(heightStr) || Objects.isNull(schoolAge)) {
+            return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
+        }
+        float height = Long.parseLong(heightStr);
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
+        String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
+        return new TwoTuple<>(com.wupol.myopia.base.util.StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf(height * 0.43)),
+                com.wupol.myopia.base.util.StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf((height * 0.24))));
+    }
+
+    /**
+     * 获取屈光情况描述
+     *
+     * @param statConclusion
+     * @param isKindergarten 是否幼儿园
+     *
+     * @return 屈光情况
+     */
+    public static String getRrefractiveResultdesc(StatConclusion statConclusion, boolean isKindergarten) {
+        if (Objects.isNull(statConclusion)) {
+            return StringUtils.EMPTY;
+        }
+
+        if (isKindergarten) {
+            List<String> result = new ArrayList<>();
+            if (Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO_SP.code)) {
+                result.add(WarningLevel.ZERO_SP.desc);
+            }
+            if (Objects.equals(statConclusion.getIsAnisometropia(), Boolean.TRUE)) {
+                result.add("屈光参差");
+            }
+            if (Objects.equals(statConclusion.getIsRefractiveError(), Boolean.TRUE)) {
+                result.add("屈光不正");
+            }
+            return String.join(",", result);
+        }
+
+        List<String> result = new ArrayList<>();
+        result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
+        result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
+        result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
+        return result.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.joining(","));
     }
 }

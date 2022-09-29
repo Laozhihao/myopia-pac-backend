@@ -48,7 +48,10 @@ public enum MyopiaLevelEnum {
      * @param code 等级
      * @return 是否有座椅建议
      */
-    public static Boolean seatSuggest(int code) {
+    public static Boolean seatSuggest(Integer code) {
+        if (Objects.isNull(code)) {
+            return false;
+        }
         ArrayList<Integer> levelList = Lists.newArrayList(MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_EARLY.code);
         return levelList.stream().anyMatch(s -> Objects.equals(s, code));
     }
