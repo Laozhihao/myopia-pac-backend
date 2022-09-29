@@ -29,6 +29,7 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -860,16 +861,18 @@ public class ScreeningAppService {
         } else {
             schoolStudent = new SchoolStudent();
         }
+        SchoolGrade schoolGrade = schoolGradeService.getById(student.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(student.getClassId());
 
         schoolStudent.setStudentId(student.getId());
         schoolStudent.setSchoolId(schoolId);
         schoolStudent.setCreateUserId(student.getCreateUserId());
         schoolStudent.setSno(sno);
         schoolStudent.setGradeId(student.getGradeId());
-        schoolStudent.setGradeName(schoolGradeService.getById(student.getGradeId()).getName());
-        schoolStudent.setGradeType(student.getGradeType());
+        schoolStudent.setGradeName(schoolGrade.getName());
+        schoolStudent.setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
         schoolStudent.setClassId(student.getClassId());
-        schoolStudent.setClassName(schoolClassService.getById(student.getClassId()).getName());
+        schoolStudent.setClassName(schoolClass.getName());
         schoolStudent.setName(student.getName());
         schoolStudent.setGender(student.getGender());
         schoolStudent.setBirthday(student.getBirthday());
