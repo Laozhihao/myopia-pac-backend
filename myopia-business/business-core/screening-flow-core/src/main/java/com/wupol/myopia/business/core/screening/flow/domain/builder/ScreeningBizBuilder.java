@@ -8,6 +8,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -134,7 +135,8 @@ public class ScreeningBizBuilder {
                 .setSchoolId(school.getId())
                 .setStudentId(schoolStudent.getStudentId())
                 .setStudentNo(schoolStudent.getSno())
-                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL);
+                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL)
+                .setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
         updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade,schoolClass);
         return screeningPlanSchoolStudent;
     }
@@ -154,6 +156,7 @@ public class ScreeningBizBuilder {
         }
         if (Objects.nonNull(schoolGrade)){
             screeningPlanSchoolStudent.setGradeName(schoolGrade.getName());
+            screeningPlanSchoolStudent.setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
         }
         if (Objects.nonNull(schoolClass)){
             screeningPlanSchoolStudent.setClassName(schoolClass.getName());

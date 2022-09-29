@@ -64,7 +64,11 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
         Assert.isTrue(Objects.nonNull(exportCondition.getNotificationId()) || Objects.nonNull(exportCondition.getPlanId()), "筛查通知ID和筛查计划ID都为空");
-        int total = statConclusionService.count(new StatConclusion().setSrcScreeningNoticeId(exportCondition.getNotificationId()).setPlanId(exportCondition.getPlanId()).setSchoolId(exportCondition.getSchoolId()));
+        int total = statConclusionService.count(new StatConclusion()
+                .setSrcScreeningNoticeId(exportCondition.getNotificationId())
+                .setPlanId(exportCondition.getPlanId())
+                .setSchoolId(exportCondition.getSchoolId())
+                .setIsValid(Boolean.TRUE));
         if (total == 0) {
             throw new BusinessException("暂无筛查数据，无法导出筛查报告");
         }

@@ -19,6 +19,8 @@ import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -67,6 +69,8 @@ public class VisionScreeningBizService {
     private SchoolStudentService schoolStudentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+
+    private static final String UNDONE_MSG = "该学生初筛项目未全部完成，无法进行复测！";
 
     /**
      * 保存学生眼镜信息
@@ -132,7 +136,7 @@ public class VisionScreeningBizService {
         VisionDataDO visionData = firstResult.getVisionData();
         ComputerOptometryDO computerOptometry = firstResult.getComputerOptometry();
         if (Objects.isNull(visionData) || Objects.isNull(computerOptometry)) {
-            throw new BusinessException("该学生初筛项目未全部完成，无法进行复测！");
+            throw new BusinessException(UNDONE_MSG);
         }
         // 夜戴角膜镜不需要复测
         if (visionData.getLeftEyeData().getGlassesType().equals(GlassesTypeEnum.ORTHOKERATOLOGY.code)
@@ -359,6 +363,39 @@ public class VisionScreeningBizService {
     private void setIsBindMq(StatConclusion statConclusion) {
         Student student = studentService.getById(statConclusion.getStudentId());
         statConclusion.setIsBindMp(Objects.isNull(student) ? Boolean.FALSE : StringUtils.isNotBlank(student.getMpParentPhone()));
+    }
+
+    /**
+     * 验证复测规则
+     * 托幼机构：视力检查、眼位
+     * 中小学生：视力检查、眼位、裂隙灯、电脑验光
+     *
+     * @param result         第一次筛查结果
+     * @param isKindergarten 是否幼儿园
+     */
+    public void verifyHaiNanScreening(VisionScreeningResult result, boolean isKindergarten) {
+
+        // 视力检查
+        VisionDataDO visionData = result.getVisionData();
+        // 眼位
+        OcularInspectionDataDO ocularInspectionData = result.getOcularInspectionData();
+
+        // 裂隙灯
+        SlitLampDataDO slitLampData = result.getSlitLampData();
+        // 电脑验光
+        ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+
+        if (isKindergarten) {
+            if (Objects.isNull(visionData) || Objects.isNull(ocularInspectionData)) {
+                throw new BusinessException(UNDONE_MSG);
+            }
+            return;
+        }
+        if (Objects.isNull(visionData) || Objects.isNull(ocularInspectionData)
+                || Objects.isNull(slitLampData) || Objects.isNull(computerOptometry)) {
+            throw new BusinessException(UNDONE_MSG);
+        }
+
     }
 
 }

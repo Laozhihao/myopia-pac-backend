@@ -711,7 +711,7 @@ public class ScreeningAppController {
                                                             @RequestParam(value = "isState", defaultValue = "0") Integer isState,
                                                             Boolean isFilter,
                                                             @RequestParam(value = "channel", defaultValue = "0") Integer channel) {
-        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser().getOrgId(), isFilter, isState, channel);
+        return screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, CurrentUserUtil.getCurrentUser(), isFilter, isState, channel);
     }
 
     /**
