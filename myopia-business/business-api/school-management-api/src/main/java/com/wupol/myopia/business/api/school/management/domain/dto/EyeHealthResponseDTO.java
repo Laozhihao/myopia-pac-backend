@@ -76,7 +76,7 @@ public class EyeHealthResponseDTO implements Serializable {
     private String warningLevel;
 
     /**
-     * 座位
+     * 座位建议
      */
     private Boolean seatSuggest;
 

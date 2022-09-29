@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.school.management.domain.dto;
 
-import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SchoolStudentRequestDTO extends PageRequest {
+public class SchoolStudentRequestDTO {
 
     /**
      * 学号
