@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -200,6 +201,22 @@ public class ScreeningOrganizationController {
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 
+    /**
+     *  获取筛查机构列表（下拉框）
+     * @param pageRequest
+     * @param query
+     */
+    @GetMapping("/getOrgList")
+    public IPage<ScreeningSchoolOrgVO> getOrgList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isOverviewUser()) {
+            query.setIds(overviewService.getBindScreeningOrganization(user.getOrgId()));
+            if (CollectionUtils.isEmpty(query.getIds())) {
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+            }
+        }
+        return screeningOrganizationBizService.getOrgList(pageRequest, query, user);
+    }
     /**
      * 更新状态
      *

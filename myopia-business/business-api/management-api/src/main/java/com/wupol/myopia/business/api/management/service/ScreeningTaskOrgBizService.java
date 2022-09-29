@@ -122,7 +122,9 @@ public class ScreeningTaskOrgBizService {
         // 1. 查出剩余的 TODO:机构和学校
         Map<Integer, Integer> orgIdMap = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
         // 2. 更新id，并批量新增或修改
-        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));
+        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId)
+                .setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null))
+                .setQualityControllerContact(Optional.ofNullable(taskOrg.getQualityControllerContact()).orElse(StrUtil.EMPTY)));
         screeningTaskOrgService.saveOrUpdateBatch(screeningOrgs);
         if (needNotice) {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);

@@ -17,7 +17,7 @@ import java.util.Date;
 public class ScreeningNoticeListVO {
 
     /**
-     * 通知id
+     * 发布筛查任务的通知id
      */
     private Integer id;
 
@@ -68,4 +68,13 @@ public class ScreeningNoticeListVO {
      * 筛查类型（0：视力筛查，1；常见病）
      */
     private Integer screeningType;
+
+    /**
+     * 筛查通知ID
+     */
+    private Integer srcScreeningNoticeId;
+    /**
+     * 筛查任务ID
+     */
+    private Integer screeningTaskId;
 }

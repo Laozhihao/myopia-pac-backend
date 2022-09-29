@@ -50,4 +50,9 @@ public class ScreeningSchoolOrgDTO implements Serializable {
      * 部门id
      */
     private Integer govDeptId;
+
+    /**
+     * 名字模糊查询
+     */
+    private String name;
 }

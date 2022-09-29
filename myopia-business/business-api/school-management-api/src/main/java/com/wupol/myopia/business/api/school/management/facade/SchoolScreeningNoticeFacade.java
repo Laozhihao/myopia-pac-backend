@@ -4,25 +4,33 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningNoticeListVO;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,6 +46,8 @@ public class SchoolScreeningNoticeFacade {
     private final ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     private final GovDeptService govDeptService;
     private final SchoolService schoolService;
+    private final ScreeningPlanService screeningPlanService;
+    private final ScreeningTaskService screeningTaskService;
 
     /**
      * 分页获取筛查通知列表
@@ -46,6 +56,7 @@ public class SchoolScreeningNoticeFacade {
     public IPage<ScreeningNoticeListVO> page(CurrentUser currentUser, PageRequest pageRequest) {
         ScreeningNoticeQueryDTO query = new ScreeningNoticeQueryDTO();
         query.setGovDeptId(currentUser.getOrgId());
+        query.setType(ScreeningNotice.TYPE_SCHOOL);
         IPage<ScreeningNoticeDTO> screeningNoticePage = screeningNoticeDeptOrgService.selectPageByQuery(pageRequest.toPage(), query);
 
         IPage<ScreeningNoticeListVO> screeningNoticeListVoPage = new Page<>(screeningNoticePage.getCurrent(),screeningNoticePage.getSize(),screeningNoticePage.getTotal());
@@ -54,36 +65,46 @@ public class SchoolScreeningNoticeFacade {
             return screeningNoticeListVoPage;
         }
 
+        Map<Integer, ScreeningPlan> screeningPlanMap = getScreeningPlanMap(currentUser, records);
+
         // 政府部门名称
-        Map<Integer, String> govDeptIdNameMap = getGovDeptIdNameMap(records);
-        Map<Integer, School> schoolMap = getSchoolMap(records);
-        List<ScreeningNoticeListVO> screeningNoticeListVOList = records.stream().map(screeningNoticeDTO -> getScreeningNoticeListVO(govDeptIdNameMap, screeningNoticeDTO,schoolMap)).collect(Collectors.toList());
+        TwoTuple<Map<Integer, String>, Map<Integer, Integer>> noticeInfoMap = getNoticeInfoMap(records);
+        List<ScreeningNoticeListVO> screeningNoticeListVOList = records.stream().map(screeningNoticeDTO -> getScreeningNoticeListVO(noticeInfoMap, screeningNoticeDTO,screeningPlanMap)).collect(Collectors.toList());
         screeningNoticeListVoPage.setRecords(screeningNoticeListVOList);
         return screeningNoticeListVoPage;
     }
 
     /**
+     * 获取筛查计划集合
+     * @param currentUser
+     * @param records
+     */
+    private Map<Integer, ScreeningPlan> getScreeningPlanMap(CurrentUser currentUser, List<ScreeningNoticeDTO> records) {
+        Set<Integer> taskIds = records.stream().map(ScreeningNoticeDTO::getScreeningTaskId).collect(Collectors.toSet());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByTaskIdsAndOrgIdAndOrgType(Lists.newArrayList(taskIds), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        return screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningTaskId, Function.identity()));
+    }
+
+    /**
      * 获取筛查通知列表对象
-     * @param govDeptIdNameMap
+     * @param noticeInfoMap
      * @param screeningNoticeDTO
      */
-    private ScreeningNoticeListVO getScreeningNoticeListVO(Map<Integer, String> govDeptIdNameMap, ScreeningNoticeDTO screeningNoticeDTO,Map<Integer, School> schoolMap) {
-        School school = schoolMap.get(screeningNoticeDTO.getAcceptOrgId());
-        //TODO: 学校配置
-        Boolean canCreatePlan = Optional.ofNullable(school)
-//                .map(x -> StringUtils.isNotBlank(x.getScreeningTypeConfig()) && x.getScreeningTypeConfig().contains(String.valueOf(screeningNoticeDTO.getScreeningType())))
-                .map(x -> Boolean.TRUE)
-                .orElse(Boolean.FALSE);
+    private ScreeningNoticeListVO getScreeningNoticeListVO(TwoTuple<Map<Integer, String>, Map<Integer, Integer>>  noticeInfoMap, ScreeningNoticeDTO screeningNoticeDTO,Map<Integer, ScreeningPlan> screeningPlanMap) {
+        ScreeningPlan screeningPlan = screeningPlanMap.get(screeningNoticeDTO.getScreeningTaskId());
+        int status = Objects.nonNull(screeningPlan) ? 3 : 2;
         return new ScreeningNoticeListVO()
                 .setId(screeningNoticeDTO.getId())
                 .setTitle(screeningNoticeDTO.getTitle())
                 .setContent(screeningNoticeDTO.getContent())
                 .setStartTime(screeningNoticeDTO.getStartTime())
                 .setEndTime(screeningNoticeDTO.getEndTime())
-                .setStatus(screeningNoticeDTO.getOperationStatus())
+                .setStatus(status)
+                .setScreeningTaskId(screeningNoticeDTO.getScreeningTaskId())
                 .setAcceptTime(screeningNoticeDTO.getAcceptTime())
-                .setNoticeDeptName(govDeptIdNameMap.getOrDefault(screeningNoticeDTO.getScreeningNoticeDeptOrgId(), StrUtil.EMPTY))
-                .setCanCreatePlan(canCreatePlan)
+                .setNoticeDeptName(noticeInfoMap.getFirst().getOrDefault(screeningNoticeDTO.getScreeningTaskId(), StrUtil.EMPTY))
+                .setSrcScreeningNoticeId(noticeInfoMap.getSecond().getOrDefault(screeningNoticeDTO.getScreeningTaskId(),0))
+                .setCanCreatePlan(Objects.equals(screeningNoticeDTO.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
                 .setScreeningType(screeningNoticeDTO.getScreeningType());
     }
 
@@ -91,33 +112,25 @@ public class SchoolScreeningNoticeFacade {
      * 政府部门名称
      * @param records
      */
-    private Map<Integer, String> getGovDeptIdNameMap(List<ScreeningNoticeDTO> records) {
-        List<Integer> allGovDeptIds = records.stream()
-                .filter(vo -> ScreeningNotice.TYPE_ORG.equals(vo.getType()))
-                .map(ScreeningNoticeDTO::getAcceptOrgId)
-                .distinct()
-                .collect(Collectors.toList());
-        Map<Integer, String> govDeptIdNameMap = Maps.newHashMap();
-        if (CollUtil.isNotEmpty(allGovDeptIds)){
-            govDeptIdNameMap = govDeptService.getByIds(allGovDeptIds).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
-        }
-        return govDeptIdNameMap;
-    }
-
-    /**
-     * 获取学校信息
-     * @param records
-     */
-    private Map<Integer, School> getSchoolMap(List<ScreeningNoticeDTO> records) {
-        List<Integer> schoolIds = records.stream()
+    private TwoTuple<Map<Integer, String>,Map<Integer, Integer>> getNoticeInfoMap(List<ScreeningNoticeDTO> records) {
+        Set<Integer> taskIds = records.stream()
                 .filter(vo -> ScreeningNotice.TYPE_SCHOOL.equals(vo.getType()))
-                .map(ScreeningNoticeDTO::getScreeningNoticeDeptOrgId)
-                .distinct()
-                .collect(Collectors.toList());
-        Map<Integer, School> govDeptIdNameMap = Maps.newHashMap();
-        if (CollUtil.isNotEmpty(schoolIds)){
-            govDeptIdNameMap = schoolService.getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, Function.identity()));
+                .map(ScreeningNoticeDTO::getScreeningTaskId)
+                .collect(Collectors.toSet());
+        Map<Integer, String> govDeptIdNameMap = Maps.newHashMap();
+        Map<Integer, Integer> noticeIdMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(taskIds)){
+            List<ScreeningTask> screeningTaskList = screeningTaskService.listByIds(taskIds);
+            Set<Integer> govDeptIds = screeningTaskList.stream().map(ScreeningTask::getGovDeptId).collect(Collectors.toSet());
+            Map<Integer, String> govDeptMap = govDeptService.getByIds(Lists.newArrayList(govDeptIds)).stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
+            screeningTaskList.forEach(screeningTask -> {
+                String name = govDeptMap.get(screeningTask.getGovDeptId());
+                if (StrUtil.isNotBlank(name)) {
+                    govDeptIdNameMap.put(screeningTask.getId(),name);
+                }
+                noticeIdMap.put(screeningTask.getId(),screeningTask.getScreeningNoticeId());
+            });
         }
-        return govDeptIdNameMap;
+        return TwoTuple.of(govDeptIdNameMap,noticeIdMap);
     }
 }

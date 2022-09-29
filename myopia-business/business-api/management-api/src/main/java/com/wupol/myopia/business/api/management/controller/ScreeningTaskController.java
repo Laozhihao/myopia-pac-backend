@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -34,6 +36,7 @@ import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Alix
@@ -116,10 +119,24 @@ public class ScreeningTaskController {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs()) || getOrgCount(screeningTaskDTO.getScreeningOrgs()) != screeningTaskDTO.getScreeningOrgs().size()) {
             throw new ValidationException("无筛查机构或筛查机构重复");
         }
         screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, false);
+    }
+
+    /**
+     * 获取筛查机构数量
+     * @param screeningOrgList
+     */
+    private Integer getOrgCount(List<ScreeningTaskOrg> screeningOrgList){
+        if (CollUtil.isEmpty(screeningOrgList)){
+            return 0;
+        }
+        return screeningOrgList.stream()
+                .map(screeningTaskOrg -> screeningTaskOrg.getScreeningOrgType()+ StrUtil.UNDERLINE+screeningTaskOrg.getScreeningOrgId())
+                .collect(Collectors.toSet())
+                .size();
     }
 
     /**
@@ -254,7 +271,7 @@ public class ScreeningTaskController {
     public List<ScreeningTaskOrgDTO> hasTaskOrgVoInPeriod(@PathVariable Integer orgId, @RequestBody ScreeningTaskQueryDTO screeningTaskQuery) {
         List<ScreeningTaskOrgDTO> periodList = new ArrayList<>();
         List<String> existStartTimeEndTimeList = new ArrayList<>();
-        List<ScreeningTaskOrgDTO> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId, screeningTaskQuery);
+        List<ScreeningTaskOrgDTO> hasTaskOrgVoInPeriod = screeningTaskOrgService.getHasTaskOrgVoInPeriod(orgId,screeningTaskQuery.getScreeningOrgType(), screeningTaskQuery);
         hasTaskOrgVoInPeriod.forEach(vo -> {
             String startTimeEndTime = String.format("%s--%s", DateFormatUtil.format(vo.getStartTime(), DateFormatUtil.FORMAT_ONLY_DATE), DateFormatUtil.format(vo.getEndTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             if (!existStartTimeEndTimeList.contains(startTimeEndTime)) {

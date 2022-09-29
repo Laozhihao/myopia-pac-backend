@@ -3,7 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
@@ -60,7 +60,7 @@ public class ScreeningTaskService extends BaseService<ScreeningTaskMapper, Scree
         ScreeningTask screeningTask = getById(screeningTaskId);
         screeningNoticeDeptOrgService.read(screeningTask.getScreeningNoticeId(), screeningTask.getGovDeptId(), user);
         // 2. 删除任务关联的筛查机构信息
-        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, Maps.newHashMap());
+        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, Lists.newArrayList());
         // 3. 删除任务
         removeById(screeningTaskId);
     }

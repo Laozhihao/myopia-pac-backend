@@ -28,4 +28,8 @@ public class ScreeningSchoolOrgVO implements Serializable {
      */
     private String name;
 
+    /**
+     * 手机号
+     */
+    private String phone;
 }

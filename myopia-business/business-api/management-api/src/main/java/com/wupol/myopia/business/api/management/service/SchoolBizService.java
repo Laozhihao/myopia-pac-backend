@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -446,19 +447,20 @@ public class SchoolBizService {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
         }
-        return getSchoolList(pageRequest,query,user);
+        return getSchoolList(pageRequest,query);
     }
 
     /**
      * 获取学校列表
+     *
      * @param pageRequest
      * @param query
-     * @param currentUser
      */
-    public IPage<ScreeningSchoolOrgVO> getSchoolList(PageRequest pageRequest, ScreeningSchoolOrgDTO query, CurrentUser currentUser){
-        Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
+    public IPage<ScreeningSchoolOrgVO> getSchoolList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
+        //当前区域及下级以下区域
+        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
 
-        IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtId);
+        IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtIds);
 
         IPage<ScreeningSchoolOrgVO> screeningSchoolOrgVoPage = new Page<>(schoolPage.getCurrent(),schoolPage.getSize(),schoolPage.getTotal());
         // 为空直接返回
@@ -468,21 +470,11 @@ public class SchoolBizService {
         }
 
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
-        List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream().map(school -> getScreeningSchoolOrgVO(haveTaskOrgIds, school)).collect(Collectors.toList());
+        List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
+                .map(school -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(),school.getName(),null))
+                .collect(Collectors.toList());
         screeningSchoolOrgVoPage.setRecords(screeningSchoolOrgVOList);
         return screeningSchoolOrgVoPage;
-    }
-
-    /**
-     * 获取筛查机构（学校）
-     * @param haveTaskOrgIds
-     * @param school
-     */
-    private ScreeningSchoolOrgVO getScreeningSchoolOrgVO(List<Integer> haveTaskOrgIds, School school) {
-        return new ScreeningSchoolOrgVO()
-                .setId(school.getId())
-                .setName(school.getName())
-                .setAlreadyHaveTask(haveTaskOrgIds.contains(school.getId()));
     }
 
 

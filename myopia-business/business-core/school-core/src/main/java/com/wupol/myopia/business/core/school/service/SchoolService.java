@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -539,13 +540,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * 根据条件查询学校
      * @param pageRequest
      * @param query
-     * @param districtId
+     * @param districtIds
      */
-    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, Integer districtId) {
+    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, List<Integer> districtIds) {
         Page page = pageRequest.toPage();
         LambdaQueryWrapper<School> queryWrapper = Wrappers.lambdaQuery(School.class)
-                .eq(School::getDistrictId, districtId)
-                .eq(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds());
+                .in(School::getDistrictId, districtIds)
+                .like(StrUtil.isNotBlank(query.getName()),School::getName,query.getName())
+                .in(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds());
         return baseMapper.selectPage(page,queryWrapper);
     }
 }

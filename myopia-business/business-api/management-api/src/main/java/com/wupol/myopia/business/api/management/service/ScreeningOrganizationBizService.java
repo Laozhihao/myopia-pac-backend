@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
@@ -10,6 +11,8 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
+import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.DeviceGrantedDTO;
@@ -322,6 +325,7 @@ public class ScreeningOrganizationBizService {
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
                                                                        ScreeningOrganizationQueryDTO query,
                                                                        CurrentUser currentUser){
+
         Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
         // 查询
         IPage<ScreeningOrgResponseDTO> orgLists = screeningOrganizationService.getByCondition(pageRequest, query, districtId);
@@ -376,6 +380,37 @@ public class ScreeningOrganizationBizService {
         return orgLists;
     }
 
+    /**
+     * 获取筛查机构列表(下拉框)
+     *
+     * @param pageRequest 分页
+     * @param query       筛查机构列表请求体
+     * @param currentUser 当前登录用户
+     * @return IPage<ScreeningOrgResponse> {@link IPage}
+     */
+    public IPage<ScreeningSchoolOrgVO> getOrgList(PageRequest pageRequest,
+                                                                       ScreeningOrganizationQueryDTO query,
+                                                                       CurrentUser currentUser){
+
+        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
+        // 查询
+        IPage<ScreeningOrganization> orgPage = screeningOrganizationService.listByCondition(pageRequest, query, districtIds);
+
+        IPage<ScreeningSchoolOrgVO> screeningOrgResponsePage = new Page<>(orgPage.getCurrent(),orgPage.getSize(),orgPage.getTotal());
+        // 为空直接返回
+        List<ScreeningOrganization> records = orgPage.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return screeningOrgResponsePage;
+        }
+        // 获取已有任务的机构ID列表
+        List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+
+        List<ScreeningSchoolOrgVO> orgResponseDTOList = records.stream()
+                .map(screeningOrganization -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds,screeningOrganization.getId(),screeningOrganization.getName(),screeningOrganization.getPhone()))
+                .collect(Collectors.toList());
+        screeningOrgResponsePage.setRecords(orgResponseDTOList);
+        return screeningOrgResponsePage;
+    }
     /**
      * 根据部门ID获取筛查机构列表（带是否已有任务）
      *

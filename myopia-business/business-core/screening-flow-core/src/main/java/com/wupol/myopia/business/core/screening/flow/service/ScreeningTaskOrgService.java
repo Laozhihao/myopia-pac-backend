@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Alix
@@ -51,8 +54,8 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param screeningTaskQuery：必须存在govDeptId、startCreateTime、endCreateTime。如果有要排除的任务可传id
      * @return
      */
-    public List<ScreeningTaskOrgDTO> getHasTaskOrgVoInPeriod(Integer orgId, ScreeningTaskQueryDTO screeningTaskQuery) {
-        return baseMapper.selectHasTaskInPeriod(orgId, screeningTaskQuery);
+    public List<ScreeningTaskOrgDTO> getHasTaskOrgVoInPeriod(Integer orgId,Integer screeningOrgType, ScreeningTaskQueryDTO screeningTaskQuery) {
+        return baseMapper.selectHasTaskInPeriod(orgId,screeningOrgType, screeningTaskQuery);
     }
 
     /**
@@ -69,35 +72,62 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     /**
      * 删除筛查任务中，除了指定筛查机构ID的其它筛查机构信息
      * @param screeningTaskId
+     */
+    public void deleteByTaskIdAndExcludeOrgIds(Integer screeningTaskId, List<Integer> excludeOrgIds) {
+        Assert.notNull(screeningTaskId);
+        LambdaQueryWrapper<ScreeningTaskOrg> queryWrapper = Wrappers.lambdaQuery(ScreeningTaskOrg.class).eq(ScreeningTaskOrg::getScreeningTaskId, screeningTaskId);
+        if (CollUtil.isNotEmpty(excludeOrgIds)) {
+            queryWrapper.notIn(ScreeningTaskOrg::getScreeningOrgId, excludeOrgIds);
+        }
+        baseMapper.delete(queryWrapper);
+    }
+
+    /**
+     * 删除筛查任务中，除了指定筛查机构ID的其它筛查机构信息
+     * @param screeningTaskId
      * @param excludeTypeIdMap
      */
     public void deleteByTaskIdAndExcludeOrgIds(Integer screeningTaskId, Map<Integer,List<Integer>> excludeTypeIdMap) {
         Assert.notNull(screeningTaskId);
-        LambdaQueryWrapper<ScreeningTaskOrg> queryWrapper = Wrappers.lambdaQuery(ScreeningTaskOrg.class)
-                .eq(ScreeningTaskOrg::getScreeningTaskId, screeningTaskId);
-        if (CollUtil.isNotEmpty(excludeTypeIdMap)) {
 
+        List<ScreeningTaskOrg> screeningTaskOrgList = baseMapper.getByTaskId(screeningTaskId);
+
+        if (CollUtil.isNotEmpty(excludeTypeIdMap)) {
+            List<Integer> deleteIds=Lists.newArrayList();
             List<Integer> orgIds = excludeTypeIdMap.getOrDefault(ScreeningOrgTypeEnum.ORG.getType(), Lists.newArrayList());
             List<Integer> schoolIds = excludeTypeIdMap.getOrDefault(ScreeningOrgTypeEnum.SCHOOL.getType(), Lists.newArrayList());
-
-            if (CollUtil.isNotEmpty(orgIds) && CollUtil.isNotEmpty(schoolIds)){
-              queryWrapper.and(q->
-                       q.and(q1->q1.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.ORG.getType()).notIn(ScreeningTaskOrg::getScreeningOrgId,orgIds))
-                      .or()
-                      .and(q2->q2.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.SCHOOL.getType()).notIn(ScreeningTaskOrg::getScreeningOrgId,schoolIds))
-              );
-            }
-
             if (CollUtil.isNotEmpty(orgIds)){
-                queryWrapper.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.ORG.getType())
-                        .notIn(ScreeningTaskOrg::getScreeningOrgId,orgIds);
+                List<Integer> deleteTaskOrgIds = screeningTaskOrgList.stream()
+                        .filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                        .filter(screeningTaskOrg -> !orgIds.contains(screeningTaskOrg.getScreeningOrgId()))
+                        .map(ScreeningTaskOrg::getId)
+                        .collect(Collectors.toList());
+                deleteIds.addAll(deleteTaskOrgIds);
+            }else {
+                Set<Integer> deleteTaskOrgIds = screeningTaskOrgList.stream()
+                        .filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                        .map(ScreeningTaskOrg::getId)
+                        .collect(Collectors.toSet());
+                deleteIds.addAll(deleteTaskOrgIds);
             }
             if (CollUtil.isNotEmpty(schoolIds)){
-                queryWrapper.eq(ScreeningTaskOrg::getScreeningOrgType,ScreeningOrgTypeEnum.SCHOOL.getType())
-                        .notIn(ScreeningTaskOrg::getScreeningOrgId,schoolIds);
+                List<Integer> deleteTaskOrgIds = screeningTaskOrgList.stream()
+                        .filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                        .filter(screeningTaskOrg -> !schoolIds.contains(screeningTaskOrg.getScreeningOrgId()))
+                        .map(ScreeningTaskOrg::getId)
+                        .collect(Collectors.toList());
+                deleteIds.addAll(deleteTaskOrgIds);
+            }else {
+                Set<Integer> deleteTaskOrgIds = screeningTaskOrgList.stream()
+                        .filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                        .map(ScreeningTaskOrg::getId)
+                        .collect(Collectors.toSet());
+                deleteIds.addAll(deleteTaskOrgIds);
+            }
+            if (CollUtil.isNotEmpty(deleteIds)){
+                baseMapper.deleteBatchIds(deleteIds);
             }
         }
-        baseMapper.delete(queryWrapper);
     }
 
     /**
@@ -111,6 +141,6 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         ScreeningTaskQueryDTO taskQuery = new ScreeningTaskQueryDTO();
         taskQuery.setGovDeptId(govDeptId);
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
-        return baseMapper.selectHasTaskInPeriod(null, taskQuery);
+        return baseMapper.selectHasTaskInPeriod(null,null, taskQuery);
     }
 }

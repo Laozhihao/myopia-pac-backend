@@ -306,13 +306,13 @@ public class SchoolController {
     }
 
     /**
-     * 获取筛查机构列表
+     * 获取筛查机构列表(学校)
      *
      * @param pageRequest 分页请求
      * @param query       查询条件
      * @return 机构列表
      */
-    @GetMapping("list")
+    @GetMapping("/getSchoolList")
     public IPage<ScreeningSchoolOrgVO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolBizService.getScreeningOrganizationList(pageRequest, query, user);
