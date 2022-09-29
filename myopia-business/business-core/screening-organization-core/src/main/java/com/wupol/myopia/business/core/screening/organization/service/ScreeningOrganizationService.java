@@ -467,7 +467,7 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         if (Objects.isNull(screeningConfig)) {
             return false;
         }
-        return StringUtils.equals(screeningConfig.getChannel(), "HaiNan");
+        return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.api.screening.app.domain.dto.DeviationDTO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
@@ -64,7 +65,7 @@ class ScreeningAppServiceTest {
         Integer classId = 82;
         Integer screeningOrgId = 3;
         Boolean isFilter = true;
-        ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, screeningOrgId, isFilter, 1,0);
+        ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, new CurrentUser(), isFilter, 1,0);
         System.out.println(JSON.toJSONString(data));
         Assert.assertTrue(true);
     }
