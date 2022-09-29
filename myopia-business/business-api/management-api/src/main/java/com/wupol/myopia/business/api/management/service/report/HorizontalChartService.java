@@ -40,7 +40,12 @@ public class HorizontalChartService {
     @Resource
     private CountAndProportionService countAndProportionService;
 
-    ArrayList<String> x = Lists.newArrayList("远视储备不足", "屈光不正", "屈光参差");
+    private static final String INSUFFICIENT_FARSIGHTEDNESS_RESERVE = "远视储备不足";
+    private static final String REFRACTIVE_ERROR = "屈光不正";
+    private static final String ANISOMETROPIA = "屈光参差";
+
+
+    ArrayList<String> x = Lists.newArrayList(INSUFFICIENT_FARSIGHTEDNESS_RESERVE, REFRACTIVE_ERROR,ANISOMETROPIA);
 
     public HorizontalChart areaLowVision(List<CommonLowVisionTable> tables, Boolean isAge) {
         HorizontalChart horizontalChart = new HorizontalChart();
@@ -87,9 +92,9 @@ public class HorizontalChartService {
         HorizontalChart horizontalChart = new HorizontalChart();
         horizontalChart.setX(tables.stream().map(RefractiveTable::getName).collect(Collectors.toList()));
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("远视储备不足", tables.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())),
-                new ChartDetail("屈光不正", tables.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())),
-                new ChartDetail("屈光参差", tables.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList()))
+                new ChartDetail(INSUFFICIENT_FARSIGHTEDNESS_RESERVE, tables.stream().map(RefractiveTable::getInsufficientProportion).collect(Collectors.toList())),
+                new ChartDetail(REFRACTIVE_ERROR, tables.stream().map(RefractiveTable::getRefractiveErrorProportion).collect(Collectors.toList())),
+                new ChartDetail(ANISOMETROPIA, tables.stream().map(RefractiveTable::getAnisometropiaProportion).collect(Collectors.toList()))
         ));
         return horizontalChart;
     }
@@ -185,9 +190,9 @@ public class HorizontalChartService {
             three.add(countAndProportionService.refractiveError(v, total).getProportion());
         });
         horizontalChart.setY(Lists.newArrayList(
-                new ChartDetail("远视储备不足", one),
-                new ChartDetail("屈光参差", two),
-                new ChartDetail("屈光不正", three)
+                new ChartDetail(INSUFFICIENT_FARSIGHTEDNESS_RESERVE, one),
+                new ChartDetail(ANISOMETROPIA, two),
+                new ChartDetail(REFRACTIVE_ERROR, three)
         ));
         return horizontalChart;
     }
