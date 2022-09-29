@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -50,9 +51,12 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     @Resource
     private SchoolService schoolService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     private static final String EXPORT_FILE_NAME = "筛查报告-视力分析";
 
+    private static final String PDF_NAME = "%s-%s";
 
     @Override
     public Integer getScreeningType() {
@@ -67,7 +71,9 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
 
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
-            return schoolService.getById(exportCondition.getSchoolId()).getName() + EXPORT_FILE_NAME;
+            String title = screeningPlanService.getById(exportCondition.getPlanId()).getTitle();
+            String name = schoolService.getById(exportCondition.getSchoolId()).getName();
+            return String.format(PDF_NAME,title,name) + EXPORT_FILE_NAME;
         }
         return StrUtil.EMPTY;
     }
