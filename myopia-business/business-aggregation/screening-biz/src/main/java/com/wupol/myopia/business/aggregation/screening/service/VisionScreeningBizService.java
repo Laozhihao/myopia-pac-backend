@@ -18,10 +18,7 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.OcularInspectionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.SlitLampDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -379,14 +376,26 @@ public class VisionScreeningBizService {
         VisionDataDO visionData = result.getVisionData();
         // 眼位
         OcularInspectionDataDO ocularInspectionData = result.getOcularInspectionData();
-
         // 裂隙灯
         SlitLampDataDO slitLampData = result.getSlitLampData();
         // 电脑验光
         ComputerOptometryDO computerOptometry = result.getComputerOptometry();
+        // 生物测量
+        BiometricDataDO biometricData = result.getBiometricData();
+        // 小瞳验光
+        PupilOptometryDataDO pupilOptometryData = result.getPupilOptometryData();
+        // 眼压
+        EyePressureDataDO eyePressureData = result.getEyePressureData();
+        // 眼底
+        FundusDataDO fundusData = result.getFundusData();
 
         if (isKindergarten) {
             if (Objects.isNull(visionData) || Objects.isNull(ocularInspectionData)) {
+                throw new BusinessException(UNDONE_MSG);
+            }
+            if ((!visionData.isNormal() || !ocularInspectionData.isNormal()) &&
+                    (Objects.isNull(slitLampData) || Objects.isNull(pupilOptometryData)
+                            || Objects.isNull(fundusData))) {
                 throw new BusinessException(UNDONE_MSG);
             }
             return;
@@ -396,6 +405,13 @@ public class VisionScreeningBizService {
             throw new BusinessException(UNDONE_MSG);
         }
 
+        // 视力不正常
+        if ((!visionData.isNormal() || !ocularInspectionData.isNormal()
+                || !slitLampData.isNormal() || !computerOptometry.isNormal())
+                && (Objects.isNull(biometricData) || Objects.isNull(pupilOptometryData)
+                || Objects.isNull(eyePressureData) || Objects.isNull(fundusData))) {
+            throw new BusinessException(UNDONE_MSG);
+        }
     }
 
 }
