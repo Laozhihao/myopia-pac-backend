@@ -241,4 +241,9 @@ public class CommonConst {
      * 零值
      */
     public static final Long ZERO_L = 0L;
+
+    /**
+     * 海南
+     */
+    public static final String HAI_NAN = "HaiNan";
 }

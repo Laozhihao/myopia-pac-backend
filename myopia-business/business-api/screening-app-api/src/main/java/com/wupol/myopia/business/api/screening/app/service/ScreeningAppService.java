@@ -564,9 +564,17 @@ public class ScreeningAppService {
      * @param classId  班级名称
      * @return com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress
      **/
-    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, Integer screeningOrgId, Boolean isFilter, Integer state, Integer channel) {
-        boolean haiNanVersion = screeningOrganizationService.isHaiNanVersion(screeningOrgId);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getReleasePlanStudent(schoolId, gradeId, classId, screeningOrgId, channel);
+    public ClassScreeningProgress getClassScreeningProgress(Integer schoolId, Integer gradeId, Integer classId, CurrentUser user, Boolean isFilter, Integer state, Integer channel) {
+
+        Integer orgId = user.getOrgId();
+        boolean haiNanVersion;
+        if (user.isSchoolScreeningUser()) {
+            haiNanVersion = schoolService.isHaiNanVersion(orgId);
+        } else {
+            haiNanVersion = screeningOrganizationService.isHaiNanVersion(orgId);
+        }
+
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getReleasePlanStudent(schoolId, gradeId, classId, orgId, channel);
         if (screeningPlanSchoolStudentList.isEmpty()) {
             return new ClassScreeningProgress().setPlanCount(0).setScreeningCount(0).setAbnormalCount(0).setUnfinishedCount(0).setStudentScreeningProgressList(new ArrayList<>()).setSchoolAge(SchoolAge.PRIMARY.code).setArtificial(false);
         }
