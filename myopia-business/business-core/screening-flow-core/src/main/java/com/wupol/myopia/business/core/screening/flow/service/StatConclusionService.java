@@ -3,9 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
@@ -370,11 +368,7 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @return 列表
      */
     public List<StatConclusion> getBySchoolIdAndWarningLevel(Integer schoolId) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(StatConclusion::getSchoolId, schoolId)
-                .eq(StatConclusion::getIsRescreen, Boolean.FALSE)
-                .in(StatConclusion::getWarningLevel, Lists.newArrayList(WarningLevel.ZERO.code, WarningLevel.ONE.code, WarningLevel.TWO.code, WarningLevel.THREE.code));
-        return baseMapper.selectList(queryWrapper);
+        return baseMapper.getBySchoolIdAndWarningLevel(schoolId);
     }
 
 }

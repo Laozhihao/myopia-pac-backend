@@ -136,4 +136,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     List<StatConclusion> getByPlanIdSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<StatConclusion> getByPlanId(Integer planId);
+
+    List<StatConclusion> getBySchoolIdAndWarningLevel(@Param("schoolId") Integer schoolId);
 }
