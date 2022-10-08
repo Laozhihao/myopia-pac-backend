@@ -34,7 +34,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -88,9 +87,6 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
-
-    @Resource
-    private StatConclusionService statConclusionService;
 
     /**
      * 获取学生列表
@@ -291,57 +287,59 @@ public class SchoolStudentBizService {
         BeanUtils.copyProperties(studentListPage, page);
         List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
 
-        // 结果表
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentIds);
-        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
-                Function.identity(),
-                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
-        // 结论表
-        List<StatConclusion> statConclusions = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
-        Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getStudentId,
-                Function.identity(),
-                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(studentIds);
+        Map<Integer, VisionScreeningResult> resultMap = resultStatMap.getFirst();
+        Map<Integer, StatConclusion> statConclusionMap = resultStatMap.getSecond();
 
-
-        page.setRecords(schoolStudents.stream().map(schoolStudent -> {
-
-            VisionScreeningResult result = resultMap.get(schoolStudent.getStudentId());
-            StatConclusion statConclusion = statConclusionMap.get(schoolStudent.getStudentId());
-
-            EyeHealthResponseDTO responseDTO = new EyeHealthResponseDTO();
-            responseDTO.setStudentId(schoolStudent.getStudentId());
-            responseDTO.setSchoolStudentId(schoolStudent.getId());
-            responseDTO.setSno(schoolStudent.getSno());
-            responseDTO.setName(schoolStudent.getName());
-            responseDTO.setGradeName(schoolStudent.getGradeName());
-            responseDTO.setClassName(schoolStudent.getClassName());
-            responseDTO.setWearingGlasses(Objects.nonNull(schoolStudent.getGlassesType()) ? GlassesTypeEnum.get(schoolStudent.getGlassesType()).getDesc() : null);
-
-            boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
-            if (isKindergarten) {
-                responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), 1) ? "视力低常" : "视力正常");
-                responseDTO.setRefractiveResult(EyeDataUtil.getRrefractiveResultdesc(statConclusion, true));
-            } else {
-                responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), 1) ? "视力低下" : "视力正常");
-                responseDTO.setRefractiveResult(EyeDataUtil.getRrefractiveResultdesc(statConclusion, false));
-            }
-            responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
-
-            if (Objects.nonNull(statConclusion)) {
-                responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
-                if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
-                    responseDTO.setSeatSuggest(true);
-                    responseDTO.setHeight(EyeDataUtil.height(result).toString());
-                    TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
-                    responseDTO.setDesk(deskChairSuggest.getFirst());
-                    responseDTO.setChair(deskChairSuggest.getSecond());
-                }
-            }
-            responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
-            responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
-            return responseDTO;
-        }).collect(Collectors.toList()));
+        page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent)).collect(Collectors.toList()));
         return page;
+    }
+
+    /**
+     * 获取导出数据
+     *
+     * @param resultMap         筛查结果
+     * @param statConclusionMap 统计结果
+     * @param schoolStudent     学生
+     *
+     * @return EyeHealthResponseDTO
+     */
+    private static EyeHealthResponseDTO getEyeHealthResponseDTO(Map<Integer, VisionScreeningResult> resultMap, Map<Integer, StatConclusion> statConclusionMap, SchoolStudentListResponseDTO schoolStudent) {
+        VisionScreeningResult result = resultMap.get(schoolStudent.getStudentId());
+        StatConclusion statConclusion = statConclusionMap.get(schoolStudent.getStudentId());
+
+        EyeHealthResponseDTO responseDTO = new EyeHealthResponseDTO();
+        responseDTO.setStudentId(schoolStudent.getStudentId());
+        responseDTO.setSchoolStudentId(schoolStudent.getId());
+        responseDTO.setSno(schoolStudent.getSno());
+        responseDTO.setName(schoolStudent.getName());
+        responseDTO.setGradeName(schoolStudent.getGradeName());
+        responseDTO.setClassName(schoolStudent.getClassName());
+        responseDTO.setWearingGlasses(Objects.nonNull(schoolStudent.getGlassesType()) ? GlassesTypeEnum.get(schoolStudent.getGlassesType()).getDesc() : null);
+
+        boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
+        if (isKindergarten) {
+            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低常" : "视力正常");
+            responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, true));
+        } else {
+            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低下" : "视力正常");
+            responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
+        }
+        responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
+
+        if (Objects.nonNull(statConclusion)) {
+            responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
+            if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+                responseDTO.setSeatSuggest(true);
+                responseDTO.setHeight(EyeDataUtil.height(result).toString());
+                TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
+                responseDTO.setDesk(deskChairSuggest.getFirst());
+                responseDTO.setChair(deskChairSuggest.getSecond());
+            }
+        }
+        responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
+        responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
+        return responseDTO;
     }
 
 }

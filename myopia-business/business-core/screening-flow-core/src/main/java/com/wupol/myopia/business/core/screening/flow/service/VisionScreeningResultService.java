@@ -11,6 +11,7 @@ import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -525,5 +526,27 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 .in(VisionScreeningResult::getPlanId,screeningPlanIds)
                 .eq(VisionScreeningResult::getSchoolId,schoolId)
                 .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen));
+    }
+
+    /**
+     * 获取学生筛查结果和结论信息
+     *
+     * @param studentIds 学生Id
+     *
+     * @return TwoTuple<Map < Integer, VisionScreeningResult>, Map<Integer, StatConclusion>>
+     */
+    public TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> getStudentResultAndStatMap(List<Integer> studentIds) {
+        // 结果表
+        List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
+        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+        // 结论表
+        List<StatConclusion> statConclusions = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
+        Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+
+        return new TwoTuple<>(resultMap, statConclusionMap);
     }
 }

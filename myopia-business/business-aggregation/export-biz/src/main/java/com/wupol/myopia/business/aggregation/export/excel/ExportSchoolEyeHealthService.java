@@ -4,7 +4,6 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.base.util.StrUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -19,7 +18,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -53,9 +51,6 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Resource
     private SchoolClassService schoolClassService;
 
-    @Resource
-    private StatConclusionService statConclusionService;
-
     @Override
     public String getFileName(ExportCondition exportCondition) {
         return PDFFileNameConstant.SCHOOL_EYE_HEALTH;
@@ -81,18 +76,16 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(schoolStudents, SchoolStudent::getClassId);
 
         // 结果表
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getByStudentIds(studentIds);
-        Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
-                Function.identity(),
-                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(studentIds);
+        Map<Integer, VisionScreeningResult> resultMap = resultStatMap.getFirst();
+        Map<Integer, StatConclusion> statConclusionMap = resultStatMap.getSecond();
 
-        // 结论表
-        List<StatConclusion> statConclusions = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
-        Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getStudentId,
-                Function.identity(),
-                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+        return schoolStudents.stream().map(getExportData(gradeMap, classMap, resultMap, statConclusionMap)).collect(Collectors.toList());
+    }
 
-        return schoolStudents.stream().map(s -> {
+    private static Function<SchoolStudent, EyeHealthDataExportDTO> getExportData(Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap,
+                                                                                 Map<Integer, VisionScreeningResult> resultMap, Map<Integer, StatConclusion> statConclusionMap) {
+        return s -> {
             EyeHealthDataExportDTO exportDTO = new EyeHealthDataExportDTO();
             exportDTO.setSno(s.getSno());
             exportDTO.setName(s.getName());
@@ -102,42 +95,65 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
 
             VisionScreeningResult result = resultMap.get(s.getStudentId());
             StatConclusion statConclusion = statConclusionMap.get(s.getStudentId());
-
-            if (Objects.nonNull(result)) {
-                exportDTO.setScreeningTime(DateFormatUtil.format(s.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
-                exportDTO.setLowVision(EyeDataUtil.mergeEyeData(EyeDataUtil.visionRightDataToStr(result), EyeDataUtil.visionLeftDataToStr(result)));
-                exportDTO.setSph(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightSph(result), EyeDataUtil.computerLeftSph(result)));
-                exportDTO.setCyl(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightCyl(result), EyeDataUtil.computerLeftCyl(result)));
-                exportDTO.setAxial(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightAxial(result), EyeDataUtil.computerLeftAxial(result)));
-                exportDTO.setCorrectedVision(EyeDataUtil.mergeEyeData(EyeDataUtil.correctedRightDataToStr(result), EyeDataUtil.correctedLeftDataToStr(result)));
-                exportDTO.setHeight(EyeDataUtil.height(result).toString());
-
-            }
-            if (Objects.nonNull(statConclusion)) {
-                exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), "--"));
-                if (Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
-                    exportDTO.setLowVisionResult(SchoolAge.checkKindergarten(statConclusion.getSchoolAge()) ? "视力低常" : "视力低下");
-                } else {
-                    exportDTO.setLowVisionResult("正常");
-                }
-//                exportDTO.setRefractiveResult();
-
-                exportDTO.setCorrectedVisionResult(VisionCorrection.get(statConclusion.getVisionCorrection()).desc);
-                exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
-                exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
-                exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
-
-                TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
-                exportDTO.setDesk(deskChairSuggest.getFirst());
-                exportDTO.setChair(deskChairSuggest.getSecond());
-                if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
-                    exportDTO.setSeat("座位与黑板相距5-6米");
-                }
-                exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
-            }
+            generateResultInfo(s, exportDTO, result);
+            generateStatInfo(exportDTO, statConclusion);
             return exportDTO;
-        }).collect(Collectors.toList());
+        };
     }
+
+    /**
+     * 筛查结果信息
+     *
+     * @param schoolStudent 学校学生
+     * @param exportDTO     导出数据
+     * @param result        筛查结果
+     */
+    private static void generateResultInfo(SchoolStudent schoolStudent, EyeHealthDataExportDTO exportDTO, VisionScreeningResult result) {
+        if (Objects.isNull(result)) {
+            return;
+        }
+        exportDTO.setScreeningTime(DateFormatUtil.format(schoolStudent.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
+        exportDTO.setLowVision(EyeDataUtil.mergeEyeData(EyeDataUtil.visionRightDataToStr(result), EyeDataUtil.visionLeftDataToStr(result)));
+        exportDTO.setSph(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightSph(result), EyeDataUtil.computerLeftSph(result)));
+        exportDTO.setCyl(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightCyl(result), EyeDataUtil.computerLeftCyl(result)));
+        exportDTO.setAxial(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightAxial(result), EyeDataUtil.computerLeftAxial(result)));
+        exportDTO.setCorrectedVision(EyeDataUtil.mergeEyeData(EyeDataUtil.correctedRightDataToStr(result), EyeDataUtil.correctedLeftDataToStr(result)));
+        exportDTO.setHeight(EyeDataUtil.height(result).toString());
+    }
+
+    /**
+     * 统计结果信息
+     *
+     * @param exportDTO      导出数据
+     * @param statConclusion 统计结果
+     */
+    private static void generateStatInfo(EyeHealthDataExportDTO exportDTO, StatConclusion statConclusion) {
+        if (Objects.isNull(statConclusion)) {
+            return;
+        }
+        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), "--"));
+        boolean isKindergarten = SchoolAge.checkKindergarten(statConclusion.getSchoolAge());
+        if (Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
+            exportDTO.setLowVisionResult(isKindergarten ? "视力低常" : "视力低下");
+        } else {
+            exportDTO.setLowVisionResult("正常");
+        }
+        exportDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, isKindergarten));
+
+        exportDTO.setCorrectedVisionResult(VisionCorrection.get(statConclusion.getVisionCorrection()).desc);
+        exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
+        exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
+        exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
+
+        TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
+        exportDTO.setDesk(deskChairSuggest.getFirst());
+        exportDTO.setChair(deskChairSuggest.getSecond());
+        if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+            exportDTO.setSeat("座位与黑板相距5-6米");
+        }
+        exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
+    }
+
 
     @Override
     public Class getHeadClass(ExportCondition exportCondition) {

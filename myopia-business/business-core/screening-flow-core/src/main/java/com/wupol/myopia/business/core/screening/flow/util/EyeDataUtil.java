@@ -665,12 +665,12 @@ public class EyeDataUtil {
     /**
      * 获取屈光情况描述
      *
-     * @param statConclusion
+     * @param statConclusion 结论
      * @param isKindergarten 是否幼儿园
      *
      * @return 屈光情况
      */
-    public static String getRrefractiveResultdesc(StatConclusion statConclusion, boolean isKindergarten) {
+    public static String getRefractiveResultDesc(StatConclusion statConclusion, boolean isKindergarten) {
         if (Objects.isNull(statConclusion)) {
             return StringUtils.EMPTY;
         }
