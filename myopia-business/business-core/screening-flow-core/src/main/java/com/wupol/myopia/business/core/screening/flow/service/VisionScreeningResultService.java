@@ -536,11 +536,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return TwoTuple<Map < Integer, VisionScreeningResult>, Map<Integer, StatConclusion>>
      */
     public TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> getStudentResultAndStatMap(List<Integer> studentIds) {
+
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new TwoTuple<>(new HashMap<>(), new HashMap<>());
+        }
         // 结果表
         List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
         Map<Integer, VisionScreeningResult> resultMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
                 Function.identity(),
                 (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+
+        if (CollectionUtils.isEmpty(resultList)) {
+            return new TwoTuple<>(new HashMap<>(), new HashMap<>());
+        }
         // 结论表
         List<StatConclusion> statConclusions = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
         Map<Integer, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(StatConclusion::getStudentId,

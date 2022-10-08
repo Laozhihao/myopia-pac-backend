@@ -34,6 +34,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +46,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -87,6 +85,9 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+
+    @Resource
+    private StatConclusionService statConclusionService;
 
     /**
      * 获取学生列表
@@ -278,6 +279,15 @@ public class SchoolStudentBizService {
      */
     public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
 
+        List<StatConclusion> haveDataSchoolList = statConclusionService.getBySchoolIdAndWarningLevel(schoolId);
+        if (CollectionUtils.isEmpty(haveDataSchoolList)) {
+            return new Page<>();
+        }
+        Map<Integer, List<ReportAndRecordDO>> visitMap = generateSearchStudentList(requestDTO, haveDataSchoolList);
+        if (Objects.isNull(visitMap)) {
+            return new Page<>();
+        }
+
         IPage<SchoolStudentListResponseDTO> studentListPage = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
         List<SchoolStudentListResponseDTO> schoolStudents = studentListPage.getRecords();
         if (CollectionUtils.isEmpty(schoolStudents)) {
@@ -285,14 +295,35 @@ public class SchoolStudentBizService {
         }
         IPage<EyeHealthResponseDTO> page = new Page<>();
         BeanUtils.copyProperties(studentListPage, page);
-        List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
-
-        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(studentIds);
+        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
         Map<Integer, VisionScreeningResult> resultMap = resultStatMap.getFirst();
         Map<Integer, StatConclusion> statConclusionMap = resultStatMap.getSecond();
 
-        page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent)).collect(Collectors.toList()));
+        page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent, visitMap)).collect(Collectors.toList()));
         return page;
+    }
+
+    /**
+     * 设置数据
+     *
+     * @param requestDTO          请求数据
+     * @param haveDataStudentList 学生列表
+     * @return 就诊数据
+     */
+    private Map<Integer, List<ReportAndRecordDO>> generateSearchStudentList(SchoolStudentRequestDTO requestDTO, List<StatConclusion> haveDataStudentList) {
+        // 获取当前学校预警等级为0-3的学生
+        List<Integer> studentIds = haveDataStudentList.stream().map(StatConclusion::getStudentId).collect(Collectors.toList());
+        requestDTO.setHavaStatStudentIds(studentIds);
+
+        // 是否就诊
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
+        if (Objects.equals(requestDTO.getIsHavaReport(), Boolean.TRUE)) {
+            if (CollectionUtils.isEmpty(visitLists)) {
+                return null;
+            }
+            requestDTO.setHavaReportStudentIds(visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList()));
+        }
+        return visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
     }
 
     /**
@@ -301,10 +332,14 @@ public class SchoolStudentBizService {
      * @param resultMap         筛查结果
      * @param statConclusionMap 统计结果
      * @param schoolStudent     学生
+     * @param visitMap          就诊Map
      *
      * @return EyeHealthResponseDTO
      */
-    private static EyeHealthResponseDTO getEyeHealthResponseDTO(Map<Integer, VisionScreeningResult> resultMap, Map<Integer, StatConclusion> statConclusionMap, SchoolStudentListResponseDTO schoolStudent) {
+    private static EyeHealthResponseDTO getEyeHealthResponseDTO(Map<Integer, VisionScreeningResult> resultMap,
+                                                                Map<Integer, StatConclusion> statConclusionMap,
+                                                                SchoolStudentListResponseDTO schoolStudent,
+                                                                Map<Integer, List<ReportAndRecordDO>> visitMap) {
         VisionScreeningResult result = resultMap.get(schoolStudent.getStudentId());
         StatConclusion statConclusion = statConclusionMap.get(schoolStudent.getStudentId());
 
@@ -329,6 +364,7 @@ public class SchoolStudentBizService {
 
         if (Objects.nonNull(statConclusion)) {
             responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
+            responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
             if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
                 responseDTO.setSeatSuggest(true);
                 responseDTO.setHeight(EyeDataUtil.height(result).toString());
@@ -339,6 +375,7 @@ public class SchoolStudentBizService {
         }
         responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
         responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
+        responseDTO.setIsHavaReport(!CollectionUtils.isEmpty(visitMap.get(schoolStudent.getStudentId())));
         return responseDTO;
     }
 

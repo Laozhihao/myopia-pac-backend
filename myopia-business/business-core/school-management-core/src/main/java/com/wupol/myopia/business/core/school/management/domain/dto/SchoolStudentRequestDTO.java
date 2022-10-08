@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.school.management.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 学校端-学生列表请求DTO
  *
@@ -56,4 +58,19 @@ public class SchoolStudentRequestDTO {
      * 身份证/护照
      */
     private String idCardOrPassportLike;
+
+    /**
+     * 是否就诊
+     */
+    private Boolean isHavaReport;
+
+    /**
+     * 有筛查数据的学生Ids
+     */
+    private List<Integer> havaStatStudentIds;
+
+    /**
+     * 有就诊数据的学生
+     */
+    private List<Integer> havaReportStudentIds;
 }

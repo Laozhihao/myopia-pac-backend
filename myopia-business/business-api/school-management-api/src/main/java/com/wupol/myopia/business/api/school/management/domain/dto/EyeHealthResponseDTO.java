@@ -104,4 +104,14 @@ public class EyeHealthResponseDTO implements Serializable {
      * 最新筛查日期
      */
     private Date screeningTime;
+
+    /**
+     * 是否建议就诊
+     */
+    private Boolean isRecommendVisit;
+
+    /**
+     * 是否就诊
+     */
+    private Boolean isHavaReport;
 }

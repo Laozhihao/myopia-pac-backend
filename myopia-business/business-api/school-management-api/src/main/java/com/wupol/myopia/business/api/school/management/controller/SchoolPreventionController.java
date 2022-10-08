@@ -46,7 +46,7 @@ public class SchoolPreventionController {
      *
      * @return IPage<EyeHealthResponseDTO>
      */
-    @GetMapping("eyeHealth/list")
+    @GetMapping("/eyeHealth/list")
     public IPage<EyeHealthResponseDTO> eyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         return schoolStudentBizService.getEyeHealthList(schoolId, pageRequest, requestDTO);
     }
