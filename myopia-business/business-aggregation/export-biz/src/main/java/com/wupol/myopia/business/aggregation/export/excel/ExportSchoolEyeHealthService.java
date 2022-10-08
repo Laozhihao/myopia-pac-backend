@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,9 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Resource
     private SchoolClassService schoolClassService;
 
+    @Resource
+    private StatConclusionService statConclusionService;
+
     @Override
     public String getFileName(ExportCondition exportCondition) {
         return PDFFileNameConstant.SCHOOL_EYE_HEALTH;
@@ -66,7 +70,8 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
-        List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(schoolId);
+        List<StatConclusion> haveDataSchoolList = statConclusionService.getBySchoolIdAndWarningLevel(schoolId);
+        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentIdsAndSchoolId(haveDataSchoolList.stream().map(StatConclusion::getStudentId).collect(Collectors.toList()), schoolId);
         List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
 
         // 获取年级
@@ -167,7 +172,12 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
 
     @Override
     public void validateBeforeExport(ExportCondition exportCondition) {
+
         Integer schoolId = exportCondition.getSchoolId();
+        List<StatConclusion> haveDataSchoolList = statConclusionService.getBySchoolIdAndWarningLevel(schoolId);
+        if (CollectionUtils.isEmpty(haveDataSchoolList)) {
+            throw new BusinessException("数据为空！");
+        }
         List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(schoolId);
         if (CollectionUtils.isEmpty(schoolStudents)) {
             throw new BusinessException("数据为空！");
