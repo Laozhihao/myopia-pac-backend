@@ -655,7 +655,7 @@ public class EyeDataUtil {
         if (StringUtils.isEmpty(heightStr) || Objects.isNull(schoolAge)) {
             return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
         }
-        float height = Long.parseLong(heightStr);
+        float height = new BigDecimal(heightStr).floatValue();
         List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
         String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
         return new TwoTuple<>(com.wupol.myopia.base.util.StrUtil.spliceChar(",", deskAndChairTypeDesc, String.valueOf(height * 0.43)),
