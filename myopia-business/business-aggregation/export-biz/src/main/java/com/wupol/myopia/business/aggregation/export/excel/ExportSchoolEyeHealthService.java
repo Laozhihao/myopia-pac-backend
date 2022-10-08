@@ -123,7 +123,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         exportDTO.setCyl(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightCyl(result), EyeDataUtil.computerLeftCyl(result)));
         exportDTO.setAxial(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightAxial(result), EyeDataUtil.computerLeftAxial(result)));
         exportDTO.setCorrectedVision(EyeDataUtil.mergeEyeData(EyeDataUtil.correctedRightDataToStr(result), EyeDataUtil.correctedLeftDataToStr(result)));
-        exportDTO.setHeight(EyeDataUtil.height(result).toString());
+        exportDTO.setHeight(EyeDataUtil.heightToStr(result));
     }
 
     /**
@@ -145,7 +145,8 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         }
         exportDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, isKindergarten));
 
-        exportDTO.setCorrectedVisionResult(VisionCorrection.get(statConclusion.getVisionCorrection()).desc);
+        VisionCorrection visionCorrection = VisionCorrection.get(statConclusion.getVisionCorrection());
+        exportDTO.setCorrectedVisionResult(Objects.isNull(visionCorrection) ? StringUtils.EMPTY : visionCorrection.desc);
         exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
         exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
         exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));

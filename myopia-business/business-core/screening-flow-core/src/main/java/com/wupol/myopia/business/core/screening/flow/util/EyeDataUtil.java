@@ -652,7 +652,7 @@ public class EyeDataUtil {
      * @return TwoTuple<String, String>
      */
     public static TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
-        if (Objects.isNull(heightStr) || Objects.isNull(schoolAge)) {
+        if (StringUtils.isEmpty(heightStr) || Objects.isNull(schoolAge)) {
             return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
         }
         float height = Long.parseLong(heightStr);
@@ -694,5 +694,19 @@ public class EyeDataUtil {
         result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
         result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
         return result.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.joining(","));
+    }
+
+    /**
+     * 获取身高
+     * @param visionScreenResult 筛查结果
+     * @return 身高
+     */
+    public static String heightToStr(VisionScreeningResult visionScreenResult) {
+        BigDecimal bigDecimal = Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getHeightAndWeightData)
+                .map(HeightAndWeightDataDO::getHeight).orElse(null);
+        if (Objects.isNull(bigDecimal)) {
+            return StringUtils.EMPTY;
+        }
+        return bigDecimal.toString();
     }
 }
