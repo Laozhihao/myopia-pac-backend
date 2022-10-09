@@ -65,12 +65,12 @@ public class SchoolStudentRequestDTO {
     private Boolean isHavaReport;
 
     /**
-     * 有筛查数据的学生Ids
-     */
-    private List<Integer> havaStatStudentIds;
-
-    /**
      * 有就诊数据的学生
      */
     private List<Integer> havaReportStudentIds;
+
+    /**
+     * 是否眼健康
+     */
+    private Boolean isEyeHealth;
 }

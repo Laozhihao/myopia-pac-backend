@@ -34,7 +34,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -85,9 +84,6 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
-
-    @Resource
-    private StatConclusionService statConclusionService;
 
     /**
      * 获取学生列表
@@ -279,13 +275,13 @@ public class SchoolStudentBizService {
      */
     public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
 
-        List<StatConclusion> haveDataSchoolList = statConclusionService.getBySchoolIdAndWarningLevel(schoolId);
-        if (CollectionUtils.isEmpty(haveDataSchoolList)) {
-            return new Page<>();
-        }
-        Map<Integer, List<ReportAndRecordDO>> visitMap = generateSearchStudentList(requestDTO, haveDataSchoolList);
-        if (Objects.isNull(visitMap)) {
-            return new Page<>();
+        if (Objects.equals(requestDTO.getIsHavaReport(), Boolean.TRUE)) {
+            // 是否就诊
+            List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
+            if (CollectionUtils.isEmpty(visitLists)) {
+                return new Page<>();
+            }
+            requestDTO.setHavaReportStudentIds(visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList()));
         }
 
         IPage<SchoolStudentListResponseDTO> studentListPage = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
@@ -295,35 +291,17 @@ public class SchoolStudentBizService {
         }
         IPage<EyeHealthResponseDTO> page = new Page<>();
         BeanUtils.copyProperties(studentListPage, page);
-        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
+        List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
+        TwoTuple<Map<Integer, VisionScreeningResult>, Map<Integer, StatConclusion>> resultStatMap = visionScreeningResultService.getStudentResultAndStatMap(studentIds);
         Map<Integer, VisionScreeningResult> resultMap = resultStatMap.getFirst();
         Map<Integer, StatConclusion> statConclusionMap = resultStatMap.getSecond();
 
-        page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent, visitMap)).collect(Collectors.toList()));
-        return page;
-    }
-
-    /**
-     * 设置数据
-     *
-     * @param requestDTO          请求数据
-     * @param haveDataStudentList 学生列表
-     * @return 就诊数据
-     */
-    private Map<Integer, List<ReportAndRecordDO>> generateSearchStudentList(SchoolStudentRequestDTO requestDTO, List<StatConclusion> haveDataStudentList) {
-        // 获取当前学校预警等级为0-3的学生
-        List<Integer> studentIds = haveDataStudentList.stream().map(StatConclusion::getStudentId).collect(Collectors.toList());
-        requestDTO.setHavaStatStudentIds(studentIds);
-
         // 是否就诊
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        if (Objects.equals(requestDTO.getIsHavaReport(), Boolean.TRUE)) {
-            if (CollectionUtils.isEmpty(visitLists)) {
-                return null;
-            }
-            requestDTO.setHavaReportStudentIds(visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList()));
-        }
-        return visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+
+        page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent, visitMap)).collect(Collectors.toList()));
+        return page;
     }
 
     /**
