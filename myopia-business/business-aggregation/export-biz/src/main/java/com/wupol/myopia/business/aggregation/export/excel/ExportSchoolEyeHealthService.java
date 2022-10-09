@@ -70,8 +70,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         Integer schoolId = exportCondition.getSchoolId();
-        List<StatConclusion> haveDataSchoolList = statConclusionService.getBySchoolIdAndWarningLevel(schoolId);
-        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentIdsAndSchoolId(haveDataSchoolList.stream().map(StatConclusion::getStudentId).collect(Collectors.toList()), schoolId);
+        List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolIdAndVisionLabel(schoolId);
         List<Integer> studentIds = schoolStudents.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
 
         // 获取年级

@@ -274,4 +274,15 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 获取只有预警等级的学生
+     *
+     * @param schoolId   学校Id
+     *
+     * @return 学生
+     */
+    public List<SchoolStudent> getBySchoolIdAndVisionLabel(Integer schoolId) {
+        return baseMapper.getBySchoolIdAndVisionLabel(schoolId);
+    }
+
 }

@@ -289,4 +289,12 @@
         </foreach>
         and school_id = #{schoolId}
     </select>
+
+    <select id="getBySchoolIdAndVisionLabel" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+        where school_id = #{schoolId}
+          and vision_label in (0, 1, 2, 3)
+    </select>
 </mapper>
