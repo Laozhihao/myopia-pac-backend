@@ -131,7 +131,6 @@ public class StudentController {
      * @return 学生列表
      */
     @GetMapping("/schoolList")
-//    @GetMapping("/list")
     public IPage<StudentDTO> getSchoolStudentsList(PageRequest pageRequest, StudentQueryDTO studentQuery) {
         return studentBizService.getSchoolStudentList(pageRequest, studentQuery);
     }
