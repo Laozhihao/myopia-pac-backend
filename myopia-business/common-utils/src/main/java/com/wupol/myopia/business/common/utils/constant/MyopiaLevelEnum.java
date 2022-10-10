@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -17,7 +19,9 @@ public enum MyopiaLevelEnum {
     MYOPIA_LEVEL_MIDDLE(4, "中度近视"),
     MYOPIA_LEVEL_HIGH(5, "高度近视");
 
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     MyopiaLevelEnum(int code, String desc) {
