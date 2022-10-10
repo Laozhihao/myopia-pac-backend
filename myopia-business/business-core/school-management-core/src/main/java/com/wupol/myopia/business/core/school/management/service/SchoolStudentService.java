@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.core.school.management.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStudentMapper;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -274,4 +278,33 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 根据条件查询学校学生
+     * @param pageRequest
+     * @param schoolStudentQueryBO
+     */
+    public IPage<SchoolStudent> listByCondition(PageRequest pageRequest, SchoolStudentQueryBO schoolStudentQueryBO) {
+        LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(Objects.nonNull(schoolStudentQueryBO.getGradeId()), SchoolStudent::getGradeId, schoolStudentQueryBO.getGradeId())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getClassId()), SchoolStudent::getClassId, schoolStudentQueryBO.getClassId())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())
+                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getName()), SchoolStudent::getName, schoolStudentQueryBO.getName())
+                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getSno()), SchoolStudent::getSno, schoolStudentQueryBO.getSno())
+                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getParentPhone()), SchoolStudent::getParentPhone, schoolStudentQueryBO.getParentPhone())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getSchoolIds()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolIds());
+        if (StrUtil.isNotBlank(schoolStudentQueryBO.getIdCard())){
+            queryWrapper.nested(q->q.like(StrUtil.isNotBlank(schoolStudentQueryBO.getIdCard()),SchoolStudent::getIdCard,schoolStudentQueryBO.getIdCard()).or().like(StrUtil.isNotBlank(schoolStudentQueryBO.getPassport()),SchoolStudent::getPassport,schoolStudentQueryBO.getPassport()));
+        }
+
+        Page page = pageRequest.toPage();
+        return baseMapper.selectPage(page,queryWrapper);
+    }
+
+    /**
+     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
+     */
+    public List<SchoolStudent> listByGradeType(){
+        return list(Wrappers.lambdaQuery(SchoolStudent.class)
+                .isNull(SchoolStudent::getGradeType));
+    }
 }

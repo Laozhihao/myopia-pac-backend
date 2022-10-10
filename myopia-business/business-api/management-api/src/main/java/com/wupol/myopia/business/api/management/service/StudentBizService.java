@@ -1,8 +1,10 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
@@ -11,6 +13,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -23,7 +26,12 @@ import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
@@ -84,6 +92,11 @@ public class StudentBizService {
     @Autowired
     private StudentFacade studentFacade;
 
+    @Autowired
+    private SchoolStudentService schoolStudentService;
+    @Autowired
+    private SchoolService schoolService;
+
     /**
      * 获取学生列表
      *
@@ -109,9 +122,69 @@ public class StudentBizService {
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
-        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+        Map<Integer, Integer> countMap = studentScreeningCountVOS.stream().collect(Collectors
                 .toMap(StudentScreeningCountDTO::getStudentId,
                         StudentScreeningCountDTO::getCount));
+
+        // 获取就诊记录
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
+        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
+                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+
+        // 获取筛查记录
+        List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap = plans.stream()
+                .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
+
+        // 封装DTO
+        for (StudentDTO student : students) {
+
+            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student);
+
+        }
+        return pageStudents;
+    }
+
+    /**
+     * 获取学校学生列表
+     *
+     * @param pageRequest     分页
+     * @param studentQueryDTO 请求体
+     * @return IPage<Student> {@link IPage}
+     */
+    public IPage<StudentDTO> getSchoolStudentList(PageRequest pageRequest, StudentQueryDTO studentQueryDTO) {
+
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(studentQueryDTO);
+
+        if (StrUtil.isNotBlank(studentQueryDTO.getSchoolName())){
+            List<School> schoolList = schoolService.getBySchoolName(studentQueryDTO.getSchoolName());
+            if (CollUtil.isNotEmpty(schoolList)){
+                List<Integer> schoolIds = schoolList.stream().map(School::getId).distinct().collect(Collectors.toList());
+                schoolStudentQueryBO.getSchoolIds().addAll(schoolIds);
+            }
+        }
+
+        IPage<SchoolStudent> schoolStudentPage  = schoolStudentService.listByCondition(pageRequest,schoolStudentQueryBO);
+
+        IPage<StudentDTO> studentDTOPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());
+
+        List<SchoolStudent> schoolStudentList = schoolStudentPage.getRecords();
+
+        // 为空直接返回
+        if (CollUtil.isEmpty(schoolStudentList)) {
+            return studentDTOPage;
+        }
+        // 获取学生ID
+        List<Integer> studentIds = schoolStudentList.stream().map(SchoolStudent::getId).filter(Objects::nonNull).collect(Collectors.toList());
+
+        Set<Integer> schoolIds = schoolStudentList.stream().map(SchoolStudent::getSchoolId).filter(Objects::nonNull).collect(Collectors.toSet());
+        List<School> schoolList = schoolService.listByIds(schoolIds);
+        Map<Integer, String> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+
+        // 筛查次数
+        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
+        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream()
+                .collect(Collectors.toMap(StudentScreeningCountDTO::getStudentId, StudentScreeningCountDTO::getCount));
 
         // 获取就诊记录
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
@@ -124,17 +197,15 @@ public class StudentBizService {
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
         // 封装DTO
-        for (StudentDTO student : students) {
-            // 筛查次数
-            student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
-            // 筛查码
-            student.setScreeningCodes(studentFacade.getScreeningCodesByPlan(studentPlans.get(student.getId())));
-            // 就诊次数
-            student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
-            // 问卷次数
-            student.setQuestionnaireCount(0);
-        }
-        return pageStudents;
+        List<StudentDTO> studentDTOList = schoolStudentList.stream()
+                .map(schoolStudent -> {
+                    StudentDTO student = SchoolStudentInfoBuilder.buildStudentDTO(schoolStudent);
+                    SchoolStudentInfoBuilder.setStudentInfo(countMaps, visitMap, studentPlans, student);
+                    SchoolStudentInfoBuilder.setStudentInfo(schoolMap,student);
+                    return student;
+                }).collect(Collectors.toList());
+        studentDTOPage.setRecords(studentDTOList);
+        return studentDTOPage;
     }
 
 

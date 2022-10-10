@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  *
  * @author Alix
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ScreeningTaskDTO extends ScreeningTask {
     /**

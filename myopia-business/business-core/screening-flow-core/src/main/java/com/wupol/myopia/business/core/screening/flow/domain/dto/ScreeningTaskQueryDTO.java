@@ -49,6 +49,11 @@ public class ScreeningTaskQueryDTO extends ScreeningTask implements HasCreatorNa
      */
     private Integer operationStatus;
 
+    /**
+     * 筛查机构类型
+     */
+    private Integer screeningOrgType;
+
     public LocalDate getEndCreateTime() {
         return Objects.isNull(endCreateTime) ? null : endCreateTime.plusDays(1L);
     }

@@ -4,6 +4,7 @@ package com.wupol.myopia.business.common.utils.constant;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,16 +31,19 @@ public enum SchoolAge {
     /**
      * 学龄段ID
      */
+    @Getter
     public final Integer code;
 
     /**
      * 学龄段描述
      */
+    @Getter
     public final String desc;
 
     /**
      * 学校类型
      */
+    @Getter
     public final Integer type;
 
     SchoolAge(Integer code, String desc, Integer type) {

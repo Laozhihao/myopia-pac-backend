@@ -33,6 +33,7 @@ public class ScreeningNotice implements Serializable {
     public static final Integer TYPE_GOV_DEPT = 0;
     public static final Integer TYPE_ORG = 1;
     public static final Integer TYPE_GOV_DEPT_SELF_RELEASE = 2;
+    public static final Integer TYPE_SCHOOL = 3;
 
     /**
      * 主键id

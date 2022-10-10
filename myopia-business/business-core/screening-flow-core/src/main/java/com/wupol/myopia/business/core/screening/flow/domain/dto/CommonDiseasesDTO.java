@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -11,7 +13,7 @@ import lombok.Data;
  * @Description: 常见病扩展类
  */
 @Data
-public class CommonDiseasesDTO {
+public class CommonDiseasesDTO implements Serializable {
 
     /**
      * 龋齿统计

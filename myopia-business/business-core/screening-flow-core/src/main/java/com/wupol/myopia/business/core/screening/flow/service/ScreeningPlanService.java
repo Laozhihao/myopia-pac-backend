@@ -228,6 +228,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
     }
 
+    public List<ScreeningPlan> getByTaskIdsAndOrgIdAndOrgType(List<Integer> taskIds,Integer orgId,Integer orgType) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .in(ScreeningPlan::getScreeningTaskId,taskIds)
+                .eq(ScreeningPlan::getScreeningOrgId,orgId)
+                .eq(ScreeningPlan::getScreeningOrgType,orgType));
+    }
+
     /**
      * 通过orgIds获取发布的计划
      *

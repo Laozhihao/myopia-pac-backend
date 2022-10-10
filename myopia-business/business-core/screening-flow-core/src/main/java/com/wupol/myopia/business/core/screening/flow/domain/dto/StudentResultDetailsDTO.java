@@ -4,6 +4,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightD
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
-public class StudentResultDetailsDTO {
+public class StudentResultDetailsDTO implements Serializable {
 
     /**
      * 0 为左眼 1 为右眼

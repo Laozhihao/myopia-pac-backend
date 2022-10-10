@@ -124,6 +124,19 @@ public class StudentController {
     }
 
     /**
+     * 获取学校学生列表
+     *
+     * @param pageRequest  分页查询
+     * @param studentQuery 请求条件
+     * @return 学生列表
+     */
+    @GetMapping("/schoolList")
+    public IPage<StudentDTO> getSchoolStudentsList(PageRequest pageRequest, StudentQueryDTO studentQuery) {
+        return studentBizService.getSchoolStudentList(pageRequest, studentQuery);
+    }
+
+
+    /**
      * 导出学生列表
      *
      * @param schoolId 学校ID

@@ -44,8 +44,8 @@ public class SchoolScreeningPlanBuilder {
     public ScreeningPlan buildScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Integer districtId) {
         return new ScreeningPlan()
                 .setId(schoolScreeningPlanDTO.getId())
-                .setSrcScreeningNoticeId(CommonConst.DEFAULT_ID)
-                .setScreeningTaskId(CommonConst.DEFAULT_ID)
+                .setSrcScreeningNoticeId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningNoticeId()).orElse(CommonConst.DEFAULT_ID))
+                .setScreeningTaskId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningTaskId()).orElse(CommonConst.DEFAULT_ID))
                 .setTitle(schoolScreeningPlanDTO.getTitle())
                 .setContent(Optional.ofNullable(schoolScreeningPlanDTO.getContent()).orElse(StrUtil.EMPTY))
                 .setStartTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME,DatePattern.NORM_DATETIME_PATTERN))
