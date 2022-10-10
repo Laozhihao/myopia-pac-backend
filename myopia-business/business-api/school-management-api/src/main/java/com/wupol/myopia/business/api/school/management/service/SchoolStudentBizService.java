@@ -345,7 +345,7 @@ public class SchoolStudentBizService {
             responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
             if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
                 responseDTO.setSeatSuggest(true);
-                responseDTO.setHeight(EyeDataUtil.height(result).toString());
+                responseDTO.setHeight(EyeDataUtil.heightToStr(result));
                 TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
                 responseDTO.setDesk(deskChairSuggest.getFirst());
                 responseDTO.setChair(deskChairSuggest.getSecond());
