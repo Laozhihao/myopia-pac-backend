@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
+import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
@@ -38,6 +39,8 @@ public class OperationAndMaintenanceController {
     private ThreadPoolTaskExecutor asyncServiceExecutor;
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Autowired
+    private StudentFacade studentFacade;
 
     /**
      * 触发大屏统计
@@ -96,4 +99,13 @@ public class OperationAndMaintenanceController {
         log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
         CompletableFuture.runAsync(()-> statisticScheduledTaskService.statistic(),asyncServiceExecutor);
     }
+
+    /**
+     * 处理学校学生表的学龄段字段数据
+     */
+    @GetMapping("/gradeTypeData")
+    public void processGradeTypeData(){
+        studentFacade.processGradeTypeData();
+    }
+
 }

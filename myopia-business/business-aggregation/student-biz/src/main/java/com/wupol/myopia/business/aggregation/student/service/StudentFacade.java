@@ -891,4 +891,16 @@ public class StudentFacade {
     public List<Nation> getNationLists() {
         return NationEnum.getNationList();
     }
+
+    /**
+     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
+     */
+    public void processGradeTypeData() {
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listByGradeType();
+        for (SchoolStudent schoolStudent : schoolStudentList) {
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolStudent.getGradeName());
+            schoolStudent.setGradeType(gradeCodeEnum.getType());
+        }
+        schoolStudentService.updateBatchById(schoolStudentList);
+    }
 }

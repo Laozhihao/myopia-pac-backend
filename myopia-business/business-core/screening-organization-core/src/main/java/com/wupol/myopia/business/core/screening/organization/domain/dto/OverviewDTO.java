@@ -2,12 +2,14 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
  * @Author wulizhou
  * @Date 2022/2/22 18:25
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class OverviewDTO extends Overview {
