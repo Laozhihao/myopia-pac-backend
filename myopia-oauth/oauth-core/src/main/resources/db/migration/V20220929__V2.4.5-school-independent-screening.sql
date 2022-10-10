@@ -1,9 +1,5 @@
 -- ID从1000开始，袁杭：1000~1009，新谋：1010~1019
 
-INSERT INTO `o_permission`(`id`, `name`, `menu_btn_name`, `api_url`, `is_menu`, `is_page`, `order`, `pid`, `system_code`)
-VALUES (1000, '创建筛查任务时-获取筛查学校列表', 'getSchoolList', 'get:/management/school/getSchoolList', 0, 0, 1, 25, 1);
-
-
 INSERT INTO o_permission (id, name, menu_btn_name, api_url, is_menu, is_page, `order`, pid, system_code)
 VALUES (1010, '视力小队', 'visionTeam', null, 1, 1, 1, 7, 1),
        (1011, '获取学校员工列表', 'schoolStaffList', 'get:/management/school/staff/list/**', 0, 0, 0, 1010, 1),
