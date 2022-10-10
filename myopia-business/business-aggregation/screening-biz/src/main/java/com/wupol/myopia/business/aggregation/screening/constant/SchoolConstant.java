@@ -30,6 +30,17 @@ public class SchoolConstant {
     public static final String POSITIVE_SYMBOL = "+";
 
 
+    /**
+     * 筛查通知-未创建状态
+     */
+    public final Integer Screening_NOTICE_STATUS_UNCREATED = 2;
+
+    /**
+     * 筛查通知-已创建状态
+     */
+    public final Integer Screening_NOTICE_STATUS_CREATED = 3;
+
+
 
 
 }

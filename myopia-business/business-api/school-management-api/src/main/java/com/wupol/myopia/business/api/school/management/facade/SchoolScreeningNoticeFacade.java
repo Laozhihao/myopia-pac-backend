@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
 import com.wupol.myopia.business.api.school.management.domain.vo.ScreeningNoticeListVO;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -92,7 +93,7 @@ public class SchoolScreeningNoticeFacade {
      */
     private ScreeningNoticeListVO getScreeningNoticeListVO(TwoTuple<Map<Integer, String>, Map<Integer, Integer>>  noticeInfoMap, ScreeningNoticeDTO screeningNoticeDTO,Map<Integer, ScreeningPlan> screeningPlanMap) {
         ScreeningPlan screeningPlan = screeningPlanMap.get(screeningNoticeDTO.getScreeningTaskId());
-        int status = Objects.nonNull(screeningPlan) ? 3 : 2;
+        int status = Objects.nonNull(screeningPlan) ? SchoolConstant.Screening_NOTICE_STATUS_CREATED : SchoolConstant.Screening_NOTICE_STATUS_UNCREATED;
         return new ScreeningNoticeListVO()
                 .setId(screeningNoticeDTO.getId())
                 .setTitle(screeningNoticeDTO.getTitle())
@@ -104,8 +105,21 @@ public class SchoolScreeningNoticeFacade {
                 .setAcceptTime(screeningNoticeDTO.getAcceptTime())
                 .setNoticeDeptName(noticeInfoMap.getFirst().getOrDefault(screeningNoticeDTO.getScreeningTaskId(), StrUtil.EMPTY))
                 .setSrcScreeningNoticeId(noticeInfoMap.getSecond().getOrDefault(screeningNoticeDTO.getScreeningTaskId(),0))
-                .setCanCreatePlan(Objects.equals(screeningNoticeDTO.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .setCanCreatePlan(canCreatePlan(status,screeningNoticeDTO.getScreeningType()))
                 .setScreeningType(screeningNoticeDTO.getScreeningType());
+    }
+
+    /**
+     * 判断筛查计划是否能创建
+     * @param status
+     * @param screeningType
+     */
+    private Boolean canCreatePlan(int status,Integer screeningType){
+        if (Objects.equals(status,SchoolConstant.Screening_NOTICE_STATUS_CREATED)  ){
+            return Boolean.FALSE;
+        }else {
+            return Objects.equals(screeningType, ScreeningTypeEnum.VISION.getType());
+        }
     }
 
     /**
