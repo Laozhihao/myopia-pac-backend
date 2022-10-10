@@ -40,16 +40,15 @@ public class SchoolPreventionController {
     /**
      * 获取眼健康列表
      *
-     * @param schoolId    学校Id
      * @param pageRequest 分页请求
      * @param requestDTO  请求参数
      *
      * @return IPage<EyeHealthResponseDTO>
      */
     @GetMapping("/eyeHealth/list")
-    public IPage<EyeHealthResponseDTO> eyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+    public IPage<EyeHealthResponseDTO> eyeHealthList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         requestDTO.setIsEyeHealth(Boolean.TRUE);
-        return schoolStudentBizService.getEyeHealthList(schoolId, pageRequest, requestDTO);
+        return schoolStudentBizService.getEyeHealthList(CurrentUserUtil.getCurrentUser().getOrgId(), pageRequest, requestDTO);
     }
 
     /**
