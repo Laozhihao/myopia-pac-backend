@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
@@ -57,6 +56,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SchoolStudentBizService {
+
+    private static final String VISION_NORMAL = "视力正常";
 
     @Resource
     private SchoolStudentService schoolStudentService;
@@ -224,11 +225,7 @@ public class SchoolStudentBizService {
      * @param screeningPlanSchoolStudentList 筛查计划学生集合
      */
     private void planGradeInfoList(GradeInfoVO gradeInfoVO, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList,List<Integer> screeningGradeIds) {
-        Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = Maps.newHashMap();
-        if (CollUtil.isNotEmpty(screeningPlanSchoolStudentList)){
-            Map<Integer, List<ScreeningPlanSchoolStudent>> map = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
-            gradePlanSchoolStudentMap.putAll(map);
-        }
+        Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = screeningPlanSchoolStudentService.groupingByFunction(screeningPlanSchoolStudentList, ScreeningPlanSchoolStudent::getGradeId);
         List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(screeningGradeIds);
         Map<Integer, SchoolGrade> gradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
         List<GradeInfoVO.GradeInfo> planGradeInfoList = screeningGradeIds.stream().map(gradeId -> buildGradeInfo(gradeId, gradeMap,gradePlanSchoolStudentMap)).collect(Collectors.toList());
@@ -332,10 +329,10 @@ public class SchoolStudentBizService {
 
         boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
         if (isKindergarten) {
-            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低常" : "视力正常");
+            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低常" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, true));
         } else {
-            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低下" : "视力正常");
+            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低下" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
         }
         responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
