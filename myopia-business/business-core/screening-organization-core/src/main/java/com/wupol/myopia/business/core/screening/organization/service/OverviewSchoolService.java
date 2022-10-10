@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OverviewSchoolService extends BaseService<OverviewSchoolMapper, OverviewSchool> {
+
+    @Resource
+    private OverviewService overviewService;
 
     /**
      * 批量插入总览机构医院绑定信息
@@ -79,6 +83,17 @@ public class OverviewSchoolService extends BaseService<OverviewSchoolMapper, Ove
         }
         return baseMapper.getListByOverviewIds(overviewIds).stream()
                 .collect(Collectors.groupingBy(OverviewSchool::getOverviewId, Collectors.counting()));
+    }
+
+    /**
+     * 保存总览学校
+     *
+     * @param overviewId 总览Id
+     * @param schoolId   id
+     */
+    public void saveOverviewSchool(Integer overviewId, Integer schoolId) {
+        save(new OverviewSchool().setOverviewId(overviewId).setSchoolId(schoolId));
+        overviewService.removeOverviewCache(overviewId);
     }
 
 }

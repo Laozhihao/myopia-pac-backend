@@ -112,7 +112,7 @@ public class CacheOverviewInfoDTO {
 
     @JsonIgnore
     public boolean isCanAddSchool() {
-        return screeningOrganizationLimitNum > schoolIds.size();
+        return schoolLimitNum > schoolIds.size();
     }
 
 }

@@ -26,7 +26,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
-import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewSchoolService;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
@@ -71,6 +71,9 @@ public class SchoolController {
     @Resource
     private DistrictService districtService;
 
+    @Resource
+    private OverviewSchoolService overviewSchoolService;
+
     /**
      * 新增学校
      *
@@ -94,8 +97,8 @@ public class SchoolController {
         if (user.isOverviewUser()) {
             // 总览机构
             CacheOverviewInfoDTO overview = overviewService.getSimpleOverviewInfo(user.getOrgId());
-            // 绑定医院已达上线或不在同一个省级行政区域下
-            if ((!overview.isCanAddScreeningOrganization()) || (!districtService.isSameProvince(requestDTO.getDistrictId(), overview.getDistrictId()))) {
+            // 绑定学校已达上线或不在同一个省级行政区域下
+            if ((!overview.isCanAddSchool()) || (!districtService.isSameProvince(requestDTO.getDistrictId(), overview.getDistrictId()))) {
                 throw new BusinessException("非法请求！");
             }
             requestDTO.initCooperationInfo(overview.getCooperationType(), overview.getCooperationTimeType(),
@@ -106,6 +109,9 @@ public class SchoolController {
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
             nameAndPassword.setNoDisplay();
+        }
+        if (user.isOverviewUser()) {
+            overviewSchoolService.saveOverviewSchool(user.getOrgId(), nameAndPassword.getId());
         }
         return nameAndPassword;
     }

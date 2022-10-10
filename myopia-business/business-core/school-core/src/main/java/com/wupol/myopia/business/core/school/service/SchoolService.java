@@ -90,7 +90,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
         generateGradeAndClass(school.getId(), school.getCreateUserId(), school.getBatchSaveGradeList());
-        return generateAccountAndPassword(school, StringUtils.EMPTY);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = generateAccountAndPassword(school, StringUtils.EMPTY);
+        usernameAndPasswordDTO.setId(school.getId());
+        return usernameAndPasswordDTO;
     }
 
     /**

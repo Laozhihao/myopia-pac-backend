@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class UsernameAndPasswordDTO {
 
+    private Integer id;
+
     private boolean display;
 
     private String username;
