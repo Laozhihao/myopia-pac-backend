@@ -340,13 +340,15 @@ public class SchoolStudentBizService {
         if (Objects.nonNull(statConclusion)) {
             responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
             responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
-            if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+
+            responseDTO.setHeight(EyeDataUtil.heightToStr(result));
+            if (StringUtils.isNotBlank(responseDTO.getHeight())) {
                 responseDTO.setSeatSuggest(true);
-                responseDTO.setHeight(EyeDataUtil.heightToStr(result));
                 TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
                 responseDTO.setDesk(deskChairSuggest.getFirst());
                 responseDTO.setChair(deskChairSuggest.getSecond());
             }
+            responseDTO.setHaveBlackboardDistance(Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE));
         }
         responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
         responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
