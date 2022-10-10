@@ -83,6 +83,16 @@ public class CacheOverviewInfoDTO {
     private List<Integer> screeningOrganizationIds;
 
     /**
+     * 学校Ids
+     */
+    private List<Integer> schoolIds;
+
+    /**
+     * 筛查机构限制数量
+     */
+    private Integer schoolLimitNum;
+
+    /**
      * 是否可以再增加绑定医院
      * @return
      */
@@ -98,6 +108,11 @@ public class CacheOverviewInfoDTO {
     @JsonIgnore
     public boolean isCanAddScreeningOrganization() {
         return screeningOrganizationLimitNum > screeningOrganizationIds.size();
+    }
+
+    @JsonIgnore
+    public boolean isCanAddSchool() {
+        return screeningOrganizationLimitNum > schoolIds.size();
     }
 
 }

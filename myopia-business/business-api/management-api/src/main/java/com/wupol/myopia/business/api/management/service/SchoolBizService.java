@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.ScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
@@ -79,6 +80,8 @@ public class SchoolBizService {
     private StatRescreenService statRescreenService;
     @Autowired
     private ScreeningResultStatisticService screeningResultStatisticService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -381,6 +384,11 @@ public class SchoolBizService {
      * @param schoolQueryDTO 条件
      */
     private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
+
+        if (currentUser.isOverviewUser()) {
+            schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+            return;
+        }
 
         if (currentUser.isPlatformAdminUser()) {
             return;

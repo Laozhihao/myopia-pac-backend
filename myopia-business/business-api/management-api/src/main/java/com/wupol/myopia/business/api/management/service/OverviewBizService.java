@@ -104,10 +104,12 @@ public class OverviewBizService {
         List<Integer> overviewIds = records.stream().map(OverviewDTO::getId).collect(Collectors.toList());
         Map<Integer, Long> hospitalNumMap = overviewHospitalService.getOverviewHospitalNum(overviewIds);
         Map<Integer, Long> screeningOrganizationNumMap = overviewScreeningOrganizationService.getOverviewScreeningOrganizationNum(overviewIds);
+        Map<Integer, Long> schoolNumMap = overviewSchoolService.getOverviewSchoolNum(overviewIds);
         // 设置绑定的医院数量、筛查机构数量、行政区域名称
         records.forEach(overviewDTO -> {
             overviewDTO.setHospitalNum(hospitalNumMap.getOrDefault(overviewDTO.getId(), 0L));
             overviewDTO.setScreeningOrganizationNum(screeningOrganizationNumMap.getOrDefault(overviewDTO.getId(), 0L));
+            overviewDTO.setSchoolNum(schoolNumMap.getOrDefault(overviewDTO.getId(), 0L));
             overviewDTO.setDistrictName(districtService.getDistrictName(overviewDTO.getDistrictDetail()));
             overviewDTO.setConfigTypeList(OverviewConfigUtil.configTypeList(overviewDTO.getConfigType()));
         });

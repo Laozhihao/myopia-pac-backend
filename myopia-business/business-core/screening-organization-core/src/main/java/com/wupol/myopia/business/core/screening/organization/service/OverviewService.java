@@ -321,6 +321,7 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
             BeanUtils.copyProperties(overview, cacheOverviewInfoDTO);
             cacheOverviewInfoDTO.setHospitalIds(overviewHospitalService.getHospitalIdByOverviewId(overviewId));
             cacheOverviewInfoDTO.setScreeningOrganizationIds(overviewScreeningOrganizationService.getScreeningOrganizationIdByOverviewId(overviewId));
+            cacheOverviewInfoDTO.setSchoolIds(overviewSchoolService.getSchoolIdByOverviewId(overviewId));
             redisUtil.set(key, cacheOverviewInfoDTO, OVERVIEW_CACHE_SECOND_TIME);
         }
         return cacheOverviewInfoDTO;
@@ -342,6 +343,15 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
      */
     public List<Integer> getBindScreeningOrganization(Integer overviewId) {
         return getSimpleOverviewInfo(overviewId).getScreeningOrganizationIds();
+    }
+
+    /**
+     * 获取指定总览机构绑定的学校Ids
+     * @param overviewId
+     * @return
+     */
+    public List<Integer> getBindSchool(Integer overviewId) {
+        return getSimpleOverviewInfo(overviewId).getSchoolIds();
     }
 
     /**

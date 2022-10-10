@@ -29,4 +29,14 @@
             (#{overviewId}, #{schoolId})
         </foreach>
     </insert>
+
+    <select id="getListByOverviewIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_overview_school
+        where `overview_id` in
+        <foreach collection="overviewIds" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

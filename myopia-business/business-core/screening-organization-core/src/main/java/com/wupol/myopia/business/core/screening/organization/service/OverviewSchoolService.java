@@ -3,11 +3,14 @@ package com.wupol.myopia.business.core.screening.organization.service;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewSchoolMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewSchool;
+import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewScreeningOrganization;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -63,6 +66,19 @@ public class OverviewSchoolService extends BaseService<OverviewSchoolMapper, Ove
                 .stream()
                 .map(OverviewSchool::getSchoolId)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取指定总览机构集所绑定的医院数量
+     * @param overviewIds 总览机构Ids
+     * @return Map<Integer, Long>
+     */
+    public Map<Integer, Long> getOverviewSchoolNum(List<Integer> overviewIds) {
+        if (CollectionUtils.isEmpty(overviewIds)) {
+            return Collections.emptyMap();
+        }
+        return baseMapper.getListByOverviewIds(overviewIds).stream()
+                .collect(Collectors.groupingBy(OverviewSchool::getOverviewId, Collectors.counting()));
     }
 
 }

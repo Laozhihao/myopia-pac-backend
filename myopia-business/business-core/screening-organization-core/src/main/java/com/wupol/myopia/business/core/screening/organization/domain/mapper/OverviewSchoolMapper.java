@@ -22,4 +22,6 @@ public interface OverviewSchoolMapper extends BaseMapper<OverviewSchool> {
      */
     int batchSave(@Param("overviewId") Integer overviewId, @Param("schoolIds") List<Integer> schoolIds);
 
+    List<OverviewSchool> getListByOverviewIds(@Param("overviewIds") List<Integer> overviewIds);
+
 }
