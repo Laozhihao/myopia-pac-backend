@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
@@ -111,6 +112,7 @@ public class Overview extends Cooperation implements Serializable {
     /**
      * 学校限制数量
      */
+    @Max(value = 999, message = "超过学校限制数量")
     private Integer schoolLimitNum;
 
     /**
