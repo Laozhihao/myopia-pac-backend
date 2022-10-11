@@ -91,11 +91,7 @@ public class SchoolBizService {
     @Autowired
     private OverviewService overviewService;
     @Autowired
-    private DistrictBizService districtBizService;
-    @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
-    @Autowired
-    private OverviewService overviewService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）

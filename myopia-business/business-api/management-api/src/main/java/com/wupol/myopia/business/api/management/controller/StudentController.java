@@ -18,9 +18,12 @@ import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
@@ -123,17 +126,6 @@ public class StudentController {
         return studentBizService.getStudentLists(pageRequest, studentQuery);
     }
 
-    /**
-     * 获取学校学生列表
-     *
-     * @param pageRequest  分页查询
-     * @param studentQuery 请求条件
-     * @return 学生列表
-     */
-    @GetMapping("/schoolList")
-    public IPage<StudentDTO> getSchoolStudentsList(PageRequest pageRequest, StudentQueryDTO studentQuery) {
-        return studentBizService.getSchoolStudentList(pageRequest, studentQuery);
-    }
 
 
     /**
@@ -247,5 +239,37 @@ public class StudentController {
     @GetMapping("/warning/archive/{studentId}")
     public IPage<StudentWarningArchiveVO> getStudentWarningArchive(PageRequest pageRequest,@PathVariable("studentId") Integer studentId) {
         return studentFacade.getStudentWarningArchive(pageRequest,studentId);
+    }
+
+    /**
+     * 获取学生查询条件下拉框值（多端管理-学校管理-学生管理）
+     */
+    @GetMapping("/selectValue")
+    public SchoolStudentQuerySelectVO getSelectValue(){
+        return null;
+    }
+
+    /**
+     * 获取学校学生列表（多端管理-学校管理-学生管理）
+     *
+     * @param pageRequest  分页查询
+     * @param studentQuery 请求条件
+     * @return 学生列表
+     */
+    @GetMapping("/schoolList")
+    public IPage<SchoolStudentListVO> getSchoolStudentsList(PageRequest pageRequest, SchoolStudentQueryDTO studentQuery) {
+//        studentBizService.getSchoolStudentList(pageRequest, studentQuery);
+        return null;
+    }
+
+    /**
+     * 获取筛查记录
+     *
+     * @param studentId 学生Id
+     * @return StudentScreeningResultResponseDTO
+     */
+    @GetMapping("/screening/list/{studentId}")
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
+        return studentFacade.getScreeningList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
     }
 }
