@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
