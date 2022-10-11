@@ -72,7 +72,7 @@ public class SchoolPreventionController {
      * @return List<SchoolGradeItemsDTO>
      */
     @GetMapping("/getAllGradeList")
-    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
-        return schoolStudentBizService.getAllGradeList(schoolId);
+    public List<SchoolGradeItemsDTO> getAllGradeList() {
+        return schoolStudentBizService.getAllGradeList(CurrentUserUtil.getCurrentUser().getOrgId());
     }
 }
