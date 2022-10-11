@@ -38,6 +38,17 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
     }
 
     /**
+     * 批量通过筛查任务ID获取所有关联的筛查机构信息
+     *
+     * @param screeningTaskIds 筛查任务ID集合
+     * @return List<ScreeningTaskOrg>
+     */
+    public List<ScreeningTaskOrg> getOrgListsByTaskIds(List<Integer> screeningTaskIds) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningTaskOrg.class)
+                .in(ScreeningTaskOrg::getScreeningTaskId,screeningTaskIds));
+    }
+
+    /**
      * 通过机构id获得任务id
      *
      * @param orgId 机构id

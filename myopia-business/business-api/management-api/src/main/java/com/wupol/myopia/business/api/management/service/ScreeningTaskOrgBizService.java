@@ -19,6 +19,8 @@ import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRec
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
@@ -89,6 +91,8 @@ public class ScreeningTaskOrgBizService {
     private SchoolService schoolService;
     @Autowired
     private VisionScreeningResultFacade visionScreeningResultFacade;
+    @Autowired
+    private SchoolAdminService schoolAdminService;
 
 
 
@@ -155,22 +159,93 @@ public class ScreeningTaskOrgBizService {
      */
     private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
         List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
-        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-
-        // 查找筛查机构用户
-        List<Integer> orgIds = orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgIds);
-        // 通知绑定了该筛查机构的医院信息
-        List<HospitalAdmin> hospitalAdmins = hospitalAdminService.getHospitalAdminByOrgIds(orgIds);
-        List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
-        toUserIds.addAll(hospitalAdmins.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
-        if (!CollectionUtils.isEmpty(toUserIds)) {
-            // 为消息中心创建通知
-            noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream()
+                .filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId()))
+                .map(org -> buildScreeningNoticeDeptOrg(screeningNotice,screeningTask,org,user.getId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Boolean result = null;
+        if (CollUtil.isNotEmpty(screeningNoticeDeptOrgs)){
+            result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
         }
+        orgNotice(user, screeningTask, screeningNotice, orgLists);
+        schoolNotice(user, screeningTask, screeningNotice, orgLists);
         return result;
     }
+
+    /**
+     * 政府发布筛查任务的学校通知
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @param orgLists
+     */
+    private void schoolNotice(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
+        // 查找学校用户
+        List<Integer> schoolIds = orgLists.stream()
+                .filter(org-> Objects.equals(org.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                .map(ScreeningTaskOrg::getScreeningOrgId)
+                .collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(schoolIds) && Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_SCHOOL)){
+            List<SchoolAdmin> adminLists = schoolAdminService.getBySchoolIds(schoolIds);
+            List<Integer> toUserIds = adminLists.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(toUserIds)) {
+                // 为消息中心创建通知
+                noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            }
+        }
+    }
+
+    /**
+     * 政府发布筛查任务的筛查机构通知
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @param orgLists
+     */
+    private void orgNotice(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
+        // 查找筛查机构用户
+        List<Integer> orgIds = orgLists.stream()
+                .filter(org-> Objects.equals(org.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                .map(ScreeningTaskOrg::getScreeningOrgId)
+                .collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(orgIds) && Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_ORG)){
+            List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgIds);
+            // 通知绑定了该筛查机构的医院信息
+            List<HospitalAdmin> hospitalAdmins = hospitalAdminService.getHospitalAdminByOrgIds(orgIds);
+            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+            toUserIds.addAll(hospitalAdmins.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
+            if (CollUtil.isNotEmpty(toUserIds)) {
+                // 为消息中心创建通知
+                noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            }
+        }
+    }
+
+    /**
+     * 构建筛查通知机构
+     * @param screeningNotice
+     * @param screeningTask
+     * @param screeningTaskOrg
+     * @param userId
+     */
+    private ScreeningNoticeDeptOrg buildScreeningNoticeDeptOrg(ScreeningNotice screeningNotice,ScreeningTask screeningTask,ScreeningTaskOrg screeningTaskOrg,Integer userId){
+        ScreeningNoticeDeptOrg screeningNoticeDeptOrg = new ScreeningNoticeDeptOrg()
+                .setScreeningNoticeId(screeningNotice.getId())
+                .setDistrictId(screeningTask.getDistrictId())
+                .setAcceptOrgId(screeningTaskOrg.getScreeningOrgId())
+                .setOperatorId(userId);
+        if (Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_ORG)
+                && Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.ORG.getType())){
+            return screeningNoticeDeptOrg;
+        }
+        if (Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_SCHOOL)
+                && Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
+            return screeningNoticeDeptOrg;
+        }
+        return null;
+    }
+
 
     /**
      * 根据任务Id获取机构列表-带机构名称
