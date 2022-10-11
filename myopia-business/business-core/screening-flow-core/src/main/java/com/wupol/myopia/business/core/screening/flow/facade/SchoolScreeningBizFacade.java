@@ -57,7 +57,7 @@ public class SchoolScreeningBizFacade {
             return;
         }
         //获取有效的筛查计划
-        List<ScreeningPlan> screeningPlanList = getEffectiveScreeningPlans(schoolStudent);
+        List<ScreeningPlan> screeningPlanList = getEffectiveScreeningPlans(schoolStudent.getSchoolId());
         if (CollUtil.isEmpty(screeningPlanList)) {
             return;
         }
@@ -73,11 +73,11 @@ public class SchoolScreeningBizFacade {
 
     /**
      * 获取有效的筛查计划
-     * @param schoolStudent 学校学生
+     * @param schoolId 学校ID
      */
-    private List<ScreeningPlan> getEffectiveScreeningPlans(SchoolStudent schoolStudent) {
+    private List<ScreeningPlan> getEffectiveScreeningPlans(Integer schoolId) {
         //机构ID和机构类型查询筛查计划
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolStudent.getSchoolId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
         if (CollUtil.isEmpty(screeningPlanList)){
             return Lists.newArrayList();
         }
