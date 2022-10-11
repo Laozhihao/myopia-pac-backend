@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -675,8 +676,8 @@ public class EyeDataUtil {
             return StringUtils.EMPTY;
         }
 
+        List<String> result = new ArrayList<>();
         if (isKindergarten) {
-            List<String> result = new ArrayList<>();
             if (Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO_SP.code)) {
                 result.add(WarningLevel.ZERO_SP.desc);
             }
@@ -686,14 +687,13 @@ public class EyeDataUtil {
             if (Objects.equals(statConclusion.getIsRefractiveError(), Boolean.TRUE)) {
                 result.add("屈光不正");
             }
-            return String.join(",", result);
+        } else {
+            result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
+            result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
+            result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
         }
-
-        List<String> result = new ArrayList<>();
-        result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
-        result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
-        result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
-        return result.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.joining(","));
+        List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
+        return CollectionUtils.isEmpty(resultList) ? "正常" : String.join(",", resultList);
     }
 
     /**
