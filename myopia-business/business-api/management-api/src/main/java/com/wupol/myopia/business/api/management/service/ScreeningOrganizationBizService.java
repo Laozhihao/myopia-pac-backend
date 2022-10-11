@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,6 +22,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
@@ -385,16 +388,16 @@ public class ScreeningOrganizationBizService {
      *
      * @param pageRequest 分页
      * @param query       筛查机构列表请求体
-     * @param currentUser 当前登录用户
      * @return IPage<ScreeningOrgResponse> {@link IPage}
      */
     public IPage<ScreeningSchoolOrgVO> getOrgList(PageRequest pageRequest,
-                                                                       ScreeningOrganizationQueryDTO query,
-                                                                       CurrentUser currentUser){
+                                               ScreeningOrganizationQueryDTO query){
 
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
+        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query);
+
         // 查询
-        IPage<ScreeningOrganization> orgPage = screeningOrganizationService.listByCondition(pageRequest, query, districtIds);
+        IPage<ScreeningOrganization> orgPage = screeningOrganizationService.listByCondition(pageRequest, query, districtIds,startAndEndTime.getFirst(),startAndEndTime.getSecond());
 
         IPage<ScreeningSchoolOrgVO> screeningOrgResponsePage = new Page<>(orgPage.getCurrent(),orgPage.getSize(),orgPage.getTotal());
         // 为空直接返回
@@ -411,6 +414,18 @@ public class ScreeningOrganizationBizService {
         screeningOrgResponsePage.setRecords(orgResponseDTOList);
         return screeningOrgResponsePage;
     }
+
+    private TwoTuple<Date,Date> getStartAndEndTime(ScreeningOrganizationQueryDTO query){
+        TwoTuple<Date,Date> tuple = TwoTuple.of(null, null);
+        if (Objects.nonNull(query.getStartTime()) && Objects.nonNull(query.getEndTime())){
+            Date startTime = DateUtil.parse(query.getStartTime().toString()+" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
+            Date endTime = DateUtil.parse(query.getStartTime().toString()+" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
+            tuple.setFirst(startTime);
+            tuple.setSecond(endTime);
+        }
+        return tuple;
+    }
+
     /**
      * 根据部门ID获取筛查机构列表（带是否已有任务）
      *

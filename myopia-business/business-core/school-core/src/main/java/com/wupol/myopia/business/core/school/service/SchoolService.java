@@ -586,12 +586,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param query
      * @param districtIds
      */
-    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, List<Integer> districtIds) {
+    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, List<Integer> districtIds,Date startTime,Date endTime){
         Page page = pageRequest.toPage();
         LambdaQueryWrapper<School> queryWrapper = Wrappers.lambdaQuery(School.class)
                 .in(School::getDistrictId, districtIds)
                 .like(StrUtil.isNotBlank(query.getName()),School::getName,query.getName())
-                .in(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds());
+                .in(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds())
+                .ge(Objects.nonNull(startTime),School::getCooperationEndTime,startTime)
+                .lt(Objects.nonNull(endTime),School::getCooperationStartTime,endTime);
         return baseMapper.selectPage(page,queryWrapper);
     }
 }

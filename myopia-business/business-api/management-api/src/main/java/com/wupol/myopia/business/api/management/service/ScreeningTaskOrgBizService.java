@@ -123,18 +123,31 @@ public class ScreeningTaskOrgBizService {
      * @param screeningOrgs
      */
     public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, boolean needNotice) {
-        // 1. 查出剩余的 TODO:机构和学校
-        Map<Integer, Integer> orgIdMap = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
+        // 1. 查出剩余的
+        List<ScreeningTaskOrg> screeningTaskOrgList = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
+        Map<String, Integer> orgIdMap=Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningTaskOrgList)){
+            Map<String, Integer> collect = screeningTaskOrgList.stream().collect(Collectors.toMap(screeningTaskOrg -> getTaskOrg(screeningTaskOrg.getScreeningOrgId(),screeningTaskOrg.getScreeningOrgType()), ScreeningTaskOrg::getId));
+            orgIdMap.putAll(collect);
+        }
         // 2. 更新id，并批量新增或修改
         screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId)
-                .setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null))
+                .setId(orgIdMap.getOrDefault(getTaskOrg(taskOrg.getScreeningOrgId(),taskOrg.getScreeningOrgType()), null))
                 .setQualityControllerContact(Optional.ofNullable(taskOrg.getQualityControllerContact()).orElse(StrUtil.EMPTY)));
         screeningTaskOrgService.saveOrUpdateBatch(screeningOrgs);
-        if (needNotice) {
+        if (Objects.equals(needNotice,Boolean.TRUE)) {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
-            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningTaskId);
-            this.noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(screeningTaskId, Lists.newArrayList(ScreeningNotice.TYPE_ORG, ScreeningNotice.TYPE_SCHOOL));
+            if (CollUtil.isNotEmpty(screeningNoticeList)){
+                for (ScreeningNotice screeningNotice : screeningNoticeList) {
+                    this.noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
+                }
+            }
         }
+    }
+
+    private static String getTaskOrg(Integer screeningOrgId,Integer screeningOrgType){
+        return screeningOrgId+StrUtil.UNDERLINE+screeningOrgType;
     }
 
     /**

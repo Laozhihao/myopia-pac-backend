@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -466,8 +468,8 @@ public class SchoolBizService {
     public IPage<ScreeningSchoolOrgVO> getSchoolList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
         //当前区域及下级以下区域
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
-
-        IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtIds);
+        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query);
+        IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtIds,startAndEndTime.getFirst(),startAndEndTime.getSecond());
 
         IPage<ScreeningSchoolOrgVO> screeningSchoolOrgVoPage = new Page<>(schoolPage.getCurrent(),schoolPage.getSize(),schoolPage.getTotal());
         // 为空直接返回
@@ -482,6 +484,17 @@ public class SchoolBizService {
                 .collect(Collectors.toList());
         screeningSchoolOrgVoPage.setRecords(screeningSchoolOrgVOList);
         return screeningSchoolOrgVoPage;
+    }
+
+    private TwoTuple<Date, Date> getStartAndEndTime(ScreeningSchoolOrgDTO query) {
+        TwoTuple<Date,Date> tuple = TwoTuple.of(null, null);
+        if (Objects.nonNull(query.getStartTime()) && Objects.nonNull(query.getEndTime())){
+            Date startTime = DateUtil.parse(query.getStartTime().toString()+" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
+            Date endTime = DateUtil.parse(query.getStartTime().toString()+" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
+            tuple.setFirst(startTime);
+            tuple.setSecond(endTime);
+        }
+        return tuple;
     }
 
 

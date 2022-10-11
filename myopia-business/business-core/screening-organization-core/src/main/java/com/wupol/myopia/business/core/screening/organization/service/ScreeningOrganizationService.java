@@ -297,12 +297,15 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      * @param districtIds  行政区域
      * @return 筛查机构列表
      */
-    public IPage<ScreeningOrganization> listByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, List<Integer> districtIds){
+    public IPage<ScreeningOrganization> listByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query,
+                                                        List<Integer> districtIds,Date startTime,Date endTime){
         Page page = pageRequest.toPage();
         LambdaQueryWrapper<ScreeningOrganization> queryWrapper = Wrappers.lambdaQuery(ScreeningOrganization.class)
                 .in(ScreeningOrganization::getDistrictId, districtIds)
                 .like(StrUtil.isNotBlank(query.getNameLike()), ScreeningOrganization::getName, query.getNameLike())
-                .in(CollUtil.isNotEmpty(query.getIds()), ScreeningOrganization::getId, query.getIds());
+                .in(CollUtil.isNotEmpty(query.getIds()), ScreeningOrganization::getId, query.getIds())
+                .ge(Objects.nonNull(startTime),ScreeningOrganization::getCooperationEndTime,startTime)
+                .lt(Objects.nonNull(endTime),ScreeningOrganization::getCooperationStartTime,endTime);
         return baseMapper.selectPage(page, queryWrapper);
     }
 

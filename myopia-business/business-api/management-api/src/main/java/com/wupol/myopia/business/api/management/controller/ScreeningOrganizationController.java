@@ -215,7 +215,7 @@ public class ScreeningOrganizationController {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
         }
-        return screeningOrganizationBizService.getOrgList(pageRequest, query, user);
+        return screeningOrganizationBizService.getOrgList(pageRequest, query);
     }
     /**
      * 更新状态
