@@ -277,7 +277,7 @@ public class SchoolStudentBizService {
      */
     public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
 
-        if (Objects.equals(requestDTO.getIsHavaReport(), Boolean.TRUE)) {
+        if (Objects.equals(requestDTO.getIsHaveReport(), Boolean.TRUE)) {
             // 是否就诊
             List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
             if (CollectionUtils.isEmpty(visitLists)) {
@@ -357,7 +357,7 @@ public class SchoolStudentBizService {
         }
         responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
         responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
-        responseDTO.setIsHavaReport(!CollectionUtils.isEmpty(visitMap.get(schoolStudent.getStudentId())));
+        responseDTO.setIsHaveReport(!CollectionUtils.isEmpty(visitMap.get(schoolStudent.getStudentId())));
         return responseDTO;
     }
 

@@ -113,7 +113,7 @@ public class EyeHealthResponseDTO implements Serializable {
     /**
      * 是否就诊
      */
-    private Boolean isHavaReport;
+    private Boolean isHaveReport;
 
     /**
      * 是否有黑板距离

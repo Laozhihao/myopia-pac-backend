@@ -62,7 +62,7 @@ public class SchoolStudentRequestDTO {
     /**
      * 是否就诊
      */
-    private Boolean isHavaReport;
+    private Boolean isHaveReport;
 
     /**
      * 有就诊数据的学生
