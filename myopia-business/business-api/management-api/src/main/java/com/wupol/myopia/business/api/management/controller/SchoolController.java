@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
@@ -18,6 +19,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -25,6 +27,9 @@ import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewSchoolService;
+import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +67,15 @@ public class SchoolController {
     @Resource
     private SchoolFacade schoolFacade;
 
+    @Resource
+    private OverviewService overviewService;
+
+    @Resource
+    private DistrictService districtService;
+
+    @Resource
+    private OverviewSchoolService overviewSchoolService;
+
     /**
      * 新增学校
      *
@@ -82,11 +96,24 @@ public class SchoolController {
         if (user.isHospitalUser()) {
             requestDTO.setGovDeptId(user.getScreeningOrgId());
         }
+        if (user.isOverviewUser()) {
+            // 总览机构
+            CacheOverviewInfoDTO overview = overviewService.getSimpleOverviewInfo(user.getOrgId());
+            // 绑定学校已达上线或不在同一个省级行政区域下
+            if ((!overview.isCanAddSchool()) || (!districtService.isSameProvince(requestDTO.getDistrictId(), overview.getDistrictId()))) {
+                throw new BusinessException("非法请求！");
+            }
+            requestDTO.initCooperationInfo(overview.getCooperationType(), overview.getCooperationTimeType(),
+                    overview.getCooperationStartTime(), overview.getCooperationEndTime());
+        }
         requestDTO.setStatus(requestDTO.getCooperationStopStatus());
         UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(requestDTO);
         // 非平台管理员屏蔽账号密码信息
         if (!user.isPlatformAdminUser()) {
             nameAndPassword.setNoDisplay();
+        }
+        if (user.isOverviewUser()) {
+            overviewSchoolService.saveOverviewSchool(user.getOrgId(), nameAndPassword.getId());
         }
         return nameAndPassword;
     }
@@ -303,6 +330,18 @@ public class SchoolController {
                                        @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                        @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
         return ApiResult.success(schoolService.getLatestSchoolNo(districtAreaCode, areaType, monitorType));
+    }
+
+    /**
+     * 模糊查询指定省份下学校
+     *
+     * @param name                 学校名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     */
+    @GetMapping("/province/list")
+    public List<SchoolResponseDTO> getListByProvinceCodeAndNameLike(@NotBlank(message = "学校名称不能为空") String name,
+                                                         @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode) {
+        return schoolService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
     }
 
     /**

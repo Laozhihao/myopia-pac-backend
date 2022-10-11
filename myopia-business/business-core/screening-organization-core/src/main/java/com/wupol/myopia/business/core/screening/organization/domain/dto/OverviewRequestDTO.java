@@ -21,4 +21,14 @@ public class OverviewRequestDTO extends Overview {
      */
     private List<Integer> screeningOrganizationIds;
 
+    /**
+     * 绑定学校ids
+     */
+    private List<Integer> schoolIds;
+
+    /**
+     * 配置类型List
+     */
+    private List<String> configTypeList;
+
 }

@@ -92,6 +92,8 @@ public class SchoolBizService {
     private DistrictBizService districtBizService;
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
+    @Autowired
+    private OverviewService overviewService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -394,6 +396,11 @@ public class SchoolBizService {
      * @param schoolQueryDTO 条件
      */
     private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
+
+        if (currentUser.isOverviewUser()) {
+            schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+            return;
+        }
 
         if (currentUser.isPlatformAdminUser()) {
             return;
