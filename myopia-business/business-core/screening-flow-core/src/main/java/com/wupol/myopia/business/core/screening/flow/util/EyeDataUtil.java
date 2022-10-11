@@ -692,7 +692,7 @@ public class EyeDataUtil {
             result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
             result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
         }
-        List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
+        List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> !StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
         return CollectionUtils.isEmpty(resultList) ? "正常" : String.join(",", resultList);
     }
 
