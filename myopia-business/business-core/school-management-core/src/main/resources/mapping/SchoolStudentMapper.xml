@@ -292,5 +292,6 @@
         from m_school_student
         where school_id = #{schoolId}
           and vision_label in (0, 1, 2, 3)
+          and last_screening_time is not null
     </select>
 </mapper>

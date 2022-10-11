@@ -17,11 +17,14 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
@@ -85,6 +88,8 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+    @Resource
+    private SchoolClassService schoolClassService;
 
     /**
      * 获取学生列表
@@ -354,6 +359,34 @@ public class SchoolStudentBizService {
         responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
         responseDTO.setIsHavaReport(!CollectionUtils.isEmpty(visitMap.get(schoolStudent.getStudentId())));
         return responseDTO;
+    }
+
+    /**
+     * 获取有筛查数据的年级列表(没有分页)
+     *
+     * @param schoolId 学校id
+     * @return List<SchoolGradeItemsDTO> 返回体
+     */
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
+
+        List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolIdAndVisionLabel(schoolId);
+
+        List<SchoolGradeItemsDTO> schoolGrades = schoolGradeService.getAllByIds(schoolStudents.stream().map(SchoolStudent::getGradeId).collect(Collectors.toList()));
+        if(CollectionUtils.isEmpty(schoolGrades)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
+
+        // 获取班级，并且封装成Map
+        Map<Integer, List<SchoolClassDTO>> classMaps = schoolClassService.getClassDTOByIds(schoolStudents.stream().map(SchoolStudent::getClassId).collect(Collectors.toList()))
+                .stream()
+                .map(schoolClass -> schoolGradeService.getSchoolClassDTO(gradeMap, schoolClass))
+                .collect(Collectors.groupingBy(SchoolClassDTO::getGradeId));
+        schoolGrades.forEach(g -> {
+            g.setChild(classMaps.get(g.getId()));
+            g.setUniqueId(UUID.randomUUID().toString());
+        });
+        return schoolGrades;
     }
 
 }

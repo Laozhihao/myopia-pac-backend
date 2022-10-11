@@ -239,4 +239,15 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
         return getClassMapByIds(classIds);
     }
 
+    /**
+     * 批量通过年级ID和学校ID获取班级
+     *
+     * @param ids 年级ids
+     *
+     * @return 班级列表
+     */
+    public List<SchoolClassDTO> getClassDTOByIds(List<Integer> ids) {
+        return baseMapper.getByIds(ids);
+    }
+
 }
