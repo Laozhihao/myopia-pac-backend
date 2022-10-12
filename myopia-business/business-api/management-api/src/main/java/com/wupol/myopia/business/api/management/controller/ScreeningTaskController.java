@@ -230,8 +230,8 @@ public class ScreeningTaskController {
      * @return
      */
     @GetMapping("orgs/{screeningTaskId}/{orgId}")
-    public ScreeningTaskOrg getTaskOrg(@PathVariable Integer screeningTaskId, @PathVariable Integer orgId) {
-        return screeningTaskOrgService.getOne(screeningTaskId, orgId);
+    public ScreeningTaskOrg getTaskOrg(@PathVariable Integer screeningTaskId, @PathVariable Integer orgId , Integer orgType) {
+        return screeningTaskOrgService.getOne(screeningTaskId, orgId,orgType);
     }
 
     /**

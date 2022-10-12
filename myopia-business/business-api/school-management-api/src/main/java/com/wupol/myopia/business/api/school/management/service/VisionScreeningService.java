@@ -50,16 +50,14 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -118,6 +116,10 @@ public class VisionScreeningService {
     private SchoolStudentBizService schoolStudentBizService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
 
 
     /**
@@ -307,6 +309,14 @@ public class VisionScreeningService {
         if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
+
+        boolean checkIsCreated = screeningPlanService.checkIsCreated(schoolScreeningPlanDTO.getScreeningTaskId(), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        if (Objects.equals(checkIsCreated,Boolean.TRUE)){
+            throw new BusinessException("筛查计划已创建");
+        }
+
+        //创建和编辑标志
+        Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
         ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId());
@@ -317,7 +327,15 @@ public class VisionScreeningService {
         //筛查学生
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
-        screeningPlanService.savePlanInfo(screeningPlan,screeningPlanSchool,twoTuple);
+        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
+        if (Objects.equals(isAdd,Boolean.TRUE)){
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
+            if (Objects.isNull(screeningNoticeList)) {
+                throw new BusinessException("找不到对应任务通知");
+            }
+            ScreeningNotice screeningNotice = screeningNoticeList.get(0);
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), currentUser.getOrgId(), screeningPlan.getId(), currentUser.getId());
+        }
     }
 
     /**
