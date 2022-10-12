@@ -541,6 +541,25 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 是否海南版本
+     *
+     * @param id 学校Id
+     *
+     * @return 是否海南版本
+     */
+    public boolean isHaiNanVersion(Integer id) {
+        School school = baseMapper.getBySchoolId(id);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("学校信息异常");
+        }
+        ScreeningConfig screeningConfig = school.getScreeningConfig();
+        if (Objects.isNull(screeningConfig)) {
+            return false;
+        }
+        return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
+    }
+
+    /**
      * 模糊查询指定省份下学校
      *
      * @param name                 学校名称
@@ -561,24 +580,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 是否海南版本
-     *
-     * @param id 学校Id
-     *
-     * @return 是否海南版本
-     */
-    public boolean isHaiNanVersion(Integer id) {
-        School school = baseMapper.getBySchoolId(id);
-        if (Objects.isNull(school)) {
-            throw new BusinessException("学校信息异常");
-        }
-        ScreeningConfig screeningConfig = school.getScreeningConfig();
-        if (Objects.isNull(screeningConfig)) {
-            return false;
-        }
-        return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
-    }
+
 
     /**
      * 根据条件查询学校

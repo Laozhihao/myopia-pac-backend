@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.domain.builder;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
@@ -10,6 +11,8 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -54,20 +57,40 @@ public class StudentBizBuilder {
     }
 
     /**
+     * 获取筛查计划机构唯一key
+     * @param planId
+     * @param screeningOrgId
+     */
+    public static String getPlanOrgKey(Integer planId,Integer screeningOrgId){
+        return planId + StrUtil.UNDERLINE+screeningOrgId;
+    }
+
+
+    /**
      * 构建学生筛查档案
      *
-     * @param screeningOrganizationMap
+     * @param screeningOrg
      * @param statMap
      * @param screeningPlanSchoolStudentMap
      * @param studentDTO
      * @param result
      */
-    public StudentScreeningResultItemsDTO builderStudentScreeningResultItemsDTO(Map<Integer, ScreeningOrganization> screeningOrganizationMap, Map<Integer, StatConclusion> statMap,
-                                                                                 Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap,
-                                                                                 StudentDTO studentDTO, VisionScreeningResultDTO result) {
+    public StudentScreeningResultItemsDTO builderStudentScreeningResultItemsDTO(TwoTuple<Map<Integer, ScreeningOrganization>, Map<Integer, School>> screeningOrg, Map<Integer, StatConclusion> statMap,
+                                                                                Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap,
+                                                                                StudentDTO studentDTO, VisionScreeningResultDTO result,Map<String, Integer> screeningOrgTypeMap) {
         StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentMap.getOrDefault(result.getScreeningPlanSchoolStudentId(), new ScreeningPlanSchoolStudent());
         StatConclusion statConclusion = statMap.getOrDefault(result.getId(), new StatConclusion());
+
+        String screeningOrgName = StrUtil.EMPTY;
+        Integer type = screeningOrgTypeMap.get(getPlanOrgKey(result.getPlanId(), result.getScreeningOrgId()));
+        if (Objects.equals(type, ScreeningOrgTypeEnum.ORG.getType())){
+            screeningOrgName = Optional.ofNullable(screeningOrg.getFirst().get(result.getScreeningOrgId())).map(ScreeningOrganization::getName).orElse(StrUtil.EMPTY);
+        }else if (Objects.equals(type, ScreeningOrgTypeEnum.SCHOOL.getType())){
+            screeningOrgName = Optional.ofNullable(screeningOrg.getSecond().get(result.getScreeningOrgId())).map(School::getName).orElse(StrUtil.EMPTY);
+        }
+
+
         // 设置其他
         item.setScreeningTitle(result.getPlanTitle())
             .setScreeningDate(result.getUpdateTime())
@@ -89,7 +112,7 @@ public class StudentBizBuilder {
             //筛查类型
             .setScreeningType(result.getScreeningType())
             //筛查机构名称
-            .setScreeningOrgName(Optional.ofNullable(screeningOrganizationMap.get(result.getScreeningOrgId())).map(ScreeningOrganization::getName).orElse(null))
+            .setScreeningOrgName(screeningOrgName)
             //设置学生性别
             .setGender(studentDTO.getGender())
             //设置常见病ID

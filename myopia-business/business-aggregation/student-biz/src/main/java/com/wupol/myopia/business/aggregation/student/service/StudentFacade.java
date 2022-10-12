@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -16,6 +18,7 @@ import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArc
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalStudent;
@@ -33,6 +36,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
@@ -135,8 +139,10 @@ public class StudentFacade {
         if (CollectionUtils.isEmpty(resultList)) {
             return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         }
+        //获取筛查机构类型
+        Map<String, Integer> screeningOrgTypeMap = getScreeningOrgTypeMap(resultList);
         // 获取机构
-        Map<Integer, ScreeningOrganization> screeningOrganizationMap = getScreeningOrgMap(resultList);
+        TwoTuple<Map<Integer, ScreeningOrganization>, Map<Integer, School>> screeningOrg = getScreeningOrgMap(resultList, screeningOrgTypeMap);
         // 获取结论
         Map<Integer, StatConclusion> statMap = getStatConclusionMap(resultList);
         // 获取复测
@@ -151,11 +157,24 @@ public class StudentFacade {
             ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
             Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
 
-            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrganizationMap, statMap, screeningPlanSchoolStudentMap, studentDTO, result);
+            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, studentDTO, result,screeningOrgTypeMap);
             StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
             records.add(item);
         }
         return new Page<StudentScreeningResultItemsDTO>(resultIPage.getCurrent(), resultIPage.getSize(), resultIPage.getTotal()).setRecords(records);
+    }
+
+    /**
+     * 获取筛查机构类型
+     * @param resultList
+     */
+    private Map<String,Integer> getScreeningOrgTypeMap(List<VisionScreeningResultDTO> resultList) {
+        Set<Integer> planIds = resultList.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toSet());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByIds(planIds);
+        if (CollUtil.isEmpty(screeningPlanList)){
+            return Maps.newHashMap();
+        }
+        return screeningPlanList.stream().collect(Collectors.toMap(screeningPlan ->StudentBizBuilder.getPlanOrgKey(screeningPlan.getId(),screeningPlan.getScreeningOrgId()),ScreeningPlan::getScreeningOrgType));
     }
 
     /**
@@ -164,10 +183,38 @@ public class StudentFacade {
      * @param resultList    筛查结果数据集
      * @return java.util.Map<java.lang.Integer,com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
-    private Map<Integer, ScreeningOrganization> getScreeningOrgMap(List<VisionScreeningResultDTO> resultList) {
-        List<Integer> screeningOrgIds =  resultList.stream().map(VisionScreeningResult::getScreeningOrgId).distinct().collect(Collectors.toList());
-        List<ScreeningOrganization> screeningOrganizations = screeningOrganizationService.getByIds(screeningOrgIds);
-        return screeningOrganizations.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+    private TwoTuple<Map<Integer, ScreeningOrganization>,Map<Integer,School>> getScreeningOrgMap(List<VisionScreeningResultDTO> resultList, Map<String, Integer> screeningOrgTypeMap) {
+        TwoTuple<Map<Integer, ScreeningOrganization>,Map<Integer,School>> tuple = TwoTuple.of(Maps.newHashMap(),Maps.newHashMap());
+
+        //区分机构和学校
+        Set<Integer> orgIds = Sets.newHashSet();
+        Set<Integer> schoolIds = Sets.newHashSet();
+        for (VisionScreeningResultDTO visionScreeningResultDTO : resultList) {
+            Integer type = screeningOrgTypeMap.get(StudentBizBuilder.getPlanOrgKey(visionScreeningResultDTO.getPlanId(), visionScreeningResultDTO.getScreeningOrgId()));
+            if (Objects.equals(type, ScreeningOrgTypeEnum.ORG.getType())){
+                orgIds.add(visionScreeningResultDTO.getScreeningOrgId());
+            }
+            if (Objects.equals(type, ScreeningOrgTypeEnum.SCHOOL.getType())){
+                schoolIds.add(visionScreeningResultDTO.getScreeningOrgId());
+            }
+        }
+        //机构
+        if (CollUtil.isNotEmpty(orgIds)){
+            List<ScreeningOrganization> screeningOrganizationList = screeningOrganizationService.getByIds(orgIds);
+            if (CollUtil.isNotEmpty(screeningOrganizationList)){
+                Map<Integer, ScreeningOrganization> organizationMap = screeningOrganizationList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+                tuple.setFirst(organizationMap);
+            }
+        }
+        //学校
+        if (CollUtil.isNotEmpty(schoolIds)){
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            if (CollUtil.isNotEmpty(schoolList)){
+                Map<Integer, School> schoolMap = schoolList.stream().collect(Collectors.toMap(School::getId, Function.identity()));
+                tuple.setSecond(schoolMap);
+            }
+        }
+        return tuple;
     }
 
     /**
