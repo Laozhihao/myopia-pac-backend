@@ -10,6 +10,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.builder.ScreeningBizBuilder;
+import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -93,6 +94,8 @@ public class ScreeningTaskOrgBizService {
     private VisionScreeningResultFacade visionScreeningResultFacade;
     @Autowired
     private SchoolAdminService schoolAdminService;
+    @Autowired
+    private ScreeningTaskBizFacade screeningTaskBizFacade;
 
 
 
@@ -135,14 +138,74 @@ public class ScreeningTaskOrgBizService {
                 .setId(orgIdMap.getOrDefault(getTaskOrg(taskOrg.getScreeningOrgId(),taskOrg.getScreeningOrgType()), null))
                 .setQualityControllerContact(Optional.ofNullable(taskOrg.getQualityControllerContact()).orElse(StrUtil.EMPTY)));
         screeningTaskOrgService.saveOrUpdateBatch(screeningOrgs);
+
         if (Objects.equals(needNotice,Boolean.TRUE)) {
             ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
-            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(screeningTaskId, Lists.newArrayList(ScreeningNotice.TYPE_ORG, ScreeningNotice.TYPE_SCHOOL));
+
+            List<Integer> typeList = getTypeList(screeningOrgs);
+
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(screeningTaskId, typeList);
             if (CollUtil.isNotEmpty(screeningNoticeList)){
+
+                addPartScreeningNotice(user, screeningOrgs, screeningTask, typeList, screeningNoticeList);
+
                 for (ScreeningNotice screeningNotice : screeningNoticeList) {
                     this.noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
                 }
+            }else {
+                addScreeningNotice(user, screeningOrgs, screeningTask);
             }
+        }
+    }
+
+    /**
+     * 获取类型
+     * @param screeningOrgs
+     */
+    private List<Integer> getTypeList(List<ScreeningTaskOrg> screeningOrgs) {
+        return screeningOrgs.stream().map(screeningTaskOrg -> {
+                    if (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                        return ScreeningNotice.TYPE_ORG;
+                    } else if (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                        return ScreeningNotice.TYPE_SCHOOL;
+                    }
+                    return null;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 新增部分
+     * @param user
+     * @param screeningOrgs
+     * @param screeningTask
+     * @param typeList
+     * @param screeningNoticeList
+     */
+    private void addPartScreeningNotice(CurrentUser user, List<ScreeningTaskOrg> screeningOrgs, ScreeningTask screeningTask, List<Integer> typeList, List<ScreeningNotice> screeningNoticeList) {
+        List<Integer> dbTypeList = screeningNoticeList.stream().map(ScreeningNotice::getType).distinct().collect(Collectors.toList());
+        typeList.removeAll(dbTypeList);
+        if (CollUtil.isNotEmpty(typeList)){
+            List<ScreeningTaskOrg> taskOrgs = screeningOrgs.stream()
+                    .filter(screeningTaskOrg ->
+                        (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()) && typeList.contains(ScreeningNotice.TYPE_ORG))
+                        || (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()) && typeList.contains(ScreeningNotice.TYPE_SCHOOL)))
+                    .collect(Collectors.toList());
+            addScreeningNotice(user,taskOrgs,screeningTask);
+        }
+    }
+
+    /**
+     * 新增筛查通知
+     * @param user
+     * @param screeningOrgs
+     * @param screeningTask
+     */
+    private void addScreeningNotice(CurrentUser user, List<ScreeningTaskOrg> screeningOrgs, ScreeningTask screeningTask) {
+        List<ScreeningNotice> addScreeningNoticeList = screeningTaskBizFacade.getScreeningNoticeList(screeningTask.getId(), user, screeningTask,screeningOrgs);
+        screeningNoticeService.saveBatch(addScreeningNoticeList);
+        // 为筛查机构/学校创建通知
+        for (ScreeningNotice screeningNotice : addScreeningNoticeList) {
+            this.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
         }
     }
 

@@ -4,30 +4,26 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -49,8 +45,6 @@ public class ScreeningTaskBizService {
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
     @Autowired
-    private ScreeningTaskOrgService screeningTaskOrgService;
-    @Autowired
     private DistrictService districtService;
     @Autowired
     private ScreeningRelatedFacade screeningRelatedFacade;
@@ -62,6 +56,8 @@ public class ScreeningTaskBizService {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningTaskBizFacade screeningTaskBizFacade;
 
     /**
      * 新增或更新
@@ -132,7 +128,7 @@ public class ScreeningTaskBizService {
         }
 
         //2. 发布通知
-        List<ScreeningNotice> screeningNoticeList = getScreeningNoticeList(id, user, screeningTask);
+        List<ScreeningNotice> screeningNoticeList = screeningTaskBizFacade.getScreeningNoticeList(id, user, screeningTask);
         if (CollUtil.isEmpty(screeningNoticeList)){
             throw new BusinessException("发布失败,筛查通知为空");
         }
@@ -144,45 +140,6 @@ public class ScreeningTaskBizService {
         }
     }
 
-    /**
-     * 获取发布通知
-     * @param id
-     * @param user
-     * @param screeningTask
-     */
-    private List<ScreeningNotice> getScreeningNoticeList(Integer id, CurrentUser user, ScreeningTask screeningTask) {
-        List<ScreeningNotice> screeningNoticeList = Lists.newArrayList();
-        List<ScreeningTaskOrg> screeningTaskOrgList = screeningTaskOrgService.getOrgListsByTaskId(screeningTask.getId());
-        Map<Integer, List<ScreeningTaskOrg>> orgTypeMap = screeningTaskOrgList.stream().collect(Collectors.groupingBy(ScreeningTaskOrg::getScreeningOrgType));
-        if (orgTypeMap.containsKey(ScreeningOrgTypeEnum.ORG.getType())){
-            screeningNoticeList.add(buildScreeningNotice(id, user, screeningTask,ScreeningNotice.TYPE_ORG));
-        }
-        if (orgTypeMap.containsKey(ScreeningOrgTypeEnum.SCHOOL.getType())){
-            screeningNoticeList.add(buildScreeningNotice(id, user, screeningTask,ScreeningNotice.TYPE_SCHOOL));
-        }
-        return screeningNoticeList;
-    }
-
-    /**
-     * 构建筛查通知
-     * @param id
-     * @param user
-     * @param screeningTask
-     * @param type
-     */
-    private ScreeningNotice buildScreeningNotice(Integer id, CurrentUser user, ScreeningTask screeningTask,Integer type) {
-        ScreeningNotice screeningNotice = new ScreeningNotice();
-        BeanUtils.copyProperties(screeningTask, screeningNotice);
-        screeningNotice.setCreateUserId(user.getId())
-                .setOperatorId(user.getId())
-                .setOperateTime(new Date())
-                .setScreeningTaskId(id)
-                .setGovDeptId(CommonConst.DEFAULT_ID)
-                .setType(type)
-                .setReleaseStatus(CommonConst.STATUS_RELEASE)
-                .setReleaseTime(new Date());
-        return screeningNotice;
-    }
 
     public List<ScreeningTask> getScreeningTaskByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);

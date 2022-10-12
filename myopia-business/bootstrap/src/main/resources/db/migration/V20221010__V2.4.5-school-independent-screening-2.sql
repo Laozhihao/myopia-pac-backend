@@ -12,3 +12,6 @@ alter table m_overview
 
 alter table m_overview
     add school_limit_num int default 5 not null comment '学校限制数量' after school_config_type;
+
+
+UPDATE `o_permission` SET `api_url` = 'get:/management/screeningOrganization/getOrgList'  WHERE `menu_btn_name` = 'getScreeningOrganizationList';
