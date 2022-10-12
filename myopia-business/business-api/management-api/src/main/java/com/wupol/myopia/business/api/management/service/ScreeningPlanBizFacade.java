@@ -32,7 +32,7 @@ import java.util.Objects;
  */
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class ScreeningPlanBizService {
+public class ScreeningPlanBizFacade {
 
     private final ScreeningOrganizationService screeningOrganizationService;
     private final ScreeningPlanService screeningPlanService;

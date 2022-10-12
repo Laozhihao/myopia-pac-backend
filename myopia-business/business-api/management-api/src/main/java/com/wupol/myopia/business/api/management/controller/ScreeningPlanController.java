@@ -109,7 +109,7 @@ public class ScreeningPlanController {
     @Autowired
     private ScreeningPlanApiService screeningPlanApiService;
     @Autowired
-    private ScreeningPlanBizService screeningPlanBizService;
+    private ScreeningPlanBizFacade screeningPlanBizFacade;
 
 
     /**
@@ -120,7 +120,7 @@ public class ScreeningPlanController {
     @PostMapping()
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        screeningPlanBizService.createInfo(screeningPlanDTO,user);
+        screeningPlanBizFacade.createInfo(screeningPlanDTO,user);
     }
 
     /**
