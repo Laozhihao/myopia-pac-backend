@@ -334,10 +334,10 @@ public class SchoolStudentBizService {
 
         boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
         if (isKindergarten) {
-            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低常" : VISION_NORMAL);
+            responseDTO.setLowVision(LowVisionLevelEnum.isLowVision(schoolStudent.getLowVision()) ? "视力低常" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, true));
         } else {
-            responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低下" : VISION_NORMAL);
+            responseDTO.setLowVision(LowVisionLevelEnum.isLowVision(schoolStudent.getLowVision()) ? "视力低下" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
         }
         responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
