@@ -67,12 +67,4 @@
         where screening_task_id = #{taskId}
     </select>
 
-    <select id="getOneByTaskIdAndOrgId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_task_org
-        where screening_task_id = #{taskId}
-          and screening_org_id = #{orgId}
-        limit 1
-    </select>
 </mapper>

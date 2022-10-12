@@ -76,8 +76,12 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
      * @param screeningOrgId  机构ID
      * @return ScreeningTaskOrg
      */
-    public ScreeningTaskOrg getOne(Integer screeningTaskId, Integer screeningOrgId) {
-        return baseMapper.getOneByTaskIdAndOrgId(screeningTaskId, screeningOrgId);
+    public ScreeningTaskOrg getOne(Integer screeningTaskId, Integer screeningOrgId,Integer screeningOrgType) {
+        LambdaQueryWrapper<ScreeningTaskOrg> queryWrapper = Wrappers.lambdaQuery(ScreeningTaskOrg.class)
+                .eq(ScreeningTaskOrg::getScreeningTaskId, screeningTaskId)
+                .eq(ScreeningTaskOrg::getScreeningOrgId, screeningOrgId)
+                .eq(ScreeningTaskOrg::getScreeningOrgType, screeningOrgType);
+        return baseMapper.selectOne(queryWrapper);
     }
 
     /**

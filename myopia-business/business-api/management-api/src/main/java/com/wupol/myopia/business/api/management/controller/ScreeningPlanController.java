@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -29,9 +30,13 @@ import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
@@ -111,6 +116,8 @@ public class ScreeningPlanController {
     private QuestionnaireLoginService questionnaireLoginService;
     @Autowired
     private ScreeningPlanApiService screeningPlanApiService;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 新增
@@ -121,6 +128,7 @@ public class ScreeningPlanController {
     public void createInfo(@RequestBody @Valid ScreeningPlanDTO screeningPlanDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         Assert.notNull(screeningPlanDTO.getScreeningType(), "筛查类型不能为空");
+
         // 校验用户机构，政府部门，无法新增计划
         if (user.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -128,33 +136,64 @@ public class ScreeningPlanController {
         // 平台管理员，筛查机构ID必传
         if (user.isPlatformAdminUser()) {
             Assert.notNull(screeningPlanDTO.getScreeningOrgId(), "筛查机构ID不能为空");
+            Assert.notNull(screeningPlanDTO.getScreeningOrgType(), "筛查机构类型不能为空");
+            if (Objects.equals(screeningPlanDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())
+                    && Objects.equals(screeningPlanDTO.getScreeningType(),ScreeningTypeEnum.COMMON_DISEASE.getType())){
+                throw new BusinessException("筛查机构是学校时，筛查类型不能为常见病筛查");
+            }
         }
         // 若为筛查人员或医生，只能发布自己机构的计划
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             screeningPlanDTO.setScreeningOrgId(user.getScreeningOrgId());
+            screeningPlanDTO.setScreeningOrgType(ScreeningOrgTypeEnum.ORG.getType());
         }
         // 开始时间只能在今天或以后
         if (DateUtil.isDateBeforeToday(screeningPlanDTO.getStartTime())) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
         // 校验筛查类型权限
-        ScreeningOrganization organization = screeningOrganizationService.getById(screeningPlanDTO.getScreeningOrgId());
-        Assert.isTrue(organization.getScreeningTypeConfig().contains(String.valueOf(screeningPlanDTO.getScreeningType())), "暂未开通该筛查类型配置，如需开通，请联系管理员");
-        // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
-        if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
-            if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId())) {
-                throw new ValidationException("筛查计划已创建");
+        // 机构
+        if (Objects.equals(screeningPlanDTO.getScreeningOrgType(),ScreeningOrgTypeEnum.ORG.getType())){
+            ScreeningOrganization organization = screeningOrganizationService.getById(screeningPlanDTO.getScreeningOrgId());
+            Assert.isTrue(organization.getScreeningTypeConfig().contains(String.valueOf(screeningPlanDTO.getScreeningType())), "暂未开通该筛查类型配置，如需开通，请联系管理员");
+            // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
+            if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
+                if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId(),screeningPlanDTO.getScreeningOrgType())) {
+                    throw new ValidationException("筛查计划已创建");
+                }
+                ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId(),screeningPlanDTO.getScreeningOrgType());
+                if (Objects.isNull(screeningTaskOrg)) {
+                    throw new ValidationException("筛查任务查无该机构");
+                }
+                ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
+                screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+            } else {
+                // 用户自己新建的筛查计划需设置districtId
+                screeningPlanDTO.setDistrictId(organization.getDistrictId());
             }
-            ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId());
-            if (Objects.isNull(screeningTaskOrg)) {
-                throw new ValidationException("筛查任务查无该机构");
-            }
-            ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
-            screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
-        } else {
-            // 用户自己新建的筛查计划需设置districtId
-            screeningPlanDTO.setDistrictId(organization.getDistrictId());
         }
+
+        //学校
+        if (Objects.equals(screeningPlanDTO.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
+            School school = schoolService.getById(screeningPlanDTO.getScreeningOrgId());
+            Assert.isTrue(school.getScreeningTypeConfig().contains(String.valueOf(screeningPlanDTO.getScreeningType())), "暂未开通该筛查类型配置，如需开通，请联系管理员");
+            // 有传screeningTaskId时，需判断是否已创建且筛查任务是否有该筛查机构
+            if (Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
+                if (screeningPlanService.checkIsCreated(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId(),screeningPlanDTO.getScreeningOrgType())) {
+                    throw new ValidationException("筛查计划已创建");
+                }
+                ScreeningTaskOrg screeningTaskOrg = screeningTaskOrgService.getOne(screeningPlanDTO.getScreeningTaskId(), screeningPlanDTO.getScreeningOrgId(),screeningPlanDTO.getScreeningOrgType());
+                if (Objects.isNull(screeningTaskOrg)) {
+                    throw new ValidationException("筛查任务查无该机构");
+                }
+                ScreeningTask screeningTask = screeningTaskService.getById(screeningPlanDTO.getScreeningTaskId());
+                screeningPlanDTO.setSrcScreeningNoticeId(screeningTask.getScreeningNoticeId()).setDistrictId(screeningTask.getDistrictId()).setGovDeptId(screeningTask.getGovDeptId());
+            } else {
+                // 用户自己新建的筛查计划需设置districtId
+                screeningPlanDTO.setDistrictId(school.getDistrictId());
+            }
+        }
+
         screeningPlanDTO.setCreateUserId(user.getId());
         screeningPlanService.saveOrUpdateWithSchools(user.getId(), screeningPlanDTO, true);
     }
