@@ -87,7 +87,14 @@
         <if test="requestDTO.isEyeHealth != null and requestDTO.isEyeHealth == 1">
             and vision_label in (0, 1, 2, 3)
         </if>
-        order by create_time desc
+        <choose>
+            <when test="requestDTO.isEyeHealth != null and requestDTO.isEyeHealth == 1">
+                order by last_screening_time desc
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="getByIdCardAndSno" resultMap="BaseResultMap">

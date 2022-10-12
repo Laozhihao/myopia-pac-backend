@@ -50,20 +50,4 @@ public enum LowVisionLevelEnum {
     public static List<LowVisionLevelEnum> lowVisionLevelList() {
         return Lists.newArrayList(LOW_VISION_LEVEL_LIGHT, LOW_VISION_LEVEL_MIDDLE, LOW_VISION_LEVEL_HIGH);
     }
-
-    /**
-     * 是否视力低下
-     *
-     * @param code 等级
-     *
-     * @return 是否视力低下
-     */
-    public static Boolean isLowVision(Integer code) {
-        if (Objects.isNull(code)) {
-            return false;
-        }
-        ArrayList<Integer> levelList = Lists.newArrayList(LOW_VISION.code, LOW_VISION_LEVEL_LIGHT.code,
-                LOW_VISION_LEVEL_MIDDLE.code, LOW_VISION_LEVEL_HIGH.code);
-        return levelList.stream().anyMatch(s -> Objects.equals(s, code));
-    }
 }

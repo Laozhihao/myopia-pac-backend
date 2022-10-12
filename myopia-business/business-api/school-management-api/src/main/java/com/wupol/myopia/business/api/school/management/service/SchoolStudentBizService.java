@@ -334,15 +334,18 @@ public class SchoolStudentBizService {
 
         boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
         if (isKindergarten) {
-            responseDTO.setLowVision(LowVisionLevelEnum.isLowVision(schoolStudent.getLowVision()) ? "视力低常" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, true));
         } else {
-            responseDTO.setLowVision(LowVisionLevelEnum.isLowVision(schoolStudent.getLowVision()) ? "视力低下" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
         }
         responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
 
         if (Objects.nonNull(statConclusion)) {
+            if (isKindergarten) {
+                responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低常" : VISION_NORMAL);
+            } else {
+                responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低下" : VISION_NORMAL);
+            }
             responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
             responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
 
