@@ -38,6 +38,10 @@ public class WearingGlassesSituation {
                 WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE, WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY);
     }
 
+    public ImmutableMap<Integer, String> getTypeDescriptionMap(){
+        return typeDescriptionMap;
+    }
+
     /**
      * 查找类型
      *
@@ -65,5 +69,6 @@ public class WearingGlassesSituation {
         }
         return glassesTypeKey;
     }
+
 
 }

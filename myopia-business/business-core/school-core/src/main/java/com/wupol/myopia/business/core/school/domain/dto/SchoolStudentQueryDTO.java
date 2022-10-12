@@ -33,9 +33,14 @@ public class SchoolStudentQueryDTO implements Serializable {
     private Integer classId;
 
     /**
+     * 学校ID
+     */
+    private Integer schoolId;
+
+    /**
      * 预警等级
      */
-    private Integer visionLabel;
+    private String visionLabels;
 
     /**
      * 入学年份

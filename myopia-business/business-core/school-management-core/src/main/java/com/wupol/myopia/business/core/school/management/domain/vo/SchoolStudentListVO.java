@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.school.management.domain.vo;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @author hang.yuan 2022/10/11 11:33
  */
 @Data
+@Accessors(chain = true)
 public class SchoolStudentListVO implements Serializable {
 
     /**

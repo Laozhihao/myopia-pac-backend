@@ -11,13 +11,15 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
-import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -59,6 +61,8 @@ public class SchoolStudentController {
 
     @Resource
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Resource
+    private SchoolStudentFacade schoolStudentFacade;
 
 
     /**
@@ -69,9 +73,10 @@ public class SchoolStudentController {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     @GetMapping
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+    public IPage<SchoolStudentListVO> getList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return schoolStudentBizService.getList(pageRequest, requestDTO, currentUser.getOrgId());
+        requestDTO.setSchoolId(currentUser.getOrgId());
+        return schoolStudentBizService.getSchoolStudentList(pageRequest, requestDTO);
     }
 
     /**
@@ -184,4 +189,9 @@ public class SchoolStudentController {
         return studentFacade.getNationLists();
     }
 
+    @GetMapping("/selectValue")
+    public SchoolStudentQuerySelectVO getSelectValue(){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolStudentFacade.getSelectValue(currentUser.getOrgId());
+    }
 }

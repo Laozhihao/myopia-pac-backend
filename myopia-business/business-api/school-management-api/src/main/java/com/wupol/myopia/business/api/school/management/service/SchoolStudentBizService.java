@@ -17,10 +17,12 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -91,13 +93,16 @@ public class SchoolStudentBizService {
      *
      * @param pageRequest 分页请求
      * @param requestDTO  请求入参
-     * @param schoolId    学校Id
      * @return IPage<SchoolStudentListResponseDTO>
      */
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO, Integer schoolId) {
+    public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
 
-        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
-        List<SchoolStudentListResponseDTO> studentList = responseDTO.getRecords();
+//        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
+
+        IPage<SchoolStudentListVO> responseDTO = new Page<>();
+
+//        List<SchoolStudentListResponseDTO> studentList = responseDTO.getRecords();
+        List<SchoolStudentListResponseDTO> studentList = Lists.newArrayList();
 
         // 学生Ids
         List<Integer> studentIds = studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
@@ -106,7 +111,7 @@ public class SchoolStudentBizService {
         }
 
         // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(schoolId);
+        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(requestDTO.getSchoolId());
         Map<Integer, StudentScreeningCountDTO> countMaps = studentScreeningCountVOS.stream().collect(Collectors
                 .toMap(StudentScreeningCountDTO::getStudentId, Function.identity()));
 

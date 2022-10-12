@@ -27,28 +27,11 @@ public class SchoolStudentQueryBO implements Serializable {
      * 学号
      */
     private String sno;
-    /**
-     * 身份证
-     */
-    private String idCard;
-    /**
-     * 护照
-     */
-    private String passport;
 
     /**
-     * 绑定手机号
+     * 学校Id
      */
-    private String parentPhone;
-    /**
-     * 学校名称
-     */
-    private String schoolName;
-
-    /**
-     * 学校Id集合
-     */
-    private List<Integer> schoolIds;
+    private Integer schoolId;
 
     /**
      * 年级ID

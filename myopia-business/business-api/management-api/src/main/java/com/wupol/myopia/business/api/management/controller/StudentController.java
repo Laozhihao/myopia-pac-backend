@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.VisionLabels;
@@ -63,6 +64,8 @@ public class StudentController {
 
     @Autowired
     private StudentExcelImportService studentExcelImportService;
+    @Autowired
+    private SchoolStudentFacade schoolStudentFacade;
 
     /**
      * 新增学生
@@ -242,11 +245,12 @@ public class StudentController {
     }
 
     /**
-     * 获取学生查询条件下拉框值（多端管理-学校管理-学生管理）
+     * 获取学校学生查询条件下拉框值（多端管理-学校管理-学生管理）
+     * @param schoolId
      */
     @GetMapping("/selectValue")
-    public SchoolStudentQuerySelectVO getSelectValue(){
-        return null;
+    public SchoolStudentQuerySelectVO getSelectValue(@RequestParam Integer schoolId){
+        return schoolStudentFacade.getSelectValue(schoolId);
     }
 
     /**
@@ -258,8 +262,7 @@ public class StudentController {
      */
     @GetMapping("/schoolList")
     public IPage<SchoolStudentListVO> getSchoolStudentsList(PageRequest pageRequest, SchoolStudentQueryDTO studentQuery) {
-//        studentBizService.getSchoolStudentList(pageRequest, studentQuery);
-        return null;
+        return studentBizService.getSchoolStudentList(pageRequest, studentQuery);
     }
 
     /**

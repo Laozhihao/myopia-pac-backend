@@ -301,11 +301,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())
                 .like(StrUtil.isNotBlank(schoolStudentQueryBO.getName()), SchoolStudent::getName, schoolStudentQueryBO.getName())
                 .like(StrUtil.isNotBlank(schoolStudentQueryBO.getSno()), SchoolStudent::getSno, schoolStudentQueryBO.getSno())
-                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getParentPhone()), SchoolStudent::getParentPhone, schoolStudentQueryBO.getParentPhone())
-                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getSchoolIds()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolIds());
-        if (StrUtil.isNotBlank(schoolStudentQueryBO.getIdCard())){
-            queryWrapper.nested(q->q.like(StrUtil.isNotBlank(schoolStudentQueryBO.getIdCard()),SchoolStudent::getIdCard,schoolStudentQueryBO.getIdCard()).or().like(StrUtil.isNotBlank(schoolStudentQueryBO.getPassport()),SchoolStudent::getPassport,schoolStudentQueryBO.getPassport()));
-        }
+                .eq(Objects.nonNull(schoolStudentQueryBO.getSchoolId()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolId());
 
         Page page = pageRequest.toPage();
         return baseMapper.selectPage(page,queryWrapper);

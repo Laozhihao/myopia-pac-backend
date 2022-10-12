@@ -1,13 +1,15 @@
 package com.wupol.myopia.business.aggregation.student.domain.builder;
 
 import cn.hutool.core.util.StrUtil;
-import com.google.common.collect.Lists;
-import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.experimental.UtilityClass;
 
@@ -62,40 +64,16 @@ public class SchoolStudentInfoBuilder {
      *
      * @param schoolStudent
      */
-    public StudentDTO buildStudentDTO(SchoolStudent schoolStudent){
-        StudentDTO student = new StudentDTO()
+    public SchoolStudentListVO buildStudentDTO(SchoolStudent schoolStudent){
+        SchoolStudentListVO student = new SchoolStudentListVO()
                 .setGradeName(schoolStudent.getGradeName())
-                .setClassName(schoolStudent.getClassName())
-                .setNationDesc(NationEnum.getName(schoolStudent.getNation()))
-                .setGenderDesc(GenderEnum.getName(schoolStudent.getGender()));
+                .setClassName(schoolStudent.getClassName());
 
-        student.setId(schoolStudent.getStudentId())
+        student.setId(schoolStudent.getId())
+                .setStudentId(schoolStudent.getStudentId())
                 .setSno(schoolStudent.getSno())
-                .setGradeId(schoolStudent.getGradeId())
-                .setGradeType(schoolStudent.getGradeType())
-                .setClassId(schoolStudent.getClassId())
                 .setName(schoolStudent.getName())
-                .setGender(schoolStudent.getGender())
-                .setBirthday(schoolStudent.getBirthday())
-                .setNation(schoolStudent.getNation())
-                .setIdCard(schoolStudent.getIdCard())
-                .setParentPhone(schoolStudent.getParentPhone())
-                .setMpParentPhone(schoolStudent.getMpParentPhone())
-                .setAddress(schoolStudent.getAddress())
-                .setVisionLabel(schoolStudent.getVisionLabel())
-                .setLastScreeningTime(schoolStudent.getLastScreeningTime())
-                .setStatus(schoolStudent.getStatus())
-                .setGlassesType(schoolStudent.getGlassesType())
-                .setCreateTime(schoolStudent.getCreateTime())
-                .setUpdateTime(schoolStudent.getUpdateTime())
-                .setSchoolId(schoolStudent.getSchoolId())
-                .setLowVision(schoolStudent.getLowVision())
-                .setMyopiaLevel(schoolStudent.getMyopiaLevel())
-                .setScreeningMyopia(schoolStudent.getScreeningMyopia())
-                .setHyperopiaLevel(schoolStudent.getHyperopiaLevel())
-                .setAstigmatismLevel(schoolStudent.getAstigmatismLevel())
-                .setPassport(schoolStudent.getPassport())
-                .setSourceClient(schoolStudent.getSourceClient());
+                .setVisionLabel(schoolStudent.getVisionLabel());
         return student;
     }
 
@@ -104,16 +82,13 @@ public class SchoolStudentInfoBuilder {
      *
      * @param studentQueryDTO
      */
-    public SchoolStudentQueryBO builderSchoolStudentQueryBO(StudentQueryDTO studentQueryDTO) {
+    public SchoolStudentQueryBO builderSchoolStudentQueryBO(SchoolStudentQueryDTO studentQueryDTO) {
         return new SchoolStudentQueryBO()
                 .setName(studentQueryDTO.getName())
                 .setSno(studentQueryDTO.getSno())
-                .setIdCard(studentQueryDTO.getIdCardOrPassportLike())
-                .setPassport(studentQueryDTO.getIdCardOrPassportLike())
-                .setParentPhone(studentQueryDTO.getParentPhone())
                 .setGradeId(studentQueryDTO.getGradeId())
                 .setClassId(studentQueryDTO.getClassId())
-                .setSchoolIds(Lists.newArrayList(studentQueryDTO.getSchoolId()))
+                .setSchoolId(studentQueryDTO.getSchoolId())
                 .setVisionLabels(studentQueryDTO.getVisionLabels());
     }
 

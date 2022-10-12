@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.school.domain.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
  * @author hang.yuan 2022/10/11 11:15
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SchoolStudentQuerySelectVO implements Serializable {
 
     /**
@@ -33,6 +37,8 @@ public class SchoolStudentQuerySelectVO implements Serializable {
 
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SelectValue implements Serializable{
         /**
          * 值
