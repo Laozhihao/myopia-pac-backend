@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
@@ -20,6 +21,7 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
@@ -96,36 +98,20 @@ public class SchoolStudentBizService {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(requestDTO);
+        IPage<SchoolStudent> schoolStudentPage = schoolStudentService.listByCondition(pageRequest, schoolStudentQueryBO);
 
-//        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
+        IPage<SchoolStudentListVO> responseDTO = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());
 
-        IPage<SchoolStudentListVO> responseDTO = new Page<>();
-
-//        List<SchoolStudentListResponseDTO> studentList = responseDTO.getRecords();
-        List<SchoolStudentListResponseDTO> studentList = Lists.newArrayList();
-
-        // 学生Ids
-        List<Integer> studentIds = studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(studentIds)) {
+        List<SchoolStudent> schoolStudentList = schoolStudentPage.getRecords();
+        if (CollectionUtils.isEmpty(schoolStudentList)) {
             return responseDTO;
         }
 
-        // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(requestDTO.getSchoolId());
-        Map<Integer, StudentScreeningCountDTO> countMaps = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId, Function.identity()));
+        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(schoolStudent -> SchoolStudentInfoBuilder.buildStudentDTO(schoolStudent)).collect(Collectors.toList());
 
-        // 获取就诊记录
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
-                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        responseDTO.setRecords(studentListVOList);
 
-        studentList.forEach(s -> {
-            s.setScreeningCount(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getCount).orElse(0));
-            s.setNumOfVisits(Objects.nonNull(visitMap.get(s.getStudentId())) ? visitMap.get(s.getStudentId()).size() : 0);
-            // 由于作废计划的存在，需要动态获取最新的非作废计划的筛查数据更新时间，覆盖固化的最新筛查日期
-            s.setLastScreeningTime(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getUpdateTime).orElse(null));
-        });
         return responseDTO;
     }
 
