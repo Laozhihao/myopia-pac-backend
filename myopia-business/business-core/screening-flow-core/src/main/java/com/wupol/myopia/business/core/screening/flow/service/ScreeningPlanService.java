@@ -441,6 +441,18 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过任务ID和状态获取筛查计划
+     * @param taskId
+     * @param releaseStatus
+     */
+    public List<ScreeningPlan> getByTaskId(Integer taskId,Integer releaseStatus) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getScreeningTaskId,taskId)
+                .eq(ScreeningPlan::getReleaseStatus,releaseStatus));
+    }
+
+
+    /**
      * 学校自主筛查创建/编辑筛查计划
      * @param screeningPlan 筛查计划
      * @param screeningPlanSchool 筛查计划学校

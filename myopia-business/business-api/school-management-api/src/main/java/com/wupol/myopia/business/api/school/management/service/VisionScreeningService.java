@@ -300,6 +300,7 @@ public class VisionScreeningService {
      * 保存筛查计划（创建/编辑）
      * @param schoolScreeningPlanDTO 创建/编辑筛查计划对象
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser) {
         // 校验用户机构，政府部门，无法新增计划
         if (currentUser.isGovDeptUser()) {
@@ -328,9 +329,9 @@ public class VisionScreeningService {
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
-        if (Objects.equals(isAdd,Boolean.TRUE)){
+        if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
             List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
-            if (Objects.isNull(screeningNoticeList)) {
+            if (CollUtil.isNotEmpty(screeningNoticeList)) {
                 throw new BusinessException("找不到对应任务通知");
             }
             ScreeningNotice screeningNotice = screeningNoticeList.get(0);

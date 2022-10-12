@@ -159,9 +159,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param planIds
      */
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds) {
-        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(VisionScreeningResult::getPlanId, planIds);
-        return baseMapper.selectList(queryWrapper);
+        return getByPlanIds(planIds,null);
+    }
+
+    public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds,Boolean isDoubleScreen) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
+                .in(VisionScreeningResult::getPlanId,planIds)
+                .eq(Objects.nonNull(isDoubleScreen),VisionScreeningResult::getIsDoubleScreen,isDoubleScreen));
     }
 
     public List<VisionScreeningResult> getByPlanIdsAndIsDoubleScreenAndDistrictIds(List<Integer> planIds,Boolean isDoubleScreen,List<Integer> districtIdList,Integer schoolId) {
@@ -464,7 +468,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 根据筛查任务ID统计每个计划下筛查中的学校数量
+     * 根据筛查任务ID统计每个计划下筛查中的学校数量 TODO
      *
      * @param taskId
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount>

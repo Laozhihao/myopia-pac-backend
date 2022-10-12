@@ -189,6 +189,9 @@ public class SchoolStudentController {
         return studentFacade.getNationLists();
     }
 
+    /**
+     * 获取学生查询条件下拉框值
+     */
     @GetMapping("/selectValue")
     public SchoolStudentQuerySelectVO getSelectValue(){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
