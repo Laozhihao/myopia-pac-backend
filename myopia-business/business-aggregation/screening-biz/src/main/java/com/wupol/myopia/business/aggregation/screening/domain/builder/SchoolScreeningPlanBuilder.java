@@ -2,9 +2,9 @@ package com.wupol.myopia.business.aggregation.screening.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -108,15 +109,6 @@ public class SchoolScreeningPlanBuilder {
         VisionDataDO visionData = studentScreeningResultDetail.getVisionData();
         List<VisionDataVO> visionDataVoList = Lists.newArrayList();
         if (Objects.isNull(visionData)){
-            visionDataVoList.add(new VisionDataVO()
-                    .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                    .setNakedVision(SchoolConstant.NO_DATA)
-                    .setCorrectedVision(SchoolConstant.NO_DATA));
-             visionDataVoList.add(new VisionDataVO()
-                    .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                    .setNakedVision(SchoolConstant.NO_DATA)
-                    .setCorrectedVision(SchoolConstant.NO_DATA));
-            studentScreeningDetailVO.setVisionData(visionDataVoList);
             return;
         }
 
@@ -145,17 +137,6 @@ public class SchoolScreeningPlanBuilder {
         ComputerOptometryDO computerOptometry = studentScreeningResultDetail.getComputerOptometry();
         List<ComputerOptometryDataVO> computerOptometryDataVoList = Lists.newArrayList();
         if (Objects.isNull(computerOptometry)){
-            computerOptometryDataVoList.add(new ComputerOptometryDataVO()
-                            .setEyeType(EyeTypeEnum.LEFT_EYE.getCode())
-                            .setAxial(SchoolConstant.NO_DATA)
-                            .setSph(SchoolConstant.NO_DATA)
-                            .setCyl(SchoolConstant.NO_DATA));
-            computerOptometryDataVoList.add(new ComputerOptometryDataVO()
-                    .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode())
-                    .setAxial(SchoolConstant.NO_DATA)
-                    .setSph(SchoolConstant.NO_DATA)
-                    .setCyl(SchoolConstant.NO_DATA));
-            studentScreeningDetailVO.setComputerOptometryData(computerOptometryDataVoList);
             return;
         }
 
@@ -181,10 +162,15 @@ public class SchoolScreeningPlanBuilder {
      */
     private void setOtherDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         List<OtherDataVO> otherDataVoList = Lists.newArrayList(new OtherDataVO(EyeTypeEnum.LEFT_EYE.getCode()),new OtherDataVO(EyeTypeEnum.RIGHT_EYE.getCode()));
-        setSlitLampData(studentScreeningResultDetail, otherDataVoList);
-        setOcularInspectionData(studentScreeningResultDetail, otherDataVoList);
-        setFundusData(studentScreeningResultDetail, otherDataVoList);
-        setOtherEyeDiseases(studentScreeningResultDetail, otherDataVoList);
+        Set<Boolean> otherList = Sets.newHashSet();
+        setSlitLampData(studentScreeningResultDetail, otherDataVoList,otherList);
+        setOcularInspectionData(studentScreeningResultDetail, otherDataVoList,otherList);
+        setFundusData(studentScreeningResultDetail, otherDataVoList,otherList);
+        setOtherEyeDiseases(studentScreeningResultDetail, otherDataVoList,otherList);
+
+        if (Objects.equals(otherList.size(),4)){
+            return;
+        }
         studentScreeningDetailVO.setOtherData(otherDataVoList);
     }
 
@@ -193,9 +179,10 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
         OtherEyeDiseasesDO otherEyeDiseases = studentScreeningResultDetail.getOtherEyeDiseases();
         if (Objects.isNull(otherEyeDiseases)){
+            otherList.add(Boolean.TRUE);
             otherDataVoList.get(0).setOtherEyeDiseases(SchoolConstant.NO_DATA);
             otherDataVoList.get(1).setOtherEyeDiseases(SchoolConstant.NO_DATA);
         }else {
@@ -209,9 +196,10 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
         FundusDataDO fundusData = studentScreeningResultDetail.getFundusData();
         if (Objects.isNull(fundusData)){
+            otherList.add(Boolean.TRUE);
             otherDataVoList.get(0).setFundus(SchoolConstant.NO_DATA);
             otherDataVoList.get(1).setFundus(SchoolConstant.NO_DATA);
         }else {
@@ -225,9 +213,10 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
         OcularInspectionDataDO ocularInspectionData = studentScreeningResultDetail.getOcularInspectionData();
         if (Objects.isNull(ocularInspectionData)){
+            otherList.add(Boolean.TRUE);
             otherDataVoList.get(0).setOcularInspection(SchoolConstant.NO_DATA);
             otherDataVoList.get(1).setOcularInspection(SchoolConstant.NO_DATA);
         }else {
@@ -242,9 +231,10 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList) {
+    private void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
         SlitLampDataDO slitLampData = studentScreeningResultDetail.getSlitLampData();
         if (Objects.isNull(slitLampData)){
+            otherList.add(Boolean.TRUE);
             otherDataVoList.get(0).setSlitLamp(SchoolConstant.NO_DATA);
             otherDataVoList.get(1).setSlitLamp(SchoolConstant.NO_DATA);
         }else {
@@ -292,9 +282,6 @@ public class SchoolScreeningPlanBuilder {
         HeightAndWeightDataDO heightAndWeightData = studentScreeningResultDetail.getHeightAndWeightData();
         HeightAndWeightDataVO heightAndWeightDataVO = new HeightAndWeightDataVO();
         if (Objects.isNull(heightAndWeightData)){
-            heightAndWeightDataVO.setHeight(SchoolConstant.NO_DATA);
-            heightAndWeightDataVO.setWeight(SchoolConstant.NO_DATA);
-            studentScreeningDetailVO.setHeightAndWeightData(heightAndWeightDataVO);
             return;
         }
 
@@ -313,15 +300,6 @@ public class SchoolScreeningPlanBuilder {
         BiometricDataDO biometricData = studentScreeningResultDetail.getBiometricData();
         List<BiometricDataVO> biometricDataVoList = Lists.newArrayList();
         if (Objects.isNull(biometricData)){
-            BiometricDataVO leftEyeData = new BiometricDataVO()
-                    .setK1(SchoolConstant.NO_DATA).setK2(SchoolConstant.NO_DATA).setAst(SchoolConstant.NO_DATA)
-                    .setPd(SchoolConstant.NO_DATA).setWtw(SchoolConstant.NO_DATA).setAl(SchoolConstant.NO_DATA)
-                    .setCct(SchoolConstant.NO_DATA).setAd(SchoolConstant.NO_DATA).setLt(SchoolConstant.NO_DATA)
-                    .setVt(SchoolConstant.NO_DATA);
-            biometricDataVoList.add(leftEyeData.setEyeType(EyeTypeEnum.LEFT_EYE.getCode()));
-            BiometricDataVO rightEyeData = ObjectUtil.cloneByStream(leftEyeData);
-            biometricDataVoList.add(rightEyeData.setEyeType(EyeTypeEnum.RIGHT_EYE.getCode()));
-            studentScreeningDetailVO.setBiometricData(biometricDataVoList);
             return;
         }
 
@@ -362,17 +340,6 @@ public class SchoolScreeningPlanBuilder {
         PupilOptometryDataDO pupilOptometryData = studentScreeningResultDetail.getPupilOptometryData();
         List<PupilOptometryDataVO> pupilOptometryDataVoList = Lists.newArrayList();
         if (Objects.isNull(pupilOptometryData)){
-            pupilOptometryDataVoList.add(new PupilOptometryDataVO()
-                    .setAxial(SchoolConstant.NO_DATA)
-                    .setSph(SchoolConstant.NO_DATA)
-                    .setCyl(SchoolConstant.NO_DATA)
-                    .setEyeType(EyeTypeEnum.LEFT_EYE.getCode()));
-            pupilOptometryDataVoList.add(new PupilOptometryDataVO()
-                    .setAxial(SchoolConstant.NO_DATA)
-                    .setSph(SchoolConstant.NO_DATA)
-                    .setCyl(SchoolConstant.NO_DATA)
-                    .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode()));
-            studentScreeningDetailVO.setPupilOptometryData(pupilOptometryDataVoList);
             return;
         }
 
@@ -399,13 +366,6 @@ public class SchoolScreeningPlanBuilder {
         EyePressureDataDO eyePressureData = studentScreeningResultDetail.getEyePressureData();
         List<EyePressureDataVO> eyePressureDataVoList = Lists.newArrayList();
         if (Objects.isNull(eyePressureData)){
-            eyePressureDataVoList.add(new EyePressureDataVO()
-                    .setPressure(SchoolConstant.NO_DATA)
-                    .setEyeType(EyeTypeEnum.LEFT_EYE.getCode()));
-            eyePressureDataVoList.add(new EyePressureDataVO()
-                    .setPressure(SchoolConstant.NO_DATA)
-                    .setEyeType(EyeTypeEnum.RIGHT_EYE.getCode()));
-            studentScreeningDetailVO.setEyePressureData(eyePressureDataVoList);
             return;
         }
 

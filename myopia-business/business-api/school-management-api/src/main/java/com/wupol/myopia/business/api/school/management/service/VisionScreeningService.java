@@ -331,7 +331,7 @@ public class VisionScreeningService {
         screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
         if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
             List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
-            if (CollUtil.isNotEmpty(screeningNoticeList)) {
+            if (CollUtil.isEmpty(screeningNoticeList)) {
                 throw new BusinessException("找不到对应任务通知");
             }
             ScreeningNotice screeningNotice = screeningNoticeList.get(0);
