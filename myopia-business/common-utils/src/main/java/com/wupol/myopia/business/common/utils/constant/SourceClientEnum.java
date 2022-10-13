@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import lombok.Getter;
+
 /**
  * 学校端-学生来源
  *
@@ -12,9 +14,11 @@ public enum SourceClientEnum {
     SCREENING_PLAN(2, "筛查计划"),
     SCREENING_APP(3, "筛查App");
 
+    @Getter
     public final Integer type;
 
     /** 学龄段描述 */
+    @Getter
     public final String desc;
 
     SourceClientEnum(Integer type, String desc) {

@@ -340,7 +340,7 @@ public class ScreeningTaskOrgBizService {
         Map<String, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(screeningPlan -> getKey(screeningPlan.getScreeningOrgId(),screeningPlan.getScreeningOrgType()), Function.identity()));
 
         // 统计每个计划下的筛查学校数量
-        List<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        List<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(planIds);
         Map<Integer, Long> planSchoolCountMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId, Collectors.counting()));
 
@@ -350,7 +350,7 @@ public class ScreeningTaskOrgBizService {
         List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultPlanMap.entrySet().stream().map(this::getScreeningSchoolCount).collect(Collectors.toList());
         Map<Integer, Integer> schoolCountMap = screeningSchoolCountList.stream().collect(Collectors.toMap(ScreeningSchoolCount::getPlanId, ScreeningSchoolCount::getSchoolCount));
 
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(planIds, QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
 
         nameMatch(orgNameOrSchoolName, orgVoLists, screeningOrgName);
         if (CollUtil.isEmpty(orgVoLists)) {

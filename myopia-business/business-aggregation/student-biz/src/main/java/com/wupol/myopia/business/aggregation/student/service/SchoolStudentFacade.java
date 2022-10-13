@@ -7,11 +7,16 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.constant.VisionSituationEnum;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,8 @@ import java.util.stream.Collectors;
 public class SchoolStudentFacade {
 
     private final SchoolGradeService schoolGradeService;
+    private final SchoolClassService schoolClassService;
+    private final SchoolStudentService schoolStudentService;
 
     /**
      * 获取学校学生查询条件下拉框值
@@ -152,4 +159,56 @@ public class SchoolStudentFacade {
         List<SchoolGrade> primaryAboveList = schoolGradeList.stream().filter(schoolGrade -> primaryAbove.contains(schoolGrade.getGradeCode())).collect(Collectors.toList());
         return TwoTuple.of(CollUtil.isNotEmpty(kindergartenList),CollUtil.isNotEmpty(primaryAboveList));
     }
+
+    /**
+     * 检查和设置学校学生信息
+     *
+     * @param schoolStudent 学生
+     * @param schoolId      学校Id
+     * @return SchoolStudent
+     */
+    public SchoolStudent validSchoolStudent(SchoolStudent schoolStudent, Integer schoolId) {
+        SchoolStudentInfoBuilder.validSchoolStudent(schoolStudent);
+        setSchoolStudentInfo(schoolStudent, schoolId);
+        return schoolStudent;
+    }
+
+    /**
+     * 设置学生信息
+     *
+     * @param schoolStudent 学生
+     * @param schoolId      学校Id
+     */
+    public void setSchoolStudentInfo(SchoolStudent schoolStudent, Integer schoolId) {
+        schoolStudent.checkStudentInfo();
+        checkSnoAndIdCardAndPassport(schoolStudent, schoolId);
+        schoolStudent.setSchoolId(schoolId);
+        SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
+        schoolStudent.setGradeName(grade.getName());
+        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
+        schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+
+        SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
+        if (Objects.nonNull(havaDeletedStudent)) {
+            schoolStudent.setId(havaDeletedStudent.getId());
+            schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
+        }
+    }
+
+    /**
+     * 检查学号、身份证、护照是否重复
+     * @param schoolStudent
+     * @param schoolId
+     */
+    private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
+        if (CollUtil.isNotEmpty(schoolStudentList)){
+            SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学号重复");
+            SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getIdCard,"身份证重复");
+            SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getPassport,"护照重复");
+        }
+    }
+
+
+
 }

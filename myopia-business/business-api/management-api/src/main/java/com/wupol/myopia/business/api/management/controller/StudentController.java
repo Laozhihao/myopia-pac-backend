@@ -24,6 +24,7 @@ import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
@@ -270,10 +271,33 @@ public class StudentController {
      * 获取筛查记录
      *
      * @param studentId 学生Id
+     * @param schoolId 学校ID
      * @return StudentScreeningResultResponseDTO
      */
     @GetMapping("/screening/list/{studentId}")
-    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
-        return studentFacade.getScreeningList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId ,@RequestParam Integer schoolId) {
+        return studentFacade.getSchoolScreeningList(pageRequest, studentId,schoolId,CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 获取学校学生详情
+     *
+     * @param studentId 学生ID
+     * @param schoolId 学校ID
+     * @return 学生实体 {@link StudentDTO}
+     */
+    @GetMapping("/school/{studentId}")
+    public SchoolStudent getStudent(@PathVariable("studentId") Integer studentId, @RequestParam Integer schoolId) {
+        Assert.notNull(schoolId,"学校ID不能为空");
+        return studentFacade.getStudentByStudentIdAndSchoolId(studentId,schoolId);
+    }
+
+    /**
+     * 更新学校学生信息
+     * @param schoolStudent
+     */
+    @PostMapping("/school/save")
+    public SchoolStudent saveSchoolStudent(@RequestBody SchoolStudent schoolStudent) {
+        return studentBizService.saveSchoolStudent(schoolStudent);
     }
 }

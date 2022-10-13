@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -11,7 +10,7 @@ import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentE
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -43,7 +42,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -77,8 +75,6 @@ public class SchoolStudentBizService {
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
     @Resource
-    private StudentFacade studentFacade;
-    @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private StudentService studentService;
@@ -90,6 +86,8 @@ public class SchoolStudentBizService {
     private ScreeningPlanSchoolService screeningPlanSchoolService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+    @Resource
+    private SchoolStudentFacade schoolStudentFacade;
 
     /**
      * 获取学生列表
@@ -129,13 +127,12 @@ public class SchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
-        validSchoolStudent(schoolStudent);
-        studentFacade.setSchoolStudentInfo(schoolStudent, schoolId);
+        schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolId);
+        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
-        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
         boolean isAdd = Objects.isNull(schoolStudent.getId());
         schoolStudentService.saveOrUpdate(schoolStudent);
@@ -143,18 +140,6 @@ public class SchoolStudentBizService {
         return schoolStudent;
     }
 
-    /**
-     * 校验学校学生信息
-     * @param schoolStudent 学校学生
-     */
-    private void validSchoolStudent(SchoolStudent schoolStudent) {
-        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getSno()),"学号不能为空");
-        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getName()),"姓名不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getGender()),"性别不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getGradeId()),"年级不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getClassId()),"班级不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getBirthday()),"出生日期不能为空");
-    }
 
 
 

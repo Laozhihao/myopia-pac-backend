@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
@@ -68,8 +69,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @param needFilterAbolishPlan 是否需要过滤作废的计划
      * @return IPage<VisionScreeningResultDTO>
      */
-    public IPage<VisionScreeningResultDTO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId, boolean needFilterAbolishPlan) {
-        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId, needFilterAbolishPlan);
+    public IPage<VisionScreeningResultDTO> getByStudentIdWithPage(PageRequest pageRequest, Integer studentId,Integer schoolId, boolean needFilterAbolishPlan) {
+        return baseMapper.getByStudentIdWithPage(pageRequest.toPage(), studentId,schoolId, needFilterAbolishPlan);
     }
 
 
@@ -163,6 +164,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds,Boolean isDoubleScreen) {
+        if (CollUtil.isEmpty(planIds)){
+            return Lists.newArrayList();
+        }
         return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
                 .in(VisionScreeningResult::getPlanId,planIds)
                 .eq(Objects.nonNull(isDoubleScreen),VisionScreeningResult::getIsDoubleScreen,isDoubleScreen));

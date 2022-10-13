@@ -90,6 +90,20 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     }
 
     /**
+     * 通过学生id和学校ID获取学校学生
+     * @param studentId
+     * @param schoolId
+     * @param status
+     */
+    public SchoolStudent getByStudentIdAndSchoolId(Integer studentId,Integer schoolId,Integer status) {
+        LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(SchoolStudent::getStudentId, studentId)
+                .eq(SchoolStudent::getSchoolId,schoolId)
+                .eq(SchoolStudent::getStatus, status);
+        return baseMapper.selectList(queryWrapper).get(0);
+    }
+
+    /**
      * 通过学校、班级Id获取学生
      *
      * @param schoolId 学校Id

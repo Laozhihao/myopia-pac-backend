@@ -11,10 +11,13 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -31,13 +34,13 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
@@ -95,7 +98,11 @@ public class StudentBizService {
     @Autowired
     private SchoolStudentService schoolStudentService;
     @Autowired
-    private SchoolService schoolService;
+    private SchoolStudentFacade schoolStudentFacade;
+    @Autowired
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Autowired
+    private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
     /**
      * 获取学生列表
@@ -497,5 +504,27 @@ public class StudentBizService {
         if (Objects.isNull(oldStudent.getCommitteeCode()) || (!oldStudent.getCommitteeCode().equals(newCommitteeCode))) {
             student.setRecordNo(studentService.getRecordNo(newCommitteeCode));
         }
+    }
+
+    /**
+     * 保存学校学生
+     * @param schoolStudent
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public SchoolStudent saveSchoolStudent(SchoolStudent schoolStudent) {
+        schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolStudent.getSchoolId());
+
+        boolean isAdd = Objects.isNull(schoolStudent.getId());
+
+        // 更新管理端的数据
+        Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
+        schoolStudent.setStudentId(managementStudentId);
+        if (Objects.equals(isAdd,Boolean.TRUE)){
+            schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.getType());
+        }
+
+        schoolStudentService.saveOrUpdate(schoolStudent);
+        schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
+        return schoolStudent;
     }
 }

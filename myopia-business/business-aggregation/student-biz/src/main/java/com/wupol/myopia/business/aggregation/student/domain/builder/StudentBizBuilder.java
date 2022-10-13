@@ -72,12 +72,12 @@ public class StudentBizBuilder {
      * @param screeningOrg
      * @param statMap
      * @param screeningPlanSchoolStudentMap
-     * @param studentDTO
+     * @param gender
      * @param result
      */
     public StudentScreeningResultItemsDTO builderStudentScreeningResultItemsDTO(TwoTuple<Map<Integer, ScreeningOrganization>, Map<Integer, School>> screeningOrg, Map<Integer, StatConclusion> statMap,
                                                                                 Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap,
-                                                                                StudentDTO studentDTO, VisionScreeningResultDTO result,Map<String, Integer> screeningOrgTypeMap) {
+                                                                                Integer gender, VisionScreeningResultDTO result,Map<String, Integer> screeningOrgTypeMap) {
         StudentScreeningResultItemsDTO item = new StudentScreeningResultItemsDTO();
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentMap.getOrDefault(result.getScreeningPlanSchoolStudentId(), new ScreeningPlanSchoolStudent());
         StatConclusion statConclusion = statMap.getOrDefault(result.getId(), new StatConclusion());
@@ -114,7 +114,7 @@ public class StudentBizBuilder {
             //筛查机构名称
             .setScreeningOrgName(screeningOrgName)
             //设置学生性别
-            .setGender(studentDTO.getGender())
+            .setGender(gender)
             //设置常见病ID
             .setCommonDiseasesCode(screeningPlanSchoolStudentMap.get(result.getScreeningPlanSchoolStudentId()).getCommonDiseaseId())
             .setReleaseStatus(result.getReleaseStatus());

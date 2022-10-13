@@ -2,7 +2,6 @@ package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -15,7 +14,10 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentBizBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
-import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -134,7 +136,7 @@ public class StudentFacade {
      */
     public  IPage<StudentScreeningResultItemsDTO> getScreeningList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser) {
         // 通过学生id查询结果
-        IPage<VisionScreeningResultDTO> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId, !currentUser.isPlatformAdminUser());
+        IPage<VisionScreeningResultDTO> resultIPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId,null, !currentUser.isPlatformAdminUser());
         List<VisionScreeningResultDTO> resultList = resultIPage.getRecords();
         if (CollectionUtils.isEmpty(resultList)) {
             return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
@@ -157,12 +159,57 @@ public class StudentFacade {
             ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
             Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
 
-            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, studentDTO, result,screeningOrgTypeMap);
+            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, studentDTO.getGender(), result,screeningOrgTypeMap);
             StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
             records.add(item);
         }
         return new Page<StudentScreeningResultItemsDTO>(resultIPage.getCurrent(), resultIPage.getSize(), resultIPage.getTotal()).setRecords(records);
     }
+
+
+    /**
+     * 获取学生筛查档案
+     *
+     * @param studentId 学生ID
+     * @param currentUser 当前登录用户
+     * @return 学生档案卡返回体
+     */
+    public  IPage<StudentScreeningResultItemsDTO> getSchoolScreeningList(PageRequest pageRequest, Integer studentId,Integer schoolId, CurrentUser currentUser) {
+        // 通过学生id查询结果
+        IPage<VisionScreeningResultDTO> resultPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId,schoolId, !currentUser.isPlatformAdminUser());
+
+        IPage<StudentScreeningResultItemsDTO> resultItemsDTOPage = new Page<>(resultPage.getCurrent(), resultPage.getSize(),resultPage.getTotal());
+
+        List<VisionScreeningResultDTO> resultList = resultPage.getRecords();
+        if (CollectionUtils.isEmpty(resultList)) {
+            return resultItemsDTOPage;
+        }
+
+        //获取筛查机构类型
+        Map<String, Integer> screeningOrgTypeMap = getScreeningOrgTypeMap(resultList);
+        // 获取机构
+        TwoTuple<Map<Integer, ScreeningOrganization>, Map<Integer, School>> screeningOrg = getScreeningOrgMap(resultList, screeningOrgTypeMap);
+        // 获取结论
+        Map<Integer, StatConclusion> statMap = getStatConclusionMap(resultList);
+        // 获取复测
+        Map<Integer, VisionScreeningResult> reScreeningResultMap = resultList.stream().filter(visionScreeningResultDTO -> Objects.equals(visionScreeningResultDTO.getIsDoubleScreen(),Boolean.TRUE)).collect(Collectors.toMap(VisionScreeningResult::getPlanId, Function.identity()));
+        // 获取筛查学生
+        Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = getPlanStudentMap(resultList);
+        //获取学生信息
+        SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(studentId,schoolId,CommonConst.STATUS_NOT_DELETED);
+        List<StudentScreeningResultItemsDTO> records = new ArrayList<>();
+        // 转换
+        for (VisionScreeningResultDTO result : resultList) {
+            ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
+            Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
+
+            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, schoolStudent.getGender(), result,screeningOrgTypeMap);
+            StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
+            records.add(item);
+        }
+        return new Page<StudentScreeningResultItemsDTO>(resultPage.getCurrent(), resultPage.getSize(), resultPage.getTotal()).setRecords(records);
+    }
+
 
     /**
      * 获取筛查机构类型
@@ -754,69 +801,6 @@ public class StudentFacade {
         return student.getId();
     }
 
-    /**
-     * 设置学生信息
-     *
-     * @param schoolStudent 学生
-     * @param schoolId      学校Id
-     */
-    public void setSchoolStudentInfo(SchoolStudent schoolStudent, Integer schoolId) {
-        schoolStudent.checkStudentInfo();
-        checkSnoAndIdCardAndPassport(schoolStudent, schoolId);
-        schoolStudent.setSchoolId(schoolId);
-        SchoolGrade grade = schoolGradeService.getById(schoolStudent.getGradeId());
-        schoolStudent.setGradeName(grade.getName());
-        schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
-        schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
-        schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.type);
-
-        SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
-        if (Objects.nonNull(havaDeletedStudent)) {
-            schoolStudent.setId(havaDeletedStudent.getId());
-            schoolStudent.setStatus(CommonConst.STATUS_NOT_DELETED);
-        }
-    }
-
-
-    /**
-     * 检查学号、身份证、护照是否重复
-     * @param schoolStudent
-     * @param schoolId
-     */
-    private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
-        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
-        if (CollUtil.isNotEmpty(schoolStudentList)){
-            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学号重复");
-            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getIdCard,"身份证重复");
-            checkParam(schoolStudent, schoolStudentList,SchoolStudent::getPassport,"护照重复");
-        }
-    }
-
-    /**
-     * 检查参数
-     * @param schoolStudent
-     * @param schoolStudentList
-     * @param function
-     * @param errorMsg
-     */
-    private void checkParam(SchoolStudent schoolStudent, List<SchoolStudent> schoolStudentList,Function<SchoolStudent,String> function,String errorMsg) {
-        if (StrUtil.isNotBlank(getValue(schoolStudent,function))){
-            List<SchoolStudent> schoolStudents = schoolStudentList.stream().filter(student -> Objects.equals(getValue(student,function),getValue(schoolStudent,function))).collect(Collectors.toList());
-            if(CollUtil.isNotEmpty(schoolStudents)){
-                throw new BusinessException(errorMsg);
-            }
-        }
-    }
-
-    /**
-     * 获取学校学生的参数值
-     * @param schoolStudent
-     * @param function
-     */
-    private String getValue(SchoolStudent schoolStudent,Function<SchoolStudent,String> function){
-        return Optional.ofNullable(schoolStudent).map(function).orElse(null);
-    }
-
 
     /**
      * 通过学生Id获取学生信息
@@ -832,6 +816,15 @@ public class StudentFacade {
             student.setCommitteeLists(districtService.getDistrictPositionDetail(student.getCommitteeCode()));
         }
         return student;
+    }
+
+    /**
+     * 获取学校学生信息
+     * @param studentId
+     * @param schoolId
+     */
+    public SchoolStudent getStudentByStudentIdAndSchoolId(Integer studentId,Integer schoolId){
+        return schoolStudentService.getByStudentIdAndSchoolId(studentId,schoolId,CommonConst.STATUS_NOT_DELETED);
     }
 
     /**

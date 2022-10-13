@@ -123,6 +123,9 @@
         select mvsr.*, msp.title as plan_title, msp.release_status
         from m_vision_screening_result mvsr left join m_screening_plan msp on mvsr.plan_id = msp.id
         where mvsr.student_id = #{studentId}
+        <if test="schoolId != null">
+            and mvsr.school_id = #{schoolId}
+        </if>
         <if test="needFilterAbolishPlan">
             and msp.release_status = 1
         </if>
