@@ -100,7 +100,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .eq(SchoolStudent::getStudentId, studentId)
                 .eq(SchoolStudent::getSchoolId,schoolId)
                 .eq(SchoolStudent::getStatus, status);
-        return baseMapper.selectList(queryWrapper).get(0);
+        return baseMapper.selectOne(queryWrapper);
     }
 
     /**
