@@ -412,6 +412,9 @@ public class ScreeningTaskOrgBizService {
 
         ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType()));
         if (screeningPlan == null) {
+            if (Objects.equals(orgVo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())){
+                return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningSituation(0, null));
+            }
             return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
         }
 
@@ -434,6 +437,9 @@ public class ScreeningTaskOrgBizService {
      * @param screeningEndTime
      */
     private String getScreeningSituation(Integer screeningCount,Date screeningEndTime){
+        if (Objects.isNull(screeningEndTime)){
+            return "未开始";
+        }
         if (DateUtil.betweenDay(screeningEndTime, new Date()) > 0){
             return "已结束";
         }
