@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizSe
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.domain.dto.SchoolStudentDTO;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.VisionLabels;
 import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
@@ -26,6 +27,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentVO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
@@ -287,7 +289,7 @@ public class StudentController {
      * @return 学生实体 {@link StudentDTO}
      */
     @GetMapping("/school/{studentId}")
-    public SchoolStudent getStudent(@PathVariable("studentId") Integer studentId, @RequestParam Integer schoolId) {
+    public SchoolStudentVO getStudent(@PathVariable("studentId") Integer studentId, @RequestParam Integer schoolId) {
         Assert.notNull(schoolId,"学校ID不能为空");
         return studentFacade.getStudentByStudentIdAndSchoolId(studentId,schoolId);
     }
@@ -297,7 +299,7 @@ public class StudentController {
      * @param schoolStudent
      */
     @PostMapping("/school/save")
-    public SchoolStudent saveSchoolStudent(@RequestBody SchoolStudent schoolStudent) {
+    public SchoolStudent saveSchoolStudent(@RequestBody SchoolStudentDTO schoolStudent) {
         return studentBizService.saveSchoolStudent(schoolStudent);
     }
 }

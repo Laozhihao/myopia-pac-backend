@@ -9,6 +9,7 @@ import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
@@ -16,6 +17,7 @@ import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizSe
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.domain.dto.SchoolStudentDTO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -508,10 +510,12 @@ public class StudentBizService {
 
     /**
      * 保存学校学生
-     * @param schoolStudent
+     * @param schoolStudentDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public SchoolStudent saveSchoolStudent(SchoolStudent schoolStudent) {
+    public SchoolStudent saveSchoolStudent(SchoolStudentDTO schoolStudentDTO) {
+        SchoolStudent schoolStudent = BeanCopyUtil.copyBeanPropertise(schoolStudentDTO, SchoolStudent.class);
+        setRegionCode(schoolStudentDTO, schoolStudent);
         schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolStudent.getSchoolId());
 
         boolean isAdd = Objects.isNull(schoolStudent.getId());
@@ -526,5 +530,25 @@ public class StudentBizService {
         schoolStudentService.saveOrUpdate(schoolStudent);
         schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
         return schoolStudent;
+    }
+
+    /**
+     * 设置区域代码
+     * @param schoolStudentDTO
+     * @param schoolStudent
+     */
+    private void setRegionCode(SchoolStudentDTO schoolStudentDTO, SchoolStudent schoolStudent) {
+        if (CollUtil.isNotEmpty(schoolStudentDTO.getTownRegionArr())){
+            schoolStudent.setProvinceCode(schoolStudentDTO.getTownRegionArr().get(0));
+            schoolStudent.setCityCode(schoolStudentDTO.getTownRegionArr().get(1));
+            schoolStudent.setAreaCode(schoolStudentDTO.getTownRegionArr().get(2));
+            schoolStudent.setTownCode(schoolStudentDTO.getTownRegionArr().get(3));
+        }
+        if (CollUtil.isNotEmpty(schoolStudentDTO.getRegionArr())){
+            schoolStudent.setProvinceCode(schoolStudentDTO.getRegionArr().get(0));
+            schoolStudent.setCityCode(schoolStudentDTO.getRegionArr().get(1));
+            schoolStudent.setAreaCode(schoolStudentDTO.getRegionArr().get(2));
+            schoolStudent.setTownCode(schoolStudentDTO.getRegionArr().get(3));
+        }
     }
 }

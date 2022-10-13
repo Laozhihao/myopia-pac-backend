@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentBizBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -33,6 +34,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -159,7 +161,7 @@ public class StudentFacade {
             ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
             Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
 
-            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, studentDTO.getGender(), result,screeningOrgTypeMap);
+            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, Optional.ofNullable(studentDTO).map(StudentDTO::getGender).orElse(null), result,screeningOrgTypeMap);
             StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
             records.add(item);
         }
@@ -203,7 +205,7 @@ public class StudentFacade {
             ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
             Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
 
-            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, schoolStudent.getGender(), result,screeningOrgTypeMap);
+            StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, Optional.ofNullable(schoolStudent).map(SchoolStudent::getGender).orElse(null), result,screeningOrgTypeMap);
             StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
             records.add(item);
         }
@@ -823,8 +825,12 @@ public class StudentFacade {
      * @param studentId
      * @param schoolId
      */
-    public SchoolStudent getStudentByStudentIdAndSchoolId(Integer studentId,Integer schoolId){
-        return schoolStudentService.getByStudentIdAndSchoolId(studentId,schoolId,CommonConst.STATUS_NOT_DELETED);
+    public SchoolStudentVO getStudentByStudentIdAndSchoolId(Integer studentId,Integer schoolId){
+        SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(studentId, schoolId, CommonConst.STATUS_NOT_DELETED);
+        School school = schoolService.getById(schoolStudent.getSchoolId());
+        SchoolStudentVO schoolStudentVO = BeanCopyUtil.copyBeanPropertise(schoolStudent, SchoolStudentVO.class);
+        schoolStudentVO.setSchoolName(school.getName());
+        return schoolStudentVO;
     }
 
     /**

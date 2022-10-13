@@ -81,6 +81,7 @@ public class SchoolScreeningBizBuilder {
         responseDTO.setContent(screeningPlan.getContent());
         responseDTO.setScreeningBizType(ScreeningBizTypeEnum.getInstanceByOrgType(responseDTO.getScreeningOrgType()).getType());
         responseDTO.setStatus(setMergeStatus(responseDTO.getReleaseStatus(),responseDTO.getScreeningStatus()));
+        responseDTO.setSrcScreeningNoticeId(screeningPlan.getSrcScreeningNoticeId());
     }
 
     /**
