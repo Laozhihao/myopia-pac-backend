@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.excel.imports.StudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
@@ -69,7 +71,8 @@ public class StudentController {
     private StudentExcelImportService studentExcelImportService;
     @Autowired
     private SchoolStudentFacade schoolStudentFacade;
-
+    @Autowired
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
     /**
      * 新增学生
      *
@@ -139,12 +142,22 @@ public class StudentController {
      *
      * @param schoolId 学校ID
      * @param gradeId  年级ID
+     * @param clientId  客户端ID
      */
     @GetMapping("/export")
-    public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
-        Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
+    public void getStudentExportData(Integer schoolId, Integer gradeId,Integer clientId) throws IOException {
+        Assert.notNull(schoolId, "学校id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setSchoolId(schoolId).setGradeId(gradeId), ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(user.getId())
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId);
+        if (Objects.equals(clientId, SystemCode.SCHOOL_CLIENT.getCode())){
+            //管理端导出学校学生
+            exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.SCHOOL_STUDENT_EXCEL_SERVICE);
+            return;
+        }
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
     }
 
     /**
@@ -153,8 +166,12 @@ public class StudentController {
      * @param file 导入文件
      */
     @PostMapping("/import")
-    public void importStudent(MultipartFile file, Integer schoolId) {
+    public void importStudent(MultipartFile file, Integer schoolId,Integer client) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (Objects.equals(client, SystemCode.SCHOOL_CLIENT.getCode())){
+            schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(),file,schoolId);
+            return;
+        }
         studentExcelImportService.importStudent(currentUser.getId(), file, schoolId);
     }
 
@@ -284,14 +301,12 @@ public class StudentController {
     /**
      * 获取学校学生详情
      *
-     * @param studentId 学生ID
-     * @param schoolId 学校ID
+     * @param id 学校学生ID
      * @return 学生实体 {@link StudentDTO}
      */
-    @GetMapping("/school/{studentId}")
-    public SchoolStudentVO getStudent(@PathVariable("studentId") Integer studentId, @RequestParam Integer schoolId) {
-        Assert.notNull(schoolId,"学校ID不能为空");
-        return studentFacade.getStudentByStudentIdAndSchoolId(studentId,schoolId);
+    @GetMapping("/school/{id}")
+    public SchoolStudentVO getSchoolStudent(@PathVariable("id") Integer id) {
+        return studentFacade.getStudentByStudentIdAndSchoolId(id);
     }
 
     /**

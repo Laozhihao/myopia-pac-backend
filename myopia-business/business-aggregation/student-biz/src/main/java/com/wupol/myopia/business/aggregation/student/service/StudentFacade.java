@@ -822,11 +822,13 @@ public class StudentFacade {
 
     /**
      * 获取学校学生信息
-     * @param studentId
-     * @param schoolId
+     * @param id
      */
-    public SchoolStudentVO getStudentByStudentIdAndSchoolId(Integer studentId,Integer schoolId){
-        SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(studentId, schoolId, CommonConst.STATUS_NOT_DELETED);
+    public SchoolStudentVO getStudentByStudentIdAndSchoolId(Integer id){
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        if (Objects.isNull(schoolStudent) ){
+            return null;
+        }
         School school = schoolService.getById(schoolStudent.getSchoolId());
         SchoolStudentVO schoolStudentVO = BeanCopyUtil.copyBeanPropertise(schoolStudent, SchoolStudentVO.class);
         schoolStudentVO.setSchoolName(school.getName());

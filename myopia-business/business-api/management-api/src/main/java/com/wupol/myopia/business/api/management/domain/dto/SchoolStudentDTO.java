@@ -15,10 +15,6 @@ import java.util.List;
 @Data
 public class SchoolStudentDTO extends SchoolStudent {
 
-    /**
-     * 省市县镇（街道）
-     */
-    private List<Long> townRegionArr;
 
     /**
      * 详情地址

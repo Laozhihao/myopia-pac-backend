@@ -310,6 +310,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public IPage<SchoolStudent> listByCondition(PageRequest pageRequest, SchoolStudentQueryBO schoolStudentQueryBO) {
         LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .ne(SchoolStudent::getStatus,CommonConst.STATUS_IS_DELETED)
                 .eq(Objects.nonNull(schoolStudentQueryBO.getGradeId()), SchoolStudent::getGradeId, schoolStudentQueryBO.getGradeId())
                 .eq(Objects.nonNull(schoolStudentQueryBO.getClassId()), SchoolStudent::getClassId, schoolStudentQueryBO.getClassId())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())

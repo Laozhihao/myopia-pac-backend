@@ -538,12 +538,6 @@ public class StudentBizService {
      * @param schoolStudent
      */
     private void setRegionCode(SchoolStudentDTO schoolStudentDTO, SchoolStudent schoolStudent) {
-        if (CollUtil.isNotEmpty(schoolStudentDTO.getTownRegionArr())){
-            schoolStudent.setProvinceCode(schoolStudentDTO.getTownRegionArr().get(0));
-            schoolStudent.setCityCode(schoolStudentDTO.getTownRegionArr().get(1));
-            schoolStudent.setAreaCode(schoolStudentDTO.getTownRegionArr().get(2));
-            schoolStudent.setTownCode(schoolStudentDTO.getTownRegionArr().get(3));
-        }
         if (CollUtil.isNotEmpty(schoolStudentDTO.getRegionArr())){
             schoolStudent.setProvinceCode(schoolStudentDTO.getRegionArr().get(0));
             schoolStudent.setCityCode(schoolStudentDTO.getRegionArr().get(1));
