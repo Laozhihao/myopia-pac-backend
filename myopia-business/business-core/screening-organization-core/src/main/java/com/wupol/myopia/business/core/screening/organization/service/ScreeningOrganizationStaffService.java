@@ -176,7 +176,7 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
                 .setUsername(staff.getPhone())
                 .setRemark(staff.getRemark())
                 .setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
-                .setUserType(UserType.OTHER.getType());
+                .setUserType(UserType.SCREENING_STAFF_TYPE_ORG.getType());
         oauthServiceClient.updateUser(userDTO);
         resetPassword(new StaffResetPasswordRequestDTO(staff.getId(), staff.getPhone(), staff.getIdCard()));
         return staff;
