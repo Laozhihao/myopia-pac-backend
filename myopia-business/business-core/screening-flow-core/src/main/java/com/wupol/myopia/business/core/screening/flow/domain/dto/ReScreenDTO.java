@@ -52,7 +52,7 @@ public class ReScreenDTO implements Serializable {
         /** 柱镜（右） */
         private ScreeningDeviation rightCyl;
 
-        /** 等效球镜（左） */
+        /** 等效球镜（右） */
         private ScreeningDeviation rightSE;
 
         /** 裸眼（左） */

@@ -29,7 +29,6 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -48,7 +47,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,11 @@ public class SchoolStudentBizService {
             return responseDTO;
         }
 
-        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(schoolStudent -> SchoolStudentInfoBuilder.buildStudentDTO(schoolStudent)).collect(Collectors.toList());
+        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(schoolStudent -> {
+            SchoolStudentListVO schoolStudentListVO = SchoolStudentInfoBuilder.buildStudentDTO(schoolStudent);
+
+            return schoolStudentListVO;
+        }).collect(Collectors.toList());
 
         responseDTO.setRecords(studentListVOList);
 

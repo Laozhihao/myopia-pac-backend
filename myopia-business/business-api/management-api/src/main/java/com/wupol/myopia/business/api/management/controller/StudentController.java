@@ -250,6 +250,7 @@ public class StudentController {
      */
     @GetMapping("/selectValue")
     public SchoolStudentQuerySelectVO getSelectValue(@RequestParam Integer schoolId){
+        Assert.notNull(schoolId,"学校ID不能为空");
         return schoolStudentFacade.getSelectValue(schoolId);
     }
 

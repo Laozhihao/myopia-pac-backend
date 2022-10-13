@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +22,9 @@ public enum LowVisionLevelEnum {
     LOW_VISION_LEVEL_MIDDLE(3, "中度视力低下"),
     LOW_VISION_LEVEL_HIGH(4, "重度视力低下");;
 
-
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     LowVisionLevelEnum(Integer code, String desc) {
