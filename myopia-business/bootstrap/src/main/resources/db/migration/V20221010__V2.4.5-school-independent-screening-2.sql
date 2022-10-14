@@ -14,15 +14,22 @@ alter table m_overview
     add school_limit_num int default 5 not null comment '学校限制数量' after school_config_type;
 
 
--- 学校学生表新增年份字段
+-- 学校学生表新增字段
 alter table m_school_student
     add particular_year int  DEFAULT NULL comment '年份' after sno;
 
 alter table m_school_student
-    add is_anisometropia tinyint(1) DEFAULT NULL COMMENT '是否屈光参差'
+    add is_anisometropia tinyint(1) DEFAULT NULL COMMENT '是否屈光参差';
 
 alter table m_school_student
-    add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正'
+    add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正';
+
+-- 管理端学生新增字段
+alter table m_student
+    add is_anisometropia tinyint(1) DEFAULT NULL COMMENT '是否屈光参差';
+
+alter table m_student
+    add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正';
 
 
 
