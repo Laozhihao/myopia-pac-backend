@@ -268,10 +268,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         if (CollectionUtils.isEmpty(screeningPlanIds)) {
             return Collections.emptyList();
         }
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = Wrappers.lambdaQuery(ScreeningPlan.class)
+                .in(ScreeningPlan::getId, screeningPlanIds)
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(queryWrapper);
         return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
     }
 
