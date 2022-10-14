@@ -466,7 +466,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
                 screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
             }
-            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId());
+            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
         }
     }
 

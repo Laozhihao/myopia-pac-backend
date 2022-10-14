@@ -486,7 +486,8 @@ public class VisionScreeningService {
         changeScreeningGradeIds(addScreeningStudentDTO, screeningPlanSchool);
         screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
 
-        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
+        ScreeningPlan screeningPlan = screeningPlanService.getById(addScreeningStudentDTO.getScreeningPlanId());
+        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**
