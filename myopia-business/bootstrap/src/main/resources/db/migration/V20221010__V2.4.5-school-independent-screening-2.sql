@@ -14,4 +14,9 @@ alter table m_overview
     add school_limit_num int default 5 not null comment '学校限制数量' after school_config_type;
 
 
-UPDATE `o_permission` SET `api_url` = 'get:/management/screeningOrganization/getOrgList'  WHERE `menu_btn_name` = 'getScreeningOrganizationList';
+-- 学校学生表新增年份字段
+alter table m_school_student
+    add particular_year int  DEFAULT NULL comment '年份' after sno;
+
+
+

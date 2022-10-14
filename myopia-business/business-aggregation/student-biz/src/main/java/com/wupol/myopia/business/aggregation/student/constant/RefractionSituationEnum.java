@@ -24,7 +24,7 @@ public enum RefractionSituationEnum {
 
     MYOPIA_LEVEL_EARLY(1, "近视前期", MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode(),Boolean.FALSE),
     MYOPIA(2, "近视",-1,Boolean.FALSE),
-    MYOPIA_LEVEL_MIDDLE(3, "低度近视",MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode(),Boolean.FALSE),
+    MYOPIA_LEVEL_LIGHT(3, "低度近视",MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode(),Boolean.FALSE),
     MYOPIA_LEVEL_HIGH(4, "高度近视",MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode(),Boolean.FALSE),
 
     HYPEROPIA(5, "远视", -1,Boolean.FALSE),
@@ -32,7 +32,7 @@ public enum RefractionSituationEnum {
     HYPEROPIA_LEVEL_MIDDLE(7, "中度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.getCode(),Boolean.FALSE),
     HYPEROPIA_LEVEL_HIGH(8, "重度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode(),Boolean.FALSE),
 
-    astigmatism(9,"散光",-1,Boolean.FALSE),
+    ASTIGMATISM(9,"散光",-1,Boolean.FALSE),
     ASTIGMATISM_LEVEL_LIGHT(10, "低度散光",AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT.getCode(),Boolean.FALSE),
     ASTIGMATISM_LEVEL_MIDDLE(11, "中度散光",AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE.getCode(),Boolean.FALSE),
     ASTIGMATISM_LEVEL_HIGH(12, "高度散光", AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.getCode(),Boolean.FALSE),

@@ -48,6 +48,38 @@ public class SchoolStudentQueryBO implements Serializable {
     private String visionLabels;
 
 
+    /**
+     * 入学年份
+     */
+    private Integer year;
+
+    /**
+     * 戴镜类型
+     */
+    private Integer glassesType;
+
+    /**
+     * 视力低下
+     */
+    private Integer lowVision;
+
+    /**
+     * 屈光类型-近视
+     */
+    private Integer myopiaLevel;
+    private List<Integer> myopiaList;
+
+    /**
+     * 屈光类型-远视
+     */
+    private Integer hyperopiaLevel;
+    private List<Integer> hyperopiaList;
+    /**
+     * 屈光类型-散光
+     */
+    private Integer astigmatismLevel;
+    private List<Integer> astigmatismList;
+
     public List<Integer> getVisionLabels() {
         if (StrUtil.isNotBlank(visionLabels)){
             return Arrays.stream(visionLabels.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());

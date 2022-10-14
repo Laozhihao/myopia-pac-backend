@@ -316,7 +316,16 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())
                 .like(StrUtil.isNotBlank(schoolStudentQueryBO.getName()), SchoolStudent::getName, schoolStudentQueryBO.getName())
                 .like(StrUtil.isNotBlank(schoolStudentQueryBO.getSno()), SchoolStudent::getSno, schoolStudentQueryBO.getSno())
-                .eq(Objects.nonNull(schoolStudentQueryBO.getSchoolId()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolId());
+                .eq(Objects.nonNull(schoolStudentQueryBO.getSchoolId()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolId())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getGlassesType()),SchoolStudent::getGlassesType,schoolStudentQueryBO.getGlassesType())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getLowVision()),SchoolStudent::getLowVision,schoolStudentQueryBO.getLowVision())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getHyperopiaLevel()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getAstigmatismLevel()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismLevel())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getMyopiaList()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getHyperopiaList()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())
+                ;
 
         Page page = pageRequest.toPage();
         return baseMapper.selectPage(page,queryWrapper);

@@ -2,7 +2,12 @@ package com.wupol.myopia.business.aggregation.student.domain.builder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
+import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
@@ -88,15 +93,81 @@ public class SchoolStudentInfoBuilder {
      * @param studentQueryDTO
      */
     public SchoolStudentQueryBO builderSchoolStudentQueryBO(SchoolStudentQueryDTO studentQueryDTO) {
-        return new SchoolStudentQueryBO()
+        SchoolStudentQueryBO schoolStudentQueryBO = new SchoolStudentQueryBO()
                 .setName(studentQueryDTO.getName())
                 .setSno(studentQueryDTO.getSno())
                 .setGradeId(studentQueryDTO.getGradeId())
                 .setClassId(studentQueryDTO.getClassId())
                 .setSchoolId(studentQueryDTO.getSchoolId())
                 .setVisionLabels(studentQueryDTO.getVisionLabels());
+
+        setSchoolStudentQueryBO(schoolStudentQueryBO,studentQueryDTO);
+
+        return schoolStudentQueryBO;
     }
 
+    private void setSchoolStudentQueryBO(SchoolStudentQueryBO schoolStudentQueryBO,SchoolStudentQueryDTO studentQueryDTO){
+        schoolStudentQueryBO.setYear(studentQueryDTO.getYear());
+        schoolStudentQueryBO.setGlassesType(studentQueryDTO.getGlassesType());
+        schoolStudentQueryBO.setLowVision(studentQueryDTO.getVisionType());
+        if (Objects.nonNull(studentQueryDTO.getRefractionType())){
+            RefractionSituationEnum refractionSituationEnum = RefractionSituationEnum.getByCode(studentQueryDTO.getRefractionType());
+            switch (refractionSituationEnum){
+
+                case MYOPIA:
+                    schoolStudentQueryBO.setMyopiaList(Lists.newArrayList(
+                            MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode(),
+                            MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode()));
+                    break;
+                case HYPEROPIA:
+                    schoolStudentQueryBO.setMyopiaList(Lists.newArrayList(
+                            HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.getCode(),
+                            HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.getCode(),
+                            HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode()
+                    ));
+                    break;
+                case ASTIGMATISM:
+                    schoolStudentQueryBO.setAstigmatismList(Lists.newArrayList(
+                            AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT.getCode(),
+                            AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE.getCode(),
+                            AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.getCode()
+                    ));
+                    break;
+
+                case MYOPIA_LEVEL_EARLY:
+                case MYOPIA_LEVEL_LIGHT:
+                case MYOPIA_LEVEL_HIGH:
+                    schoolStudentQueryBO.setMyopiaLevel(refractionSituationEnum.getType());
+                    break;
+
+                case HYPEROPIA_LEVEL_LIGHT:
+                case HYPEROPIA_LEVEL_MIDDLE:
+                case HYPEROPIA_LEVEL_HIGH:
+                    schoolStudentQueryBO.setHyperopiaLevel(refractionSituationEnum.getType());
+                    break;
+
+                case ASTIGMATISM_LEVEL_LIGHT:
+                case ASTIGMATISM_LEVEL_MIDDLE:
+                case ASTIGMATISM_LEVEL_HIGH:
+                    schoolStudentQueryBO.setAstigmatismLevel(refractionSituationEnum.getType());
+                    break;
+                case INSUFFICIENT:
+                    break;
+                case REFRACTIVE_ERROR:
+                    break;
+                case ANISOMETROPIA:
+                    break;
+                case NORMAL:
+                default:
+                    schoolStudentQueryBO.setMyopiaLevel(MyopiaLevelEnum.ZERO.getCode());
+                    schoolStudentQueryBO.setHyperopiaLevel(HyperopiaLevelEnum.ZERO.getCode());
+                    schoolStudentQueryBO.setAstigmatismLevel(AstigmatismLevelEnum.ZERO.getCode());
+                    break;
+            }
+        }
+
+
+    }
 
     /**
      * 校验学校学生信息
