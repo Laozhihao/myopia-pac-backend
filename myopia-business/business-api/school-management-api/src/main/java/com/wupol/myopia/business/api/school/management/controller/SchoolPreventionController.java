@@ -50,7 +50,7 @@ public class SchoolPreventionController {
     @GetMapping("/eyeHealth/list")
     public IPage<EyeHealthResponseDTO> eyeHealthList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
         requestDTO.setIsEyeHealth(Boolean.TRUE);
-        return schoolStudentBizService.getEyeHealthList(16, pageRequest, requestDTO);
+        return schoolStudentBizService.getEyeHealthList(CurrentUserUtil.getCurrentUser().getOrgId(), pageRequest, requestDTO);
     }
 
     /**
