@@ -203,6 +203,16 @@ public class SchoolStudent extends AddressCode implements Serializable {
      */
     private Integer sourceClient;
 
+    /**
+     *  是否屈光参差
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isAnisometropia;
+
+    /** 是否屈光不正 */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isRefractiveError;
+
 
     /**
      * 检查学生信息是否正确

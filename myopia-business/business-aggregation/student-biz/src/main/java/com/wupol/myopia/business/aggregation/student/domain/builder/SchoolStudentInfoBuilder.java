@@ -152,10 +152,13 @@ public class SchoolStudentInfoBuilder {
                     schoolStudentQueryBO.setAstigmatismLevel(refractionSituationEnum.getType());
                     break;
                 case INSUFFICIENT:
+                    schoolStudentQueryBO.setVisionLabels(refractionSituationEnum.getType().toString());
                     break;
                 case REFRACTIVE_ERROR:
+                    schoolStudentQueryBO.setRefractiveError(Boolean.TRUE);
                     break;
                 case ANISOMETROPIA:
+                    schoolStudentQueryBO.setAnisometropia(Boolean.TRUE);
                     break;
                 case NORMAL:
                 default:

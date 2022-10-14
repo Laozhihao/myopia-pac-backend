@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.aggregation.student.constant;
 
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -37,9 +34,9 @@ public enum RefractionSituationEnum {
     ASTIGMATISM_LEVEL_MIDDLE(11, "中度散光",AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE.getCode(),Boolean.FALSE),
     ASTIGMATISM_LEVEL_HIGH(12, "高度散光", AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.getCode(),Boolean.FALSE),
 
-    INSUFFICIENT(13,"远视储备不足",0,Boolean.TRUE),
-    REFRACTIVE_ERROR(14,"屈光不足",0,Boolean.TRUE),
-    ANISOMETROPIA(15,"屈光参差",0,Boolean.TRUE);
+    INSUFFICIENT(13,"远视储备不足", WarningLevel.ZERO_SP.getCode(),Boolean.TRUE),
+    REFRACTIVE_ERROR(14,"屈光不足",1,Boolean.TRUE),
+    ANISOMETROPIA(15,"屈光参差",1,Boolean.TRUE);
 
 
     @Getter

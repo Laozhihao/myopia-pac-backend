@@ -18,5 +18,12 @@ alter table m_overview
 alter table m_school_student
     add particular_year int  DEFAULT NULL comment '年份' after sno;
 
+alter table m_school_student
+    add is_anisometropia tinyint(1) DEFAULT NULL COMMENT '是否屈光参差'
+
+alter table m_school_student
+    add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正'
+
+
 
 

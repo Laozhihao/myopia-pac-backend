@@ -322,6 +322,8 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
                 .eq(Objects.nonNull(schoolStudentQueryBO.getHyperopiaLevel()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaLevel())
                 .eq(Objects.nonNull(schoolStudentQueryBO.getAstigmatismLevel()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getRefractiveError()),SchoolStudent::getIsRefractiveError,schoolStudentQueryBO.getRefractiveError())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getAnisometropia()),SchoolStudent::getIsAnisometropia,schoolStudentQueryBO.getAnisometropia())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getMyopiaList()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getHyperopiaList()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())

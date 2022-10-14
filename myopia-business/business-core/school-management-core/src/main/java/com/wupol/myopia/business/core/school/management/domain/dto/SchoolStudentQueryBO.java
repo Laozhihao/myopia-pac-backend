@@ -80,6 +80,15 @@ public class SchoolStudentQueryBO implements Serializable {
     private Integer astigmatismLevel;
     private List<Integer> astigmatismList;
 
+    /**
+     * 屈光不足
+     */
+    private Boolean refractiveError;
+    /**
+     * 屈光参差
+     */
+    private Boolean anisometropia;
+
     public List<Integer> getVisionLabels() {
         if (StrUtil.isNotBlank(visionLabels)){
             return Arrays.stream(visionLabels.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
