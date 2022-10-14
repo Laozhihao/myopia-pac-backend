@@ -82,8 +82,9 @@ public class SchoolStudentInfoBuilder {
         schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
 
         StatConclusion statConclusion = statConclusionMap.get(VisionScreeningResultFacade.getTwoKey(schoolStudent.getStudentId(), schoolStudent.getSchoolId()));
-        schoolStudentListVO.setCorrection(getValue(statConclusion,StatConclusion::getVisionCorrection));
-        schoolStudentListVO.setVision(VisionUtil.getVisionSituation(getValue(statConclusion,StatConclusion::getGlassesType),schoolStudent.getGradeType(),getValue(statConclusion,StatConclusion::getIsLowVision)));
+
+        schoolStudentListVO.setCorrection(schoolStudent.getVisionCorrection());
+        schoolStudentListVO.setVision(VisionUtil.getVisionSituation(schoolStudent.getGlassesType(),schoolStudent.getGradeType(),schoolStudent.getLowVision()));
         return schoolStudentListVO;
     }
 
@@ -99,6 +100,7 @@ public class SchoolStudentInfoBuilder {
                 .setGradeId(studentQueryDTO.getGradeId())
                 .setClassId(studentQueryDTO.getClassId())
                 .setSchoolId(studentQueryDTO.getSchoolId())
+                .setLowVision(studentQueryDTO.getVisionType())
                 .setVisionLabels(studentQueryDTO.getVisionLabels());
 
         setSchoolStudentQueryBO(schoolStudentQueryBO,studentQueryDTO);

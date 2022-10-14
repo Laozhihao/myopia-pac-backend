@@ -24,12 +24,20 @@ alter table m_school_student
 alter table m_school_student
     add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正';
 
+alter table m_school_student
+   add vision_correction tinyint(3) DEFAULT NULL COMMENT '视力矫正状态';
+
+
 -- 管理端学生新增字段
 alter table m_student
     add is_anisometropia tinyint(1) DEFAULT NULL COMMENT '是否屈光参差';
 
 alter table m_student
     add is_refractive_error tinyint(1) DEFAULT NULL COMMENT '是否屈光不正';
+
+alter table m_student
+   add vision_correction tinyint(3) DEFAULT NULL COMMENT '视力矫正状态';
+
 
 
 

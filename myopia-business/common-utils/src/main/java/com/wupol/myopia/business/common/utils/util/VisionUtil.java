@@ -59,21 +59,21 @@ public class VisionUtil {
      * 获取视力情况
      *
      * @param glassesType
-     * @param isLowVision
+     * @param lowVision
      */
-    public String getVisionSituation(Integer glassesType, Integer gradeType, Boolean isLowVision) {
+    public String getVisionSituation(Integer glassesType, Integer gradeType, Integer lowVision) {
         List<String> resultList = new LinkedList<>();
         if (Objects.nonNull(glassesType)) {
             resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
         }
-        if (Objects.equals(isLowVision,Boolean.TRUE)){
+        if (Objects.equals(lowVision,LowVisionLevelEnum.LOW_VISION.getCode())){
             if (SchoolAge.checkKindergarten(gradeType)){
                 resultList.add("视力低常");
             }else {
                 resultList.add("视力低下");
             }
         }
-        if (Objects.equals(isLowVision,Boolean.FALSE)){
+        if (Objects.equals(lowVision,LowVisionLevelEnum.ZERO.getCode())){
             resultList.add("正常");
         }
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));

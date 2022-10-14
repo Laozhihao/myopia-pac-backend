@@ -213,6 +213,9 @@ public class SchoolStudent extends AddressCode implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Boolean isRefractiveError;
 
+    /** 视力矫正状态 */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Integer visionCorrection;
 
     /**
      * 检查学生信息是否正确
