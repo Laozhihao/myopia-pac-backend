@@ -15,7 +15,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentBizBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.DeskChairTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -172,11 +171,17 @@ public class StudentFacade {
     /**
      * 获取学生筛查档案
      *
-     * @param studentId 学生ID
+     * @param id 学校学生ID
      * @param currentUser 当前登录用户
      * @return 学生档案卡返回体
      */
-    public  IPage<StudentScreeningResultItemsDTO> getSchoolScreeningList(PageRequest pageRequest, Integer studentId,Integer schoolId, CurrentUser currentUser) {
+    public  IPage<StudentScreeningResultItemsDTO> getSchoolScreeningList(PageRequest pageRequest, Integer id, CurrentUser currentUser) {
+        SchoolStudent schoolStudent = schoolStudentService.getById(id);
+        if (Objects.isNull(schoolStudent)){
+            throw new BusinessException("学校学生不存在");
+        }
+        Integer studentId = schoolStudent.getStudentId();
+        Integer schoolId = schoolStudent.getSchoolId();
         // 通过学生id查询结果
         IPage<VisionScreeningResultDTO> resultPage = visionScreeningResultService.getByStudentIdWithPage(pageRequest, studentId,schoolId, !currentUser.isPlatformAdminUser());
 
@@ -197,8 +202,7 @@ public class StudentFacade {
         Map<Integer, VisionScreeningResult> reScreeningResultMap = resultList.stream().filter(visionScreeningResultDTO -> Objects.equals(visionScreeningResultDTO.getIsDoubleScreen(),Boolean.TRUE)).collect(Collectors.toMap(VisionScreeningResult::getPlanId, Function.identity()));
         // 获取筛查学生
         Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = getPlanStudentMap(resultList);
-        //获取学生信息
-        SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(studentId,schoolId,CommonConst.STATUS_NOT_DELETED);
+
         List<StudentScreeningResultItemsDTO> records = new ArrayList<>();
         // 转换
         for (VisionScreeningResultDTO result : resultList) {

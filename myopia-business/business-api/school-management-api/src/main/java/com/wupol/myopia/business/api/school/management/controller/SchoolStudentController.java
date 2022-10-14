@@ -95,13 +95,13 @@ public class SchoolStudentController {
     /**
      * 获取筛查记录
      *
-     * @param studentId 学生Id
+     * @param id 学校学生Id
      * @return StudentScreeningResultResponseDTO
      */
-    @GetMapping("screening/list/{studentId}")
-    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
+    @GetMapping("screening/list/{id}")
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return studentFacade.getSchoolScreeningList(pageRequest, studentId,currentUser.getOrgId(), currentUser);
+        return studentFacade.getSchoolScreeningList(pageRequest, id, currentUser);
     }
 
 

@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.common.utils.util;
 
-import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +36,60 @@ public class VisionUtil {
         if (Objects.nonNull(lowVision)){
             resultList.add(LowVisionLevelEnum.getDesc(lowVision));
         }
+        //筛查性近视
+        if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
+            resultList.add(MyopiaLevelEnum.getDesc(screeningMyopia));
+        }
+        // 近视
+        if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
+            resultList.add(MyopiaLevelEnum.getDesc(myopiaLevel));
+        }
+        // 远视
+        if (!HyperopiaLevelEnum.ZERO.code.equals(hyperopiaLevel)) {
+            resultList.add(HyperopiaLevelEnum.getDesc(hyperopiaLevel));
+        }
+        // 散光
+        if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
+            resultList.add(AstigmatismLevelEnum.getDesc(astigmatismLevel));
+        }
+        return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
+    }
+
+    /**
+     * 获取视力情况
+     *
+     * @param glassesType
+     * @param isLowVision
+     */
+    public String getVisionSituation(Integer glassesType, Integer gradeType, Boolean isLowVision) {
+        List<String> resultList = new LinkedList<>();
+        if (Objects.nonNull(glassesType)) {
+            resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
+        }
+        if (Objects.equals(isLowVision,Boolean.TRUE)){
+            if (SchoolAge.checkKindergarten(gradeType)){
+                resultList.add("视力低常");
+            }else {
+                resultList.add("视力低下");
+            }
+        }
+        if (Objects.equals(isLowVision,Boolean.FALSE)){
+            resultList.add("正常");
+        }
+        return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
+    }
+
+    /**
+     * 获取屈光情况
+     *
+     * @param myopiaLevel
+     * @param hyperopiaLevel
+     * @param astigmatismLevel
+     * @param screeningMyopia
+     */
+    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia) {
+        List<String> resultList = new LinkedList<>();
+
         //筛查性近视
         if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
             resultList.add(MyopiaLevelEnum.getDesc(screeningMyopia));

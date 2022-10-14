@@ -289,13 +289,12 @@ public class StudentController {
     /**
      * 获取筛查记录
      *
-     * @param studentId 学生Id
-     * @param schoolId 学校ID
+     * @param id 学校学生Id
      * @return StudentScreeningResultResponseDTO
      */
-    @GetMapping("/screening/list/{studentId}")
-    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId ,@RequestParam Integer schoolId) {
-        return studentFacade.getSchoolScreeningList(pageRequest, studentId,schoolId,CurrentUserUtil.getCurrentUser());
+    @GetMapping("/screening/list/{id}")
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
+        return studentFacade.getSchoolScreeningList(pageRequest, id,CurrentUserUtil.getCurrentUser());
     }
 
     /**

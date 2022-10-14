@@ -33,6 +33,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
+import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -48,6 +49,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -88,6 +90,8 @@ public class SchoolStudentBizService {
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
     @Resource
     private SchoolStudentFacade schoolStudentFacade;
+    @Resource
+    private VisionScreeningResultFacade visionScreeningResultFacade;
 
     /**
      * 获取学生列表
@@ -107,11 +111,11 @@ public class SchoolStudentBizService {
             return responseDTO;
         }
 
-        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(schoolStudent -> {
-            SchoolStudentListVO schoolStudentListVO = SchoolStudentInfoBuilder.buildStudentDTO(schoolStudent);
+        Set<Integer> studentIds = schoolStudentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toSet());
+        Set<Integer> schoolIds = schoolStudentList.stream().map(SchoolStudent::getSchoolId).collect(Collectors.toSet());
+        Map<String, StatConclusion> statConclusionMap = visionScreeningResultFacade.getStatConclusionMap(Lists.newArrayList(studentIds),Lists.newArrayList(schoolIds));
 
-            return schoolStudentListVO;
-        }).collect(Collectors.toList());
+        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(schoolStudent -> SchoolStudentInfoBuilder.buildSchoolStudentListVO(schoolStudent,statConclusionMap)).collect(Collectors.toList());
 
         responseDTO.setRecords(studentListVOList);
 

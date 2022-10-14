@@ -3,9 +3,7 @@ package com.wupol.myopia.business.aggregation.student.domain.builder;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
@@ -13,6 +11,8 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.Assert;
 
@@ -31,18 +31,6 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class SchoolStudentInfoBuilder {
 
-    /**
-     * 设置学生信息
-     *
-     * @param schoolMap
-     * @param student
-     */
-    public void setStudentInfo(Map<Integer, String> schoolMap, StudentDTO student) {
-        student.setSchoolName(schoolMap.getOrDefault(student.getSchoolId(), StrUtil.EMPTY));
-        student.setIsMyopia(!Objects.equals(student.getMyopiaLevel(), MyopiaLevelEnum.ZERO.getCode()));
-        student.setIsAstigmatism(!Objects.equals(student.getAstigmatismLevel(), AstigmatismLevelEnum.ZERO.getCode()));
-        student.setIsHyperopia(!Objects.equals(student.getHyperopiaLevel(), HyperopiaLevelEnum.ZERO.getCode()));
-    }
 
     /**
      * 设置学生信息
@@ -70,17 +58,24 @@ public class SchoolStudentInfoBuilder {
      *
      * @param schoolStudent
      */
-    public SchoolStudentListVO buildStudentDTO(SchoolStudent schoolStudent){
-        SchoolStudentListVO student = new SchoolStudentListVO()
+    public SchoolStudentListVO buildSchoolStudentListVO(SchoolStudent schoolStudent,Map<String, StatConclusion> statConclusionMap){
+        SchoolStudentListVO schoolStudentListVO = new SchoolStudentListVO()
                 .setGradeName(schoolStudent.getGradeName())
                 .setClassName(schoolStudent.getClassName());
 
-        student.setId(schoolStudent.getId())
+        schoolStudentListVO.setId(schoolStudent.getId())
                 .setStudentId(schoolStudent.getStudentId())
                 .setSno(schoolStudent.getSno())
                 .setName(schoolStudent.getName())
                 .setVisionLabel(schoolStudent.getVisionLabel());
-        return student;
+
+
+        schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
+
+        StatConclusion statConclusion = statConclusionMap.get(VisionScreeningResultFacade.getTwoKey(schoolStudent.getStudentId(), schoolStudent.getSchoolId()));
+        schoolStudentListVO.setCorrection(getValue(statConclusion,StatConclusion::getVisionCorrection));
+        schoolStudentListVO.setVision(VisionUtil.getVisionSituation(getValue(statConclusion,StatConclusion::getGlassesType),schoolStudent.getGradeType(),getValue(statConclusion,StatConclusion::getIsLowVision)));
+        return schoolStudentListVO;
     }
 
     /**
@@ -130,11 +125,13 @@ public class SchoolStudentInfoBuilder {
 
 
     /**
-     * 获取学校学生的参数值
-     * @param schoolStudent
+     * 获取参数值
+     * @param t
      * @param function
      */
-    public static String getValue(SchoolStudent schoolStudent,Function<SchoolStudent,String> function){
-        return Optional.ofNullable(schoolStudent).map(function).orElse(null);
+    public static <T,V> V getValue(T t,Function<T,V> function){
+        return Optional.ofNullable(t).map(function).orElse(null);
     }
+
+
 }
