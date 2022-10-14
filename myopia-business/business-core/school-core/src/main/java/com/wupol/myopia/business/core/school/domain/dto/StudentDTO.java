@@ -102,4 +102,9 @@ public class StudentDTO extends Student {
      */
     private Integer schoolMonitorType;
 
+    /**
+     * 近视矫正
+     */
+    private Integer correction;
+
 }

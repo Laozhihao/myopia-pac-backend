@@ -42,7 +42,7 @@ public class SchoolStudentInfoBuilder {
      */
     public void setStudentInfo(Map<Integer, Integer> countMap, Map<Integer, List<ReportAndRecordDO>> visitMap,
                                Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap,
-                               StudentDTO student) {
+                               StudentDTO student,Map<String, StatConclusion> statConclusionMap) {
         // 筛查次数
         student.setScreeningCount(countMap.getOrDefault(student.getId(), 0));
         // 筛查码
@@ -51,6 +51,10 @@ public class SchoolStudentInfoBuilder {
         student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
         // 问卷次数
         student.setQuestionnaireCount(0);
+
+        //近视矫正
+        StatConclusion statConclusion = statConclusionMap.get(VisionScreeningResultFacade.getTwoKey(student.getId(), student.getSchoolId()));
+        student.setCorrection(getValue(statConclusion,StatConclusion::getVisionCorrection));
     }
 
     /**

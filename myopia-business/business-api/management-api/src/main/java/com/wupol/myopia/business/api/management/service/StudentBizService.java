@@ -132,7 +132,7 @@ public class StudentBizService {
             return pageStudents;
         }
         // 获取学生ID
-        List<Integer> studentIds = students.stream().map(Student::getId).collect(Collectors.toList());
+        List<Integer> studentIds = students.stream().map(Student::getId).distinct().collect(Collectors.toList());
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
@@ -150,10 +150,15 @@ public class StudentBizService {
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
+        //近视矫正
+        Set<Integer> schoolIds = students.stream().map(Student::getSchoolId).collect(Collectors.toSet());
+        Map<String, StatConclusion> statConclusionMap = visionScreeningResultFacade.getStatConclusionMap(studentIds,Lists.newArrayList(schoolIds));
+
+
         // 封装DTO
         for (StudentDTO student : students) {
 
-            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student);
+            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student,statConclusionMap);
 
         }
         return pageStudents;
