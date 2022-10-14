@@ -308,6 +308,8 @@ public class VisionScreeningBizService {
         student.setIsAstigmatism(statConclusion.getIsAstigmatism());
         student.setIsHyperopia(statConclusion.getIsHyperopia());
         student.setIsMyopia(statConclusion.getIsMyopia());
+        student.setIsAnisometropia(statConclusion.getIsAnisometropia());
+        student.setIsRefractiveError(statConclusion.getIsRefractiveError());
         student.setGlassesType(statConclusion.getGlassesType());
         student.setVisionLabel(statConclusion.getWarningLevel());
         student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
@@ -347,6 +349,10 @@ public class VisionScreeningBizService {
             schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
             schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
             schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+            schoolStudent.setIsAnisometropia(statConclusion.getIsAnisometropia());
+            schoolStudent.setIsRefractiveError(statConclusion.getIsRefractiveError());
+            schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
+            schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
             schoolStudent.setUpdateTime(new Date());
         });
         schoolStudentService.updateBatchById(schoolStudents);

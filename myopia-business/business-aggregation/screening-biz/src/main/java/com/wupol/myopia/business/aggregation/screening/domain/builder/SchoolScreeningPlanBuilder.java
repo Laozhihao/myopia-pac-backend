@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
@@ -25,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -162,7 +160,7 @@ public class SchoolScreeningPlanBuilder {
      */
     private void setOtherDataVO(VisionScreeningResultDTO studentScreeningResultDetail, StudentScreeningDetailVO studentScreeningDetailVO) {
         List<OtherDataVO> otherDataVoList = Lists.newArrayList(new OtherDataVO(EyeTypeEnum.LEFT_EYE.getCode()),new OtherDataVO(EyeTypeEnum.RIGHT_EYE.getCode()));
-        Set<Boolean> otherList = Sets.newHashSet();
+        List<Boolean> otherList = Lists.newArrayList();
         setSlitLampData(studentScreeningResultDetail, otherDataVoList,otherList);
         setOcularInspectionData(studentScreeningResultDetail, otherDataVoList,otherList);
         setFundusData(studentScreeningResultDetail, otherDataVoList,otherList);
@@ -179,9 +177,9 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
+    private void setOtherEyeDiseases(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,List<Boolean> otherList) {
         OtherEyeDiseasesDO otherEyeDiseases = studentScreeningResultDetail.getOtherEyeDiseases();
-        if (Objects.isNull(otherEyeDiseases)){
+        if (Objects.isNull(otherEyeDiseases) || Objects.equals(otherEyeDiseases.isNull(),Boolean.TRUE)){
             otherList.add(Boolean.TRUE);
             otherDataVoList.get(0).setOtherEyeDiseases(SchoolConstant.NO_DATA);
             otherDataVoList.get(1).setOtherEyeDiseases(SchoolConstant.NO_DATA);
@@ -196,7 +194,7 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
+    private void setFundusData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,List<Boolean> otherList) {
         FundusDataDO fundusData = studentScreeningResultDetail.getFundusData();
         if (Objects.isNull(fundusData)){
             otherList.add(Boolean.TRUE);
@@ -213,7 +211,7 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
+    private void setOcularInspectionData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,List<Boolean> otherList) {
         OcularInspectionDataDO ocularInspectionData = studentScreeningResultDetail.getOcularInspectionData();
         if (Objects.isNull(ocularInspectionData)){
             otherList.add(Boolean.TRUE);
@@ -231,7 +229,7 @@ public class SchoolScreeningPlanBuilder {
      * @param studentScreeningResultDetail 学生筛查结果详情（数据库）
      * @param otherDataVoList 其它数据
      */
-    private void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,Set<Boolean> otherList) {
+    private void setSlitLampData(VisionScreeningResultDTO studentScreeningResultDetail, List<OtherDataVO> otherDataVoList,List<Boolean> otherList) {
         SlitLampDataDO slitLampData = studentScreeningResultDetail.getSlitLampData();
         if (Objects.isNull(slitLampData)){
             otherList.add(Boolean.TRUE);

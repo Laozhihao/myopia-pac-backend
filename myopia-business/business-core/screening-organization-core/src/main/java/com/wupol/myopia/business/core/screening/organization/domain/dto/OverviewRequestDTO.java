@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * @Author wulizhou
  * @Date 2022/2/18 16:09
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class OverviewRequestDTO extends Overview {
 
