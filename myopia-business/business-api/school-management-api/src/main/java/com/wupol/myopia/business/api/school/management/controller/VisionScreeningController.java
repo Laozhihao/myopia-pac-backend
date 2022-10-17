@@ -2,8 +2,6 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -11,11 +9,9 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
-import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
-import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreeningPlanDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
@@ -35,18 +31,14 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.interfaces.HasName;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -70,37 +62,16 @@ public class VisionScreeningController {
 
     @Resource
     private VisionScreeningService visionScreeningService;
-
     @Resource
     private ScreeningPlanSchoolStudentFacadeService screeningPlanSchoolStudentFacadeService;
-
     @Resource
     private ScreeningExportService screeningExportService;
-
-    @Resource
-    private ExcelFacade excelFacade;
-
-    @Resource
-    private RedisUtil redisUtil;
-
     @Resource
     private SchoolService schoolService;
-
-    @Resource
-    private StatConclusionService statConclusionService;
-
-    @Resource
-    private DistrictService districtService;
-
     @Resource
     private ExportStrategy exportStrategy;
-
     @Resource
     private ScreeningPlanStudentBizService screeningPlanStudentBizService;
-
-    @Resource
-    private SysUtilService sysUtilService;
-
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
     @Resource
@@ -199,26 +170,8 @@ public class VisionScreeningController {
      */
     @GetMapping("/plan/export")
     public Object getScreeningPlanExportData(Integer planId) throws IOException, UtilException {
-
-        // TODO：复用ExportPlanStudentDataExcelService导出逻辑
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        Integer schoolId = currentUser.getOrgId();
-
-        List<StatConclusionExportDTO> statConclusionExportDTOs;
-
-        // 获取文件需显示的名称的学校前缀
-        String exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId));
-        statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(planId, schoolId);
-        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
-            throw new BusinessException("暂无筛查数据，无法导出");
-        }
-        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
-        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, planId, 0, schoolId, currentUser.getId());
-        checkIsExport(key);
-        // 导出限制
-        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_EXCEL_SCHOOL_PLAN, planId, schoolId, currentUser.getId()), key,null);
-        // 获取文件需显示的名称
-        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, true, exportFileNamePrefix, key);
+        visionScreeningService.getScreeningPlanExportData(planId,currentUser);
         return ApiResult.success();
     }
 
@@ -289,32 +242,6 @@ public class VisionScreeningController {
         schoolService.updateResultNoticeConfig(id, resultNoticeConfig);
     }
 
-    /**
-     * 判空并获取名称
-     *
-     * @param object 类型
-     * @return 名称
-     */
-    private <T extends HasName> String checkNotNullAndGetName(T object) {
-        if (Objects.isNull(object)) {
-            throw new BusinessException(String.format("未找到该%s", "学校"));
-        }
-        return object.getName();
-    }
-
-    /**
-     * 是否正在导出
-     *
-     * @param key Key
-     */
-    private void checkIsExport(String key) {
-        Object o = redisUtil.get(key);
-        if (Objects.nonNull(o)) {
-            throw new BusinessException("正在导出中，请勿重复导出");
-        }
-        //time: 60 * 60 * 24
-        redisUtil.set(key, 1, 86400L);
-    }
 
 
     /**
