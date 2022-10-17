@@ -294,7 +294,7 @@ public class StudentController {
      */
     @GetMapping("/screening/list/{id}")
     public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
-        return studentFacade.getSchoolScreeningList(pageRequest, id,CurrentUserUtil.getCurrentUser());
+        return studentFacade.getSchoolScreeningList(pageRequest, id,CurrentUserUtil.getCurrentUser(),SystemCode.MANAGEMENT_CLIENT.getCode());
     }
 
     /**

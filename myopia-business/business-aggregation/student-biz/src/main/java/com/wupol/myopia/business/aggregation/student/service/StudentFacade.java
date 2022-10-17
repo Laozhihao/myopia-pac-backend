@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
@@ -176,7 +177,7 @@ public class StudentFacade {
      * @param currentUser 当前登录用户
      * @return 学生档案卡返回体
      */
-    public  IPage<StudentScreeningResultItemsDTO> getSchoolScreeningList(PageRequest pageRequest, Integer id, CurrentUser currentUser) {
+    public  IPage<StudentScreeningResultItemsDTO> getSchoolScreeningList(PageRequest pageRequest, Integer id, CurrentUser currentUser,Integer clientId) {
         SchoolStudent schoolStudent = schoolStudentService.getById(id);
         if (Objects.isNull(schoolStudent)){
             throw new BusinessException("学校学生不存在");
@@ -207,14 +208,16 @@ public class StudentFacade {
         List<StudentScreeningResultItemsDTO> records = new ArrayList<>();
         // 转换
         for (VisionScreeningResultDTO result : resultList) {
-            ScreeningInfoDTO screeningInfoDTO = getScreeningDataDetail(result, reScreeningResultMap);
+            ScreeningInfoDTO screeningInfoDTO = getSchoolScreeningDataDetail(result, reScreeningResultMap,clientId);
             Integer templateId = getTemplateId(result.getScreeningOrgId(), result.getScreeningType(), Objects.equals(result.getSchoolId(), result.getScreeningOrgId()));
 
             StudentScreeningResultItemsDTO item = StudentBizBuilder.builderStudentScreeningResultItemsDTO(screeningOrg, statMap, screeningPlanSchoolStudentMap, Optional.ofNullable(schoolStudent).map(SchoolStudent::getGender).orElse(null), result,screeningOrgTypeMap);
             StudentBizBuilder.setStudentScreeningResultItemInfo(item,screeningInfoDTO,templateId);
             records.add(item);
         }
-        return new Page<StudentScreeningResultItemsDTO>(resultPage.getCurrent(), resultPage.getSize(), resultPage.getTotal()).setRecords(records);
+        resultItemsDTOPage.setRecords(records);
+
+        return resultItemsDTOPage;
     }
 
 
@@ -304,7 +307,30 @@ public class StudentFacade {
      **/
     private ScreeningInfoDTO getScreeningDataDetail(VisionScreeningResult currentResult, Map<Integer, VisionScreeningResult> reScreeningResultMap) {
         ScreeningInfoDTO screeningInfoDTO  = new ScreeningInfoDTO();
-        List<StudentResultDetailsDTO> resultDetail = StudentBizBuilder.packageDTO(currentResult);
+        List<StudentResultDetailsDTO> resultDetail = StudentBizBuilder.packageDTO(currentResult,SystemCode.MANAGEMENT_CLIENT.getCode());
+        resultDetail.forEach(r -> r.setHeightAndWeightData(currentResult.getHeightAndWeightData()));
+        //设置视力信息
+        screeningInfoDTO.setVision(resultDetail);
+        //设置常见病信息
+        screeningInfoDTO.setCommonDiseases(StudentBizBuilder.getCommonDiseases(currentResult));
+        //设置复测信息(为初筛且复测项目都完成才设置该模块)
+        VisionScreeningResult reScreeningResult = reScreeningResultMap.get(currentResult.getPlanId());
+        if (Boolean.FALSE.equals(currentResult.getIsDoubleScreen()) && Objects.nonNull(reScreeningResult) && ObjectUtils.allNotNull(reScreeningResult.getVisionData(), reScreeningResult.getComputerOptometry(), reScreeningResult.getHeightAndWeightData())){
+            screeningInfoDTO.setReScreening(ReScreenCardUtil.reScreeningResult(currentResult, reScreeningResultMap.get(currentResult.getPlanId())));
+        }
+        return screeningInfoDTO;
+    }
+
+    /**
+     * 获取筛查数据详情
+     *
+     * @param currentResult    筛查结果数据
+     * @param reScreeningResultMap  复筛结果数据Map
+     * @return com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningInfoDTO
+     **/
+    private ScreeningInfoDTO getSchoolScreeningDataDetail(VisionScreeningResult currentResult, Map<Integer, VisionScreeningResult> reScreeningResultMap,Integer clientId) {
+        ScreeningInfoDTO screeningInfoDTO  = new ScreeningInfoDTO();
+        List<StudentResultDetailsDTO> resultDetail = StudentBizBuilder.packageDTO(currentResult, clientId);
         resultDetail.forEach(r -> r.setHeightAndWeightData(currentResult.getHeightAndWeightData()));
         //设置视力信息
         screeningInfoDTO.setVision(resultDetail);

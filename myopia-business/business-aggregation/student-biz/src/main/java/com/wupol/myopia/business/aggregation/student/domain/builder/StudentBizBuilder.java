@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
+import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -168,7 +170,7 @@ public class StudentBizBuilder {
      * @param result 结果表
      * @return 详情列表
      */
-    public List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result) {
+    public List<StudentResultDetailsDTO> packageDTO(VisionScreeningResult result,Integer clientId) {
 
         // 设置左眼
         StudentResultDetailsDTO leftDetails = new StudentResultDetailsDTO();
@@ -199,7 +201,38 @@ public class StudentBizBuilder {
             packageOtherEyeDiseasesResult(result, leftDetails, rightDetails);
         }
 
+        //处理学校学生数据
+        if(Objects.equals(clientId, SystemCode.SCHOOL_CLIENT.getCode())){
+            leftDetails.setClientId(clientId);
+            rightDetails.setClientId(clientId);
+            processSchoolClientData(leftDetails,rightDetails);
+        }
+
         return Lists.newArrayList(rightDetails, leftDetails);
+    }
+
+    /**
+     * 处理学校端的数据
+     * @param leftDetails
+     * @param rightDetails
+     */
+    private static void processSchoolClientData(StudentResultDetailsDTO leftDetails, StudentResultDetailsDTO rightDetails) {
+        String formatStr = "度数：右眼：%s、左眼：%s";
+        if (Objects.equals(leftDetails.getGlassesType(), WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)){
+            String leftOkDegree = getBigDecimalStr(BigDecimalUtil.getBigDecimalByFormat(leftDetails.getOkDegree(), 2));
+            String rightOkDegree = getBigDecimalStr(BigDecimalUtil.getBigDecimalByFormat(rightDetails.getOkDegree(), 2));
+            String okDegreeDesc = String.format(formatStr, rightOkDegree, leftOkDegree);
+            rightDetails.setOkDegreeDesc(okDegreeDesc);
+            leftDetails.setOkDegreeDesc(okDegreeDesc);
+        }
+    }
+
+    private String getBigDecimalStr(BigDecimal  bigDecimal){
+        if (Objects.isNull(bigDecimal)){
+            return "--";
+        }
+        String value = bigDecimal.toString();
+        return BigDecimalUtil.moreThan(bigDecimal,"0.00")? "+"+ value : value;
     }
 
     /**

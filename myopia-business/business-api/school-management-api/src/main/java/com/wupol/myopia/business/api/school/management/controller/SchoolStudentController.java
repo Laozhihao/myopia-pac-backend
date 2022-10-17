@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -101,7 +102,7 @@ public class SchoolStudentController {
     @GetMapping("screening/list/{id}")
     public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return studentFacade.getSchoolScreeningList(pageRequest, id, currentUser);
+        return studentFacade.getSchoolScreeningList(pageRequest, id, currentUser, SystemCode.SCHOOL_CLIENT.getCode());
     }
 
 
