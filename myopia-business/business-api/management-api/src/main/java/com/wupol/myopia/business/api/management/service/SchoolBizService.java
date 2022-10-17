@@ -30,6 +30,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
+import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -257,8 +258,33 @@ public class SchoolBizService {
         } else if (currentUser.isGovDeptUser()) {
             GovDept govDept = govDeptService.getById(currentUser.getOrgId());
             return districtService.getDistrictPrefix(govDept.getDistrictId());
+        } else if (currentUser.isOverviewUser()) {
+            return getOverviewDistrict(currentUser.getOrgId(), districtId, allProvince);
         }
         return new TwoTuple<>(districtId, null);
+    }
+
+    /**
+     * 总揽账号行政区域
+     *
+     * @param orgId       总揽账号Id
+     * @param districtId  区域Id
+     * @param allProvince 是否全省
+     *
+     * @return TwoTuple<Integer, Integer>
+     */
+    private TwoTuple<Integer, Integer> getOverviewDistrict(Integer orgId, Integer districtId,
+                                                           Boolean allProvince) {
+        if (Objects.nonNull(districtId)) {
+            // 不为空说明是搜索条件
+            return new TwoTuple<>(districtId, null);
+        }
+        if (Objects.equals(allProvince, Boolean.TRUE)) {
+            Overview overview = overviewService.getById(orgId);
+            return districtService.getDistrictPrefix(overview.getDistrictId());
+        } else {
+            return new TwoTuple<>(null, null);
+        }
     }
 
     private TwoTuple<Integer, Integer> getScreeningDistrict(Integer screeningOrgId, Integer districtId,
@@ -386,7 +412,9 @@ public class SchoolBizService {
     private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
 
         if (currentUser.isOverviewUser()) {
-            schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+            if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
+                schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+            }
             return;
         }
 
