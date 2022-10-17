@@ -210,10 +210,16 @@ public enum SchoolAge {
 
     }
 
+    /**
+     * 幼儿园code
+     */
     public static List<Integer> kindergartenCode(){
         return Lists.newArrayList(KINDERGARTEN.getCode());
     }
 
+    /**
+     * 小学及以上code
+     */
     public static List<Integer> primaryAndAboveCode(){
         return Lists.newArrayList(PRIMARY.getCode(),JUNIOR.getCode(),HIGH.getCode(),VOCATIONAL_HIGH.getCode(),UNIVERSITY.getCode());
     }

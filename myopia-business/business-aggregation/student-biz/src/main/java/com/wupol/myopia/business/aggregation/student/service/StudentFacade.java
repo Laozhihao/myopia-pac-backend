@@ -966,6 +966,7 @@ public class StudentFacade {
         if (Objects.equals(isAll,Boolean.TRUE)){
             schoolStudentList = schoolStudentService.list();
         }else {
+            Assert.notNull(schoolId,"学校ID不能为空");
             schoolStudentList = schoolStudentService.listBySchoolId(schoolId);
         }
         for (SchoolStudent schoolStudent : schoolStudentList) {

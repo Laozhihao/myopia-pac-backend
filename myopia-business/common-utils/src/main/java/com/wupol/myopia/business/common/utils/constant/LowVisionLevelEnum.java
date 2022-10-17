@@ -52,6 +52,9 @@ public enum LowVisionLevelEnum {
         return Lists.newArrayList(LOW_VISION_LEVEL_LIGHT, LOW_VISION_LEVEL_MIDDLE, LOW_VISION_LEVEL_HIGH);
     }
 
+    /**
+     * 视力低下code集合
+     */
     public static List<Integer> lowVisionLevelCodeList() {
         return Lists.newArrayList(LOW_VISION.getCode(),LOW_VISION_LEVEL_LIGHT.getCode(), LOW_VISION_LEVEL_MIDDLE.getCode(), LOW_VISION_LEVEL_HIGH.getCode());
     }
