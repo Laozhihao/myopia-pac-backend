@@ -292,8 +292,8 @@ public class DeviceUploadDataService {
         if (Objects.isNull(device)) {
             return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
         }
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
-        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+        Integer orgId = getOrganizationId(device);
+        if (Objects.isNull(orgId)) {
             return new ScalesResponseDTO("0", "无法找到筛查机构或该筛查机构已过期");
         }
         List<ScalesData> datas = requestDTO.getDatas();
@@ -315,7 +315,7 @@ public class DeviceUploadDataService {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
             }
             // 保存原始数据
-            saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), System.currentTimeMillis());
+            saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, orgId, System.currentTimeMillis());
             HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
@@ -340,7 +340,7 @@ public class DeviceUploadDataService {
         String uid = Base64.decodeStr(request.getUid());
 
         Device device = getDevice(deviceSn);
-        Integer orgId = getOrganizationId(device);
+        Integer orgId = getOrganizationIdThrowException(device);
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
         ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(orgId, planStudentId);
 
@@ -374,8 +374,23 @@ public class DeviceUploadDataService {
      *
      * @return orgId
      */
-    public Integer getOrganizationId(Device device) {
+    public Integer getOrganizationIdThrowException(Device device) {
 
+        Integer orgId = getOrganizationId(device);
+        if (Objects.isNull(orgId)) {
+            throw new BusinessException("设备数据异常！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+        }
+        return orgId;
+    }
+
+    /**
+     * 通过设备获取筛查机构
+     *
+     * @param device 设备
+     *
+     * @return orgId
+     */
+    private Integer getOrganizationId(Device device) {
         if (Objects.equals(OrgTypeEnum.SCREENING.getCode(), device.getOrgType())) {
             ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
             checkOrgStatus(screeningOrganization);
@@ -389,7 +404,7 @@ public class DeviceUploadDataService {
             checkOrgStatus(school);
             return school.getId();
         }
-        throw new BusinessException("设备数据异常！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+        return null;
     }
 
     /**

@@ -56,7 +56,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         if (Objects.isNull(device)) {
             throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
         }
-        Integer orgId = deviceUploadDataService.getOrganizationId(device);
+        Integer orgId = deviceUploadDataService.getOrganizationIdThrowException(device);
         String dataStr = requestDTO.getData();
         if (StringUtils.isBlank(dataStr)) {
             throw new BusinessException("数据不能为空！", ResultCode.DATA_UPLOAD_DATA_EMPTY_ERROR.getCode());

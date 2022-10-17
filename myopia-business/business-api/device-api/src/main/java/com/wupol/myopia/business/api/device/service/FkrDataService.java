@@ -36,7 +36,7 @@ public class FkrDataService {
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
 
         Device device = deviceUploadDataService.getDevice(deviceSN);
-        Integer orgId = deviceUploadDataService.getOrganizationId(device);
+        Integer orgId = deviceUploadDataService.getOrganizationIdThrowException(device);
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(orgId, planStudentId);
         // 保存原始数据
         deviceUploadDataService.saveDeviceData(device, JSON.toJSONString(requestDTO), planStudentId, orgId, System.currentTimeMillis());
