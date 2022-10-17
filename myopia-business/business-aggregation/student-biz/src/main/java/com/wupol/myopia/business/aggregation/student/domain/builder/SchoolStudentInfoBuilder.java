@@ -120,6 +120,7 @@ public class SchoolStudentInfoBuilder {
             switch (visionSituationEnum){
                 case NORMAL:
                     schoolStudentQueryBO.setLowVisionList(Lists.newArrayList(LowVisionLevelEnum.ZERO.getCode()));
+                    break;
                 case LOW_VISION_KINDERGARTEN:
                     schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
                     schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
