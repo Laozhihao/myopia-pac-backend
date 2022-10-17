@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -151,6 +152,8 @@ public class SchoolStudentExcelImportService {
             schoolStudent.setGradeName(gradeName);
             schoolStudent.setClassId(gradeClassInfo.getSecond());
             schoolStudent.setClassName(className);
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(gradeName);
+            schoolStudent.setParticularYear(SchoolUtil.getParticularYear(gradeCodeEnum.getCode()));
 
             // 更新管理端
             schoolStudent.checkStudentInfo();

@@ -218,6 +218,11 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer visionCorrection;
 
     /**
+     * 入学年份
+     */
+    private Integer particularYear;
+
+    /**
      * 检查学生信息是否正确
      * <p>
      *     身份证和护照二选一

@@ -61,7 +61,11 @@ public class SchoolStudentQueryBO implements Serializable {
     /**
      * 视力低下
      */
-    private Integer lowVision;
+    private List<Integer> lowVisionList;
+    /**
+     * 学龄段
+     */
+    private List<Integer> gradeTypeList;
 
     /**
      * 屈光类型-近视

@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
@@ -42,7 +41,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
@@ -150,16 +148,9 @@ public class StudentBizService {
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
-        //近视矫正
-        Set<Integer> schoolIds = students.stream().map(Student::getSchoolId).collect(Collectors.toSet());
-        Map<String, StatConclusion> statConclusionMap = visionScreeningResultFacade.getStatConclusionMap(studentIds,Lists.newArrayList(schoolIds));
-
-
         // 封装DTO
         for (StudentDTO student : students) {
-
-            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student,statConclusionMap);
-
+            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student);
         }
         return pageStudents;
     }
@@ -185,13 +176,10 @@ public class StudentBizService {
         if (CollUtil.isEmpty(schoolStudentList)) {
             return studentDTOPage;
         }
-        Set<Integer> studentIds = schoolStudentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toSet());
-        Set<Integer> schoolIds = schoolStudentList.stream().map(SchoolStudent::getSchoolId).collect(Collectors.toSet());
-        Map<String, StatConclusion> statConclusionMap = visionScreeningResultFacade.getStatConclusionMap(Lists.newArrayList(studentIds),Lists.newArrayList(schoolIds));
 
         // 封装DTO
         List<SchoolStudentListVO> studentDTOList = schoolStudentList.stream()
-                .map(schoolStudent -> SchoolStudentInfoBuilder.buildSchoolStudentListVO(schoolStudent,statConclusionMap))
+                .map(SchoolStudentInfoBuilder::buildSchoolStudentListVO)
                 .collect(Collectors.toList());
         studentDTOPage.setRecords(studentDTOList);
         return studentDTOPage;

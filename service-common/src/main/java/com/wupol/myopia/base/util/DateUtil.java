@@ -509,4 +509,14 @@ public class DateUtil extends cn.hutool.core.date.DateUtil {
         end.setTime(endTime);
         return calendar.after(begin) && calendar.before(end);
     }
+
+    /**
+     * 当前系统的默认入学年份
+     */
+    public static Integer getSchoolYear(){
+        LocalDate localDate = LocalDate.now();
+        int monthValue = localDate.getMonthValue();
+        return Objects.equals(monthValue,1)?localDate.getYear()-1:localDate.getYear();
+    }
+
 }

@@ -5,9 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
-import com.wupol.myopia.business.common.utils.constant.AstigmatismLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.HyperopiaLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.aggregation.student.constant.VisionSituationEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
@@ -16,8 +15,6 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.Assert;
 
@@ -47,7 +44,7 @@ public class SchoolStudentInfoBuilder {
      */
     public void setStudentInfo(Map<Integer, Integer> countMap, Map<Integer, List<ReportAndRecordDO>> visitMap,
                                Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap,
-                               StudentDTO student,Map<String, StatConclusion> statConclusionMap) {
+                               StudentDTO student) {
         // 筛查次数
         student.setScreeningCount(countMap.getOrDefault(student.getId(), 0));
         // 筛查码
@@ -56,10 +53,8 @@ public class SchoolStudentInfoBuilder {
         student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
         // 问卷次数
         student.setQuestionnaireCount(0);
-
         //近视矫正
-        StatConclusion statConclusion = statConclusionMap.get(VisionScreeningResultFacade.getTwoKey(student.getId(), student.getSchoolId()));
-        student.setCorrection(getValue(statConclusion,StatConclusion::getVisionCorrection));
+        student.setCorrection(student.getVisionCorrection());
     }
 
     /**
@@ -67,7 +62,7 @@ public class SchoolStudentInfoBuilder {
      *
      * @param schoolStudent
      */
-    public SchoolStudentListVO buildSchoolStudentListVO(SchoolStudent schoolStudent,Map<String, StatConclusion> statConclusionMap){
+    public SchoolStudentListVO buildSchoolStudentListVO(SchoolStudent schoolStudent){
         SchoolStudentListVO schoolStudentListVO = new SchoolStudentListVO()
                 .setGradeName(schoolStudent.getGradeName())
                 .setClassName(schoolStudent.getClassName());
@@ -76,14 +71,19 @@ public class SchoolStudentInfoBuilder {
                 .setStudentId(schoolStudent.getStudentId())
                 .setSno(schoolStudent.getSno())
                 .setName(schoolStudent.getName())
-                .setVisionLabel(schoolStudent.getVisionLabel());
+                .setVisionLabel(schoolStudent.getVisionLabel())
+                .setCorrection(schoolStudent.getVisionCorrection());
 
+        if (Objects.nonNull(schoolStudent.getParticularYear())){
+            schoolStudentListVO.setYearStr(schoolStudent.getParticularYear().toString());
+        }
 
-        schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
+        if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.getCode())){
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError()));
+        }else {
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
+        }
 
-        StatConclusion statConclusion = statConclusionMap.get(VisionScreeningResultFacade.getTwoKey(schoolStudent.getStudentId(), schoolStudent.getSchoolId()));
-
-        schoolStudentListVO.setCorrection(schoolStudent.getVisionCorrection());
         schoolStudentListVO.setVision(VisionUtil.getVisionSituation(schoolStudent.getGlassesType(),schoolStudent.getGradeType(),schoolStudent.getLowVision()));
         return schoolStudentListVO;
     }
@@ -100,8 +100,11 @@ public class SchoolStudentInfoBuilder {
                 .setGradeId(studentQueryDTO.getGradeId())
                 .setClassId(studentQueryDTO.getClassId())
                 .setSchoolId(studentQueryDTO.getSchoolId())
-                .setLowVision(studentQueryDTO.getVisionType())
                 .setVisionLabels(studentQueryDTO.getVisionLabels());
+
+        if (CollUtil.isEmpty(schoolStudentQueryBO.getVisionLabels()) && Objects.nonNull(studentQueryDTO.getVisionLabel())){
+            schoolStudentQueryBO.setVisionLabels(studentQueryDTO.getVisionLabel().toString());
+        }
 
         setSchoolStudentQueryBO(schoolStudentQueryBO,studentQueryDTO);
 
@@ -111,7 +114,26 @@ public class SchoolStudentInfoBuilder {
     private void setSchoolStudentQueryBO(SchoolStudentQueryBO schoolStudentQueryBO,SchoolStudentQueryDTO studentQueryDTO){
         schoolStudentQueryBO.setYear(studentQueryDTO.getYear());
         schoolStudentQueryBO.setGlassesType(studentQueryDTO.getGlassesType());
-        schoolStudentQueryBO.setLowVision(studentQueryDTO.getVisionType());
+
+        if (Objects.nonNull(studentQueryDTO.getVisionType())){
+            VisionSituationEnum visionSituationEnum = VisionSituationEnum.getByCode(studentQueryDTO.getVisionType());
+            switch (visionSituationEnum){
+                case NORMAL:
+                    schoolStudentQueryBO.setLowVisionList(Lists.newArrayList(LowVisionLevelEnum.ZERO.getCode()));
+                case LOW_VISION_KINDERGARTEN:
+                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
+                    break;
+                case LOW_VISION_PRIMARY_ABOVE:
+                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
         if (Objects.nonNull(studentQueryDTO.getRefractionType())){
             RefractionSituationEnum refractionSituationEnum = RefractionSituationEnum.getByCode(studentQueryDTO.getRefractionType());
             switch (refractionSituationEnum){
@@ -122,7 +144,7 @@ public class SchoolStudentInfoBuilder {
                             MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode()));
                     break;
                 case HYPEROPIA:
-                    schoolStudentQueryBO.setMyopiaList(Lists.newArrayList(
+                    schoolStudentQueryBO.setHyperopiaList(Lists.newArrayList(
                             HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.getCode(),
                             HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.getCode(),
                             HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode()
@@ -212,6 +234,5 @@ public class SchoolStudentInfoBuilder {
     public static <T,V> V getValue(T t,Function<T,V> function){
         return Optional.ofNullable(t).map(function).orElse(null);
     }
-
 
 }

@@ -66,7 +66,7 @@ public class VisionUtil {
         if (Objects.nonNull(glassesType)) {
             resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
         }
-        if (Objects.equals(lowVision,LowVisionLevelEnum.LOW_VISION.getCode())){
+        if (LowVisionLevelEnum.lowVisionLevelCodeList().contains(lowVision)){
             if (SchoolAge.checkKindergarten(gradeType)){
                 resultList.add("视力低常");
             }else {
@@ -80,7 +80,7 @@ public class VisionUtil {
     }
 
     /**
-     * 获取屈光情况
+     * 获取屈光情况 (小学及以上)
      *
      * @param myopiaLevel
      * @param hyperopiaLevel
@@ -106,6 +106,26 @@ public class VisionUtil {
         if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
             resultList.add(AstigmatismLevelEnum.getDesc(astigmatismLevel));
         }
+        return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
+    }
+
+    /**
+     * 获取屈光情况 (幼儿园)
+     * @param isAnisometropia
+     * @param isRefractiveError
+     */
+    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError) {
+        List<String> resultList = new LinkedList<>();
+
+        //屈光不正
+        if (Objects.equals(isRefractiveError,Boolean.TRUE)) {
+            resultList.add("屈光不正");
+        }
+        //屈光参差
+        if (Objects.equals(isAnisometropia,Boolean.TRUE)) {
+            resultList.add("屈光参差");
+        }
+
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 }

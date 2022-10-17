@@ -209,4 +209,12 @@ public enum SchoolAge {
         return SchoolAge.KINDERGARTEN.code.equals(schoolAgeType);
 
     }
+
+    public static List<Integer> kindergartenCode(){
+        return Lists.newArrayList(KINDERGARTEN.getCode());
+    }
+
+    public static List<Integer> primaryAndAboveCode(){
+        return Lists.newArrayList(PRIMARY.getCode(),JUNIOR.getCode(),HIGH.getCode(),VOCATIONAL_HIGH.getCode(),UNIVERSITY.getCode());
+    }
 }

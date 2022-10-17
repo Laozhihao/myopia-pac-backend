@@ -1,10 +1,8 @@
 package com.wupol.myopia.business.aggregation.student.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DatePattern;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.constant.VisionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
@@ -18,12 +16,12 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -60,7 +58,7 @@ public class SchoolStudentFacade {
             return schoolStudentQuerySelectVO;
         }
         //年份
-        yearList(schoolStudentQuerySelectVO);
+        yearList(schoolStudentQuerySelectVO,schoolId);
 
         //视力类型
         visionTypeList(schoolStudentQuerySelectVO,kindergartenAndPrimaryAbove);
@@ -75,32 +73,25 @@ public class SchoolStudentFacade {
      * 年份
      * @param schoolStudentQuerySelectVO
      */
-    private void yearList(SchoolStudentQuerySelectVO schoolStudentQuerySelectVO) {
-        schoolStudentQuerySelectVO.getYearList().add(new SchoolStudentQuerySelectVO.SelectValue(2022,"2022"));
+    private void yearList(SchoolStudentQuerySelectVO schoolStudentQuerySelectVO,Integer schoolId) {
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolId(schoolId);
+        if (CollUtil.isEmpty(schoolStudentList)){
+            return;
+        }
+        List<SchoolStudentQuerySelectVO.SelectValue> selectValueList = schoolStudentList.stream()
+                .map(SchoolStudent::getParticularYear)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted(Comparator.comparing(Integer::intValue))
+                .map(year-> new SchoolStudentQuerySelectVO.SelectValue(year,year.toString()))
+                .collect(Collectors.toList());
+
+        if (CollUtil.isEmpty(selectValueList)){
+            return;
+        }
+        schoolStudentQuerySelectVO.getYearList().addAll(selectValueList);
     }
 
-    /**
-     * 获取现在的年份时间间隔
-     */
-    public List<Date> getNowTimeInterval() {
-        List<Date> nowTimeInterval = Lists.newArrayList();
-        int year = LocalDate.now().getYear();
-
-        String frontYearFormat = "%s-2-1~%s-8-31";
-        String[] frontYearArr = String.format(frontYearFormat, year, year).split("~");
-        Date frontStartTime = DateUtil.parse(frontYearArr[0], DatePattern.NORM_DATE_PATTERN);
-        Date frontEndTime = DateUtil.parse(frontYearArr[1], DatePattern.NORM_DATE_PATTERN);
-        nowTimeInterval.add(frontStartTime);
-        nowTimeInterval.add(frontEndTime);
-
-        String afterYearFormat = "%s-9-1~%s-1-31";
-        String[] afterYearArr = String.format(afterYearFormat, year, year + 1).split("~");
-        Date afterStartTime = DateUtil.parse(afterYearArr[0], DatePattern.NORM_DATE_PATTERN);
-        Date afterEndTime = DateUtil.parse(afterYearArr[1], DatePattern.NORM_DATE_PATTERN);
-        nowTimeInterval.add(afterStartTime);
-        nowTimeInterval.add(afterEndTime);
-        return nowTimeInterval;
-    }
     /**
      * 屈光类型下拉选择值
      * @param schoolStudentQuerySelectVO
@@ -187,6 +178,7 @@ public class SchoolStudentFacade {
         schoolStudent.setGradeName(grade.getName());
         schoolStudent.setClassName(schoolClassService.getById(schoolStudent.getClassId()).getName());
         schoolStudent.setGradeType(GradeCodeEnum.getByCode(grade.getGradeCode()).getType());
+        schoolStudent.setParticularYear(SchoolUtil.getParticularYear(grade.getGradeCode()));
 
         SchoolStudent havaDeletedStudent = schoolStudentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), schoolId);
         if (Objects.nonNull(havaDeletedStudent)) {

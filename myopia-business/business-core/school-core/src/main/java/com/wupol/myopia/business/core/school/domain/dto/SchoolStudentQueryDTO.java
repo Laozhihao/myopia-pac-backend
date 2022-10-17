@@ -41,6 +41,7 @@ public class SchoolStudentQueryDTO implements Serializable {
      * 预警等级
      */
     private String visionLabels;
+    private Integer visionLabel;
 
     /**
      * 入学年份

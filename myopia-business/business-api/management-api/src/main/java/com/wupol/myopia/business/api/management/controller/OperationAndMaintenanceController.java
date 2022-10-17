@@ -108,4 +108,12 @@ public class OperationAndMaintenanceController {
         studentFacade.processGradeTypeData();
     }
 
+    /**
+     * 处理学校学生年份
+     */
+    @GetMapping("/schoolStudentYearData")
+    public void schoolStudentYearData(@RequestParam Boolean isAll,
+                                      @RequestParam(required = false) Integer schoolId){
+        studentFacade.schoolStudentYearData(isAll,schoolId);
+    }
 }

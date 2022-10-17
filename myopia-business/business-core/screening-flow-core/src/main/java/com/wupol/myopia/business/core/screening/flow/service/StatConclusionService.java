@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
-import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -372,17 +371,5 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.getBySchoolIdAndWarningLevel(schoolId);
     }
 
-    /**
-     * 根据学生ID和学校ID批量获取筛查结论
-     * @param studentIds
-     * @param schoolIds
-     */
-    public List<StatConclusion> listByStudentIdsAndSchoolIds(List<Integer> studentIds, List<Integer> schoolIds) {
-        LambdaQueryWrapper<StatConclusion> queryWrapper = Wrappers.lambdaQuery(StatConclusion.class)
-                .in(CollUtil.isNotEmpty(studentIds), StatConclusion::getStudentId, studentIds)
-                .in(CollUtil.isNotEmpty(schoolIds), StatConclusion::getSchoolId, schoolIds)
-                .eq(StatConclusion::getIsValid, Boolean.TRUE);
-        return baseMapper.selectList(queryWrapper);
-    }
 }
 
