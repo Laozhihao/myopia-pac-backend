@@ -14,6 +14,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -557,5 +558,24 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             responseDTO.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
             return responseDTO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 是否海南版本
+     *
+     * @param id 学校Id
+     *
+     * @return 是否海南版本
+     */
+    public boolean isHaiNanVersion(Integer id) {
+        School school = baseMapper.getBySchoolId(id);
+        if (Objects.isNull(school)) {
+            throw new BusinessException("学校信息异常");
+        }
+        ScreeningConfig screeningConfig = school.getScreeningConfig();
+        if (Objects.isNull(screeningConfig)) {
+            return false;
+        }
+        return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
     }
 }

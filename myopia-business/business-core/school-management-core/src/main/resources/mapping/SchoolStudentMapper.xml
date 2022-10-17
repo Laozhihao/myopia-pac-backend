@@ -291,6 +291,7 @@
             #{studentId}
         </foreach>
         and school_id = #{schoolId}
+        and status = 0
     </select>
 
     <select id="getBySchoolIdAndVisionLabel" resultMap="BaseResultMap">

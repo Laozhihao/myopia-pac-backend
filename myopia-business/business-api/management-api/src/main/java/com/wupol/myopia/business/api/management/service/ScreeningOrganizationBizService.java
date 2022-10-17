@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
@@ -545,6 +546,12 @@ public class ScreeningOrganizationBizService {
         List<RecordDetails> details = Lists.newArrayList();
 
         List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, StringUtils.EMPTY);
+        if (CollUtil.isEmpty(schoolVos)){
+            screeningRecordItems.setSchoolCount(0);
+            screeningRecordItems.setStaffCount(0);
+            screeningRecordItems.setDetails(details);
+            return screeningRecordItems;
+        }
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
 
         // 设置学校总数

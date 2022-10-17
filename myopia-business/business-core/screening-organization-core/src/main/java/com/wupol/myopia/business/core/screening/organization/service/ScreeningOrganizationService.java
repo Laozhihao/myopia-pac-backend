@@ -14,6 +14,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -451,6 +452,22 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public List<ScreeningOrganization> getByName(String screeningOrgNameLike) {
         return baseMapper.getByName(screeningOrgNameLike);
+    }
+
+    /**
+     * 是否海南版本
+     *
+     * @param id id
+     *
+     * @return 是否海南版本
+     */
+    public boolean isHaiNanVersion(Integer id) {
+        ScreeningOrgResponseDTO orgDetails = getScreeningOrgDetails(id);
+        ScreeningConfig screeningConfig = orgDetails.getScreeningConfig();
+        if (Objects.isNull(screeningConfig)) {
+            return false;
+        }
+        return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
     }
 
 }

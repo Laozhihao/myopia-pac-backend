@@ -14,16 +14,22 @@ import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.core.common.domain.model.Cooperation;
+import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceSourceData;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.DeviceSourceDataService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -76,6 +82,12 @@ public class DeviceUploadDataService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private SchoolClassService schoolClassService;
+
+    @Autowired
+    private HospitalService hospitalService;
+
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 处理studentId
@@ -280,8 +292,8 @@ public class DeviceUploadDataService {
         if (Objects.isNull(device)) {
             return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
         }
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
-        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+        Integer orgId = getOrganizationId(device);
+        if (Objects.isNull(orgId)) {
             return new ScalesResponseDTO("0", "无法找到筛查机构或该筛查机构已过期");
         }
         List<ScalesData> datas = requestDTO.getDatas();
@@ -303,7 +315,7 @@ public class DeviceUploadDataService {
                 return new ScalesResponseDTO("0", "身体质量指数值为空");
             }
             // 保存原始数据
-            saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, screeningOrganization.getId(), System.currentTimeMillis());
+            saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, orgId, System.currentTimeMillis());
             HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
             heightAndWeightDataDTO.setHeight(new BigDecimal(bmiData.getHeight()));
             heightAndWeightDataDTO.setWeight(new BigDecimal(bmiData.getWeight()));
@@ -328,9 +340,9 @@ public class DeviceUploadDataService {
         String uid = Base64.decodeStr(request.getUid());
 
         Device device = getDevice(deviceSn);
-        ScreeningOrganization screeningOrganization = getScreeningOrganization(device);
+        Integer orgId = getOrganizationIdThrowException(device);
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
-        ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
+        ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(orgId, planStudentId);
 
         SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
         SchoolClass schoolClass = schoolClassService.getById(planStudent.getClassId());
@@ -359,29 +371,66 @@ public class DeviceUploadDataService {
      * 通过设备获取筛查机构
      *
      * @param device 设备
-     * @return 筛查机构
+     *
+     * @return orgId
      */
-    public ScreeningOrganization getScreeningOrganization(Device device) {
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
-        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
+    public Integer getOrganizationIdThrowException(Device device) {
+
+        Integer orgId = getOrganizationId(device);
+        if (Objects.isNull(orgId)) {
+            throw new BusinessException("设备数据异常！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+        }
+        return orgId;
+    }
+
+    /**
+     * 通过设备获取筛查机构
+     *
+     * @param device 设备
+     *
+     * @return orgId
+     */
+    private Integer getOrganizationId(Device device) {
+        if (Objects.equals(OrgTypeEnum.SCREENING.getCode(), device.getOrgType())) {
+            ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
+            checkOrgStatus(screeningOrganization);
+            return screeningOrganization.getId();
+        } else if (Objects.equals(OrgTypeEnum.HOSPITAL.getCode(), device.getOrgType())) {
+            Hospital hospital = hospitalService.getById(device.getBindingScreeningOrgId());
+            checkOrgStatus(hospital);
+            return hospital.getId();
+        } else if (Objects.equals(OrgTypeEnum.SCHOOL.getCode(), device.getOrgType())) {
+            School school = schoolService.getById(device.getBindingScreeningOrgId());
+            checkOrgStatus(school);
+            return school.getId();
+        }
+        return null;
+    }
+
+    /**
+     * 校验机构状态
+     *
+     * @param t   机构
+     * @param <T> 合作
+     */
+    private <T extends Cooperation> void checkOrgStatus(T t) {
+        if (Objects.isNull(t) || CommonConst.STATUS_IS_DELETED.equals(t.getStatus())) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
         }
-        return screeningOrganization;
     }
 
     /**
      * 获取筛查学生
      *
-     * @param screeningOrganization 筛查机构
+     * @param orgId 筛查机构Id
      * @param planStudentId         筛查学生Id
      * @return 筛查学生
      */
-    public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(ScreeningOrganization screeningOrganization, Integer planStudentId) {
+    public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(Integer orgId, Integer planStudentId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         if (Objects.isNull(planStudent)) {
             throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
         }
-        Integer orgId = screeningOrganization.getId();
         if (!planStudent.getScreeningOrgId().equals(orgId)) {
             throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
         }
