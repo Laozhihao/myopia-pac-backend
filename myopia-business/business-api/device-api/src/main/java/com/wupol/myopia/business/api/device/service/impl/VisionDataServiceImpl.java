@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.api.device.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -12,14 +12,11 @@ import com.wupol.myopia.business.api.device.domain.dto.VisionDataVO;
 import com.wupol.myopia.business.api.device.service.DeviceUploadDataService;
 import com.wupol.myopia.business.api.device.service.IDeviceDataService;
 import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
-import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -43,9 +40,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
     private DeviceService deviceService;
 
     @Resource
-    private ScreeningOrganizationService screeningOrganizationService;
-
-    @Resource
     private VisionScreeningBizService visionScreeningBizService;
 
     @Resource
@@ -62,27 +56,24 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         if (Objects.isNull(device)) {
             throw new BusinessException("无法找到设备:" + deviceSn, ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
         }
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.getById(device.getBindingScreeningOrgId());
-        if (Objects.isNull(screeningOrganization) || CommonConst.STATUS_IS_DELETED.equals(screeningOrganization.getStatus())) {
-            throw new BusinessException("无法找到筛查机构或该筛查机构已过期！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
-        }
+        Integer orgId = deviceUploadDataService.getOrganizationIdThrowException(device);
         String dataStr = requestDTO.getData();
         if (StringUtils.isBlank(dataStr)) {
             throw new BusinessException("数据不能为空！", ResultCode.DATA_UPLOAD_DATA_EMPTY_ERROR.getCode());
         }
-        List<VisionDataVO> visionDataVOS = JSONObject.parseArray(dataStr, VisionDataVO.class);
+        List<VisionDataVO> visionDataVOS = JSON.parseArray(dataStr, VisionDataVO.class);
         visionDataVOS.forEach(visionDataVO -> {
             ValidatorUtils.validate(visionDataVO);
             Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : ParsePlanStudentUtils.parsePlanStudentId(visionDataVO.getUid());
             log.info("planStudentId:{}", planStudentId);
-            ScreeningPlanSchoolStudent planStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
+            ScreeningPlanSchoolStudent planStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(orgId, planStudentId);
             Long screeningTime = visionDataVO.getScreeningTime();
             // 保存原始数据
-            deviceUploadDataService.saveDeviceData(device, dataStr, planStudentId, screeningOrganization.getId(), screeningTime);
+            deviceUploadDataService.saveDeviceData(device, dataStr, planStudentId, orgId, screeningTime);
             // 更新或新增筛查学生结果
             saveOrUpdateScreeningResult(visionDataVO, planStudent);
         });
-        log.info(JSONObject.toJSONString(requestDTO));
+        log.info(JSON.toJSONString(requestDTO));
     }
 
     @Override
