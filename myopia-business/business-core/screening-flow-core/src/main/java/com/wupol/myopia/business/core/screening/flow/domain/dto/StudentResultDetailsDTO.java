@@ -135,9 +135,9 @@ public class StudentResultDetailsDTO implements Serializable {
             }
             String hyperopiaText = Objects.equals(isHyperopia, Boolean.TRUE) ? "远视" : StrUtil.EMPTY;
             String myopiaText = BigDecimalUtil.lessThan(se, "0") ? "近视" : hyperopiaText;
-            String text = "+%sD，%s%s度";
+            String text = "%sD，%s%s度";
             String bigDecimalStr = BigDecimalUtil.getBigDecimalStr(se, 2);
-            String degreeValue = BigDecimalUtil.getBigDecimalStr(BigDecimalUtil.multiply(se, "100"),0);
+            String degreeValue = BigDecimalUtil.getBigDecimalStr(BigDecimalUtil.multiply(se, "100"),0,Boolean.TRUE);
             return String.format(text,bigDecimalStr,myopiaText,degreeValue);
         }
         return se;
@@ -148,7 +148,8 @@ public class StudentResultDetailsDTO implements Serializable {
             if (Objects.isNull(sph)){
                 return sph;
             }
-            return BigDecimalUtil.getBigDecimalStr(sph, 2,Boolean.TRUE);
+            String bigDecimalStr = BigDecimalUtil.getBigDecimalStr(sph, 2);
+            return BigDecimalUtil.getText(bigDecimalStr,Boolean.TRUE);
         }
         return sph;
     }
@@ -158,10 +159,10 @@ public class StudentResultDetailsDTO implements Serializable {
             if (Objects.isNull(cyl)){
                 return cyl;
             }
-            String text = "+%sD，%s%s度";
+            String text = "%sD，%s%s度";
             String descText = BigDecimalUtil.isBetweenNo(cyl, "0.5", "0.5") ? StrUtil.EMPTY : "散光";
             String bigDecimalStr = BigDecimalUtil.getBigDecimalStr(cyl, 2);
-            String degreeValue = BigDecimalUtil.getBigDecimalStr(BigDecimalUtil.multiply(cyl, "100"),0);
+            String degreeValue = BigDecimalUtil.getBigDecimalStr(BigDecimalUtil.multiply(cyl, "100"),0,Boolean.TRUE);
             return String.format(text,bigDecimalStr,descText,degreeValue);
         }
         return cyl;
@@ -184,7 +185,7 @@ public class StudentResultDetailsDTO implements Serializable {
             if (Objects.isNull(value)){
                 return value;
             }
-            return BigDecimalUtil.getBigDecimalStr(value, scale);
+            return BigDecimalUtil.getBigDecimalStr(value, scale,Boolean.FALSE);
         }
         return value;
     }

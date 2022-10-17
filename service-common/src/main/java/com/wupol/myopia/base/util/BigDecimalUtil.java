@@ -395,14 +395,13 @@ public class BigDecimalUtil {
      * 处理小数点数据
      * @param bigDecimal
      */
-    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale,Boolean isDegree){
+    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale){
         BigDecimal decimalByFormat = getBigDecimalByFormat(bigDecimal, scale);
         if (Objects.isNull(decimalByFormat)){
             return "--";
         }
         String value = decimalByFormat.toString();
-        value = moreThan(bigDecimal, "0.00") ? "+" + value : value;
-        return getText(value,isDegree);
+        return moreThan(bigDecimal, "0.00") ? "+" + value : value;
     }
 
     /**
@@ -410,10 +409,13 @@ public class BigDecimalUtil {
      * @param bigDecimal
      * @param scale
      */
-    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale){
+    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale,Boolean isAbs){
         BigDecimal decimalByFormat = getBigDecimalByFormat(bigDecimal, scale);
         if (Objects.isNull(decimalByFormat)){
             return null;
+        }
+        if (Objects.equals(isAbs,Boolean.TRUE)){
+            return decimalByFormat.abs().toString();
         }
         return decimalByFormat.toString();
     }
