@@ -297,7 +297,8 @@ public class VisionScreeningBizService {
      * @param visionScreeningResult
      * @param statConclusion
      */
-    private void updateStudentVisionData(VisionScreeningResult visionScreeningResult, StatConclusion statConclusion) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStudentVisionData(VisionScreeningResult visionScreeningResult, StatConclusion statConclusion) {
         //获取学生数据
         Integer studentId = visionScreeningResult.getStudentId();
         Student student = studentService.getById(studentId);
@@ -310,6 +311,7 @@ public class VisionScreeningBizService {
         student.setIsMyopia(statConclusion.getIsMyopia());
         student.setIsAnisometropia(statConclusion.getIsAnisometropia());
         student.setIsRefractiveError(statConclusion.getIsRefractiveError());
+        student.setVisionCorrection(statConclusion.getVisionCorrection());
         student.setGlassesType(statConclusion.getGlassesType());
         student.setVisionLabel(statConclusion.getWarningLevel());
         student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
@@ -337,7 +339,8 @@ public class VisionScreeningBizService {
      * @param statConclusion    结论
      * @param lastScreeningTime 上次筛查时间
      */
-    private void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
         List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(statConclusion.getStudentId());
         if (CollectionUtils.isEmpty(schoolStudents)) {
             return;
@@ -351,6 +354,7 @@ public class VisionScreeningBizService {
             schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
             schoolStudent.setIsAnisometropia(statConclusion.getIsAnisometropia());
             schoolStudent.setIsRefractiveError(statConclusion.getIsRefractiveError());
+            schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
             schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
             schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
             schoolStudent.setUpdateTime(new Date());
