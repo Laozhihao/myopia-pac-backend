@@ -79,7 +79,7 @@ public class SchoolStudentInfoBuilder {
         }
 
         if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.getCode())){
-            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError()));
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError(),schoolStudent.getVisionLabel()));
         }else {
             schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
         }

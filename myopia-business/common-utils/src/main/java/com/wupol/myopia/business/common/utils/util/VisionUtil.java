@@ -113,10 +113,15 @@ public class VisionUtil {
      * 获取屈光情况 (幼儿园)
      * @param isAnisometropia
      * @param isRefractiveError
+     * @param visionLabel
      */
-    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError) {
+    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError,Integer visionLabel) {
         List<String> resultList = new LinkedList<>();
 
+        //远视储备不足
+        if (Objects.equals(visionLabel,WarningLevel.ZERO_SP.getCode())){
+            resultList.add("远视储备不足");
+        }
         //屈光不正
         if (Objects.equals(isRefractiveError,Boolean.TRUE)) {
             resultList.add("屈光不正");
