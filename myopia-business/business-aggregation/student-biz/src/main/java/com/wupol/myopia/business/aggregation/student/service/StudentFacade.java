@@ -1383,8 +1383,6 @@ public class StudentFacade {
         cardInfoVO.setParentPhone(planSchoolStudent.getParentPhone());
         cardInfoVO.setSchoolName(planSchoolStudent.getSchoolName());
         cardInfoVO.setSchoolId(planSchoolStudent.getSchoolId());
-        cardInfoVO.setClassName(planSchoolStudent.getClassName());
-        cardInfoVO.setGradeName(planSchoolStudent.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictNameByDistrictId(planSchoolStudent.getSchoolDistrictId()));
         cardInfoVO.setNation(planSchoolStudent.getNation());
         cardInfoVO.setNationDesc(NationEnum.getName(planSchoolStudent.getNation()));
