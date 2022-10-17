@@ -7,7 +7,6 @@ import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 
 /**
- * TODO:
+ * Fkr数据上传
  *
  * @author Simple4H
  */
@@ -37,10 +36,10 @@ public class FkrDataService {
         Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
 
         Device device = deviceUploadDataService.getDevice(deviceSN);
-        ScreeningOrganization screeningOrganization = deviceUploadDataService.getScreeningOrganization(device);
-        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(screeningOrganization, planStudentId);
+        Integer orgId = deviceUploadDataService.getOrganizationId(device);
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(orgId, planStudentId);
         // 保存原始数据
-        deviceUploadDataService.saveDeviceData(device, JSON.toJSONString(requestDTO), planStudentId, screeningOrganization.getId(), System.currentTimeMillis());
+        deviceUploadDataService.saveDeviceData(device, JSON.toJSONString(requestDTO), planStudentId, orgId, System.currentTimeMillis());
         visionScreeningBizService.saveOrUpdateStudentScreenData(getComputerOptometryDTO(requestDTO, screeningPlanSchoolStudent));
     }
 
