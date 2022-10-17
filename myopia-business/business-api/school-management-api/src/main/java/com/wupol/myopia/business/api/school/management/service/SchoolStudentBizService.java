@@ -341,27 +341,39 @@ public class SchoolStudentBizService {
         responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
 
         if (Objects.nonNull(statConclusion)) {
-            if (isKindergarten) {
-                responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低常" : VISION_NORMAL);
-            } else {
-                responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低下" : VISION_NORMAL);
-            }
-            responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
-            responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
-
-            responseDTO.setHeight(EyeDataUtil.heightToStr(result));
-            if (StringUtils.isNotBlank(responseDTO.getHeight())) {
-                responseDTO.setSeatSuggest(true);
-                TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
-                responseDTO.setDesk(deskChairSuggest.getFirst());
-                responseDTO.setChair(deskChairSuggest.getSecond());
-            }
-            responseDTO.setHaveBlackboardDistance(Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaLevel()), Boolean.TRUE));
+            stat2Response(result, statConclusion, responseDTO, isKindergarten);
         }
         responseDTO.setIsBindMp(StringUtils.isNotBlank(schoolStudent.getMpParentPhone()));
         responseDTO.setScreeningTime(schoolStudent.getLastScreeningTime());
         responseDTO.setIsHaveReport(!CollectionUtils.isEmpty(visitMap.get(schoolStudent.getStudentId())));
         return responseDTO;
+    }
+
+    /**
+     * 结论转返回值
+     *
+     * @param result         结果
+     * @param statConclusion 结论
+     * @param responseDTO    返回体
+     * @param isKindergarten 是否幼儿园
+     */
+    private static void stat2Response(VisionScreeningResult result, StatConclusion statConclusion, EyeHealthResponseDTO responseDTO, boolean isKindergarten) {
+        if (isKindergarten) {
+            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低常" : VISION_NORMAL);
+        } else {
+            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低下" : VISION_NORMAL);
+        }
+        responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
+        responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
+
+        responseDTO.setHeight(EyeDataUtil.heightToStr(result));
+        if (StringUtils.isNotBlank(responseDTO.getHeight())) {
+            responseDTO.setSeatSuggest(true);
+            TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(responseDTO.getHeight(), statConclusion.getSchoolAge());
+            responseDTO.setDesk(deskChairSuggest.getFirst());
+            responseDTO.setChair(deskChairSuggest.getSecond());
+        }
+        responseDTO.setHaveBlackboardDistance(Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaLevel()), Boolean.TRUE));
     }
 
     /**
