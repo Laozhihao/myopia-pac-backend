@@ -14,7 +14,6 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
@@ -46,7 +45,6 @@ public class SchoolScreeningNoticeFacade {
 
     private final ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     private final GovDeptService govDeptService;
-    private final SchoolService schoolService;
     private final ScreeningPlanService screeningPlanService;
     private final ScreeningTaskService screeningTaskService;
 

@@ -57,6 +57,13 @@
             <artifactId>government-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--学生信息聚合是可以被其它业务引用-->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>student-biz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

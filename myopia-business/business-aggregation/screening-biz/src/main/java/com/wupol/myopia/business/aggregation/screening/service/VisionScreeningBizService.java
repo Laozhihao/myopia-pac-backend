@@ -4,12 +4,11 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
+import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
-import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -34,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -306,30 +304,7 @@ public class VisionScreeningBizService {
             throw new ManagementUncheckedException("无法通过id找到student，id = " + studentId);
         }
         //填充数据
-        student.setIsAstigmatism(statConclusion.getIsAstigmatism());
-        student.setIsHyperopia(statConclusion.getIsHyperopia());
-        student.setIsMyopia(statConclusion.getIsMyopia());
-        student.setIsAnisometropia(statConclusion.getIsAnisometropia());
-        student.setIsRefractiveError(statConclusion.getIsRefractiveError());
-        student.setVisionCorrection(statConclusion.getVisionCorrection());
-        student.setGlassesType(statConclusion.getGlassesType());
-        student.setVisionLabel(statConclusion.getWarningLevel());
-        student.setLastScreeningTime(visionScreeningResult.getUpdateTime());
-        student.setUpdateTime(new Date());
-        student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
-        student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-        String schoolGradeCode = statConclusion.getSchoolGradeCode();
-        GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
-        if (!Objects.equals(SchoolAge.KINDERGARTEN.code,gradeCodeEnum.getType())){
-            //小学及以上的数据同步
-            student.setMyopiaLevel(statConclusion.getMyopiaLevel());
-            student.setScreeningMyopia(statConclusion.getScreeningMyopia());
-            if (Objects.nonNull(statConclusion.getIsLowVision()) && Objects.equals(statConclusion.getIsLowVision(),Boolean.TRUE)) {
-                student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
-            }else {
-                student.setLowVision(null);
-            }
-        }
+        StudentInfoBuilder.setStudentInfoByStatConclusion(student,statConclusion,visionScreeningResult.getUpdateTime());
         studentService.updateScreenStudent(student);
     }
 
@@ -341,25 +316,13 @@ public class VisionScreeningBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
-        List<SchoolStudent> schoolStudents = schoolStudentService.getByStudentId(statConclusion.getStudentId());
-        if (CollectionUtils.isEmpty(schoolStudents)) {
+        SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(statConclusion.getStudentId(),statConclusion.getSchoolId(),CommonConst.STATUS_NOT_DELETED);
+        if (Objects.isNull(schoolStudent)) {
+            log.warn("学校端暂无此学生，studentId={},schoolId={}",statConclusion.getStudentId(),statConclusion.getSchoolId());
             return;
         }
-        schoolStudents.forEach(schoolStudent -> {
-            schoolStudent.setGlassesType(statConclusion.getGlassesType());
-            schoolStudent.setLastScreeningTime(lastScreeningTime);
-            schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
-            schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
-            schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-            schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
-            schoolStudent.setIsAnisometropia(statConclusion.getIsAnisometropia());
-            schoolStudent.setIsRefractiveError(statConclusion.getIsRefractiveError());
-            schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
-            schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
-            schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
-            schoolStudent.setUpdateTime(new Date());
-        });
-        schoolStudentService.updateBatchById(schoolStudents);
+        SchoolStudentInfoBuilder.setSchoolStudentInfoByStatConclusion(schoolStudent,statConclusion,lastScreeningTime);
+        schoolStudentService.updateById(schoolStudent);
     }
 
     /**

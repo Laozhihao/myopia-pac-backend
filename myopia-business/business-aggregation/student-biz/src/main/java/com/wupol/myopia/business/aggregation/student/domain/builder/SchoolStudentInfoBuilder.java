@@ -15,13 +15,11 @@ import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudent
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.Assert;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -269,4 +267,24 @@ public class SchoolStudentInfoBuilder {
         return Optional.ofNullable(t).map(function).orElse(null);
     }
 
+    /**
+     * 通过筛查结论信息设置学生对象信息
+     * @param schoolStudent
+     * @param statConclusion
+     * @param lastScreeningTime
+     */
+    public void setSchoolStudentInfoByStatConclusion(SchoolStudent schoolStudent, StatConclusion statConclusion, Date lastScreeningTime){
+        schoolStudent.setGlassesType(statConclusion.getGlassesType());
+        schoolStudent.setLastScreeningTime(lastScreeningTime);
+        schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
+        schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+        schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+        schoolStudent.setIsAnisometropia(statConclusion.getIsAnisometropia());
+        schoolStudent.setIsRefractiveError(statConclusion.getIsRefractiveError());
+        schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
+        schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
+        schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
+        schoolStudent.setUpdateTime(new Date());
+    }
 }
