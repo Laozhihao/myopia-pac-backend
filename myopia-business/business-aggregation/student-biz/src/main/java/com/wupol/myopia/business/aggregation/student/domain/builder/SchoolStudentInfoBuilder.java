@@ -7,6 +7,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.constant.VisionSituationEnum;
 import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.VisionUtil;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
@@ -91,14 +92,16 @@ public class SchoolStudentInfoBuilder {
      *
      * @param studentQueryDTO
      */
-    public SchoolStudentQueryBO builderSchoolStudentQueryBO(SchoolStudentQueryDTO studentQueryDTO) {
+    public SchoolStudentQueryBO builderSchoolStudentQueryBO(SchoolStudentQueryDTO studentQueryDTO,TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove) {
         SchoolStudentQueryBO schoolStudentQueryBO = new SchoolStudentQueryBO()
                 .setName(studentQueryDTO.getName())
                 .setSno(studentQueryDTO.getSno())
                 .setGradeId(studentQueryDTO.getGradeId())
                 .setClassId(studentQueryDTO.getClassId())
                 .setSchoolId(studentQueryDTO.getSchoolId())
-                .setVisionLabels(studentQueryDTO.getVisionLabels());
+                .setVisionLabels(studentQueryDTO.getVisionLabels())
+                .setKindergarten(kindergartenAndPrimaryAbove.getFirst())
+                .setPrimaryAbove(kindergartenAndPrimaryAbove.getSecond());
 
         if (CollUtil.isEmpty(schoolStudentQueryBO.getVisionLabels()) && Objects.nonNull(studentQueryDTO.getVisionLabel())){
             schoolStudentQueryBO.setVisionLabels(studentQueryDTO.getVisionLabel().toString());
@@ -193,12 +196,27 @@ public class SchoolStudentInfoBuilder {
                     break;
                 case NORMAL:
                 default:
-                    schoolStudentQueryBO.setMyopiaLevel(MyopiaLevelEnum.ZERO.getCode());
-                    schoolStudentQueryBO.setHyperopiaLevel(HyperopiaLevelEnum.ZERO.getCode());
-                    schoolStudentQueryBO.setAstigmatismLevel(AstigmatismLevelEnum.ZERO.getCode());
                     break;
             }
         }
+    }
+
+    /**
+     * 设置正常值 （近视and远视and散光 or 屈光不足and屈光参差）
+     * @param schoolStudentQueryBO
+     */
+    public static void setNormalCondition(SchoolStudentQueryBO schoolStudentQueryBO,TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove) {
+        if (Objects.equals(kindergartenAndPrimaryAbove.getFirst(),Boolean.TRUE)){
+            schoolStudentQueryBO.setRefractiveError(Boolean.FALSE);
+            schoolStudentQueryBO.setAnisometropia(Boolean.FALSE);
+        }
+
+        if (Objects.equals(kindergartenAndPrimaryAbove.getSecond(),Boolean.TRUE)){
+            schoolStudentQueryBO.setMyopiaLevel(MyopiaLevelEnum.ZERO.getCode());
+            schoolStudentQueryBO.setHyperopiaLevel(HyperopiaLevelEnum.ZERO.getCode());
+            schoolStudentQueryBO.setAstigmatismLevel(AstigmatismLevelEnum.ZERO.getCode());
+        }
+
     }
 
     /**

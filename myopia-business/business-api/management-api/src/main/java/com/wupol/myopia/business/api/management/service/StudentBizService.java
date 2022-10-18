@@ -14,6 +14,7 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
@@ -43,7 +44,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreening
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
-import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
@@ -54,6 +54,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -106,8 +107,6 @@ public class StudentBizService {
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
     @Autowired
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
-    @Autowired
-    private VisionScreeningResultFacade visionScreeningResultFacade;
 
     /**
      * 获取学生列表
@@ -163,9 +162,14 @@ public class StudentBizService {
      * @return IPage<Student> {@link IPage}
      */
     public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO studentQueryDTO) {
+        Assert.notNull(studentQueryDTO.getSchoolId(),"学校ID不能为空");
 
-        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(studentQueryDTO);
+        TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove = schoolStudentFacade.kindergartenAndPrimaryAbove(studentQueryDTO.getSchoolId());
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(studentQueryDTO,kindergartenAndPrimaryAbove);
 
+        if (Objects.equals(studentQueryDTO.getRefractionType(), RefractionSituationEnum.NORMAL.getCode())){
+            SchoolStudentInfoBuilder.setNormalCondition(schoolStudentQueryBO,kindergartenAndPrimaryAbove);
+        }
         IPage<SchoolStudent> schoolStudentPage  = schoolStudentService.listByCondition(pageRequest,schoolStudentQueryBO);
 
         IPage<SchoolStudentListVO> studentDTOPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());

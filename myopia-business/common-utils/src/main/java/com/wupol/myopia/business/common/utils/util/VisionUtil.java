@@ -106,6 +106,11 @@ public class VisionUtil {
         if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
             resultList.add(AstigmatismLevelEnum.getDesc(astigmatismLevel));
         }
+        if (Objects.equals(MyopiaLevelEnum.ZERO.getCode(),myopiaLevel)
+                && Objects.equals(HyperopiaLevelEnum.ZERO.getCode(),hyperopiaLevel)
+                && Objects.equals(AstigmatismLevelEnum.ZERO.getCode(),astigmatismLevel)){
+            resultList.add("正常");
+        }
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 
@@ -129,6 +134,10 @@ public class VisionUtil {
         //屈光参差
         if (Objects.equals(isAnisometropia,Boolean.TRUE)) {
             resultList.add("屈光参差");
+        }
+
+        if (Objects.equals(isRefractiveError,Boolean.FALSE) && Objects.equals(isAnisometropia,Boolean.FALSE)){
+            resultList.add("正常");
         }
 
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));

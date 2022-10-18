@@ -139,7 +139,7 @@ public class SchoolStudentFacade {
      * 判断学校的学龄段（幼儿园/小学及以上）
      * @param schoolId
      */
-    private TwoTuple<Boolean,Boolean> kindergartenAndPrimaryAbove(Integer schoolId) {
+    public TwoTuple<Boolean,Boolean> kindergartenAndPrimaryAbove(Integer schoolId) {
         List<SchoolGrade> schoolGradeList = schoolGradeService.getBySchoolId(schoolId);
         if (CollUtil.isEmpty(schoolGradeList)){
             return TwoTuple.of(Boolean.FALSE,Boolean.FALSE);

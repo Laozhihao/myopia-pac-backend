@@ -35,8 +35,9 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class StatUtil {
 
+    private static final String MINUS_0_5 = "0.50";
     private static final String MINUS_3 = "-3.00";
-    private static final String MINUS_0_5 = "-0.50";
+    private static final String MINUS_NEGATIVE_0_5 = "-0.50";
     private static final String MINUS_6 = "-6.00";
     private static final BigDecimal visionAndWeightRangeValue = new BigDecimal("0.1");
     private static final BigDecimal seAndHeightRangeValue = new BigDecimal("0.5");
@@ -814,6 +815,9 @@ public class StatUtil {
         if (Objects.isNull(se)) {
             return null;
         }
+        if (BigDecimalUtil.isBetweenAll(se,MINUS_NEGATIVE_0_5,MINUS_0_5)){
+            return HyperopiaLevelEnum.ZERO;
+        }
         if (age >= 12) {
             if (BigDecimalUtil.isBetweenRight(se, "0.50", "3.00")) {
                 return HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT;
@@ -868,11 +872,15 @@ public class StatUtil {
             return null;
         }
 
-        if (BigDecimalUtil.isBetweenRight(se, MINUS_0_5, "0.75")) {
+        if (BigDecimalUtil.isBetweenAll(se,MINUS_NEGATIVE_0_5,MINUS_0_5)){
+            return MyopiaLevelEnum.ZERO;
+        }
+
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_NEGATIVE_0_5, "0.75")) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_EARLY;
         }
 
-        if (BigDecimalUtil.isBetweenRight(se, MINUS_6, MINUS_0_5)) {
+        if (BigDecimalUtil.isBetweenRight(se, MINUS_6, MINUS_NEGATIVE_0_5)) {
             return MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT;
         }
 
@@ -896,7 +904,7 @@ public class StatUtil {
                 return null;
             }
 
-            if (BigDecimalUtil.lessThanAndEqual(se, MINUS_0_5)) {
+            if (BigDecimalUtil.lessThanAndEqual(se, MINUS_NEGATIVE_0_5)) {
                 return MyopiaLevelEnum.SCREENING_MYOPIA;
             }
         }
@@ -1068,10 +1076,10 @@ public class StatUtil {
      */
     private static WarningLevel refractiveDataMyopia(BigDecimal se) {
         if (Objects.nonNull(se)) {
-            if (BigDecimalUtil.isBetweenAll(se, MINUS_0_5, "-0.25")) {
+            if (BigDecimalUtil.isBetweenAll(se, MINUS_NEGATIVE_0_5, "-0.25")) {
                 return WarningLevel.ZERO;
             }
-            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_0_5)) {
+            if (BigDecimalUtil.isBetweenLeft(se, MINUS_3, MINUS_NEGATIVE_0_5)) {
                 return WarningLevel.ONE;
             }
             if (BigDecimalUtil.isBetweenLeft(se, MINUS_6, MINUS_3)) {

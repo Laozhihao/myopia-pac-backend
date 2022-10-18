@@ -93,6 +93,15 @@ public class SchoolStudentQueryBO implements Serializable {
      */
     private Boolean anisometropia;
 
+    /**
+     * 是否幼儿园
+     */
+    private Boolean kindergarten;
+    /**
+     * 是否小学及以上
+     */
+    private Boolean primaryAbove;
+
     public List<Integer> getVisionLabels() {
         if (StrUtil.isNotBlank(visionLabels)){
             return Arrays.stream(visionLabels.split(StrUtil.COMMA)).map(Integer::valueOf).collect(Collectors.toList());
