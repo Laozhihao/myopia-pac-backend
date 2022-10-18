@@ -56,7 +56,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         // 1.获取当前学校下的筛查数据
-        List<StatConclusionExportDTO> statConclusionExportList = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId());
+        List<StatConclusionExportDTO> statConclusionExportList = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId(),Boolean.FALSE);
         // 2.获取年级信息(同个学校的年级名称不存在相同的)
         List<Integer> gradeIdList = statConclusionExportList.stream().map(StatConclusionExportDTO::getGradeId).distinct().collect(Collectors.toList());
         Map<Integer, String> gradeNameMap = schoolGradeService.getClassNameMapByIds(gradeIdList);

@@ -40,18 +40,34 @@ public class SchoolScreeningPlanBuilder {
      * @param currentUser 当前用户
      * @param districtId 区域ID
      */
-    public ScreeningPlan buildScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Integer districtId) {
-        return new ScreeningPlan()
-                .setId(schoolScreeningPlanDTO.getId())
-                .setSrcScreeningNoticeId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningNoticeId()).orElse(CommonConst.DEFAULT_ID))
-                .setScreeningTaskId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningTaskId()).orElse(CommonConst.DEFAULT_ID))
-                .setTitle(schoolScreeningPlanDTO.getTitle())
+    public ScreeningPlan buildScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Integer districtId,ScreeningPlan screeningPlan) {
+        if (Objects.isNull(screeningPlan)){
+             screeningPlan = new ScreeningPlan()
+                    .setId(schoolScreeningPlanDTO.getId())
+                    .setSrcScreeningNoticeId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningNoticeId()).orElse(CommonConst.DEFAULT_ID))
+                    .setScreeningTaskId(Optional.ofNullable(schoolScreeningPlanDTO.getScreeningTaskId()).orElse(CommonConst.DEFAULT_ID))
+                    .setGovDeptId(CommonConst.DEFAULT_ID)
+                    .setScreeningOrgId(currentUser.getOrgId())
+                    .setScreeningOrgType(ScreeningOrgTypeEnum.SCHOOL.getType());
+            setScreeningPlanInfo(schoolScreeningPlanDTO, currentUser, districtId, screeningPlan);
+        }else {
+            setScreeningPlanInfo(schoolScreeningPlanDTO, currentUser, districtId, screeningPlan);
+        }
+        return screeningPlan;
+    }
+
+    /**
+     * 设置筛查计划信息
+     * @param schoolScreeningPlanDTO
+     * @param currentUser
+     * @param districtId
+     * @param screeningPlan
+     */
+    private static void setScreeningPlanInfo(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Integer districtId, ScreeningPlan screeningPlan) {
+        screeningPlan.setTitle(schoolScreeningPlanDTO.getTitle())
                 .setContent(Optional.ofNullable(schoolScreeningPlanDTO.getContent()).orElse(StrUtil.EMPTY))
-                .setStartTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME,DatePattern.NORM_DATETIME_PATTERN))
-                .setEndTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getEndTime(),SchoolConstant.END_TIME,DatePattern.NORM_DATETIME_PATTERN))
-                .setGovDeptId(CommonConst.DEFAULT_ID)
-                .setScreeningOrgId(currentUser.getOrgId())
-                .setScreeningOrgType(ScreeningOrgTypeEnum.SCHOOL.getType())
+                .setStartTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))
+                .setEndTime(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getEndTime(), SchoolConstant.END_TIME, DatePattern.NORM_DATETIME_PATTERN))
                 .setDistrictId(districtId)
                 .setReleaseStatus(CommonConst.STATUS_NOT_RELEASE)
                 .setCreateUserId(currentUser.getId())

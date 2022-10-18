@@ -287,6 +287,9 @@ public class StatConclusionBizService {
                     student.setUpdateTime(new Date());
                     student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
                     student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
+                    student.setIsAnisometropia(statConclusion.getIsAnisometropia());
+                    student.setIsRefractiveError(statConclusion.getIsRefractiveError());
+                    student.setVisionCorrection(statConclusion.getVisionCorrection());
                     if (statConclusion.getAge() >= 6){
                         //小学及以上的数据同步
                         student.setMyopiaLevel(statConclusion.getMyopiaLevel());
@@ -318,6 +321,11 @@ public class StatConclusionBizService {
                     schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
                     schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
                     schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
+                    schoolStudent.setIsAnisometropia(statConclusion.getIsAnisometropia());
+                    schoolStudent.setIsRefractiveError(statConclusion.getIsRefractiveError());
+                    schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
+                    schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
+                    schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
                     schoolStudent.setUpdateTime(new Date());
                 });
             }

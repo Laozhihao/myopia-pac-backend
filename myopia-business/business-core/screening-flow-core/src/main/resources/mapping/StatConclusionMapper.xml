@@ -243,7 +243,9 @@
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
         AND msc.school_id = #{schoolId}
-        AND msc.is_rescreen = 0
+        <if test="isRescreen != null ">
+            AND msc.is_rescreen = #{isRescreen}
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 

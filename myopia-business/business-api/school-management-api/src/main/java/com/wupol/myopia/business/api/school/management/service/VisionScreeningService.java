@@ -336,7 +336,11 @@ public class VisionScreeningService {
         Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
-        ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId());
+        ScreeningPlan screeningPlan = null;
+        if (Objects.equals(isAdd,Boolean.FALSE)){
+            screeningPlan = screeningPlanService.getById(schoolScreeningPlanDTO.getId());
+        }
+        screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId(),screeningPlan);
 
         //筛查计划学校
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
@@ -611,11 +615,9 @@ public class VisionScreeningService {
         // TODO：复用ExportPlanStudentDataExcelService导出逻辑
         Integer schoolId = currentUser.getOrgId();
 
-        List<StatConclusionExportDTO> statConclusionExportDTOs;
-
         // 获取文件需显示的名称的学校前缀
         String exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId));
-        statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(planId, schoolId);
+        List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(planId, schoolId,null);
         if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
             throw new BusinessException("暂无筛查数据，无法导出");
         }

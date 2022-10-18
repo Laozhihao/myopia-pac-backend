@@ -131,4 +131,9 @@ public class ScreeningListResponseDTO {
      * 筛查通知ID
      */
     private Integer srcScreeningNoticeId;
+
+    /**
+     * 筛查任务id
+     */
+    private Integer screeningTaskId;
 }
