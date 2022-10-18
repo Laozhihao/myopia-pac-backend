@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import com.wupol.myopia.base.constant.VisionDamageTypeLevelEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -120,8 +121,12 @@ public class ScreeningDataFormatUtils {
      * @param data 眼数据
      * @return String
      */
-    public static String levelDateFormat(Object data) {
-        return Objects.isNull(data) ? EMPTY_RESULT : data + "级";
+    public static String levelDateFormat(Object data,Boolean isHaiNan) {
+        if (Objects.equals(isHaiNan,Boolean.TRUE)){
+            return Objects.isNull(data) ? EMPTY_RESULT : data + "级";
+        }else {
+            return Objects.isNull(data) ? EMPTY_RESULT :VisionDamageTypeLevelEnum.getByCode(data,EMPTY_RESULT);
+        }
     }
 
     /**

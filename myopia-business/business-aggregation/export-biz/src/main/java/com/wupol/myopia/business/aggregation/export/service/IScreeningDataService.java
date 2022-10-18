@@ -16,7 +16,7 @@ public interface IScreeningDataService {
      * 生成导出文件数据
      * @return
      */
-    List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs);
+    List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs,Boolean isHaiNan);
 
     /**
      * 获取类型

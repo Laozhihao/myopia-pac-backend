@@ -45,7 +45,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
 
 
     @Override
-    public List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs) {
+    public List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs,Boolean isHaiNan) {
         Map<Boolean, List<StatConclusionExportDTO>> isRescreenMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getIsRescreen));
         Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportDTO::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
         List<CommonDiseaseDataExportDTO> exportVos = new ArrayList<>();

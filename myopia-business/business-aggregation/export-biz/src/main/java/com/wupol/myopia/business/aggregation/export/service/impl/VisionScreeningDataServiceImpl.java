@@ -36,7 +36,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
 
     @Override
-    public List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs) {
+    public List generateExportData(List<StatConclusionExportDTO> statConclusionExportDTOs,Boolean isHaiNan) {
         Map<Boolean, List<StatConclusionExportDTO>> isRescreenMap = statConclusionExportDTOs.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getIsRescreen));
         Map<Integer, StatConclusionExportDTO> rescreenPlanStudentIdVoMap = isRescreenMap.getOrDefault(true, Collections.emptyList()).stream().collect(Collectors.toMap(StatConclusionExportDTO::getScreeningPlanSchoolStudentId, Function.identity(), (x, y) -> x));
         List<VisionScreeningResultExportDTO> exportVos = new ArrayList<>();
@@ -56,7 +56,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
             // 组装复筛数据
             genReScreeningData(rescreenPlanStudentIdVoMap, vo, exportVo);
             // 33cm眼位、裂隙灯、小瞳验光、生物测量、眼压、其他眼病、体测检查
-            generateDate(vo, exportVo);
+            generateDate(vo, exportVo,isHaiNan);
             exportVos.add(exportVo);
         }
         return exportVos;
@@ -123,7 +123,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
      * @param dto       处理后筛查数据
      * @param exportDTO 筛查数据导出
      */
-    private void generateDate(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO) {
+    private void generateDate(StatConclusionExportDTO dto, VisionScreeningResultExportDTO exportDTO,Boolean isHaiNan) {
         exportDTO.setOcularInspectionSotropia(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_ESOTROPIA)));
         exportDTO.setOcularInspectionXotropia(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_EXOTROPIA)));
         exportDTO.setOcularInspectionVerticalStrabismus(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OID_VERTICAL_STRABISMUS)));
@@ -175,8 +175,8 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
         exportDTO.setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)));
         exportDTO.setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)));
         exportDTO.setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
-        exportDTO.setLeftOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL)));
-        exportDTO.setRightOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL)));
+        exportDTO.setLeftOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_LEFT_LEVEL),isHaiNan));
+        exportDTO.setRightOtherEyeDiseasesLevel(ScreeningDataFormatUtils.levelDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_VLLD_RIGHT_LEVEL),isHaiNan));
 
         exportDTO.setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)));
         exportDTO.setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
