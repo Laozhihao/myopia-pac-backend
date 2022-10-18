@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class WearingGlassesSituation {
-    public final String NOT_WEARING_GLASSES_TYPE = "没有佩戴眼镜";
+    public final String NOT_WEARING_GLASSES_TYPE = "不佩戴眼镜";
     public final Integer NOT_WEARING_GLASSES_KEY = GlassesTypeEnum.NOT_WEARING.code;
     public final String WEARING_FRAME_GLASSES_TYPE = "佩戴框架眼镜";
     public final Integer WEARING_FRAME_GLASSES_KEY = GlassesTypeEnum.FRAME_GLASSES.code;
