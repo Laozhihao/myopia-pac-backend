@@ -111,30 +111,29 @@ public class SchoolStudentInfoBuilder {
         return schoolStudentQueryBO;
     }
 
+
+    /**
+     * 设置学校学生查询条件
+     * @param schoolStudentQueryBO
+     * @param studentQueryDTO
+     */
     private void setSchoolStudentQueryBO(SchoolStudentQueryBO schoolStudentQueryBO,SchoolStudentQueryDTO studentQueryDTO){
         schoolStudentQueryBO.setYear(studentQueryDTO.getYear());
         schoolStudentQueryBO.setGlassesType(studentQueryDTO.getGlassesType());
 
-        if (Objects.nonNull(studentQueryDTO.getVisionType())){
-            VisionSituationEnum visionSituationEnum = VisionSituationEnum.getByCode(studentQueryDTO.getVisionType());
-            switch (visionSituationEnum){
-                case NORMAL:
-                    schoolStudentQueryBO.setLowVisionList(Lists.newArrayList(LowVisionLevelEnum.ZERO.getCode()));
-                    break;
-                case LOW_VISION_KINDERGARTEN:
-                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
-                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
-                    break;
-                case LOW_VISION_PRIMARY_ABOVE:
-                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
-                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
-                    break;
-                default:
-                    break;
-            }
+        setVisionInfo(schoolStudentQueryBO, studentQueryDTO);
 
-        }
+        setRefractionInfo(schoolStudentQueryBO, studentQueryDTO);
 
+
+    }
+
+    /**
+     * 设置屈光相关信息
+     * @param schoolStudentQueryBO
+     * @param studentQueryDTO
+     */
+    private static void setRefractionInfo(SchoolStudentQueryBO schoolStudentQueryBO, SchoolStudentQueryDTO studentQueryDTO) {
         if (Objects.nonNull(studentQueryDTO.getRefractionType())){
             RefractionSituationEnum refractionSituationEnum = RefractionSituationEnum.getByCode(studentQueryDTO.getRefractionType());
             switch (refractionSituationEnum){
@@ -202,8 +201,33 @@ public class SchoolStudentInfoBuilder {
                     break;
             }
         }
+    }
 
+    /**
+     * 设置视力相关信息
+     * @param schoolStudentQueryBO
+     * @param studentQueryDTO
+     */
+    private static void setVisionInfo(SchoolStudentQueryBO schoolStudentQueryBO, SchoolStudentQueryDTO studentQueryDTO) {
+        if (Objects.nonNull(studentQueryDTO.getVisionType())){
+            VisionSituationEnum visionSituationEnum = VisionSituationEnum.getByCode(studentQueryDTO.getVisionType());
+            switch (visionSituationEnum){
+                case NORMAL:
+                    schoolStudentQueryBO.setLowVisionList(Lists.newArrayList(LowVisionLevelEnum.ZERO.getCode()));
+                    break;
+                case LOW_VISION_KINDERGARTEN:
+                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
+                    break;
+                case LOW_VISION_PRIMARY_ABOVE:
+                    schoolStudentQueryBO.setLowVisionList(LowVisionLevelEnum.lowVisionLevelCodeList());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
+                    break;
+                default:
+                    break;
+            }
 
+        }
     }
 
     /**
