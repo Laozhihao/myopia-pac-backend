@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 @Service(ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE)
 public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
 
+    private static final String EMPTY_DATA = "--";
+
     @Resource
     private SchoolStudentService schoolStudentService;
 
@@ -135,19 +137,19 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (Objects.isNull(statConclusion)) {
             return;
         }
-        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), "--"));
+        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), EMPTY_DATA));
         boolean isKindergarten = SchoolAge.checkKindergarten(statConclusion.getSchoolAge());
         if (Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
-            exportDTO.setLowVisionResult(isKindergarten ? "视力低常" : "视力低下");
+            exportDTO.setLowVisionResult(isKindergarten ? VisionConst.K_LOW_VISION : VisionConst.P_LOW_VISION);
         } else {
-            exportDTO.setLowVisionResult("正常");
+            exportDTO.setLowVisionResult(VisionConst.NORMAL);
         }
         exportDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, isKindergarten));
 
         VisionCorrection visionCorrection = VisionCorrection.get(statConclusion.getVisionCorrection());
         exportDTO.setCorrectedVisionResult(Objects.isNull(visionCorrection) ? StringUtils.EMPTY : visionCorrection.desc);
         exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
-        exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
+        exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? VisionConst.RECOMMENDED_REVIEW : "无");
         exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
 
         TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());

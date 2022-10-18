@@ -359,9 +359,9 @@ public class SchoolStudentBizService {
      */
     private static void stat2Response(VisionScreeningResult result, StatConclusion statConclusion, EyeHealthResponseDTO responseDTO, boolean isKindergarten) {
         if (isKindergarten) {
-            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低常" : VISION_NORMAL);
+            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? VisionConst.K_LOW_VISION : VISION_NORMAL);
         } else {
-            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? "视力低下" : VISION_NORMAL);
+            responseDTO.setLowVision(Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE) ? VisionConst.P_LOW_VISION : VISION_NORMAL);
         }
         responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
         responseDTO.setIsRecommendVisit(statConclusion.getIsRecommendVisit());
