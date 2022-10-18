@@ -326,14 +326,14 @@ public class VisionScreeningService {
         if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
+        //创建和编辑标志
+        Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
 
         boolean checkIsCreated = screeningPlanService.checkIsCreated(schoolScreeningPlanDTO.getScreeningTaskId(), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
-        if (Objects.equals(checkIsCreated,Boolean.TRUE)){
+        if (Objects.equals(checkIsCreated,Boolean.TRUE) && Objects.equals(isAdd,Boolean.TRUE)){
             throw new BusinessException("筛查计划已创建");
         }
 
-        //创建和编辑标志
-        Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
         ScreeningPlan screeningPlan = null;
