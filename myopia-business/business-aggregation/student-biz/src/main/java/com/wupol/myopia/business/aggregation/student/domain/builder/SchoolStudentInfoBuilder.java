@@ -143,6 +143,7 @@ public class SchoolStudentInfoBuilder {
                     schoolStudentQueryBO.setMyopiaList(Lists.newArrayList(
                             MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode(),
                             MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode()));
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
                 case HYPEROPIA:
                     schoolStudentQueryBO.setHyperopiaList(Lists.newArrayList(
@@ -150,6 +151,7 @@ public class SchoolStudentInfoBuilder {
                             HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.getCode(),
                             HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode()
                     ));
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
                 case ASTIGMATISM:
                     schoolStudentQueryBO.setAstigmatismList(Lists.newArrayList(
@@ -157,33 +159,40 @@ public class SchoolStudentInfoBuilder {
                             AstigmatismLevelEnum.ASTIGMATISM_LEVEL_MIDDLE.getCode(),
                             AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.getCode()
                     ));
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
 
                 case MYOPIA_LEVEL_EARLY:
                 case MYOPIA_LEVEL_LIGHT:
                 case MYOPIA_LEVEL_HIGH:
                     schoolStudentQueryBO.setMyopiaLevel(refractionSituationEnum.getType());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
 
                 case HYPEROPIA_LEVEL_LIGHT:
                 case HYPEROPIA_LEVEL_MIDDLE:
                 case HYPEROPIA_LEVEL_HIGH:
                     schoolStudentQueryBO.setHyperopiaLevel(refractionSituationEnum.getType());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
 
                 case ASTIGMATISM_LEVEL_LIGHT:
                 case ASTIGMATISM_LEVEL_MIDDLE:
                 case ASTIGMATISM_LEVEL_HIGH:
                     schoolStudentQueryBO.setAstigmatismLevel(refractionSituationEnum.getType());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.primaryAndAboveCode());
                     break;
                 case INSUFFICIENT:
                     schoolStudentQueryBO.setVisionLabels(refractionSituationEnum.getType().toString());
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
                     break;
                 case REFRACTIVE_ERROR:
                     schoolStudentQueryBO.setRefractiveError(Boolean.TRUE);
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
                     break;
                 case ANISOMETROPIA:
                     schoolStudentQueryBO.setAnisometropia(Boolean.TRUE);
+                    schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
                     break;
                 case NORMAL:
                 default:

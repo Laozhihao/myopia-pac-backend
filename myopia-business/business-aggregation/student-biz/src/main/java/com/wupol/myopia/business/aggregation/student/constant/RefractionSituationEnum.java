@@ -27,7 +27,7 @@ public enum RefractionSituationEnum {
     HYPEROPIA(5, "远视", -1,Boolean.FALSE),
     HYPEROPIA_LEVEL_LIGHT(6, "低度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_LIGHT.getCode(),Boolean.FALSE),
     HYPEROPIA_LEVEL_MIDDLE(7, "中度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_MIDDLE.getCode(),Boolean.FALSE),
-    HYPEROPIA_LEVEL_HIGH(8, "重度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode(),Boolean.FALSE),
+    HYPEROPIA_LEVEL_HIGH(8, "高度远视",HyperopiaLevelEnum.HYPEROPIA_LEVEL_HIGH.getCode(),Boolean.FALSE),
 
     ASTIGMATISM(9,"散光",-1,Boolean.FALSE),
     ASTIGMATISM_LEVEL_LIGHT(10, "低度散光",AstigmatismLevelEnum.ASTIGMATISM_LEVEL_LIGHT.getCode(),Boolean.FALSE),
@@ -35,7 +35,7 @@ public enum RefractionSituationEnum {
     ASTIGMATISM_LEVEL_HIGH(12, "高度散光", AstigmatismLevelEnum.ASTIGMATISM_LEVEL_HIGH.getCode(),Boolean.FALSE),
 
     INSUFFICIENT(13,"远视储备不足", WarningLevel.ZERO_SP.getCode(),Boolean.TRUE),
-    REFRACTIVE_ERROR(14,"屈光不足",1,Boolean.TRUE),
+    REFRACTIVE_ERROR(14,"屈光不正",1,Boolean.TRUE),
     ANISOMETROPIA(15,"屈光参差",1,Boolean.TRUE);
 
 
