@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
@@ -277,14 +276,15 @@ public class SchoolStudentBizService {
      */
     public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
 
-        if (Objects.equals(requestDTO.getIsHaveReport(), Boolean.TRUE)) {
-            // 是否就诊
-            List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
-            if (CollectionUtils.isEmpty(visitLists)) {
-                return new Page<>();
-            }
-            requestDTO.setHavaReportStudentIds(visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList()));
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
+        if (CollectionUtils.isEmpty(visitLists)) {
+            return new Page<>();
         }
+        List<Integer> haveReportStudentIds = visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList());
+        if (Objects.nonNull(requestDTO.getIsHaveReport()) && CollectionUtils.isEmpty(haveReportStudentIds)) {
+            return new Page<>();
+        }
+        requestDTO.setReportStudentIds(haveReportStudentIds);
 
         IPage<SchoolStudentListResponseDTO> studentListPage = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
         List<SchoolStudentListResponseDTO> schoolStudents = studentListPage.getRecords();
@@ -299,7 +299,6 @@ public class SchoolStudentBizService {
         Map<Integer, StatConclusion> statConclusionMap = resultStatMap.getSecond();
 
         // 是否就诊
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
         Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
         page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent, visitMap)).collect(Collectors.toList()));
@@ -330,7 +329,7 @@ public class SchoolStudentBizService {
         responseDTO.setName(schoolStudent.getName());
         responseDTO.setGradeName(schoolStudent.getGradeName());
         responseDTO.setClassName(schoolStudent.getClassName());
-        responseDTO.setWearingGlasses(Objects.nonNull(schoolStudent.getGlassesType()) ? GlassesTypeEnum.get(schoolStudent.getGlassesType()).getDesc() : null);
+        responseDTO.setWearingGlasses(Objects.nonNull(schoolStudent.getGlassesType()) ? WearingGlassesSituation.getType(schoolStudent.getGlassesType()) : null);
 
         boolean isKindergarten = SchoolAge.checkKindergarten(schoolStudent.getGradeType());
         if (isKindergarten) {

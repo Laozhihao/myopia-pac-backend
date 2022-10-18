@@ -77,12 +77,26 @@
         <if test="requestDTO.isBindMp != null and requestDTO.isBindMp == 1">
             and mp_parent_phone is not null
         </if>
-        <if test="requestDTO.havaReportStudentIds != null and requestDTO.havaReportStudentIds.size() != 0">
-            and student_id in
-            <foreach collection="requestDTO.havaReportStudentIds" item="studentId" index="index" open="(" close=")"
-                     separator=",">
-                #{studentId}
-            </foreach>
+        <if test="requestDTO.isBindMp != null and requestDTO.isBindMp == 0">
+            and mp_parent_phone is null
+        </if>
+        <if test="requestDTO.isHaveReport != null and requestDTO.isHaveReport == 0">
+            <if test="requestDTO.reportStudentIds != null and requestDTO.reportStudentIds.size() != 0">
+                and student_id not in
+                <foreach collection="requestDTO.reportStudentIds" item="studentId" index="index" open="(" close=")"
+                         separator=",">
+                    #{studentId}
+                </foreach>
+            </if>
+        </if>
+        <if test="requestDTO.isHaveReport != null and requestDTO.isHaveReport == 1">
+            <if test="requestDTO.reportStudentIds != null and requestDTO.reportStudentIds.size() != 0">
+                and student_id in
+                <foreach collection="requestDTO.reportStudentIds" item="studentId" index="index" open="(" close=")"
+                         separator=",">
+                    #{studentId}
+                </foreach>
+            </if>
         </if>
         <if test="requestDTO.isEyeHealth != null and requestDTO.isEyeHealth == 1">
             and vision_label in (0, 1, 2, 3)

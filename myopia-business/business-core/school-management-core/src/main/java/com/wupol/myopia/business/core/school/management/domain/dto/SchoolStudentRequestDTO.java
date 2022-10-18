@@ -67,7 +67,7 @@ public class SchoolStudentRequestDTO {
     /**
      * 有就诊数据的学生
      */
-    private List<Integer> havaReportStudentIds;
+    private List<Integer> reportStudentIds;
 
     /**
      * 是否眼健康
