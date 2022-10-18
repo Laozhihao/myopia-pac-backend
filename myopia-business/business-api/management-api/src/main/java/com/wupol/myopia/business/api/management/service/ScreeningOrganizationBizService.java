@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
@@ -328,7 +329,6 @@ public class ScreeningOrganizationBizService {
     public IPage<ScreeningOrgResponseDTO> getScreeningOrganizationList(PageRequest pageRequest,
                                                                        ScreeningOrganizationQueryDTO query,
                                                                        CurrentUser currentUser){
-
         Integer districtId = districtBizService.filterQueryDistrictId(currentUser, query.getDistrictId());
         // 查询
         IPage<ScreeningOrgResponseDTO> orgLists = screeningOrganizationService.getByCondition(pageRequest, query, districtId);
@@ -597,6 +597,12 @@ public class ScreeningOrganizationBizService {
         List<RecordDetails> details = Lists.newArrayList();
 
         List<ScreeningPlanSchoolDTO> schoolVos = screeningPlanSchoolBizService.getSchoolVoListsByPlanId(screeningPlanId, StringUtils.EMPTY);
+        if (CollUtil.isEmpty(schoolVos)){
+            screeningRecordItems.setSchoolCount(0);
+            screeningRecordItems.setStaffCount(0);
+            screeningRecordItems.setDetails(details);
+            return screeningRecordItems;
+        }
         List<Integer> schoolIds = schoolVos.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList());
 
         // 设置学校总数
