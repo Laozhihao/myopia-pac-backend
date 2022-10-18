@@ -118,7 +118,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (Objects.isNull(result)) {
             return;
         }
-        exportDTO.setScreeningTime(DateFormatUtil.format(schoolStudent.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
+        exportDTO.setScreeningTime(DateFormatUtil.format(schoolStudent.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
         exportDTO.setLowVision(EyeDataUtil.mergeEyeData(EyeDataUtil.visionRightDataToStr(result), EyeDataUtil.visionLeftDataToStr(result)));
         exportDTO.setSph(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightSph(result), EyeDataUtil.computerLeftSph(result)));
         exportDTO.setCyl(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightCyl(result), EyeDataUtil.computerLeftCyl(result)));
@@ -137,7 +137,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (Objects.isNull(statConclusion)) {
             return;
         }
-        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), EMPTY_DATA));
+        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(WearingGlassesSituation.getType(statConclusion.getGlassesType()), EMPTY_DATA));
         boolean isKindergarten = SchoolAge.checkKindergarten(statConclusion.getSchoolAge());
         if (Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
             exportDTO.setLowVisionResult(isKindergarten ? VisionConst.K_LOW_VISION : VisionConst.P_LOW_VISION);
@@ -150,12 +150,12 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         exportDTO.setCorrectedVisionResult(Objects.isNull(visionCorrection) ? StringUtils.EMPTY : visionCorrection.desc);
         exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
         exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? VisionConst.RECOMMENDED_REVIEW : "无");
-        exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
+        exportDTO.setGlassesType(StringUtils.EMPTY);
 
         TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
         exportDTO.setDesk(deskChairSuggest.getFirst());
         exportDTO.setChair(deskChairSuggest.getSecond());
-        if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+        if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaLevel()), Boolean.TRUE)) {
             exportDTO.setSeat("座位与黑板相距5-6米");
         }
         exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
