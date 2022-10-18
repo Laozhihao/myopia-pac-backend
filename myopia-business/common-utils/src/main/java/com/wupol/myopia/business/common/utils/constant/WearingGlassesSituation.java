@@ -48,7 +48,7 @@ public class WearingGlassesSituation {
      * @param key
      * @return
      */
-    public String getType(Integer key) {
+    public static String getType(Integer key) {
         String glassesTypeStr = typeDescriptionMap.get(key);
         if (StringUtils.isBlank(glassesTypeStr)) {
             throw new ManagementUncheckedException("无法找到该戴镜类型 key = " + key);

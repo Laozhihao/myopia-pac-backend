@@ -318,21 +318,9 @@ public class VisionScreeningService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser) {
-        // 校验用户机构，政府部门，无法新增计划
-        if (currentUser.isGovDeptUser()) {
-            throw new ValidationException("无权限");
-        }
-        // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
-            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
-        }
         //创建和编辑标志
         Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
-
-        boolean checkIsCreated = screeningPlanService.checkIsCreated(schoolScreeningPlanDTO.getScreeningTaskId(), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
-        if (Objects.equals(checkIsCreated,Boolean.TRUE) && Objects.equals(isAdd,Boolean.TRUE)){
-            throw new BusinessException("筛查计划已创建");
-        }
+        validParam(schoolScreeningPlanDTO,currentUser,isAdd);
 
         //筛查计划
         School school = schoolService.getById(currentUser.getOrgId());
@@ -356,6 +344,27 @@ public class VisionScreeningService {
             }
             ScreeningNotice screeningNotice = screeningNoticeList.get(0);
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), currentUser.getOrgId(), screeningPlan.getId(), currentUser.getId());
+        }
+    }
+
+    /**
+     * 校验参数
+     * @param schoolScreeningPlanDTO
+     * @param currentUser
+     */
+    private void validParam(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser,Boolean isAdd) {
+        // 校验用户机构，政府部门，无法新增计划
+        if (currentUser.isGovDeptUser()) {
+            throw new ValidationException("无权限");
+        }
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
+        }
+
+        boolean checkIsCreated = screeningPlanService.checkIsCreated(schoolScreeningPlanDTO.getScreeningTaskId(), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        if (Objects.equals(checkIsCreated,Boolean.TRUE) && Objects.equals(isAdd,Boolean.TRUE)){
+            throw new BusinessException("筛查计划已创建");
         }
     }
 

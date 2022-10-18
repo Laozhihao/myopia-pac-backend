@@ -64,7 +64,7 @@ public class VisionUtil {
     public String getVisionSituation(Integer glassesType, Integer gradeType, Integer lowVision) {
         List<String> resultList = new LinkedList<>();
         if (Objects.nonNull(glassesType)) {
-            resultList.add(GlassesTypeEnum.getDescByCode(glassesType));
+            resultList.add(WearingGlassesSituation.getType(glassesType));
         }
         if (LowVisionLevelEnum.lowVisionLevelCodeList().contains(lowVision)){
             if (SchoolAge.checkKindergarten(gradeType)){
