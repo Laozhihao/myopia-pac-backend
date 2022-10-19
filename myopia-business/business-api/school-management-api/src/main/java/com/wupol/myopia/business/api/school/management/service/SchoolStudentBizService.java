@@ -299,7 +299,12 @@ public class SchoolStudentBizService {
      */
     public IPage<EyeHealthResponseDTO> getEyeHealthList(Integer schoolId, PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
 
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
+        List<Integer> studentIdList = schoolStudentService.listBySchoolId(schoolId).stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(studentIdList)) {
+            return new Page<>();
+        }
+
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIdList);
         if (CollectionUtils.isEmpty(visitLists)) {
             return new Page<>();
         }
@@ -407,7 +412,9 @@ public class SchoolStudentBizService {
     public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
 
         List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolIdAndVisionLabel(schoolId);
-
+        if(CollectionUtils.isEmpty(schoolStudents)) {
+            return new ArrayList<>();
+        }
         List<SchoolGradeItemsDTO> schoolGrades = schoolGradeService.getAllByIds(schoolStudents.stream().map(SchoolStudent::getGradeId).collect(Collectors.toList()));
         if(CollectionUtils.isEmpty(schoolGrades)) {
             return new ArrayList<>();
