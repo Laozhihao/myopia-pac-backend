@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/02/16/11:05
  * @Description: 导出告知书和二维码
  */
-@Service("screeningQrCodeService")
+@Service(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)
 @Log4j2
 public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     @Value("${report.html.url-host}")
