@@ -92,7 +92,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             // 身份证导出时不显示
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
-            exportDTO.setNation(NationEnum.getName(student.getNation()));
+            exportDTO.setNation(NationEnum.getNameByCode(student.getNation()));
             exportDTO.setGradeName(Objects.nonNull(gradeMap.get(student.getGradeId())) ? gradeMap.get(student.getGradeId()).getName() : "");
             exportDTO.setClassName(Objects.nonNull(classMap.get(student.getClassId())) ? classMap.get(student.getClassId()).getName() : "");
             exportDTO.setStudentNo(student.getStudentNo());

@@ -184,7 +184,7 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
                 .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
 
-                .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
+                .setNation(NationEnum.getCodeByName(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
                 .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))

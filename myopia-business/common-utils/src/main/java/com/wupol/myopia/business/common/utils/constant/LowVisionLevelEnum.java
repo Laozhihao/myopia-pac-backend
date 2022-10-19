@@ -1,11 +1,12 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 视力低下等级
@@ -40,12 +41,11 @@ public enum LowVisionLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        LowVisionLevelEnum lowVisionLevelEnum = get(code);
-        return Objects.isNull(lowVisionLevelEnum) ? "" : lowVisionLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(LowVisionLevelEnum::get)
+                .map(LowVisionLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 
     public static List<LowVisionLevelEnum> lowVisionLevelList() {

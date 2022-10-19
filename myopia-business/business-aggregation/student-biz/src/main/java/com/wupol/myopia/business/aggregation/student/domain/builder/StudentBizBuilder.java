@@ -358,7 +358,7 @@ public class StudentBizBuilder {
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtInfo.getFirst());
         cardInfoVO.setNation(studentInfo.getNation());
-        cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
+        cardInfoVO.setNationDesc(NationEnum.getNameByCode(studentInfo.getNation()));
         cardInfoVO.setPassport(studentInfo.getPassport());
         cardInfoVO.setSchoolType(SchoolAge.get(studentInfo.getGradeType()).getType());
         cardInfoVO.setCityDesc(districtInfo.getSecond());
@@ -623,7 +623,7 @@ public class StudentBizBuilder {
         cardInfoVO.setGradeName(planSchoolStudent.getGradeName());
         cardInfoVO.setDistrictName(districtInfo.getFirst());
         cardInfoVO.setNation(planSchoolStudent.getNation());
-        cardInfoVO.setNationDesc(NationEnum.getName(planSchoolStudent.getNation()));
+        cardInfoVO.setNationDesc(NationEnum.getNameByCode(planSchoolStudent.getNation()));
         cardInfoVO.setPassport(planSchoolStudent.getPassport());
         cardInfoVO.setSchoolType(SchoolAge.get(planSchoolStudent.getGradeType()).type);
         cardInfoVO.setCityDesc(districtInfo.getSecond());

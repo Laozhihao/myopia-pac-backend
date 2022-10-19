@@ -690,9 +690,9 @@ public class EyeDataUtil {
         }
 
         List<String> result = new ArrayList<>();
-        result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
-        result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
-        result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
+        result.add(MyopiaLevelEnum.getDescByCode(statConclusion.getMyopiaLevel()));
+        result.add(HyperopiaLevelEnum.getDescByCode(statConclusion.getHyperopiaLevel()));
+        result.add(AstigmatismLevelEnum.getDescByCode(statConclusion.getAstigmatismLevel()));
         return result.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.joining(","));
     }
 

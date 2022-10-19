@@ -75,6 +75,7 @@ public enum NationEnum {
     LHOBA(56, "珞巴族"),
     OTHER(57, "其他");
 
+
     private final Integer code;
     private final String name;
 
@@ -105,7 +106,7 @@ public enum NationEnum {
      * @param nation 民族
      * @return 描述
      */
-    public static String getName(Integer nation) {
+    public static String getNameByCode(Integer nation) {
         return Arrays.stream(NationEnum.values())
                 .filter(item -> Objects.equals(item.code,nation))
                 .findFirst()
@@ -119,7 +120,7 @@ public enum NationEnum {
      * @param name 民族名称
      * @return code 民族code
      */
-    public static Integer getCode(String name) {
+    public static Integer getCodeByName(String name) {
         return Arrays.stream(NationEnum.values())
                 .filter(item -> Objects.equals(item.name,name))
                 .findFirst()

@@ -136,7 +136,7 @@ public class HospitalAggService {
             studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
         }
         if (Objects.nonNull(student.getNation())) {
-            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
+            studentVO.setNationName(NationEnum.getNameByCode(studentVO.getNation()));
         }
         return TwoTuple.of(studentVO, true);
     }
@@ -386,7 +386,7 @@ public class HospitalAggService {
             studentVO.setSchoolClass(schoolClassService.getById(student.getClassId()));
         }
         if (null != student.getNation()) {
-            studentVO.setNationName(NationEnum.getName(studentVO.getNation()));
+            studentVO.setNationName(NationEnum.getNameByCode(studentVO.getNation()));
         }
         return studentVO;
     }

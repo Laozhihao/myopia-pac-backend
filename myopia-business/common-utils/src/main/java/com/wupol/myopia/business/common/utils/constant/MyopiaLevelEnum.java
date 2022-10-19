@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 
 import com.google.common.collect.Lists;
@@ -7,6 +8,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 近视等级
@@ -39,12 +41,11 @@ public enum MyopiaLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        MyopiaLevelEnum myopiaLevelEnum = get(code);
-        return Objects.isNull(myopiaLevelEnum) ? "" : myopiaLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(MyopiaLevelEnum::get)
+                .map(MyopiaLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 
     /**

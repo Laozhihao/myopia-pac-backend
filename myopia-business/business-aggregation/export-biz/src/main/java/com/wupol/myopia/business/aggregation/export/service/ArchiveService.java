@@ -307,7 +307,7 @@ public class ArchiveService {
         cardInfoVO.setGradeName(studentInfo.getGradeName());
         cardInfoVO.setDistrictName(districtService.getDistrictName(studentInfo.getSchoolDistrictName()));
         cardInfoVO.setNation(studentInfo.getNation());
-        cardInfoVO.setNationDesc(NationEnum.getName(studentInfo.getNation()));
+        cardInfoVO.setNationDesc(NationEnum.getNameByCode(studentInfo.getNation()));
         cardInfoVO.setPassport(studentInfo.getPassport());
         cardInfoVO.setSchoolType(SchoolAge.get(studentInfo.getGradeType()).type);
         return cardInfoVO;

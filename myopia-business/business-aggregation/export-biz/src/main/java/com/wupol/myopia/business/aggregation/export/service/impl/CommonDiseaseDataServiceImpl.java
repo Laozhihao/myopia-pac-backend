@@ -55,7 +55,7 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
             BeanUtils.copyProperties(vo, exportVo);
             // 基本信息
             exportVo.setGenderDesc(GenderEnum.getName(vo.getGender()))
-                    .setNationDesc(StringUtils.defaultString(NationEnum.getName(vo.getNation())))
+                    .setNationDesc(StringUtils.defaultString(NationEnum.getNameByCode(vo.getNation())))
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
                     .setIsRescreenDesc("否")
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))

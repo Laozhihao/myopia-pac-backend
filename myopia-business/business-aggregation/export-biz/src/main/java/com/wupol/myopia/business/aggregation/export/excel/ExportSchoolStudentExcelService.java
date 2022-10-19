@@ -91,7 +91,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setSchoolNo(school.getSchoolNo())
                     .setGender(GenderEnum.getName(item.getGender()))
                     .setBirthday(DateFormatUtil.format(item.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE))
-                    .setNation(NationEnum.getName(item.getNation()))
+                    .setNation(NationEnum.getNameByCode(item.getNation()))
                     .setSchoolName(schoolName)
                     .setGrade(item.getGradeName())
                     .setBindPhone(item.getMpParentPhone())

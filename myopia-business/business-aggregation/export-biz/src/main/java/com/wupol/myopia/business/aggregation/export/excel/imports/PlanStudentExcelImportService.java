@@ -218,7 +218,7 @@ public class PlanStudentExcelImportService {
             String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
             Integer gender = StringUtils.isNotBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
             String studentName = item.get(ImportExcelEnum.NAME.getIndex());
-            Integer nation = StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCode(item.get(ImportExcelEnum.NATION.getIndex()));
+            Integer nation = StringUtils.isBlank(item.get(ImportExcelEnum.NATION.getIndex())) ? null : NationEnum.getCodeByName(item.get(ImportExcelEnum.NATION.getIndex()));
             // 校验数据
             validateBeforeSave(idCard, phone, sno, passport, schoolId, screeningCode, existScreeningCode, existPlanSchoolStudentList);
             // 获取出生日期（依赖身份证号码，需要放在数据校验后面）
