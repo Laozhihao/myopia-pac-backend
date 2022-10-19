@@ -209,6 +209,7 @@ public class SchoolStudentInfoBuilder {
         if (Objects.equals(kindergartenAndPrimaryAbove.getFirst(),Boolean.TRUE)){
             schoolStudentQueryBO.setRefractiveError(Boolean.FALSE);
             schoolStudentQueryBO.setAnisometropia(Boolean.FALSE);
+            schoolStudentQueryBO.setVisionLabels(WarningLevel.ZERO_SP.getCode().toString());
         }
 
         if (Objects.equals(kindergartenAndPrimaryAbove.getSecond(),Boolean.TRUE)){
