@@ -161,7 +161,7 @@ public class SchoolStudentBizService {
      * @param id            id
      */
     private void backfillVisionInfo(boolean isAdd, SchoolStudent schoolStudent, Integer id) {
-        if (!isAdd) {
+        if (isAdd) {
             return;
         }
         SchoolStudent oldSchoolStudent = schoolStudentService.getById(id);
