@@ -51,6 +51,7 @@ public class ScreeningBizBuilder {
      * @param schoolGradeMap 年级集合
      * @param schoolClassMap 班级集合
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
+     * @param isAdd 是否新增（只有新增和更新，删除不再此处）
      */
     public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap,
                                                                                                       List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList, Boolean isAdd) {
@@ -62,13 +63,7 @@ public class ScreeningBizBuilder {
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
             List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
             processAddAndUpdate(schoolStudentList, school, schoolGradeMap, schoolClassMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
-
             List<Integer> dbStudentIds=Lists.newArrayList();
-            if (Objects.equals(Boolean.FALSE,isAdd)){
-                //删除
-                dbStudentIds.addAll(planSchoolStudentMap.keySet());
-                dbStudentIds.removeAll(addOrUpdateStudentIds);
-            }
             return TwoTuple.of(screeningPlanSchoolStudentList,dbStudentIds) ;
         }
     }
