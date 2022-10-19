@@ -1,10 +1,10 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 工单状态
@@ -38,14 +38,10 @@ public enum WorkOrderStatusEnum {
     }
 
     public static String getDescByCode(Integer code){
-        if (Objects.isNull(code)) {
-            return StringUtils.EMPTY;
-        }
-        WorkOrderStatusEnum workOrderStatus = getByCode(code);
-        if (Objects.isNull(workOrderStatus)) {
-            return StringUtils.EMPTY;
-        }
-        return workOrderStatus.getDesc();
+        return Optional.ofNullable(code)
+                .map(WorkOrderStatusEnum::getByCode)
+                .map(WorkOrderStatusEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 
 }

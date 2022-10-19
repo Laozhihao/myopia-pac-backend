@@ -1,10 +1,10 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 工单类型
@@ -38,13 +38,9 @@ public enum WorkOrderTypeEnum {
     }
 
     public static String getDescByCode(Integer code){
-        if (Objects.isNull(code)) {
-            return StringUtils.EMPTY;
-        }
-        WorkOrderTypeEnum workOrderType = get(code);
-        if (Objects.isNull(workOrderType)) {
-            return StringUtils.EMPTY;
-        }
-        return workOrderType.getDesc();
+        return Optional.ofNullable(code)
+                .map(WorkOrderTypeEnum::get)
+                .map(WorkOrderTypeEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 }
