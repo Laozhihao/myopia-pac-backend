@@ -97,7 +97,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
-                    .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
+                    .setLabel(WarningLevel.getDescByCode(item.getVisionLabel()))
                     .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel(),item.getScreeningMyopia(),item.getLowVision()))
                     .setScreeningCount(countMap.getOrDefault(item.getStudentId(), 0))
                     .setQuestionCount(0)

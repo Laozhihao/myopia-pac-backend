@@ -48,7 +48,7 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
             exportVo.setGenderDesc(GenderEnum.getName(vo.getGender()))
                     .setNationDesc(StringUtils.defaultString(NationEnum.getNameByCode(vo.getNation())))
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
-                    .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDesc(vo.getWarningLevel()), "--"))
+                    .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDescByCode(vo.getWarningLevel()), "--"))
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
                     .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
             // 视力检查、电脑验光

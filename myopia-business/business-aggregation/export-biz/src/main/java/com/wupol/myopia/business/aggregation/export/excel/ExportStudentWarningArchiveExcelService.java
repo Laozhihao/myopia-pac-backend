@@ -72,7 +72,7 @@ public class ExportStudentWarningArchiveExcelService extends BaseExportExcelFile
                     .setGenderDesc(GenderEnum.getName(statConclusionExport.getGender()))
                     .setGradeAndClassName(gradeNameMap.get(statConclusionExport.getGradeId()) + "-" + classNameMap.get(statConclusionExport.getClassId()))
                     .setVisionStatus(VisionUtil.getVisionSummary(statConclusionExport.getGlassesType(), statConclusionExport.getMyopiaLevel(), statConclusionExport.getHyperopiaLevel(), statConclusionExport.getAstigmatismLevel(),statConclusionExport.getScreeningMyopia(), Optional.ofNullable(statConclusionExport.getIsLowVision()).map(low-> Objects.equals(low,Boolean.TRUE) ? 1:null).orElse(null)))
-                    .setVisionWarning(WarningLevel.getDesc(statConclusionExport.getWarningLevel()))
+                    .setVisionWarning(WarningLevel.getDescByCode(statConclusionExport.getWarningLevel()))
                     // 系统暂时没有身高数据，写死null
                     .setDeskAndChairTypeSuggest(getDeskAndChairTypeSuggest(null, statConclusionExport.getSchoolAge()))
                     .setSeatDistanceSuggest(StatUtil.isMyopia(statConclusionExport.getMyopiaLevel()) ? SEAT_DISTANCE_SUGGEST : StringUtils.EMPTY);

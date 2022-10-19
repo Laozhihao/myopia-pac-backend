@@ -724,7 +724,7 @@ public class CommonReportService {
             }
         }
         table.setMyopiaCorrection(VisionCorrection.getDescByCode(statConclusion.getVisionCorrection()));
-        table.setVisionWarning(WarningLevel.getDesc(statConclusion.getWarningLevel()));
+        table.setVisionWarning(WarningLevel.getDescByCode(statConclusion.getWarningLevel()));
         table.setIsRecommendDoctor(statConclusion.getIsRecommendVisit());
 
         table.setRemark(getRemark(statConclusion.getId(), statConclusion.getIsValid(), planStudent.getState()));

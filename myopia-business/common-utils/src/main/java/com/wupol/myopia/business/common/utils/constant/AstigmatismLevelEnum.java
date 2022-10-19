@@ -19,9 +19,7 @@ public enum AstigmatismLevelEnum {
     ASTIGMATISM_LEVEL_MIDDLE(2, "中度散光"),
     ASTIGMATISM_LEVEL_HIGH(3, "高度散光");
 
-    @Getter
     public final Integer code;
-    @Getter
     public final String desc;
 
     AstigmatismLevelEnum(int code, String desc) {

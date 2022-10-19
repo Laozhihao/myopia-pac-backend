@@ -113,7 +113,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setBindPhone(item.getMpParentPhone())
                     .setPhone(item.getParentPhone())
                     .setAddress(item.getAddress())
-                    .setLabel(WarningLevel.getDesc(item.getVisionLabel()))
+                    .setLabel(WarningLevel.getDescByCode(item.getVisionLabel()))
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
                     .setQuestionCount(0)

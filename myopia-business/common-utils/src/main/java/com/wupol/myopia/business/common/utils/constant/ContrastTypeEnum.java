@@ -1,10 +1,13 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
 /**
  * 统计报表数据对比类型
  */
+@Getter
 public enum ContrastTypeEnum {
     NOTIFICATION(0, "通知"),
     PLAN(1, "计划"),

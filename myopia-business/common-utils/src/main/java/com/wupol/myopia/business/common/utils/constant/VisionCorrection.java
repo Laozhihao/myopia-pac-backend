@@ -36,10 +36,8 @@ public enum VisionCorrection {
 
 
     public static String getDescByCode(Integer code) {
-        if (Objects.isNull(code)) {
-            return StrUtil.EMPTY;
-        }
-        return Optional.ofNullable(get(code))
+        return Optional.ofNullable(code)
+                .map(VisionCorrection::get)
                 .filter(item->!Objects.equals(item.getCode(), NORMAL.code))
                 .map(VisionCorrection::getDesc)
                 .orElse(StrUtil.EMPTY);

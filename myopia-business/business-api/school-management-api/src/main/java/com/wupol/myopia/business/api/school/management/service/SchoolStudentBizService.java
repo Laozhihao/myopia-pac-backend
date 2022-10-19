@@ -318,7 +318,7 @@ public class SchoolStudentBizService {
             responseDTO.setLowVision(Objects.equals(schoolStudent.getLowVision(), LowVisionLevelEnum.LOW_VISION.code) ? "视力低下" : VISION_NORMAL);
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
         }
-        responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
+        responseDTO.setWarningLevel(WarningLevel.getDescByCode(schoolStudent.getVisionLabel()));
 
         if (Objects.nonNull(statConclusion)) {
             responseDTO.setVisionCorrection(Objects.nonNull(statConclusion.getVisionCorrection()) ? VisionCorrection.get(statConclusion.getVisionCorrection()).desc : null);
