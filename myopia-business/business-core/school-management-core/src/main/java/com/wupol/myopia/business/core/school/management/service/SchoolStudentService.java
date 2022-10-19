@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -19,10 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * 学校端-学生服务
@@ -74,8 +73,10 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param studentIds 学生ids
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds, Integer schoolId) {
-        return baseMapper.getBySchoolIdStudentIds(studentIds, schoolId);
+    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getStudentId,studentIds)
+                .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED));
     }
 
     /**
@@ -248,7 +249,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public List<SchoolStudent> getByStudentIdsAndSchoolId(List<Integer> studentIds, Integer schoolId) {
         if (CollectionUtils.isEmpty(studentIds)) {
-            return new ArrayList<>();
+            return Lists.newArrayList();
         }
         return baseMapper.getByStudentIdsAndSchoolId(studentIds, schoolId);
     }
@@ -325,12 +326,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())
                 ;
 
-
-        if ( (Objects.equals(normalKindergarten(schoolStudentQueryBO.getRefractiveError(),schoolStudentQueryBO.getAnisometropia()),Boolean.TRUE)
-                && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO.getMyopiaLevel(),schoolStudentQueryBO.getHyperopiaLevel(),schoolStudentQueryBO.getAstigmatismLevel()),Boolean.TRUE))
-                || Objects.equals(normalKindergarten(schoolStudentQueryBO.getRefractiveError(),schoolStudentQueryBO.getAnisometropia()),Boolean.TRUE)
-                || Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO.getMyopiaLevel(),schoolStudentQueryBO.getHyperopiaLevel(),schoolStudentQueryBO.getAstigmatismLevel()),Boolean.TRUE)){
-
+        if (Objects.equals(isNormal(schoolStudentQueryBO),Boolean.TRUE)){
             normalCondition(schoolStudentQueryBO, queryWrapper);
         }else {
             queryWrapper.eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
@@ -345,6 +341,17 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     }
 
     /**
+     * 判断是否正常
+     *
+     * @param schoolStudentQueryBO
+     */
+    private Boolean isNormal(SchoolStudentQueryBO schoolStudentQueryBO){
+       return  (Objects.equals(normalKindergarten(schoolStudentQueryBO),Boolean.TRUE) && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO),Boolean.TRUE))
+               || Objects.equals(normalKindergarten(schoolStudentQueryBO),Boolean.TRUE)
+               || Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO),Boolean.TRUE);
+    }
+
+    /**
      * 正常条件组合
      * @param schoolStudentQueryBO
      * @param queryWrapper
@@ -352,8 +359,8 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     private void normalCondition(SchoolStudentQueryBO schoolStudentQueryBO, LambdaQueryWrapper<SchoolStudent> queryWrapper) {
         if (Objects.equals(schoolStudentQueryBO.getKindergarten(),Boolean.TRUE)
                 && Objects.equals(schoolStudentQueryBO.getPrimaryAbove(),Boolean.TRUE)
-                && Objects.equals(normalKindergarten(schoolStudentQueryBO.getRefractiveError(),schoolStudentQueryBO.getAnisometropia()),Boolean.TRUE)
-                && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO.getMyopiaLevel(),schoolStudentQueryBO.getHyperopiaLevel(),schoolStudentQueryBO.getAstigmatismLevel()),Boolean.TRUE)){
+                && Objects.equals(normalKindergarten(schoolStudentQueryBO),Boolean.TRUE)
+                && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO),Boolean.TRUE)){
             queryWrapper.and(qw->
                     qw.and(qw1->qw1.eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
                             .eq(Objects.nonNull(schoolStudentQueryBO.getHyperopiaLevel()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaLevel())
@@ -363,14 +370,12 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
 
         }
 
-        if (Objects.equals(schoolStudentQueryBO.getKindergarten(),Boolean.TRUE)
-                && Objects.equals(normalKindergarten(schoolStudentQueryBO.getRefractiveError(),schoolStudentQueryBO.getAnisometropia()),Boolean.TRUE)){
+        if (Objects.equals(schoolStudentQueryBO.getKindergarten(),Boolean.TRUE) && Objects.equals(normalKindergarten(schoolStudentQueryBO),Boolean.TRUE)){
             queryWrapper.eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
                     .eq(Objects.nonNull(schoolStudentQueryBO.getHyperopiaLevel()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaLevel())
                     .eq(Objects.nonNull(schoolStudentQueryBO.getAstigmatismLevel()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismLevel());
         }
-        if (Objects.equals(schoolStudentQueryBO.getPrimaryAbove(),Boolean.TRUE)
-                && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO.getMyopiaLevel(),schoolStudentQueryBO.getHyperopiaLevel(),schoolStudentQueryBO.getAstigmatismLevel()),Boolean.TRUE)){
+        if (Objects.equals(schoolStudentQueryBO.getPrimaryAbove(),Boolean.TRUE) && Objects.equals(normalPrimaryAndAbove(schoolStudentQueryBO),Boolean.TRUE)){
             queryWrapper.eq(Objects.nonNull(schoolStudentQueryBO.getRefractiveError()),SchoolStudent::getIsRefractiveError,schoolStudentQueryBO.getRefractiveError())
                     .eq(Objects.nonNull(schoolStudentQueryBO.getAnisometropia()),SchoolStudent::getIsAnisometropia,schoolStudentQueryBO.getAnisometropia());
         }
@@ -378,27 +383,35 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
 
     /**
      * 正常条件(小学及以上)
-     * @param myopiaLevel
-     * @param hyperopiaLevel
-     * @param astigmatismLevel
+     *
+     * @param schoolStudentQueryBO
      */
-    private Boolean normalPrimaryAndAbove(Integer myopiaLevel,Integer hyperopiaLevel,Integer astigmatismLevel){
-        return Objects.equals(myopiaLevel, MyopiaLevelEnum.ZERO.getCode())&&Objects.equals(hyperopiaLevel, HyperopiaLevelEnum.ZERO.getCode())&&Objects.equals(astigmatismLevel, AstigmatismLevelEnum.ZERO.getCode());
+    private Boolean normalPrimaryAndAbove(SchoolStudentQueryBO schoolStudentQueryBO){
+        return Objects.equals(schoolStudentQueryBO.getMyopiaLevel(), MyopiaLevelEnum.ZERO.getCode())
+                && Objects.equals(schoolStudentQueryBO.getHyperopiaLevel(), HyperopiaLevelEnum.ZERO.getCode())
+                && Objects.equals(schoolStudentQueryBO.getAstigmatismLevel(), AstigmatismLevelEnum.ZERO.getCode());
     }
+
     /**
      * 正常条件(幼儿园)
-     * @param refractiveError
-     * @param anisometropia
+     * @param schoolStudentQueryBO
      */
-    private Boolean normalKindergarten(Boolean refractiveError,Boolean anisometropia){
-        return Objects.equals(refractiveError,Boolean.FALSE) && Objects.equals(anisometropia,Boolean.FALSE);
+    private Boolean normalKindergarten(SchoolStudentQueryBO schoolStudentQueryBO){
+        return Objects.equals(schoolStudentQueryBO.getRefractiveError(),Boolean.FALSE)
+                && Objects.equals(schoolStudentQueryBO.getAnisometropia(),Boolean.FALSE);
     }
 
     /**
      * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
      */
     public List<SchoolStudent> listByGradeType(){
-        return list(Wrappers.lambdaQuery(SchoolStudent.class)
-                .isNull(SchoolStudent::getGradeType));
+        return list(Wrappers.lambdaQuery(SchoolStudent.class).isNull(SchoolStudent::getGradeType));
+    }
+
+    @Override
+    public List<SchoolStudent> listByIds(Collection<? extends Serializable> idList) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getId,idList)
+                .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED));
     }
 }

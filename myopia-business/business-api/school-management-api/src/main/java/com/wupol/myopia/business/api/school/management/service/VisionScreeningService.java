@@ -303,7 +303,7 @@ public class VisionScreeningService {
                 .collect(Collectors.toMap(MedicalReport::getId, Function.identity()));
 
         // 学校端学生
-        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds, schoolId).stream()
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream()
                 .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
 
         trackList.forEach(track -> SchoolScreeningBizBuilder.setStudentTrackWarningInfo(reportMap, schoolStudentMap, track));
