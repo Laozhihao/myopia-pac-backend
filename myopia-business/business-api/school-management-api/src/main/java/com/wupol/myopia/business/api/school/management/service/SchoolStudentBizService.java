@@ -145,10 +145,33 @@ public class SchoolStudentBizService {
         schoolStudent.setStudentId(managementStudentId);
         schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
-        boolean isAdd = Objects.isNull(schoolStudent.getId());
+        Integer id = schoolStudent.getId();
+        boolean isAdd = Objects.isNull(id);
+        backfillVisionInfo(isAdd, schoolStudent, id);
         schoolStudentService.saveOrUpdate(schoolStudent);
         schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
         return schoolStudent;
+    }
+
+    /**
+     * 回填视力信息
+     *
+     * @param isAdd         是否新增
+     * @param schoolStudent 更新的学生
+     * @param id            id
+     */
+    private void backfillVisionInfo(boolean isAdd, SchoolStudent schoolStudent, Integer id) {
+        if (!isAdd) {
+            return;
+        }
+        SchoolStudent oldSchoolStudent = schoolStudentService.getById(id);
+        schoolStudent.setGlassesType(oldSchoolStudent.getGlassesType());
+        schoolStudent.setVisionLabel(oldSchoolStudent.getVisionLabel());
+        schoolStudent.setLowVision(oldSchoolStudent.getLowVision());
+        schoolStudent.setMyopiaLevel(oldSchoolStudent.getMyopiaLevel());
+        schoolStudent.setScreeningMyopia(oldSchoolStudent.getScreeningMyopia());
+        schoolStudent.setHyperopiaLevel(oldSchoolStudent.getHyperopiaLevel());
+        schoolStudent.setAstigmatismLevel(oldSchoolStudent.getAstigmatismLevel());
     }
 
     /**
