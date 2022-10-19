@@ -129,9 +129,7 @@ public class ScreeningBizBuilder {
                 .setScreeningOrgId(school.getId())
                 .setSchoolId(school.getId())
                 .setStudentId(schoolStudent.getStudentId())
-                .setStudentNo(schoolStudent.getSno())
-                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL)
-                .setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
+                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL);
         updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade,schoolClass);
         return screeningPlanSchoolStudent;
     }
@@ -166,6 +164,7 @@ public class ScreeningBizBuilder {
      */
     private void setStudentChangeData(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, School school, SchoolStudent schoolStudent) {
         screeningPlanSchoolStudent
+                .setStudentNo(schoolStudent.getSno())
                 .setGradeId(schoolStudent.getGradeId())
                 .setClassId(schoolStudent.getClassId())
                 .setPlanDistrictId(school.getDistrictId())
