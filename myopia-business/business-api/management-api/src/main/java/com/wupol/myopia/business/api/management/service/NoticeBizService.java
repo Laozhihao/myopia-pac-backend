@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.common.service.SystemUpdateNoticeService;
 import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -10,6 +12,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.model.Overvi
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -40,6 +43,9 @@ public class NoticeBizService {
 
     @Autowired
     private OverviewService overviewService;
+
+    @Autowired
+    private SystemUpdateNoticeService systemUpdateNoticeService;
 
     /**
      * 发送合作即将到期通知
@@ -73,6 +79,17 @@ public class NoticeBizService {
     private void sendNotice(String name, Date cooperationEndTime) {
         String content = String.format(CommonConst.COOPERATION_WARN_NOTICE, name, DateFormatUtils.format(cooperationEndTime, DateFormatUtil.FORMAT_TIME_WITHOUT_SECOND));
         noticeService.sendNoticeToAllAdmin(-1, content, content, CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 未读消息统计
+     *
+     * @return 未读列表
+     */
+    public UnreadNoticeResponse unreadCount(CurrentUser user) {
+        UnreadNoticeResponse unreadNoticeResponse = noticeService.unreadCount(user);
+        unreadNoticeResponse.setSystemUpdateNotice(systemUpdateNoticeService.getLastSystemUpdateNotice(user.getSystemCode()));
+        return unreadNoticeResponse;
     }
 
 }

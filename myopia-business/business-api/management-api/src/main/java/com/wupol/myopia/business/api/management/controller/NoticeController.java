@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.service.NoticeBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.core.system.domain.model.Notice;
@@ -26,6 +27,9 @@ public class NoticeController {
 
     @Resource
     private NoticeService noticeService;
+
+    @Resource
+    private NoticeBizService noticeBizService;
 
     /**
      * 获取通知列表
@@ -68,8 +72,7 @@ public class NoticeController {
      */
     @GetMapping("unreadCount")
     public UnreadNoticeResponse unreadCount() {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return noticeService.unreadCount(currentUser);
+        return noticeBizService.unreadCount(CurrentUserUtil.getCurrentUser());
     }
 
     /**
