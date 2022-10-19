@@ -137,14 +137,22 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(consultation)) {
             medicalRecord.setConsultation(consultation);
         }
-        if (Objects.nonNull(vision)) medicalRecord.setVision(vision);
-        if (Objects.nonNull(biometrics)) medicalRecord.setBiometrics(biometrics);
+        if (Objects.nonNull(vision)) {
+            medicalRecord.setVision(vision);
+        }
+        if (Objects.nonNull(biometrics)){
+            medicalRecord.setBiometrics(biometrics);
+        }
         if (Objects.nonNull(diopter)) {
             setSE(diopter);
             medicalRecord.setDiopter(diopter);
         }
-        if (Objects.nonNull(tosca)) medicalRecord.setTosca(tosca);
-        if (Objects.nonNull(eyePressure)) medicalRecord.setEyePressure(eyePressure);
+        if (Objects.nonNull(tosca)) {
+            medicalRecord.setTosca(tosca);
+        }
+        if (Objects.nonNull(eyePressure)) {
+            medicalRecord.setEyePressure(eyePressure);
+        }
         if (Objects.nonNull(fundus)) {
             medicalRecord.setFundus(fundus);
         }

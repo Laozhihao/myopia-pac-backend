@@ -723,7 +723,7 @@ public class CommonReportService {
                 table.setRefractiveInfo(primaryVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
             }
         }
-        table.setMyopiaCorrection(VisionCorrection.getDesc(statConclusion.getVisionCorrection()));
+        table.setMyopiaCorrection(VisionCorrection.getDescByCode(statConclusion.getVisionCorrection()));
         table.setVisionWarning(WarningLevel.getDesc(statConclusion.getWarningLevel()));
         table.setIsRecommendDoctor(statConclusion.getIsRecommendVisit());
 
@@ -755,22 +755,17 @@ public class CommonReportService {
         if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
             return StringUtils.EMPTY;
         }
-        boolean isZeroSp = WarningLevel.ZERO_SP.code.equals(warningLevel);
-        if (Objects.equals(isRefractiveError, Boolean.FALSE) && !isZeroSp) {
-            return "正常";
+        boolean isZeroSp = Objects.equals(WarningLevel.ZERO_SP.getCode(),warningLevel) ;
+
+        if (Objects.equals(isRefractiveError, Boolean.FALSE)) {
+            return isZeroSp ? "屈光异常（可能导致弱视）" : "正常";
         }
 
-        if (Objects.equals(isRefractiveError, Boolean.TRUE) && !isZeroSp) {
-            return "屈光异常（远视储备不足）";
+        if (Objects.equals(isRefractiveError, Boolean.TRUE)) {
+            return isZeroSp ? "屈光异常（远视储备不足/可能导致弱视）" : "屈光异常（远视储备不足）";
         }
 
-        if (Objects.equals(isRefractiveError, Boolean.FALSE) && isZeroSp) {
-            return "屈光异常（可能导致弱视）";
-        }
 
-        if (Objects.equals(isRefractiveError, Boolean.TRUE) && isZeroSp) {
-            return "屈光异常（远视储备不足/可能导致弱视）";
-        }
         return StringUtils.EMPTY;
     }
 

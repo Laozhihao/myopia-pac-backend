@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.device.service;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +40,8 @@ public class DeviceSourceDataService extends BaseService<DeviceSourceDataMapper,
      */
     public List<DeviceScreenDataDTO> listBatchWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> deviceScreenDataDTOList){
         if (screeningOrgId == null || StringUtils.isBlank(deviceSn) || CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
-            log.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ",screeningOrgId, deviceSn, JSON.toJSONString(deviceScreenDataDTOList));
+            log.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ",screeningOrgId, deviceSn, Optional.ofNullable(deviceScreenDataDTOList).map(JSON::toJSONString).orElse(null));
+            return Lists.newArrayList();
         }
         return deviceSourceDataMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
     }

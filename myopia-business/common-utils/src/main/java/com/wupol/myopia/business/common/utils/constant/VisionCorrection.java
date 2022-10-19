@@ -1,7 +1,11 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 public enum VisionCorrection {
     NORMAL(0, "正常"),
@@ -11,9 +15,11 @@ public enum VisionCorrection {
     OVER_CORRECTED(4, "过矫");
 
     /** 学龄段ID */
+    @Getter
     public final Integer code;
 
     /** 学龄段描述 */
+    @Getter
     public final String desc;
 
     VisionCorrection(Integer code, String desc) {
@@ -28,11 +34,14 @@ public enum VisionCorrection {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
+
+    public static String getDescByCode(Integer code) {
         if (Objects.isNull(code)) {
-            return "";
+            return StrUtil.EMPTY;
         }
-        VisionCorrection visionCorrection = get(code);
-        return Objects.isNull(visionCorrection) ? "" : Objects.equals(visionCorrection.code, NORMAL.code) ? "" : visionCorrection.desc;
+        return Optional.ofNullable(get(code))
+                .filter(item->!Objects.equals(item.getCode(), NORMAL.code))
+                .map(VisionCorrection::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 }

@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
-import com.wupol.myopia.business.common.utils.util.MapUtil;
+import com.wupol.myopia.business.common.utils.util.MyopiaMapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -100,7 +100,7 @@ public class StatConclusionBizService {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
-        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 2);
+        List<Map<Integer, List<VisionScreeningResult>>> mapList = MyopiaMapUtil.splitMap(visionScreeningResultMap, 2);
 
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
         mapList.forEach(list->{

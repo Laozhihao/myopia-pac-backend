@@ -4,25 +4,28 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.core.device.domain.dto.*;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import com.wupol.myopia.business.core.device.domain.mapper.DeviceScreeningDataMapper;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @Author jacob
  * @Date 2021-06-28
  */
+@Slf4j
 @Service
 public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataMapper, DeviceScreeningData> {
 
@@ -105,13 +108,10 @@ public class DeviceScreeningDataService extends BaseService<DeviceScreeningDataM
      */
     public List<DeviceScreenDataDTO> listBatchWithMutiConditions(Integer screeningOrgId, String deviceSn, List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
         if (screeningOrgId == null || StringUtils.isBlank(deviceSn) || CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
-            logger.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ", screeningOrgId, deviceSn, JSON.toJSONString(deviceScreenDataDTOList));
+            log.warn("更新deviceScreenData数据异常,存在为空的数据, screeningOrgId = {} ,deviceSn = {}, deviceScreenDataDTOList = {} ", screeningOrgId, deviceSn, Optional.ofNullable(deviceScreenDataDTOList).map(JSON::toJSONString).orElse(null));
+            return Lists.newArrayList();
         }
         return baseMapper.selectWithMutiConditions(screeningOrgId, deviceSn, deviceScreenDataDTOList);
-    }
-
-    public List<DeviceScreeningDataExportDTO> findByDataList(List<Integer> ids) {
-        return baseMapper.selectExcelData(ids);
     }
 
 }
