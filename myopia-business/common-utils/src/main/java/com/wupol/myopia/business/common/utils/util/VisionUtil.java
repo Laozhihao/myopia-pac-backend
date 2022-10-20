@@ -88,7 +88,7 @@ public class VisionUtil {
      * @param astigmatismLevel
      * @param screeningMyopia
      */
-    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel, Integer screeningMyopia, Boolean isNormal) {
+    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel, Integer screeningMyopia) {
         List<String> resultList = new LinkedList<>();
 
         //筛查性近视
@@ -120,24 +120,23 @@ public class VisionUtil {
      * @param isRefractiveError
      * @param visionLabel
      */
-    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError,Integer visionLabel,Boolean isNormal) {
+    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError, Integer visionLabel) {
         List<String> resultList = new LinkedList<>();
 
-        if (Objects.equals(isNormal,Boolean.TRUE)){
+        //远视储备不足
+        if (Objects.equals(visionLabel, WarningLevel.ZERO_SP.getCode())) {
+            resultList.add("远视储备不足");
+        }
+        //屈光不正
+        if (Objects.equals(isRefractiveError, Boolean.TRUE)) {
+            resultList.add("屈光不正");
+        }
+        //屈光参差
+        if (Objects.equals(isAnisometropia, Boolean.TRUE)) {
+            resultList.add("屈光参差");
+        }
+        if (CollectionUtils.isEmpty(resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))) {
             resultList.add("正常");
-        }else {
-            //远视储备不足
-            if (Objects.equals(visionLabel,WarningLevel.ZERO_SP.getCode())){
-                resultList.add("远视储备不足");
-            }
-            //屈光不正
-            if (Objects.equals(isRefractiveError,Boolean.TRUE)) {
-                resultList.add("屈光不正");
-            }
-            //屈光参差
-            if (Objects.equals(isAnisometropia,Boolean.TRUE)) {
-                resultList.add("屈光参差");
-            }
         }
 
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
