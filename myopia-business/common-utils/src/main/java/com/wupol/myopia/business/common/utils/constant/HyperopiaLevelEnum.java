@@ -17,7 +17,7 @@ public enum HyperopiaLevelEnum {
     HYPEROPIA(1, "远视"),
     HYPEROPIA_LEVEL_LIGHT(2, "低度远视"),
     HYPEROPIA_LEVEL_MIDDLE(3, "中度远视"),
-    HYPEROPIA_LEVEL_HIGH(4, "重度远视");
+    HYPEROPIA_LEVEL_HIGH(4, "高度远视");
 
     @Getter
     public final Integer code;
