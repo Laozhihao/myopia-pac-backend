@@ -4,6 +4,7 @@ import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -87,28 +88,27 @@ public class VisionUtil {
      * @param astigmatismLevel
      * @param screeningMyopia
      */
-    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia,Boolean isNormal) {
+    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel, Integer screeningMyopia, Boolean isNormal) {
         List<String> resultList = new LinkedList<>();
 
-        if (Objects.equals(isNormal,Boolean.TRUE)){
+        //筛查性近视
+        if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code, screeningMyopia)) {
+            resultList.add(MyopiaLevelEnum.getDescByCode(screeningMyopia));
+        }
+        // 近视
+        if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
+            resultList.add(MyopiaLevelEnum.getDescByCode(myopiaLevel));
+        }
+        // 远视
+        if (!HyperopiaLevelEnum.ZERO.code.equals(hyperopiaLevel)) {
+            resultList.add(HyperopiaLevelEnum.getDescByCode(hyperopiaLevel));
+        }
+        // 散光
+        if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
+            resultList.add(AstigmatismLevelEnum.getDescByCode(astigmatismLevel));
+        }
+        if (CollectionUtils.isEmpty(resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))) {
             resultList.add("正常");
-        }else {
-            //筛查性近视
-            if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
-                resultList.add(MyopiaLevelEnum.getDescByCode(screeningMyopia));
-            }
-            // 近视
-            if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
-                resultList.add(MyopiaLevelEnum.getDescByCode(myopiaLevel));
-            }
-            // 远视
-            if (!HyperopiaLevelEnum.ZERO.code.equals(hyperopiaLevel)) {
-                resultList.add(HyperopiaLevelEnum.getDescByCode(hyperopiaLevel));
-            }
-            // 散光
-            if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
-                resultList.add(AstigmatismLevelEnum.getDescByCode(astigmatismLevel));
-            }
         }
 
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));

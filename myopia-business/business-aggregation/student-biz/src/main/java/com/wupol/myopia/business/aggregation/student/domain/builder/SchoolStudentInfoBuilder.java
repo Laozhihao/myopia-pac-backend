@@ -70,11 +70,14 @@ public class SchoolStudentInfoBuilder {
                 .setStudentId(schoolStudent.getStudentId())
                 .setSno(schoolStudent.getSno())
                 .setName(schoolStudent.getName())
-                .setVisionLabel(schoolStudent.getVisionLabel())
-                .setCorrection(schoolStudent.getVisionCorrection());
+                .setVisionLabel(schoolStudent.getVisionLabel());
 
         if (Objects.nonNull(schoolStudent.getParticularYear())){
             schoolStudentListVO.setYearStr(schoolStudent.getParticularYear().toString());
+        }
+
+        if (!Objects.equals(schoolStudent.getGlassesType(), WearingGlassesSituation.NOT_WEARING_GLASSES_KEY)) {
+            schoolStudentListVO.setCorrection(schoolStudent.getVisionCorrection());
         }
 
         if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.getCode())){
