@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

@@ -3,7 +3,6 @@ package com.wupol.myopia.business.core.screening.organization.service;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.screening.organization.domain.mapper.OverviewSchoolMapper;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewSchool;
-import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewScreeningOrganization;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
