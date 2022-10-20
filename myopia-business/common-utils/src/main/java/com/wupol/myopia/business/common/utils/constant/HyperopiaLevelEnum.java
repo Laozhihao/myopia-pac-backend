@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.Getter;
+
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 远视等级
@@ -14,9 +17,11 @@ public enum HyperopiaLevelEnum {
     HYPEROPIA(1, "远视"),
     HYPEROPIA_LEVEL_LIGHT(2, "低度远视"),
     HYPEROPIA_LEVEL_MIDDLE(3, "中度远视"),
-    HYPEROPIA_LEVEL_HIGH(4, "重度远视");
+    HYPEROPIA_LEVEL_HIGH(4, "高度远视");
 
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     HyperopiaLevelEnum(int code, String desc) {
@@ -31,11 +36,10 @@ public enum HyperopiaLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        HyperopiaLevelEnum hyperopiaLevelEnum = get(code);
-        return Objects.isNull(hyperopiaLevelEnum) ? "" : hyperopiaLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(HyperopiaLevelEnum::get)
+                .map(HyperopiaLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 }

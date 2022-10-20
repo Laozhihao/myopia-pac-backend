@@ -312,4 +312,10 @@ public class StatConclusion implements Serializable {
      */
     @TableField(updateStrategy = FieldStrategy.IGNORED,typeHandler = JacksonTypeHandler.class)
     private DiseaseNumDO diseaseNum;
+
+    /**
+     * 是否正常（等效球镜判断）
+     */
+    private Boolean isNormal;
+
 }

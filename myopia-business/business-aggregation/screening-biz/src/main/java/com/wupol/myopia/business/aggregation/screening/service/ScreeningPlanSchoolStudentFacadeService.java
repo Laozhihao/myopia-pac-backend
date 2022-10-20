@@ -134,7 +134,7 @@ public class ScreeningPlanSchoolStudentFacadeService {
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
-            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+            studentDTO.setNationDesc(NationEnum.getNameByCode(studentDTO.getNation()))
                         .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
             setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
         });

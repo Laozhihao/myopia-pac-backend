@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -215,25 +217,21 @@ public class PreschoolCheckRecordService extends BaseService<PreschoolCheckRecor
      */
     public Map<Integer, MonthAgeStatusDTO> getStudentCheckStatus(Date birthday, List<PreschoolCheckRecord> records) {
         Date now = new Date();
+        LocalDate birthdayLocalDate = DateUtil.convertToLocalDate(birthday, ZoneId.systemDefault());
         Map<Integer, MonthAgeStatusDTO> monthAgeStatusDTOS = initMonthAgeStatusMap();
 
         // 如果 40~45岁的，则返回全部可更新的状态
-        int age = now.getYear() - birthday.getYear();
+        int age = LocalDate.now().getYear() - birthdayLocalDate.getYear();
         if (45 >= age && age >= 40) {
             // 先把全部修改成可点击，再把有数据的修改成可更新
-            for (Integer key : monthAgeStatusDTOS.keySet()) {
-                monthAgeStatusDTOS.get(key).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
-            }
-            records.forEach(record -> {
-                monthAgeStatusDTOS.get(record.getMonthAge()).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
-                        .setPreschoolCheckRecordId(record.getId());
-            });
+            monthAgeStatusDTOS.forEach((key,list)-> monthAgeStatusDTOS.get(key).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus()));
+            records.forEach(record -> monthAgeStatusDTOS.get(record.getMonthAge())
+                    .setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_CAN_UPDATE.getStatus())
+                    .setPreschoolCheckRecordId(record.getId()));
         } else {
             List<Integer> canCheckMonthAge = BusinessUtil.getCanCheckMonthAgeByDate(birthday);
             // 设置当前可检查年龄段为AGE_STAGE_STATUS_NOT_DATA状态
-            canCheckMonthAge.forEach(monthAge -> {
-                monthAgeStatusDTOS.get(monthAge).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus());
-            });
+            canCheckMonthAge.forEach(monthAge -> monthAgeStatusDTOS.get(monthAge).setStatus(MonthAgeStatusEnum.AGE_STAGE_STATUS_NOT_DATA.getStatus()));
             records.forEach(record -> {
                 // 检查大于3天，无法修改
                 if (DateUtil.betweenDay(record.getCreateTime(), now) > 3) {

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -126,10 +127,17 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         screeningPlanSchoolService.saveOrUpdateBatchWithDeleteExcludeSchoolsByPlanId(screeningPlanDTO.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getSchools());
         if (needUpdateNoticeStatus && Objects.nonNull(screeningPlanDTO.getScreeningTaskId())) {
             // 更新通知状态
-            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId());
-            if (Objects.isNull(screeningNotice)) {
+            List<Integer> typeList = Lists.newArrayList();
+            if (Objects.equals(screeningPlanDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                typeList.add(ScreeningNotice.TYPE_ORG);
+            }else if (Objects.equals(screeningPlanDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                typeList.add(ScreeningNotice.TYPE_SCHOOL);
+            }
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(screeningPlanDTO.getScreeningTaskId(), typeList);
+            if (Objects.isNull(screeningNoticeList)) {
                 throw new BusinessException("找不到对应任务通知");
             }
+            ScreeningNotice screeningNotice = screeningNoticeList.get(0);
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), screeningPlanDTO.getScreeningOrgId(), screeningPlanDTO.getId(), currentUserId);
         }
     }
@@ -164,8 +172,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param screeningTaskId 通知ID
      * @param screeningOrgId  机构ID
      */
-    public boolean checkIsCreated(Integer screeningTaskId, Integer screeningOrgId) {
-        return baseMapper.countByTaskIdAndOrgId(screeningTaskId, screeningOrgId) > 0;
+    public boolean checkIsCreated(Integer screeningTaskId, Integer screeningOrgId,Integer screeningOrgType) {
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getScreeningTaskId, screeningTaskId)
+                .eq(ScreeningPlan::getScreeningOrgId, screeningOrgId)
+                .eq(ScreeningPlan::getScreeningOrgType, screeningOrgType)
+                .ne(ScreeningPlan::getReleaseStatus, 2);
+        return baseMapper.selectCount(queryWrapper) > 0;
     }
 
     /**
@@ -228,6 +241,13 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
     }
 
+    public List<ScreeningPlan> getByTaskIdsAndOrgIdAndOrgType(List<Integer> taskIds,Integer orgId,Integer orgType) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .in(ScreeningPlan::getScreeningTaskId,taskIds)
+                .eq(ScreeningPlan::getScreeningOrgId,orgId)
+                .eq(ScreeningPlan::getScreeningOrgType,orgType));
+    }
+
     /**
      * 通过orgIds获取发布的计划
      *
@@ -248,10 +268,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
         if (CollectionUtils.isEmpty(screeningPlanIds)) {
             return Collections.emptyList();
         }
-        LambdaQueryWrapper<ScreeningPlan> screeningPlanLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        screeningPlanLambdaQueryWrapper.in(ScreeningPlan::getId, screeningPlanIds);
-        screeningPlanLambdaQueryWrapper.eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
-        List<ScreeningPlan> screeningPlans = baseMapper.selectList(screeningPlanLambdaQueryWrapper);
+        LambdaQueryWrapper<ScreeningPlan> queryWrapper = Wrappers.lambdaQuery(ScreeningPlan.class)
+                .in(ScreeningPlan::getId, screeningPlanIds)
+                .eq(ScreeningPlan::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        List<ScreeningPlan> screeningPlans = baseMapper.selectList(queryWrapper);
         return screeningPlans.stream().map(ScreeningPlan::getSrcScreeningNoticeId).distinct().collect(Collectors.toList());
     }
 
@@ -421,6 +441,18 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
+     * 通过任务ID和状态获取筛查计划
+     * @param taskId
+     * @param releaseStatus
+     */
+    public List<ScreeningPlan> getByTaskId(Integer taskId,Integer releaseStatus) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
+                .eq(ScreeningPlan::getScreeningTaskId,taskId)
+                .eq(ScreeningPlan::getReleaseStatus,releaseStatus));
+    }
+
+
+    /**
      * 学校自主筛查创建/编辑筛查计划
      * @param screeningPlan 筛查计划
      * @param screeningPlanSchool 筛查计划学校
@@ -434,7 +466,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
                 screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
                 screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
             }
-            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId());
+            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
         }
     }
 

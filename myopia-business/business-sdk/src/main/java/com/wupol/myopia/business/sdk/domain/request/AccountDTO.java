@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class Account {
+public class AccountDTO {
 
     /**
      * 账号

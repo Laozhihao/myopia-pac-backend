@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class WearingGlassesSituation {
-    public final String NOT_WEARING_GLASSES_TYPE = "没有佩戴眼镜";
+    public final String NOT_WEARING_GLASSES_TYPE = "不佩戴眼镜";
     public final Integer NOT_WEARING_GLASSES_KEY = GlassesTypeEnum.NOT_WEARING.code;
     public final String WEARING_FRAME_GLASSES_TYPE = "佩戴框架眼镜";
     public final Integer WEARING_FRAME_GLASSES_KEY = GlassesTypeEnum.FRAME_GLASSES.code;
@@ -38,13 +38,17 @@ public class WearingGlassesSituation {
                 WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE, WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY);
     }
 
+    public ImmutableMap<Integer, String> getTypeDescriptionMap(){
+        return typeDescriptionMap;
+    }
+
     /**
      * 查找类型
      *
      * @param key
      * @return
      */
-    public String getType(Integer key) {
+    public static String getType(Integer key) {
         String glassesTypeStr = typeDescriptionMap.get(key);
         if (StringUtils.isBlank(glassesTypeStr)) {
             throw new ManagementUncheckedException("无法找到该戴镜类型 key = " + key);
@@ -65,5 +69,6 @@ public class WearingGlassesSituation {
         }
         return glassesTypeKey;
     }
+
 
 }

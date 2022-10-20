@@ -1,13 +1,16 @@
 package com.wupol.myopia.business.core.school.util;
 
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.school.domain.dos.GradeCodeYear;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -55,4 +58,16 @@ public class SchoolUtil {
         return gradeCodeEnumList;
     }
 
+    /**
+     * 获取入学年份
+     * @param gradeCode
+     */
+    public static Integer getParticularYear(String gradeCode){
+        Integer year = GradeCodeYear.getYear(gradeCode);
+        Integer schoolYear = DateUtil.getSchoolYear();
+        if(Objects.isNull(year)){
+            return null;
+        }
+        return schoolYear-year;
+    }
 }

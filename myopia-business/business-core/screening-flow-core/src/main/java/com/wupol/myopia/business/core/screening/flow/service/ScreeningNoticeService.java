@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -60,7 +62,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public boolean checkTitleExist(Integer screeningNoticeId, Integer govDeptId, String title) {
-        return baseMapper.checkTitleExist(govDeptId, title, screeningNoticeId).size() > 0;
+        List<ScreeningNotice> screeningNoticeList = baseMapper.checkTitleExist(govDeptId, title, screeningNoticeId);
+        return CollUtil.isNotEmpty(screeningNoticeList);
     }
 
     /**
@@ -71,7 +74,8 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
      * @return
      */
     public boolean checkTimeLegal(ScreeningNotice screeningNotice) {
-        return baseMapper.selectByTimePeriods(screeningNotice).size() > 0;
+        List<ScreeningNotice> screeningNoticeList = baseMapper.selectByTimePeriods(screeningNotice);
+        return CollUtil.isNotEmpty(screeningNoticeList);
     }
 
     /**
@@ -85,13 +89,26 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
     }
 
     /**
-     * 根据任务ID获取通知（type为1）
+     * 根据任务ID获取通知（type为1,3）TODO:机构/学校
      *
      * @param screeningTaskId
      * @return
      */
     public ScreeningNotice getByScreeningTaskId(Integer screeningTaskId) {
-        return baseMapper.getByTaskId(screeningTaskId);
+        List<ScreeningNotice> screeningNoticeList = getByScreeningTaskId(screeningTaskId, Lists.newArrayList(1));
+        return CollUtil.isNotEmpty(screeningNoticeList)?screeningNoticeList.get(0):new ScreeningNotice();
+    }
+
+    /**
+     * 根据任务ID获取通知（type为1,3）
+     *
+     * @param screeningTaskId
+     * @return
+     */
+    public List<ScreeningNotice> getByScreeningTaskId(Integer screeningTaskId,List<Integer> typeList) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningNotice.class)
+                .eq(ScreeningNotice::getScreeningTaskId,screeningTaskId)
+                .in(CollUtil.isNotEmpty(typeList),ScreeningNotice::getType,typeList));
     }
 
     /**

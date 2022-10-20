@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Description 其他眼病  左右眼起码要有一只眼有疾病
@@ -38,5 +39,9 @@ public class OtherEyeDiseasesDO extends AbstractDiagnosisResult implements Seria
          * 眼部疾病
          */
         private List<String> eyeDiseases;
+    }
+
+    public Boolean isNull(){
+        return Objects.isNull(rightEyeData) && Objects.isNull(leftEyeData);
     }
 }

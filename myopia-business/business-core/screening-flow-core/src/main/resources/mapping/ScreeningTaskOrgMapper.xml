@@ -47,6 +47,7 @@
             <trim prefixOverrides="and">
                 AND mst.release_status = 1
                 <if test="@Ognl@isNotEmpty(orgId)">and msto.`screening_org_id` = #{orgId}</if>
+                <if test="@Ognl@isNotEmpty(orgType)">and msto.`screening_org_type` = #{orgType}</if>
                 <if test="@Ognl@isNotEmpty(param.id)">and <![CDATA[ msto.`screening_task_id` <> #{param.id}]]></if>
                 <if test="@Ognl@isNotEmpty(param.govDeptId)">and mst.`gov_dept_id` = #{param.govDeptId}</if>
                 <if test="param.startCreateTime != null and param.endCreateTime != null">
@@ -66,12 +67,4 @@
         where screening_task_id = #{taskId}
     </select>
 
-    <select id="getOneByTaskIdAndOrgId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_task_org
-        where screening_task_id = #{taskId}
-          and screening_org_id = #{orgId}
-        limit 1
-    </select>
 </mapper>

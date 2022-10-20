@@ -19,6 +19,7 @@ import java.util.Objects;
 @UtilityClass
 public class BigDecimalUtil {
 
+    private static final String NOT_NULL_MSG = "can not null";
     private static Map<Integer,String> decimalFormat = Maps.newHashMap();
 
     static {
@@ -306,16 +307,16 @@ public class BigDecimalUtil {
      * @param scale 精确小数
      */
     public static BigDecimal divide(String v1, String v2, int scale) {
-        Assert.notNull(v1,"can not null");
-        Assert.notNull(v2,"can not null");
+        Assert.notNull(v1,NOT_NULL_MSG);
+        Assert.notNull(v2,NOT_NULL_MSG);
         BigDecimal b1 = new BigDecimal(v1);
         BigDecimal b2 = new BigDecimal(v2);
         return divide(b1,b2,scale);
     }
 
     public static BigDecimal divide(BigDecimal b1, BigDecimal b2, int scale) {
-        Assert.notNull(b1,"can not null");
-        Assert.notNull(b2,"can not null");
+        Assert.notNull(b1,NOT_NULL_MSG);
+        Assert.notNull(b2,NOT_NULL_MSG);
         if (scale < 0) {
             throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
@@ -326,8 +327,8 @@ public class BigDecimalUtil {
     }
 
     public static String divide(Long b1, Long b2) {
-        Assert.notNull(b1, "can not null");
-        Assert.notNull(b2, "can not null");
+        Assert.notNull(b1, NOT_NULL_MSG);
+        Assert.notNull(b2, NOT_NULL_MSG);
         return divide(new BigDecimal(b1), new BigDecimal(b2), 4).multiply(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP).toString();
     }
 
@@ -379,5 +380,52 @@ public class BigDecimalUtil {
             num = new BigDecimal(value);
         }
         return num;
+    }
+
+    /**
+     * 乘法
+     * @param val1
+     * @param val2
+     */
+    public static BigDecimal multiply(BigDecimal val1,String val2){
+        return val1.multiply(new BigDecimal(val2));
+    }
+
+    /**
+     * 处理小数点数据
+     * @param bigDecimal
+     */
+    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale){
+        BigDecimal decimalByFormat = getBigDecimalByFormat(bigDecimal, scale);
+        if (Objects.isNull(decimalByFormat)){
+            return "--";
+        }
+        String value = decimalByFormat.toString();
+        return moreThan(bigDecimal, "0.00") ? "+" + value : value;
+    }
+
+    /**
+     * 处理小数点数据
+     * @param bigDecimal
+     * @param scale
+     */
+    public String getBigDecimalStr(BigDecimal  bigDecimal,int scale,Boolean isAbs){
+        BigDecimal decimalByFormat = getBigDecimalByFormat(bigDecimal, scale);
+        if (Objects.isNull(decimalByFormat)){
+            return null;
+        }
+        if (Objects.equals(isAbs,Boolean.TRUE)){
+            return decimalByFormat.abs().toString();
+        }
+        return decimalByFormat.toString();
+    }
+
+    /**
+     * 处理文本数据
+     * @param text
+     * @param isDegree
+     */
+    public String getText(String text,Boolean isDegree){
+        return Objects.equals(isDegree,Boolean.TRUE)? text+"D":text;
     }
 }

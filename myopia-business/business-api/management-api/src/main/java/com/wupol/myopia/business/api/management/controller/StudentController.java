@@ -1,26 +1,35 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.excel.imports.StudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.hospital.domain.dto.StudentVisitReportResponseDTO;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.domain.vo.StudentWarningArchiveVO;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.domain.dto.SchoolStudentDTO;
 import com.wupol.myopia.business.api.management.service.StudentBizService;
 import com.wupol.myopia.business.common.utils.constant.VisionLabels;
 import com.wupol.myopia.business.common.utils.constant.VisionLabelsEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentVO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentCardResponseVO;
@@ -60,7 +69,10 @@ public class StudentController {
 
     @Autowired
     private StudentExcelImportService studentExcelImportService;
-
+    @Autowired
+    private SchoolStudentFacade schoolStudentFacade;
+    @Autowired
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
     /**
      * 新增学生
      *
@@ -123,17 +135,29 @@ public class StudentController {
         return studentBizService.getStudentLists(pageRequest, studentQuery);
     }
 
+
+
     /**
      * 导出学生列表
      *
      * @param schoolId 学校ID
      * @param gradeId  年级ID
+     * @param clientId  客户端ID
      */
     @GetMapping("/export")
-    public void getStudentExportData(Integer schoolId, Integer gradeId) throws IOException {
-        Assert.isTrue(Objects.nonNull(schoolId), "学校id不能为空");
+    public void getStudentExportData(Integer schoolId, Integer gradeId,Integer clientId) throws IOException {
+        Assert.notNull(schoolId, "学校id不能为空");
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        exportStrategy.doExport(new ExportCondition().setApplyExportFileUserId(user.getId()).setSchoolId(schoolId).setGradeId(gradeId), ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
+        ExportCondition exportCondition = new ExportCondition()
+                .setApplyExportFileUserId(user.getId())
+                .setSchoolId(schoolId)
+                .setGradeId(gradeId);
+        if (Objects.equals(clientId, SystemCode.SCHOOL_CLIENT.getCode())){
+            //管理端导出学校学生
+            exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.SCHOOL_STUDENT_EXCEL_SERVICE);
+            return;
+        }
+        exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.STUDENT_EXCEL_SERVICE);
     }
 
     /**
@@ -142,8 +166,12 @@ public class StudentController {
      * @param file 导入文件
      */
     @PostMapping("/import")
-    public void importStudent(MultipartFile file, Integer schoolId) {
+    public void importStudent(MultipartFile file, Integer schoolId,Integer client) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        if (Objects.equals(client, SystemCode.SCHOOL_CLIENT.getCode())){
+            schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(),file,schoolId);
+            return;
+        }
         studentExcelImportService.importStudent(currentUser.getId(), file, schoolId);
     }
 
@@ -234,5 +262,58 @@ public class StudentController {
     @GetMapping("/warning/archive/{studentId}")
     public IPage<StudentWarningArchiveVO> getStudentWarningArchive(PageRequest pageRequest,@PathVariable("studentId") Integer studentId) {
         return studentFacade.getStudentWarningArchive(pageRequest,studentId);
+    }
+
+    /**
+     * 获取学校学生查询条件下拉框值（多端管理-学校管理-学生管理）
+     * @param schoolId
+     */
+    @GetMapping("/selectValue")
+    public SchoolStudentQuerySelectVO getSelectValue(@RequestParam Integer schoolId){
+        Assert.notNull(schoolId,"学校ID不能为空");
+        return schoolStudentFacade.getSelectValue(schoolId);
+    }
+
+    /**
+     * 获取学校学生列表（多端管理-学校管理-学生管理）
+     *
+     * @param pageRequest  分页查询
+     * @param studentQuery 请求条件
+     * @return 学生列表
+     */
+    @GetMapping("/schoolList")
+    public IPage<SchoolStudentListVO> getSchoolStudentsList(PageRequest pageRequest, SchoolStudentQueryDTO studentQuery) {
+        return studentBizService.getSchoolStudentList(pageRequest, studentQuery);
+    }
+
+    /**
+     * 获取筛查记录
+     *
+     * @param id 学校学生Id
+     * @return StudentScreeningResultResponseDTO
+     */
+    @GetMapping("/screening/list/{id}")
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
+        return studentFacade.getSchoolScreeningList(pageRequest, id,CurrentUserUtil.getCurrentUser(),SystemCode.MANAGEMENT_CLIENT.getCode());
+    }
+
+    /**
+     * 获取学校学生详情
+     *
+     * @param id 学校学生ID
+     * @return 学生实体 {@link StudentDTO}
+     */
+    @GetMapping("/school/{id}")
+    public SchoolStudentVO getSchoolStudent(@PathVariable("id") Integer id) {
+        return studentFacade.getStudentByStudentIdAndSchoolId(id);
+    }
+
+    /**
+     * 更新学校学生信息
+     * @param schoolStudent
+     */
+    @PostMapping("/school/save")
+    public SchoolStudent saveSchoolStudent(@RequestBody SchoolStudentDTO schoolStudent) {
+        return studentBizService.saveSchoolStudent(schoolStudent);
     }
 }

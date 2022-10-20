@@ -147,7 +147,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
 
         VisionCorrection visionCorrection = VisionCorrection.get(statConclusion.getVisionCorrection());
         exportDTO.setCorrectedVisionResult(Objects.isNull(visionCorrection) ? StringUtils.EMPTY : visionCorrection.desc);
-        exportDTO.setWarningLevel(WarningLevel.getDesc(statConclusion.getWarningLevel()));
+        exportDTO.setWarningLevel(WarningLevel.getDescByCode(statConclusion.getWarningLevel()));
         exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? VisionConst.RECOMMENDED_REVIEW : "无");
         exportDTO.setGlassesType(StringUtils.EMPTY);
 

@@ -89,6 +89,8 @@ public class StatConclusionBuilder {
             this.setRecommendVisit();
             //预警等级
             this.setWarningLevel();
+            //等效球镜
+            this.setIsNormal();
         }
         this.setWarningVision();
 
@@ -116,6 +118,18 @@ public class StatConclusionBuilder {
         return statConclusion;
     }
 
+    /**
+     * 设置是否正常
+     */
+    private void setIsNormal() {
+        Boolean leftSe = StatUtil.isNormal(basicData.getLeftSph(),basicData.getLeftCyl());
+        Boolean rightSe = StatUtil.isNormal(basicData.getRightSph(),basicData.getRightCyl());
+        statConclusion.setIsNormal(StatUtil.getIsExist(leftSe,rightSe));
+    }
+
+    /**
+     * 设置是否配合检查
+     */
     private void setCooperative() {
         Optional.ofNullable(StatUtil.isCooperative(currentVisionScreeningResult)).ifPresent(cooperative->statConclusion.setIsCooperative(cooperative));
     }

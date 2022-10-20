@@ -86,4 +86,9 @@ public class ExportCondition {
      */
     private Integer dataType;
 
+    /**
+     * 是否是学校端
+     */
+    private Boolean isSchoolClient;
+
 }

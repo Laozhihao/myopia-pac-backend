@@ -10,11 +10,16 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
+import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
 import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningBizBuilder;
 import com.wupol.myopia.business.aggregation.screening.domain.builder.SchoolScreeningPlanBuilder;
@@ -35,7 +40,9 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
@@ -50,16 +57,14 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -67,6 +72,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -118,6 +124,18 @@ public class VisionScreeningService {
     private SchoolStudentBizService schoolStudentBizService;
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeService screeningNoticeService;
+    @Resource
+    private ExcelFacade excelFacade;
+    @Resource
+    private RedisUtil redisUtil;
+    @Resource
+    private DistrictService districtService;
+    @Resource
+    private SysUtilService sysUtilService;
 
 
     /**
@@ -285,7 +303,7 @@ public class VisionScreeningService {
                 .collect(Collectors.toMap(MedicalReport::getId, Function.identity()));
 
         // 学校端学生
-        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIds(studentIds, schoolId).stream()
+        Map<Integer, Integer> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream()
                 .collect(Collectors.toMap(SchoolStudent::getStudentId, SchoolStudent::getId));
 
         trackList.forEach(track -> SchoolScreeningBizBuilder.setStudentTrackWarningInfo(reportMap, schoolStudentMap, track));
@@ -298,7 +316,43 @@ public class VisionScreeningService {
      * 保存筛查计划（创建/编辑）
      * @param schoolScreeningPlanDTO 创建/编辑筛查计划对象
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser) {
+        //创建和编辑标志
+        Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
+        validParam(schoolScreeningPlanDTO,currentUser,isAdd);
+
+        //筛查计划
+        School school = schoolService.getById(currentUser.getOrgId());
+        ScreeningPlan screeningPlan = null;
+        if (Objects.equals(isAdd,Boolean.FALSE)){
+            screeningPlan = screeningPlanService.getById(schoolScreeningPlanDTO.getId());
+        }
+        screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId(),screeningPlan);
+
+        //筛查计划学校
+        ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
+
+        //筛查学生
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
+        screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
+        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
+        if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
+            if (CollUtil.isEmpty(screeningNoticeList)) {
+                throw new BusinessException("找不到对应任务通知");
+            }
+            ScreeningNotice screeningNotice = screeningNoticeList.get(0);
+            screeningNoticeDeptOrgService.statusReadAndCreate(screeningNotice.getId(), currentUser.getOrgId(), screeningPlan.getId(), currentUser.getId());
+        }
+    }
+
+    /**
+     * 校验参数
+     * @param schoolScreeningPlanDTO
+     * @param currentUser
+     */
+    private void validParam(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser,Boolean isAdd) {
         // 校验用户机构，政府部门，无法新增计划
         if (currentUser.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -307,17 +361,11 @@ public class VisionScreeningService {
         if (DateUtil.isDateBeforeToday(DateFormatUtil.parseDate(schoolScreeningPlanDTO.getStartTime(), SchoolConstant.START_TIME, DatePattern.NORM_DATETIME_PATTERN))) {
             throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
         }
-        //筛查计划
-        School school = schoolService.getById(currentUser.getOrgId());
-        ScreeningPlan screeningPlan = SchoolScreeningPlanBuilder.buildScreeningPlan(schoolScreeningPlanDTO, currentUser,school.getDistrictId());
 
-        //筛查计划学校
-        ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
-
-        //筛查学生
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
-        screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
-        screeningPlanService.savePlanInfo(screeningPlan,screeningPlanSchool,twoTuple);
+        boolean checkIsCreated = screeningPlanService.checkIsCreated(schoolScreeningPlanDTO.getScreeningTaskId(), currentUser.getOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        if (Objects.equals(checkIsCreated,Boolean.TRUE) && Objects.equals(isAdd,Boolean.TRUE)){
+            throw new BusinessException("筛查计划已创建");
+        }
     }
 
     /**
@@ -467,7 +515,8 @@ public class VisionScreeningService {
         changeScreeningGradeIds(addScreeningStudentDTO, screeningPlanSchool);
         screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
 
-        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,addScreeningStudentDTO.getScreeningPlanId());
+        ScreeningPlan screeningPlan = screeningPlanService.getById(addScreeningStudentDTO.getScreeningPlanId());
+        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**
@@ -566,6 +615,55 @@ public class VisionScreeningService {
         return screeningPlanIds.stream().map(screeningPlanId->SchoolScreeningBizBuilder.buildSchoolStatistic(screeningPlanId,screeningPlanSchoolStudentMap,visionScreeningResultMap)).collect(Collectors.toList());
     }
 
+    /**
+     * 导出筛查数据
+     * @param planId
+     */
+    public void getScreeningPlanExportData(Integer planId,CurrentUser currentUser) throws IOException, UtilException {
 
+        // TODO：复用ExportPlanStudentDataExcelService导出逻辑
+        Integer schoolId = currentUser.getOrgId();
+
+        // 获取文件需显示的名称的学校前缀
+        String exportFileNamePrefix = checkNotNullAndGetName(schoolService.getById(schoolId));
+        List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.getExportVoByScreeningPlanIdAndSchoolId(planId, schoolId,null);
+        if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
+            throw new BusinessException("暂无筛查数据，无法导出");
+        }
+        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+        String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, planId, 0, schoolId, currentUser.getId());
+        checkIsExport(key);
+        // 导出限制
+        sysUtilService.isNoPlatformRepeatExport(String.format(RedisConstant.FILE_EXCEL_SCHOOL_PLAN, planId, schoolId, currentUser.getId()), key,null);
+        // 获取文件需显示的名称
+        excelFacade.generateVisionScreeningResult(currentUser.getId(), statConclusionExportDTOs, true, exportFileNamePrefix, key);
+    }
+
+    /**
+     * 判空并获取名称
+     *
+     * @param object 类型
+     * @return 名称
+     */
+    private <T extends HasName> String checkNotNullAndGetName(T object) {
+        if (Objects.isNull(object)) {
+            throw new BusinessException(String.format("未找到该%s", "学校"));
+        }
+        return object.getName();
+    }
+
+    /**
+     * 是否正在导出
+     *
+     * @param key Key
+     */
+    private void checkIsExport(String key) {
+        Object o = redisUtil.get(key);
+        if (Objects.nonNull(o)) {
+            throw new BusinessException("正在导出中，请勿重复导出");
+        }
+        //time: 60 * 60 * 24
+        redisUtil.set(key, 1, 86400L);
+    }
 }
 

@@ -43,7 +43,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     List<ExportPlanSchool> selectPlanSchoolGradeClassHasData(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,@Param("isRescreen") Boolean isRescreen);
 
     /**
      * @Description: 参考学校

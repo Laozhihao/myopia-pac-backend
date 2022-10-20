@@ -1,12 +1,16 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -16,18 +20,22 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolVisionStatisticItem;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.StatRescreenService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.Overview;
@@ -83,6 +91,8 @@ public class SchoolBizService {
     private ScreeningResultStatisticService screeningResultStatisticService;
     @Autowired
     private OverviewService overviewService;
+    @Autowired
+    private ScreeningTaskOrgService screeningTaskOrgService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -457,4 +467,74 @@ public class SchoolBizService {
         return responseDTO;
     }
 
+    /**
+     * 获取筛查机构（学校）
+     * @param pageRequest
+     * @param query
+     * @param user
+     */
+    public IPage<ScreeningSchoolOrgVO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningSchoolOrgDTO query, CurrentUser user) {
+        if (user.isOverviewUser()) {
+//            query.setIds(overviewService.getBindScreeningOrganization(user.getOrgId()));
+            if (CollectionUtils.isEmpty(query.getIds())) {
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+            }
+        }
+        return getSchoolList(pageRequest,query);
+    }
+
+    /**
+     * 获取学校列表
+     *
+     * @param pageRequest
+     * @param query
+     */
+    public IPage<ScreeningSchoolOrgVO> getSchoolList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
+        //当前区域及下级以下区域
+        List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
+        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query);
+        IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtIds,startAndEndTime.getFirst(),startAndEndTime.getSecond());
+
+        IPage<ScreeningSchoolOrgVO> screeningSchoolOrgVoPage = new Page<>(schoolPage.getCurrent(),schoolPage.getSize(),schoolPage.getTotal());
+        // 为空直接返回
+        List<School> schoolList = schoolPage.getRecords();
+        if (CollectionUtils.isEmpty(schoolList)) {
+            return screeningSchoolOrgVoPage;
+        }
+
+        List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+        List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
+                .map(school -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(),school.getName(),null))
+                .collect(Collectors.toList());
+        screeningSchoolOrgVoPage.setRecords(screeningSchoolOrgVOList);
+        return screeningSchoolOrgVoPage;
+    }
+
+    private TwoTuple<Date, Date> getStartAndEndTime(ScreeningSchoolOrgDTO query) {
+        TwoTuple<Date,Date> tuple = TwoTuple.of(null, null);
+        if (Objects.nonNull(query.getStartTime()) && Objects.nonNull(query.getEndTime())){
+            Date startTime = DateUtil.parse(query.getStartTime().toString()+" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
+            Date endTime = DateUtil.parse(query.getStartTime().toString()+" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
+            tuple.setFirst(startTime);
+            tuple.setSecond(endTime);
+        }
+        return tuple;
+    }
+
+
+    /**
+     * 获取有筛查任务的筛查机构ID集合
+     * @param query
+     */
+    private List<Integer> getHaveTaskOrgIds(ScreeningSchoolOrgDTO query) {
+        if (Objects.nonNull(query.getNeedCheckHaveTask()) && Objects.equals(query.getNeedCheckHaveTask(),Boolean.TRUE)) {
+            List<ScreeningTaskOrgDTO> haveTaskOrgIds = screeningTaskOrgService.getHaveTaskOrgIds(query.getGovDeptId(), query.getStartTime(), query.getEndTime());
+            return haveTaskOrgIds.stream()
+                    .filter(screeningTaskOrgDTO -> Objects.equals(screeningTaskOrgDTO.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                    .map(ScreeningTaskOrgDTO::getScreeningOrgId)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
 }

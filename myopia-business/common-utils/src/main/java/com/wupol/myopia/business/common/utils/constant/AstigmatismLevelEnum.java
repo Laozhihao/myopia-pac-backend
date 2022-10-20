@@ -1,9 +1,10 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
 
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 散光等级
@@ -33,11 +34,10 @@ public enum AstigmatismLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        AstigmatismLevelEnum astigmatismLevelEnum = get(code);
-        return Objects.isNull(astigmatismLevelEnum) ? "" : astigmatismLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(AstigmatismLevelEnum::get)
+                .map(AstigmatismLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 }

@@ -1,10 +1,14 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.Getter;
+
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 近视等级
@@ -20,7 +24,9 @@ public enum MyopiaLevelEnum {
     MYOPIA_LEVEL_MIDDLE(4, "中度近视"),
     MYOPIA_LEVEL_HIGH(5, "高度近视");
 
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     MyopiaLevelEnum(int code, String desc) {
@@ -35,12 +41,11 @@ public enum MyopiaLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        MyopiaLevelEnum myopiaLevelEnum = get(code);
-        return Objects.isNull(myopiaLevelEnum) ? "" : myopiaLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(MyopiaLevelEnum::get)
+                .map(MyopiaLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 
     /**

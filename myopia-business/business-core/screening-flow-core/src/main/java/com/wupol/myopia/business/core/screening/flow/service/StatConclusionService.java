@@ -162,8 +162,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId,Boolean isRescreen) {
+        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId,isRescreen);
     }
 
     /**

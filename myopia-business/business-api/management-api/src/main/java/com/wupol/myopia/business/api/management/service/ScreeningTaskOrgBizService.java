@@ -5,20 +5,25 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.StringUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.screening.domain.builder.ScreeningBizBuilder;
+import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.hospital.domain.model.HospitalAdmin;
 import com.wupol.myopia.business.core.hospital.service.HospitalAdminService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningConstant;
@@ -89,6 +94,10 @@ public class ScreeningTaskOrgBizService {
     private SchoolService schoolService;
     @Autowired
     private VisionScreeningResultFacade visionScreeningResultFacade;
+    @Autowired
+    private SchoolAdminService schoolAdminService;
+    @Autowired
+    private ScreeningTaskBizFacade screeningTaskBizFacade;
 
 
 
@@ -99,9 +108,16 @@ public class ScreeningTaskOrgBizService {
      */
     public void saveOrUpdateBatchWithDeleteExcludeOrgsByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs) {
         // 删除掉已有的不存在的机构信息
-        List<Integer> excludeOrgIds = CollectionUtils.isEmpty(screeningOrgs) ? Collections.emptyList() : screeningOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, excludeOrgIds);
-        if (!CollectionUtils.isEmpty(screeningOrgs)) {
+        Map<Integer,List<Integer>> typeIdMap =Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningOrgs)) {
+            Map<Integer, List<ScreeningTaskOrg>> typeMap = screeningOrgs.stream().collect(Collectors.groupingBy(ScreeningTaskOrg::getScreeningOrgType));
+            typeMap.forEach((type,orgList)->{
+                List<Integer> orgIds = orgList.stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().collect(Collectors.toList());
+                typeIdMap.put(type,orgIds);
+            });
+        }
+        screeningTaskOrgService.deleteByTaskIdAndExcludeOrgIds(screeningTaskId, typeIdMap);
+        if (CollUtil.isNotEmpty(screeningOrgs)) {
             saveOrUpdateBatchByTaskId(user, screeningTaskId, screeningOrgs, false);
         }
     }
@@ -113,15 +129,90 @@ public class ScreeningTaskOrgBizService {
      */
     public void saveOrUpdateBatchByTaskId(CurrentUser user, Integer screeningTaskId, List<ScreeningTaskOrg> screeningOrgs, boolean needNotice) {
         // 1. 查出剩余的
-        Map<Integer, Integer> orgIdMap = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId).stream().collect(Collectors.toMap(ScreeningTaskOrg::getScreeningOrgId, ScreeningTaskOrg::getId));
-        // 2. 更新id，并批量新增或修改
-        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId).setId(orgIdMap.getOrDefault(taskOrg.getScreeningOrgId(), null)));
-        screeningTaskOrgService.saveOrUpdateBatch(screeningOrgs);
-        if (needNotice) {
-            ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
-            ScreeningNotice screeningNotice = screeningNoticeService.getByScreeningTaskId(screeningTaskId);
-            this.noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
+        List<ScreeningTaskOrg> screeningTaskOrgList = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
+        Map<String, Integer> orgIdMap=Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningTaskOrgList)){
+            Map<String, Integer> collect = screeningTaskOrgList.stream().collect(Collectors.toMap(screeningTaskOrg -> getTaskOrg(screeningTaskOrg.getScreeningOrgId(),screeningTaskOrg.getScreeningOrgType()), ScreeningTaskOrg::getId));
+            orgIdMap.putAll(collect);
         }
+        // 2. 更新id，并批量新增或修改
+        screeningOrgs.forEach(taskOrg -> taskOrg.setScreeningTaskId(screeningTaskId)
+                .setId(orgIdMap.getOrDefault(getTaskOrg(taskOrg.getScreeningOrgId(),taskOrg.getScreeningOrgType()), null))
+                .setQualityControllerContact(Optional.ofNullable(taskOrg.getQualityControllerContact()).orElse(StrUtil.EMPTY)));
+        screeningTaskOrgService.saveOrUpdateBatch(screeningOrgs);
+
+        if (Objects.equals(needNotice,Boolean.TRUE)) {
+            ScreeningTask screeningTask = screeningTaskService.getById(screeningTaskId);
+
+            List<Integer> typeList = getTypeList(screeningOrgs);
+
+            List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(screeningTaskId, typeList);
+            if (CollUtil.isNotEmpty(screeningNoticeList)){
+
+                addPartScreeningNotice(user, screeningOrgs, screeningTask, typeList, screeningNoticeList);
+
+                for (ScreeningNotice screeningNotice : screeningNoticeList) {
+                    this.noticeBatch(user, screeningTask, screeningNotice, screeningOrgs);
+                }
+            }else {
+                addScreeningNotice(user, screeningOrgs, screeningTask);
+            }
+        }
+    }
+
+    /**
+     * 获取类型
+     * @param screeningOrgs
+     */
+    private List<Integer> getTypeList(List<ScreeningTaskOrg> screeningOrgs) {
+        return screeningOrgs.stream().map(screeningTaskOrg -> {
+                    if (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                        return ScreeningNotice.TYPE_ORG;
+                    } else if (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                        return ScreeningNotice.TYPE_SCHOOL;
+                    }
+                    return null;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * 新增部分
+     * @param user
+     * @param screeningOrgs
+     * @param screeningTask
+     * @param typeList
+     * @param screeningNoticeList
+     */
+    private void addPartScreeningNotice(CurrentUser user, List<ScreeningTaskOrg> screeningOrgs, ScreeningTask screeningTask, List<Integer> typeList, List<ScreeningNotice> screeningNoticeList) {
+        List<Integer> dbTypeList = screeningNoticeList.stream().map(ScreeningNotice::getType).distinct().collect(Collectors.toList());
+        typeList.removeAll(dbTypeList);
+        if (CollUtil.isNotEmpty(typeList)){
+            List<ScreeningTaskOrg> taskOrgs = screeningOrgs.stream()
+                    .filter(screeningTaskOrg ->
+                        (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()) && typeList.contains(ScreeningNotice.TYPE_ORG))
+                        || (Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()) && typeList.contains(ScreeningNotice.TYPE_SCHOOL)))
+                    .collect(Collectors.toList());
+            addScreeningNotice(user,taskOrgs,screeningTask);
+        }
+    }
+
+    /**
+     * 新增筛查通知
+     * @param user
+     * @param screeningOrgs
+     * @param screeningTask
+     */
+    private void addScreeningNotice(CurrentUser user, List<ScreeningTaskOrg> screeningOrgs, ScreeningTask screeningTask) {
+        List<ScreeningNotice> addScreeningNoticeList = screeningTaskBizFacade.getScreeningNoticeList(screeningTask.getId(), user, screeningTask,screeningOrgs);
+        screeningNoticeService.saveBatch(addScreeningNoticeList);
+        // 为筛查机构/学校创建通知
+        for (ScreeningNotice screeningNotice : addScreeningNoticeList) {
+            this.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
+        }
+    }
+
+    private static String getTaskOrg(Integer screeningOrgId,Integer screeningOrgType){
+        return screeningOrgId+StrUtil.UNDERLINE+screeningOrgType;
     }
 
     /**
@@ -146,22 +237,93 @@ public class ScreeningTaskOrgBizService {
      */
     private Boolean noticeBatch(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
         List<Integer> existAcceptOrgIds = screeningNoticeDeptOrgService.getByScreeningNoticeId(screeningNotice.getId()).stream().map(ScreeningNoticeDeptOrg::getAcceptOrgId).collect(Collectors.toList());
-        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream().filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId())).map(org -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningTask.getDistrictId()).setAcceptOrgId(org.getScreeningOrgId()).setOperatorId(user.getId())).collect(Collectors.toList());
-        boolean result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
-
-        // 查找筛查机构用户
-        List<Integer> orgIds = orgLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
-        List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgIds);
-        // 通知绑定了该筛查机构的医院信息
-        List<HospitalAdmin> hospitalAdmins = hospitalAdminService.getHospitalAdminByOrgIds(orgIds);
-        List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
-        toUserIds.addAll(hospitalAdmins.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
-        if (!CollectionUtils.isEmpty(toUserIds)) {
-            // 为消息中心创建通知
-            noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+        List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = orgLists.stream()
+                .filter(org -> !existAcceptOrgIds.contains(org.getScreeningOrgId()))
+                .map(org -> buildScreeningNoticeDeptOrg(screeningNotice,screeningTask,org,user.getId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Boolean result = null;
+        if (CollUtil.isNotEmpty(screeningNoticeDeptOrgs)){
+            result = screeningNoticeDeptOrgService.saveBatch(screeningNoticeDeptOrgs);
         }
+        orgNotice(user, screeningTask, screeningNotice, orgLists);
+        schoolNotice(user, screeningTask, screeningNotice, orgLists);
         return result;
     }
+
+    /**
+     * 政府发布筛查任务的学校通知
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @param orgLists
+     */
+    private void schoolNotice(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
+        // 查找学校用户
+        List<Integer> schoolIds = orgLists.stream()
+                .filter(org-> Objects.equals(org.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType()))
+                .map(ScreeningTaskOrg::getScreeningOrgId)
+                .collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(schoolIds) && Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_SCHOOL)){
+            List<SchoolAdmin> adminLists = schoolAdminService.getBySchoolIds(schoolIds);
+            List<Integer> toUserIds = adminLists.stream().map(SchoolAdmin::getUserId).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(toUserIds)) {
+                // 为消息中心创建通知
+                noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            }
+        }
+    }
+
+    /**
+     * 政府发布筛查任务的筛查机构通知
+     * @param user
+     * @param screeningTask
+     * @param screeningNotice
+     * @param orgLists
+     */
+    private void orgNotice(CurrentUser user, ScreeningTask screeningTask, ScreeningNotice screeningNotice, List<ScreeningTaskOrg> orgLists) {
+        // 查找筛查机构用户
+        List<Integer> orgIds = orgLists.stream()
+                .filter(org-> Objects.equals(org.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType()))
+                .map(ScreeningTaskOrg::getScreeningOrgId)
+                .collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(orgIds) && Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_ORG)){
+            List<ScreeningOrganizationAdmin> adminLists = screeningOrganizationAdminService.getByOrgIds(orgIds);
+            // 通知绑定了该筛查机构的医院信息
+            List<HospitalAdmin> hospitalAdmins = hospitalAdminService.getHospitalAdminByOrgIds(orgIds);
+            List<Integer> toUserIds = adminLists.stream().map(ScreeningOrganizationAdmin::getUserId).collect(Collectors.toList());
+            toUserIds.addAll(hospitalAdmins.stream().map(HospitalAdmin::getUserId).collect(Collectors.toList()));
+            if (CollUtil.isNotEmpty(toUserIds)) {
+                // 为消息中心创建通知
+                noticeService.batchCreateNotice(user.getId(), screeningTask.getScreeningNoticeId(), toUserIds, CommonConst.NOTICE_SCREENING_DUTY, screeningTask.getTitle(), screeningTask.getTitle(), screeningTask.getStartTime(), screeningTask.getEndTime());
+            }
+        }
+    }
+
+    /**
+     * 构建筛查通知机构
+     * @param screeningNotice
+     * @param screeningTask
+     * @param screeningTaskOrg
+     * @param userId
+     */
+    private ScreeningNoticeDeptOrg buildScreeningNoticeDeptOrg(ScreeningNotice screeningNotice,ScreeningTask screeningTask,ScreeningTaskOrg screeningTaskOrg,Integer userId){
+        ScreeningNoticeDeptOrg screeningNoticeDeptOrg = new ScreeningNoticeDeptOrg()
+                .setScreeningNoticeId(screeningNotice.getId())
+                .setDistrictId(screeningTask.getDistrictId())
+                .setAcceptOrgId(screeningTaskOrg.getScreeningOrgId())
+                .setOperatorId(userId);
+        if (Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_ORG)
+                && Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.ORG.getType())){
+            return screeningNoticeDeptOrg;
+        }
+        if (Objects.equals(screeningNotice.getType(),ScreeningNotice.TYPE_SCHOOL)
+                && Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
+            return screeningNoticeDeptOrg;
+        }
+        return null;
+    }
+
 
     /**
      * 根据任务Id获取机构列表-带机构名称
@@ -171,67 +333,153 @@ public class ScreeningTaskOrgBizService {
     public List<ScreeningTaskOrgDTO> getOrgVoListsByTaskId(Integer screeningTaskId,String orgNameOrSchoolName) {
         List<ScreeningTaskOrg> orgVoLists = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
 
-        Set<Integer> orgIds = orgVoLists.stream().filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())).map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toSet());
-        Set<Integer> sIds = orgVoLists.stream().filter(screeningTaskOrg -> Objects.equals(screeningTaskOrg.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())).map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toSet());
-        Map<Integer, String> screeningOrgNameMap = getScreeningOrgNameMap(orgNameOrSchoolName, orgIds);
-
-        Map<Integer, String> schoolNameMap = getSchoolNameMap(orgNameOrSchoolName, sIds);
+        TwoTuple<Map<Integer, String>, Map<Integer, String>> screeningOrgName = screeningOrgName(orgNameOrSchoolName, orgVoLists);
 
         // 批量获取筛查计划信息
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.findByList(new ScreeningPlan().setScreeningTaskId(screeningTaskId).setReleaseStatus(CommonConst.STATUS_RELEASE));
-        Map<Integer, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getScreeningOrgId, Function.identity()));
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByTaskId(screeningTaskId,CommonConst.STATUS_RELEASE);
+        Map<String, ScreeningPlan> planGroupByOrgIdMap = screeningPlanList.stream().collect(Collectors.toMap(screeningPlan -> getKey(screeningPlan.getScreeningOrgId(),screeningPlan.getScreeningOrgType()), Function.identity()));
+
         // 统计每个计划下的筛查学校数量
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        List<Integer> planIds = screeningPlanList.stream().map(ScreeningPlan::getId).distinct().collect(Collectors.toList());
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getByPlanIds(planIds);
         Map<Integer, Long> planSchoolCountMap = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getScreeningPlanId, Collectors.counting()));
+
         // 统计筛查中的学校数量
-        List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultService.countScreeningSchoolByTaskId(screeningTaskId);
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIds(planIds, Boolean.FALSE);
+        Map<Integer, List<VisionScreeningResult>> visionScreeningResultPlanMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId));
+        List<ScreeningSchoolCount> screeningSchoolCountList = visionScreeningResultPlanMap.entrySet().stream().map(this::getScreeningSchoolCount).collect(Collectors.toList());
         Map<Integer, Integer> schoolCountMap = screeningSchoolCountList.stream().collect(Collectors.toMap(ScreeningSchoolCount::getPlanId, ScreeningSchoolCount::getSchoolCount));
-        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toSet())), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
-        nameMatch(orgNameOrSchoolName, orgVoLists, screeningOrgNameMap, schoolNameMap);
+
+        List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(planIds, QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
+
+        nameMatch(orgNameOrSchoolName, orgVoLists, screeningOrgName);
         if (CollUtil.isEmpty(orgVoLists)) {
             return Lists.newArrayList();
         }
 
-        return orgVoLists.stream().map(orgVo -> {
-            ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
-            BeanUtils.copyProperties(orgVo, dto);
-            if (Objects.equals(orgVo.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
-                dto.setName(schoolNameMap.getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
-            }else {
-                dto.setName(screeningOrgNameMap.getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
-            }
+        return orgVoLists.stream().map(orgVo -> getScreeningTaskOrgDTO(screeningOrgName, screeningPlanList, planGroupByOrgIdMap, planSchoolList, planSchoolCountMap, schoolCountMap, userQuestionRecords, orgVo)).collect(Collectors.toList());
+    }
 
-            List<ScreeningPlanSchool> orgSchools = planSchoolList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toList());
-            Set<Integer> schoolIds = orgSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
-            Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, screeningPlanSchool -> screeningPlanSchool));
-            Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().filter(item -> item.getScreeningOrgId().equals(orgVo.getScreeningOrgId())).collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
+    /**
+     * 获取筛查计划和学校数量
+     * @param entity
+     */
+    private ScreeningSchoolCount getScreeningSchoolCount(Map.Entry<Integer, List<VisionScreeningResult>> entity) {
+        ScreeningSchoolCount screeningSchoolCount = new ScreeningSchoolCount();
+        screeningSchoolCount.setPlanId(entity.getKey());
+        List<VisionScreeningResult> screeningResultList = entity.getValue();
+        int schoolCount = screeningResultList.stream().map(VisionScreeningResult::getSchoolId).collect(Collectors.toSet()).size();
+        screeningSchoolCount.setSchoolCount(schoolCount);
+        return screeningSchoolCount;
+    }
 
-            List<UserQuestionRecord> planUserQuestionRecords = userQuestionRecords.stream().filter(item -> planMap.containsKey(item.getPlanId())).collect(Collectors.toList());
-            dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap,planUserQuestionRecords));
-            ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(orgVo.getScreeningOrgId());
-            if (screeningPlan == null) {
-                return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
+    /**
+     * 获取筛查机构信息
+     * @param screeningOrgName
+     * @param screeningPlanList
+     * @param planGroupByOrgIdMap
+     * @param planSchoolList
+     * @param planSchoolCountMap
+     * @param schoolCountMap
+     * @param userQuestionRecords
+     * @param orgVo
+     */
+    private ScreeningTaskOrgDTO getScreeningTaskOrgDTO(TwoTuple<Map<Integer, String>, Map<Integer, String>> screeningOrgName, List<ScreeningPlan> screeningPlanList, Map<String, ScreeningPlan> planGroupByOrgIdMap, List<ScreeningPlanSchool> planSchoolList, Map<Integer, Long> planSchoolCountMap, Map<Integer, Integer> schoolCountMap, List<UserQuestionRecord> userQuestionRecords, ScreeningTaskOrg orgVo) {
+        ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
+        BeanUtils.copyProperties(orgVo, dto);
+
+        List<ScreeningPlanSchool> orgSchools = planSchoolList.stream()
+                .filter(item -> Objects.equals(getKey(item.getScreeningOrgId(),ScreeningOrgTypeEnum.SCHOOL.getType()),getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType())))
+                .collect(Collectors.toList());
+
+        Set<Integer> schoolIds = orgSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+        Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, Function.identity()));
+        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream()
+                .filter(item -> Objects.equals(getKey(item.getScreeningOrgId(),item.getScreeningOrgType()),getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType())))
+                .collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
+
+        List<UserQuestionRecord> planUserQuestionRecords = userQuestionRecords.stream()
+                .filter(item -> planMap.containsKey(item.getPlanId())).collect(Collectors.toList());
+
+        dto.setQuestionnaire(findQuestionnaireBySchool(schoolIds, orgSchoolsMap, planMap,planUserQuestionRecords));
+
+
+        if (Objects.equals(orgVo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())){
+            dto.setName(screeningOrgName.getSecond().getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
+        } else if (Objects.equals(orgVo.getScreeningOrgType(),ScreeningOrgTypeEnum.ORG.getType())){
+            dto.setName(screeningOrgName.getFirst().getOrDefault(orgVo.getScreeningOrgId(), StringUtils.EMPTY));
+        }
+
+        ScreeningPlan screeningPlan = planGroupByOrgIdMap.get(getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType()));
+        if (screeningPlan == null) {
+            if (Objects.equals(orgVo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())){
+                return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningSituation(0, null));
             }
-            int total = Optional.ofNullable(planSchoolCountMap.get(screeningPlan.getId())).map(Long::intValue).orElse(0);
-            return dto.setScreeningSchoolNum(total)
-                    .setScreeningSituation(findByScreeningSituation(total, Optional.ofNullable(schoolCountMap.get(screeningPlan.getId())).orElse(0), screeningPlan.getEndTime()));
-        }).collect(Collectors.toList());
+            return dto.setScreeningSchoolNum(0).setScreeningSituation(getScreeningState(0, 0, 0, 0));
+        }
+
+        int total = Optional.ofNullable(planSchoolCountMap.get(screeningPlan.getId())).map(Long::intValue).orElse(0);
+        Integer screeningCount = Optional.ofNullable(schoolCountMap.get(screeningPlan.getId())).orElse(0);
+
+        if (Objects.equals(orgVo.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())){
+            dto.setScreeningSituation(findByScreeningSituation(total, screeningCount, screeningPlan.getEndTime()));
+        }else if (Objects.equals(orgVo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())){
+            dto.setScreeningSituation(getScreeningSituation(screeningCount, screeningPlan.getEndTime()));
+        }
+
+        dto.setScreeningSchoolNum(total);
+        return dto;
+    }
+
+    /**
+     * 获取学校的筛查情况
+     * @param screeningCount
+     * @param screeningEndTime
+     */
+    private String getScreeningSituation(Integer screeningCount,Date screeningEndTime){
+        if (Objects.isNull(screeningEndTime)){
+            return "未开始";
+        }
+        if (DateUtil.betweenDay(screeningEndTime, new Date()) > 0){
+            return "已结束";
+        }
+        return screeningCount > 0 ? "进行中" : "未开始";
+    }
+
+    /**
+     * 获取机构信息
+     * @param orgNameOrSchoolName
+     * @param orgVoLists
+     */
+    private TwoTuple<Map<Integer, String>,Map<Integer, String>> screeningOrgName(String orgNameOrSchoolName, List<ScreeningTaskOrg> orgVoLists) {
+        //区分机构/学校ID
+        Set<Integer> orgIds = Sets.newHashSet();
+        Set<Integer> schoolIds = Sets.newHashSet();
+        for (ScreeningTaskOrg orgVoList : orgVoLists) {
+            if (Objects.equals(orgVoList.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                orgIds.add(orgVoList.getScreeningOrgId());
+            }else if (Objects.equals(orgVoList.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())){
+                schoolIds.add(orgVoList.getScreeningOrgId());
+            }
+        }
+        Map<Integer, String> screeningOrgNameMap = getScreeningOrgNameMap(orgNameOrSchoolName, orgIds);
+        Map<Integer, String> schoolNameMap = getSchoolNameMap(orgNameOrSchoolName, schoolIds);
+        return TwoTuple.of(screeningOrgNameMap,schoolNameMap);
     }
 
     /**
      * 匹配名称模糊查询
      * @param orgNameOrSchoolName
      * @param orgVoLists
-     * @param screeningOrgNameMap
-     * @param schoolNameMap
+     * @param screeningOrgName
      */
-    private void nameMatch(String orgNameOrSchoolName, List<ScreeningTaskOrg> orgVoLists, Map<Integer, String> screeningOrgNameMap, Map<Integer, String> schoolNameMap) {
+    private void nameMatch(String orgNameOrSchoolName, List<ScreeningTaskOrg> orgVoLists,TwoTuple<Map<Integer, String>, Map<Integer, String>> screeningOrgName) {
         if (StrUtil.isNotBlank(orgNameOrSchoolName)){
             Iterator<ScreeningTaskOrg> it = orgVoLists.iterator();
             while (it.hasNext()){
                 ScreeningTaskOrg screeningTaskOrg = it.next();
-                String schoolName = schoolNameMap.get(screeningTaskOrg.getScreeningOrgId());
-                String orgName = screeningOrgNameMap.get(screeningTaskOrg.getScreeningOrgId());
+                String schoolName = screeningOrgName.getSecond().get(screeningTaskOrg.getScreeningOrgId());
+                String orgName = screeningOrgName.getFirst().get(screeningTaskOrg.getScreeningOrgId());
                 if (StrUtil.isBlank(schoolName) && StrUtil.isBlank(orgName)){
                     it.remove();
                 }
@@ -367,9 +615,8 @@ public class ScreeningTaskOrgBizService {
     public List<ScreeningTaskOrgDTO> getScreeningSchoolDetails(Integer screeningTaskId) {
         List<ScreeningTaskOrg> orgVoLists = screeningTaskOrgService.getOrgListsByTaskId(screeningTaskId);
         // 批量获取筛查机构信息
-        Set<Integer> screeningOrgIds = orgVoLists.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toSet());
-        List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(screeningOrgIds);
-        Map<Integer, String> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+
+        TwoTuple<Map<Integer, String>, Map<Integer, String>> screeningOrg = getScreeningOrg(orgVoLists);
 
         // 批量获取筛查计划信息
         List<ScreeningPlan> screeningPlanList = screeningPlanService.findByList(new ScreeningPlan().setScreeningTaskId(screeningTaskId).setReleaseStatus(CommonConst.STATUS_RELEASE));
@@ -387,7 +634,43 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, List<UserQuestionRecord>> planRecordMap = userQuestionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getPlanId));
 
 
-        return orgVoLists.stream().map(orgVo -> buildScreeningTaskOrgDTO(orgVo,screeningOrgNameMap,planGroupByOrgIdMap,planSchoolGroupByPlanIdMap,planRecordMap,schoolStudentCountMap)).collect(Collectors.toList());
+        return orgVoLists.stream().map(orgVo -> buildScreeningTaskOrgDTO(orgVo,screeningOrg,planGroupByOrgIdMap,planSchoolGroupByPlanIdMap,planRecordMap,schoolStudentCountMap)).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取机构信息集合
+     * @param orgVoLists
+     */
+    private TwoTuple<Map<Integer, String>,Map<Integer, String>> getScreeningOrg(List<ScreeningTaskOrg> orgVoLists) {
+        TwoTuple<Map<Integer, String>,Map<Integer, String>> tuple = TwoTuple.of(Maps.newHashMap(),Maps.newHashMap());
+
+        Set<Integer> orgIds = Sets.newHashSet();
+        Set<Integer> schoolIds = Sets.newHashSet();
+        for (ScreeningTaskOrg orgVoList : orgVoLists) {
+            if (Objects.equals(orgVoList.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())){
+                orgIds.add(orgVoList.getScreeningOrgId());
+            }
+            if (Objects.equals(orgVoList.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
+                schoolIds.add(orgVoList.getScreeningOrgId());
+            }
+        }
+        if (CollUtil.isNotEmpty(orgIds)){
+            List<ScreeningOrganization> screeningOrgList = screeningOrganizationService.getByIds(orgIds);
+            if (CollUtil.isNotEmpty(screeningOrgList)){
+                Map<Integer, String> screeningOrgNameMap = screeningOrgList.stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+                tuple.setFirst(screeningOrgNameMap);
+            }
+
+        }
+
+        if (CollUtil.isNotEmpty(schoolIds)){
+            List<School> schoolList = schoolService.getByIds(Lists.newArrayList(schoolIds));
+            if (CollUtil.isNotEmpty(schoolList)){
+                Map<Integer, String> schoolNameMap = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+                tuple.setSecond(schoolNameMap);
+            }
+        }
+        return tuple;
     }
 
 
@@ -396,7 +679,7 @@ public class ScreeningTaskOrgBizService {
      * @param one
      * @param two
      */
-    private String getKey(Integer one, Integer two) {
+    private static String getKey(Integer one, Integer two) {
         return one + StrUtil.UNDERLINE + two;
     }
 
@@ -416,13 +699,13 @@ public class ScreeningTaskOrgBizService {
      * 构建筛查任务机构
      *
      * @param screeningTaskOrg 筛查任务机构
-     * @param screeningOrgNameMap 筛查机构名称集合
+     * @param screeningOrgName 筛查机构名称集合
      * @param planGroupByOrgIdMap 筛查机构ID对应筛查计划
      * @param planSchoolGroupByPlanIdMap 筛查计划ID对应筛查计划学校
      * @param planRecordMap 筛查计划ID对应用户问卷记录集合
      * @param schoolStudentCountMap 筛查计划ID对应筛查学校学生集合
      */
-    private ScreeningTaskOrgDTO buildScreeningTaskOrgDTO(ScreeningTaskOrg screeningTaskOrg,Map<Integer, String> screeningOrgNameMap,
+    private ScreeningTaskOrgDTO buildScreeningTaskOrgDTO(ScreeningTaskOrg screeningTaskOrg,TwoTuple<Map<Integer, String>, Map<Integer, String>> screeningOrgName,
                                                          Map<String, ScreeningPlan> planGroupByOrgIdMap,
                                                          Map<Integer, List<ScreeningPlanSchool>> planSchoolGroupByPlanIdMap,
                                                          Map<Integer, List<UserQuestionRecord>> planRecordMap,
@@ -430,7 +713,12 @@ public class ScreeningTaskOrgBizService {
 
         ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
         BeanUtils.copyProperties(screeningTaskOrg, dto);
-        dto.setName(screeningOrgNameMap.getOrDefault(screeningTaskOrg.getScreeningOrgId(), StringUtils.EMPTY));
+        if (Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.ORG.getType())){
+            dto.setName(screeningOrgName.getFirst().getOrDefault(screeningTaskOrg.getScreeningOrgId(), StringUtils.EMPTY));
+        } else if (Objects.equals(screeningTaskOrg.getScreeningOrgType(),ScreeningOrgTypeEnum.SCHOOL.getType())){
+            dto.setName(screeningOrgName.getSecond().getOrDefault(screeningTaskOrg.getScreeningOrgId(), StringUtils.EMPTY));
+        }
+
         ScreeningPlan plan = planGroupByOrgIdMap.get(getKey(screeningTaskOrg.getScreeningOrgId(),screeningTaskOrg.getScreeningOrgType()));
         if (Objects.nonNull(plan)) {
             Map<Integer, Long> schoolIdStudentCountMap = schoolStudentCountMap.getOrDefault(plan.getId(),Collections.emptyMap());

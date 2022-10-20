@@ -4,7 +4,6 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.HeadStyle;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.io.Serializable;
 

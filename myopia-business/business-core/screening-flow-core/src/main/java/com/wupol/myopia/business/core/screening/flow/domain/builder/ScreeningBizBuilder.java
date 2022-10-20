@@ -51,6 +51,7 @@ public class ScreeningBizBuilder {
      * @param schoolGradeMap 年级集合
      * @param schoolClassMap 班级集合
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
+     * @param isAdd 是否新增（只有新增和更新，删除不再此处）
      */
     public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap,
                                                                                                       List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList, Boolean isAdd) {
@@ -62,13 +63,7 @@ public class ScreeningBizBuilder {
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
             List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
             processAddAndUpdate(schoolStudentList, school, schoolGradeMap, schoolClassMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
-
             List<Integer> dbStudentIds=Lists.newArrayList();
-            if (Objects.equals(Boolean.FALSE,isAdd)){
-                //删除
-                dbStudentIds.addAll(planSchoolStudentMap.keySet());
-                dbStudentIds.removeAll(addOrUpdateStudentIds);
-            }
             return TwoTuple.of(screeningPlanSchoolStudentList,dbStudentIds) ;
         }
     }
@@ -134,9 +129,7 @@ public class ScreeningBizBuilder {
                 .setScreeningOrgId(school.getId())
                 .setSchoolId(school.getId())
                 .setStudentId(schoolStudent.getStudentId())
-                .setStudentNo(schoolStudent.getSno())
-                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL)
-                .setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
+                .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL);
         updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade,schoolClass);
         return screeningPlanSchoolStudent;
     }
@@ -171,6 +164,7 @@ public class ScreeningBizBuilder {
      */
     private void setStudentChangeData(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, School school, SchoolStudent schoolStudent) {
         screeningPlanSchoolStudent
+                .setStudentNo(schoolStudent.getSno())
                 .setGradeId(schoolStudent.getGradeId())
                 .setClassId(schoolStudent.getClassId())
                 .setPlanDistrictId(school.getDistrictId())

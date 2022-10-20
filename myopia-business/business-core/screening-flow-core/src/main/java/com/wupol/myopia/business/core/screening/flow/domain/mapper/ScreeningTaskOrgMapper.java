@@ -19,8 +19,7 @@ public interface ScreeningTaskOrgMapper extends BaseMapper<ScreeningTaskOrg> {
 
     List<OrgScreeningCountDTO> countScreeningTimeByOrgId();
 
-    List<ScreeningTaskOrgDTO> selectHasTaskInPeriod(@Param("orgId") Integer orgId, @Param("param") ScreeningTaskQueryDTO screeningTaskQuery);
+    List<ScreeningTaskOrgDTO> selectHasTaskInPeriod(@Param("orgId") Integer orgId,@Param("orgType") Integer orgType, @Param("param") ScreeningTaskQueryDTO screeningTaskQuery);
 
     List<ScreeningTaskOrg> getByTaskId(@Param("taskId") Integer taskId);
-
-    ScreeningTaskOrg getOneByTaskIdAndOrgId(@Param("taskId") Integer taskId, @Param("orgId") Integer orgId);}
+}

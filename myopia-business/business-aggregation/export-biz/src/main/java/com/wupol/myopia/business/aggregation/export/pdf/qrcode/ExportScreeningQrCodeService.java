@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
+import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -14,6 +15,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.QrcodeUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
@@ -45,7 +47,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/02/16/11:05
  * @Description: 导出告知书和二维码
  */
-@Service("screeningQrCodeService")
+@Service(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)
 @Log4j2
 public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
     @Value("${report.html.url-host}")
@@ -156,43 +158,64 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                                                   String fileName,Integer type){
 
         Map<Integer, List<ScreeningStudentDTO>> gradeGroup = students.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getGradeId));
-        for (Integer gradeId:gradeGroup.keySet()){
-            List<ScreeningStudentDTO> gradeStudents = gradeGroup.get(gradeId);
+        gradeGroup.forEach((gradeId,gradeStudents)->{
             Map<Integer, List<ScreeningStudentDTO>> classGroup = gradeStudents.stream().collect(Collectors.groupingBy(ScreeningStudentDTO::getClassId));
-            for (Integer classId:classGroup.keySet()){
-                List<ScreeningStudentDTO> classStudents  = classGroup.get(classId);
-                ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
+            classGroup.forEach((classId,classStudents)-> downloadFile(exportCondition, fileSavePath, fileName, type, gradeId, classId, classStudents));
+        });
+    }
 
-                String studentQrCodePdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
-                        exportCondition.getPlanId(), exportCondition.getSchoolId(),gradeId,classId,
-                        Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
-                        type);
+    /**
+     * 下载文件
+     * @param exportCondition
+     * @param fileSavePath
+     * @param fileName
+     * @param type
+     * @param gradeId
+     * @param classId
+     * @param classStudents
+     */
+    private void downloadFile(ExportCondition exportCondition, String fileSavePath, String fileName, Integer type, Integer gradeId, Integer classId, List<ScreeningStudentDTO> classStudents) {
+        ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
 
-                String dir = null;
-                String className = null;
-                if (exportCondition.getType().equals(CommonConst.EXPORT_NOTICE)) {
-                    dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME);
-                    className = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
-                } else if (exportCondition.getType().equals(CommonConst.EXPORT_QRCODE)) {
-                    dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME);
-                    className = String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
-                } else if (exportCondition.getType().equals(CommonConst.EXPORT_VS666)) {
-                    dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME);
-                    className = String.format(PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
-                } else if (exportCondition.getType().equals(CommonConst.EXPORT_SCREENING_QRCODE)) {
-                    dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME);
-                    className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
-                }
-                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, className);
-                log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
-                try {
-                    log.info("文件件保存路径:{}",dir);
-                    FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dir,className).toString());
-                } catch (Exception e) {
-                    log.error("Exception", e);
-                }
-            }
+        String studentQrCodePdfHtmlUrl = getUrl(exportCondition, type, gradeId, classId);
+
+        TwoTuple<String, String> dirAndClassName = getDirAndClassName(exportCondition, fileSavePath, fileName, screeningStudentDTO);
+
+        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
+        log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
+        try {
+            log.info("文件件保存路径:{}",dirAndClassName.getFirst());
+            FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
+        } catch (Exception e) {
+            log.error("下载筛查二维码PDF异常", e);
         }
+    }
+
+
+    /**
+     * 获取目录及文件名称
+     * @param exportCondition
+     * @param fileSavePath
+     * @param fileName
+     * @param screeningStudentDTO
+     */
+    private TwoTuple<String,String> getDirAndClassName(ExportCondition exportCondition, String fileSavePath,String fileName,ScreeningStudentDTO screeningStudentDTO){
+        String dir = null;
+        String className = null;
+        if (exportCondition.getType().equals(CommonConst.EXPORT_NOTICE)) {
+            dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME);
+            className = String.format(PDFFileNameConstant.REPORT_NOTICE_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
+        } else if (exportCondition.getType().equals(CommonConst.EXPORT_QRCODE)) {
+            dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME);
+            className = String.format(PDFFileNameConstant.REPORT_SCREENING_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
+        } else if (exportCondition.getType().equals(CommonConst.EXPORT_VS666)) {
+            dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME);
+            className = String.format(PDFFileNameConstant.REPORT_VS666_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
+        } else if (exportCondition.getType().equals(CommonConst.EXPORT_SCREENING_QRCODE)) {
+            dir = getDirPath(fileSavePath, fileName, screeningStudentDTO, PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME);
+            className = String.format(PDFFileNameConstant.REPORT_FICTITIOUS_QR_CODE_FILE_NAME, "", "", screeningStudentDTO.getClassName()) + ".pdf";
+        }
+        return TwoTuple.of(dir,className);
     }
 
     /**
@@ -217,14 +240,27 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
      */
     public String syncExportScreeningQrCodePdfFile(ExportCondition exportCondition, String fileName,Integer type) {
 
-        String studentQrCodePdfHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL,htmlUrlHost,
-                exportCondition.getPlanId(), exportCondition.getSchoolId(),
-                Objects.nonNull( exportCondition.getGradeId()) ? exportCondition.getGradeId() : StringUtils.EMPTY,
-                Objects.nonNull( exportCondition.getClassId()) ? exportCondition.getClassId() : StringUtils.EMPTY,
-                Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
-                type);
+        String studentQrCodePdfHtmlUrl = getUrl(exportCondition,type,exportCondition.getGradeId(),exportCondition.getClassId());
+
         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
         log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
         return pdfResponseDTO.getUrl();
+    }
+
+
+    /**
+     * 获取访问地址
+     * @param exportCondition
+     * @param type
+     * @param gradeId
+     * @param classId
+     */
+    private String getUrl(ExportCondition exportCondition, Integer type, Integer gradeId, Integer classId) {
+        return String.format(HtmlPageUrlConstant.STUDENT_QRCODE_HTML_URL, htmlUrlHost,
+                exportCondition.getPlanId(), exportCondition.getSchoolId(),
+                Objects.nonNull(gradeId) ? gradeId : StringUtils.EMPTY,
+                Objects.nonNull(classId) ? classId : StringUtils.EMPTY,
+                Objects.nonNull(exportCondition.getPlanStudentIds()) ? exportCondition.getPlanStudentIds() : StringUtils.EMPTY,
+                type,Objects.nonNull(exportCondition.getIsSchoolClient())?exportCondition.getIsSchoolClient():StringUtils.EMPTY);
     }
 }

@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import com.wupol.myopia.base.constant.VisionDamageTypeLevelEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -7,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 筛查数据格式化工具
@@ -45,9 +47,31 @@ public class ScreeningDataFormatUtils {
      * @param date 左眼数据
      * @return String
      */
-    public static String singleEyeDateFormat(BigDecimal date) {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
-        return Objects.isNull(date) ? EMPTY_RESULT : decimalFormat.format(date);
+    public static String singleEyeDateFormat(BigDecimal date,int scale) {
+        DecimalFormat decimalFormat ;
+        if (Objects.equals(scale,1)){
+            decimalFormat = new DecimalFormat("0.0");
+        }else if (Objects.equals(scale,2)){
+            decimalFormat = new DecimalFormat("0.00");
+        }else {
+            decimalFormat = new DecimalFormat("0");
+        }
+        return Optional.ofNullable(date).map(d-> getFormatValue(scale, decimalFormat, d)).orElse(EMPTY_RESULT);
+    }
+
+    /**
+     * 数据格式化
+     * @param scale
+     * @param decimalFormat
+     * @param d
+     */
+    private static String getFormatValue(int scale, DecimalFormat decimalFormat, BigDecimal d) {
+        String format = decimalFormat.format(d);
+        if (Objects.equals(scale,1) ||Objects.equals(scale,0)){
+            return format;
+        }else {
+            return singleEyeFormat(format);
+        }
     }
 
     /**
@@ -120,8 +144,12 @@ public class ScreeningDataFormatUtils {
      * @param data 眼数据
      * @return String
      */
-    public static String levelDateFormat(Object data) {
-        return Objects.isNull(data) ? EMPTY_RESULT : data + "级";
+    public static String levelDateFormat(Object data,Boolean isHaiNan) {
+        if (Objects.equals(isHaiNan,Boolean.TRUE)){
+            return Objects.isNull(data) ? EMPTY_RESULT : data + "级";
+        }else {
+            return Objects.isNull(data) ? EMPTY_RESULT :VisionDamageTypeLevelEnum.getByCode(data,EMPTY_RESULT);
+        }
     }
 
     /**

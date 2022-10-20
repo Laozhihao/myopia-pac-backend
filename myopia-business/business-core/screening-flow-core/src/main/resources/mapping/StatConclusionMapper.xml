@@ -98,6 +98,7 @@
                 <if test="@Ognl@isNotEmpty(isSaprodontiaRepair)">and `is_saprodontia_repair` = #{isSaprodontiaRepair}</if>
                 <if test="@Ognl@isNotEmpty(isWearingGlasses)">and `is_wearing_glasses` = #{isWearingGlasses}</if>
                 <if test="@Ognl@isNotEmpty(isCooperative)">and `is_cooperative` = #{isCooperative}</if>
+                <if test="@Ognl@isNotEmpty(isNormal)">and `is_normal` = #{isNormal}</if>
                 <if test="@Ognl@isNotEmpty(startTime)">
                     and `create_time`
                     <![CDATA[>=]]>
@@ -122,7 +123,7 @@
     <sql id="Base_Column_List">
         id, update_time,student_id, is_vision_warning,vision_warning_update_time, age, result_id, screening_org_id, screening_plan_school_student_id,src_screening_notice_id,task_id, plan_id, district_id, school_age, gender, warning_level, vision_l, vision_r, is_low_vision, is_refractive_error, is_myopia, is_hyperopia, is_astigmatism,  is_recommend_visit, is_rescreen, rescreen_error_num, is_valid, create_time, school_id, school_grade_code, school_class_name, myopia_warning_level, naked_vision_warning_level, glasses_type, vision_correction,myopia_level,hyperopia_level,astigmatism_level,
         is_bind_mp,report_id,screening_type,is_saprodontia,is_overweight,is_obesity,is_malnutrition,is_stunting,is_spinal_curvature,is_normal_blood_pressure,
-        is_diseases_history,is_nocturnal_emission,is_menarche,physique_rescreen_error_num,is_review,is_anisometropia,saprodontia_teeth,is_saprodontia_loss,saprodontia_loss_teeth,is_saprodontia_repair,saprodontia_repair_teeth,rescreen_item_num,low_vision_level,is_cooperative,screening_myopia,disease_num
+        is_diseases_history,is_nocturnal_emission,is_menarche,physique_rescreen_error_num,is_review,is_anisometropia,saprodontia_teeth,is_saprodontia_loss,saprodontia_loss_teeth,is_saprodontia_repair,saprodontia_repair_teeth,rescreen_item_num,low_vision_level,is_cooperative,screening_myopia,disease_num,is_normal
     </sql>
 
     <!-- 通用查询结果列 -->
@@ -243,7 +244,9 @@
         LEFT JOIN m_screening_plan_school_student mspss ON msc.screening_plan_school_student_id = mspss.id
         WHERE msc.plan_id = #{screeningPlanId}
         AND msc.school_id = #{schoolId}
-        AND msc.is_rescreen = 0
+        <if test="isRescreen != null ">
+            AND msc.is_rescreen = #{isRescreen}
+        </if>
         ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
     </select>
 

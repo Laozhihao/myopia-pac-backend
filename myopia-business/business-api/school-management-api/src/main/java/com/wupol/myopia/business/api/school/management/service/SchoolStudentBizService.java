@@ -1,15 +1,15 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -18,16 +18,18 @@ import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -40,7 +42,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -72,8 +73,6 @@ public class SchoolStudentBizService {
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
     @Resource
-    private StudentFacade studentFacade;
-    @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private StudentService studentService;
@@ -86,6 +85,8 @@ public class SchoolStudentBizService {
     @Resource
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
     @Resource
+    private SchoolStudentFacade schoolStudentFacade;
+    @Resource
     private SchoolClassService schoolClassService;
     @Resource
     private ScreeningPlanService screeningPlanService;
@@ -95,36 +96,26 @@ public class SchoolStudentBizService {
      *
      * @param pageRequest 分页请求
      * @param requestDTO  请求入参
-     * @param schoolId    学校Id
      * @return IPage<SchoolStudentListResponseDTO>
      */
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO, Integer schoolId) {
+    public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
 
-        IPage<SchoolStudentListResponseDTO> responseDTO = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
-        List<SchoolStudentListResponseDTO> studentList = responseDTO.getRecords();
+        TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove = schoolStudentFacade.kindergartenAndPrimaryAbove(requestDTO.getSchoolId());
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(requestDTO,kindergartenAndPrimaryAbove);
 
-        // 学生Ids
-        List<Integer> studentIds = studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(studentIds)) {
+        IPage<SchoolStudent> schoolStudentPage = schoolStudentService.listByCondition(pageRequest, schoolStudentQueryBO);
+
+        IPage<SchoolStudentListVO> responseDTO = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());
+
+        List<SchoolStudent> schoolStudentList = schoolStudentPage.getRecords();
+        if (CollectionUtils.isEmpty(schoolStudentList)) {
             return responseDTO;
         }
 
-        // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.getVisionScreeningCountBySchoolId(schoolId);
-        Map<Integer, StudentScreeningCountDTO> countMaps = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId, Function.identity()));
+        List<SchoolStudentListVO> studentListVOList = schoolStudentList.stream().map(SchoolStudentInfoBuilder::buildSchoolStudentListVO).collect(Collectors.toList());
 
-        // 获取就诊记录
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
-                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        responseDTO.setRecords(studentListVOList);
 
-        studentList.forEach(s -> {
-            s.setScreeningCount(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getCount).orElse(0));
-            s.setNumOfVisits(Objects.nonNull(visitMap.get(s.getStudentId())) ? visitMap.get(s.getStudentId()).size() : 0);
-            // 由于作废计划的存在，需要动态获取最新的非作废计划的筛查数据更新时间，覆盖固化的最新筛查日期
-            s.setLastScreeningTime(Optional.ofNullable(countMaps.get(s.getStudentId())).map(StudentScreeningCountDTO::getUpdateTime).orElse(null));
-        });
         return responseDTO;
     }
 
@@ -137,13 +128,12 @@ public class SchoolStudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveStudent(SchoolStudent schoolStudent, Integer schoolId) {
-        validSchoolStudent(schoolStudent);
-        studentFacade.setSchoolStudentInfo(schoolStudent, schoolId);
+        schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolId);
+        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
-        schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
 
         Integer id = schoolStudent.getId();
         boolean isAdd = Objects.isNull(id);
@@ -173,20 +163,6 @@ public class SchoolStudentBizService {
         schoolStudent.setHyperopiaLevel(oldSchoolStudent.getHyperopiaLevel());
         schoolStudent.setAstigmatismLevel(oldSchoolStudent.getAstigmatismLevel());
     }
-
-    /**
-     * 校验学校学生信息
-     * @param schoolStudent 学校学生
-     */
-    private void validSchoolStudent(SchoolStudent schoolStudent) {
-        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getSno()),"学号不能为空");
-        Assert.isTrue(StrUtil.isNotBlank(schoolStudent.getName()),"姓名不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getGender()),"性别不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getGradeId()),"年级不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getClassId()),"班级不能为空");
-        Assert.isTrue(Objects.nonNull(schoolStudent.getBirthday()),"出生日期不能为空");
-    }
-
 
 
     /**
@@ -400,7 +376,7 @@ public class SchoolStudentBizService {
         } else {
             responseDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, false));
         }
-        responseDTO.setWarningLevel(WarningLevel.getDesc(schoolStudent.getVisionLabel()));
+        responseDTO.setWarningLevel(WarningLevel.getDescByCode(schoolStudent.getVisionLabel()));
 
         if (Objects.nonNull(statConclusion)) {
             stat2Response(result, statConclusion, responseDTO, isKindergarten);

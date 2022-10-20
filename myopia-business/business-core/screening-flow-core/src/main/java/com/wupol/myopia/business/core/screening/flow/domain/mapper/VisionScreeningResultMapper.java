@@ -56,7 +56,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<VisionScreeningResult> getFirstByPlanStudentIds(@Param("planStudentIds") List<Integer> planStudentIds);
 
-    IPage<VisionScreeningResultDTO> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
+    IPage<VisionScreeningResultDTO> getByStudentIdWithPage(@Param("page") Page<?> page, @Param("studentId") Integer studentId,@Param("schoolId") Integer schoolId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
 
     List<ScreeningSchoolCount> countScreeningSchoolByTaskId(@Param("taskId") Integer taskId);
 

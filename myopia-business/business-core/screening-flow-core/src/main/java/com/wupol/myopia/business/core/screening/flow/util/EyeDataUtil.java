@@ -688,9 +688,9 @@ public class EyeDataUtil {
                 result.add("屈光不正");
             }
         } else {
-            result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
-            result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
-            result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
+            result.add(MyopiaLevelEnum.getDescByCode(statConclusion.getMyopiaLevel()));
+            result.add(HyperopiaLevelEnum.getDescByCode(statConclusion.getHyperopiaLevel()));
+            result.add(AstigmatismLevelEnum.getDescByCode(statConclusion.getAstigmatismLevel()));
         }
         List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> !StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
         return CollectionUtils.isEmpty(resultList) ? "正常" : String.join(",", resultList);

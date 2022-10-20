@@ -3,7 +3,7 @@ package com.wupol.myopia.business.common.utils.constant;
 import lombok.Getter;
 
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 配镜建议
@@ -38,13 +38,9 @@ public enum WearingGlassesSuggestEnum {
     }
 
     public static String getDescByCode(Integer code) {
-        if (Objects.isNull(code)) {
-            return NOT_WEARING.getDesc();
-        }
-        WearingGlassesSuggestEnum glassesType = getByCode(code);
-        if (Objects.isNull(glassesType)) {
-            return NOT_WEARING.getDesc();
-        }
-        return glassesType.getDesc();
+        return Optional.ofNullable(code)
+                .map(WearingGlassesSuggestEnum::getByCode)
+                .map(WearingGlassesSuggestEnum::getDesc)
+                .orElse(NOT_WEARING.getDesc());
     }
 }

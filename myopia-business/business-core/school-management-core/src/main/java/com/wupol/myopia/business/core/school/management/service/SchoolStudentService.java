@@ -1,13 +1,17 @@
 package com.wupol.myopia.business.core.school.management.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStudentMapper;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -16,10 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * 学校端-学生服务
@@ -71,8 +73,10 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param studentIds 学生ids
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds, Integer schoolId) {
-        return baseMapper.getBySchoolIdStudentIds(studentIds, schoolId);
+    public List<SchoolStudent> getByStudentIds(List<Integer> studentIds) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getStudentId,studentIds)
+                .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED));
     }
 
     /**
@@ -83,6 +87,20 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public List<SchoolStudent> getByStudentId(Integer studentId) {
         return baseMapper.getByStudentId(studentId);
+    }
+
+    /**
+     * 通过学生id和学校ID获取学校学生
+     * @param studentId
+     * @param schoolId
+     * @param status
+     */
+    public SchoolStudent getByStudentIdAndSchoolId(Integer studentId,Integer schoolId,Integer status) {
+        LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(SchoolStudent::getStudentId, studentId)
+                .eq(SchoolStudent::getSchoolId,schoolId)
+                .eq(SchoolStudent::getStatus, status);
+        return baseMapper.selectOne(queryWrapper);
     }
 
     /**
@@ -231,7 +249,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      */
     public List<SchoolStudent> getByStudentIdsAndSchoolId(List<Integer> studentIds, Integer schoolId) {
         if (CollectionUtils.isEmpty(studentIds)) {
-            return new ArrayList<>();
+            return Lists.newArrayList();
         }
         return baseMapper.getByStudentIdsAndSchoolId(studentIds, schoolId);
     }
@@ -285,4 +303,50 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.getBySchoolIdAndVisionLabel(schoolId);
     }
 
+    /**
+     * 根据条件查询学校学生
+     * @param pageRequest
+     * @param schoolStudentQueryBO
+     */
+    public IPage<SchoolStudent> listByCondition(PageRequest pageRequest, SchoolStudentQueryBO schoolStudentQueryBO) {
+        LambdaQueryWrapper<SchoolStudent> queryWrapper = Wrappers.lambdaQuery(SchoolStudent.class)
+                .ne(SchoolStudent::getStatus,CommonConst.STATUS_IS_DELETED)
+                .eq(Objects.nonNull(schoolStudentQueryBO.getGradeId()), SchoolStudent::getGradeId, schoolStudentQueryBO.getGradeId())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getClassId()), SchoolStudent::getClassId, schoolStudentQueryBO.getClassId())
+                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getName()), SchoolStudent::getName, schoolStudentQueryBO.getName())
+                .like(StrUtil.isNotBlank(schoolStudentQueryBO.getSno()), SchoolStudent::getSno, schoolStudentQueryBO.getSno())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getSchoolId()), SchoolStudent::getSchoolId, schoolStudentQueryBO.getSchoolId())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getGlassesType()),SchoolStudent::getGlassesType,schoolStudentQueryBO.getGlassesType())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getYear()),SchoolStudent::getParticularYear,schoolStudentQueryBO.getYear())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getMyopiaLevel()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getHyperopiaLevel()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getAstigmatismLevel()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismLevel())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getRefractiveError()),SchoolStudent::getIsRefractiveError,schoolStudentQueryBO.getRefractiveError())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getAnisometropia()),SchoolStudent::getIsAnisometropia,schoolStudentQueryBO.getAnisometropia())
+                .eq(Objects.nonNull(schoolStudentQueryBO.getIsNormal()),SchoolStudent::getIsNormal,schoolStudentQueryBO.getIsNormal())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getLowVisionList()),SchoolStudent::getLowVision,schoolStudentQueryBO.getLowVisionList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getGradeTypeList()),SchoolStudent::getGradeType,schoolStudentQueryBO.getGradeTypeList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getMyopiaList()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getHyperopiaList()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaList())
+                .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())
+                ;
+
+        Page page = pageRequest.toPage();
+        return baseMapper.selectPage(page,queryWrapper);
+    }
+
+    /**
+     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
+     */
+    public List<SchoolStudent> listByGradeType(){
+        return list(Wrappers.lambdaQuery(SchoolStudent.class).isNull(SchoolStudent::getGradeType));
+    }
+
+    @Override
+    public List<SchoolStudent> listByIds(Collection<? extends Serializable> idList) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getId,idList)
+                .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED));
+    }
 }

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class VisionScreeningResultFacade {
 
-    private  final VisionScreeningResultService visionScreeningResultService;
+    private final VisionScreeningResultService visionScreeningResultService;
 
     /**
      * 获取筛查结果数据
@@ -38,7 +38,23 @@ public class VisionScreeningResultFacade {
                 .collect(Collectors.groupingBy(visionScreeningResult -> getThreeKey(visionScreeningResult.getPlanId(), visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getSchoolId()), Collectors.counting()));
     }
 
+    /**
+     * 三个组合唯一可以
+     * @param one
+     * @param two
+     * @param three
+     */
     public static String getThreeKey(Integer one, Integer two, Integer three) {
         return one + StrUtil.UNDERLINE + two + StrUtil.UNDERLINE + three;
     }
+
+    /**
+     * 二个组合唯一可以
+     * @param one
+     * @param two
+     */
+    public static String getTwoKey(Integer one,Integer two){
+        return one + StrUtil.UNDERLINE + two ;
+    }
+
 }

@@ -16,7 +16,7 @@ public class BusinessException extends RuntimeException {
     /**
      * 异常码
      */
-    private Integer code;
+    private final Integer code;
 
     public BusinessException(String message) {
         super(message);

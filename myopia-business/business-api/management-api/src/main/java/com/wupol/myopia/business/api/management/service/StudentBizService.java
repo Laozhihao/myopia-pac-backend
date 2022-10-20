@@ -3,16 +3,23 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.api.service.VistelToolsService;
 import com.wupol.framework.sms.domain.dto.MsgData;
 import com.wupol.framework.sms.domain.dto.SmsResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.domain.dto.SchoolStudentDTO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
@@ -21,15 +28,21 @@ import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
@@ -40,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -84,6 +98,15 @@ public class StudentBizService {
     @Autowired
     private StudentFacade studentFacade;
 
+    @Autowired
+    private SchoolStudentService schoolStudentService;
+    @Autowired
+    private SchoolStudentFacade schoolStudentFacade;
+    @Autowired
+    private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Autowired
+    private SchoolScreeningBizFacade schoolScreeningBizFacade;
+
     /**
      * 获取学生列表
      *
@@ -105,11 +128,11 @@ public class StudentBizService {
             return pageStudents;
         }
         // 获取学生ID
-        List<Integer> studentIds = students.stream().map(Student::getId).collect(Collectors.toList());
+        List<Integer> studentIds = students.stream().map(Student::getId).distinct().collect(Collectors.toList());
 
         // 筛查次数
         List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
-        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
+        Map<Integer, Integer> countMap = studentScreeningCountVOS.stream().collect(Collectors
                 .toMap(StudentScreeningCountDTO::getStudentId,
                         StudentScreeningCountDTO::getCount));
 
@@ -120,22 +143,48 @@ public class StudentBizService {
 
         // 获取筛查记录
         List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
-        Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlans = plans.stream()
+        Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
         // 封装DTO
         for (StudentDTO student : students) {
-            // 筛查次数
-            student.setScreeningCount(countMaps.getOrDefault(student.getId(), 0));
-            // 筛查码
-            student.setScreeningCodes(studentFacade.getScreeningCodesByPlan(studentPlans.get(student.getId())));
-            // 就诊次数
-            student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
-            // 问卷次数
-            student.setQuestionnaireCount(0);
+            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student);
         }
         return pageStudents;
     }
+
+    /**
+     * 获取学校学生列表
+     *
+     * @param pageRequest     分页
+     * @param studentQueryDTO 请求体
+     * @return IPage<Student> {@link IPage}
+     */
+    public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO studentQueryDTO) {
+        Assert.notNull(studentQueryDTO.getSchoolId(),"学校ID不能为空");
+
+        TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove = schoolStudentFacade.kindergartenAndPrimaryAbove(studentQueryDTO.getSchoolId());
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(studentQueryDTO,kindergartenAndPrimaryAbove);
+
+        IPage<SchoolStudent> schoolStudentPage  = schoolStudentService.listByCondition(pageRequest,schoolStudentQueryBO);
+
+        IPage<SchoolStudentListVO> studentDTOPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());
+
+        List<SchoolStudent> schoolStudentList = schoolStudentPage.getRecords();
+
+        // 为空直接返回
+        if (CollUtil.isEmpty(schoolStudentList)) {
+            return studentDTOPage;
+        }
+
+        // 封装DTO
+        List<SchoolStudentListVO> studentDTOList = schoolStudentList.stream()
+                .map(SchoolStudentInfoBuilder::buildSchoolStudentListVO)
+                .collect(Collectors.toList());
+        studentDTOPage.setRecords(studentDTOList);
+        return studentDTOPage;
+    }
+
 
 
     /**
@@ -454,6 +503,44 @@ public class StudentBizService {
         // 如果旧数据没有委会行政区域，或旧数据与新委会行政区域不相同，则生成新的编码
         if (Objects.isNull(oldStudent.getCommitteeCode()) || (!oldStudent.getCommitteeCode().equals(newCommitteeCode))) {
             student.setRecordNo(studentService.getRecordNo(newCommitteeCode));
+        }
+    }
+
+    /**
+     * 保存学校学生
+     * @param schoolStudentDTO
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public SchoolStudent saveSchoolStudent(SchoolStudentDTO schoolStudentDTO) {
+        SchoolStudent schoolStudent = BeanCopyUtil.copyBeanPropertise(schoolStudentDTO, SchoolStudent.class);
+        setRegionCode(schoolStudentDTO, schoolStudent);
+        schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolStudent.getSchoolId());
+
+        boolean isAdd = Objects.isNull(schoolStudent.getId());
+
+        // 更新管理端的数据
+        Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
+        schoolStudent.setStudentId(managementStudentId);
+        if (Objects.equals(isAdd,Boolean.TRUE)){
+            schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.getType());
+        }
+
+        schoolStudentService.saveOrUpdate(schoolStudent);
+        schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
+        return schoolStudent;
+    }
+
+    /**
+     * 设置区域代码
+     * @param schoolStudentDTO
+     * @param schoolStudent
+     */
+    private void setRegionCode(SchoolStudentDTO schoolStudentDTO, SchoolStudent schoolStudent) {
+        if (CollUtil.isNotEmpty(schoolStudentDTO.getRegionArr())){
+            schoolStudent.setProvinceCode(schoolStudentDTO.getRegionArr().get(0));
+            schoolStudent.setCityCode(schoolStudentDTO.getRegionArr().get(1));
+            schoolStudent.setAreaCode(schoolStudentDTO.getRegionArr().get(2));
+            schoolStudent.setTownCode(schoolStudentDTO.getRegionArr().get(3));
         }
     }
 }

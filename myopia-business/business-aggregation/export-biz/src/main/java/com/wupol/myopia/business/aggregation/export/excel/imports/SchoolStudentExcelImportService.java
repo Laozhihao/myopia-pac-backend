@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -151,6 +152,8 @@ public class SchoolStudentExcelImportService {
             schoolStudent.setGradeName(gradeName);
             schoolStudent.setClassId(gradeClassInfo.getSecond());
             schoolStudent.setClassName(className);
+            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(gradeName);
+            schoolStudent.setParticularYear(SchoolUtil.getParticularYear(gradeCodeEnum.getCode()));
 
             // 更新管理端
             schoolStudent.checkStudentInfo();
@@ -160,20 +163,12 @@ public class SchoolStudentExcelImportService {
             schoolStudents.add(schoolStudent);
         }
 
-        List<SchoolStudent> addSchoolStudentList = Lists.newArrayList();
-        if (CollUtil.isNotEmpty(schoolStudents)){
-            schoolStudents.forEach(schoolStudent -> {
-                boolean isAdd = Objects.isNull(schoolStudent.getId());
-                if (Objects.equals(isAdd,Boolean.TRUE)){
-                    addSchoolStudentList.add(schoolStudent);
-                }
-            });
-        }
-
+        //保存导入数据（新增学生和重新启用删除的学生）
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
 
-        if (CollUtil.isNotEmpty(addSchoolStudentList)){
-            addSchoolStudentList.forEach(schoolStudent -> schoolScreeningBizFacade.addScreeningStudent(schoolStudent,Boolean.TRUE));
+        //新增学生和重新启用删除的学生 满足年级下都属于要自动新增到筛查计划的学生
+        if (CollUtil.isNotEmpty(schoolStudents)){
+            schoolStudents.forEach(schoolStudent -> schoolScreeningBizFacade.addScreeningStudent(schoolStudent,Boolean.TRUE));
         }
     }
 
@@ -189,7 +184,7 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
                 .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
 
-                .setNation(NationEnum.getCode(item.get(SchoolStudentImportEnum.NATION.getIndex())))
+                .setNation(NationEnum.getCodeByName(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
                 .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))

@@ -30,7 +30,7 @@ public class HtmlPageUrlConstant {
     /**
      * 学生二维码HTML页面地址
      */
-    public static final String STUDENT_QRCODE_HTML_URL = "%s?screeningPlanId=%s&schoolId=%s&gradeId=%s&classId=%s&planStudentIds=%s&type=%d";
+    public static final String STUDENT_QRCODE_HTML_URL = "%s?screeningPlanId=%s&schoolId=%s&gradeId=%s&classId=%s&planStudentIds=%s&type=%d&isSchoolClient=%s";
 
     /**
      * 【档案卡】班级档案卡HTML页面地址

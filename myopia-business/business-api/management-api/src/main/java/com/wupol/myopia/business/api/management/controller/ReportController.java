@@ -166,8 +166,7 @@ public class ReportController {
                                                        Integer gradeId,
                                                        Integer classId,
                                                        String planStudentIds,
-                                                       @NotNull(message = "TypeID不能为空") Integer type
-    ) throws IOException {
+                                                       @NotNull(message = "TypeID不能为空") Integer type) throws IOException {
 
         ExportCondition exportCondition = new ExportCondition()
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId())
@@ -176,7 +175,8 @@ public class ReportController {
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setPlanStudentIds(planStudentIds)
-                .setType(type);
+                .setType(type)
+                .setIsSchoolClient(Boolean.FALSE);
         if (classId != null || StringUtil.isNotEmpty(planStudentIds)) {
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));
         }

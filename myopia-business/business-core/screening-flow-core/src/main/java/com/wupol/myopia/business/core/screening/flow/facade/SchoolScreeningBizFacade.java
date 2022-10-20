@@ -52,12 +52,12 @@ public class SchoolScreeningBizFacade {
      */
     @Transactional(rollbackFor = Exception.class)
     public void addScreeningStudent(SchoolStudent schoolStudent, Boolean isAdd){
-
-        if (Objects.equals(Boolean.FALSE,isAdd) || Objects.isNull(schoolStudent)){
+        if (Objects.isNull(schoolStudent)){
             return;
         }
+
         //获取有效的筛查计划
-        List<ScreeningPlan> screeningPlanList = getEffectiveScreeningPlans(schoolStudent);
+        List<ScreeningPlan> screeningPlanList = getEffectiveScreeningPlans(schoolStudent.getSchoolId());
         if (CollUtil.isEmpty(screeningPlanList)) {
             return;
         }
@@ -67,17 +67,23 @@ public class SchoolScreeningBizFacade {
 
         //组装数据，更新筛查计划学生数和新增筛查学生
         School school = schoolService.getById(schoolStudent.getSchoolId());
-        screeningPlanList.forEach(screeningPlan -> addScreeningStudent(schoolStudent, planSchoolMap, school, screeningPlan));
+        screeningPlanList.forEach(screeningPlan -> {
+            if (Objects.equals(isAdd,Boolean.TRUE)){
+                addScreeningStudent(schoolStudent, planSchoolMap, school, screeningPlan);
+            }else {
+                updateScreeningStudent(schoolStudent, planSchoolMap, school, screeningPlan);
+            }
+        });
 
     }
 
     /**
      * 获取有效的筛查计划
-     * @param schoolStudent 学校学生
+     * @param schoolId 学校ID
      */
-    private List<ScreeningPlan> getEffectiveScreeningPlans(SchoolStudent schoolStudent) {
+    private List<ScreeningPlan> getEffectiveScreeningPlans(Integer schoolId) {
         //机构ID和机构类型查询筛查计划
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolStudent.getSchoolId(), ScreeningOrgTypeEnum.SCHOOL.getType());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
         if (CollUtil.isEmpty(screeningPlanList)){
             return Lists.newArrayList();
         }
@@ -100,19 +106,54 @@ public class SchoolScreeningBizFacade {
      * @param screeningPlan
      */
     public void addScreeningStudent(SchoolStudent schoolStudent, Map<Integer, ScreeningPlanSchool> planSchoolMap, School school, ScreeningPlan screeningPlan) {
-        ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(screeningPlan.getId());
-        if (Objects.isNull(screeningPlanSchool)){
-            return;
-        }
-        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
-        if (!screeningGradeIds.contains(schoolStudent.getGradeId())){
+        if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
             return;
         }
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school, Boolean.TRUE);
         screeningPlan.setStudentNumbers(screeningPlan.getStudentNumbers()+screeningPlanSchoolStudent.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan,null,screeningPlanSchoolStudent);
         Object[] paramArr = new Object[]{screeningPlan.getId(),school.getId(),schoolStudent.getGradeId(),schoolStudent.getId()};
-        log.info("自动新增筛查学生，plan={},schoolId={},gradeId={},schoolStudentId={}",paramArr);
+        log.info("自动新增筛查学生，planId={},schoolId={},gradeId={},schoolStudentId={}",paramArr);
+    }
+
+
+    /**
+     * 修改学生信息同步更新筛查计划学生
+     * @param schoolStudent
+     * @param planSchoolMap
+     * @param school
+     * @param screeningPlan
+     */
+    public void updateScreeningStudent(SchoolStudent schoolStudent, Map<Integer, ScreeningPlanSchool> planSchoolMap, School school, ScreeningPlan screeningPlan) {
+        if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
+            return;
+        }
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school, Boolean.FALSE);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudent.getFirst();
+        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+            return;
+        }
+        screeningPlanSchoolStudentService.saveOrUpdateBatch(screeningPlanSchoolStudentList);
+        Object[] paramArr = new Object[]{screeningPlan.getId(),school.getId(),schoolStudent.getGradeId(),schoolStudent.getId()};
+        log.info("更新筛查学生，planId={},schoolId={},gradeId={},schoolStudentId={}",paramArr);
+    }
+
+    /**
+     * 校验筛查学生
+     * @param schoolStudent
+     * @param planSchoolMap
+     * @param screeningPlan
+     */
+    private boolean validScreeningStudent(SchoolStudent schoolStudent, Map<Integer, ScreeningPlanSchool> planSchoolMap, ScreeningPlan screeningPlan) {
+        ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(screeningPlan.getId());
+        if (Objects.isNull(screeningPlanSchool)) {
+            return true;
+        }
+        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        if (!screeningGradeIds.contains(schoolStudent.getGradeId())) {
+            return true;
+        }
+        return false;
     }
 
     /**
