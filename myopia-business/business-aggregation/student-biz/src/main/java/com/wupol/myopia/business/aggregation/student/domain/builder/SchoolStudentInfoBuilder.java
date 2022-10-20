@@ -78,9 +78,9 @@ public class SchoolStudentInfoBuilder {
         }
 
         if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.KINDERGARTEN.getCode())){
-            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError(),schoolStudent.getVisionLabel()));
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError(),schoolStudent.getVisionLabel(),schoolStudent.getIsNormal()));
         }else {
-            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia(),schoolStudent.getIsNormal()));
         }
 
         schoolStudentListVO.setVision(VisionUtil.getVisionSituation(schoolStudent.getGlassesType(),schoolStudent.getGradeType(),schoolStudent.getLowVision()));
@@ -195,6 +195,8 @@ public class SchoolStudentInfoBuilder {
                     schoolStudentQueryBO.setGradeTypeList(SchoolAge.kindergartenCode());
                     break;
                 case NORMAL:
+                    schoolStudentQueryBO.setIsNormal(Boolean.TRUE);
+                    break;
                 default:
                     break;
             }
@@ -207,7 +209,7 @@ public class SchoolStudentInfoBuilder {
      */
     public static void setNormalCondition(SchoolStudentQueryBO schoolStudentQueryBO,TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove) {
         if (Objects.equals(kindergartenAndPrimaryAbove.getFirst(),Boolean.TRUE)){
-            schoolStudentQueryBO.setRefractiveError(Boolean.FALSE);
+            schoolStudentQueryBO.setIsNormal(Boolean.FALSE);
             schoolStudentQueryBO.setAnisometropia(Boolean.FALSE);
             schoolStudentQueryBO.setVisionLabels(WarningLevel.ZERO_SP.getCode().toString());
         }
@@ -304,6 +306,7 @@ public class SchoolStudentInfoBuilder {
         schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
         schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
         schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
+        schoolStudent.setIsNormal(statConclusion.getIsNormal());
         schoolStudent.setUpdateTime(new Date());
     }
 }

@@ -1797,14 +1797,29 @@ public class StatUtil {
         if (ObjectsUtil.allNull(left,right)){
             return null;
         }
+        //两眼都存在
+        if (Objects.nonNull(left) && Objects.nonNull(right)){
+            return  left || right;
+        }
+        //左眼不存
         if (Objects.isNull(left)){
             return right;
         }
-        if (Objects.isNull(right)){
-            return left;
-        }
-        return  left || right;
+        //右眼
+        return  left;
     }
 
+    /**
+     * 是否正常
+     * @param sphere
+     * @param cylinder
+     */
+    public Boolean isNormal(BigDecimal sphere, BigDecimal cylinder) {
+        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        if (Objects.isNull(se)){
+            return null;
+        }
+        return BigDecimalUtil.isBetweenAll(se,MINUS_NEGATIVE_0_5,MINUS_0_5);
+    }
 
 }

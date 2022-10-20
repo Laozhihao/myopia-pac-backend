@@ -87,30 +87,30 @@ public class VisionUtil {
      * @param astigmatismLevel
      * @param screeningMyopia
      */
-    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia) {
+    public String getRefractionSituation(Integer myopiaLevel, Integer hyperopiaLevel, Integer astigmatismLevel,Integer screeningMyopia,Boolean isNormal) {
         List<String> resultList = new LinkedList<>();
 
-        //筛查性近视
-        if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
-            resultList.add(MyopiaLevelEnum.getDescByCode(screeningMyopia));
-        }
-        // 近视
-        if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
-            resultList.add(MyopiaLevelEnum.getDescByCode(myopiaLevel));
-        }
-        // 远视
-        if (!HyperopiaLevelEnum.ZERO.code.equals(hyperopiaLevel)) {
-            resultList.add(HyperopiaLevelEnum.getDescByCode(hyperopiaLevel));
-        }
-        // 散光
-        if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
-            resultList.add(AstigmatismLevelEnum.getDescByCode(astigmatismLevel));
-        }
-        if (Objects.equals(MyopiaLevelEnum.ZERO.getCode(),myopiaLevel)
-                && Objects.equals(HyperopiaLevelEnum.ZERO.getCode(),hyperopiaLevel)
-                && Objects.equals(AstigmatismLevelEnum.ZERO.getCode(),astigmatismLevel)){
+        if (Objects.equals(isNormal,Boolean.TRUE)){
             resultList.add("正常");
+        }else {
+            //筛查性近视
+            if (Objects.equals(MyopiaLevelEnum.SCREENING_MYOPIA.code,screeningMyopia)) {
+                resultList.add(MyopiaLevelEnum.getDescByCode(screeningMyopia));
+            }
+            // 近视
+            if (!MyopiaLevelEnum.ZERO.code.equals(myopiaLevel)) {
+                resultList.add(MyopiaLevelEnum.getDescByCode(myopiaLevel));
+            }
+            // 远视
+            if (!HyperopiaLevelEnum.ZERO.code.equals(hyperopiaLevel)) {
+                resultList.add(HyperopiaLevelEnum.getDescByCode(hyperopiaLevel));
+            }
+            // 散光
+            if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
+                resultList.add(AstigmatismLevelEnum.getDescByCode(astigmatismLevel));
+            }
         }
+
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 
@@ -120,24 +120,24 @@ public class VisionUtil {
      * @param isRefractiveError
      * @param visionLabel
      */
-    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError,Integer visionLabel) {
+    public String getRefractionSituation(Boolean isAnisometropia, Boolean isRefractiveError,Integer visionLabel,Boolean isNormal) {
         List<String> resultList = new LinkedList<>();
 
-        //远视储备不足
-        if (Objects.equals(visionLabel,WarningLevel.ZERO_SP.getCode())){
-            resultList.add("远视储备不足");
-        }
-        //屈光不正
-        if (Objects.equals(isRefractiveError,Boolean.TRUE)) {
-            resultList.add("屈光不正");
-        }
-        //屈光参差
-        if (Objects.equals(isAnisometropia,Boolean.TRUE)) {
-            resultList.add("屈光参差");
-        }
-
-        if (Objects.equals(isRefractiveError,Boolean.FALSE) && Objects.equals(isAnisometropia,Boolean.FALSE)){
+        if (Objects.equals(isNormal,Boolean.TRUE)){
             resultList.add("正常");
+        }else {
+            //远视储备不足
+            if (Objects.equals(visionLabel,WarningLevel.ZERO_SP.getCode())){
+                resultList.add("远视储备不足");
+            }
+            //屈光不正
+            if (Objects.equals(isRefractiveError,Boolean.TRUE)) {
+                resultList.add("屈光不正");
+            }
+            //屈光参差
+            if (Objects.equals(isAnisometropia,Boolean.TRUE)) {
+                resultList.add("屈光参差");
+            }
         }
 
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));

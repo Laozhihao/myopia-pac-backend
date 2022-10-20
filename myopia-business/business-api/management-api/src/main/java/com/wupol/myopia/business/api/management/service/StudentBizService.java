@@ -14,7 +14,6 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
-import com.wupol.myopia.business.aggregation.student.constant.RefractionSituationEnum;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
@@ -167,9 +166,6 @@ public class StudentBizService {
         TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove = schoolStudentFacade.kindergartenAndPrimaryAbove(studentQueryDTO.getSchoolId());
         SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(studentQueryDTO,kindergartenAndPrimaryAbove);
 
-        if (Objects.equals(studentQueryDTO.getRefractionType(), RefractionSituationEnum.NORMAL.getCode())){
-            SchoolStudentInfoBuilder.setNormalCondition(schoolStudentQueryBO,kindergartenAndPrimaryAbove);
-        }
         IPage<SchoolStudent> schoolStudentPage  = schoolStudentService.listByCondition(pageRequest,schoolStudentQueryBO);
 
         IPage<SchoolStudentListVO> studentDTOPage = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());

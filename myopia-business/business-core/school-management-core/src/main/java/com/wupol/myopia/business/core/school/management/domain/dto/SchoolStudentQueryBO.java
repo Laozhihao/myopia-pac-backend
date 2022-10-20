@@ -94,6 +94,11 @@ public class SchoolStudentQueryBO implements Serializable {
     private Boolean anisometropia;
 
     /**
+     * 是否正常
+     */
+    private Boolean isNormal;
+
+    /**
      * 是否幼儿园
      */
     private Boolean kindergarten;

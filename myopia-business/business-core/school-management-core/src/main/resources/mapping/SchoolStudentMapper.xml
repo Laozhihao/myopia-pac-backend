@@ -45,7 +45,8 @@
         low_vision,
         is_anisometropia,
         is_refractive_error,
-        vision_correction
+        vision_correction,
+        is_normal
     </sql>
 
     <select id="getList"

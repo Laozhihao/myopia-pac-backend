@@ -27,6 +27,9 @@ alter table m_school_student
 alter table m_school_student
    add vision_correction tinyint(3) DEFAULT NULL COMMENT '视力矫正状态';
 
+alter table m_school_student
+   add is_normal tinyint(1) DEFAULT NULL COMMENT '是否正常(等效球镜判断)';
+
 
 -- 管理端学生新增字段
 alter table m_student
@@ -39,6 +42,7 @@ alter table m_student
    add vision_correction tinyint(3) DEFAULT NULL COMMENT '视力矫正状态';
 
 
-
+alter table m_stat_conclusion
+   add is_normal tinyint(1) DEFAULT NULL COMMENT '是否正常(等效球镜判断)';
 
 
