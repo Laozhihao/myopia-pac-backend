@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.api.management.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -22,7 +24,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskServic
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -55,6 +56,8 @@ public class ScreeningTaskBizService {
     private GovDeptService govDeptService;
     @Autowired
     private ScreeningNoticeBizService screeningNoticeBizService;
+    @Autowired
+    private ScreeningTaskBizFacade screeningTaskBizFacade;
 
     /**
      * 新增或更新
@@ -116,23 +119,27 @@ public class ScreeningTaskBizService {
      * @param id
      * @return
      */
-    public Boolean release(Integer id, CurrentUser user) {
+    public void release(Integer id, CurrentUser user) {
         //1. 更新状态&发布时间
         ScreeningTask screeningTask = screeningTaskService.getById(id);
-        ScreeningNotice screeningNotice = new ScreeningNotice();
-        BeanUtils.copyProperties(screeningTask, screeningNotice);
         screeningTask.setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (!screeningTaskService.updateById(screeningTask, user.getId())) {
             throw new BusinessException("发布失败");
         }
+
         //2. 发布通知
-        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId()).setOperateTime(new Date())
-                .setScreeningTaskId(id).setGovDeptId(CommonConst.DEFAULT_ID).setType(ScreeningNotice.TYPE_ORG)
-                .setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
-        screeningNoticeService.save(screeningNotice);
-        //3. 为筛查机构创建通知
-        return screeningTaskOrgBizService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
+        List<ScreeningNotice> screeningNoticeList = screeningTaskBizFacade.getScreeningNoticeList(id, user, screeningTask);
+        if (CollUtil.isEmpty(screeningNoticeList)){
+            throw new BusinessException("发布失败,筛查通知为空");
+        }
+        screeningNoticeService.saveBatch(screeningNoticeList);
+
+        //3. 为筛查机构/学校创建通知
+        for (ScreeningNotice screeningNotice : screeningNoticeList) {
+            screeningTaskOrgBizService.noticeBatchByScreeningTask(user, screeningTask, screeningNotice);
+        }
     }
+
 
     public List<ScreeningTask> getScreeningTaskByUser(CurrentUser user) {
         List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedNoticeByUser(user);

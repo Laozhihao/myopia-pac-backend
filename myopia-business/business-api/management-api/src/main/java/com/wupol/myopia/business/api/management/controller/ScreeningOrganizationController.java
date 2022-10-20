@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -200,6 +201,22 @@ public class ScreeningOrganizationController {
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 
+    /**
+     *  获取筛查机构列表（下拉框）
+     * @param pageRequest
+     * @param query
+     */
+    @GetMapping("/getOrgList")
+    public IPage<ScreeningSchoolOrgVO> getOrgList(PageRequest pageRequest, ScreeningOrganizationQueryDTO query){
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        if (user.isOverviewUser()) {
+            query.setIds(overviewService.getBindScreeningOrganization(user.getOrgId()));
+            if (CollectionUtils.isEmpty(query.getIds())) {
+                return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+            }
+        }
+        return screeningOrganizationBizService.getOrgList(pageRequest, query);
+    }
     /**
      * 更新状态
      *
@@ -444,12 +461,13 @@ public class ScreeningOrganizationController {
      *
      * @param name                 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
-     * @param configType
+     * @param configType          配置类型
+     *
      * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
     @GetMapping("/province/list")
     public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
-                                                                        @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode,
+                                                                          @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode,
                                                                           Integer configType) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode, configType);
     }

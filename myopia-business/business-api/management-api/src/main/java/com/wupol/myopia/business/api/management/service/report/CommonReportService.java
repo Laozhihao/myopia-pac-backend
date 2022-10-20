@@ -709,12 +709,12 @@ public class CommonReportService {
         table.setName(planStudent.getStudentName());
         table.setGender(GenderEnum.getName(planStudent.getGender()));
         table.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
-        table.setNakedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightNakedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftNakedVision(result))));
-        table.setCorrectedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCorrectedVision(result)), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCorrectedVision(result))));
-        table.setSph(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSph(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSph(result))));
-        table.setCyl(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightCyl(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftCyl(result))));
-        table.setAxsi(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.rightAxial(result)), ScreeningDataFormatUtils.singleEyeDateFormatZero(EyeDataUtil.leftAxial(result))));
-        table.setSe(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.rightSE(result)), ScreeningDataFormatUtils.singlePlusEyeDateFormatTwo(EyeDataUtil.leftSE(result))));
+        table.setNakedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightNakedVision(result),1), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftNakedVision(result),1)));
+        table.setCorrectedVision(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCorrectedVision(result),1), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCorrectedVision(result),1)));
+        table.setSph(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightSph(result),2), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftSph(result),2)));
+        table.setCyl(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightCyl(result),2), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftCyl(result),2)));
+        table.setAxsi(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightAxial(result),0), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftAxial(result),0)));
+        table.setSe(StrUtil.spliceChar("/", ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.rightSE(result),2), ScreeningDataFormatUtils.singleEyeDateFormat(EyeDataUtil.leftSE(result),2)));
         table.setVisionInfo(statConclusion.getIsLowVision());
         if (Objects.nonNull(statConclusion.getId())) {
             if (Objects.equals(Boolean.TRUE,isk)) {
@@ -723,8 +723,8 @@ public class CommonReportService {
                 table.setRefractiveInfo(primaryVisionAnalyze(statConclusion.getIsMyopia(), statConclusion.getIsAstigmatism(), statConclusion.getIsHyperopia(), result));
             }
         }
-        table.setMyopiaCorrection(VisionCorrection.getDesc(statConclusion.getVisionCorrection()));
-        table.setVisionWarning(WarningLevel.getDesc(statConclusion.getWarningLevel()));
+        table.setMyopiaCorrection(VisionCorrection.getDescByCode(statConclusion.getVisionCorrection()));
+        table.setVisionWarning(WarningLevel.getDescByCode(statConclusion.getWarningLevel()));
         table.setIsRecommendDoctor(statConclusion.getIsRecommendVisit());
 
         table.setRemark(getRemark(statConclusion.getId(), statConclusion.getIsValid(), planStudent.getState()));
@@ -755,22 +755,17 @@ public class CommonReportService {
         if (Objects.isNull(visionScreeningResult) || Objects.isNull(visionScreeningResult.getComputerOptometry())) {
             return StringUtils.EMPTY;
         }
-        boolean isZeroSp = WarningLevel.ZERO_SP.code.equals(warningLevel);
-        if (Objects.equals(isRefractiveError, Boolean.FALSE) && !isZeroSp) {
-            return "正常";
+        boolean isZeroSp = Objects.equals(WarningLevel.ZERO_SP.getCode(),warningLevel) ;
+
+        if (Objects.equals(isRefractiveError, Boolean.FALSE)) {
+            return isZeroSp ? "屈光异常（可能导致弱视）" : "正常";
         }
 
-        if (Objects.equals(isRefractiveError, Boolean.TRUE) && !isZeroSp) {
-            return "屈光异常（远视储备不足）";
+        if (Objects.equals(isRefractiveError, Boolean.TRUE)) {
+            return isZeroSp ? "屈光异常（远视储备不足/可能导致弱视）" : "屈光异常（远视储备不足）";
         }
 
-        if (Objects.equals(isRefractiveError, Boolean.FALSE) && isZeroSp) {
-            return "屈光异常（可能导致弱视）";
-        }
 
-        if (Objects.equals(isRefractiveError, Boolean.TRUE) && isZeroSp) {
-            return "屈光异常（远视储备不足/可能导致弱视）";
-        }
         return StringUtils.EMPTY;
     }
 

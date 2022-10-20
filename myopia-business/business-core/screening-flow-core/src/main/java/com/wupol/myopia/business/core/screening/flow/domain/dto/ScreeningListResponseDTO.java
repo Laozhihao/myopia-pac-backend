@@ -126,4 +126,14 @@ public class ScreeningListResponseDTO {
      * 是否有筛查结果（true:有，false:没有）
      */
     private Boolean hasScreeningResults;
+
+    /**
+     * 筛查通知ID
+     */
+    private Integer srcScreeningNoticeId;
+
+    /**
+     * 筛查任务id
+     */
+    private Integer screeningTaskId;
 }

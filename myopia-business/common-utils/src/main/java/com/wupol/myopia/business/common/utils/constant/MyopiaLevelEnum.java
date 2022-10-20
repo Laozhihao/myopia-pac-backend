@@ -1,7 +1,14 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.Getter;
+
+import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 近视等级
@@ -17,7 +24,9 @@ public enum MyopiaLevelEnum {
     MYOPIA_LEVEL_MIDDLE(4, "中度近视"),
     MYOPIA_LEVEL_HIGH(5, "高度近视");
 
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     MyopiaLevelEnum(int code, String desc) {
@@ -32,11 +41,23 @@ public enum MyopiaLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(MyopiaLevelEnum::get)
+                .map(MyopiaLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
+    }
+
+    /**
+     * 是否有座椅建议
+     * @param code 等级
+     * @return 是否有座椅建议
+     */
+    public static Boolean seatSuggest(Integer code) {
         if (Objects.isNull(code)) {
-            return "";
+            return false;
         }
-        MyopiaLevelEnum myopiaLevelEnum = get(code);
-        return Objects.isNull(myopiaLevelEnum) ? "" : myopiaLevelEnum.desc;
+        ArrayList<Integer> levelList = Lists.newArrayList(MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_LIGHT.code, MYOPIA_LEVEL_HIGH.code);
+        return levelList.stream().anyMatch(s -> Objects.equals(s, code));
     }
 }

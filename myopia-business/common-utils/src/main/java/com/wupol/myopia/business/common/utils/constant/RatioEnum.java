@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import lombok.Getter;
+
 /**
  * @Author wulizhou
  * @Date 2021/6/10 10:59
  */
+@Getter
 public enum RatioEnum {
 
     MYOPIA(0, "近视率"),

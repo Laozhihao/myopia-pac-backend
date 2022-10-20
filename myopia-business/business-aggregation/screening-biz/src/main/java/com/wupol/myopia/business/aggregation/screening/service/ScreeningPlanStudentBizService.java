@@ -526,7 +526,7 @@ public class ScreeningPlanStudentBizService {
         Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
 
         for (ScreeningStudentDTO studentDTO : screeningStudentDTOS) {
-            studentDTO.setNationDesc(NationEnum.getName(studentDTO.getNation()))
+            studentDTO.setNationDesc(NationEnum.getNameByCode(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
             studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
             screeningPlanSchoolStudentFacadeService.setStudentEyeInfo(studentDTO, planStudentVisionResultMap);

@@ -48,4 +48,6 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
     void deleteByStudentIds(@Param("studentIds") List<Integer> studentIds);
 
     List<SchoolStudent> getByStudentIdsAndSchoolId(@Param("studentIds") List<Integer> studentIds, @Param("schoolId") Integer schoolId);
+
+    List<SchoolStudent> getBySchoolIdAndVisionLabel(@Param("schoolId") Integer schoolId);
 }

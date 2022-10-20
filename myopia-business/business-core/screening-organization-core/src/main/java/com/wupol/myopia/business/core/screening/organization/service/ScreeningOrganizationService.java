@@ -1,6 +1,10 @@
 package com.wupol.myopia.business.core.screening.organization.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
@@ -257,10 +261,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         Assert.hasText(screeningOrgNameLike, "筛查机构名称不能为空");
         Assert.notNull(provinceDistrictCode, "省行政区域编码不能为空");
         List<ScreeningOrgResponseDTO> records = baseMapper.getListByProvinceCodeAndNameLike(screeningOrgNameLike, provinceDistrictCode, configType);
-        records.forEach(record -> {
-            // 行政区域名称
-            record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail()));
-        });
+        // 行政区域名称
+        records.forEach(record -> record.setDistrictName(districtService.getDistrictName(record.getDistrictDetail())));
         return records;
     }
 
@@ -285,6 +287,26 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public IPage<ScreeningOrgResponseDTO> getByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query, Integer districtId){
         return baseMapper.getScreeningOrganizationListByCondition(pageRequest.toPage(), districtId, query);
+    }
+
+    /**
+     * 获取筛查机构列表
+     *
+     * @param pageRequest 分页请求
+     * @param query       查询条件
+     * @param districtIds  行政区域
+     * @return 筛查机构列表
+     */
+    public IPage<ScreeningOrganization> listByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query,
+                                                        List<Integer> districtIds,Date startTime,Date endTime){
+        Page page = pageRequest.toPage();
+        LambdaQueryWrapper<ScreeningOrganization> queryWrapper = Wrappers.lambdaQuery(ScreeningOrganization.class)
+                .in(ScreeningOrganization::getDistrictId, districtIds)
+                .like(StrUtil.isNotBlank(query.getNameLike()), ScreeningOrganization::getName, query.getNameLike())
+                .in(CollUtil.isNotEmpty(query.getIds()), ScreeningOrganization::getId, query.getIds())
+                .ge(Objects.nonNull(startTime),ScreeningOrganization::getCooperationEndTime,startTime)
+                .lt(Objects.nonNull(endTime),ScreeningOrganization::getCooperationStartTime,endTime);
+        return baseMapper.selectPage(page, queryWrapper);
     }
 
     /**

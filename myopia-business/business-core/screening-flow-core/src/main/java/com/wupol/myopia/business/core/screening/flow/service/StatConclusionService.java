@@ -162,8 +162,8 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      * @param schoolId
      * @return
      */
-    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId) {
-        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId);
+    public List<StatConclusionExportDTO> getExportVoByScreeningPlanIdAndSchoolId(Integer screeningPlanId, Integer schoolId,Boolean isRescreen) {
+        return baseMapper.selectExportVoByScreeningPlanIdAndSchoolId(screeningPlanId, schoolId,isRescreen);
     }
 
     /**
@@ -358,6 +358,17 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         queryWrapper.in(StatConclusion::getScreeningPlanSchoolStudentId,planStudentIds);
         queryWrapper.eq(StatConclusion::getIsRescreen,Boolean.FALSE);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 获取学校预警等级为0-3的学生
+     *
+     * @param schoolId 学校
+     *
+     * @return 列表
+     */
+    public List<StatConclusion> getBySchoolIdAndWarningLevel(Integer schoolId) {
+        return baseMapper.getBySchoolIdAndWarningLevel(schoolId);
     }
 
 }

@@ -43,7 +43,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
 
     List<ExportPlanSchool> selectPlanSchoolGradeClassHasData(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds);
 
-    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId);
+    List<StatConclusionExportDTO> selectExportVoByScreeningPlanIdAndSchoolId(@Param("screeningPlanId") Integer screeningPlanId, @Param("schoolId") Integer schoolId,@Param("isRescreen") Boolean isRescreen);
 
     /**
      * @Description: 参考学校
@@ -136,4 +136,6 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
     List<StatConclusion> getByPlanIdSchoolId(@Param("planId") Integer planId, @Param("schoolId") Integer schoolId);
 
     List<StatConclusion> getByPlanId(Integer planId);
+
+    List<StatConclusion> getBySchoolIdAndWarningLevel(@Param("schoolId") Integer schoolId);
 }

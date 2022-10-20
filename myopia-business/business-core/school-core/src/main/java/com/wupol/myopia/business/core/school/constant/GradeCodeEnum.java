@@ -111,6 +111,7 @@ public enum GradeCodeEnum {
         gradeByMap.put(SchoolAge.HIGH.code, highSchool());
         gradeByMap.put(SchoolAge.VOCATIONAL_HIGH.code, vocationalHighSchool());
         gradeByMap.put(SchoolAge.KINDERGARTEN.code, kindergartenSchool());
+        gradeByMap.put(SchoolAge.UNIVERSITY.code, universitySchool());
     }
 
     public static List<GradeCodeEnum> kindergartenSchool() {

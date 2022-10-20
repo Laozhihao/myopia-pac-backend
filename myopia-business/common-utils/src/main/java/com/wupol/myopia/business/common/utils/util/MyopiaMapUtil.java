@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @author hang.yuan 2022/4/20 12:23
  */
-public class MapUtil extends cn.hutool.core.map.MapUtil {
+public class MyopiaMapUtil extends cn.hutool.core.map.MapUtil {
 
     /**
      *  分割Map大小

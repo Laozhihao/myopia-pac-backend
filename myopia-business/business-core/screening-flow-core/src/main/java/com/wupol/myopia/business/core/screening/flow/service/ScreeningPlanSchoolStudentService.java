@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -850,7 +851,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanId 筛查计划ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId) {
+    public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId,Integer srcScreeningNoticeId,Integer screeningTaskId) {
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
         deleteByStudentIds(twoTuple.getSecond());
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
@@ -860,7 +861,31 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
                 screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
             }
+            if (Objects.nonNull(srcScreeningNoticeId) && !Objects.equals(srcScreeningNoticeId,CommonConst.DEFAULT_ID)){
+                screeningPlanSchoolStudent.setSrcScreeningNoticeId(srcScreeningNoticeId);
+            }
+            if (Objects.nonNull(screeningTaskId) && !Objects.equals(screeningTaskId,CommonConst.DEFAULT_ID)){
+                screeningPlanSchoolStudent.setScreeningTaskId(screeningTaskId);
+            }
         });
         saveOrUpdateBatch(screeningPlanSchoolStudentList);
+    }
+
+    /**
+     * 通过function 分组
+     *
+     * @param screeningPlanSchoolStudentList 筛查学生列表
+     * @param function                       function
+     *
+     * @return Map<Integer, List < ScreeningPlanSchoolStudent>>
+     */
+    public Map<Integer, List<ScreeningPlanSchoolStudent>> groupingByFunction(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList,
+                                                                             Function<ScreeningPlanSchoolStudent, Integer> function) {
+        Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = Maps.newHashMap();
+        if (CollUtil.isNotEmpty(screeningPlanSchoolStudentList)) {
+            Map<Integer, List<ScreeningPlanSchoolStudent>> map = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(function));
+            gradePlanSchoolStudentMap.putAll(map);
+        }
+        return gradePlanSchoolStudentMap;
     }
 }

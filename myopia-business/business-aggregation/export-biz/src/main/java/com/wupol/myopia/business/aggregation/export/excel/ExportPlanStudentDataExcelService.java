@@ -8,6 +8,7 @@ import com.wupol.myopia.business.aggregation.export.excel.config.ScreeningDataFa
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -71,6 +72,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
 
     @Resource
     private ScreeningDataFactory screeningDataFactory;
+    @Resource
+    private ScreeningFacade screeningFacade;
 
 
     @Override
@@ -149,8 +152,9 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (ExportTypeConst.SCHOOL.equals(exportType) || ExportTypeConst.GRADE.equals(exportType)) {
             classMap = schoolClassService.getClassMapByIds(statConclusionExportDTOs.stream().map(StatConclusionExportDTO::getClassId).collect(Collectors.toList()));
         }
-
-        Integer screeningType = screeningPlanService.getById(statConclusionExportDTOs.get(0).getPlanId()).getScreeningType();
+        ScreeningPlan screeningPlan = screeningPlanService.getById(statConclusionExportDTOs.get(0).getPlanId());
+        Integer screeningType = screeningPlan.getScreeningType();
+        Boolean isHaiNan = screeningFacade.getIsHaiNan(screeningPlan, screeningPlan.getScreeningOrgType());
         IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(screeningType);
 
         // 按计划维度导出
@@ -158,7 +162,7 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             schoolStatMap.forEach((key, value) -> {
                 School school = schoolMap.get(key);
                 String path = Paths.get(filePath, getFileNameTitle(exportCondition)).toString();
-                makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(value), screeningDataService.getExportClass());
+                makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(value,isHaiNan), screeningDataService.getExportClass());
             });
         }
 
@@ -168,11 +172,11 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             School school = schoolService.getById(exportCondition.getSchoolId());
             //先导出整个学校数据
             String folder = Paths.get(filePath, String.format(PLAN_STUDENT_FILE_NAME, school.getName())).toString();
-            makeExcel(folder, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(schoolStatMap.get(exportCondition.getSchoolId())), screeningDataService.getExportClass());
+            makeExcel(folder, String.format(PLAN_STUDENT_FILE_NAME, school.getName()), screeningDataService.generateExportData(schoolStatMap.get(exportCondition.getSchoolId()),isHaiNan), screeningDataService.getExportClass());
             //再导出年级数据
             gradeStatMap.forEach((key, value) -> {
                 SchoolGrade grade = gradeMap.get(key);
-                excelGraderAndClassData(grade, value, screeningType, String.format(PLAN_STUDENT_FILE_NAME, grade.getName()), folder, school, finalClassMap);
+                excelGraderAndClassData(grade, value, screeningType, String.format(PLAN_STUDENT_FILE_NAME, grade.getName()), folder, school, finalClassMap,isHaiNan);
             });
         }
 
@@ -182,30 +186,30 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
             //导出年级数据
             gradeStatMap.forEach((key, value) -> {
                 SchoolGrade grade = gradeMap.get(key);
-                excelGraderAndClassData(grade, value, screeningType, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName()), filePath, school, finalClassMap);
+                excelGraderAndClassData(grade, value, screeningType, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName()), filePath, school, finalClassMap,isHaiNan);
             });
         }
 
         // 班级、区域维度导出
         if (ExportTypeConst.CLASS.equals(exportType) || ExportTypeConst.DISTRICT.equals(exportType)) {
-            return makeExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data), screeningDataService.getExportClass());
+            return makeExcel(filePath, getFileNameTitle(exportCondition), screeningDataService.generateExportData(data,isHaiNan), screeningDataService.getExportClass());
         }
         return null;
     }
 
 
     public void excelGraderAndClassData(SchoolGrade grade, List<StatConclusionExportDTO> value, Integer screeningType,
-                                        String gradeFolder, String filePath, School school, Map<Integer, SchoolClass> classMap) {
+                                        String gradeFolder, String filePath, School school, Map<Integer, SchoolClass> classMap,Boolean isHaiNan) {
 
         IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(screeningType);
 
         String path = Paths.get(filePath, gradeFolder).toString();
-        makeExcel(path, gradeFolder, screeningDataService.generateExportData(value), screeningDataService.getExportClass());
+        makeExcel(path, gradeFolder, screeningDataService.generateExportData(value,isHaiNan), screeningDataService.getExportClass());
         //再导出该年级的班级数据
         Map<Integer, List<StatConclusionExportDTO>> collect = value.stream().collect(Collectors.groupingBy(StatConclusionExportDTO::getClassId));
         collect.forEach((classKey, classValue) -> {
             SchoolClass schoolClass = classMap.get(classKey);
-            makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName()), screeningDataService.generateExportData(classValue), screeningDataService.getExportClass());
+            makeExcel(path, String.format(PLAN_STUDENT_FILE_NAME, school.getName() + grade.getName() + schoolClass.getName()), screeningDataService.generateExportData(classValue,isHaiNan), screeningDataService.getExportClass());
         });
     }
 

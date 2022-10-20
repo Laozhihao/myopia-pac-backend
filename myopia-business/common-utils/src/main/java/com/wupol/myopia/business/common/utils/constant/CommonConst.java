@@ -246,4 +246,10 @@ public class CommonConst {
      * 海南
      */
     public static final String HAI_NAN = "HaiNan";
+
+    /** 问卷主标题文字说明*/
+    public static final String QUESTIONNAIRE_MAIN_TITLE_NOTICE = "问卷须知";
+    public static final String QUESTIONNAIRE_MAIN_TITLE_VISION = "视力调查问卷";
+    public static final String QUESTIONNAIRE_MAIN_TITLE_HEALTHY = "健康调查问卷";
+
 }

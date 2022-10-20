@@ -56,4 +56,6 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     SchoolGradeClassVO getBySchoolIdAndGradeIdAndClassId(@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId, @Param("classId") Integer classId);
 
+    List<School> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode);
+
 }

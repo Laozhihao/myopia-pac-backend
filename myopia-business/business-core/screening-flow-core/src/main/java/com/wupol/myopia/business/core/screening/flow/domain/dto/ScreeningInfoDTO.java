@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -14,7 +15,7 @@ import java.util.List;
  */
 @Accessors(chain = true)
 @Data
-public class ScreeningInfoDTO {
+public class ScreeningInfoDTO implements Serializable {
     /**
      * 视力信息
      */

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Description: 复测返扩展类
  */
 @Data
-public class ReScreenDTO {
+public class ReScreenDTO implements Serializable {
     /**
      * 复测次数
      */
@@ -52,7 +52,7 @@ public class ReScreenDTO {
         /** 柱镜（右） */
         private ScreeningDeviation rightCyl;
 
-        /** 等效球镜（左） */
+        /** 等效球镜（右） */
         private ScreeningDeviation rightSE;
 
         /** 裸眼（左） */

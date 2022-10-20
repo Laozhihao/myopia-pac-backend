@@ -1,7 +1,10 @@
 package com.wupol.myopia.business.core.school.service;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -19,10 +22,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.dto.BatchSaveGradeRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
-import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
@@ -35,6 +35,7 @@ import com.wupol.myopia.oauth.sdk.domain.response.Organization;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -90,7 +91,9 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         oauthServiceClient.addOrganization(new Organization(school.getId(), SystemCode.SCHOOL_CLIENT,
                 UserType.OTHER, school.getStatus()));
         generateGradeAndClass(school.getId(), school.getCreateUserId(), school.getBatchSaveGradeList());
-        return generateAccountAndPassword(school, StringUtils.EMPTY);
+        UsernameAndPasswordDTO usernameAndPasswordDTO = generateAccountAndPassword(school, StringUtils.EMPTY);
+        usernameAndPasswordDTO.setId(school.getId());
+        return usernameAndPasswordDTO;
     }
 
     /**
@@ -264,7 +267,8 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @return Boolean.TRUE-使用 Boolean.FALSE-没有使用
      */
     public Boolean checkSchoolNo(Integer schoolId, String schoolNo) {
-        return baseMapper.getByNoNeId(schoolNo, schoolId).size() > 0;
+        List<School> schoolList = baseMapper.getByNoNeId(schoolNo, schoolId);
+        return CollUtil.isNotEmpty(schoolList);
     }
 
     /**
@@ -537,6 +541,27 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     }
 
     /**
+     * 模糊查询指定省份下学校
+     *
+     * @param name                 学校名称
+     * @param provinceDistrictCode 省行政区域编码，如：110000000
+     *
+     * @return List<SchoolResponseDTO>
+     */
+    public List<SchoolResponseDTO> getListByProvinceCodeAndNameLike(String name, Long provinceDistrictCode) {
+        List<School> schools = baseMapper.getListByProvinceCodeAndNameLike(name, provinceDistrictCode);
+        if (CollectionUtils.isEmpty(schools)) {
+            return new ArrayList<>();
+        }
+        return schools.stream().map(s->{
+            SchoolResponseDTO responseDTO = new SchoolResponseDTO();
+            BeanUtils.copyProperties(s, responseDTO);
+            responseDTO.setDistrictName(districtService.getDistrictName(s.getDistrictDetail()));
+            return responseDTO;
+        }).collect(Collectors.toList());
+    }
+
+    /**
      * 是否海南版本
      *
      * @param id 学校Id
@@ -553,5 +578,22 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
             return false;
         }
         return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
+    }
+
+    /**
+     * 根据条件查询学校
+     * @param pageRequest
+     * @param query
+     * @param districtIds
+     */
+    public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, List<Integer> districtIds,Date startTime,Date endTime){
+        Page page = pageRequest.toPage();
+        LambdaQueryWrapper<School> queryWrapper = Wrappers.lambdaQuery(School.class)
+                .in(School::getDistrictId, districtIds)
+                .like(StrUtil.isNotBlank(query.getName()),School::getName,query.getName())
+                .in(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds())
+                .ge(Objects.nonNull(startTime),School::getCooperationEndTime,startTime)
+                .lt(Objects.nonNull(endTime),School::getCooperationStartTime,endTime);
+        return baseMapper.selectPage(page,queryWrapper);
     }
 }

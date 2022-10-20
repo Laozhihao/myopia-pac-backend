@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>student-biz</artifactId>
+    <description>学生信息相关聚合层</description>
 
     <dependencies>
         <dependency>

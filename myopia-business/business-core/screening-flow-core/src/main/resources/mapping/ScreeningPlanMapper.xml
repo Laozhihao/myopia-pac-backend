@@ -149,14 +149,6 @@
         order by msp.create_time desc
     </select>
 
-    <select id="countByTaskIdAndOrgId" resultType="java.lang.Integer">
-        select count(1)
-        from m_screening_plan
-        where screening_task_id = #{taskId}
-          and screening_org_id = #{orgId}
-          and release_status != 2
-    </select>
-
     <select id="getReleasePlanByOrgIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

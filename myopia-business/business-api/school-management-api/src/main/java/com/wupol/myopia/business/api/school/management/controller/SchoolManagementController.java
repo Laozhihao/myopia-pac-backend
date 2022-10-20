@@ -244,7 +244,8 @@ public class SchoolManagementController {
                 .setGradeId(gradeId)
                 .setClassId(classId)
                 .setPlanStudentIds(planStudentIds)
-                .setType(type);
+                .setType(type)
+                .setIsSchoolClient(Boolean.TRUE);
 
         if (classId!=null|| StringUtil.isNotEmpty(planStudentIds)){
             return ApiResult.success(exportStrategy.syncExport(exportCondition, ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE));

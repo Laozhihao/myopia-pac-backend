@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -11,13 +12,15 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
+import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
-import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
+import com.wupol.myopia.business.core.school.domain.vo.SchoolStudentQuerySelectVO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentListVO;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningResultItemsDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -59,6 +62,8 @@ public class SchoolStudentController {
 
     @Resource
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
+    @Resource
+    private SchoolStudentFacade schoolStudentFacade;
 
 
     /**
@@ -69,9 +74,10 @@ public class SchoolStudentController {
      * @return IPage<SchoolStudentListResponseDTO>
      */
     @GetMapping
-    public IPage<SchoolStudentListResponseDTO> getList(PageRequest pageRequest, SchoolStudentRequestDTO requestDTO) {
+    public IPage<SchoolStudentListVO> getList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return schoolStudentBizService.getList(pageRequest, requestDTO, currentUser.getOrgId());
+        requestDTO.setSchoolId(currentUser.getOrgId());
+        return schoolStudentBizService.getSchoolStudentList(pageRequest, requestDTO);
     }
 
     /**
@@ -90,12 +96,13 @@ public class SchoolStudentController {
     /**
      * 获取筛查记录
      *
-     * @param studentId 学生Id
+     * @param id 学校学生Id
      * @return StudentScreeningResultResponseDTO
      */
-    @GetMapping("screening/list/{studentId}")
-    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("studentId") Integer studentId) {
-        return studentFacade.getScreeningList(pageRequest, studentId, CurrentUserUtil.getCurrentUser());
+    @GetMapping("screening/list/{id}")
+    public IPage<StudentScreeningResultItemsDTO> screeningList(PageRequest pageRequest, @PathVariable("id") Integer id) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return studentFacade.getSchoolScreeningList(pageRequest, id, currentUser, SystemCode.SCHOOL_CLIENT.getCode());
     }
 
 
@@ -184,4 +191,12 @@ public class SchoolStudentController {
         return studentFacade.getNationLists();
     }
 
+    /**
+     * 获取学生查询条件下拉框值
+     */
+    @GetMapping("/selectValue")
+    public SchoolStudentQuerySelectVO getSelectValue(){
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return schoolStudentFacade.getSelectValue(currentUser.getOrgId());
+    }
 }

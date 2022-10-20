@@ -1,11 +1,13 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
-import com.wupol.myopia.business.common.utils.util.MapUtil;
+import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
+import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
+import com.wupol.myopia.business.common.utils.util.MyopiaMapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -17,6 +19,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusi
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
@@ -97,7 +100,7 @@ public class StatConclusionBizService {
         if (CollectionUtil.isEmpty(visionScreeningResultMap)){
             return;
         }
-        List<Map<Integer, List<VisionScreeningResult>>> mapList = MapUtil.splitMap(visionScreeningResultMap, 2);
+        List<Map<Integer, List<VisionScreeningResult>>> mapList = MyopiaMapUtil.splitMap(visionScreeningResultMap, 2);
 
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
         mapList.forEach(list->{
@@ -189,7 +192,7 @@ public class StatConclusionBizService {
 
         Set<Integer> studentIds = statConclusionList.stream().map(StatConclusion::getStudentId).collect(Collectors.toSet());
         Map<Integer, Student> studentMap = getStudentMap(studentIds);
-        Map<Integer, List<SchoolStudent>> schoolStudentMap = getSchoolStudentMap(studentIds);
+        Map<String, SchoolStudent> schoolStudentMap = getSchoolStudentMap(studentIds);
         Map<Integer, VisionScreeningResult> visionScreeningResultMap = getVisionScreeningResultMap(statConclusionList);
         // 更新是否绑定手机号码
         setIsBindMq(statConclusionList,studentMap);
@@ -216,14 +219,15 @@ public class StatConclusionBizService {
      * 获取学校学生信息
      * @param studentIds 学生ID集合
      */
-    private Map<Integer,List<SchoolStudent>> getSchoolStudentMap(Set<Integer> studentIds){
-        Map<Integer,List<SchoolStudent>> schoolStudentMap=Maps.newHashMap();
-        List<SchoolStudent> schoolStudentList = schoolStudentService.listByIds(studentIds);
+    private Map<String,SchoolStudent> getSchoolStudentMap(Set<Integer> studentIds){
+        Map<String,SchoolStudent> schoolStudentMap=Maps.newHashMap();
+        List<SchoolStudent> schoolStudentList = schoolStudentService.getByStudentIds(Lists.newArrayList(studentIds));
         if (CollectionUtil.isNotEmpty(schoolStudentList)){
-            schoolStudentMap = schoolStudentList.stream().collect(Collectors.groupingBy(SchoolStudent::getStudentId));
+            schoolStudentMap = schoolStudentList.stream().collect(Collectors.toMap(schoolStudent -> VisionScreeningResultFacade.getTwoKey(schoolStudent.getStudentId(),schoolStudent.getSchoolId()),Function.identity()));
         }
         return schoolStudentMap;
     }
+
 
     /**
      * 获取筛查结果数据
@@ -277,24 +281,8 @@ public class StatConclusionBizService {
         Optional.ofNullable(studentMap.get(statConclusion.getStudentId()))
                 .ifPresent(student -> {
                     //填充数据
-                    student.setIsAstigmatism(statConclusion.getIsAstigmatism());
-                    student.setIsHyperopia(statConclusion.getIsHyperopia());
-                    student.setIsMyopia(statConclusion.getIsMyopia());
-                    student.setGlassesType(statConclusion.getGlassesType());
-                    student.setVisionLabel(statConclusion.getWarningLevel());
-                    Optional.ofNullable(visionScreeningResultMap.get(statConclusion.getResultId()))
-                            .ifPresent(visionScreeningResult -> student.setLastScreeningTime(visionScreeningResult.getUpdateTime()));
-                    student.setUpdateTime(new Date());
-                    student.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
-                    student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-                    if (statConclusion.getAge() >= 6){
-                        //小学及以上的数据同步
-                        student.setMyopiaLevel(statConclusion.getMyopiaLevel());
-                        student.setScreeningMyopia(statConclusion.getScreeningMyopia());
-                        if (Objects.equals(statConclusion.getIsLowVision(),Boolean.TRUE)) {
-                            student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
-                        }
-                    }
+                    Date lastScreeningTime = Optional.ofNullable(visionScreeningResultMap.get(statConclusion.getResultId())).map(VisionScreeningResult::getUpdateTime).orElse(null);
+                    StudentInfoBuilder.setStudentInfoByStatConclusion(student,statConclusion,lastScreeningTime);
                     studentList.add(student);
                 });
     }
@@ -305,27 +293,19 @@ public class StatConclusionBizService {
      * @param schoolStudentMap 学校学生数据集合
      * @param visionScreeningResultMap 筛查结果数据集合
      */
-    private void updateSchoolStudent(List<StatConclusion> statConclusionList, Map<Integer, List<SchoolStudent>> schoolStudentMap,Map<Integer, VisionScreeningResult> visionScreeningResultMap) {
-        List<List<SchoolStudent>> lists =Lists.newArrayList();
+    private void updateSchoolStudent(List<StatConclusion> statConclusionList, Map<String, SchoolStudent> schoolStudentMap,Map<Integer, VisionScreeningResult> visionScreeningResultMap) {
+        List<SchoolStudent> schoolStudentList =Lists.newArrayList();
         statConclusionList.forEach(statConclusion -> {
-            List<SchoolStudent> schoolStudentList = schoolStudentMap.get(statConclusion.getStudentId());
+            SchoolStudent schoolStudent = schoolStudentMap.get(VisionScreeningResultFacade.getTwoKey(statConclusion.getStudentId(),statConclusion.getSchoolId()));
             VisionScreeningResult visionScreeningResult = visionScreeningResultMap.get(statConclusion.getResultId());
-            if (CollectionUtil.isNotEmpty(schoolStudentList)){
-                schoolStudentList.forEach(schoolStudent -> {
-                    schoolStudent.setGlassesType(statConclusion.getGlassesType());
-                    Optional.ofNullable(visionScreeningResult).ifPresent(vsr->schoolStudent.setLastScreeningTime(vsr.getUpdateTime()));
-                    schoolStudent.setVisionLabel(statConclusion.getWarningLevel());
-                    schoolStudent.setMyopiaLevel(statConclusion.getMyopiaLevel());
-                    schoolStudent.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
-                    schoolStudent.setAstigmatismLevel(statConclusion.getAstigmatismLevel());
-                    schoolStudent.setUpdateTime(new Date());
-                });
+            if (Objects.nonNull(schoolStudent)){
+                SchoolStudentInfoBuilder.setSchoolStudentInfoByStatConclusion(schoolStudent,statConclusion,visionScreeningResult.getUpdateTime());
+                schoolStudentList.add(schoolStudent);
             }
-            lists.add(schoolStudentList);
         });
 
-        for (List<SchoolStudent> list : lists) {
-            schoolStudentService.updateBatchById(list,500);
+        if (CollUtil.isNotEmpty(schoolStudentList)){
+            schoolStudentService.updateBatchById(schoolStudentList,500);
         }
     }
 

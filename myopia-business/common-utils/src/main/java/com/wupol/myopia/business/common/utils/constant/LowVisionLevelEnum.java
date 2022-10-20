@@ -1,10 +1,12 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 视力低下等级
@@ -21,8 +23,9 @@ public enum LowVisionLevelEnum {
     LOW_VISION_LEVEL_MIDDLE(3, "中度视力低下"),
     LOW_VISION_LEVEL_HIGH(4, "重度视力低下");;
 
-
+    @Getter
     public final Integer code;
+    @Getter
     public final String desc;
 
     LowVisionLevelEnum(Integer code, String desc) {
@@ -38,15 +41,21 @@ public enum LowVisionLevelEnum {
                 .orElse(null);
     }
 
-    public static String getDesc(Integer code) {
-        if (Objects.isNull(code)) {
-            return "";
-        }
-        LowVisionLevelEnum lowVisionLevelEnum = get(code);
-        return Objects.isNull(lowVisionLevelEnum) ? "" : lowVisionLevelEnum.desc;
+    public static String getDescByCode(Integer code) {
+        return Optional.ofNullable(code)
+                .map(LowVisionLevelEnum::get)
+                .map(LowVisionLevelEnum::getDesc)
+                .orElse(StrUtil.EMPTY);
     }
 
     public static List<LowVisionLevelEnum> lowVisionLevelList() {
         return Lists.newArrayList(LOW_VISION_LEVEL_LIGHT, LOW_VISION_LEVEL_MIDDLE, LOW_VISION_LEVEL_HIGH);
+    }
+
+    /**
+     * 视力低下code集合
+     */
+    public static List<Integer> lowVisionLevelCodeList() {
+        return Lists.newArrayList(LOW_VISION.getCode(),LOW_VISION_LEVEL_LIGHT.getCode(), LOW_VISION_LEVEL_MIDDLE.getCode(), LOW_VISION_LEVEL_HIGH.getCode());
     }
 }

@@ -194,7 +194,7 @@ public class StudentExcelImportService {
         student.setName(item.get(0))
                 .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
 
-                .setNation(NationEnum.getCode(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
+                .setNation(NationEnum.getCodeByName(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                 .setSno((item.get(7 - offset)))
                 .setIdCard(idCard)
                 .setParentPhone(item.get(10 - offset))

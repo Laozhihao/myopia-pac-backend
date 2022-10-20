@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.hospital.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -230,7 +231,7 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
      * @return 是否重复
      */
     public boolean checkHospitalName(String hospitalName, Integer id) {
-        return baseMapper.getByNameNeId(hospitalName, id).size() > 0;
+        return CollUtil.isNotEmpty(baseMapper.getByNameNeId(hospitalName, id));
     }
 
     /**
@@ -266,10 +267,8 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
     public List<HospitalResponseDTO> getProvinceList(String name, Long provinceDistrictCode, Integer serviceType) {
         // 获取省级行政区域ID
         List<HospitalResponseDTO> hospitals = baseMapper.getListByProvinceCodeAndNameLike(name, provinceDistrictCode, serviceType);
-        hospitals.forEach(hospital -> {
-            // 行政区域名称
-            hospital.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail()));
-        });
+        // 行政区域名称
+        hospitals.forEach(hospital -> hospital.setDistrictName(districtService.getDistrictName(hospital.getDistrictDetail())));
         return hospitals;
     }
 

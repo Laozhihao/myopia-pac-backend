@@ -47,9 +47,10 @@ public enum PermissionTemplateType {
     OVERVIEW_SCREENING_ORG(15, "数据总览-筛查机构集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
     OVERVIEW_HOSPITAL(16, "数据总览-医院集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
     OVERVIEW_SCREENING_ORG_HOSPITAL(17, "数据总览-筛查机构+医院集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
-
-
-    ;
+    OVERVIEW_SCHOOL(18, "数据总览-学校集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    OVERVIEW_SCREENING_ORG_SCHOOL(19, "数据总览-筛查机构+学校集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    OVERVIEW_HOSPITAL_SCHOOL(20, "数据总览-医院+学校集合包", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode()),
+    OVERVIEW_SCREENING_ORG_HOSPITAL_SCHOOL(21, "数据总览-筛查机构+医院+学校", RoleType.OVERVIEW_ADMIN.getType(), SystemCode.MANAGEMENT_CLIENT.getCode());
 
     /**
      * 居民眼健康系统APP/眼保健系统APP
@@ -80,10 +81,15 @@ public enum PermissionTemplateType {
     }
 
     static {
-        OVERVIEW_PERMISSION_TEMPLATE_TYPE_MAP  = ImmutableMap.of(
-                OverviewConfigType.SCREENING_ORG.getType(), OVERVIEW_SCREENING_ORG,
-                OverviewConfigType.HOSPITAL.getType(), OVERVIEW_HOSPITAL,
-                OverviewConfigType.SCREENING_ORG_HOSPITAL.getType(), OVERVIEW_SCREENING_ORG_HOSPITAL);
+        OVERVIEW_PERMISSION_TEMPLATE_TYPE_MAP = ImmutableMap.<Integer, PermissionTemplateType>builder()
+                .put(OverviewConfigType.SCREENING_ORG.getType(), OVERVIEW_SCREENING_ORG)
+                .put(OverviewConfigType.HOSPITAL.getType(), OVERVIEW_HOSPITAL)
+                .put(OverviewConfigType.SCREENING_ORG_HOSPITAL.getType(), OVERVIEW_SCREENING_ORG_HOSPITAL)
+                .put(OverviewConfigType.SCHOOL.getType(), OVERVIEW_SCHOOL)
+                .put(OverviewConfigType.SCREENING_ORG_SCHOOL.getType(), OVERVIEW_SCREENING_ORG_SCHOOL)
+                .put(OverviewConfigType.HOSPITAL_SCHOOL.getType(), OVERVIEW_HOSPITAL_SCHOOL)
+                .put(OverviewConfigType.SCREENING_ORG_HOSPITAL_SCHOOL.getType(), OVERVIEW_SCREENING_ORG_HOSPITAL_SCHOOL)
+                .build();
     }
 
     /**

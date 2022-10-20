@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * @Date 2022/2/25 10:15
  */
 @Data
-public class CacheOverviewInfoDTO {
+public class CacheOverviewInfoDTO implements Serializable {
 
     /**
      * id
@@ -83,6 +84,16 @@ public class CacheOverviewInfoDTO {
     private List<Integer> screeningOrganizationIds;
 
     /**
+     * 学校Ids
+     */
+    private List<Integer> schoolIds;
+
+    /**
+     * 筛查机构限制数量
+     */
+    private Integer schoolLimitNum;
+
+    /**
      * 是否可以再增加绑定医院
      * @return
      */
@@ -98,6 +109,11 @@ public class CacheOverviewInfoDTO {
     @JsonIgnore
     public boolean isCanAddScreeningOrganization() {
         return screeningOrganizationLimitNum > screeningOrganizationIds.size();
+    }
+
+    @JsonIgnore
+    public boolean isCanAddSchool() {
+        return schoolLimitNum > schoolIds.size();
     }
 
 }

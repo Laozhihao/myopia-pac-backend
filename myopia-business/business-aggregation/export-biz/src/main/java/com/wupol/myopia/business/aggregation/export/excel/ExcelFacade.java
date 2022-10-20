@@ -6,6 +6,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.config.ScreeningDataFactory;
 import com.wupol.myopia.business.aggregation.export.service.IScreeningDataService;
+import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -46,6 +47,8 @@ public class ExcelFacade {
     private RedisUtil redisUtil;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private ScreeningFacade screeningFacade;
 
     @Resource
     private ScreeningDataFactory screeningDataFactory;
@@ -87,11 +90,13 @@ public class ExcelFacade {
         // 通过筛查类型获取实现
         Integer planId = statConclusionExportDTOs.get(0).getPlanId();
         ScreeningPlan plan = screeningPlanService.getById(planId);
+
+        Boolean isHaiNan = screeningFacade.getIsHaiNan(plan, plan.getScreeningOrgType());
         IScreeningDataService screeningDataService = screeningDataFactory.getScreeningDataService(plan.getScreeningType());
 
         OnceAbsoluteMergeStrategy mergeStrategy = new OnceAbsoluteMergeStrategy(0, 1, 20, 21);
         if (isSchoolExport) {
-            List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = screeningDataService.generateExportData(statConclusionExportDTOs);
+            List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = screeningDataService.generateExportData(statConclusionExportDTOs,isHaiNan);
             visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
             File excelFile = ExcelUtil.exportListToExcel(fileName, visionScreeningResultExportVos, mergeStrategy, screeningDataService.getExportClass());
             noticeService.createExportNotice(userId, userId, content, content, s3Utils.uploadFileToS3(excelFile), CommonConst.NOTICE_STATION_LETTER);
@@ -106,7 +111,7 @@ public class ExcelFacade {
                     folder.append(filePath);
                     folder.append("/").append(fileName);
                 }
-                List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = screeningDataService.generateExportData(statConclusionExportDTOs);
+                List<VisionScreeningResultExportDTO> visionScreeningResultExportVos = screeningDataService.generateExportData(statConclusionExportDTOs,isHaiNan);
                 visionScreeningResultExportVos.sort(Comparator.comparing((VisionScreeningResultExportDTO exportDTO) -> Integer.valueOf(GradeCodeEnum.getByName(exportDTO.getGradeName()).getCode())));
                 String excelFileName = String.format("%s筛查学生数据", schoolName);
                 try {

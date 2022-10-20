@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.domain.dto.Nation;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 民族枚举类
@@ -75,6 +75,7 @@ public enum NationEnum {
     LHOBA(56, "珞巴族"),
     OTHER(57, "其他");
 
+
     private final Integer code;
     private final String name;
 
@@ -94,15 +95,9 @@ public enum NationEnum {
      * @return 民族列表
      */
     public static List<Nation> getNationList() {
-        List<Nation> nationLists = new ArrayList<>();
-        for (NationEnum value : values()) {
-            Nation nation = new Nation();
-            nation.setCode(value.getCode());
-            nation.setCnName(value.getName());
-            nation.setEnName(value.toString());
-            nationLists.add(nation);
-        }
-        return nationLists;
+        return Arrays.stream(values())
+                .map(value -> new Nation(value.toString(),value.getName(),value.getCode()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -111,9 +106,12 @@ public enum NationEnum {
      * @param nation 民族
      * @return 描述
      */
-    public static String getName(Integer nation) {
-        NationEnum h = Arrays.stream(NationEnum.values()).filter(item -> item.code.equals(nation)).findFirst().orElse(null);
-        return Objects.nonNull(h) ? h.name : null;
+    public static String getNameByCode(Integer nation) {
+        return Arrays.stream(NationEnum.values())
+                .filter(item -> Objects.equals(item.code,nation))
+                .findFirst()
+                .map(NationEnum::getName)
+                .orElse(null);
     }
 
     /**
@@ -122,10 +120,11 @@ public enum NationEnum {
      * @param name 民族名称
      * @return code 民族code
      */
-    public static Integer getCode(String name) {
-        NationEnum h = Arrays.stream(NationEnum.values())
-                .filter(item -> item.name.equals(name))
-                .findFirst().orElse(null);
-        return Objects.nonNull(h) ? h.code : null;
+    public static Integer getCodeByName(String name) {
+        return Arrays.stream(NationEnum.values())
+                .filter(item -> Objects.equals(item.name,name))
+                .findFirst()
+                .map(NationEnum::getCode)
+                .orElse(null);
     }
 }
