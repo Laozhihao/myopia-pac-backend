@@ -360,5 +360,16 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 获取学校预警等级为0-3的学生
+     *
+     * @param schoolId 学校
+     *
+     * @return 列表
+     */
+    public List<StatConclusion> getBySchoolIdAndWarningLevel(Integer schoolId) {
+        return baseMapper.getBySchoolIdAndWarningLevel(schoolId);
+    }
+
 }
 

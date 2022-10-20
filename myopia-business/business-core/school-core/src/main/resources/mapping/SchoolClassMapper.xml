@@ -113,4 +113,14 @@
             </foreach>
         </if>
     </select>
+
+    <select id="getByIds" resultMap="VoResultMap">
+        select *
+        from m_school_class msc
+        where msc.status = 0
+          and msc.id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

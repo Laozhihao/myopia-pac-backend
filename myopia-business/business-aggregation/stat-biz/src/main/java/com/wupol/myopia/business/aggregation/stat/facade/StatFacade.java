@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.stat.facade;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.CompareUtil;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -319,12 +318,7 @@ public class StatFacade {
             //筛查计划Id 获取筛查学生
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = planSchoolStudentMap.get(screeningPlanId);
 
-
-            Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentNumMap= Maps.newHashMap();
-            if (CollUtil.isNotEmpty(screeningPlanSchoolStudents)){
-                Map<Integer, List<ScreeningPlanSchoolStudent>> collect = screeningPlanSchoolStudents.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId));
-                planSchoolStudentNumMap.putAll(collect);
-            }
+            Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentNumMap = screeningPlanSchoolStudentService.groupingByFunction(screeningPlanSchoolStudents,ScreeningPlanSchoolStudent::getSchoolId);
 
             //3.2 每个学校分别统计
             schoolIdStatConslusionMap.forEach((schoolId,schoolStatConclusionList)->{

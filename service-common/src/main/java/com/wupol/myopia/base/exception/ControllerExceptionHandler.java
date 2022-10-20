@@ -47,6 +47,17 @@ public class ControllerExceptionHandler {
     }
 
     /**
+     * 拦截业务异常（自定义异常，继承RuntimeException），并返回业务异常信息
+     * @param ex BusinessErrorException
+     */
+    @ExceptionHandler(AccessException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ApiResult<Object> accessError(HttpServletRequest req, BusinessException ex) {
+        logger.error("【权限校验异常】接口:{}，异常信息：{}", req.getRequestURL(), ex.getMessage(), ex);
+        return ApiResult.failure(ex.getCode(), ex.getMessage());
+    }
+
+    /**
      * 通过Assert抛出的数据校验异常
      * @param ex ValidationException
      */

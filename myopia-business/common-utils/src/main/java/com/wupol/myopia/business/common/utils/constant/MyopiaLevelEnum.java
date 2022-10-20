@@ -1,5 +1,8 @@
 package com.wupol.myopia.business.common.utils.constant;
 
+import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -38,5 +41,18 @@ public enum MyopiaLevelEnum {
         }
         MyopiaLevelEnum myopiaLevelEnum = get(code);
         return Objects.isNull(myopiaLevelEnum) ? "" : myopiaLevelEnum.desc;
+    }
+
+    /**
+     * 是否有座椅建议
+     * @param code 等级
+     * @return 是否有座椅建议
+     */
+    public static Boolean seatSuggest(Integer code) {
+        if (Objects.isNull(code)) {
+            return false;
+        }
+        ArrayList<Integer> levelList = Lists.newArrayList(MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_LIGHT.code, MYOPIA_LEVEL_HIGH.code);
+        return levelList.stream().anyMatch(s -> Objects.equals(s, code));
     }
 }

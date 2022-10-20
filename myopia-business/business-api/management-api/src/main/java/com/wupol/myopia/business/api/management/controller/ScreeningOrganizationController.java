@@ -444,12 +444,13 @@ public class ScreeningOrganizationController {
      *
      * @param name                 筛查机构名称
      * @param provinceDistrictCode 省行政区域编码，如：110000000
-     * @param configType
+     * @param configType          配置类型
+     *
      * @return java.util.List<com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization>
      **/
     @GetMapping("/province/list")
     public List<ScreeningOrgResponseDTO> getListByProvinceCodeAndNameLike(@NotBlank(message = "筛查机构名称不能为空") String name,
-                                                                        @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode,
+                                                                          @NotNull(message = "省行政区域编码不能为空") Long provinceDistrictCode,
                                                                           Integer configType) {
         return screeningOrganizationService.getListByProvinceCodeAndNameLike(name, provinceDistrictCode, configType);
     }

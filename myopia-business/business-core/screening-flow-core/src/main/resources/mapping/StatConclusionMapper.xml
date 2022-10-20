@@ -469,4 +469,13 @@
         where plan_id = #{planId}
           and is_rescreen = false
     </select>
+
+    <select id="getBySchoolIdAndWarningLevel" resultMap="BaseResultMap">
+        select *, max(create_time)
+        from m_stat_conclusion
+        where school_id = #{schoolId}
+          and is_rescreen = false
+          and warning_level in (0, 1, 2, 3)
+        group by student_id
+    </select>
 </mapper>

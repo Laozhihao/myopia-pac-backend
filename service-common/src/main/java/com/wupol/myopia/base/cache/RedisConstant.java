@@ -196,4 +196,9 @@ public interface RedisConstant {
      */
     String HOSPITAL_DEVICE_UPLOAD_FUNDUS_PATIENT = "hospital:device:upload:fundus:patient:%s";
 
+    /**
+     * 导出PDF-区域-筛查机构
+     */
+    String FILE_EXPORT_EXCEL_SCHOOL_EYE_HEALTH = "file:export:excel:school:eye_health:%s-%s";
+
 }

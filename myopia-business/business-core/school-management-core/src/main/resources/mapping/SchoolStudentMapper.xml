@@ -74,8 +74,41 @@
         <if test="requestDTO.idCardOrPassportLike != null and requestDTO.idCardOrPassportLike != ''">
             and (id_card like CONCAT('%', #{requestDTO.idCardOrPassportLike}, '%') or passport like CONCAT('%', #{requestDTO.idCardOrPassportLike}, '%'))
         </if>
-        
-        order by create_time desc
+        <if test="requestDTO.isBindMp != null and requestDTO.isBindMp == 1">
+            and mp_parent_phone is not null
+        </if>
+        <if test="requestDTO.isBindMp != null and requestDTO.isBindMp == 0">
+            and mp_parent_phone is null
+        </if>
+        <if test="requestDTO.isHaveReport != null and requestDTO.isHaveReport == 0">
+            <if test="requestDTO.reportStudentIds != null and requestDTO.reportStudentIds.size() != 0">
+                and student_id not in
+                <foreach collection="requestDTO.reportStudentIds" item="studentId" index="index" open="(" close=")"
+                         separator=",">
+                    #{studentId}
+                </foreach>
+            </if>
+        </if>
+        <if test="requestDTO.isHaveReport != null and requestDTO.isHaveReport == 1">
+            <if test="requestDTO.reportStudentIds != null and requestDTO.reportStudentIds.size() != 0">
+                and student_id in
+                <foreach collection="requestDTO.reportStudentIds" item="studentId" index="index" open="(" close=")"
+                         separator=",">
+                    #{studentId}
+                </foreach>
+            </if>
+        </if>
+        <if test="requestDTO.isEyeHealth != null and requestDTO.isEyeHealth == 1">
+            and vision_label in (0, 1, 2, 3)
+        </if>
+        <choose>
+            <when test="requestDTO.isEyeHealth != null and requestDTO.isEyeHealth == 1">
+                order by last_screening_time desc
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="getByIdCardAndSno" resultMap="BaseResultMap">
@@ -273,5 +306,14 @@
         </foreach>
         and school_id = #{schoolId}
         and status = 0
+    </select>
+
+    <select id="getBySchoolIdAndVisionLabel" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_student
+        where school_id = #{schoolId}
+          and vision_label in (0, 1, 2, 3)
+          and last_screening_time is not null
     </select>
 </mapper>

@@ -1,21 +1,26 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
-import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import cn.hutool.core.util.StrUtil;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentVisionScreeningResultExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,6 +32,8 @@ import java.util.*;
 @Slf4j
 @UtilityClass
 public class EyeDataUtil {
+
+    private static final String EMPTY_DATA = "--";
 
     public static StudentVisionScreeningResultExportDTO setStudentData(ScreeningStudentDTO studentDTO, VisionScreeningResult visionScreeningResult) {
         StudentVisionScreeningResultExportDTO studentVisionScreeningResultExportDTO = new StudentVisionScreeningResultExportDTO();
@@ -536,7 +543,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 获取左眼轴位
+     * 获取身高
      * @param visionScreenResult 筛查结果
      * @return 身高
      */
@@ -546,7 +553,7 @@ public class EyeDataUtil {
     }
 
     /**
-     * 获取左眼轴位
+     * 获取体重
      * @param visionScreenResult 筛查结果
      * @return 体重
      */
@@ -623,5 +630,83 @@ public class EyeDataUtil {
     public static Integer glassesType(VisionScreeningResult visionScreenResult){
         return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
                 .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
+    }
+
+    /**
+     * 合并左右眼数据
+     *
+     * @param right 右眼
+     * @param left  左眼
+     *
+     * @return 右眼/左眼
+     */
+    public static String mergeEyeData(String right, String left) {
+        return right + StrUtil.SLASH + left;
+    }
+
+    /**
+     * 课桌椅建议
+     *
+     * @param heightStr 身高
+     * @param schoolAge 学龄
+     *
+     * @return TwoTuple<String, String>
+     */
+    public static TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
+        if (StringUtils.isEmpty(heightStr) || Objects.isNull(schoolAge)) {
+            return new TwoTuple<>(EMPTY_DATA, EMPTY_DATA);
+        }
+        float height = new BigDecimal(heightStr).floatValue();
+        List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
+        String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
+        return new TwoTuple<>(com.wupol.myopia.base.util.StrUtil.spliceChar("，建议桌面高：", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.43).multiply(new BigDecimal("10")).setScale(0, RoundingMode.HALF_UP).toString()),
+                com.wupol.myopia.base.util.StrUtil.spliceChar("，建议座面高：", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.24).multiply(new BigDecimal("10")).setScale(0, RoundingMode.HALF_UP).toString()));
+    }
+
+    /**
+     * 获取屈光情况描述
+     *
+     * @param statConclusion 结论
+     * @param isKindergarten 是否幼儿园
+     *
+     * @return 屈光情况
+     */
+    public static String getRefractiveResultDesc(StatConclusion statConclusion, boolean isKindergarten) {
+        if (Objects.isNull(statConclusion)) {
+            return StringUtils.EMPTY;
+        }
+
+        List<String> result = new ArrayList<>();
+        if (isKindergarten) {
+            if (Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO_SP.code)) {
+                result.add(WarningLevel.ZERO_SP.desc);
+            }
+            if (Objects.equals(statConclusion.getIsAnisometropia(), Boolean.TRUE)) {
+                result.add("屈光参差");
+            }
+            if (Objects.equals(statConclusion.getIsRefractiveError(), Boolean.TRUE)) {
+                result.add("屈光不正");
+            }
+        } else {
+            result.add(MyopiaLevelEnum.getDesc(statConclusion.getMyopiaLevel()));
+            result.add(HyperopiaLevelEnum.getDesc(statConclusion.getHyperopiaLevel()));
+            result.add(AstigmatismLevelEnum.getDesc(statConclusion.getAstigmatismLevel()));
+        }
+        List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> !StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
+        return CollectionUtils.isEmpty(resultList) ? "正常" : String.join(",", resultList);
+    }
+
+    /**
+     * 获取身高
+     * @param visionScreenResult 筛查结果
+     * @return 身高
+     */
+    public static String heightToStr(VisionScreeningResult visionScreenResult) {
+        BigDecimal bigDecimal = Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getHeightAndWeightData)
+                .map(HeightAndWeightDataDO::getHeight).orElse(null);
+        if (Objects.isNull(bigDecimal)) {
+            return StringUtils.EMPTY;
+        }
+        return bigDecimal.toString();
     }
 }
