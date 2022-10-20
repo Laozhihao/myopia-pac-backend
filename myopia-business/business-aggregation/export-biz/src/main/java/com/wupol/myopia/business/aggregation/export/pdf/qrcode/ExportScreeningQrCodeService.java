@@ -187,7 +187,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
             log.info("文件件保存路径:{}",dirAndClassName.getFirst());
             FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
         } catch (Exception e) {
-            log.error("Exception", e);
+            log.error("下载筛查二维码PDF异常", e);
         }
     }
 
