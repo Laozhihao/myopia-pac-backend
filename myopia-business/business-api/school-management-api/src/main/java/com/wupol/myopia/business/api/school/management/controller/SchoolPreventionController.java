@@ -10,6 +10,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 防控中心
@@ -62,5 +64,15 @@ public class SchoolPreventionController {
                 .setApplyExportFileUserId(currentUser.getId())
                 .setSchoolId(currentUser.getOrgId());
         exportStrategy.doExport(exportCondition, ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE);
+    }
+
+    /**
+     * 获取有筛查数据的班级年级
+     *
+     * @return List<SchoolGradeItemsDTO>
+     */
+    @GetMapping("/getAllGradeList")
+    public List<SchoolGradeItemsDTO> getAllGradeList() {
+        return schoolStudentBizService.getAllGradeList(CurrentUserUtil.getCurrentUser().getOrgId());
     }
 }

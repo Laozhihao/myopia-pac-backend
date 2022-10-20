@@ -62,12 +62,12 @@ public class SchoolStudentRequestDTO {
     /**
      * 是否就诊
      */
-    private Boolean isHavaReport;
+    private Boolean isHaveReport;
 
     /**
      * 有就诊数据的学生
      */
-    private List<Integer> havaReportStudentIds;
+    private List<Integer> reportStudentIds;
 
     /**
      * 是否眼健康

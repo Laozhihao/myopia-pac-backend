@@ -49,6 +49,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 新增年级
      *
      * @param schoolGrade 年级实体类
+     *
      * @return 新增个数
      */
     @Transactional(rollbackFor = Exception.class)
@@ -65,6 +66,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param id          年级id
      * @param currentUser 当前登录用户
+     *
      * @return 更新个数
      */
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +95,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param pageRequest 分页请求
      * @param schoolId    学校id
+     *
      * @return IPage<SchoolGradeItemsDTO> 返回体
      */
     public IPage<SchoolGradeItemsDTO> getGradeList(PageRequest pageRequest, Integer schoolId) {
@@ -113,13 +116,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 年级列表(没有分页)
      *
      * @param schoolId 学校id
+     *
      * @return List<SchoolGradeItemsDTO> 返回体
      */
     public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
 
         // 获取年级
         List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
-        if(CollectionUtils.isEmpty(schoolGrades)) {
+        if (CollectionUtils.isEmpty(schoolGrades)) {
             return new ArrayList<>();
         }
         Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
@@ -137,7 +141,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
         return schoolGrades;
     }
 
-    private SchoolClassDTO getSchoolClassDTO(Map<Integer, String> gradeMap, SchoolClassDTO schoolClass) {
+    public SchoolClassDTO getSchoolClassDTO(Map<Integer, String> gradeMap, SchoolClassDTO schoolClass) {
         schoolClass.setUniqueId(UUID.randomUUID().toString());
         schoolClass.setGradeName(gradeMap.get(schoolClass.getGradeId()));
         return schoolClass;
@@ -147,6 +151,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 更新年级
      *
      * @param schoolGrade 年级实体类
+     *
      * @return SchoolGrade 年级实体类
      */
     @Transactional(rollbackFor = Exception.class)
@@ -170,6 +175,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 批量通过id获取实体
      *
      * @param ids ids
+     *
      * @return Map<Integer, SchoolGrade>
      */
     public Map<Integer, SchoolGrade> getGradeMapByIds(List<Integer> ids) {
@@ -183,6 +189,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 批量通过id获取名称
      *
      * @param ids ids
+     *
      * @return Map<Integer, String>
      */
     public Map<Integer, String> getClassNameMapByIds(List<Integer> ids) {
@@ -198,6 +205,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param schoolId 学校ID
      * @param code     年级code
+     *
      * @return 统计
      */
     public Integer countGradeByCode(Integer schoolId, String code) {
@@ -208,6 +216,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 根据学校名称获取年级
      *
      * @param schoolName 学校名称
+     *
      * @return 年级列表
      */
     public List<SchoolGrade> getBySchoolName(String schoolName) {
@@ -223,6 +232,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 查询学校年级
      *
      * @param query 查询条件
+     *
      * @return List<SchoolGrade>
      */
     public List<SchoolGrade> getBy(SchoolGradeQueryDTO query) {
@@ -235,6 +245,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param page  分页
      * @param query 条件
+     *
      * @return {@link IPage} 分页结果
      */
     public IPage<SchoolGrade> getByPage(Page<?> page, SchoolGradeQueryDTO query) {
@@ -245,6 +256,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 通过学校id获取年级
      *
      * @param schoolIds 学校ID
+     *
      * @return List<SchoolGrade>
      */
     public List<SchoolGradeExportDTO> getBySchoolIds(List<Integer> schoolIds) {
@@ -258,6 +270,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 根据学校Id获取所有年级
      *
      * @param schoolId 学校ID
+     *
      * @return List<SchoolGrade>
      */
     public List<SchoolGrade> getBySchoolId(Integer schoolId) {
@@ -268,12 +281,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 根据学校Id获取所有年级
      *
      * @param schoolId 学校ID
+     *
      * @return 年级集合
      */
     public List<SchoolGrade> listBySchoolId(Integer schoolId) {
         return baseMapper.selectList(Wrappers.lambdaQuery(SchoolGrade.class)
-                .eq(SchoolGrade::getSchoolId,schoolId)
-                .eq(SchoolGrade::getStatus,CommonConst.STATUS_NOT_DELETED));
+                .eq(SchoolGrade::getSchoolId, schoolId)
+                .eq(SchoolGrade::getStatus, CommonConst.STATUS_NOT_DELETED));
     }
 
     /**
@@ -281,6 +295,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      *
      * @param schoolId  学校ID
      * @param gradeName 年级名称
+     *
      * @return SchoolGrade
      */
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
@@ -300,6 +315,7 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 封装学校班级、年级信息
      *
      * @param schoolIds 学校Id
+     *
      * @return Map<Integer, List < SchoolGradeExportDTO>>
      */
     public Map<Integer, List<SchoolGradeExportDTO>> getGradeAndClassMap(List<Integer> schoolIds) {
@@ -367,7 +383,8 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 获取班级信息，并带有学校和年级名称
      *
-     * @param classId   班级ID
+     * @param classId 班级ID
+     *
      * @return com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO
      **/
     public SchoolClassDTO getClassWithSchoolAndGradeName(Integer classId) {
@@ -381,5 +398,16 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public <T> Map<Integer, SchoolGrade> getGradeMapByIds(List<T> list, Function<T, Integer> function) {
         List<Integer> gradeIds = list.stream().map(function).collect(Collectors.toList());
         return getGradeMapByIds(gradeIds);
+    }
+
+    /**
+     * 通过Ids获取
+     *
+     * @param ids ids
+     *
+     * @return List<SchoolGradeItemsDTO>
+     */
+    public List<SchoolGradeItemsDTO> getAllByIds(List<Integer> ids) {
+        return baseMapper.getAllByIds(ids);
     }
 }

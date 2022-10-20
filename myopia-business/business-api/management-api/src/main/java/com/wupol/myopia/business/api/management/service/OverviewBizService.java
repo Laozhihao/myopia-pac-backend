@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.OverviewConfigTypeKey;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -56,9 +55,6 @@ public class OverviewBizService {
 
     @Autowired
     private ScreeningOrganizationService screeningOrganizationService;
-
-    @Autowired
-    private RedisUtil redisUtil;
 
     @Autowired
     private OverviewSchoolService overviewSchoolService;

@@ -107,4 +107,15 @@
                  LEFT JOIN m_school ms ON ms.id = msc.school_id
         WHERE msc.id = #{classId}
     </select>
+
+    <select id="getAllByIds" resultType="com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO">
+        select
+        <include refid="Base_Column_List"/>
+        from m_school_grade msg
+        where msg.status = 0
+          and msg.id in
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

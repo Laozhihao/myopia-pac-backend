@@ -57,7 +57,7 @@ public enum MyopiaLevelEnum {
         if (Objects.isNull(code)) {
             return false;
         }
-        ArrayList<Integer> levelList = Lists.newArrayList(MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_EARLY.code);
+        ArrayList<Integer> levelList = Lists.newArrayList(MYOPIA_LEVEL_EARLY.code, MYOPIA_LEVEL_LIGHT.code, MYOPIA_LEVEL_HIGH.code);
         return levelList.stream().anyMatch(s -> Objects.equals(s, code));
     }
 }

@@ -51,4 +51,6 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
      **/
     SchoolClassDTO selectClassWithSchoolAndGradeName(@Param("classId") Integer classId);
 
+    List<SchoolGradeItemsDTO> getAllByIds(@Param("ids") List<Integer> ids);
+
 }

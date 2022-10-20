@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.export.excel;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
-import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -39,6 +38,8 @@ import java.util.stream.Collectors;
  */
 @Service(ExportExcelServiceNameConstant.EXPORT_SCHOOL_EYE_HEALTH_SERVICE)
 public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
+
+    private static final String EMPTY_DATA = "--";
 
     @Resource
     private SchoolStudentService schoolStudentService;
@@ -116,7 +117,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (Objects.isNull(result)) {
             return;
         }
-        exportDTO.setScreeningTime(DateFormatUtil.format(schoolStudent.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
+        exportDTO.setScreeningTime(DateFormatUtil.format(schoolStudent.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE2));
         exportDTO.setLowVision(EyeDataUtil.mergeEyeData(EyeDataUtil.visionRightDataToStr(result), EyeDataUtil.visionLeftDataToStr(result)));
         exportDTO.setSph(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightSph(result), EyeDataUtil.computerLeftSph(result)));
         exportDTO.setCyl(EyeDataUtil.mergeEyeData(EyeDataUtil.computerRightCyl(result), EyeDataUtil.computerLeftCyl(result)));
@@ -135,25 +136,25 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (Objects.isNull(statConclusion)) {
             return;
         }
-        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()), "--"));
+        exportDTO.setWearingGlasses(StringUtils.defaultIfBlank(WearingGlassesSituation.getType(statConclusion.getGlassesType()), EMPTY_DATA));
         boolean isKindergarten = SchoolAge.checkKindergarten(statConclusion.getSchoolAge());
         if (Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
-            exportDTO.setLowVisionResult(isKindergarten ? "视力低常" : "视力低下");
+            exportDTO.setLowVisionResult(isKindergarten ? VisionConst.K_LOW_VISION : VisionConst.P_LOW_VISION);
         } else {
-            exportDTO.setLowVisionResult("正常");
+            exportDTO.setLowVisionResult(VisionConst.NORMAL);
         }
         exportDTO.setRefractiveResult(EyeDataUtil.getRefractiveResultDesc(statConclusion, isKindergarten));
 
         VisionCorrection visionCorrection = VisionCorrection.get(statConclusion.getVisionCorrection());
         exportDTO.setCorrectedVisionResult(Objects.isNull(visionCorrection) ? StringUtils.EMPTY : visionCorrection.desc);
         exportDTO.setWarningLevel(WarningLevel.getDescByCode(statConclusion.getWarningLevel()));
-        exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? "建议复查" : "无");
-        exportDTO.setGlassesType(GlassesTypeEnum.getDescByCode(statConclusion.getGlassesType()));
+        exportDTO.setReview(Objects.equals(statConclusion.getIsReview(), Boolean.TRUE) ? VisionConst.RECOMMENDED_REVIEW : "无");
+        exportDTO.setGlassesType(StringUtils.EMPTY);
 
         TwoTuple<String, String> deskChairSuggest = EyeDataUtil.getDeskChairSuggest(exportDTO.getHeight(), statConclusion.getSchoolAge());
         exportDTO.setDesk(deskChairSuggest.getFirst());
         exportDTO.setChair(deskChairSuggest.getSecond());
-        if (Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaWarningLevel()), Boolean.TRUE)) {
+        if (StringUtils.isNotBlank(exportDTO.getHeight()) && Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaLevel()), Boolean.TRUE)) {
             exportDTO.setSeat("座位与黑板相距5-6米");
         }
         exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");

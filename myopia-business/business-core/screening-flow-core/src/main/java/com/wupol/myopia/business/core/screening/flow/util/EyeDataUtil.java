@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -658,8 +659,8 @@ public class EyeDataUtil {
         float height = new BigDecimal(heightStr).floatValue();
         List<Integer> deskAndChairType = SchoolAge.KINDERGARTEN.code.equals(schoolAge) ? DeskChairTypeEnum.getKindergartenTypeByHeight(height) : DeskChairTypeEnum.getPrimarySecondaryTypeByHeight(height);
         String deskAndChairTypeDesc = deskAndChairType.stream().map(x -> x + "号").collect(Collectors.joining("或"));
-        return new TwoTuple<>(com.wupol.myopia.base.util.StrUtil.spliceChar("，建议桌面高", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.43).setScale( 0, RoundingMode.DOWN).toString()),
-                com.wupol.myopia.base.util.StrUtil.spliceChar("，建议座面高", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.24).setScale( 0, RoundingMode.DOWN).toString()));
+        return new TwoTuple<>(com.wupol.myopia.base.util.StrUtil.spliceChar("，建议桌面高：", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.43).multiply(new BigDecimal("10")).setScale(0, RoundingMode.HALF_UP).toString()),
+                com.wupol.myopia.base.util.StrUtil.spliceChar("，建议座面高：", deskAndChairTypeDesc, BigDecimal.valueOf(height * 0.24).multiply(new BigDecimal("10")).setScale(0, RoundingMode.HALF_UP).toString()));
     }
 
     /**
@@ -675,8 +676,8 @@ public class EyeDataUtil {
             return StringUtils.EMPTY;
         }
 
+        List<String> result = new ArrayList<>();
         if (isKindergarten) {
-            List<String> result = new ArrayList<>();
             if (Objects.equals(statConclusion.getWarningLevel(), WarningLevel.ZERO_SP.code)) {
                 result.add(WarningLevel.ZERO_SP.desc);
             }
@@ -686,14 +687,13 @@ public class EyeDataUtil {
             if (Objects.equals(statConclusion.getIsRefractiveError(), Boolean.TRUE)) {
                 result.add("屈光不正");
             }
-            return String.join(",", result);
+        } else {
+            result.add(MyopiaLevelEnum.getDescByCode(statConclusion.getMyopiaLevel()));
+            result.add(HyperopiaLevelEnum.getDescByCode(statConclusion.getHyperopiaLevel()));
+            result.add(AstigmatismLevelEnum.getDescByCode(statConclusion.getAstigmatismLevel()));
         }
-
-        List<String> result = new ArrayList<>();
-        result.add(MyopiaLevelEnum.getDescByCode(statConclusion.getMyopiaLevel()));
-        result.add(HyperopiaLevelEnum.getDescByCode(statConclusion.getHyperopiaLevel()));
-        result.add(AstigmatismLevelEnum.getDescByCode(statConclusion.getAstigmatismLevel()));
-        return result.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.joining(","));
+        List<String> resultList = result.stream().filter(StringUtils::isNotBlank).filter(s -> !StringUtils.equals(s, "正常")).distinct().collect(Collectors.toList());
+        return CollectionUtils.isEmpty(resultList) ? "正常" : String.join(",", resultList);
     }
 
     /**

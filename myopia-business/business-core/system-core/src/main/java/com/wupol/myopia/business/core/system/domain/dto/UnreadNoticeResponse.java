@@ -29,4 +29,9 @@ public class UnreadNoticeResponse {
      * 筛查通知
      */
     private List<Notice> screeningNotice;
+
+    /**
+     * 系统更新
+     */
+    private String systemUpdateNotice;
 }

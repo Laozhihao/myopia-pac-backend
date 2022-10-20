@@ -147,7 +147,9 @@ public class FocusObjectsStatisticVO extends ScreeningBasicResult {
     private FocusObjectsStatisticVO.Item getItem(Integer districtId, String rangeName, DistrictAttentiveObjectsStatistic districtAttentiveObjectsStatistic) {
         FocusObjectsStatisticVO.Item item = new FocusObjectsStatisticVO.Item();
         item.setDistrictId(districtId);
-        item.setScreeningRangeName(rangeName).setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers()).setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
+        item.setScreeningRangeName(rangeName)
+                .setFocusTargetsNum(districtAttentiveObjectsStatistic.getKeyWarningNumbers())
+                .setScreeningStudentsNum(districtAttentiveObjectsStatistic.getStudentNumbers());
         List<WarningInfo.WarningLevelInfo> warningLevelInfoList = WarningInfo.WarningLevelInfo.getList(districtAttentiveObjectsStatistic);
         item.setWarningLevelInfoList(warningLevelInfoList);
         return item;

@@ -255,9 +255,29 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         }
         // 查库，获取对应省的行政区域树，110000000、410000000
         District provinceDistrictTree = getDistrictTree(Long.parseLong(provincePrefix) * 10000000);
+        setChildrenNull(provinceDistrictTree);
         Assert.notNull(provinceDistrictTree, "无该省份数据：" + provincePrefix);
         redisUtil.hset(DistrictCacheKey.DISTRICT_ALL_PROVINCE_TREE, provincePrefix, provinceDistrictTree);
         return provinceDistrictTree;
+    }
+
+    /**
+     * 设置孩子节点为空
+     *
+     * @param districtTree 行政区域
+     */
+    private void setChildrenNull(District districtTree) {
+        if (Objects.isNull(districtTree)) {
+            return;
+        }
+        List<District> child = districtTree.getChild();
+        if (CollectionUtils.isEmpty(child)) {
+            districtTree.setChild(null);
+            return;
+        }
+        for (District district : child) {
+            setChildrenNull(district);
+        }
     }
 
     /**

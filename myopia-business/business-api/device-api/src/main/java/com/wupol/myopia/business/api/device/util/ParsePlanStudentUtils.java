@@ -25,7 +25,7 @@ public class ParsePlanStudentUtils {
             }
             return Integer.valueOf(uid);
         } catch (Exception e) {
-            log.error("用户UID:{}", uid);
+            log.error("用户UID:{}", uid, e);
             throw new BusinessException("二维码解析异常");
         }
     }
