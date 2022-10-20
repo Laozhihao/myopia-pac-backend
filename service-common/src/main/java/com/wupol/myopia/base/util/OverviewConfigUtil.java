@@ -65,6 +65,6 @@ public class OverviewConfigUtil {
      */
     public static List<String> configTypeList(Integer configType) {
         String x = StringUtils.removeEnd(overviewConfigKeyMap().get(configType), StrUtil.COMMA);
-        return Arrays.stream(x.split(",")).collect(Collectors.toList());
+        return Arrays.stream(x.split(StrUtil.COMMA)).collect(Collectors.toList());
     }
 }
