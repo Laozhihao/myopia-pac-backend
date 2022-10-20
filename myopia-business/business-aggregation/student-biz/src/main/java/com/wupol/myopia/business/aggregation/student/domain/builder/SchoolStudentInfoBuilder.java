@@ -52,8 +52,14 @@ public class SchoolStudentInfoBuilder {
         student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
         // 问卷次数
         student.setQuestionnaireCount(0);
-        //近视矫正
-        student.setCorrection(student.getVisionCorrection());
+        if (!Objects.equals(student.getGlassesType(), WearingGlassesSituation.NOT_WEARING_GLASSES_KEY)) {
+            //近视矫正
+            student.setCorrection(student.getVisionCorrection());
+            student.setVisionCorrection(student.getVisionCorrection());
+        } else {
+            student.setCorrection(null);
+            student.setVisionCorrection(null);
+        }
     }
 
     /**
