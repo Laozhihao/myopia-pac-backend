@@ -28,13 +28,11 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +87,8 @@ public class SchoolStudentBizService {
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
     @Resource
     private SchoolClassService schoolClassService;
+    @Resource
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 获取学生列表
@@ -304,7 +304,7 @@ public class SchoolStudentBizService {
             return new Page<>();
         }
 
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIdList);
+        List<ReportAndRecordDO> visitLists = filterCreateTime(studentIdList);
         if (CollectionUtils.isEmpty(visitLists)) {
             return new Page<>();
         }
@@ -331,6 +331,41 @@ public class SchoolStudentBizService {
 
         page.setRecords(schoolStudents.stream().map(schoolStudent -> getEyeHealthResponseDTO(resultMap, statConclusionMap, schoolStudent, visitMap)).collect(Collectors.toList()));
         return page;
+    }
+
+    /**
+     * 根据创建时间过滤
+     *
+     * @param studentIds 学生Id
+     *
+     * @return List<ReportAndRecordDO>
+     */
+    private List<ReportAndRecordDO> filterCreateTime(List<Integer> studentIds) {
+        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
+        if (CollectionUtils.isEmpty(visitLists)) {
+            return new ArrayList<>();
+        }
+        List<VisionScreeningResult> results = visionScreeningResultService.getByStudentIds(studentIds);
+        if (CollectionUtils.isEmpty(results)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, VisionScreeningResult> resultMap = results.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+
+        List<Integer> planIds = results.stream().map(VisionScreeningResult::getPlanId).collect(Collectors.toList());
+        Map<Integer, Date> planCreatTimeMap = screeningPlanService.getByIds(planIds).stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getStartTime));
+        return visitLists.stream().filter(report -> {
+            VisionScreeningResult visionScreeningResult = resultMap.get(report.getStudentId());
+            if (Objects.isNull(visionScreeningResult)) {
+                return false;
+            }
+            Date date = planCreatTimeMap.get(visionScreeningResult.getPlanId());
+            if (Objects.isNull(date)) {
+                return false;
+            }
+            return report.getCreateTime().after(date);
+        }).collect(Collectors.toList());
     }
 
     /**
