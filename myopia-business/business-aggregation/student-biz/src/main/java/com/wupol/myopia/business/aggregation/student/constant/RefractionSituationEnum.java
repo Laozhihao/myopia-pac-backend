@@ -70,6 +70,6 @@ public enum RefractionSituationEnum {
         if (Objects.nonNull(condition)){
             stream = stream.filter(item -> !Objects.equals(item.getIsKindergarten(),!condition));
         }
-        return stream.collect(Collectors.toList());
+        return stream.filter(s -> Objects.nonNull(s.isKindergarten)).collect(Collectors.toList());
     }
 }
