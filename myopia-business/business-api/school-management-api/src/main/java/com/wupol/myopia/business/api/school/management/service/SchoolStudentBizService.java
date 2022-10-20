@@ -96,16 +96,17 @@ public class SchoolStudentBizService {
      *
      * @param pageRequest 分页请求
      * @param requestDTO  请求入参
+     *
      * @return IPage<SchoolStudentListResponseDTO>
      */
     public IPage<SchoolStudentListVO> getSchoolStudentList(PageRequest pageRequest, SchoolStudentQueryDTO requestDTO) {
 
         TwoTuple<Boolean, Boolean> kindergartenAndPrimaryAbove = schoolStudentFacade.kindergartenAndPrimaryAbove(requestDTO.getSchoolId());
-        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(requestDTO,kindergartenAndPrimaryAbove);
+        SchoolStudentQueryBO schoolStudentQueryBO = SchoolStudentInfoBuilder.builderSchoolStudentQueryBO(requestDTO, kindergartenAndPrimaryAbove);
 
         IPage<SchoolStudent> schoolStudentPage = schoolStudentService.listByCondition(pageRequest, schoolStudentQueryBO);
 
-        IPage<SchoolStudentListVO> responseDTO = new Page<>(schoolStudentPage.getCurrent(),schoolStudentPage.getSize(),schoolStudentPage.getTotal());
+        IPage<SchoolStudentListVO> responseDTO = new Page<>(schoolStudentPage.getCurrent(), schoolStudentPage.getSize(), schoolStudentPage.getTotal());
 
         List<SchoolStudent> schoolStudentList = schoolStudentPage.getRecords();
         if (CollectionUtils.isEmpty(schoolStudentList)) {
@@ -124,6 +125,7 @@ public class SchoolStudentBizService {
      *
      * @param schoolStudent 学生
      * @param schoolId      学校Id
+     *
      * @return SchoolStudent
      */
     @Transactional(rollbackFor = Exception.class)
@@ -139,7 +141,7 @@ public class SchoolStudentBizService {
         boolean isAdd = Objects.isNull(id);
         backfillVisionInfo(isAdd, schoolStudent, id);
         schoolStudentService.saveOrUpdate(schoolStudent);
-        schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
+        schoolScreeningBizFacade.addScreeningStudent(schoolStudent, isAdd);
         return schoolStudent;
     }
 
@@ -167,8 +169,9 @@ public class SchoolStudentBizService {
 
     /**
      * 获取年级信息
+     *
      * @param screeningPlanId 筛查计划ID
-     * @param schoolId 学校ID
+     * @param schoolId        学校ID
      */
     public GradeInfoVO getGradeInfo(Integer screeningPlanId, Integer schoolId) {
         GradeInfoVO gradeInfoVO = new GradeInfoVO();
@@ -177,25 +180,25 @@ public class SchoolStudentBizService {
         List<GradeInfoVO.GradeInfo> gradeInfoVOList = schoolFacade.getGradeInfoBySchoolId(schoolId);
         gradeInfoVO.setAllList(gradeInfoVOList);
 
-        if (Objects.isNull(screeningPlanId)){
+        if (Objects.isNull(screeningPlanId)) {
             return gradeInfoVO;
         }
 
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
-        if (Objects.isNull(screeningPlanSchool)){
+        if (Objects.isNull(screeningPlanSchool)) {
             throw new BusinessException("此筛查计划下没有此筛查学校");
         }
 
         List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
 
-        if (CollUtil.isEmpty(screeningGradeIds)){
+        if (CollUtil.isEmpty(screeningGradeIds)) {
             //已选中的为空，未选中的就是等于全部的
             gradeInfoVO.setNoSelectList(gradeInfoVOList);
             return gradeInfoVO;
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId);
         //已选中的年级+学生数
-        planGradeInfoList(gradeInfoVO, screeningPlanSchoolStudentList,screeningGradeIds);
+        planGradeInfoList(gradeInfoVO, screeningPlanSchoolStudentList, screeningGradeIds);
 
         //未选中的年级+学生数（全部的-已选中的）
         setNoSelectStudent(gradeInfoVO, gradeInfoVOList, screeningGradeIds);
@@ -203,18 +206,18 @@ public class SchoolStudentBizService {
     }
 
 
-
     /**
      * 设置未选中的年级+学生数
-     * @param gradeInfoVO 年级信息对象
-     * @param gradeInfoVOList 全部的年级+学生数对象集合
+     *
+     * @param gradeInfoVO       年级信息对象
+     * @param gradeInfoVOList   全部的年级+学生数对象集合
      * @param screeningGradeIds 选中的年级ID集合
      */
     private void setNoSelectStudent(GradeInfoVO gradeInfoVO, List<GradeInfoVO.GradeInfo> gradeInfoVOList, List<Integer> screeningGradeIds) {
         //未选中年级+学生数
         List<GradeInfoVO.GradeInfo> noSelectList = Lists.newArrayList();
         gradeInfoVOList.forEach(gradeInfo -> {
-            if (!screeningGradeIds.contains(gradeInfo.getGradeId())){
+            if (!screeningGradeIds.contains(gradeInfo.getGradeId())) {
                 noSelectList.add(gradeInfo);
             }
         });
@@ -224,33 +227,36 @@ public class SchoolStudentBizService {
 
     /**
      * 获取已选中的年级+学生数
-     * @param gradeInfoVO 年级信息对象
+     *
+     * @param gradeInfoVO                    年级信息对象
      * @param screeningPlanSchoolStudentList 筛查计划学生集合
      */
-    private void planGradeInfoList(GradeInfoVO gradeInfoVO, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList,List<Integer> screeningGradeIds) {
+    private void planGradeInfoList(GradeInfoVO gradeInfoVO, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList, List<Integer> screeningGradeIds) {
         Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap = screeningPlanSchoolStudentService.groupingByFunction(screeningPlanSchoolStudentList, ScreeningPlanSchoolStudent::getGradeId);
         List<SchoolGrade> schoolGradeList = schoolGradeService.listByIds(screeningGradeIds);
         Map<Integer, SchoolGrade> gradeMap = schoolGradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-        List<GradeInfoVO.GradeInfo> planGradeInfoList = screeningGradeIds.stream().map(gradeId -> buildGradeInfo(gradeId, gradeMap,gradePlanSchoolStudentMap)).collect(Collectors.toList());
+        List<GradeInfoVO.GradeInfo> planGradeInfoList = screeningGradeIds.stream().map(gradeId -> buildGradeInfo(gradeId, gradeMap, gradePlanSchoolStudentMap)).collect(Collectors.toList());
         gradeInfoVO.setSelectList(planGradeInfoList);
     }
 
     /**
      * 构建年级信息对象
-     * @param gradeId 年级ID
-     * @param gradeMap 年级集合
+     *
+     * @param gradeId                   年级ID
+     * @param gradeMap                  年级集合
      * @param gradePlanSchoolStudentMap 年级学生集合
      */
-    private GradeInfoVO.GradeInfo buildGradeInfo(Integer gradeId, Map<Integer, SchoolGrade> gradeMap,Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap) {
+    private GradeInfoVO.GradeInfo buildGradeInfo(Integer gradeId, Map<Integer, SchoolGrade> gradeMap, Map<Integer, List<ScreeningPlanSchoolStudent>> gradePlanSchoolStudentMap) {
         GradeInfoVO.GradeInfo gradeInfo = new GradeInfoVO.GradeInfo();
         gradeInfo.setGradeId(gradeId);
         gradeInfo.setGradeName(gradeMap.get(gradeId).getName());
-        gradeInfo.setStudentNum(gradePlanSchoolStudentMap.getOrDefault(gradeId,Lists.newArrayList()).size());
+        gradeInfo.setStudentNum(gradePlanSchoolStudentMap.getOrDefault(gradeId, Lists.newArrayList()).size());
         return gradeInfo;
     }
 
     /**
      * 删除学生
+     *
      * @param id 学生ID
      */
     @Transactional(rollbackFor = Exception.class)
@@ -282,13 +288,16 @@ public class SchoolStudentBizService {
 
         List<ReportAndRecordDO> visitLists = filterCreateTime(studentIdList);
         if (CollectionUtils.isEmpty(visitLists)) {
-            return new Page<>();
+            if (Objects.nonNull(requestDTO.getIsHaveReport())) {
+                return new Page<>();
+            }
+        } else {
+            List<Integer> haveReportStudentIds = visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList());
+            if (Objects.nonNull(requestDTO.getIsHaveReport()) && CollectionUtils.isEmpty(haveReportStudentIds)) {
+                return new Page<>();
+            }
+            requestDTO.setReportStudentIds(haveReportStudentIds);
         }
-        List<Integer> haveReportStudentIds = visitLists.stream().map(ReportAndRecordDO::getStudentId).collect(Collectors.toList());
-        if (Objects.nonNull(requestDTO.getIsHaveReport()) && CollectionUtils.isEmpty(haveReportStudentIds)) {
-            return new Page<>();
-        }
-        requestDTO.setReportStudentIds(haveReportStudentIds);
 
         IPage<SchoolStudentListResponseDTO> studentListPage = schoolStudentService.getList(pageRequest, requestDTO, schoolId);
         List<SchoolStudentListResponseDTO> schoolStudents = studentListPage.getRecords();
@@ -418,16 +427,17 @@ public class SchoolStudentBizService {
      * 获取有筛查数据的年级列表(没有分页)
      *
      * @param schoolId 学校id
+     *
      * @return List<SchoolGradeItemsDTO> 返回体
      */
     public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
 
         List<SchoolStudent> schoolStudents = schoolStudentService.getBySchoolIdAndVisionLabel(schoolId);
-        if(CollectionUtils.isEmpty(schoolStudents)) {
+        if (CollectionUtils.isEmpty(schoolStudents)) {
             return new ArrayList<>();
         }
         List<SchoolGradeItemsDTO> schoolGrades = schoolGradeService.getAllByIds(schoolStudents.stream().map(SchoolStudent::getGradeId).collect(Collectors.toList()));
-        if(CollectionUtils.isEmpty(schoolGrades)) {
+        if (CollectionUtils.isEmpty(schoolGrades)) {
             return new ArrayList<>();
         }
         Map<Integer, String> gradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGradeItemsDTO::getId, SchoolGradeItemsDTO::getName));
