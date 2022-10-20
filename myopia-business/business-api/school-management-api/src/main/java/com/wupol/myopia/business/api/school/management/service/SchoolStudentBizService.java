@@ -288,7 +288,7 @@ public class SchoolStudentBizService {
 
         List<ReportAndRecordDO> visitLists = filterCreateTime(studentIdList);
         if (CollectionUtils.isEmpty(visitLists)) {
-            if (Objects.nonNull(requestDTO.getIsHaveReport())) {
+            if (Objects.equals(requestDTO.getIsHaveReport(), Boolean.TRUE)) {
                 return new Page<>();
             }
         } else {
