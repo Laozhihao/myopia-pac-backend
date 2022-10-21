@@ -605,9 +605,10 @@ public class StudentBizBuilder {
 
     /**
      * 获取海南学生档案卡基本信息
-     * @param planSchoolStudent
-     * @param cardInfoVO
-     * @param districtInfo
+     *
+     * @param planSchoolStudent 计划学生
+     * @param cardInfoVO        档案卡信息
+     * @param districtInfo      区域信息
      */
     public CardInfoVO getHeiNanCardInfo(ScreeningPlanSchoolStudent planSchoolStudent, CardInfoVO cardInfoVO,ThreeTuple<String, String, String> districtInfo) {
         cardInfoVO.setName(planSchoolStudent.getStudentName());
