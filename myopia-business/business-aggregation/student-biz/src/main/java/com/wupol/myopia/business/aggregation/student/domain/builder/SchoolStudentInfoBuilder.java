@@ -315,7 +315,6 @@ public class SchoolStudentInfoBuilder {
         schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
         schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
         schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
-        schoolStudent.setIsNormal(statConclusion.getIsNormal());
         schoolStudent.setUpdateTime(new Date());
     }
 }
