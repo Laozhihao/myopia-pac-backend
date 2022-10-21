@@ -99,21 +99,4 @@ public class OperationAndMaintenanceController {
         log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
         CompletableFuture.runAsync(()-> statisticScheduledTaskService.statistic(),asyncServiceExecutor);
     }
-
-    /**
-     * 处理学校学生表的学龄段字段数据
-     */
-    @GetMapping("/gradeTypeData")
-    public void processGradeTypeData(){
-        studentFacade.processGradeTypeData();
-    }
-
-    /**
-     * 处理学校学生年份
-     */
-    @GetMapping("/schoolStudentYearData")
-    public void schoolStudentYearData(@RequestParam Boolean isAll,
-                                      @RequestParam(required = false) Integer schoolId){
-        studentFacade.schoolStudentYearData(isAll,schoolId);
-    }
 }

@@ -335,13 +335,6 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.selectPage(page,queryWrapper);
     }
 
-    /**
-     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
-     */
-    public List<SchoolStudent> listByGradeType(){
-        return list(Wrappers.lambdaQuery(SchoolStudent.class).isNull(SchoolStudent::getGradeType));
-    }
-
     @Override
     public List<SchoolStudent> listByIds(Collection<? extends Serializable> idList) {
         return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
