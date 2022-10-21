@@ -619,8 +619,6 @@ public class StudentBizBuilder {
         cardInfoVO.setParentPhone(planSchoolStudent.getParentPhone());
         cardInfoVO.setSchoolName(planSchoolStudent.getSchoolName());
         cardInfoVO.setSchoolId(planSchoolStudent.getSchoolId());
-        cardInfoVO.setClassName(planSchoolStudent.getClassName());
-        cardInfoVO.setGradeName(planSchoolStudent.getGradeName());
         cardInfoVO.setDistrictName(districtInfo.getFirst());
         cardInfoVO.setNation(planSchoolStudent.getNation());
         cardInfoVO.setNationDesc(NationEnum.getNameByCode(planSchoolStudent.getNation()));
