@@ -3,6 +3,8 @@ package com.wupol.myopia.business.core.screening.flow.domain.vo;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 import lombok.ToString;
@@ -109,8 +111,10 @@ public class StudentVO {
      * 获取实例
      *
      * @param screeningPlanSchoolStudent 筛查学生信息
+     * @param schoolGrade                年级
+     * @param schoolClass                班级
      */
-    public static StudentVO getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
+    public static StudentVO getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, SchoolGrade schoolGrade, SchoolClass schoolClass) {
         if (Objects.isNull(screeningPlanSchoolStudent)) {
             throw new BusinessException("找不到该筛查学生，请确认!");
         }
@@ -120,8 +124,8 @@ public class StudentVO {
         studentVO.schoolName = screeningPlanSchoolStudent.getSchoolName();
         studentVO.studentNo = screeningPlanSchoolStudent.getStudentNo();
         studentVO.studentName = screeningPlanSchoolStudent.getStudentName();
-        studentVO.grade = screeningPlanSchoolStudent.getGradeName();
-        studentVO.clazz = screeningPlanSchoolStudent.getClassName();
+        studentVO.grade = schoolGrade.getName();
+        studentVO.clazz = schoolClass.getName();
         studentVO.schoolId = screeningPlanSchoolStudent.getSchoolId();
         studentVO.birthday = DateFormatUtil.format(screeningPlanSchoolStudent.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE);
         studentVO.deptId = screeningPlanSchoolStudent.getScreeningOrgId();

@@ -6,6 +6,8 @@ import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBi
 import com.wupol.myopia.business.api.screening.app.domain.dto.DeviationDTO;
 import com.wupol.myopia.business.api.screening.app.domain.vo.ClassScreeningProgress;
 import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentScreeningProgressVO;
@@ -37,6 +39,10 @@ class ScreeningAppServiceTest {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private VisionScreeningBizService visionScreeningBizService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     /**
      * 获得各项检查数据
@@ -79,7 +85,7 @@ class ScreeningAppServiceTest {
         Integer isState = 1;
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent, schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId()), schoolClassService.getById(screeningPlanSchoolStudent.getClassId()));
         System.out.println(JSON.toJSONString(StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent)));
         Assert.assertTrue(true);
     }

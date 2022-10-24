@@ -21,6 +21,10 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -107,6 +111,12 @@ public class StatService {
     @Autowired
     private VisionScreeningResultService visionScreeningResultService;
 
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+
+    @Autowired
+    private SchoolClassService schoolClassService;
+
     /**
      * 预警信息
      *
@@ -171,8 +181,7 @@ public class StatService {
      * @param params
      * @return
      */
-    public ScreeningDataContrast getScreeningDataContrast(
-            Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
+    public ScreeningDataContrast getScreeningDataContrast(Integer contrastType, DataContrastFilterParamsDTO.Params params, CurrentUser currentUser) {
         if (currentUser.isGovDeptUser() && Objects.isNull(params.getDistrictId())) {
             params.setDistrictId(districtBizService.getNotPlatformAdminUserDistrict(currentUser).getId());
         }
@@ -208,8 +217,7 @@ public class StatService {
         query.setSchoolGradeCode(schoolGradeCode);
         query.setSchoolClassName(schoolClass);
         return composeScreeningDataContrast(statConclusionService.listOfReleasePlanByQuery(query),
-                getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds
-                        , schoolAge, schoolId, schoolGradeCode, schoolClass));
+                getPlanScreeningStudentNum(contrastId, contrastTypeEnum, validDistrictIds, schoolAge, schoolId, schoolGradeCode, schoolClass));
     }
 
     /**
@@ -353,14 +361,16 @@ public class StatService {
      * @param schoolAge
      * @param schoolId
      * @param schoolGradeCode
-     * @param schoolClass
+     * @param schoolClassName
      * @return
      */
-    private Integer getPlanScreeningStudentNum(
-            int contrastId, ContrastTypeEnum contrastTypeEnum, List<Integer> validDistrictIds, Integer schoolAge,
-            Integer schoolId, String schoolGradeCode, String schoolClass) {
-        List<ScreeningPlanSchoolStudent> planSchoolStudentList =
-                screeningPlanSchoolStudentService.getPlanStudentCountByScreeningItemId(contrastId, contrastTypeEnum);
+    private Integer getPlanScreeningStudentNum(int contrastId, ContrastTypeEnum contrastTypeEnum, List<Integer> validDistrictIds, Integer schoolAge,
+                                               Integer schoolId, String schoolGradeCode, String schoolClassName) {
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getPlanStudentCountByScreeningItemId(contrastId, contrastTypeEnum);
+        SchoolGrade schoolGrade = schoolGradeService.getByGradeCodeAndSchoolId(schoolId, schoolGradeCode);
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(schoolId, schoolGrade.getId(), schoolClassName);
+
+
         if (CollectionUtils.isNotEmpty(validDistrictIds)) {
             planSchoolStudentList = planSchoolStudentList.stream()
                     .filter(x -> validDistrictIds.contains(x.getSchoolDistrictId())).collect(Collectors.toList());
@@ -379,11 +389,11 @@ public class StatService {
                 return 0;
             }
             planSchoolStudentList = planSchoolStudentList.stream()
-                    .filter(x -> gradeCodeEnum.getName().equals(x.getGradeName())).collect(Collectors.toList());
+                    .filter(x -> Objects.equals(x.getGradeId(), schoolGrade.getId())).collect(Collectors.toList());
         }
-        if (StringUtils.isNotEmpty(schoolClass)) {
+        if (StringUtils.isNotEmpty(schoolClassName)) {
             planSchoolStudentList = planSchoolStudentList.stream()
-                    .filter(x -> schoolClass.equals(x.getClassName())).collect(Collectors.toList());
+                    .filter(x -> Objects.equals(x.getClassId(), schoolClass.getId())).collect(Collectors.toList());
         }
         return planSchoolStudentList.size();
     }

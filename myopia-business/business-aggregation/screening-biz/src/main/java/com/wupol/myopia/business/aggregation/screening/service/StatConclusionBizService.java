@@ -9,10 +9,12 @@ import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStuden
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
 import com.wupol.myopia.business.common.utils.util.MyopiaMapUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
@@ -53,6 +55,7 @@ public class StatConclusionBizService {
     private final ThreadPoolTaskExecutor asyncServiceExecutor;
     private final StudentService studentService;
     private final SchoolStudentService schoolStudentService;
+    private final SchoolClassService schoolClassService;
 
     /**
      * 筛查数据结论
@@ -117,6 +120,7 @@ public class StatConclusionBizService {
     static class DataProcessBO{
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
+        private Map<Integer, SchoolClass> schoolClassMap;
         private Map<String, StatConclusion> statConclusionMap;
     }
 
@@ -137,21 +141,26 @@ public class StatConclusionBizService {
         DataProcessBO dataProcessBO = new DataProcessBO();
 
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(screeningPlanSchoolStudentIds));
-        if (CollectionUtil.isNotEmpty(screeningPlanSchoolStudents)){
+        if (CollUtil.isNotEmpty(screeningPlanSchoolStudents)){
             Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap = screeningPlanSchoolStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
             Set<Integer> gradeIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toSet());
             dataProcessBO.setScreeningPlanSchoolStudentMap(screeningPlanSchoolStudentMap);
 
             List<SchoolGrade> schoolGrades = schoolGradeService.getByIds(Lists.newArrayList(gradeIds));
             Map<Integer, SchoolGrade> schoolGradeMap = schoolGrades.stream().collect(Collectors.toMap(SchoolGrade::getId, Function.identity()));
-            if (CollectionUtil.isNotEmpty(schoolGrades)) {
+            if (CollUtil.isNotEmpty(schoolGrades)) {
                 dataProcessBO.setSchoolGradeMap(schoolGradeMap);
+            }
+            List<Integer> classIds = screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList());
+            Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIds);
+            if (CollUtil.isNotEmpty(classMap)) {
+                dataProcessBO.setSchoolClassMap(classMap);
             }
         }
 
         Set<Integer> resultIds = visionScreeningResultMap.values().stream().flatMap(List::stream).map(VisionScreeningResult::getId).collect(Collectors.toSet());
         List<StatConclusion> statConclusions = statConclusionService.getByResultIds(Lists.newArrayList(resultIds));
-        if (CollectionUtil.isNotEmpty(statConclusions)){
+        if (CollUtil.isNotEmpty(statConclusions)){
             Map<String, StatConclusion> statConclusionMap = statConclusions.stream().collect(Collectors.toMap(sc -> getKey(sc.getResultId(), sc.getIsRescreen()), Function.identity()));
             dataProcessBO.setStatConclusionMap(statConclusionMap);
         }
@@ -162,19 +171,19 @@ public class StatConclusionBizService {
 
         map.keySet().forEach(planId->{
             Map<String, TwoTuple<VisionScreeningResult, VisionScreeningResult>> typeMap = map.get(planId);
-            if (CollectionUtil.isNotEmpty(typeMap)){
+            if (CollUtil.isNotEmpty(typeMap)){
                 typeMap.forEach((type,tuple)-> screeningConclusionResult(tuple,statConclusionList,dataProcessBO));
             }
         });
 
-        if(CollectionUtil.isNotEmpty(statConclusionList)){
+        if(CollUtil.isNotEmpty(statConclusionList)){
             log.info("生成筛查数据结论数据{}条",statConclusionList.size());
             List<StatConclusion> saveList = statConclusionList.stream().filter(statConclusion -> Objects.isNull(statConclusion.getId())).collect(Collectors.toList());
             List<StatConclusion> updateList = statConclusionList.stream().filter(statConclusion -> Objects.nonNull(statConclusion.getId())).collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(saveList)){
+            if (CollUtil.isNotEmpty(saveList)){
                 statConclusionService.saveBatch(saveList,500);
             }
-            if (CollectionUtil.isNotEmpty(updateList)){
+            if (CollUtil.isNotEmpty(updateList)){
                 statConclusionService.updateBatchById(updateList,500);
             }
             updateRelatedTable(statConclusionList);
@@ -355,9 +364,11 @@ public class StatConclusionBizService {
         Map<String, StatConclusion> statConclusionMap = Optional.ofNullable(dataProcessBO.getStatConclusionMap()).orElse(Maps.newHashMap());
 
         Map<Integer, SchoolGrade> schoolGradeMap = Optional.ofNullable(dataProcessBO.getSchoolGradeMap()).orElse(Maps.newHashMap());
-
         SchoolGrade schoolGrade = schoolGradeMap.get(screeningPlanSchoolStudent.getGradeId());
         String schoolGradeCode = Optional.ofNullable(schoolGrade).map(SchoolGrade::getGradeCode).orElse(null);
+
+        Map<Integer, SchoolClass> schoolClassMap = Optional.ofNullable(dataProcessBO.getSchoolClassMap()).orElse(Maps.newHashMap());
+        SchoolClass schoolClass = schoolClassMap.get(screeningPlanSchoolStudent.getClassId());
 
         // 根据是否复查，查找结论表
         StatConclusion statConclusion = statConclusionMap.get(getKey(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen()));
@@ -368,6 +379,7 @@ public class StatConclusionBizService {
                 .setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGradeCode)
+                .setSchoolClass(schoolClass)
                 .build();
         statConclusionList.add(statConclusion);
     }

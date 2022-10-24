@@ -49,6 +49,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -193,9 +194,13 @@ public class ScreeningAppController {
             screeningStudentQuery.setClassId(classId);
         }
         IPage<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentPage = screeningPlanSchoolStudentService.getCurrentReleasePlanScreeningStudentList(screeningStudentQuery, page, size, channel);
-        List<StudentVO> studentVOs = screeningPlanSchoolStudentPage.getRecords().stream()
+        List<ScreeningPlanSchoolStudent> records = screeningPlanSchoolStudentPage.getRecords();
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(records.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(records.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList()));
+
+        List<StudentVO> studentVOs = records.stream()
                 .sorted(Comparator.comparing(ScreeningPlanSchoolStudent::getCreateTime).reversed())
-                .map(StudentVO::getInstance).collect(Collectors.toList());
+                .map(screeningPlanSchoolStudent -> StudentVO.getInstance(screeningPlanSchoolStudent, gradeMap.getOrDefault(screeningPlanSchoolStudent.getGradeId(), new SchoolGrade()), classMap.getOrDefault(screeningPlanSchoolStudent.getClassId(), new SchoolClass()))).collect(Collectors.toList());
         return new PageImpl<>(studentVOs, PageRequest.of(page - 1, size), screeningPlanSchoolStudentPage.getTotal());
     }
 
@@ -214,7 +219,7 @@ public class ScreeningAppController {
         if (screeningPlanStudentBizService.isNotMatchScreeningTime(screeningPlanSchoolStudent)) {
             return ApiResult.failure(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getCode(), SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
-        return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent));
+        return ApiResult.success(StudentVO.getInstance(screeningPlanSchoolStudent, schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId()), schoolClassService.getById(screeningPlanSchoolStudent.getClassId())));
     }
 
     /**
@@ -734,7 +739,7 @@ public class ScreeningAppController {
         if (screeningPlanStudentBizService.isNotMatchScreeningTime(screeningPlanSchoolStudent)) {
             throw new BusinessException(SysEnum.SYS_STUDENT_SCREENING_TIME_ERROR.getMessage());
         }
-        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent, schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId()), schoolClassService.getById(screeningPlanSchoolStudent.getClassId()));
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, screeningPlanSchoolStudent);
     }
 
@@ -964,10 +969,10 @@ public class ScreeningAppController {
      * @return
      */
     @GetMapping("/getLatestScreeningStudent")
-    public ScreeningPlanSchoolStudent getLatestScreeningStudent(@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
+    public PlanStudentInfoDTO getLatestScreeningStudent(@RequestParam(value = "channel", defaultValue = "0") Integer channel) {
         Set<Integer> currentPlanIds = screeningPlanService.getCurrentReleasePlanIds(CurrentUserUtil.getCurrentUser().getOrgId(), channel);
         if (CollectionUtils.isEmpty(currentPlanIds)) {
-            return new ScreeningPlanSchoolStudent();
+            return new PlanStudentInfoDTO();
         }
 
         List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
@@ -976,30 +981,33 @@ public class ScreeningAppController {
             if (Objects.nonNull(schoolPlan) && !schoolPlan.isEmpty()) {
                 ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByPlanId(Lists.newArrayList(currentPlanIds).get(0));
                 if (Objects.nonNull(planStudent)) {
-                    return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
-                            .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
-                            .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
+                    planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
                             .setGradeId(planStudent.getGradeId())
                             .setSchoolId(planStudent.getSchoolId())
                             .setClassId(planStudent.getClassId());
+                    PlanStudentInfoDTO infoDTO = new PlanStudentInfoDTO();
+                    BeanUtils.copyProperties(planStudent, infoDTO);
+                    infoDTO.setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                            .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
                 } else {
-                    planStudent = new ScreeningPlanSchoolStudent();
-                    return planStudent
-                            .setSchoolId(schoolPlan.get(0).getSchoolId())
+                    PlanStudentInfoDTO planStudentInfoDTO = new PlanStudentInfoDTO();
+                    planStudentInfoDTO.setSchoolId(schoolPlan.get(0).getSchoolId())
                             .setSchoolName(schoolService.getById(schoolPlan.get(0).getSchoolId()).getName());
+                    return planStudentInfoDTO;
                 }
             } else {
-                return new ScreeningPlanSchoolStudent();
+                return new PlanStudentInfoDTO();
             }
         }
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
-
-        return planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
-                .setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
-                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName())
+        planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
                 .setGradeId(planStudent.getGradeId())
                 .setSchoolId(planStudent.getSchoolId())
                 .setClassId(planStudent.getClassId());
+        PlanStudentInfoDTO infoDTO = new PlanStudentInfoDTO();
+        BeanUtils.copyProperties(planStudent, infoDTO);
+        return infoDTO.setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
+                .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
     }
 
     /**

@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -42,6 +43,7 @@ public class StatConclusionBuilder {
     private BasicData basicData;
     private boolean isUpdate;
     private String gradeCode;
+    private SchoolClass schoolClass;
 
     private StatConclusionBuilder() {
 
@@ -154,7 +156,7 @@ public class StatConclusionBuilder {
         statConclusion.setAge(screeningPlanSchoolStudent.getStudentAge());
         statConclusion.setIsRescreen(currentVisionScreeningResult.getIsDoubleScreen());
         statConclusion.setSchoolId(screeningPlanSchoolStudent.getSchoolId());
-        statConclusion.setSchoolClassName(screeningPlanSchoolStudent.getClassName());
+        statConclusion.setSchoolClassName(schoolClass.getName());
         statConclusion.setSchoolGradeCode(gradeCode);
         statConclusion.setScreeningType(currentVisionScreeningResult.getScreeningType());
         if (!isUpdate) {
@@ -818,5 +820,10 @@ public class StatConclusionBuilder {
         }
         return StatUtil.inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
                 + StatUtil.inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
+    }
+
+    public StatConclusionBuilder setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+        return this;
     }
 }

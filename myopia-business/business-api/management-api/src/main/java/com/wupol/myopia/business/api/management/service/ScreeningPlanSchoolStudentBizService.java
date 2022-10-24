@@ -144,9 +144,7 @@ public class ScreeningPlanSchoolStudentBizService {
             planSchoolStudent.setSchoolId(school.getId());
             planSchoolStudent.setSchoolName(school.getName());
             planSchoolStudent.setGradeId(schoolGrade.getGradeId());
-            planSchoolStudent.setGradeName(schoolGrade.getGradeName());
             planSchoolStudent.setClassId(schoolClass.getClassId());
-            planSchoolStudent.setClassName(schoolClass.getClassName());
             planSchoolStudent.setStudentId(mockStudentList.get(i).getId());
             GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolGrade.getGradeName());
             planSchoolStudent.setGradeType(gradeCodeEnum.getType());

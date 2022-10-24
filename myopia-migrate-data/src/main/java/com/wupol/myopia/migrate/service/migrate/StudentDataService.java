@@ -178,9 +178,7 @@ public class StudentDataService {
         planSchoolStudent.setSchoolId(school.getId());
         planSchoolStudent.setSchoolName(school.getName());
         planSchoolStudent.setGradeId(gradeId);
-        planSchoolStudent.setGradeName(gradeName);
         planSchoolStudent.setClassId(classId);
-        planSchoolStudent.setClassName(className);
         planSchoolStudent.setStudentId(student.getId());
         planSchoolStudent.setGradeType(gradeCodeEnum.getType());
         planSchoolStudent.setBirthday(birthday);

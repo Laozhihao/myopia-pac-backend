@@ -18,6 +18,8 @@ import com.wupol.myopia.business.core.questionnaire.domain.dto.UserQuestionnaire
 import com.wupol.myopia.business.core.questionnaire.domain.model.*;
 import com.wupol.myopia.business.core.questionnaire.service.*;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +65,9 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
 
     @Resource
     private UserAnswerProgressService userAnswerProgressService;
+
+    @Resource
+    private SchoolGradeService schoolGradeService;
 
     @Override
     public Integer getUserType() {
@@ -174,6 +179,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         // 不存在则添加答案
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(userId);
         Map<Integer, Question> questionMap = questionService.listByIds(questionIds).stream().collect(Collectors.toMap(Question::getId, Function.identity()));
+        SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
 
         questionnaireQuestions.stream()
                 .collect(Collectors.toMap(QuestionnaireQuestion::getQuestionId, QuestionnaireQuestion::getSerialNumber))
@@ -186,7 +192,7 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
                     userAnswer.setRecordId(recordId);
                     userAnswer.setUserType(getUserType());
                     userAnswer.setQuestionTitle(question.getTitle());
-                    specialHandleAnswer(planStudent, v, userAnswer, question.getOptions());
+                    specialHandleAnswer(planStudent, v, userAnswer, question.getOptions(), schoolGrade);
                 });
 
         // 处理脊柱弯曲学生基本信息
@@ -208,12 +214,13 @@ public class PlanStudentUserAnswerImpl implements IUserAnswerService {
         return userAnswerList;
     }
 
-    private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options) {
+    private void specialHandleAnswer(ScreeningPlanSchoolStudent planStudent, String v, UserAnswer userAnswer, List<Option> options,
+                                     SchoolGrade schoolGrade) {
         if (StringUtils.equals(v, CommonConst.A01)) {
             OptionAnswer optionAnswer = new OptionAnswer();
             JSONObject json = JSON.parseObject(JSON.toJSONString(options.get(0).getOption().get("1")), JSONObject.class);
             optionAnswer.setOptionId(json.getString(QuestionnaireConstant.ID));
-            optionAnswer.setValue(GradeCodeEnum.getByName(planStudent.getGradeName()).getCode());
+            optionAnswer.setValue(GradeCodeEnum.getByName(schoolGrade.getName()).getCode());
             userAnswer.setAnswer(Lists.newArrayList(optionAnswer));
             userAnswerService.save(userAnswer);
             return;
