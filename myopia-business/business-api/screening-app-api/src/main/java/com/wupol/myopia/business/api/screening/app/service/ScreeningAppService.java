@@ -335,6 +335,12 @@ public class ScreeningAppService {
      * @return
      */
     public List<RescreeningResultVO> getAllReviewResult(ScreeningResultSearchDTO screeningResultDTO) {
+        // 查找班级年级
+        SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(screeningResultDTO.getSchoolId(), screeningResultDTO.getGradeName());
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(screeningResultDTO.getSchoolId(), schoolGrade.getId(), screeningResultDTO.getClazzName());
+        screeningResultDTO.setGradeId(schoolGrade.getId());
+        screeningResultDTO.setClassId(schoolClass.getId());
+
         //拿到班级信息或者学生信息之后，进行查询数据
         List<StudentScreeningInfoWithResultDTO> studentInfoWithResult = screeningPlanSchoolStudentService.getStudentInfoWithResult(screeningResultDTO);
         //先分组

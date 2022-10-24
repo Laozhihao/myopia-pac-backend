@@ -34,6 +34,16 @@ public class ScreeningResultSearchDTO extends AppPageRequest {
      */
     private String clazzName;
 
+    /**
+     * 年级Id
+     */
+    private Integer gradeId;
+
+    /**
+     * 班级Id
+     */
+    private Integer classId;
+
     public RescreeningStatisticEnum getStatisticType() {
         if (StringUtils.isNoneBlank(clazzName)) {
             return RescreeningStatisticEnum.CLASS;
