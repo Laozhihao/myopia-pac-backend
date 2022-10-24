@@ -989,6 +989,7 @@ public class ScreeningAppController {
                     BeanUtils.copyProperties(planStudent, infoDTO);
                     infoDTO.setGradeName(schoolGradeService.getById(planStudent.getGradeId()).getName())
                             .setClassName(schoolClassService.getById(planStudent.getClassId()).getName());
+                    return infoDTO;
                 } else {
                     PlanStudentInfoDTO planStudentInfoDTO = new PlanStudentInfoDTO();
                     planStudentInfoDTO.setSchoolId(schoolPlan.get(0).getSchoolId())
