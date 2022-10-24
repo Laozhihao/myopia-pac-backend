@@ -263,6 +263,10 @@ public class StatConclusionBuilder {
      * 视力低下等级
      */
     private void setLowVisionLevel(){
+        if (basicData.getAge() < 6 && Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
+            statConclusion.setLowVisionLevel(LowVisionLevelEnum.LOW_VISION.code);
+            return;
+        }
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
             statConclusion.setLowVisionLevel(null);
             return;
