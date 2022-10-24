@@ -127,7 +127,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Export_Vo_List">
-        mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_name, mspss.grade_name, mspss.class_name,
+        mspss.student_name, mspss.gender, mspss.birthday, mspss.nation, mspss.school_id, mspss.school_name,
         mspss.student_no, mspss.id_card, mspss.parent_phone, mspss.province_code, mspss.city_code, mspss.town_code, mspss.area_code, mspss.address,
         mvsr.vision_data, mvsr.computer_optometry, msc.glasses_type, msc.warning_level, msc.is_rescreen, msc.screening_plan_school_student_id,
         mvsr.ocular_inspection_data,mvsr.eye_pressure_data,mvsr.fundus_data,mvsr.slit_lamp_data,mvsr.pupil_optometry_data,mvsr.visual_loss_level_data,
@@ -220,7 +220,7 @@
                 </when>
             </choose>
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        ORDER BY mspss.school_name, mspss.student_no
     </select>
 
     <select id="selectPlanSchoolGradeClassHasData" resultMap="PlanSchoolGradeClassResultMap" parameterType="java.util.Map">
@@ -246,7 +246,7 @@
         <if test="isRescreen != null ">
             AND msc.is_rescreen = #{isRescreen}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        ORDER BY mspss.school_name, mspss.student_no
     </select>
 
     <select id="selectExportVoByScreeningPlanIdAndSchoolIdAndGradeIdAndClassId" resultMap="ExportVoResultMap" parameterType="java.util.Map">
@@ -263,15 +263,13 @@
         <if test="classId != null and classId != '' and classId != 0">
             AND mspss.class_id = #{classId}
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        ORDER BY mspss.school_name, mspss.student_no
     </select>
 
     <select id="selectReportVoByQuery" resultMap="ReportVoResultMap" parameterType="java.util.Map">
         SELECT mspss.student_name,
          mspss.gender,
          mspss.school_id,
-         mspss.grade_name,
-         mspss.class_name,
          mvsr.vision_data,
          mvsr.computer_optometry,
          msc.school_grade_code,
@@ -289,7 +287,7 @@
         <if test="@Ognl@isNotEmpty(planId)">
             and msc.plan_id = #{planId}</if>
         AND msc.school_id = #{schoolId}
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        ORDER BY mspss.school_name, mspss.student_no
     </select>
 
     <select id="selectSchoolIdsByScreeningNoticeIdAndDistrictIds" resultType="int" parameterType="java.util.Map">
@@ -354,8 +352,6 @@
                msc.report_id,
                mspss.student_name as name,
                mspss.gender,
-               mspss.class_name,
-               mspss.grade_name,
                mspss.student_no   as sno,
                msc.warning_level,
                msc.myopia_level,
@@ -429,7 +425,7 @@
                 </when>
             </choose>
         </if>
-        ORDER BY mspss.school_name, mspss.grade_name, mspss.class_name, mspss.student_no
+        ORDER BY mspss.school_name, mspss.student_no
     </select>
 
     <select id="getReviewByPlanIdAndSchoolIds" resultMap="BaseResultMap">
