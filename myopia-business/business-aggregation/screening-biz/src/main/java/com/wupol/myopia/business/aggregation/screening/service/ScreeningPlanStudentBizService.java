@@ -407,7 +407,7 @@ public class ScreeningPlanStudentBizService {
     public List<ScreeningStudentDTO> getScreeningStudentDTOS(GeneratorPdfDTO generatorPdfDTO) {
         List<Integer> planStudentId = ListUtil.str2List(generatorPdfDTO.getPlanStudentIdStr());
 
-        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(generatorPdfDTO.getPlanId()),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId() ,generatorPdfDTO.getClassId() , CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, generatorPdfDTO.getPlanStudentName());
+        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(generatorPdfDTO.getPlanId()),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId() ,generatorPdfDTO.getClassId() , CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, generatorPdfDTO.getPlanStudentName(), Boolean.TRUE);
         if (Objects.equals(Boolean.TRUE,generatorPdfDTO.getIsData())){
             return getDataScreeningStudentDTOList(generatorPdfDTO.getPlanId(),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId(), generatorPdfDTO.getClassId(), screeningStudentDTOList);
         }

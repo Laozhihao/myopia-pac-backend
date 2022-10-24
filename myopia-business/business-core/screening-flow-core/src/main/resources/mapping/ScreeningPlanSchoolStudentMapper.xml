@@ -415,7 +415,10 @@
         on  mspss.id = mvsr.screening_plan_school_student_id
         and mspss.screening_plan_id = mvsr.plan_id
         and mspss.school_id = mvsr.school_id
-            where 1 = 1 and mvsr.is_double_screen = 0
+            where 1 = 1
+        <if test="isFilterDoubleScreen != null and isFilterDoubleScreen == 1">
+            and mvsr.is_double_screen = 0
+        </if>
         <if test="planIds != null">
             and mspss.screening_plan_id in
             <foreach collection="planIds" open="(" close=")" separator="," item="item">
