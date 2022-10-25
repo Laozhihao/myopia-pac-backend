@@ -218,6 +218,24 @@ public class SchoolStudent extends AddressCode implements Serializable {
     private Integer visionCorrection;
 
     /**
+     * 是否近视
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isMyopia;
+
+    /**
+     * 是否远视
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isHyperopia;
+
+    /**
+     * 是否散光
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private Boolean isAstigmatism;
+
+    /**
      * 入学年份
      */
     private Integer particularYear;

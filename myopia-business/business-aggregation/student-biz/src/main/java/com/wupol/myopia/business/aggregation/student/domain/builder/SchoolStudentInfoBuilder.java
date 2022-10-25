@@ -98,6 +98,9 @@ public class SchoolStudentInfoBuilder {
         }else {
             schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
         }
+        if (Objects.equals(schoolStudent.getGlassesType(), WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)) {
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsMyopia(), schoolStudent.getIsHyperopia(), schoolStudent.getIsAstigmatism()));
+        }
 
         schoolStudentListVO.setVision(VisionUtil.getVisionSituation(schoolStudent.getGlassesType(),schoolStudent.getGradeType(),schoolStudent.getLowVision()));
         return schoolStudentListVO;
@@ -323,5 +326,8 @@ public class SchoolStudentInfoBuilder {
         schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
         schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
         schoolStudent.setUpdateTime(new Date());
+        schoolStudent.setIsMyopia(statConclusion.getIsMyopia());
+        schoolStudent.setIsHyperopia(statConclusion.getIsHyperopia());
+        schoolStudent.setIsAstigmatism(statConclusion.getIsAstigmatism());
     }
 }
