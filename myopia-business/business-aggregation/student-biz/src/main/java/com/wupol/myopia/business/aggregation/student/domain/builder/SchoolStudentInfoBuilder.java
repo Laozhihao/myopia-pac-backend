@@ -60,6 +60,13 @@ public class SchoolStudentInfoBuilder {
             student.setCorrection(null);
             student.setVisionCorrection(null);
         }
+        if (Objects.equals(student.getLowVision(), LowVisionLevelEnum.LOW_VISION.getCode())) {
+            if (SchoolAge.checkKindergarten(student.getGradeType())) {
+                student.setLowVisionDesc(VisionConst.K_LOW_VISION);
+            } else {
+                student.setLowVisionDesc(VisionConst.P_LOW_VISION);
+            }
+        }
     }
 
     /**
