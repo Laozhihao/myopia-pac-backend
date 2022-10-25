@@ -164,9 +164,9 @@ public class SchoolBizService {
 
             // 封装DTO
             plans.forEach(plan -> {
-                if (Objects.equals(plan.getScreeningOrgId(), ScreeningOrgTypeEnum.ORG.getType())) {
+                if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
                     plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
-                } else if (Objects.equals(plan.getScreeningOrgId(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
                     plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
                 }
                 List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
