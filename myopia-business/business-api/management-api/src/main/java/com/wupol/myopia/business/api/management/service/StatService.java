@@ -43,7 +43,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1335,11 +1335,13 @@ public class StatService {
 
         // 获取计划学生的commonDiseasesCode
         List<Integer> planStudentIds = firstResult.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
-        Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
+        Map<Integer, String> commonDiseaseMap = screeningPlanSchoolStudentService.getByIds(planStudentIds).stream()
+                .filter(s -> org.apache.commons.lang3.StringUtils.isNotBlank(s.getCommonDiseaseId()))
+                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, ScreeningPlanSchoolStudent::getCommonDiseaseId));
 
         reScreenResults.forEach(reScreenResult -> {
             VisionScreeningResult first = screeningResultMap.get(reScreenResult.getScreeningPlanSchoolStudentId());
-            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, commonDiseaseMap.get(first.getScreeningPlanSchoolStudentId())));
+            reScreeningCardVO.add(ReScreenCardUtil.reScreenResultCard(first, reScreenResult, qualityControllerName, commonDiseaseMap.getOrDefault(first.getScreeningPlanSchoolStudentId(), org.apache.commons.lang3.StringUtils.EMPTY)));
         });
         return reScreeningCardVO;
     }
