@@ -91,6 +91,21 @@ public class CommonImportService {
                 schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
                 schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
                 schoolStudent.setSourceClient(sourceClient);
+
+                schoolStudent.setGlassesType(null);
+                schoolStudent.setLastScreeningTime(null);
+                schoolStudent.setVisionLabel(null);
+                schoolStudent.setLowVision(null);
+                schoolStudent.setMyopiaLevel(null);
+                schoolStudent.setScreeningMyopia(null);
+                schoolStudent.setHyperopiaLevel(null);
+                schoolStudent.setAstigmatismLevel(null);
+                schoolStudent.setIsAnisometropia(null);
+                schoolStudent.setIsRefractiveError(null);
+                schoolStudent.setVisionCorrection(null);
+                schoolStudent.setIsMyopia(null);
+                schoolStudent.setIsHyperopia(null);
+                schoolStudent.setIsAstigmatism(null);
                 addSchoolStudentList.add(schoolStudent);
             });
         }
