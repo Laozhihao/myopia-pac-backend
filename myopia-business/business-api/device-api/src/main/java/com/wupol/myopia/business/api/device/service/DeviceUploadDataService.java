@@ -99,15 +99,8 @@ public class DeviceUploadDataService {
      * @return
      */
     private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
-        String patientId = deviceScreenDataDTO.getPatientId();
-        String reg = "^VS@\\d{1,}_\\d{1,}";
-        if (!patientId.matches(reg)) {
-            deviceScreenDataDTO.setPatientId(null);
-            return false;
-        }
-        String planStudentIdWithZero = patientId.substring(patientId.indexOf("_") + 1);
-        //主要是为了去除0, 如 000000001 ,通过转换后可以变成integer类型的1,再将其转换为字符串
-        deviceScreenDataDTO.setPatientId(planStudentIdWithZero);
+        Integer patientId = ParsePlanStudentUtils.parsePlanStudentId(deviceScreenDataDTO.getPatientId());
+        deviceScreenDataDTO.setPatientId(String.valueOf(patientId));
         return true;
     }
 
