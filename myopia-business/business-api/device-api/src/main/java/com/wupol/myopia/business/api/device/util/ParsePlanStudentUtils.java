@@ -23,6 +23,9 @@ public class ParsePlanStudentUtils {
                 String s = StringUtils.substringBetween(uid, "@", ",");
                 return Integer.valueOf(s.substring(s.indexOf("_") + 1));
             }
+            if (uid.startsWith("VS@")) {
+                return Integer.valueOf(StringUtils.substringAfterLast(uid, "_"));
+            }
             return Integer.valueOf(uid);
         } catch (Exception e) {
             log.error("用户UID:{}", uid, e);
