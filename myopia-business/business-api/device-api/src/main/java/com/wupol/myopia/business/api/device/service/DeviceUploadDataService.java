@@ -194,8 +194,7 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            log.debug("无法找到设备,imei={}", deviceUploadDto.getImei());
-            return;
+            throw new BusinessException("无法找到设备");
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();
