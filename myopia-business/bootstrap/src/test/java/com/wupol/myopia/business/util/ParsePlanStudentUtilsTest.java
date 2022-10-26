@@ -14,15 +14,9 @@ import java.util.Objects;
 public class ParsePlanStudentUtilsTest {
 
     @Test
-    public void testVsParse() {
-        if (!Objects.equals(ParsePlanStudentUtils.parsePlanStudentId("VS@138_166712"), 166712)) {
-            Assert.fail();
-        }
-        if (!Objects.equals(ParsePlanStudentUtils.parsePlanStudentId("[VS@138_166712,166712,FM,25,null,0,null,null,null])"), 166712)) {
-            Assert.fail();
-        }
-        if (!Objects.equals(ParsePlanStudentUtils.parsePlanStudentId("SA@0358750"), 358750)) {
-            Assert.fail();
-        }
+    public void testQrCoedParsePlanStudentId() {
+        Assert.assertEquals(Integer.valueOf(166712), ParsePlanStudentUtils.parsePlanStudentId("VS@138_166712"));
+        Assert.assertEquals(Integer.valueOf(166712), ParsePlanStudentUtils.parsePlanStudentId("[VS@138_166712,166712,FM,25,null,0,null,null,null])"));
+        Assert.assertEquals(Integer.valueOf(358750), ParsePlanStudentUtils.parsePlanStudentId("SA@0358750"));
     }
 }
