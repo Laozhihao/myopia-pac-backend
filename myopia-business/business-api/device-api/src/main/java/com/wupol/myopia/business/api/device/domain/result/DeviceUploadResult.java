@@ -43,7 +43,7 @@ public class DeviceUploadResult {
      * @return
      */
     public static DeviceUploadResult error(String message) {
-        return new DeviceUploadResult(false,message,null);
+        return new DeviceUploadResult(false, message, null);
     }
 
 }
