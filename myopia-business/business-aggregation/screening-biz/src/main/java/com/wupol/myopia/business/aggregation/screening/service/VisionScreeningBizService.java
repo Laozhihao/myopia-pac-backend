@@ -324,7 +324,6 @@ public class VisionScreeningBizService {
     public void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
         SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(statConclusion.getStudentId(),statConclusion.getSchoolId(),CommonConst.STATUS_NOT_DELETED);
         if (Objects.isNull(schoolStudent)) {
-            log.warn("学校端暂无此学生，studentId={},schoolId={}",statConclusion.getStudentId(),statConclusion.getSchoolId());
             return;
         }
         SchoolStudentInfoBuilder.setSchoolStudentInfoByStatConclusion(schoolStudent,statConclusion,lastScreeningTime);
