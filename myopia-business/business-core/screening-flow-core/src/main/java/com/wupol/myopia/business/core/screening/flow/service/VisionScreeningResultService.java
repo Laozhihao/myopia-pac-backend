@@ -13,7 +13,9 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
@@ -51,6 +53,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     private StatConclusionService statConclusionService;
     @Autowired
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Resource
+    private StudentService studentService;
 
     /**
      * 通过StudentId获取筛查结果
@@ -394,6 +398,9 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         });
         updateBatchById(updateResultList);
         statConclusionService.updateBatchById(updateStatConclusionList);
+
+        // 更新多端学生
+        updateManagementStudent(planStudents);
     }
 
     /**
@@ -564,5 +571,42 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
 
         return new TwoTuple<>(resultMap, statConclusionMap);
+    }
+
+    /**
+     * 更新多端学生
+     *
+     * @param planStudents 计划学生
+     */
+    private void updateManagementStudent(List<ScreeningPlanSchoolStudent> planStudents) {
+        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
+        List<Integer> studentIds = planStudents.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return;
+        }
+        List<Student> students = studentService.getByIds(studentIds);
+        studentService.updateBatchById(students.stream().map(s -> updateManagementStudent(planStudentMap.getOrDefault(s.getId(), new ScreeningPlanSchoolStudent()), s)).collect(Collectors.toList()));
+    }
+
+    /**
+     * 更新多端学生
+     *
+     * @param planStudent 计划学生
+     * @param student     多端学生
+     *
+     * @return 多端学生
+     */
+    private Student updateManagementStudent(ScreeningPlanSchoolStudent planStudent, Student student) {
+        student.setName(planStudent.getStudentName());
+        student.setGender(planStudent.getGender());
+        student.setGradeType(planStudent.getStudentAge());
+        student.setBirthday(planStudent.getBirthday());
+        student.setSchoolId(planStudent.getSchoolId());
+        student.setClassId(planStudent.getClassId());
+        student.setGradeId(planStudent.getGradeId());
+        student.setParentPhone(planStudent.getParentPhone());
+        student.setSno(planStudent.getStudentNo());
+        student.setNation(planStudent.getNation());
+        return student;
     }
 }
