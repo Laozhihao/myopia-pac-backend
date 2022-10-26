@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,8 @@ public class CommonImportService {
                 BeanUtils.copyProperties(s, schoolStudent);
                 schoolStudent.setId(null);
                 schoolStudent.setStudentId(s.getId());
-                schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
+                SchoolGrade schoolGrade = gradeMap.get(s.getGradeId());
+                schoolStudent.setGradeName(schoolGrade.getName());
                 schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
                 schoolStudent.setSourceClient(sourceClient);
 
@@ -106,6 +108,7 @@ public class CommonImportService {
                 schoolStudent.setIsMyopia(null);
                 schoolStudent.setIsHyperopia(null);
                 schoolStudent.setIsAstigmatism(null);
+                schoolStudent.setParticularYear(SchoolUtil.getParticularYear(schoolGrade.getGradeCode()));
                 addSchoolStudentList.add(schoolStudent);
             });
         }
