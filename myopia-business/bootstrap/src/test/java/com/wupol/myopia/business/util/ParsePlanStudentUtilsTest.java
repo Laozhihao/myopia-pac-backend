@@ -4,8 +4,6 @@ import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Objects;
-
 /**
  * 解析二维码工具类
  *
