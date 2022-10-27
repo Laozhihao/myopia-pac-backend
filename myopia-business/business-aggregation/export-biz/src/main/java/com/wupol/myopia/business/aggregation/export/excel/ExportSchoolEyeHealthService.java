@@ -102,6 +102,7 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
             StatConclusion statConclusion = statConclusionMap.get(s.getStudentId());
             generateResultInfo(s, exportDTO, result);
             generateStatInfo(exportDTO, statConclusion);
+            exportDTO.setIsBindMp(StringUtils.isNotBlank(s.getMpParentPhone()) ? "是" : "否");
             return exportDTO;
         };
     }
@@ -157,7 +158,6 @@ public class ExportSchoolEyeHealthService extends BaseExportExcelFileService {
         if (StringUtils.isNotBlank(exportDTO.getHeight()) && Objects.equals(MyopiaLevelEnum.seatSuggest(statConclusion.getMyopiaLevel()), Boolean.TRUE)) {
             exportDTO.setSeat("座位与黑板相距5-6米");
         }
-        exportDTO.setIsBindMp(Objects.equals(statConclusion.getIsBindMp(), Boolean.TRUE) ? "是" : "否");
     }
 
 
