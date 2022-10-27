@@ -199,7 +199,7 @@ public class MigrateSchoolAndGradeClassService {
      **/
     private SaveSchoolRequestDTO getSaveSchoolRequestDTO(SysSchool sysSchool) {
         Assert.hasText(sysSchool.getRegion(), sysSchool.getName() + "的区/镇/县为空");
-        Long areaDistrictCode = districtService.getCodeByName(getRegion(sysSchool.getRegion()));
+        Long areaDistrictCode = districtService.getCodeByName(getRegion(sysSchool.getRegion()), null);
         Assert.notNull(areaDistrictCode, "无效行政区域地址");
         District areaDistrict = districtService.getByCode(areaDistrictCode);
         List<District> districtDetail = districtService.getDistrictPositionDetail(areaDistrictCode);

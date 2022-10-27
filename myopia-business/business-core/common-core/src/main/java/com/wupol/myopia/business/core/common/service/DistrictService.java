@@ -719,10 +719,12 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 通过名字获取code
      *
-     * @param name 行政名字
+     * @param name       行政名字
+     * @param parentCode 上级Code
+     *
      * @return code
      */
-    public Long getCodeByName(String name) {
+    public Long getCodeByName(String name, Long parentCode) {
         String key = String.format(DistrictCacheKey.DISTRICT_CODE, name);
 
         // 先从缓存中取
@@ -731,8 +733,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
             return code;
         }
         // 为空，从数据库查询
-        District district = baseMapper.selectOne(new QueryWrapper<District>()
-                .eq("name", name));
+        District district = baseMapper.selectOne(new LambdaQueryWrapper<District>()
+                .eq(District::getName, name)
+                .eq(Objects.nonNull(parentCode), District::getCode, parentCode));
         if (null == district) {
             return null;
         }

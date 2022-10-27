@@ -193,10 +193,10 @@ public class SchoolStudentExcelImportService {
                 .setCreateUserId(createUserId)
                 .setSchoolId(schoolId)
                 .setStatus(CommonConst.STATUS_NOT_DELETED);
-        schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex())));
-        schoolStudent.setCityCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.CITY_NAME.getIndex())));
-        schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex())));
-        schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex())));
+        schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex()),null));
+        schoolStudent.setCityCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.CITY_NAME.getIndex()), schoolStudent.getProvinceCode()));
+        schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex()), schoolStudent.getCityCode()));
+        schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex()), schoolStudent.getAreaCode()));
         schoolStudent.setAddress(item.get(SchoolStudentImportEnum.ADDRESS.getIndex()));
         schoolStudent.setUpdateTime(new Date());
         if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
