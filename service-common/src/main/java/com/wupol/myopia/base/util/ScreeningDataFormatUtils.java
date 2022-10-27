@@ -207,11 +207,7 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String generateSingleSuffixMMStr(Object val) {
-        if (Objects.isNull(val) || StringUtils.equals((CharSequence) val, "null")) {
-            return EMPTY_RESULT;
-        }
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : EMPTY_RESULT);
+        return generateSingleSuffix(val, "mm");
     }
 
     /**
@@ -221,11 +217,28 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String generateSingleSuffixUMStr(Object val) {
-        if (Objects.isNull(val) || StringUtils.equals((CharSequence) val, "null")) {
+        return generateSingleSuffix(val, "um");
+    }
+
+    /**
+     * 生成单眼描述
+     *
+     * @param val 值
+     * @param str 后缀
+     *
+     * @return String
+     */
+    private static String generateSingleSuffix(Object val, String str) {
+        if (Objects.isNull(val)) {
             return EMPTY_RESULT;
         }
+        CharSequence charSequence = (CharSequence) val;
+        if (StringUtils.equals(charSequence, "null")) {
+            return EMPTY_RESULT;
+        }
+
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : EMPTY_RESULT);
+        return (StringUtils.isNotBlank(charSequence) ? decimalFormat.format(new BigDecimal((String) val)) + str : EMPTY_RESULT);
     }
 
     /**
