@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONPath;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
+@Slf4j
 public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
     @Resource
@@ -155,7 +158,11 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
         exportDTO.setLeftBiometricPD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
         exportDTO.setRightBiometricPD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
         exportDTO.setLeftBiometricWTW(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
-        exportDTO.setRightBiometricWTW(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
+        try {
+            exportDTO.setRightBiometricWTW(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
+        } catch (Exception e) {
+            log.error("导出筛查数据异常！原始信息:{}", JSON.toJSONString(dto));
+        }
         exportDTO.setLeftBiometricAL(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
         exportDTO.setRightBiometricAL(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
         exportDTO.setLeftBiometricCCT(ScreeningDataFormatUtils.generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
