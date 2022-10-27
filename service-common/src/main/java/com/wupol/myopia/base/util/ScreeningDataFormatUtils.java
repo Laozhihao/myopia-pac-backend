@@ -207,6 +207,9 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String generateSingleSuffixMMStr(Object val) {
+        if (Objects.isNull(val)) {
+            return EMPTY_RESULT;
+        }
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "mm" : EMPTY_RESULT);
     }
@@ -218,6 +221,9 @@ public class ScreeningDataFormatUtils {
      * @return String
      */
     public static String generateSingleSuffixUMStr(Object val) {
+        if (Objects.isNull(val)) {
+            return EMPTY_RESULT;
+        }
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         return (StringUtils.isNotBlank((CharSequence) val) ? decimalFormat.format(new BigDecimal((String) val)) + "um" : EMPTY_RESULT);
     }
