@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.Doctor;
 import com.wupol.myopia.business.core.hospital.domain.model.ReportConclusion;
 import com.wupol.myopia.business.core.hospital.service.HospitalDoctorService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolStudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
@@ -39,7 +40,6 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
@@ -107,6 +107,9 @@ public class StudentBizService {
     @Autowired
     private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
+    @Autowired
+    private UserQuestionRecordService userQuestionRecordService;
+
     /**
      * 获取学生列表
      *
@@ -131,24 +134,22 @@ public class StudentBizService {
         List<Integer> studentIds = students.stream().map(Student::getId).distinct().collect(Collectors.toList());
 
         // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
-        Map<Integer, Integer> countMap = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId,
-                        StudentScreeningCountDTO::getCount));
+        Map<Integer, Integer> countMap = visionScreeningResultService.countScreeningTimeMap();
 
         // 获取就诊记录
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
-                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        Map<Integer, List<ReportAndRecordDO>> visitMap = medicalReportService.getMapByStudentIds(studentIds);
 
         // 获取筛查记录
         List<ScreeningPlanSchoolStudent> plans = screeningPlanSchoolStudentService.getByStudentIds(studentIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap = plans.stream()
                 .collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getStudentId));
 
+        // 问卷记录
+        Map<Integer, Long> questionRecordMap = userQuestionRecordService.studentRecordCount(studentIds);
+
         // 封装DTO
         for (StudentDTO student : students) {
-            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap,student);
+            SchoolStudentInfoBuilder.setStudentInfo(countMap,visitMap,studentPlanMap, questionRecordMap, student);
         }
         return pageStudents;
     }
@@ -487,7 +488,6 @@ public class StudentBizService {
         }
     }
 
-
     /**
      * 判断是否要修改委会行政区域
      *
@@ -508,7 +508,8 @@ public class StudentBizService {
 
     /**
      * 保存学校学生
-     * @param schoolStudentDTO
+     *
+     * @param schoolStudentDTO 学校学生
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveSchoolStudent(SchoolStudentDTO schoolStudentDTO) {
@@ -521,22 +522,23 @@ public class StudentBizService {
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
-        if (Objects.equals(isAdd,Boolean.TRUE)){
+        if (Objects.equals(isAdd, Boolean.TRUE)) {
             schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.getType());
         }
 
         schoolStudentService.saveOrUpdate(schoolStudent);
-        schoolScreeningBizFacade.addScreeningStudent(schoolStudent,isAdd);
+        schoolScreeningBizFacade.addScreeningStudent(schoolStudent, isAdd);
         return schoolStudent;
     }
 
     /**
      * 设置区域代码
-     * @param schoolStudentDTO
-     * @param schoolStudent
+     *
+     * @param schoolStudentDTO 学校学生
+     * @param schoolStudent    学校学生
      */
     private void setRegionCode(SchoolStudentDTO schoolStudentDTO, SchoolStudent schoolStudent) {
-        if (CollUtil.isNotEmpty(schoolStudentDTO.getRegionArr())){
+        if (CollUtil.isNotEmpty(schoolStudentDTO.getRegionArr())) {
             schoolStudent.setProvinceCode(schoolStudentDTO.getRegionArr().get(0));
             schoolStudent.setCityCode(schoolStudentDTO.getRegionArr().get(1));
             schoolStudent.setAreaCode(schoolStudentDTO.getRegionArr().get(2));

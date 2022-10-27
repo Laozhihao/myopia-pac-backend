@@ -21,10 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 医院-检查报告
@@ -278,5 +276,15 @@ public class MedicalReportService extends BaseService<MedicalReportMapper, Medic
         return baseMapper.getByStudentIdsAndHospitalId(studentIds, hospitalId);
     }
 
-
+    /**
+     * 批量获取列表通过学生Ids(只取当前时间的前一天)
+     *
+     * @param studentIds 学生Ids
+     *
+     * @return List<ReportAndRecordVo>
+     */
+    public Map<Integer, List<ReportAndRecordDO>> getMapByStudentIds(List<Integer> studentIds) {
+        List<ReportAndRecordDO> visitLists = getByStudentIds(studentIds);
+        return visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+    }
 }

@@ -20,7 +20,7 @@ public final class PatientAgeUtil {
      * @return
      */
     public Integer getPatientAgeRange(int patientAge) {
-        int result = 0;
+        int result;
         if (patientAge <= 12) {
             result = 1;
         } else if (patientAge <= 36) {

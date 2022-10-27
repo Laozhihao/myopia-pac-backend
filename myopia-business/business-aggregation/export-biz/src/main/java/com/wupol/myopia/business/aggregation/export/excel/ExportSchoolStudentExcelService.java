@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -59,6 +60,9 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
     @Resource
     private MedicalReportService medicalReportService;
 
+    @Resource
+    private UserQuestionRecordService userQuestionRecordService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         // 获取学校信息
@@ -82,6 +86,9 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
         List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
         Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream().collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
 
+        // 问卷记录
+        Map<Integer, Long> questionRecordMap = userQuestionRecordService.studentRecordCount(studentIds);
+
         List<StudentExportDTO> exportList = new ArrayList<>();
         for (SchoolStudent item : studentLists) {
             HashMap<String, String> addressMap = generateAddressMap(item);
@@ -100,7 +107,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
                     .setLabel(WarningLevel.getDescByCode(item.getVisionLabel()))
                     .setSituation(VisionUtil.getVisionSummary(item.getGlassesType(), item.getMyopiaLevel(), item.getHyperopiaLevel(), item.getAstigmatismLevel(),item.getScreeningMyopia(),item.getLowVision()))
                     .setScreeningCount(countMap.getOrDefault(item.getStudentId(), 0))
-                    .setQuestionCount(0)
+                    .setQuestionCount(questionRecordMap.getOrDefault(item.getStudentId(), 0L))
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))

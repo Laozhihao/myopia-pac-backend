@@ -609,4 +609,14 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         student.setNation(planStudent.getNation());
         return student;
     }
+
+    /**
+     * 获取学生筛查次数
+     *
+     * @return List<StudentScreeningCountVO>
+     */
+    public Map<Integer, Integer> countScreeningTimeMap() {
+        return countScreeningTime().stream().collect(Collectors.toMap(
+                StudentScreeningCountDTO::getStudentId, StudentScreeningCountDTO::getCount));
+    }
 }
