@@ -232,13 +232,12 @@ public class ScreeningDataFormatUtils {
         if (Objects.isNull(val)) {
             return EMPTY_RESULT;
         }
-        CharSequence charSequence = (CharSequence) val;
-        if (StringUtils.equals(charSequence, "null")) {
+        String value = ((String) val).trim().replace(" ", "");
+        if (StringUtils.equals(value, "null")) {
             return EMPTY_RESULT;
         }
-
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        return (StringUtils.isNotBlank(charSequence) ? decimalFormat.format(new BigDecimal((String) val)) + str : EMPTY_RESULT);
+        return (StringUtils.isNotBlank(value) ? decimalFormat.format(new BigDecimal(value)) + str : EMPTY_RESULT);
     }
 
     /**
