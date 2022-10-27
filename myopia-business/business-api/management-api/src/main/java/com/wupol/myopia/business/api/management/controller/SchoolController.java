@@ -212,7 +212,6 @@ public class SchoolController {
      * 导出学校
      *
      * @param districtId 行政区域
-     * @return 是否成功
      */
     @GetMapping("/export")
     public void getSchoolExportData(Integer districtId) throws IOException {
@@ -326,7 +325,7 @@ public class SchoolController {
      * @return 学校编码
      */
     @GetMapping("/getLatestSchoolNo")
-    public ApiResult getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
+    public ApiResult<String> getLatestSchoolNo(@NotBlank(message = "districtAreaCode不能为空") @Length(min = 9, max = 9, message = "无效districtAreaCode") String districtAreaCode,
                                        @NotNull(message = "areaType不能为空") @Max(value = 3, message = "无效areaType") Integer areaType,
                                        @NotNull(message = "monitorType不能为空") @Max(value = 3, message = "无效monitorType") Integer monitorType) {
         return ApiResult.success(schoolService.getLatestSchoolNo(districtAreaCode, areaType, monitorType));

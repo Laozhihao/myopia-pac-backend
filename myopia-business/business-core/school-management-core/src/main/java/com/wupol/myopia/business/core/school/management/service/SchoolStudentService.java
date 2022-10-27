@@ -329,7 +329,7 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getMyopiaList()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getHyperopiaList()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())
-                ;
+                .orderByDesc(SchoolStudent::getCreateTime);
 
         Page page = pageRequest.toPage();
         return baseMapper.selectPage(page,queryWrapper);
