@@ -735,7 +735,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
         // 为空，从数据库查询
         District district = baseMapper.selectOne(new LambdaQueryWrapper<District>()
                 .eq(District::getName, name)
-                .eq(Objects.nonNull(parentCode), District::getCode, parentCode));
+                .eq(Objects.nonNull(parentCode), District::getParentCode, parentCode));
         if (null == district) {
             return null;
         }
