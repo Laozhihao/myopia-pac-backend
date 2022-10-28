@@ -432,6 +432,7 @@ public class SchoolBizService {
         if (currentUser.isOverviewUser()) {
             if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
                 schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+                schoolQueryDTO.setIsOverviewUser(Boolean.TRUE);
             }
             return;
         }
