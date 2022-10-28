@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONPath;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
@@ -13,6 +14,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultExportDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
+@Slf4j
 public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
     @Resource
@@ -152,20 +155,21 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
         exportDTO.setLeftBiometricASTAxis(ScreeningDataFormatUtils.genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_K1_AXIS)));
         exportDTO.setRightBiometricAST(ScreeningDataFormatUtils.genEyeBiometric(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AST)));
         exportDTO.setRightBiometricASTAxis(ScreeningDataFormatUtils.genBiometricAxis(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_K1_AXIS)));
-        exportDTO.setLeftBiometricPD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD)));
-        exportDTO.setRightBiometricPD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD)));
-        exportDTO.setLeftBiometricWTW(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW)));
-        exportDTO.setRightBiometricWTW(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW)));
-        exportDTO.setLeftBiometricAL(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL)));
-        exportDTO.setRightBiometricAL(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL)));
+        exportDTO.setLeftBiometricPD(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_PD));
+        exportDTO.setRightBiometricPD(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_PD));
+        exportDTO.setLeftBiometricWTW(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_WTW));
+        exportDTO.setRightBiometricWTW(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_WTW));
+        exportDTO.setLeftBiometricAL(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AL));
+        exportDTO.setRightBiometricAL(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AL));
+        exportDTO.setLeftBiometricAD(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD));
+        exportDTO.setRightBiometricAD(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD));
+        exportDTO.setLeftBiometricLT(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT));
+        exportDTO.setRightBiometricLT(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT));
+        exportDTO.setLeftBiometricVT(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT));
+        exportDTO.setRightBiometricVT(parseWithSuffix(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT));
+
         exportDTO.setLeftBiometricCCT(ScreeningDataFormatUtils.generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_CCT)));
         exportDTO.setRightBiometricCCT(ScreeningDataFormatUtils.generateSingleSuffixUMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_CCT)));
-        exportDTO.setLeftBiometricAD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_AD)));
-        exportDTO.setRightBiometricAD(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_AD)));
-        exportDTO.setLeftBiometricLT(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_LT)));
-        exportDTO.setRightBiometricLT(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_LT)));
-        exportDTO.setLeftBiometricVT(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_LEFT_VT)));
-        exportDTO.setRightBiometricVT(ScreeningDataFormatUtils.generateSingleSuffixMMStr(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_BD_RIGHT_VT)));
 
         exportDTO.setLeftEyePressureDate(ScreeningDataFormatUtils.ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_LEFT_PRESSURE)));
         exportDTO.setRightEyePressureDate(ScreeningDataFormatUtils.ipDateFormat(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_IPD_RIGHT_PRESSURE)));
@@ -180,5 +184,15 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
 
         exportDTO.setHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_HEIGHT)));
         exportDTO.setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
+    }
+
+    private String parseWithSuffix(StatConclusionExportDTO dto, String path) {
+        Object eval = JSONPath.eval(dto, path);
+        try {
+            return ScreeningDataFormatUtils.generateSingleSuffixMMStr(eval);
+        } catch (Exception e) {
+            log.error("导出筛查数据异常！原始信息:{}", JSON.toJSONString(dto));
+            return (String) eval;
+        }
     }
 }
