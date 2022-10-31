@@ -62,29 +62,13 @@ public class HtmlPageUrlConstant {
     public static final String REPORT_KINDERGARTEN_VISION = "%s?reportType=visonKindergartenSchool&planId=%d&schoolId=%d";
 
     /**
-     * 视力报告区域-文件名
-     */
-    public static final String SCREENING_VISION_DISTRICT = "";
-    /**
-     * 视力报告学校-文件名
-     */
-    public static final String SCREENING_VISION_SCHOOL_PRIMARY = "";
-    /**
-     * 视力报告学校-文件名
-     */
-    public static final String SCREENING_VISION_SCHOOL_KINDERGARTEN = "";
-
-
-
-
-    /**
      * 按区域常见病报告
      */
+
     public static final String DISTRICT_COMMON_DISEASE = "%s?reportType=diseaseArea&districtId=%d&noticeId=%d";
+
     /**
      * 按学校常见病报告
      */
     public static final String SCHOOL_COMMON_DISEASE = "%s?reportType=diseaseSchool&&schoolId=%d&planId=%d";
-
-
 }
