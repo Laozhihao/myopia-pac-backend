@@ -26,11 +26,6 @@ public class PDFRequestDTO {
      */
     private List<Item> items;
 
-    /**
-     * lockKey
-     */
-    private String lockKey;
-
     @Getter
     @Setter
     @Accessors(chain = true)

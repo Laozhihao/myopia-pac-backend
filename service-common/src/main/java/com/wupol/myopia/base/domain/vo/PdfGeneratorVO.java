@@ -39,4 +39,9 @@ public class PdfGeneratorVO {
     private List<Integer> fileIds;
 
     private Integer schoolId;
+
+    /**
+     * lockKey
+     */
+    private String lockKey;
 }

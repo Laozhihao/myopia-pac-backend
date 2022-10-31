@@ -71,6 +71,7 @@ public class PdfCallbackController {
                 noticeService.sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + zipFileName + "请稍后重试");
             } finally {
                 redisUtil.del(key);
+                redisUtil.del(pdfGeneratorVO.getLockKey());
                 FileUtil.del(srcPath);
             }
             return;

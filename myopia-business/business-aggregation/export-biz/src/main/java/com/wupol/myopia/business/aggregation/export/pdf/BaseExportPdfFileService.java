@@ -172,7 +172,6 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
     @Override
     public void asyncGenerateExportFile(ExportCondition exportCondition) {
         PDFRequestDTO pdfRequestDTO = getAsyncRequestUrl(exportCondition);
-        pdfRequestDTO.setLockKey(getLockKey(exportCondition));
         List<PDFRequestDTO.Item> items = pdfRequestDTO.getItems();
         String key = UUID.randomUUID().toString(true);
 
@@ -181,6 +180,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         vo.setExportTotal(items.size());
         vo.setExportCount(0);
         vo.setZipFileName(pdfRequestDTO.getZipFileName());
+        vo.setLockKey(getLockKey(exportCondition));
         redisUtil.set(key, vo);
         items.forEach(item -> html2PdfService.asyncGeneratorPDF(item.getUrl(), item.getFileName(), Paths.get(key, item.getFileName()).toString()));
     }
