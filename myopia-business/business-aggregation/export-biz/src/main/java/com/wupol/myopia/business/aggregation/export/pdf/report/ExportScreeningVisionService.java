@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
@@ -26,7 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +77,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
             String title = screeningPlanService.getById(exportCondition.getPlanId()).getTitle();
             String name = schoolService.getById(exportCondition.getSchoolId()).getName();
-            return String.format(PDF_NAME,title,name) + EXPORT_FILE_NAME;
+            return String.format(PDF_NAME, title, name) + EXPORT_FILE_NAME;
         }
         return StrUtil.EMPTY;
     }
@@ -93,10 +97,25 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
+    private String getDistrictVisionReportUrl(Integer noticeId, Integer districtId) {
+        return String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
+    }
+
     @Override
     public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
         Set<Integer> preProcess = preProcess(exportCondition);
         preProcess.forEach(s -> generateReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath, getName(exportCondition, s), s));
+    }
+
+    @Override
+    public List<String> getDistrictReportPdfUrl(ExportCondition exportCondition) {
+        return Lists.newArrayList(getDistrictVisionReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId()));
+    }
+
+    @Override
+    public List<String> getSchoolReportPdfUrl(ExportCondition exportCondition) {
+        Set<Integer> preProcess = preProcess(exportCondition);
+        return preProcess.stream().map(s -> generateReportUrl(exportCondition.getPlanId(), exportCondition.getSchoolId(), s)).collect(Collectors.toList());
     }
 
     private Set<Integer> preProcess(ExportCondition exportCondition) {
@@ -138,6 +157,16 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
+    }
+
+    private String generateReportUrl(Integer planId, Integer schoolId, Integer schoolAge) {
+        String reportHtmlUrl;
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
+        } else {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+        }
+        return reportHtmlUrl;
     }
 
 }

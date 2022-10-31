@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -178,4 +179,19 @@ public class Html2PdfService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(JSON.toJSONString(requestDTO), httpHeaders);
     }
+
+//    public List<PdfResponseDTO> asyncBatchGeneratorPDF(List<String> urls) {
+//
+//    }
+//
+//    /**
+//     * 异步导出PDF
+//     *
+//     * @param url      文件URL
+//     * @param fileName 文件名
+//     */
+//    public PdfResponseDTO asyncGeneratorPDF(String url, String fileName) {
+//        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid, Boolean.TRUE);
+//        return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+//    }
 }

@@ -5,6 +5,8 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 导出文件接口类
@@ -107,4 +109,10 @@ public interface ExportFileService {
      * @return file
      */
     String syncExport(ExportCondition exportCondition);
+
+    default void asyncExportUrl(ExportCondition exportCondition){}
+
+    default List<String> allUrl(ExportCondition exportCondition){
+        return new ArrayList<>();
+    }
 }

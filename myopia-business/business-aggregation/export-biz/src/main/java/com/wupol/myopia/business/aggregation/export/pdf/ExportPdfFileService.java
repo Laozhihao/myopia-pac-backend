@@ -3,6 +3,8 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 
+import java.util.List;
+
 /**
  * 导出pdf文件
  *
@@ -39,4 +41,8 @@ public interface ExportPdfFileService {
      * @param exportCondition 导出条件
      */
     default void generateSchoolReportPdfFile(String fileSavePath,String fileName, ExportCondition exportCondition){}
+
+    List<String> getDistrictReportPdfUrl(ExportCondition exportCondition);
+
+    List<String> getSchoolReportPdfUrl(ExportCondition exportCondition);
 }

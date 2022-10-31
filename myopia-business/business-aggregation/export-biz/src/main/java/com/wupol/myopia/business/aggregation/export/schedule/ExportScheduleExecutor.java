@@ -40,4 +40,18 @@ public class ExportScheduleExecutor {
         // 导出文件
         exportStrategy.exportFile(queueInfo);
     }
+
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void abc() {
+
+        // 从队列中获取一个任务
+        QueueInfo queueInfo  = (QueueInfo) redisUtil.lGet(RedisConstant.FILE_EXPORT_ASYNC_LIST);
+
+        if (Objects.isNull(queueInfo)) {
+            return;
+        }
+
+        // 导出文件
+        exportStrategy.abc(queueInfo);
+    }
 }

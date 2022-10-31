@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -39,20 +41,22 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
      * 生成文件
      *
      * @param exportCondition 导出条件
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
+     * @param fileSavePath    文件保存路径
+     * @param fileName        文件名
+     *
      * @return void
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
-        optional.ifPresent(service -> service.generateSchoolReportPdfFile(fileSavePath,fileName,exportCondition));
+        optional.ifPresent(service -> service.generateSchoolReportPdfFile(fileSavePath, fileName, exportCondition));
     }
 
     /**
      * 获取文件名
      *
      * @param exportCondition 导出条件
+     *
      * @return java.lang.String
      **/
     @Override
@@ -82,8 +86,17 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
                 exportCondition.getPlanId());
     }
 
-    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition){
+    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(exportCondition.getPlanId());
         return exportPdfFileFactory.getExportPdfFileService(screeningPlan.getScreeningType());
+    }
+
+    @Override
+    public List<String> allUrl(ExportCondition exportCondition) {
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        if (optional.isPresent()) {
+            return optional.get().getSchoolReportPdfUrl(exportCondition);
+        }
+        return new ArrayList<>();
     }
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,6 +33,9 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
 
     @Autowired
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private Html2PdfService html2PdfService;
 
     /**
      * 导出文件
@@ -150,5 +156,11 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             // 5.删除临时文件
             deleteTempFile(parentPath);
         }
+    }
+
+    @Override
+    public void asyncExportUrl(ExportCondition exportCondition) {
+        List<String> strings = allUrl(exportCondition);
+        log.info("strings:{}", strings);
     }
 }

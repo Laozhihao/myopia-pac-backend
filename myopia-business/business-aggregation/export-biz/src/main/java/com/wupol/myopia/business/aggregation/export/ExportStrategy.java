@@ -38,6 +38,20 @@ public class ExportStrategy {
 
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
 
+        extracted(exportCondition, serviceName);
+        // 设置进队列
+        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
+    }
+
+
+    public void abc(ExportCondition exportCondition, String serviceName) throws IOException {
+
+//        extracted(exportCondition, serviceName);
+        // 设置进队列
+        redisUtil.lSet(RedisConstant.FILE_EXPORT_ASYNC_LIST, new QueueInfo(exportCondition, serviceName));
+    }
+
+    private void extracted(ExportCondition exportCondition, String serviceName) throws IOException {
         ExportFileService exportFileService = getExportFileService(serviceName);
 
         // 数据校验
@@ -52,11 +66,9 @@ public class ExportStrategy {
         if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
             if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
                 String key = "doExport:" + lockKey;
-                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey, exportCondition.getClassId());
             }
         }
-        // 设置进队列
-        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
 
     private ExportFileService getExportFileService(String serviceName) {
@@ -77,6 +89,18 @@ public class ExportStrategy {
 
         ExportCondition exportCondition = queueInfo.getExportCondition();
         exportFileService.export(exportCondition);
+    }
+
+    /**
+     * 导出文件
+     *
+     * @param queueInfo 导出
+     */
+    public void abc(QueueInfo queueInfo) {
+        ExportFileService exportFileService = getExportFileService(queueInfo.getServiceName());
+
+        ExportCondition exportCondition = queueInfo.getExportCondition();
+        exportFileService.asyncExportUrl(exportCondition);
     }
 
     /**

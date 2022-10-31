@@ -12,6 +12,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeServ
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,20 +34,22 @@ public class ExportDistrictReportService extends BaseExportPdfFileService {
      * 生成文件
      *
      * @param exportCondition 导出条件
-     * @param fileSavePath 文件保存路径
-     * @param fileName 文件名
+     * @param fileSavePath    文件保存路径
+     * @param fileName        文件名
+     *
      * @return void
      **/
     @Override
     public void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName) {
         Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
-        optional.ifPresent(service -> service.generateDistrictReportPdfFile(fileSavePath,fileName,exportCondition));
+        optional.ifPresent(service -> service.generateDistrictReportPdfFile(fileSavePath, fileName, exportCondition));
     }
 
     /**
      * 获取文件名
      *
      * @param exportCondition 导出条件
+     *
      * @return java.lang.String
      **/
     @Override
@@ -62,8 +66,17 @@ public class ExportDistrictReportService extends BaseExportPdfFileService {
                 exportCondition.getDistrictId());
     }
 
-    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition){
+    private Optional<ExportPdfFileService> getExportPdfFileService(ExportCondition exportCondition) {
         ScreeningNotice screeningNotice = screeningNoticeService.getById(exportCondition.getNotificationId());
         return exportPdfFileFactory.getExportPdfFileService(screeningNotice.getScreeningType());
+    }
+
+    @Override
+    public List<String> allUrl(ExportCondition exportCondition) {
+        Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
+        if (optional.isPresent()) {
+            return optional.get().getDistrictReportPdfUrl(exportCondition);
+        }
+        return new ArrayList<>();
     }
 }
