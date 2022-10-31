@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.interfaces;
 
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 
 import java.io.File;
@@ -112,7 +113,7 @@ public interface ExportFileService {
 
     default void asyncExportUrl(ExportCondition exportCondition){}
 
-    default List<String> allUrl(ExportCondition exportCondition){
-        return new ArrayList<>();
+    default PDFRequestDTO allUrl(ExportCondition exportCondition){
+        return new PDFRequestDTO();
     }
 }

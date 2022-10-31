@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -160,7 +161,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
 
     @Override
     public void asyncExportUrl(ExportCondition exportCondition) {
-        List<String> strings = allUrl(exportCondition);
-        log.info("strings:{}", strings);
+        PDFRequestDTO pdfRequestDTO = allUrl(exportCondition);
+        log.info("list:{}", JSON.toJSONString(pdfRequestDTO));
     }
 }

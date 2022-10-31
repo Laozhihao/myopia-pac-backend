@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Sets;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -52,7 +53,6 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
     @Autowired
     private StatConclusionService statConclusionService;
 
-
     private static final String FOLDER_SUFFIX = "筛查报告";
     private static final String FILE_COMMON_DISEASE_SUFFIX = "筛查报告-常见病分析.pdf";
     private static final String FILE_VISION_SUFFIX = "筛查报告-视力分析.pdf";
@@ -95,7 +95,6 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         }
     }
 
-
     private void generateDistrictReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName, Integer screeningType) {
         String reportHtmlUrl;
         if (Objects.equals(screeningType, ScreeningTypeEnum.VISION.getType())) {
@@ -111,14 +110,24 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         }
     }
 
-    private String getDistrictReportUrl(Integer noticeId, Integer districtId, Integer screeningType) {
+    @Override
+    public PDFRequestDTO getDistrictReportPdfUrl(ExportCondition exportCondition) {
+        Set<Integer> preProcess = preProcess(exportCondition);
+        if (!CollectionUtils.isEmpty(preProcess)) {
+            List<PDFRequestDTO.Item> collect = preProcess.stream().map(screeningType -> getDistrictReportUrl(exportCondition, screeningType)).collect(Collectors.toList());
+            return new PDFRequestDTO().setItems(collect);
+        }
+        return new PDFRequestDTO();
+    }
+
+    private PDFRequestDTO.Item getDistrictReportUrl(ExportCondition exportCondition, Integer screeningType) {
         String reportHtmlUrl;
         if (Objects.equals(screeningType, ScreeningTypeEnum.VISION.getType())) {
-            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, exportCondition.getNotificationId(), exportCondition.getDistrictId());
         } else {
-            reportHtmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_COMMON_DISEASE, htmlUrlHost, districtId, noticeId);
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_COMMON_DISEASE, htmlUrlHost, exportCondition.getDistrictId(), exportCondition.getNotificationId());
         }
-        return reportHtmlUrl;
+        return new PDFRequestDTO.Item().setFileName(getName(exportCondition, screeningType)).setUrl(reportHtmlUrl);
     }
 
     @Override
@@ -135,27 +144,20 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
     }
 
     @Override
-    public List<String> getDistrictReportPdfUrl(ExportCondition exportCondition) {
-        Set<Integer> preProcess = preProcess(exportCondition);
-        if (!CollectionUtils.isEmpty(preProcess)) {
-            return preProcess.stream().map(screeningType -> getDistrictReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId(), screeningType)).collect(Collectors.toList());
-        }
-        return new ArrayList<>();
-    }
+    public PDFRequestDTO getSchoolReportPdfUrl(ExportCondition exportCondition) {
+        PDFRequestDTO pdfRequestDTO = new PDFRequestDTO();
+        List<PDFRequestDTO.Item> items = new ArrayList<>();
 
-    @Override
-    public List<String> getSchoolReportPdfUrl(ExportCondition exportCondition) {
-        List<String> url = new ArrayList<>();
         Set<Integer> preProcess = preProcess(exportCondition);
         if (!CollectionUtils.isEmpty(preProcess)) {
-            url = preProcess.stream().map(schoolAge -> generateSchoolVisionReportUrl(exportCondition.getPlanId(), exportCondition.getSchoolId(), schoolAge)).collect(Collectors.toList());
+            items = preProcess.stream().map(schoolAge -> generateSchoolVisionReportUrl(exportCondition, schoolAge)).collect(Collectors.toList());
         }
 
         if (!CollectionUtils.isEmpty(preProcess) && Objects.equals(preProcess.size(), 1) && preProcess.contains(SchoolAge.KINDERGARTEN.code)) {
-            return new ArrayList<>();
+            return pdfRequestDTO.setItems(items);
         }
-        url.add(getSchoolCommonDiseaseReportUrl(exportCondition.getPlanId(), exportCondition.getSchoolId()));
-        return url;
+        items.add(getSchoolCommonDiseaseReportUrl(exportCondition));
+        return pdfRequestDTO.setItems(items);
     }
 
 
@@ -169,8 +171,10 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         }
     }
 
-    private String getSchoolCommonDiseaseReportUrl(Integer planId, Integer schoolId) {
-        return String.format(HtmlPageUrlConstant.SCHOOL_COMMON_DISEASE, htmlUrlHost, schoolId, planId);
+    private PDFRequestDTO.Item getSchoolCommonDiseaseReportUrl(ExportCondition exportCondition) {
+        return new PDFRequestDTO.Item()
+                .setFileName(getCommonName(exportCondition, Boolean.TRUE))
+                .setUrl(String.format(HtmlPageUrlConstant.SCHOOL_COMMON_DISEASE, htmlUrlHost, exportCondition.getSchoolId(), exportCondition.getPlanId()));
     }
 
     private void generateSchoolVisionReport(Integer planId, Integer schoolId, String fileSavePath, String fileName, Integer schoolAge) {
@@ -189,14 +193,14 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         }
     }
 
-    private String generateSchoolVisionReportUrl(Integer planId, Integer schoolId, Integer schoolAge) {
+    private PDFRequestDTO.Item generateSchoolVisionReportUrl(ExportCondition exportCondition, Integer schoolAge) {
         String reportHtmlUrl;
         if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
-            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, exportCondition.getPlanId(), exportCondition.getSchoolId());
         } else {
-            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, exportCondition.getPlanId(), exportCondition.getSchoolId());
         }
-        return reportHtmlUrl;
+        return new PDFRequestDTO.Item().setUrl(reportHtmlUrl).setFileName(getSchoolVisionName(exportCondition, schoolAge));
     }
 
     private String getSchoolVisionName(ExportCondition exportCondition, Integer schoolAge) {

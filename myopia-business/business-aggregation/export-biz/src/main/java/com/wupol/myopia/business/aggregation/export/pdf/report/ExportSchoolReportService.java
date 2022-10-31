@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileFactory;
@@ -92,11 +93,11 @@ public class ExportSchoolReportService extends BaseExportPdfFileService {
     }
 
     @Override
-    public List<String> allUrl(ExportCondition exportCondition) {
+    public PDFRequestDTO allUrl(ExportCondition exportCondition) {
         Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
         if (optional.isPresent()) {
             return optional.get().getSchoolReportPdfUrl(exportCondition);
         }
-        return new ArrayList<>();
+        return new PDFRequestDTO();
     }
 }
