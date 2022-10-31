@@ -31,8 +31,14 @@ public class PDFRequestDTO {
     @Accessors(chain = true)
     public static class Item {
 
+        /**
+         * 请求URL
+         */
         private String url;
 
+        /**
+         * 文件名
+         */
         private String fileName;
 
     }

@@ -52,6 +52,6 @@ public class ExportScheduleExecutor {
         }
 
         // 导出文件
-        exportStrategy.abc(queueInfo);
+        exportStrategy.doAsyncExport(queueInfo);
     }
 }
