@@ -1,8 +1,11 @@
 package com.wupol.myopia.business.aggregation.export.pdf;
 
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
+import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.BaseExportFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
@@ -19,7 +22,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @Author HaoHao
@@ -38,10 +40,14 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
     @Resource
     private Html2PdfService html2PdfService;
 
+    @Resource
+    private RedisUtil redisUtil;
+
     /**
      * 导出文件
      *
      * @param exportCondition 导出条件
+     *
      * @return void
      **/
     @Async
@@ -86,6 +92,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      * 前置处理
      *
      * @param exportCondition 导出条件
+     *
      * @return void
      **/
     public void preProcess(ExportCondition exportCondition) {
@@ -98,6 +105,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      * @param exportCondition 导出条件
      * @param fileSavePath    文件保存路径
      * @param fileName        文件名
+     *
      * @return void
      **/
     public abstract void generatePdfFile(ExportCondition exportCondition, String fileSavePath, String fileName);
@@ -106,6 +114,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      * 压缩文件
      *
      * @param fileSavePath 文件保存路径
+     *
      * @return java.io.File
      **/
     public File compressFile(String fileSavePath) {
@@ -126,6 +135,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      *
      * @param parentPath 文件名
      * @param fileName   文件名
+     *
      * @return java.lang.String
      **/
     public String getFileSavePath(String parentPath, String fileName) {
@@ -160,8 +170,18 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
     }
 
     @Override
-    public void asyncExportUrl(ExportCondition exportCondition) {
-        PDFRequestDTO pdfRequestDTO = allUrl(exportCondition);
-        log.info("list:{}", JSON.toJSONString(pdfRequestDTO));
+    public void asyncGenerateExportFile(ExportCondition exportCondition) {
+        PDFRequestDTO pdfRequestDTO = getAsyncRequestUrl(exportCondition);
+
+        List<PDFRequestDTO.Item> items = pdfRequestDTO.getItems();
+        String key = UUID.randomUUID().toString(true);
+
+        PdfGeneratorVO vo = new PdfGeneratorVO();
+        vo.setUserId(exportCondition.getApplyExportFileUserId());
+        vo.setExportTotal(items.size());
+        vo.setExportCount(0);
+        vo.setZipFileName(pdfRequestDTO.getZipFileName());
+        redisUtil.set(key, vo);
+        items.forEach(item -> html2PdfService.asyncGeneratorPDF(item.getUrl(), item.getFileName(), Paths.get(key, item.getFileName()).toString()));
     }
 }

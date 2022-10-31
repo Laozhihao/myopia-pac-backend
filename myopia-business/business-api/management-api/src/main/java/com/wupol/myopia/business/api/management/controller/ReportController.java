@@ -101,8 +101,7 @@ public class ReportController {
                 .setDistrictId(districtId)
                 .setIsKindergarten(isKindergarten)
                 .setExportType(type)
-//                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-                .setApplyExportFileUserId(101);
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
         exportStrategy.abc(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
@@ -123,7 +122,7 @@ public class ReportController {
                 .setPlanId(planId)
                 .setSchoolId(schoolId)
                 .setExportType(type)
-                .setApplyExportFileUserId(101);
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.abc(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
     }
 

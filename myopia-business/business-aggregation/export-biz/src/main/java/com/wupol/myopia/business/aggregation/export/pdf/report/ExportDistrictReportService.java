@@ -73,7 +73,7 @@ public class ExportDistrictReportService extends BaseExportPdfFileService {
     }
 
     @Override
-    public PDFRequestDTO allUrl(ExportCondition exportCondition) {
+    public PDFRequestDTO getAsyncRequestUrl(ExportCondition exportCondition) {
         Optional<ExportPdfFileService> optional = getExportPdfFileService(exportCondition);
         if (optional.isPresent()) {
             return optional.get().getDistrictReportPdfUrl(exportCondition);

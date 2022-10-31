@@ -16,6 +16,14 @@ import java.util.List;
 @Accessors(chain = true)
 public class PDFRequestDTO {
 
+    /**
+     * 压缩包文件名
+     */
+    private String zipFileName;
+
+    /**
+     * 详情
+     */
     private List<Item> items;
 
     @Getter

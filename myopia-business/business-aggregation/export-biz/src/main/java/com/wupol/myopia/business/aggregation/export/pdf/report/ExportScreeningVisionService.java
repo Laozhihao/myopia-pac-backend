@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -104,7 +105,10 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     @Override
     public PDFRequestDTO getDistrictReportPdfUrl(ExportCondition exportCondition) {
-        return new PDFRequestDTO().setItems(Lists.newArrayList(getDistrictVisionReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId(), getFileName(exportCondition))));
+        District district = districtService.getById(exportCondition.getDistrictId());
+        return new PDFRequestDTO()
+                .setItems(Lists.newArrayList(getDistrictVisionReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId(), getFileName(exportCondition))))
+                .setZipFileName(district.getName() + "筛查报告");
     }
 
     @Override
@@ -117,7 +121,8 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     public PDFRequestDTO getSchoolReportPdfUrl(ExportCondition exportCondition) {
         Set<Integer> preProcess = preProcess(exportCondition);
         List<PDFRequestDTO.Item> collect = preProcess.stream().map(s -> generateReportUrl(exportCondition.getPlanId(), exportCondition.getSchoolId(), s, getName(exportCondition, s))).collect(Collectors.toList());
-        return new PDFRequestDTO().setItems(collect);
+        return new PDFRequestDTO().setItems(collect).
+                setZipFileName(schoolService.getNameById(exportCondition.getSchoolId()) + "筛查报告");
     }
 
     private Set<Integer> preProcess(ExportCondition exportCondition) {

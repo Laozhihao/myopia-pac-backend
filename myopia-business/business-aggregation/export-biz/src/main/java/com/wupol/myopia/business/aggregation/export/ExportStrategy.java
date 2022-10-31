@@ -100,7 +100,7 @@ public class ExportStrategy {
         ExportFileService exportFileService = getExportFileService(queueInfo.getServiceName());
 
         ExportCondition exportCondition = queueInfo.getExportCondition();
-        exportFileService.asyncExportUrl(exportCondition);
+        exportFileService.asyncGenerateExportFile(exportCondition);
     }
 
     /**

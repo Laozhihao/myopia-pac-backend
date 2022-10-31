@@ -115,7 +115,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         Set<Integer> preProcess = preProcess(exportCondition);
         if (!CollectionUtils.isEmpty(preProcess)) {
             List<PDFRequestDTO.Item> collect = preProcess.stream().map(screeningType -> getDistrictReportUrl(exportCondition, screeningType)).collect(Collectors.toList());
-            return new PDFRequestDTO().setItems(collect);
+            return new PDFRequestDTO().setItems(collect).setZipFileName(getCommonName(exportCondition, false));
         }
         return new PDFRequestDTO();
     }
@@ -157,7 +157,8 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
             return pdfRequestDTO.setItems(items);
         }
         items.add(getSchoolCommonDiseaseReportUrl(exportCondition));
-        return pdfRequestDTO.setItems(items);
+        return pdfRequestDTO.setItems(items)
+                .setZipFileName(getCommonName(exportCondition, false));
     }
 
 
