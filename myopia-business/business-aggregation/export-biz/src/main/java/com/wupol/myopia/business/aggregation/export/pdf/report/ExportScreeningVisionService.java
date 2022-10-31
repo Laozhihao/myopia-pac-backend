@@ -172,7 +172,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         } else {
             reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
         }
-        return new PDFRequestDTO.Item().setFileName(fileName).setUrl(reportHtmlUrl);
+        return new PDFRequestDTO.Item().setFileName(fileName + ".pdf").setUrl(reportHtmlUrl);
     }
 
 }
