@@ -37,6 +37,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
@@ -151,11 +152,16 @@ public class ScreeningPlanStudentBizService {
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(GeneratorPdfDTO generatorPdfDTO) {
+        ScreeningPlan plan = screeningPlanService.getById(generatorPdfDTO.getPlanId());
         ResultNoticeConfig resultNoticeConfig;
-        if (Objects.equals(generatorPdfDTO.getIsSchoolClient(),Boolean.TRUE)) {
-            resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
+        if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+            if (Objects.equals(generatorPdfDTO.getIsSchoolClient(), Boolean.TRUE)) {
+                resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
+            } else {
+                resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(generatorPdfDTO.getOrgId()).getResultNoticeConfig();
+            }
         } else {
-            resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(generatorPdfDTO.getOrgId()).getResultNoticeConfig();
+            resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
         }
         String fileUrl = StringUtils.EMPTY;
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
@@ -176,10 +182,11 @@ public class ScreeningPlanStudentBizService {
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(planStudents, ScreeningStudentDTO::getGradeId);
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(planStudents, ScreeningStudentDTO::getClassId);
         Map<Integer, List<VisionScreeningResult>> visionResultMap = screeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
-        List<ScreeningStudentDTO> collect = planStudents.stream().filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList());
-        collect.forEach(s -> s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName())
-                .setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName()));
-        return collect;
+        return planStudents.stream()
+                .filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList())
+                .stream().map(s -> s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName())
+                        .setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName()))
+                .collect(Collectors.toList());
     }
 
     /**
