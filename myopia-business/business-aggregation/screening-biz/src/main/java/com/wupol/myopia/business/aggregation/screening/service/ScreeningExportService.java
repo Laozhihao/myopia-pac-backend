@@ -314,15 +314,18 @@ public class ScreeningExportService {
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
                 screeningPlanId, schoolId,gradeId, classId,planStudentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);
         students.forEach(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
+                    .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
                     student.getIdCard(), type);
             //TODO 调整内容就好，上完线在来处理，需要和前段对接
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
-
         return students;
     }
 
