@@ -137,7 +137,11 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
                 exportCondition.getPlanId(), exportCondition.getSchoolId(),
                 exportCondition.getGradeId(), exportCondition.getClassId(),pladnStudentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);
         students.forEach(student -> {
+            student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
+                    .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
