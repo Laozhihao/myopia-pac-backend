@@ -24,6 +24,14 @@ public class PageRequest {
     private Integer size;
 
     public Page<?> toPage() {
+        return getObjectPage();
+    }
+
+    public <T> Page<T> getPage() {
+        return getObjectPage();
+    }
+
+    private <T> Page<T> getObjectPage() {
         if (null == current) {
             current = 1;
         }
