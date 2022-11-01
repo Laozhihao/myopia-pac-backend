@@ -492,4 +492,17 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return StringUtils.equals(screeningConfig.getChannel(), CommonConst.HAI_NAN);
     }
 
+    /**
+     * 获取机构Map
+     *
+     * @param list     集合
+     * @param function function
+     * @param <T>      T
+     *
+     * @return Map<Integer, Hospital>
+     */
+    public <T> Map<Integer, ScreeningOrganization> getScreeningOrganizationMap(List<T> list, Function<T, Integer> function) {
+        return listByIds(list.stream().map(function).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
+    }
+
 }
