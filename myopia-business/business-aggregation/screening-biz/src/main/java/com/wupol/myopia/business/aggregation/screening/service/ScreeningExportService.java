@@ -191,14 +191,14 @@ public class ScreeningExportService {
      */
     public ScreeningQrCodeDTO getNoticeData(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> studentIds, boolean isSchoolClient) {
         // 2. 处理参数
-        String gradeName = "";
+        String gradeName = StringUtils.EMPTY;
         School school = schoolService.getBySchoolId(schoolId);
-        if (Objects.nonNull(gradeId)){
+        if (Objects.nonNull(gradeId)) {
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
             gradeName = schoolGrade.getName();
         }
-        String className = "";
-        if (Objects.nonNull(classId)){
+        String className = StringUtils.EMPTY;
+        if (Objects.nonNull(classId)) {
             SchoolClass schoolClass = schoolClassService.getById(classId);
             className = schoolClass.getName();
         }
@@ -218,9 +218,13 @@ public class ScreeningExportService {
             notificationConfig = school.getNotificationConfig();
         }
 
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId, classId, studentIds);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
+            student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
+                    .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setSchoolName(school.getName());
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
