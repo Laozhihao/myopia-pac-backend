@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.PDFTemplateConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -186,7 +187,7 @@ public class ScreeningExportService {
      * @param classId 班级ID
      * @param studentIds 学生ID集合
      * @param isSchoolClient true:学校端   fasle：管理端
-     * @return
+     * @return ScreeningQrCodeDTO
      */
     public ScreeningQrCodeDTO getNoticeData(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> studentIds, boolean isSchoolClient) {
         // 2. 处理参数
@@ -205,13 +206,18 @@ public class ScreeningExportService {
 
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         NotificationConfig notificationConfig;
-        // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
-        if (isSchoolClient) {
-            notificationConfig = school.getNotificationConfig();
+        if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+            // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
+            if (isSchoolClient) {
+                notificationConfig = school.getNotificationConfig();
+            } else {
+                ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+                notificationConfig = screeningOrganization.getNotificationConfig();
+            }
         } else {
-            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-            notificationConfig = screeningOrganization.getNotificationConfig();
+            notificationConfig = school.getNotificationConfig();
         }
+
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
