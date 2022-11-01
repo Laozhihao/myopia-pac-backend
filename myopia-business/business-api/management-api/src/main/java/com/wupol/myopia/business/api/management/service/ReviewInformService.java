@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -155,6 +156,9 @@ public class ReviewInformService {
         // 筛查时间
         Map<Integer, Date> screeningDateMap = resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, VisionScreeningResult::getCreateTime));
 
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(planSchoolStudents, ScreeningPlanSchoolStudent::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(planSchoolStudents, ScreeningPlanSchoolStudent::getClassId);
+
         List<ReviewInformExportDataDTO> exportDataDTOS = new ArrayList<>();
         planSchoolStudents.forEach(planSchoolStudent -> {
             ReviewInformExportDataDTO exportDataDTO = new ReviewInformExportDataDTO();
@@ -167,6 +171,8 @@ public class ReviewInformService {
                 exportDataDTO.setHeight(heightAndWeightDataDO.getHeight().toString());
             }
             exportDataDTO.setScreeningDate(screeningDateMap.getOrDefault(planSchoolStudent.getId(), null));
+            exportDataDTO.setGradeName(gradeMap.getOrDefault(planSchoolStudent.getGradeId(), new SchoolGrade()).getName());
+            exportDataDTO.setClassName(classMap.getOrDefault(planSchoolStudent.getClassId(), new SchoolClass()).getName());
             exportDataDTOS.add(exportDataDTO);
         });
         return exportDataDTOS;
