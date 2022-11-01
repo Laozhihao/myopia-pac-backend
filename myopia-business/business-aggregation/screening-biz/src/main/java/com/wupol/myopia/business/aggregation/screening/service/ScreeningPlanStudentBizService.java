@@ -173,8 +173,13 @@ public class ScreeningPlanStudentBizService {
         if (CollectionUtils.isEmpty(screeningResults)) {
             return new ArrayList<>();
         }
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(planStudents, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(planStudents, ScreeningStudentDTO::getClassId);
         Map<Integer, List<VisionScreeningResult>> visionResultMap = screeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
-        return planStudents.stream().filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList());
+        List<ScreeningStudentDTO> collect = planStudents.stream().filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList());
+        collect.forEach(s -> s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName())
+                .setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName()));
+        return collect;
     }
 
     /**
