@@ -198,11 +198,8 @@ public class DeviceUploadDataService {
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();
-        //查询筛查机构是否过期
-        ScreeningOrganization so = new ScreeningOrganization().setId(bindingScreeningOrgId);
-        so.setStatus(CommonConst.STATUS_NOT_DELETED);
-        ScreeningOrganization screeningOrganization = screeningOrganizationService.findOne(so);
-        if (screeningOrganization == null) {
+        Integer orgId = getOrganizationId(device);
+        if (Objects.isNull(orgId)) {
             throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
         }
         //设置检查结果
