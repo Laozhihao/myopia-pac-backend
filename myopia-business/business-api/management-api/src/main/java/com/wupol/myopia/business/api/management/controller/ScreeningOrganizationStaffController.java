@@ -72,6 +72,7 @@ public class ScreeningOrganizationStaffController {
     @PostMapping()
     public ScreeningOrganizationStaffVO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningOrganizationStaff.setScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
         }
