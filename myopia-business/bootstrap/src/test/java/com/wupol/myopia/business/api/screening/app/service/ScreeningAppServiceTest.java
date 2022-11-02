@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.vo.StudentVO;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.util.ResourceHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import java.util.Objects;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MyopiaBusinessApplication.class)
+@Slf4j
 class ScreeningAppServiceTest {
     @Autowired
     private ScreeningAppService screeningAppService;
@@ -54,9 +56,9 @@ class ScreeningAppServiceTest {
         Integer orgId = 3;
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentIdAndState(planStudentId, orgId, isState);
         if (Objects.nonNull(screeningResult)) {
-            System.out.println(JSON.toJSONString(screeningResult));
+            log.info("screeningResult:{}", JSON.toJSONString(screeningResult));
         } else {
-            System.out.println("查询失败");
+            log.info("查询失败");
         }
         Assert.assertTrue(true);
     }
@@ -72,7 +74,7 @@ class ScreeningAppServiceTest {
         Integer screeningOrgId = 3;
         Boolean isFilter = true;
         ClassScreeningProgress data = screeningAppService.getClassScreeningProgress(schoolId, gradeId, classId, new CurrentUser(), isFilter, 1,0);
-        System.out.println(JSON.toJSONString(data));
+        log.info("data:{}", JSON.toJSONString(data));
         Assert.assertTrue(true);
     }
 
@@ -86,7 +88,7 @@ class ScreeningAppServiceTest {
         VisionScreeningResult screeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isState == 1));
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getById(planStudentId);
         StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent, schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId()), schoolClassService.getById(screeningPlanSchoolStudent.getClassId()));
-        System.out.println(JSON.toJSONString(StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent)));
+        log.info("data:{}", JSON.toJSONString(StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent)));
         Assert.assertTrue(true);
     }
 
@@ -97,7 +99,7 @@ class ScreeningAppServiceTest {
     void checkState() {
         VisionScreeningResult screeningResult = screeningAppService.getVisionScreeningResultByPlanStudentId(19, 3);
         if (Objects.isNull(screeningResult)) {
-            System.out.println("没有初筛");
+            log.info("没有初筛");
         }
         visionScreeningBizService.verifyScreening(screeningResult,false);
         Assert.assertTrue(true);
@@ -114,7 +116,7 @@ class ScreeningAppServiceTest {
         Assert.assertNotNull("不存在筛查计划", screeningPlan);
         screeningPlan.setState(state);
         screeningPlanSchoolStudentService.updateById(screeningPlan);
-        System.out.println("成功");
+        log.info("成功");
         Assert.assertTrue(true);
     }
 
@@ -129,7 +131,7 @@ class ScreeningAppServiceTest {
             deviationDTO.setIsState(1);
             visionScreeningBizService.saveOrUpdateStudentScreenData(deviationDTO);
         } else {
-            System.out.println("不是复测数据");
+            log.info("不是复测数据");
         }
         Assert.assertTrue(true);
     }
