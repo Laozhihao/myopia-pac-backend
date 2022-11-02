@@ -214,6 +214,11 @@ public class SchoolBizService {
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
+        if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
+                && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {
+            return new Page<>();
+        }
+
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
             UserDTO query = new UserDTO();
