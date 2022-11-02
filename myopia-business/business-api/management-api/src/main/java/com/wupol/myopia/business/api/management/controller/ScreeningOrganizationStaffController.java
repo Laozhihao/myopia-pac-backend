@@ -78,7 +78,7 @@ public class ScreeningOrganizationStaffController {
         }
         // 非平台管理员
         if (!user.isPlatformAdminUser()) {
-          screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(user.getScreeningOrgId(),null);
+          screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrganizationStaff.getScreeningOrgId(),null);
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());
