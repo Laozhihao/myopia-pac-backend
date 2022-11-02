@@ -25,7 +25,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +90,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
 
         // 筛查次数
-        Map<Integer, Integer> countMaps = visionScreeningResultService.countScreeningTimeMap();
+        Map<Integer, Integer> countMaps = visionScreeningResultService.countScreeningTimeMap(studentLists.stream().map(Student::getId).collect(Collectors.toList()));
 
         List<Integer> studentIds = studentLists.stream().map(Student::getId).collect(Collectors.toList());
 
