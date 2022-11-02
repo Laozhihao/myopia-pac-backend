@@ -105,6 +105,7 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
             throw new BusinessException("医院名字重复，请确认");
         }
         overview.setConfigType(OverviewConfigUtil.list2configType(overview.getConfigTypeList()));
+        Overview oldOverview = super.getById(overview.getId());
         // 1.更新总览机构信息，总览机构-医院关系记录,生成总览机构-筛查机构，清空缓存
         super.updateById(overview);
         overviewHospitalService.updateBindInfo(overview.getId(), overview.getHospitalIds());
@@ -113,7 +114,6 @@ public class OverviewService extends BaseService<OverviewMapper, Overview> {
         removeOverviewCache(overview.getId());
 
         // 2.更新总览机构的账号权限及名称
-        Overview oldOverview = super.getById(overview.getId());
         if (StringUtils.isNotBlank(overview.getName()) && (!overview.getName().equals(oldOverview.getName()))) {
             oauthServiceClient.updateUserRealName(overview.getName(), overview.getId(), SystemCode.MANAGEMENT_CLIENT.getCode(),
                     UserType.OVERVIEW.getType());
