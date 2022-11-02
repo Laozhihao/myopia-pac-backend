@@ -12,10 +12,14 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ExportPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -63,6 +67,12 @@ public class ArchivePdfGenerator {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private Html2PdfService html2PdfService;
+
+    @Autowired
+    private SchoolGradeService schoolGradeService;
+
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     /**
      * 【行政区域】生成档案卡PDF文件
@@ -237,6 +247,7 @@ public class ArchivePdfGenerator {
     public List<PlanSchoolGradeVO> getGradeAndClass(Integer screeningPlanId, Integer schoolId, Integer gradeId) {
         //1. 获取该计划学校的筛查学生所有年级、班级
         List<GradeClassesDTO> gradeClasses = screeningPlanSchoolStudentService.selectSchoolGradeVoByPlanIdAndSchoolId(screeningPlanId, schoolId, gradeId);
+        setGradeAndClass(gradeClasses);
         Map<Integer, String> gradeMap = gradeClasses.stream().collect(Collectors.toMap(GradeClassesDTO::getGradeId, GradeClassesDTO::getGradeName, (o, n) -> n));
         //2. 根据年级分组
         Map<Integer, List<GradeClassesDTO>> graderIdClasses = gradeClasses.stream().collect(Collectors.groupingBy(GradeClassesDTO::getGradeId));
@@ -256,6 +267,20 @@ public class ArchivePdfGenerator {
             }).collect(Collectors.toList()));
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 设置班级、年级名称
+     *
+     * @param gradeClasses gradeClasses
+     */
+    private void setGradeAndClass(List<GradeClassesDTO> gradeClasses) {
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeClasses, GradeClassesDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(gradeClasses, GradeClassesDTO::getClassId);
+        gradeClasses.forEach(s -> {
+            s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName());
+            s.setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName());
+        });
     }
 
 }
