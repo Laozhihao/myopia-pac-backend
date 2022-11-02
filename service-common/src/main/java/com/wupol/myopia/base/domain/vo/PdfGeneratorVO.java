@@ -3,6 +3,7 @@ package com.wupol.myopia.base.domain.vo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@Accessors(chain = true)
 public class PdfGeneratorVO {
 
     /**
@@ -44,4 +46,9 @@ public class PdfGeneratorVO {
      * lockKey
      */
     private String lockKey;
+
+    /**
+     * 状态
+     */
+    private Boolean status;
 }

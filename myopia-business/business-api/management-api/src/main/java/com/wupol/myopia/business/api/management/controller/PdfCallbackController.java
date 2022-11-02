@@ -52,7 +52,7 @@ public class PdfCallbackController {
 
         String key = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(key);
-        if (Objects.isNull(pdfGeneratorVO)) {
+        if (Objects.isNull(pdfGeneratorVO) || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
             return;
         }
         // 如果次数相同，则压缩文件

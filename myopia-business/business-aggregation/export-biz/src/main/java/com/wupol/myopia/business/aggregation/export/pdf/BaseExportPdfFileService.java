@@ -4,6 +4,7 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisUtil;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -16,12 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -175,13 +179,40 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         List<PDFRequestDTO.Item> items = pdfRequestDTO.getItems();
         String key = UUID.randomUUID().toString(true);
 
-        PdfGeneratorVO vo = new PdfGeneratorVO();
-        vo.setUserId(exportCondition.getApplyExportFileUserId());
-        vo.setExportTotal(items.size());
-        vo.setExportCount(0);
-        vo.setZipFileName(pdfRequestDTO.getZipFileName());
-        vo.setLockKey(getLockKey(exportCondition));
-        redisUtil.set(key, vo);
-        items.forEach(item -> html2PdfService.asyncGeneratorPDF(item.getUrl(), item.getFileName(), Paths.get(key, item.getFileName()).toString()));
+        PdfGeneratorVO vo = new PdfGeneratorVO()
+                .setUserId(exportCondition.getApplyExportFileUserId())
+                .setExportTotal(items.size())
+                .setExportCount(0)
+                .setZipFileName(pdfRequestDTO.getZipFileName())
+                .setLockKey(getLockKey(exportCondition));
+
+        redisUtil.set(key, vo, 600);
+
+        for (int i = 1; i <= 3; i++) {
+            if (CollectionUtils.isEmpty(items)) {
+                return;
+            }
+            items = requestHtml2Pdf(items, key);
+        }
+        vo.setStatus(Boolean.FALSE);
+        redisUtil.set(key, vo, 600);
+    }
+
+    /**
+     * 发起请求
+     *
+     * @param items 项目
+     * @param key   值
+     *
+     * @return List<PDFRequestDTO.Item>
+     */
+    private List<PDFRequestDTO.Item> requestHtml2Pdf(List<PDFRequestDTO.Item> items, String key) {
+        return items.stream().map(item -> {
+            PdfResponseDTO pdfResponseDTO = html2PdfService.asyncGeneratorPDF(item.getUrl(), item.getFileName(), Paths.get(key, item.getFileName()).toString());
+            if (Objects.equals(pdfResponseDTO.getStatus(), Boolean.FALSE)) {
+                return item;
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 }
