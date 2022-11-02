@@ -151,16 +151,24 @@ public class SchoolBizService {
             // 获取筛查机构
             List<Integer> orgIds = plans.stream()
                     .map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+            // 机构
             List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
             Map<Integer, String> orgMaps = orgLists.stream()
                     .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+            // 学校
+            List<School> schoolList = schoolService.getByIds(orgIds);
+            Map<Integer, String> schoolNameList = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
 
             // 获取计划对应的学校信息
             Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
 
             // 封装DTO
             plans.forEach(plan -> {
-                plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
+                if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                    plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
+                } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                    plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
+                }
                 List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
                 if (CollUtil.isEmpty(screeningResultStatistics)) {
                     plan.setItems(new ArrayList<>());
@@ -205,6 +213,11 @@ public class SchoolBizService {
 
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
+
+        if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
+                && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {
+            return new Page<>();
+        }
 
         // 创建人ID处理
         if (StringUtils.isNotBlank(createUser)) {
@@ -424,6 +437,7 @@ public class SchoolBizService {
         if (currentUser.isOverviewUser()) {
             if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
                 schoolQueryDTO.setSchoolIds(overviewService.getBindSchool(currentUser.getOrgId()));
+                schoolQueryDTO.setIsOverviewUser(Boolean.TRUE);
             }
             return;
         }

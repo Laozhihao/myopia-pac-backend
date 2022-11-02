@@ -334,7 +334,7 @@ public class VisionScreeningService {
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
 
         //筛查学生
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school,Boolean.FALSE);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school);
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
         if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
@@ -384,14 +384,14 @@ public class VisionScreeningService {
 
     /**
      * 获取筛查计划学校学生
+     *
      * @param screeningPlanId 筛查计划ID
-     * @param gradeIds 年级ID集合
-     * @param school 学校信息
-     * @param isAdd 是否新增
+     * @param gradeIds        年级ID集合
+     * @param school          学校信息
      */
-    private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school,boolean isAdd){
+    private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
-        return schoolScreeningBizFacade.getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school,isAdd);
+        return schoolScreeningBizFacade.getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school);
     }
 
 
@@ -509,7 +509,7 @@ public class VisionScreeningService {
     @Transactional(rollbackFor = Exception.class)
     public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO) {
         School school = schoolService.getById(addScreeningStudentDTO.getSchoolId());
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school,Boolean.TRUE);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school);
         //新增学校年级
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(addScreeningStudentDTO.getScreeningPlanId(), school.getId());
         changeScreeningGradeIds(addScreeningStudentDTO, screeningPlanSchool);

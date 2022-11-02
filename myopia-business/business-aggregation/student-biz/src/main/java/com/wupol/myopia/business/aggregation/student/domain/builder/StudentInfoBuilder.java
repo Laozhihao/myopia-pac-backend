@@ -38,15 +38,11 @@ public class StudentInfoBuilder {
         student.setHyperopiaLevel(statConclusion.getHyperopiaLevel());
         String schoolGradeCode = statConclusion.getSchoolGradeCode();
         GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByCode(schoolGradeCode);
+        student.setLowVision(Boolean.TRUE.equals(statConclusion.getIsLowVision()) ? LowVisionLevelEnum.LOW_VISION.code : null);
         if (!Objects.equals(SchoolAge.KINDERGARTEN.code,gradeCodeEnum.getType())){
             //小学及以上的数据同步
             student.setMyopiaLevel(statConclusion.getMyopiaLevel());
             student.setScreeningMyopia(statConclusion.getScreeningMyopia());
-            if (Objects.nonNull(statConclusion.getIsLowVision()) && Objects.equals(statConclusion.getIsLowVision(),Boolean.TRUE)) {
-                student.setLowVision(LowVisionLevelEnum.LOW_VISION.code);
-            }else {
-                student.setLowVision(null);
-            }
         }
     }
 }

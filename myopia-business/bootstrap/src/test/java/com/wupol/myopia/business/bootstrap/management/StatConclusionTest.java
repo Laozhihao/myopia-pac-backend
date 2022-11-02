@@ -6,6 +6,7 @@ import com.wupol.myopia.business.bootstrap.MyopiaBusinessApplication;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
@@ -47,6 +48,9 @@ public class StatConclusionTest {
     @Autowired
     private SchoolGradeService schoolGradeService;
 
+    @Autowired
+    private SchoolClassService schoolClassService;
+
     @Test
     public void testInsert() {
         VisionScreeningResult query = new VisionScreeningResult();
@@ -67,7 +71,7 @@ public class StatConclusionTest {
             Student student = studentService.getById(result.getStudentId());
 
             int schoolId = planStudent.getSchoolId();
-            String schoolClassName = planStudent.getClassName();
+            String schoolClassName = schoolClassService.getById(planStudent.getClassId()).getName();
             int gradeId = planStudent.getGradeId();
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
             String schoolGradeCode = schoolGrade.getGradeCode();

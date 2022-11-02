@@ -33,7 +33,10 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 医院Service
@@ -316,6 +319,19 @@ public class HospitalService extends BaseService<HospitalMapper, Hospital> {
         if (!hospital.checkCooperation()) {
             throw new BusinessException("合作信息非法，请确认");
         }
+    }
+
+    /**
+     * 获取医院Map
+     *
+     * @param list     集合
+     * @param function function
+     * @param <T>      T
+     *
+     * @return Map<Integer, Hospital>
+     */
+    public <T> Map<Integer, Hospital> getHospitalMap(List<T> list, Function<T, Integer> function) {
+        return listByIds(list.stream().map(function).collect(Collectors.toList())).stream().collect(Collectors.toMap(Hospital::getId, Function.identity()));
     }
 
 }

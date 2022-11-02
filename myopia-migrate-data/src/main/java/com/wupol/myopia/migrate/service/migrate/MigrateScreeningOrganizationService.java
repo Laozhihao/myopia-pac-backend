@@ -188,7 +188,7 @@ public class MigrateScreeningOrganizationService {
                 // 可筛查项目配置
                 .setScreeningConfig(JSON.parseObject("{\"screeningTypeList\":[0],\"channel\":\"Official\",\"medicalProjectList\":[\"vision\",\"computer_optometry\",\"other_eye_diseases\"]}", ScreeningConfig.class));
         // 设置行政区域信息
-        Long areaDistrictCode = districtService.getCodeByName(sysDept.getRegion());
+        Long areaDistrictCode = districtService.getCodeByName(sysDept.getRegion(), null);
         District areaDistrict = districtService.getByCode(areaDistrictCode);
         List<District> districtDetail = districtService.getDistrictPositionDetail(areaDistrictCode);
         screeningOrganization.setDistrictId(areaDistrict.getId())

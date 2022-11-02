@@ -94,8 +94,16 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         }
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId, schoolId, gradeId, classId, isKindergarten);
-        statConclusionExportDTOs.forEach(vo ->
-                vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(statConclusionExportDTOs, StatConclusionExportDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(statConclusionExportDTOs, StatConclusionExportDTO::getClassId);
+        statConclusionExportDTOs.forEach(vo -> {
+            SchoolGrade schoolGrade = gradeMap.getOrDefault(vo.getGradeId(), new SchoolGrade());
+            SchoolClass schoolClass = classMap.getOrDefault(vo.getClassId(), new SchoolClass());
+            vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
+                            .setGradeName(schoolGrade.getName())
+                            .setClassName(schoolClass.getName());
+                }
+        );
         return statConclusionExportDTOs;
     }
 

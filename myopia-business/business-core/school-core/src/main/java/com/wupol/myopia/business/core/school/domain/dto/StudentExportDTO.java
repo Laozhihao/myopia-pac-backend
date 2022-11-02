@@ -92,7 +92,7 @@ public class StudentExportDTO implements Serializable {
     private Integer visitsCount;
 
     @ExcelProperty({TOP_HEADER, "问卷次数"})
-    private Integer questionCount;
+    private Long questionCount;
 
     @ExcelProperty({TOP_HEADER, "最新筛查日期"})
     private String lastScreeningTime;

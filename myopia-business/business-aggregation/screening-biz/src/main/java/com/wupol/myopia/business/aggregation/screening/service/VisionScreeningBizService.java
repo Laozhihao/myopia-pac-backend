@@ -9,10 +9,12 @@ import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoB
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
@@ -64,6 +66,8 @@ public class VisionScreeningBizService {
     private SchoolStudentService schoolStudentService;
     @Autowired
     private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private SchoolClassService schoolClassService;
 
     private static final String UNDONE_MSG = "该学生初筛项目未全部完成，无法进行复测！";
 
@@ -216,12 +220,14 @@ public class VisionScreeningBizService {
         }
         // 根据是否复查，查找结论表
         StatConclusion statConclusion = statConclusionService.getStatConclusion(currentVisionScreeningResult.getId(), currentVisionScreeningResult.getIsDoubleScreen());
+        SchoolClass schoolClass = schoolClassService.getById(screeningPlanSchoolStudent.getClassId());
         //需要新增
         SchoolGrade schoolGrade = schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId());
         StatConclusionBuilder statConclusionBuilder = StatConclusionBuilder.getStatConclusionBuilder();
         statConclusion = statConclusionBuilder.setCurrentVisionScreeningResult(currentVisionScreeningResult, secondVisionScreeningResult).setStatConclusion(statConclusion)
                 .setScreeningPlanSchoolStudent(screeningPlanSchoolStudent)
                 .setGradeCode(schoolGrade.getGradeCode())
+                .setSchoolClass(schoolClass)
                 .build();
         return statConclusion;
     }
@@ -318,7 +324,6 @@ public class VisionScreeningBizService {
     public void updateSchoolStudent(StatConclusion statConclusion, Date lastScreeningTime) {
         SchoolStudent schoolStudent = schoolStudentService.getByStudentIdAndSchoolId(statConclusion.getStudentId(),statConclusion.getSchoolId(),CommonConst.STATUS_NOT_DELETED);
         if (Objects.isNull(schoolStudent)) {
-            log.warn("学校端暂无此学生，studentId={},schoolId={}",statConclusion.getStudentId(),statConclusion.getSchoolId());
             return;
         }
         SchoolStudentInfoBuilder.setSchoolStudentInfoByStatConclusion(schoolStudent,statConclusion,lastScreeningTime);

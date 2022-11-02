@@ -93,4 +93,9 @@ public class SchoolQueryDTO extends School {
      * 学校id集合
      */
     private List<Integer> schoolIds;
+
+    /**
+     * 是否总览账号
+     */
+    private Boolean isOverviewUser;
 }

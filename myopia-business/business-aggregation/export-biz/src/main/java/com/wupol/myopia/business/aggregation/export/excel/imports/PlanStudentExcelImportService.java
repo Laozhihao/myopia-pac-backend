@@ -465,8 +465,6 @@ public class PlanStudentExcelImportService {
             if (Objects.isNull(planStudent.getScreeningCode())) {
                 planStudent.setScreeningCode(ScreeningCodeGenerator.nextId());
             }
-            planStudent.setGradeName(Objects.nonNull(student.getGradeId()) ? gradeMap.get(student.getGradeId()).getName() : null);
-            planStudent.setClassName(Objects.nonNull(student.getClassId()) ? classMap.get(student.getClassId()).getName() : null);
             planStudent.setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL);
             packagePlanStudentByStudent(student, planStudent);
             list.add(planStudent);

@@ -67,10 +67,8 @@ public class ScreeningPlanBizService {
 
         screeningPlanSchoolStudent.setStudentName(student.getName())
                 .setGradeId(student.getGradeId())
-                .setGradeName(gradeName)
                 .setGradeType(GradeCodeEnum.getByName(gradeName).getType())
                 .setClassId(student.getClassId())
-                .setClassName(clazzName)
                 .setSchoolName(schoolName)
                 .setBirthday(student.getBirthday())
                 .setGender(student.getGender())

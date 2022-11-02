@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.hospital.domain.dos.ReportAndRecordDO;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
+import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -24,7 +25,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +65,9 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
     @Resource
     private MedicalReportService medicalReportService;
 
+    @Resource
+    private UserQuestionRecordService userQuestionRecordService;
+
     @Override
     public List getExcelData(ExportCondition exportCondition) {
         // 获取学校信息
@@ -87,16 +90,15 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(classIdList);
 
         // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountVOS = visionScreeningResultService.countScreeningTime();
-        Map<Integer, Integer> countMaps = studentScreeningCountVOS.stream().collect(Collectors
-                .toMap(StudentScreeningCountDTO::getStudentId,
-                        StudentScreeningCountDTO::getCount));
+        Map<Integer, Integer> countMaps = visionScreeningResultService.countScreeningTimeMap(studentLists.stream().map(Student::getId).collect(Collectors.toList()));
+
+        List<Integer> studentIds = studentLists.stream().map(Student::getId).collect(Collectors.toList());
 
         // 获取就诊记录
-        List<Integer> studentIds = studentLists.stream().map(Student::getId).collect(Collectors.toList());
-        List<ReportAndRecordDO> visitLists = medicalReportService.getByStudentIds(studentIds);
-        Map<Integer, List<ReportAndRecordDO>> visitMap = visitLists.stream()
-                .collect(Collectors.groupingBy(ReportAndRecordDO::getStudentId));
+        Map<Integer, List<ReportAndRecordDO>> visitMap = medicalReportService.getMapByStudentIds(studentIds);
+
+        // 问卷记录
+        Map<Integer, Long> questionRecordMap = userQuestionRecordService.studentRecordCount(studentIds);
 
         List<StudentExportDTO> exportList = new ArrayList<>();
         for (StudentDTO item : studentLists) {
@@ -116,7 +118,7 @@ public class ExportStudentExcelService extends BaseExportExcelFileService {
                     .setLabel(WarningLevel.getDescByCode(item.getVisionLabel()))
                     .setSituation(item.situation2Str())
                     .setScreeningCount(countMaps.getOrDefault(item.getId(), 0))
-                    .setQuestionCount(0)
+                    .setQuestionCount(questionRecordMap.getOrDefault(item.getId(), 0L))
                     .setLastScreeningTime(DateFormatUtil.format(item.getLastScreeningTime(), DateFormatUtil.FORMAT_ONLY_DATE))
                     .setProvince(addressMap.getOrDefault(ExportAddressKey.PROVIDE, StringUtils.EMPTY))
                     .setCity(addressMap.getOrDefault(ExportAddressKey.CITY, StringUtils.EMPTY))

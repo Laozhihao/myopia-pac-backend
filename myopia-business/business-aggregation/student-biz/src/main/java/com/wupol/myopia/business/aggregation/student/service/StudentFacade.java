@@ -40,7 +40,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -969,36 +968,5 @@ public class StudentFacade {
      */
     public List<Nation> getNationLists() {
         return NationEnum.getNationList();
-    }
-
-    /**
-     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
-     */
-    public void processGradeTypeData() {
-        List<SchoolStudent> schoolStudentList = schoolStudentService.listByGradeType();
-        for (SchoolStudent schoolStudent : schoolStudentList) {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolStudent.getGradeName());
-            schoolStudent.setGradeType(gradeCodeEnum.getType());
-        }
-        schoolStudentService.updateBatchById(schoolStudentList);
-    }
-
-
-    /**
-     * 处理学校学生年份(处理历史数据使用，后期版本会删除)
-     */
-    public void schoolStudentYearData(Boolean isAll, Integer schoolId) {
-        List<SchoolStudent> schoolStudentList;
-        if (Objects.equals(isAll,Boolean.TRUE)){
-            schoolStudentList = schoolStudentService.list();
-        }else {
-            Assert.notNull(schoolId,"学校ID不能为空");
-            schoolStudentList = schoolStudentService.listBySchoolId(schoolId);
-        }
-        for (SchoolStudent schoolStudent : schoolStudentList) {
-            GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(schoolStudent.getGradeName());
-            schoolStudent.setParticularYear(SchoolUtil.getParticularYear(gradeCodeEnum.getCode()));
-        }
-        schoolStudentService.updateBatchById(schoolStudentList);
     }
 }

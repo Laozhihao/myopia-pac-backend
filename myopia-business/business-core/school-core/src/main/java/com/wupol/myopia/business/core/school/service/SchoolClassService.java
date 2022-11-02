@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolClassMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.Student;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -207,6 +208,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      * @return SchoolClass
      */
     public SchoolClass getByClassNameAndSchoolId(Integer schoolId, Integer gradeId, String className) {
+        if (Objects.isNull(gradeId) || StringUtils.isBlank(className))  {
+            return new SchoolClass();
+        }
         LambdaQueryWrapper<SchoolClass> queryWrapper = new LambdaQueryWrapper<>();
         SchoolClass schoolClass = new SchoolClass();
         schoolClass.setSchoolId(schoolId).setName(className).setGradeId(gradeId).setStatus(CommonConst.STATUS_NOT_DELETED);

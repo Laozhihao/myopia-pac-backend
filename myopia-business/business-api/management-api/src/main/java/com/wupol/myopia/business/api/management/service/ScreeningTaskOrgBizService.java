@@ -388,15 +388,10 @@ public class ScreeningTaskOrgBizService {
         ScreeningTaskOrgDTO dto = new ScreeningTaskOrgDTO();
         BeanUtils.copyProperties(orgVo, dto);
 
-        List<ScreeningPlanSchool> orgSchools = planSchoolList.stream()
-                .filter(item -> Objects.equals(getKey(item.getScreeningOrgId(),ScreeningOrgTypeEnum.SCHOOL.getType()),getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType())))
-                .collect(Collectors.toList());
+        Set<Integer> schoolIds = planSchoolList.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
+        Map<Integer, ScreeningPlanSchool> orgSchoolsMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, Function.identity()));
 
-        Set<Integer> schoolIds = orgSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toSet());
-        Map<Integer, ScreeningPlanSchool> orgSchoolsMap = orgSchools.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, Function.identity()));
-        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream()
-                .filter(item -> Objects.equals(getKey(item.getScreeningOrgId(),item.getScreeningOrgType()),getKey(orgVo.getScreeningOrgId(),orgVo.getScreeningOrgType())))
-                .collect(Collectors.toMap(ScreeningPlan::getId, screeningPlan -> screeningPlan));
+        Map<Integer, ScreeningPlan> planMap = screeningPlanList.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
 
         List<UserQuestionRecord> planUserQuestionRecords = userQuestionRecords.stream()
                 .filter(item -> planMap.containsKey(item.getPlanId())).collect(Collectors.toList());

@@ -11,6 +11,9 @@ import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author jacob
@@ -44,5 +47,18 @@ public class DeviceService extends BaseService<DeviceMapper, Device> {
         return list(new LambdaQueryWrapper<Device>()
                 .eq(Device::getBindingScreeningOrgId, orgId)
                 .eq(Device::getOrgType, orgType));
+    }
+
+    /**
+     * 获取设备Map
+     *
+     * @param list     集合
+     * @param function function
+     * @param <T>      T
+     *
+     * @return Map<Integer, Hospital>
+     */
+    public <T> Map<Integer, Device> getDeviceMap(List<T> list, Function<T, Integer> function) {
+        return listByIds(list.stream().map(function).collect(Collectors.toList())).stream().collect(Collectors.toMap(Device::getId, Function.identity()));
     }
 }

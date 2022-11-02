@@ -134,7 +134,8 @@ public class ScreeningAppService {
             return new ArrayList<>();
         }
         // 获取学生数据
-        LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = getScreeningPlanSchoolStudentLambdaQueryWrapper(schoolId, gradeName, clazzName, screeningOrgId, studentName, currentPlanIds);
+        SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(schoolId, gradeName);
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = getScreeningPlanSchoolStudentLambdaQueryWrapper(schoolId, schoolGrade.getId(), schoolClassService.getByClassNameAndSchoolId(schoolId, schoolGrade.getId(), clazzName).getId(), screeningOrgId, studentName, currentPlanIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents;
         if (isRandom) {
             screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getBaseMapper().selectList(screeningPlanSchoolStudentLambdaQueryWrapper);
@@ -149,9 +150,12 @@ public class ScreeningAppService {
         return getSysStudents(screeningPlanSchoolStudents);
     }
 
-    private LambdaQueryWrapper<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentLambdaQueryWrapper(Integer schoolId, String gradeName, String clazzName, Integer screeningOrgId, String studentName, Set<Integer> currentPlanIds) {
+    private LambdaQueryWrapper<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentLambdaQueryWrapper(Integer schoolId, Integer gradeId, Integer clazzId, Integer screeningOrgId, String studentName, Set<Integer> currentPlanIds) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent();
-        screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId).setSchoolId(schoolId).setClassName(clazzName).setGradeName(gradeName);
+        screeningPlanSchoolStudent.setScreeningOrgId(screeningOrgId)
+                .setSchoolId(schoolId)
+                .setClassId(clazzId)
+                .setGradeId(gradeId);
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(studentName)) {
             screeningPlanSchoolStudentLambdaQueryWrapper.like(ScreeningPlanSchoolStudent::getStudentName, studentName);
@@ -183,7 +187,12 @@ public class ScreeningAppService {
             List<StatConclusion> statConclusionList = idStatConclusionListMap.get(id);
             return this.getRescreeningStatus(statConclusionList);
         }));
-        return this.getSysStudentData(screeningStudentIdStatusMap, screeningPlanSchoolStudents);
+        // 获取年级
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(screeningPlanSchoolStudents, ScreeningPlanSchoolStudent::getGradeId);
+
+        // 获取班级
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(screeningPlanSchoolStudents, ScreeningPlanSchoolStudent::getClassId);
+        return this.getSysStudentData(screeningStudentIdStatusMap, screeningPlanSchoolStudents,gradeMap,classMap);
     }
 
     /**
@@ -193,9 +202,10 @@ public class ScreeningAppService {
      * @param screeningPlanSchoolStudents
      * @return
      */
-    private List<SysStudent> getSysStudentData(Map<Integer, Integer> screeningStudentIdStatusMap, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents) {
+    private List<SysStudent> getSysStudentData(Map<Integer, Integer> screeningStudentIdStatusMap, List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents,
+                                               Map<Integer, SchoolGrade> gradeMap,Map<Integer, SchoolClass> classMap) {
         return screeningPlanSchoolStudents.stream().map(screeningPlanSchoolStudent ->
-                SysStudent.getInstance(screeningPlanSchoolStudent, screeningStudentIdStatusMap.get(screeningPlanSchoolStudent.getId()))
+                SysStudent.getInstance(screeningPlanSchoolStudent, screeningStudentIdStatusMap.get(screeningPlanSchoolStudent.getId()),gradeMap,classMap)
         ).collect(Collectors.toList());
     }
 
@@ -325,6 +335,12 @@ public class ScreeningAppService {
      * @return
      */
     public List<RescreeningResultVO> getAllReviewResult(ScreeningResultSearchDTO screeningResultDTO) {
+        // 查找班级年级
+        SchoolGrade schoolGrade = schoolGradeService.getByGradeNameAndSchoolId(screeningResultDTO.getSchoolId(), screeningResultDTO.getGradeName());
+        SchoolClass schoolClass = schoolClassService.getByClassNameAndSchoolId(screeningResultDTO.getSchoolId(), schoolGrade.getId(), screeningResultDTO.getClazzName());
+        screeningResultDTO.setGradeId(schoolGrade.getId());
+        screeningResultDTO.setClassId(schoolClass.getId());
+
         //拿到班级信息或者学生信息之后，进行查询数据
         List<StudentScreeningInfoWithResultDTO> studentInfoWithResult = screeningPlanSchoolStudentService.getStudentInfoWithResult(screeningResultDTO);
         //先分组
@@ -493,9 +509,11 @@ public class ScreeningAppService {
      * @return List<StudentScreeningProgressVO>
      */
     private List<StudentScreeningProgressVO> getStudentScreeningProgress(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents, Map<Integer, VisionScreeningResult> planStudentVisionResultMap, boolean haiNanVersion) {
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(screeningPlanSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList()));
         return screeningPlanSchoolStudents.stream().map(planStudent -> {
             VisionScreeningResult screeningResult = planStudentVisionResultMap.get(planStudent.getId());
-            StudentVO studentVO = StudentVO.getInstance(planStudent);
+            StudentVO studentVO = StudentVO.getInstance(planStudent, gradeMap.getOrDefault(planStudent.getGradeId(), new SchoolGrade()), classMap.getOrDefault(planStudent.getClassId(), new SchoolClass()));
             StudentScreeningProgressVO studentProgress = StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO, planStudent);
             studentProgress.setStudentId(planStudent.getId());
             if (Objects.nonNull(screeningResult)) {

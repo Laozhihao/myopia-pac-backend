@@ -164,6 +164,9 @@ public class SchoolStudentBizService {
         schoolStudent.setScreeningMyopia(oldSchoolStudent.getScreeningMyopia());
         schoolStudent.setHyperopiaLevel(oldSchoolStudent.getHyperopiaLevel());
         schoolStudent.setAstigmatismLevel(oldSchoolStudent.getAstigmatismLevel());
+        schoolStudent.setIsMyopia(oldSchoolStudent.getIsMyopia());
+        schoolStudent.setIsHyperopia(oldSchoolStudent.getIsHyperopia());
+        schoolStudent.setIsAstigmatism(oldSchoolStudent.getIsAstigmatism());
     }
 
 

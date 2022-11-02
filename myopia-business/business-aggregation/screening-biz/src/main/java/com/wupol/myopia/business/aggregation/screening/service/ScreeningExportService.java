@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.PDFTemplateConst;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -186,18 +187,18 @@ public class ScreeningExportService {
      * @param classId 班级ID
      * @param studentIds 学生ID集合
      * @param isSchoolClient true:学校端   fasle：管理端
-     * @return
+     * @return ScreeningQrCodeDTO
      */
     public ScreeningQrCodeDTO getNoticeData(Integer screeningPlanId, Integer schoolId, Integer gradeId, Integer classId, List<Integer> studentIds, boolean isSchoolClient) {
         // 2. 处理参数
-        String gradeName = "";
+        String gradeName = StringUtils.EMPTY;
         School school = schoolService.getBySchoolId(schoolId);
-        if (Objects.nonNull(gradeId)){
+        if (Objects.nonNull(gradeId)) {
             SchoolGrade schoolGrade = schoolGradeService.getById(gradeId);
             gradeName = schoolGrade.getName();
         }
-        String className = "";
-        if (Objects.nonNull(classId)){
+        String className = StringUtils.EMPTY;
+        if (Objects.nonNull(classId)) {
             SchoolClass schoolClass = schoolClassService.getById(classId);
             className = schoolClass.getName();
         }
@@ -205,16 +206,25 @@ public class ScreeningExportService {
 
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
         NotificationConfig notificationConfig;
-        // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
-        if (isSchoolClient) {
-            notificationConfig = school.getNotificationConfig();
+        if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+            // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
+            if (isSchoolClient) {
+                notificationConfig = school.getNotificationConfig();
+            } else {
+                ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
+                notificationConfig = screeningOrganization.getNotificationConfig();
+            }
         } else {
-            ScreeningOrgResponseDTO screeningOrganization = screeningOrganizationService.getScreeningOrgDetails(plan.getScreeningOrgId());
-            notificationConfig = screeningOrganization.getNotificationConfig();
+            notificationConfig = school.getNotificationConfig();
         }
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId,classId,studentIds);
+
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(screeningPlanId, schoolId, gradeId, classId, studentIds);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         students.forEach(student -> {
+            student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
+                    .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setSchoolName(school.getName());
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard()), config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
@@ -308,15 +318,18 @@ public class ScreeningExportService {
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
                 screeningPlanId, schoolId,gradeId, classId,planStudentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);
         students.forEach(student -> {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
+            student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
+                    .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
                     student.getIdCard(), type);
             //TODO 调整内容就好，上完线在来处理，需要和前段对接
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
         });
-
         return students;
     }
 
@@ -331,7 +344,7 @@ public class ScreeningExportService {
         if (CollectionUtils.isEmpty(currentPlanIds)) {
             throw new BusinessException("当前无筛查计划");
         }
-        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName())
+        List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(new ArrayList<>(currentPlanIds), params.getSchoolId(), params.getGradeId(), params.getClassId(), null, params.getStudentName(), Boolean.FALSE)
                 .stream().distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(students)) {
             return Collections.emptyList();

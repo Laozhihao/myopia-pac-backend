@@ -323,24 +323,16 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .eq(Objects.nonNull(schoolStudentQueryBO.getAstigmatismLevel()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismLevel())
                 .eq(Objects.nonNull(schoolStudentQueryBO.getRefractiveError()),SchoolStudent::getIsRefractiveError,schoolStudentQueryBO.getRefractiveError())
                 .eq(Objects.nonNull(schoolStudentQueryBO.getAnisometropia()),SchoolStudent::getIsAnisometropia,schoolStudentQueryBO.getAnisometropia())
-                .eq(Objects.nonNull(schoolStudentQueryBO.getIsNormal()),SchoolStudent::getIsNormal,schoolStudentQueryBO.getIsNormal())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getVisionLabels()), SchoolStudent::getVisionLabel, schoolStudentQueryBO.getVisionLabels())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getLowVisionList()),SchoolStudent::getLowVision,schoolStudentQueryBO.getLowVisionList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getGradeTypeList()),SchoolStudent::getGradeType,schoolStudentQueryBO.getGradeTypeList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getMyopiaList()),SchoolStudent::getMyopiaLevel,schoolStudentQueryBO.getMyopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getHyperopiaList()),SchoolStudent::getHyperopiaLevel,schoolStudentQueryBO.getHyperopiaList())
                 .in(CollUtil.isNotEmpty(schoolStudentQueryBO.getAstigmatismList()),SchoolStudent::getAstigmatismLevel,schoolStudentQueryBO.getAstigmatismList())
-                ;
+                .orderByDesc(SchoolStudent::getCreateTime);
 
         Page page = pageRequest.toPage();
         return baseMapper.selectPage(page,queryWrapper);
-    }
-
-    /**
-     * 根据学龄段空查学生数据(处理历史数据使用，后期版本会删除)
-     */
-    public List<SchoolStudent> listByGradeType(){
-        return list(Wrappers.lambdaQuery(SchoolStudent.class).isNull(SchoolStudent::getGradeType));
     }
 
     @Override

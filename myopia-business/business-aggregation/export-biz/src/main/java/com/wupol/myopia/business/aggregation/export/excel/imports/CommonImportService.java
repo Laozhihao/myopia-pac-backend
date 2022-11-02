@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.util.SchoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -86,14 +87,37 @@ public class CommonImportService {
             needAddList.forEach(s -> {
                 SchoolStudent schoolStudent = new SchoolStudent();
                 BeanUtils.copyProperties(s, schoolStudent);
-                schoolStudent.setId(null);
-                schoolStudent.setStudentId(s.getId());
-                schoolStudent.setGradeName(gradeMap.get(s.getGradeId()).getName());
-                schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
-                schoolStudent.setSourceClient(sourceClient);
+                buildSchoolStudent(sourceClient, classMap, gradeMap, s, schoolStudent);
                 addSchoolStudentList.add(schoolStudent);
             });
         }
         schoolStudentService.saveBatch(addSchoolStudentList);
+    }
+
+    /**
+     * 构建学校学生信息
+     */
+    private static void buildSchoolStudent(Integer sourceClient, Map<Integer, SchoolClass> classMap, Map<Integer, SchoolGrade> gradeMap, Student s, SchoolStudent schoolStudent) {
+        schoolStudent.setId(null);
+        schoolStudent.setStudentId(s.getId());
+        SchoolGrade schoolGrade = gradeMap.get(s.getGradeId());
+        schoolStudent.setGradeName(schoolGrade.getName());
+        schoolStudent.setClassName(classMap.get(s.getClassId()).getName());
+        schoolStudent.setSourceClient(sourceClient);
+        schoolStudent.setGlassesType(null);
+        schoolStudent.setLastScreeningTime(null);
+        schoolStudent.setVisionLabel(null);
+        schoolStudent.setLowVision(null);
+        schoolStudent.setMyopiaLevel(null);
+        schoolStudent.setScreeningMyopia(null);
+        schoolStudent.setHyperopiaLevel(null);
+        schoolStudent.setAstigmatismLevel(null);
+        schoolStudent.setIsAnisometropia(null);
+        schoolStudent.setIsRefractiveError(null);
+        schoolStudent.setVisionCorrection(null);
+        schoolStudent.setIsMyopia(null);
+        schoolStudent.setIsHyperopia(null);
+        schoolStudent.setIsAstigmatism(null);
+        schoolStudent.setParticularYear(SchoolUtil.getParticularYear(schoolGrade.getGradeCode()));
     }
 }

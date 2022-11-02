@@ -501,7 +501,7 @@ public class QuestionnaireManagementService {
         vo.setSchoolNo(item.getSchoolNo());
         vo.setOrgId(schoolIdsPlanMap.get(item.getId()).getScreeningOrgId());
         vo.setOrgName(orgIdMap.get(vo.getOrgId()).getName());
-        vo.setAreaId(item.getId());
+        vo.setAreaId(item.getDistrictId());
         vo.setAreaName(districtService.getDistrictName(item.getDistrictDetail()));
         vo.setTaskId(taskId);
         return vo;

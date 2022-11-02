@@ -37,6 +37,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.StudentDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
@@ -151,11 +152,16 @@ public class ScreeningPlanStudentBizService {
      * @return List<ScreeningStudentDTO>
      */
     public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(GeneratorPdfDTO generatorPdfDTO) {
+        ScreeningPlan plan = screeningPlanService.getById(generatorPdfDTO.getPlanId());
         ResultNoticeConfig resultNoticeConfig;
-        if (Objects.equals(generatorPdfDTO.getIsSchoolClient(),Boolean.TRUE)) {
-            resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
+        if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+            if (Objects.equals(generatorPdfDTO.getIsSchoolClient(), Boolean.TRUE)) {
+                resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
+            } else {
+                resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(generatorPdfDTO.getOrgId()).getResultNoticeConfig();
+            }
         } else {
-            resultNoticeConfig = screeningOrganizationService.getScreeningOrgDetails(generatorPdfDTO.getOrgId()).getResultNoticeConfig();
+            resultNoticeConfig = schoolService.getBySchoolId(generatorPdfDTO.getSchoolId()).getResultNoticeConfig();
         }
         String fileUrl = StringUtils.EMPTY;
         if (Objects.nonNull(resultNoticeConfig) && Objects.nonNull(resultNoticeConfig.getQrCodeFileId())) {
@@ -173,8 +179,14 @@ public class ScreeningPlanStudentBizService {
         if (CollectionUtils.isEmpty(screeningResults)) {
             return new ArrayList<>();
         }
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(planStudents, ScreeningStudentDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(planStudents, ScreeningStudentDTO::getClassId);
         Map<Integer, List<VisionScreeningResult>> visionResultMap = screeningResults.stream().collect(Collectors.groupingBy(VisionScreeningResult::getScreeningPlanSchoolStudentId));
-        return planStudents.stream().filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList());
+        return planStudents.stream()
+                .filter(s -> Objects.nonNull(visionResultMap.get(s.getPlanStudentId()))).collect(Collectors.toList())
+                .stream().map(s -> s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName())
+                        .setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -407,7 +419,7 @@ public class ScreeningPlanStudentBizService {
     public List<ScreeningStudentDTO> getScreeningStudentDTOS(GeneratorPdfDTO generatorPdfDTO) {
         List<Integer> planStudentId = ListUtil.str2List(generatorPdfDTO.getPlanStudentIdStr());
 
-        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(generatorPdfDTO.getPlanId()),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId() ,generatorPdfDTO.getClassId() , CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, generatorPdfDTO.getPlanStudentName());
+        List<ScreeningStudentDTO> screeningStudentDTOList = screeningPlanSchoolStudentService.getScreeningNoticeResultStudent(Lists.newArrayList(generatorPdfDTO.getPlanId()),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId() ,generatorPdfDTO.getClassId() , CollectionUtils.isEmpty(planStudentId) ? null : planStudentId, generatorPdfDTO.getPlanStudentName(), Boolean.TRUE);
         if (Objects.equals(Boolean.TRUE,generatorPdfDTO.getIsData())){
             return getDataScreeningStudentDTOList(generatorPdfDTO.getPlanId(),generatorPdfDTO.getSchoolId() ,generatorPdfDTO.getGradeId(), generatorPdfDTO.getClassId(), screeningStudentDTOList);
         }

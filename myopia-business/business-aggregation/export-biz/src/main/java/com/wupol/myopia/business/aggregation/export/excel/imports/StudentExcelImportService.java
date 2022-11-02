@@ -200,10 +200,10 @@ public class StudentExcelImportService {
                 .setParentPhone(item.get(10 - offset))
                 .setCreateUserId(createUserId)
                 .setPassport(passport);
-        student.setProvinceCode(districtService.getCodeByName(item.get(11 - offset)));
-        student.setCityCode(districtService.getCodeByName(item.get(12 - offset)));
-        student.setAreaCode(districtService.getCodeByName(item.get(13 - offset)));
-        student.setTownCode(districtService.getCodeByName(item.get(14 - offset)));
+        student.setProvinceCode(districtService.getCodeByName(item.get(11 - offset), null));
+        student.setCityCode(districtService.getCodeByName(item.get(12 - offset), student.getProvinceCode()));
+        student.setAreaCode(districtService.getCodeByName(item.get(13 - offset), student.getCityCode()));
+        student.setTownCode(districtService.getCodeByName(item.get(14 - offset), student.getAreaCode()));
         student.setAddress(item.get(15 - offset));
         if (StringUtils.isNoneBlank(idCard, passport)) {
             student.setPassport(null);

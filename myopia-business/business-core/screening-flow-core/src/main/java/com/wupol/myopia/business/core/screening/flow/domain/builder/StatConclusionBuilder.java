@@ -10,6 +10,7 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -42,6 +43,7 @@ public class StatConclusionBuilder {
     private BasicData basicData;
     private boolean isUpdate;
     private String gradeCode;
+    private SchoolClass schoolClass;
 
     private StatConclusionBuilder() {
 
@@ -89,8 +91,6 @@ public class StatConclusionBuilder {
             this.setRecommendVisit();
             //预警等级
             this.setWarningLevel();
-            //等效球镜
-            this.setIsNormal();
         }
         this.setWarningVision();
 
@@ -116,15 +116,6 @@ public class StatConclusionBuilder {
         this.setCooperative();
         this.setPhysiqueRescreenErrorNum();
         return statConclusion;
-    }
-
-    /**
-     * 设置是否正常
-     */
-    private void setIsNormal() {
-        Boolean leftSe = StatUtil.isNormal(basicData.getLeftSph(),basicData.getLeftCyl());
-        Boolean rightSe = StatUtil.isNormal(basicData.getRightSph(),basicData.getRightCyl());
-        statConclusion.setIsNormal(StatUtil.getIsExist(leftSe,rightSe));
     }
 
     /**
@@ -165,7 +156,7 @@ public class StatConclusionBuilder {
         statConclusion.setAge(screeningPlanSchoolStudent.getStudentAge());
         statConclusion.setIsRescreen(currentVisionScreeningResult.getIsDoubleScreen());
         statConclusion.setSchoolId(screeningPlanSchoolStudent.getSchoolId());
-        statConclusion.setSchoolClassName(screeningPlanSchoolStudent.getClassName());
+        statConclusion.setSchoolClassName(schoolClass.getName());
         statConclusion.setSchoolGradeCode(gradeCode);
         statConclusion.setScreeningType(currentVisionScreeningResult.getScreeningType());
         if (!isUpdate) {
@@ -272,6 +263,10 @@ public class StatConclusionBuilder {
      * 视力低下等级
      */
     private void setLowVisionLevel(){
+        if (basicData.getAge() < 6 && Objects.equals(statConclusion.getIsLowVision(), Boolean.TRUE)) {
+            statConclusion.setLowVisionLevel(LowVisionLevelEnum.LOW_VISION.code);
+            return;
+        }
         if (Objects.equals(basicData.getGlassesType(),GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
             statConclusion.setLowVisionLevel(null);
             return;
@@ -829,5 +824,10 @@ public class StatConclusionBuilder {
         }
         return StatUtil.inRange(current.getHeight(), another.getHeight(), new BigDecimal("0.5"))
                 + StatUtil.inRange(current.getWeight(), another.getWeight(), new BigDecimal("0.1"));
+    }
+
+    public StatConclusionBuilder setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+        return this;
     }
 }

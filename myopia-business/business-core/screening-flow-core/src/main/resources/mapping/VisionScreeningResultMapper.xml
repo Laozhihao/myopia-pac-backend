@@ -78,6 +78,10 @@
         select count(1) as count, student_id
         from m_vision_screening_result
         where is_double_screen = 0
+          and student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
         group by student_id
     </select>
 

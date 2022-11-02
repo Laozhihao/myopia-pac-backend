@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.screening.app.domain.dto;
 
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -151,12 +154,13 @@ public class SysStudent implements Serializable {
 
     }
 
-    public static SysStudent getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer state) {
+    public static SysStudent getInstance(ScreeningPlanSchoolStudent screeningPlanSchoolStudent, Integer state,
+                                         Map<Integer, SchoolGrade> gradeMap, Map<Integer, SchoolClass> classMap) {
         SysStudent sysStudent = new SysStudent();
         sysStudent.studentName = screeningPlanSchoolStudent.getStudentName();
-        sysStudent.grade = screeningPlanSchoolStudent.getGradeName();
         sysStudent.schoolName = screeningPlanSchoolStudent.getSchoolName();
-        sysStudent.clazz = screeningPlanSchoolStudent.getClassName();
+        sysStudent.grade = gradeMap.get(screeningPlanSchoolStudent.getGradeId()).getName();
+        sysStudent.clazz = classMap.get(screeningPlanSchoolStudent.getClassId()).getName();
         sysStudent.reviewState = state == null ? 0 : state;
         sysStudent.studentId = screeningPlanSchoolStudent.getId().toString();
         return sysStudent;

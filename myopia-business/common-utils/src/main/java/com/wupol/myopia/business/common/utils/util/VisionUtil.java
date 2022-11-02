@@ -107,9 +107,6 @@ public class VisionUtil {
         if (!AstigmatismLevelEnum.ZERO.code.equals(astigmatismLevel)) {
             resultList.add(AstigmatismLevelEnum.getDescByCode(astigmatismLevel));
         }
-//        if (CollectionUtils.isEmpty(resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))) {
-//            resultList.add("正常");
-//        }
 
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
@@ -135,10 +132,31 @@ public class VisionUtil {
         if (Objects.equals(isAnisometropia, Boolean.TRUE)) {
             resultList.add("屈光参差");
         }
-//        if (CollectionUtils.isEmpty(resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))) {
-//            resultList.add("正常");
-//        }
 
+        return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
+    }
+
+    /**
+     * 获取屈光情况
+     *
+     * @param isMyopia      是否近视
+     * @param isHyperopia   是否远视
+     * @param isAstigmatism 是否散光
+     */
+    public String getRefractionSituation(Boolean isMyopia, Boolean isHyperopia, Boolean isAstigmatism) {
+        List<String> resultList = new LinkedList<>();
+        // 近视
+        if (Objects.equals(isMyopia, Boolean.TRUE)) {
+            resultList.add("近视");
+        }
+        // 远视
+        if (Objects.equals(isHyperopia, Boolean.TRUE)) {
+            resultList.add("远视");
+        }
+        // 散光
+        if (Objects.equals(isAstigmatism, Boolean.TRUE)) {
+            resultList.add("散光");
+        }
         return resultList.stream().filter(StringUtils::isNotBlank).collect(Collectors.joining("、"));
     }
 }

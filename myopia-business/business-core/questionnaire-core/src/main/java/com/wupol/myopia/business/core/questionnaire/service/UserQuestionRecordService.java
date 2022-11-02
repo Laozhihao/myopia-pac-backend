@@ -2,16 +2,16 @@ package com.wupol.myopia.business.core.questionnaire.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.QuestionnaireUserType;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.core.questionnaire.domain.mapper.UserQuestionRecordMapper;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author Simple4H
@@ -162,6 +162,38 @@ public class UserQuestionRecordService extends BaseService<UserQuestionRecordMap
         queryWrapper.eq(UserQuestionRecord::getTaskId,taskId);
         queryWrapper.eq(UserQuestionRecord::getQuestionnaireType,questionnaireType);
         queryWrapper.eq(UserQuestionRecord::getStatus,status);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 学生问卷统计
+     *
+     * @param studentIds 学生Ids
+     *
+     * @return Map<Integer, Long>
+     */
+    public Map<Integer, Long> studentRecordCount(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new HashMap<>();
+        }
+        // 报告记录
+        List<UserQuestionRecord> questionRecords = getFinishRecordByStudentIds(studentIds);
+        return questionRecords.stream().collect(Collectors.groupingBy(UserQuestionRecord::getStudentId, Collectors.counting()));
+    }
+
+    /**
+     * 获取已经完成问卷的学生
+     *
+     * @param studentIds 学生Ids
+     *
+     * @return List<UserQuestionRecord>
+     */
+    public List<UserQuestionRecord> getFinishRecordByStudentIds(List<Integer> studentIds) {
+        LambdaQueryWrapper<UserQuestionRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserQuestionRecord::getUserType, QuestionnaireUserType.STUDENT.getType());
+        queryWrapper.eq(UserQuestionRecord::getRecordType, 1);
+        queryWrapper.eq(UserQuestionRecord::getStatus, QuestionnaireStatusEnum.FINISH.getCode());
+        queryWrapper.in(UserQuestionRecord::getStudentId, studentIds);
         return baseMapper.selectList(queryWrapper);
     }
 

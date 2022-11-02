@@ -10,7 +10,6 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -46,41 +45,39 @@ public class ScreeningBizBuilder {
 
     /**
      * 筛查计划学校学生
-     * @param schoolStudentList 选中的学生集合
-     * @param school 学校
-     * @param schoolGradeMap 年级集合
-     * @param schoolClassMap 班级集合
+     *
+     * @param schoolStudentList                选中的学生集合
+     * @param school                           学校
+     * @param schoolGradeMap                   年级集合
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
-     * @param isAdd 是否新增（只有新增和更新，删除不再此处）
      */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap,
-                                                                                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList, Boolean isAdd) {
+    public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+                                                                                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList) {
         if (CollUtil.isEmpty(screeningPlanSchoolStudentDbList)){
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(schoolStudentList, school, schoolGradeMap, schoolClassMap);
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(schoolStudentList, school, schoolGradeMap);
             return TwoTuple.of(screeningPlanSchoolStudentList, Lists.newArrayList());
         }else {
             Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentDbList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
             List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
-            processAddAndUpdate(schoolStudentList, school, schoolGradeMap, schoolClassMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
+            processAddAndUpdate(schoolStudentList, school, schoolGradeMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
             List<Integer> dbStudentIds=Lists.newArrayList();
             return TwoTuple.of(screeningPlanSchoolStudentList,dbStudentIds) ;
         }
     }
 
     /**
-     *  处理新增和更新数据
+     * 处理新增和更新数据
      *
-     * @param schoolStudentList 学生集合
-     * @param school 学校信息
-     * @param schoolGradeMap 年级集合
-     * @param schoolClassMap 班级集合
-     * @param planSchoolStudentMap 筛查计划学校学生集合
+     * @param schoolStudentList              学生集合
+     * @param school                         学校信息
+     * @param schoolGradeMap                 年级集合
+     * @param planSchoolStudentMap           筛查计划学校学生集合
      * @param screeningPlanSchoolStudentList 新增和更新筛查计划学校学生集合
-     * @param addOrUpdateStudentIds 新增和更新学生ID集合
+     * @param addOrUpdateStudentIds          新增和更新学生ID集合
      */
     public void processAddAndUpdate(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
-                                     Map<Integer, SchoolClass> schoolClassMap, Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap,
+                                     Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap,
                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList, List<Integer> addOrUpdateStudentIds) {
         if (CollUtil.isEmpty(schoolStudentList)){
             return;
@@ -89,12 +86,11 @@ public class ScreeningBizBuilder {
         schoolStudentList.forEach(schoolStudent -> {
             addOrUpdateStudentIds.add(schoolStudent.getStudentId());
             SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
-            SchoolClass schoolClass = schoolClassMap.get(schoolStudent.getClassId());
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planSchoolStudentMap.get(schoolStudent.getStudentId());
             if (Objects.isNull(screeningPlanSchoolStudent)){
-                screeningPlanSchoolStudentList.add(buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade, schoolClass));
+                screeningPlanSchoolStudentList.add(buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade));
             }else {
-                updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade,schoolClass);
+                updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade);
                 screeningPlanSchoolStudentList.add(screeningPlanSchoolStudent);
             }
         });
@@ -102,27 +98,26 @@ public class ScreeningBizBuilder {
 
     /**
      * 获取筛查计划学生
+     *
      * @param schoolStudentList 学校学生信息
-     * @param school 学校信息
-     * @param schoolGradeMap 年级信息
-     * @param schoolClassMap 班级信息
+     * @param school            学校信息
+     * @param schoolGradeMap    年级信息
      */
-    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap, Map<Integer, SchoolClass> schoolClassMap) {
+    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap) {
         return schoolStudentList.stream().map(schoolStudent -> {
             SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
-            SchoolClass schoolClass = schoolClassMap.get(schoolStudent.getClassId());
-            return buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade, schoolClass);
+            return buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade);
         }).collect(Collectors.toList());
     }
 
     /**
      * 构建筛查计划学校学生
+     *
      * @param schoolStudent 学生信息
-     * @param school 学校信息
-     * @param schoolGrade 年级集合
-     * @param schoolClass 班级集合
+     * @param school        学校信息
+     * @param schoolGrade   年级集合
      */
-    public ScreeningPlanSchoolStudent buildScreeningPlanSchoolStudent(SchoolStudent schoolStudent,School school,SchoolGrade schoolGrade,SchoolClass schoolClass){
+    public ScreeningPlanSchoolStudent buildScreeningPlanSchoolStudent(SchoolStudent schoolStudent,School school,SchoolGrade schoolGrade){
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent()
                 .setSrcScreeningNoticeId(CommonConst.DEFAULT_ID)
                 .setScreeningTaskId(CommonConst.DEFAULT_ID)
@@ -130,29 +125,25 @@ public class ScreeningBizBuilder {
                 .setSchoolId(school.getId())
                 .setStudentId(schoolStudent.getStudentId())
                 .setArtificial(ArtificialStatusConstant.NON_ARTIFICIAL);
-        updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade,schoolClass);
+        updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade);
         return screeningPlanSchoolStudent;
     }
 
     /**
      * 更新筛查计划学校学生
+     *
      * @param screeningPlanSchoolStudent 筛查计划学校学生
-     * @param school 学校信息
-     * @param schoolStudent 学生信息
-     * @param schoolGrade 年级集合
-     * @param schoolClass 班级集合
+     * @param school                     学校信息
+     * @param schoolStudent              学生信息
+     * @param schoolGrade                年级集合
      */
-    public void updateScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,School school, SchoolStudent schoolStudent, SchoolGrade schoolGrade, SchoolClass schoolClass) {
+    public void updateScreeningPlanSchoolStudent(ScreeningPlanSchoolStudent screeningPlanSchoolStudent,School school, SchoolStudent schoolStudent, SchoolGrade schoolGrade) {
         setStudentChangeData(screeningPlanSchoolStudent, school, schoolStudent);
         if (Objects.isNull(screeningPlanSchoolStudent.getScreeningCode())){
             screeningPlanSchoolStudent.setScreeningCode(ScreeningCodeGenerator.nextId());
         }
         if (Objects.nonNull(schoolGrade)){
-            screeningPlanSchoolStudent.setGradeName(schoolGrade.getName());
             screeningPlanSchoolStudent.setGradeType(GradeCodeEnum.getByCode(schoolGrade.getGradeCode()).getType());
-        }
-        if (Objects.nonNull(schoolClass)){
-            screeningPlanSchoolStudent.setClassName(schoolClass.getName());
         }
     }
 

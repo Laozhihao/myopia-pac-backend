@@ -109,7 +109,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
             return;
         }
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school, Boolean.TRUE);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
         screeningPlan.setStudentNumbers(screeningPlan.getStudentNumbers()+screeningPlanSchoolStudent.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan,null,screeningPlanSchoolStudent);
         Object[] paramArr = new Object[]{screeningPlan.getId(),school.getId(),schoolStudent.getGradeId(),schoolStudent.getId()};
@@ -128,7 +128,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
             return;
         }
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school, Boolean.FALSE);
+        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudent.getFirst();
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
             return;
@@ -158,19 +158,19 @@ public class SchoolScreeningBizFacade {
 
     /**
      * 获取筛查计划学校学生
-     * @param screeningPlanId 筛查计划ID
+     *
+     * @param screeningPlanId   筛查计划ID
      * @param schoolStudentList 学校学生集合
-     * @param school 学校信息
-     * @param isAdd 是否新增
+     * @param school            学校信息
      */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school,Boolean isAdd){
+    public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school){
         Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
         if (Objects.nonNull(screeningPlanId)){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
         }
-        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), schoolGradeAndClassMap.getSecond(), screeningPlanSchoolStudentDbList,isAdd);
+        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), screeningPlanSchoolStudentDbList);
     }
 
 }

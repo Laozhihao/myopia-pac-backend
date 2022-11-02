@@ -107,4 +107,9 @@ public class StudentDTO extends Student {
      */
     private Integer correction;
 
+    /**
+     * 视力低下描述
+     */
+    private String lowVisionDesc;
+
 }

@@ -16,6 +16,8 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
+import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -47,6 +49,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     private ScreeningPlanService screeningPlanService;
     @Autowired
     private SchoolService schoolService;
+
+    @Autowired
+    private SchoolClassService schoolClassService;
+    @Autowired
+    private SchoolGradeService schoolGradeService;
 
     /**
      * 根据学生id获取筛查计划学校学生
@@ -469,7 +476,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     public StudentScreeningProgressVO getStudentScreeningProgress(VisionScreeningResult screeningResult) {
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = getById(screeningResult.getScreeningPlanSchoolStudentId());
-        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent);
+        StudentVO studentVO = StudentVO.getInstance(screeningPlanSchoolStudent, schoolGradeService.getById(screeningPlanSchoolStudent.getGradeId()), schoolClassService.getById(screeningPlanSchoolStudent.getClassId()));
         return StudentScreeningProgressVO.getInstanceWithDefault(screeningResult, studentVO,screeningPlanSchoolStudent);
     }
 
@@ -535,10 +542,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param classId         班级Id
      * @param planStudentId   筛查学生Id
      * @param planStudentName 学生名称
+     * @param isFilter        是否过滤复筛
+     *
      * @return List<ScreeningStudentDTO>
      */
-    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(List<Integer> planIds, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName) {
-        return baseMapper.getScreeningNoticeResultStudent(planIds, schoolId, gradeId, classId, planStudentId, planStudentName);
+    public List<ScreeningStudentDTO> getScreeningNoticeResultStudent(List<Integer> planIds, Integer schoolId, Integer gradeId, Integer classId, List<Integer> planStudentId, String planStudentName, Boolean isFilterDoubleScreen) {
+        return baseMapper.getScreeningNoticeResultStudent(planIds, schoolId, gradeId, classId, planStudentId, planStudentName, isFilterDoubleScreen);
     }
 
     /**

@@ -72,12 +72,13 @@ public class ScreeningOrganizationStaffController {
     @PostMapping()
     public ScreeningOrganizationStaffVO insertOrganizationStaff(@RequestBody @Valid ScreeningOrganizationStaffQueryDTO screeningOrganizationStaff) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
+        screeningOrganizationStaff.setScreeningOrgId(screeningOrganizationStaff.getScreeningOrgId());
         if (Objects.nonNull(user.getScreeningOrgId())) {
             screeningOrganizationStaff.setScreeningOrgId(user.getScreeningOrgId());
         }
         // 非平台管理员
         if (!user.isPlatformAdminUser()) {
-          screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(user.getScreeningOrgId(),null);
+          screeningOrganizationStaffService.checkScreeningOrganizationStaffAmount(screeningOrganizationStaff.getScreeningOrgId(),null);
         }
         screeningOrganizationStaff.setCreateUserId(user.getId());
         screeningOrganizationStaff.setGovDeptId(user.getOrgId());

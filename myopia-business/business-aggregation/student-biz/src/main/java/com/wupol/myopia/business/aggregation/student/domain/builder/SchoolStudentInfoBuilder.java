@@ -36,13 +36,14 @@ public class SchoolStudentInfoBuilder {
     /**
      * 设置学生信息
      *
-     * @param countMap
-     * @param visitMap
-     * @param studentPlanMap
-     * @param student
+     * @param countMap          筛查次数
+     * @param visitMap          就诊记录
+     * @param studentPlanMap    筛查学生
+     * @param questionRecordMap 问卷统计
+     * @param student           学生
      */
     public void setStudentInfo(Map<Integer, Integer> countMap, Map<Integer, List<ReportAndRecordDO>> visitMap,
-                               Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap,
+                               Map<Integer, List<ScreeningPlanSchoolStudent>> studentPlanMap, Map<Integer, Long> questionRecordMap,
                                StudentDTO student) {
         // 筛查次数
         student.setScreeningCount(countMap.getOrDefault(student.getId(), 0));
@@ -51,7 +52,11 @@ public class SchoolStudentInfoBuilder {
         // 就诊次数
         student.setNumOfVisits(Objects.nonNull(visitMap.get(student.getId())) ? visitMap.get(student.getId()).size() : 0);
         // 问卷次数
-        student.setQuestionnaireCount(0);
+        Long questionRecordCount = questionRecordMap.get(student.getId());
+        if (Objects.nonNull(questionRecordCount)) {
+            student.setQuestionnaireCount(Math.toIntExact(questionRecordCount));
+        }
+
         if (!Objects.equals(student.getGlassesType(), WearingGlassesSituation.NOT_WEARING_GLASSES_KEY)) {
             //近视矫正
             student.setCorrection(student.getVisionCorrection());
@@ -59,6 +64,13 @@ public class SchoolStudentInfoBuilder {
         } else {
             student.setCorrection(null);
             student.setVisionCorrection(null);
+        }
+        if (Objects.equals(student.getLowVision(), LowVisionLevelEnum.LOW_VISION.getCode())) {
+            if (SchoolAge.checkKindergarten(student.getGradeType())) {
+                student.setLowVisionDesc(VisionConst.K_LOW_VISION);
+            } else {
+                student.setLowVisionDesc(VisionConst.P_LOW_VISION);
+            }
         }
     }
 
@@ -90,6 +102,9 @@ public class SchoolStudentInfoBuilder {
             schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsAnisometropia(),schoolStudent.getIsRefractiveError(),schoolStudent.getVisionLabel()));
         }else {
             schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getMyopiaLevel(),schoolStudent.getHyperopiaLevel(),schoolStudent.getAstigmatismLevel(),schoolStudent.getScreeningMyopia()));
+        }
+        if (Objects.equals(schoolStudent.getGlassesType(), WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_KEY)) {
+            schoolStudentListVO.setRefraction(VisionUtil.getRefractionSituation(schoolStudent.getIsMyopia(), schoolStudent.getIsHyperopia(), schoolStudent.getIsAstigmatism()));
         }
 
         schoolStudentListVO.setVision(VisionUtil.getVisionSituation(schoolStudent.getGlassesType(),schoolStudent.getGradeType(),schoolStudent.getLowVision()));
@@ -315,7 +330,9 @@ public class SchoolStudentInfoBuilder {
         schoolStudent.setVisionCorrection(statConclusion.getVisionCorrection());
         schoolStudent.setLowVision(statConclusion.getLowVisionLevel());
         schoolStudent.setScreeningMyopia(statConclusion.getScreeningMyopia());
-        schoolStudent.setIsNormal(statConclusion.getIsNormal());
         schoolStudent.setUpdateTime(new Date());
+        schoolStudent.setIsMyopia(statConclusion.getIsMyopia());
+        schoolStudent.setIsHyperopia(statConclusion.getIsHyperopia());
+        schoolStudent.setIsAstigmatism(statConclusion.getIsAstigmatism());
     }
 }

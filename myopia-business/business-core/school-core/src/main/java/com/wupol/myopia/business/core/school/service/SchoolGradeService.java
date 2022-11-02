@@ -299,6 +299,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * @return SchoolGrade
      */
     public SchoolGrade getByGradeNameAndSchoolId(Integer schoolId, String gradeName) {
+        if (StringUtils.isBlank(gradeName)) {
+            return new SchoolGrade();
+        }
         LambdaQueryWrapper<SchoolGrade> schoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
         SchoolGrade schoolGrade = new SchoolGrade();
         schoolGrade.setSchoolId(schoolId).setName(gradeName).setStatus(CommonConst.STATUS_NOT_DELETED);
@@ -410,4 +413,26 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     public List<SchoolGradeItemsDTO> getAllByIds(List<Integer> ids) {
         return baseMapper.getAllByIds(ids);
     }
+
+    /**
+     * 根据schoolId获取年级名
+     *
+     * @param schoolId  学校ID
+     * @param gradeCode 年级编码
+     *
+     * @return SchoolGrade
+     */
+    public SchoolGrade getByGradeCodeAndSchoolId(Integer schoolId, String gradeCode) {
+        if (StringUtils.isBlank(gradeCode)) {
+            return new SchoolGrade();
+        }
+        LambdaQueryWrapper<SchoolGrade> schoolGradeExportDTOLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        SchoolGrade schoolGrade = new SchoolGrade();
+        schoolGrade.setSchoolId(schoolId)
+                .setGradeCode(gradeCode)
+                .setStatus(CommonConst.STATUS_NOT_DELETED);
+        schoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
+        return baseMapper.selectOne(schoolGradeExportDTOLambdaQueryWrapper);
+    }
+
 }

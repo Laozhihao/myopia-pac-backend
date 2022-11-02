@@ -27,9 +27,7 @@
                 <if test="@Ognl@isNotEmpty(screeningTaskId)">and `screening_task_id` = #{screeningTaskId}</if>
                 <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
                 <if test="@Ognl@isNotEmpty(gradeId)">and `grade_id` = #{gradeId}</if>
-                <if test="@Ognl@isNotEmpty(className)">and `class_name` = #{className}</if>
                 <if test="@Ognl@isNotEmpty(screeningOrgId)">and `screening_org_id` = #{screeningOrgId}</if>
-                <if test="@Ognl@isNotEmpty(gradeName)">and `grade_name` = #{gradeName}</if>
                 <if test="@Ognl@isNotEmpty(gradeType)">and `grade_type` = #{gradeType}</if>
                 <if test="@Ognl@isNotEmpty(classId)">and `class_id` = #{classId}</if>
                 <if test="@Ognl@isNotEmpty(studentId)">and `student_id` = #{studentId}</if>
@@ -56,33 +54,33 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, src_screening_notice_id, screening_task_id, screening_plan_id, screening_org_id, plan_district_id, school_district_id, school_id, school_name,
-        grade_id, grade_name, grade_type, class_id, class_name, student_id, id_card, birthday, gender, student_age,passport,
+        grade_id, grade_type, class_id, student_id, id_card, birthday, gender, student_age,passport,
         student_situation, student_no, student_name, create_time, province_code, city_code,area_code,town_code, address, parent_phone,nation,artificial,screening_code,`state`,
         migrate_student_screening_id
     </sql>
 
     <select id="selectStudentInfoWithResult" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningInfoWithResultDTO">
-        SELECT s.class_id AS clazzId, s.student_name,s.class_name AS clazzName, s.school_name, s.school_id, s.grade_id
-        , s.grade_name, s.student_id, s.student_age, s.screening_plan_id, s.gender
+        SELECT s.class_id AS clazzId, s.student_name, s.school_name, s.school_id, s.grade_id
+        , s.student_id, s.student_age, s.screening_plan_id, s.gender
         , s.screening_task_id, r.biometric_data,r.update_time, r.computer_optometry, r.is_double_screen, r.vision_data
         , r.other_eye_diseases
         FROM m_screening_plan_school_student s
         LEFT JOIN m_vision_screening_result r ON s.id = r.screening_plan_school_student_id
         LEFT JOIN m_screening_plan p ON p.id = s.screening_plan_id
         WHERE s.school_id = #{data.schoolId} AND p.release_status = 1
-        <if test="data.clazzName != null">
-            AND s.class_name = #{data.clazzName}
-        </if>
-        <if test="data.gradeName != null">
-            AND s.grade_name = #{data.gradeName}
-        </if>
         <if test="data.depId != null">
             AND s.screening_org_id = #{data.depId}
+        </if>
+        <if test="data.gradeId != null">
+            and s.grade_id = #{data.gradeId}
+        </if>
+        <if test="data.classId != null">
+            and s.class_id = #{data.classId}
         </if>
     </select>
 
     <select id="selectSchoolGradeVoByPlanIdAndSchoolId" resultMap="GradeClassesDTO">
-        select grade_id, grade_name, class_id, class_name from m_screening_plan_school_student
+        select grade_id, class_id from m_screening_plan_school_student
         where screening_plan_id = #{screeningPlanId} and school_id = #{schoolId}
         <if test="gradeId != null">
             AND grade_id = #{gradeId}
@@ -198,10 +196,8 @@
                spss.school_id,
                ms.name AS school_name,
                spss.grade_id,
-               sg.name AS grade_name,
                spss.grade_type,
                spss.class_id,
-               sc.name AS class_name,
                spss.student_id,
                spss.id_card,
                spss.birthday,
@@ -269,8 +265,6 @@
                mspss.student_no        as sno,
                mspss.school_name       as schoolName,
                mspss.grade_id          as gradeId,
-               mspss.grade_name        as gradeName,
-               mspss.class_name        as className,
                mspss.class_id          as classId,
                mspss.gender,
                mspss.student_id        as id,
@@ -412,8 +406,6 @@
                mspss.id                as planStudentId,
                mspss.student_age       as age,
                mspss.screening_code,
-               mspss.grade_name        as gradeName,
-               mspss.class_name        as className,
                mspss.birthday          as birthday,
                mspss.school_id as schoolId,
                mspss.grade_id as gradeId,
@@ -423,7 +415,10 @@
         on  mspss.id = mvsr.screening_plan_school_student_id
         and mspss.screening_plan_id = mvsr.plan_id
         and mspss.school_id = mvsr.school_id
-            where 1 = 1 and mvsr.is_double_screen = 0
+            where 1 = 1
+        <if test="isFilterDoubleScreen != null and isFilterDoubleScreen == 1">
+            and mvsr.is_double_screen = 0
+        </if>
         <if test="planIds != null">
             and mspss.screening_plan_id in
             <foreach collection="planIds" open="(" close=")" separator="," item="item">
@@ -451,7 +446,7 @@
     </select>
 
     <select id="getByPlanIdAndSchoolIdAndId" resultMap="GradeClassesDTO">
-        select grade_id, grade_name, class_id, class_name
+        select grade_id, class_id
         from m_screening_plan_school_student
                 where screening_plan_id = #{planId}
                   and school_id = #{schoolId}

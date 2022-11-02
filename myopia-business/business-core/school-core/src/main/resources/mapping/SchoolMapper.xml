@@ -126,11 +126,13 @@
                 </if>
             </otherwise>
         </choose>
-        <if test="query.schoolIds != null and query.schoolIds.size() != 0">
-            and ms.id in
-            <foreach collection="query.schoolIds" item="id" index="index" open="(" close=")" separator=",">
-                #{id}
-            </foreach>
+        <if test="query.isOverviewUser != null and query.isOverviewUser == 1">
+            <if test="query.schoolIds != null and query.schoolIds.size() != 0">
+                and ms.id in
+                <foreach collection="query.schoolIds" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
         </if>
         order by ms.create_time desc
     </select>
