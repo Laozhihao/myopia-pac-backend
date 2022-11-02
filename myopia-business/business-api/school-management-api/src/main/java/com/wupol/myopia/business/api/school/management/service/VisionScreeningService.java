@@ -52,6 +52,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
@@ -136,6 +137,8 @@ public class VisionScreeningService {
     private DistrictService districtService;
     @Resource
     private SysUtilService sysUtilService;
+    @Resource
+    private SchoolClassService schoolClassService;
 
 
     /**
@@ -630,7 +633,14 @@ public class VisionScreeningService {
         if (CollectionUtils.isEmpty(statConclusionExportDTOs)) {
             throw new BusinessException("暂无筛查数据，无法导出");
         }
-        statConclusionExportDTOs.forEach(vo -> vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress())));
+
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(statConclusionExportDTOs, StatConclusionExportDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(statConclusionExportDTOs, StatConclusionExportDTO::getClassId);
+
+        statConclusionExportDTOs.forEach(vo ->
+                vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
+                        .setGradeName(gradeMap.getOrDefault(vo.getGradeId(), new SchoolGrade()).getName())
+                        .setClassName(classMap.getOrDefault(vo.getClassId(), new SchoolClass()).getName()));
         String key = String.format(RedisConstant.FILE_EXPORT_PLAN_DATA, planId, 0, schoolId, currentUser.getId());
         checkIsExport(key);
         // 导出限制
