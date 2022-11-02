@@ -77,7 +77,7 @@ public class ExportSchoolStudentExcelService extends BaseExportExcelFileService 
         }
 
         // 筛查次数
-        List<StudentScreeningCountDTO> studentScreeningCountDTOList = visionScreeningResultService.countScreeningTime();
+        List<StudentScreeningCountDTO> studentScreeningCountDTOList = visionScreeningResultService.countScreeningTime(studentLists.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()));
         Map<Integer, Integer> countMap = studentScreeningCountDTOList.stream().collect(Collectors
                 .toMap(StudentScreeningCountDTO::getStudentId,StudentScreeningCountDTO::getCount));
 

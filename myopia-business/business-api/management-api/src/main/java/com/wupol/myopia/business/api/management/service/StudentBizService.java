@@ -134,7 +134,7 @@ public class StudentBizService {
         List<Integer> studentIds = students.stream().map(Student::getId).distinct().collect(Collectors.toList());
 
         // 筛查次数
-        Map<Integer, Integer> countMap = visionScreeningResultService.countScreeningTimeMap();
+        Map<Integer, Integer> countMap = visionScreeningResultService.countScreeningTimeMap(studentIds);
 
         // 获取就诊记录
         Map<Integer, List<ReportAndRecordDO>> visitMap = medicalReportService.getMapByStudentIds(studentIds);

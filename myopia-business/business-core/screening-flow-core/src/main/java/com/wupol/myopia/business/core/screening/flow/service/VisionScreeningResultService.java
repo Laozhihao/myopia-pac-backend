@@ -94,8 +94,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      *
      * @return List<StudentScreeningCountVO>
      */
-    public List<StudentScreeningCountDTO> countScreeningTime() {
-        return baseMapper.countScreeningTime();
+    public List<StudentScreeningCountDTO> countScreeningTime(List<Integer> studentIds) {
+        return baseMapper.countScreeningTime(studentIds);
     }
 
     /**
@@ -615,8 +615,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      *
      * @return List<StudentScreeningCountVO>
      */
-    public Map<Integer, Integer> countScreeningTimeMap() {
-        return countScreeningTime().stream().collect(Collectors.toMap(
+    public Map<Integer, Integer> countScreeningTimeMap(List<Integer> studentIds) {
+        return countScreeningTime(studentIds).stream().collect(Collectors.toMap(
                 StudentScreeningCountDTO::getStudentId, StudentScreeningCountDTO::getCount));
     }
 }
