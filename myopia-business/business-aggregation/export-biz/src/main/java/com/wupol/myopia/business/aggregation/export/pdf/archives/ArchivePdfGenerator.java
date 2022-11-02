@@ -171,7 +171,7 @@ public class ArchivePdfGenerator {
                                               Integer type, String fileSavePath, String fileName, Integer screeningType) {
         // 根据不同筛查类型走不一样的生成方式 TODO：合并url
         if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
-            generateVisionArchivesPDF(planId, classId, planStudentIds, schoolId, templateId, fileSavePath, gradeId);
+            generateVisionArchivesPDF2(planId, classId, planStudentIds, schoolId, templateId, fileSavePath, gradeId, fileName);
         } else {
             generateCommonDiseaseArchivesPDF(planId, classId, planStudentIds, type, templateId, fileSavePath, fileName);
         }
@@ -192,6 +192,16 @@ public class ArchivePdfGenerator {
     private void generateVisionArchivesPDF(Integer planId, Integer classId, String planStudentIds, Integer schoolId, Integer templateId, String fileSavePath, Integer gradeId) {
         String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
         Assert.isTrue(HtmlToPdfUtil.convertArchives(studentPdfHtmlUrl, Paths.get(fileSavePath).toString()), "生成档案卡PDF文件异常");
+    }
+
+    private void generateVisionArchivesPDF2(Integer planId, Integer classId, String planStudentIds, Integer schoolId, Integer templateId, String fileSavePath, Integer gradeId, String fileName) {
+        String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
+        String pdfUrl = html2PdfService.convertHtmlToPdf(studentPdfHtmlUrl, fileName);
+        try {
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+        } catch (IOException e) {
+            throw new BusinessException("生成常见病档案卡PDF文件异常", e);
+        }
     }
 
     /**
