@@ -108,8 +108,10 @@ public class SchoolController {
         }
         requestDTO.setStatus(requestDTO.getCooperationStopStatus());
         UsernameAndPasswordDTO nameAndPassword = schoolService.saveSchool(requestDTO);
-        // 非平台管理员屏蔽账号密码信息
-        if (!user.isPlatformAdminUser()) {
+        // 平台管理员、总览账号显示账号密码信息
+        if (user.isPlatformAdminUser() || user.isOverviewUser()) {
+            nameAndPassword.setDisplay(Boolean.TRUE);
+        } else {
             nameAndPassword.setNoDisplay();
         }
         if (user.isOverviewUser()) {
