@@ -35,6 +35,7 @@ public enum GradeCodeEnum {
     /**
      * 初中
      */
+    PRELIMINARY_SCHOOL("预初", "10", SchoolAge.JUNIOR.code, "PRELIMINARY_SCHOOL"),
     ONE_JUNIOR_SCHOOL("初一", "11", SchoolAge.JUNIOR.code, "ONE_JUNIOR_SCHOOL"),
     TWO_JUNIOR_SCHOOL("初二", "12", SchoolAge.JUNIOR.code, "TWO_JUNIOR_SCHOOL"),
     THREE_JUNIOR_SCHOOL("初三", "13", SchoolAge.JUNIOR.code, "THREE_JUNIOR_SCHOOL"),
@@ -142,12 +143,12 @@ public enum GradeCodeEnum {
     }
 
     public static List<GradeCodeEnum> juniorSchool() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_JUNIOR_SCHOOL, GradeCodeEnum.TWO_JUNIOR_SCHOOL,
+        return Lists.newArrayList(GradeCodeEnum.PRELIMINARY_SCHOOL, GradeCodeEnum.ONE_JUNIOR_SCHOOL, GradeCodeEnum.TWO_JUNIOR_SCHOOL,
                 GradeCodeEnum.THREE_JUNIOR_SCHOOL, GradeCodeEnum.FOUR_JUNIOR_SCHOOL);
     }
 
     public static List<String> juniorSchoolCodes() {
-        return Lists.newArrayList(GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(),
+        return Lists.newArrayList(GradeCodeEnum.PRELIMINARY_SCHOOL.getCode(), GradeCodeEnum.ONE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.TWO_JUNIOR_SCHOOL.getCode(),
                 GradeCodeEnum.THREE_JUNIOR_SCHOOL.getCode(), GradeCodeEnum.FOUR_JUNIOR_SCHOOL.getCode());
     }
 
