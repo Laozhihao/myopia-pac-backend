@@ -17,7 +17,6 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
-import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
@@ -368,10 +367,9 @@ public class SchoolController {
      */
     @PutMapping("/update/resultNoticeConfig/{id}")
     @Transactional(rollbackFor = Exception.class)
-    public Object updateSchool(@PathVariable("id") Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
+    public void updateSchool(@PathVariable("id") Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
         School school = schoolService.getBySchoolId(id);
         school.setResultNoticeConfig(resultNoticeConfig);
         schoolService.updateById(school);
-        return ApiResult.success();
     }
 }
