@@ -99,6 +99,8 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         statConclusionExportDTOs.forEach(vo -> {
             SchoolGrade schoolGrade = gradeMap.getOrDefault(vo.getGradeId(), new SchoolGrade());
             SchoolClass schoolClass = classMap.getOrDefault(vo.getClassId(), new SchoolClass());
+            vo.setGradeName(schoolGrade.getName());
+            vo.setClassName(schoolClass.getName());
             vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
                             .setGradeName(schoolGrade.getName())
                             .setClassName(schoolClass.getName());
