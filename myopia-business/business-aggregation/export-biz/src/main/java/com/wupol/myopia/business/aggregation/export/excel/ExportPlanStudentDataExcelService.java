@@ -90,7 +90,14 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         if (ExportTypeConst.DISTRICT.equals(exportCondition.getExportType())) {
             Integer districtId = exportCondition.getDistrictId();
             List<Integer> childDistrictIds = districtService.getSpecificDistrictTreeAllDistrictIds(districtId);
-            return statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds, isKindergarten);
+            List<StatConclusionExportDTO> exportVoByScreeningNoticeIdAndDistrictIds = statConclusionService.getExportVoByScreeningNoticeIdAndDistrictIds(notificationId, childDistrictIds, isKindergarten);
+            Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(exportVoByScreeningNoticeIdAndDistrictIds, StatConclusionExportDTO::getGradeId);
+            Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(exportVoByScreeningNoticeIdAndDistrictIds, StatConclusionExportDTO::getClassId);
+            exportVoByScreeningNoticeIdAndDistrictIds.forEach(s->{
+                s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName());
+                s.setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName());
+            });
+            return exportVoByScreeningNoticeIdAndDistrictIds;
         }
 
         List<StatConclusionExportDTO> statConclusionExportDTOs = statConclusionService.selectExportVoBySPlanIdAndSOrgIdAndSChoolIdAndGradeNameAndClassanme(screeningPlanId, screeningOrgId, schoolId, gradeId, classId, isKindergarten);
@@ -99,8 +106,6 @@ public class ExportPlanStudentDataExcelService extends BaseExportExcelFileServic
         statConclusionExportDTOs.forEach(vo -> {
             SchoolGrade schoolGrade = gradeMap.getOrDefault(vo.getGradeId(), new SchoolGrade());
             SchoolClass schoolClass = classMap.getOrDefault(vo.getClassId(), new SchoolClass());
-            vo.setGradeName(schoolGrade.getName());
-            vo.setClassName(schoolClass.getName());
             vo.setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
                             .setGradeName(schoolGrade.getName())
                             .setClassName(schoolClass.getName());
