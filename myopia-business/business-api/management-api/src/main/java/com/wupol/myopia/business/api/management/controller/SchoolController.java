@@ -367,10 +367,9 @@ public class SchoolController {
      */
     @PutMapping("/update/resultNoticeConfig/{id}")
     @Transactional(rollbackFor = Exception.class)
-    public Object updateSchool(@PathVariable("id") Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
+    public void updateSchool(@PathVariable("id") Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
         School school = schoolService.getBySchoolId(id);
         school.setResultNoticeConfig(resultNoticeConfig);
         schoolService.updateById(school);
-        return ApiResult.success();
     }
 }
