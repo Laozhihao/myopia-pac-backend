@@ -18,6 +18,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
+import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -361,15 +362,15 @@ public class SchoolController {
     }
 
     /**
-     * 更新学校告知书配置
+     * 更新学校结果通知书配置
      *
-     * @param notificationConfig 告知书配置
+     * @param resultNoticeConfig 结果通知书配置
      */
-    @PutMapping("/update/notificationConfig/{id}")
+    @PutMapping("/update/resultNoticeConfig/{id}")
     @Transactional(rollbackFor = Exception.class)
-    public Object updateSchool(@PathVariable("id") Integer id, @RequestBody NotificationConfig notificationConfig) {
+    public Object updateSchool(@PathVariable("id") Integer id, @RequestBody ResultNoticeConfig resultNoticeConfig) {
         School school = schoolService.getBySchoolId(id);
-        school.setNotificationConfig(notificationConfig);
+        school.setResultNoticeConfig(resultNoticeConfig);
         schoolService.updateById(school);
         return ApiResult.success();
     }
