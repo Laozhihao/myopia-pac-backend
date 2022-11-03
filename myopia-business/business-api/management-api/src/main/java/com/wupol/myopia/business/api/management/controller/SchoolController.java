@@ -17,7 +17,6 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
-import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
