@@ -108,17 +108,20 @@ public class GradeCodeYear implements Serializable {
     private static void junior(GradeCodeYear gradeCodeYear){
         for (GradeCodeEnum gradeCodeEnum : GradeCodeEnum.juniorSchool()) {
             switch (gradeCodeEnum){
-                case ONE_JUNIOR_SCHOOL:
+                case PRELIMINARY_SCHOOL:
                     gradeCodeYear.gradeCodeYearMap.put(gradeCodeEnum.getCode(),0);
                     break;
-                case TWO_JUNIOR_SCHOOL:
+                case ONE_JUNIOR_SCHOOL:
                     gradeCodeYear.gradeCodeYearMap.put(gradeCodeEnum.getCode(),1);
                     break;
-                case THREE_JUNIOR_SCHOOL:
+                case TWO_JUNIOR_SCHOOL:
                     gradeCodeYear.gradeCodeYearMap.put(gradeCodeEnum.getCode(),2);
                     break;
-                case FOUR_JUNIOR_SCHOOL:
+                case THREE_JUNIOR_SCHOOL:
                     gradeCodeYear.gradeCodeYearMap.put(gradeCodeEnum.getCode(),3);
+                    break;
+                case FOUR_JUNIOR_SCHOOL:
+                    gradeCodeYear.gradeCodeYearMap.put(gradeCodeEnum.getCode(),4);
                     break;
                 default:
                     break;
