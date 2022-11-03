@@ -17,6 +17,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.SchoolAgeDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
+import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -31,6 +32,7 @@ import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOve
 import com.wupol.myopia.business.core.screening.organization.service.OverviewSchoolService;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -356,5 +358,20 @@ public class SchoolController {
     public IPage<ScreeningSchoolOrgVO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return schoolBizService.getScreeningOrganizationList(pageRequest, query, user);
+    }
+
+    /**
+     * 更新学校告知书配置
+     *
+     * @param notificationConfig 告知书配置
+     */
+    @PutMapping("/update/notificationConfig")
+    @Transactional(rollbackFor = Exception.class)
+    public Object updateSchool(@RequestBody NotificationConfig notificationConfig) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        School school = schoolService.getBySchoolId(currentUser.getOrgId());
+        school.setNotificationConfig(notificationConfig);
+        schoolService.updateById(school);
+        return ApiResult.success();
     }
 }
