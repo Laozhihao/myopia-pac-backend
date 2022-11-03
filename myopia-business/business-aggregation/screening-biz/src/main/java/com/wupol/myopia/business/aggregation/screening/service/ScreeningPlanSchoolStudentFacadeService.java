@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -198,6 +199,12 @@ public class ScreeningPlanSchoolStudentFacadeService {
         if(Objects.isNull(isKindergarten)) {
             return getSchoolGradeVOS(gradeClassesDTOS);
         }
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(gradeClassesDTOS, GradeClassesDTO::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(gradeClassesDTOS, GradeClassesDTO::getClassId);
+        gradeClassesDTOS.forEach(s->{
+            s.setGradeName(gradeMap.getOrDefault(s.getGradeId(), new SchoolGrade()).getName());
+            s.setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName());
+        });
         return getSchoolGradeVOS(gradeClassesDTOS.stream()
                 .filter(grade -> Boolean.TRUE.equals(isKindergarten) == kindergartenGradeName.contains(grade.getGradeName()))
                 .collect(Collectors.toList()));
