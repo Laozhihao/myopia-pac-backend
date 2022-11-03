@@ -365,11 +365,10 @@ public class SchoolController {
      *
      * @param notificationConfig 告知书配置
      */
-    @PutMapping("/update/notificationConfig")
+    @PutMapping("/update/notificationConfig/{id}")
     @Transactional(rollbackFor = Exception.class)
-    public Object updateSchool(@RequestBody NotificationConfig notificationConfig) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        School school = schoolService.getBySchoolId(currentUser.getOrgId());
+    public Object updateSchool(@PathVariable("id") Integer id, @RequestBody NotificationConfig notificationConfig) {
+        School school = schoolService.getBySchoolId(id);
         school.setNotificationConfig(notificationConfig);
         schoolService.updateById(school);
         return ApiResult.success();
