@@ -215,6 +215,7 @@ public class SchoolBizService {
         List<Integer> userIds = new ArrayList<>();
 
         if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
+                && currentUser.isOverviewUser()
                 && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {
             return new Page<>();
         }
