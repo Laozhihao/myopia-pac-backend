@@ -46,6 +46,9 @@ public class ParsePlanStudentUtils {
         }
     }
 
+    /**
+     * 解析二维码
+     */
     private static Integer parseUid2PlanStudentId(String uid) {
         if (uid.startsWith("SA@") || uid.startsWith("SV@")) {
             return Integer.valueOf(uid.substring(uid.indexOf("@") + 1));
