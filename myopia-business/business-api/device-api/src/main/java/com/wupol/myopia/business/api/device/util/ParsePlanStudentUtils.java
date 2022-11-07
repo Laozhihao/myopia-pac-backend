@@ -18,8 +18,8 @@ public class ParsePlanStudentUtils {
 
     public static Integer parsePlanStudentId(String uid) {
         try {
-            String uid1 = parseUid2PlanStudentId(uid);
-            return Objects.nonNull(uid1) ? Integer.valueOf(uid1) : Integer.valueOf(uid);
+            String strUid = parseUid2PlanStudentId(uid);
+            return Objects.nonNull(strUid) ? Integer.valueOf(strUid) : Integer.valueOf(uid);
         } catch (Exception e) {
             log.error("用户UID:{}", uid, e);
             throw new BusinessException("二维码解析异常");
