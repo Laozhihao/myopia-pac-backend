@@ -294,11 +294,11 @@ public class ArchivePdfGenerator {
                                               Integer classId, String className, Integer type, Integer screeningType) {
         String fileName = String.format(PDFFileNameConstant.CLASS_ARCHIVES_PDF_FILE_NAME, schoolName, gradeName, className, ScreeningTypeEnum.isVisionScreeningType(screeningType) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
         String fileSavePath = Paths.get(saveDirectory, schoolName, gradeName, className, fileName).toString();
-        return generateClassArchivesPdfFile2(planId, templateId, schoolId, gradeId, classId, null, type, fileSavePath, fileName, screeningType);
+        return generateClassArchivesPdfFile2(planId, templateId, schoolId, gradeId, classId, null, type, fileSavePath, screeningType);
     }
 
     private PDFRequestDTO.Item generateClassArchivesPdfFile2(Integer planId, Integer templateId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
-                                              Integer type, String fileSavePath, String fileName, Integer screeningType) {
+                                              Integer type, String fileSavePath, Integer screeningType) {
         if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
             String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
             return new PDFRequestDTO.Item().setUrl(studentPdfHtmlUrl).setFileName(fileSavePath);

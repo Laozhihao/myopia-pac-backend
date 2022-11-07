@@ -53,6 +53,10 @@ public class PdfCallbackController {
         String key = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(key);
         if (Objects.isNull(pdfGeneratorVO) || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
+            redisUtil.del(key);
+            if (Objects.nonNull(pdfGeneratorVO) && Objects.nonNull(pdfGeneratorVO.getLockKey())) {
+                redisUtil.del(pdfGeneratorVO.getLockKey());
+            }
             return;
         }
         // 如果次数相同，则压缩文件
@@ -64,7 +68,7 @@ public class PdfCallbackController {
             String zipFileName = pdfGeneratorVO.getZipFileName();
             try {
                 File file = FileUtil.rename(ZipUtil.zip(srcPath), zipFileName, true, true);
-                noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), file.getName(), s3Utils.uploadFileToS3(file));
+                noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));
                 FileUtil.del(file);
             } catch (UtilException e) {
                 log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
