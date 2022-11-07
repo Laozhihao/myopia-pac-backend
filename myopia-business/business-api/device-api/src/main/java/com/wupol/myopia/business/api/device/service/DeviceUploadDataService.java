@@ -99,7 +99,12 @@ public class DeviceUploadDataService {
      * @return
      */
     private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
-        deviceScreenDataDTO.setPatientId(String.valueOf(ParsePlanStudentUtils.parsePlanStudentId(deviceScreenDataDTO.getPatientId())));
+        String patientId = ParsePlanStudentUtils.parseUid2PlanStudentId(deviceScreenDataDTO.getPatientId());
+        if (StringUtils.isBlank(patientId)) {
+            deviceScreenDataDTO.setPatientId(null);
+            return false;
+        }
+        deviceScreenDataDTO.setPatientId(patientId);
         return true;
     }
 
