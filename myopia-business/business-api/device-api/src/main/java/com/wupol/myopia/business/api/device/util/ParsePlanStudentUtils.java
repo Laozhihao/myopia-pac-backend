@@ -5,6 +5,8 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 /**
  * 解析二维码工具类
  *
@@ -14,9 +16,10 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class ParsePlanStudentUtils {
 
-    public static String parsePlanStudentId(String uid) {
+    public static Integer parsePlanStudentId(String uid) {
         try {
-            return parseUid2PlanStudentId(uid);
+            String uid1 = parseUid2PlanStudentId(uid);
+            return Objects.nonNull(uid1) ? Integer.valueOf(uid1) : Integer.valueOf(uid);
         } catch (Exception e) {
             log.error("用户UID:{}", uid, e);
             throw new BusinessException("二维码解析异常");
@@ -26,16 +29,16 @@ public class ParsePlanStudentUtils {
     /**
      * 解析二维码
      */
-    private static String parseUid2PlanStudentId(String uid) {
+    public static String parseUid2PlanStudentId(String uid) {
         if (uid.startsWith("SA@") || uid.startsWith("SV@")) {
-            return Integer.valueOf(uid.substring(uid.indexOf("@") + 1)).toString();
+            return uid.substring(uid.indexOf("@") + 1);
         }
         if (uid.startsWith("[VS@")) {
             String s = StringUtils.substringBetween(uid, "@", ",");
-            return Integer.valueOf(s.substring(s.indexOf("_") + 1)).toString();
+            return s.substring(s.indexOf("_") + 1);
         }
         if (uid.startsWith("VS@")) {
-            return Integer.valueOf(StringUtils.substringAfterLast(uid, "_")).toString();
+            return StringUtils.substringAfterLast(uid, "_");
         }
         return null;
     }

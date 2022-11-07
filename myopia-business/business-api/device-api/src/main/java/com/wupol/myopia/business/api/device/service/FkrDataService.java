@@ -33,7 +33,7 @@ public class FkrDataService {
     public void uploadData(FkrRequestDTO requestDTO) {
         log.info("str:{}", JSON.toJSONString(requestDTO));
         String deviceSN = requestDTO.getDeviceSN();
-        Integer planStudentId = Integer.valueOf(ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid()));
+        Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(requestDTO.getUid());
 
         Device device = deviceUploadDataService.getDevice(deviceSN);
         Integer orgId = deviceUploadDataService.getOrganizationIdThrowException(device);
