@@ -195,8 +195,11 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
             }
             items = requestHtml2Pdf(items, key);
         }
-        vo.setStatus(Boolean.FALSE);
-        redisUtil.set(key, vo, 600);
+        if (CollectionUtils.isEmpty(items)) {
+            log.error("生成PDF异常:{}", JSON.toJSONString(pdfRequestDTO));
+            vo.setStatus(Boolean.FALSE);
+            redisUtil.set(key, vo, 600);
+        }
     }
 
     /**
