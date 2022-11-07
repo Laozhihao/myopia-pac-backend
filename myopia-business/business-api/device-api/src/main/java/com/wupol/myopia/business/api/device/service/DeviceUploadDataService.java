@@ -99,7 +99,7 @@ public class DeviceUploadDataService {
      * @return
      */
     private static boolean dealStudentId(DeviceScreenDataDTO deviceScreenDataDTO) {
-        String patientId = ParsePlanStudentUtils.parsePlanStudentIdWithoutException(deviceScreenDataDTO.getPatientId());
+        String patientId = ParsePlanStudentUtils.parsePlanStudentId(deviceScreenDataDTO.getPatientId());
         if (StringUtils.isBlank(patientId)) {
             deviceScreenDataDTO.setPatientId(null);
             return false;
@@ -298,7 +298,7 @@ public class DeviceUploadDataService {
             if (StringUtils.isBlank(uid)) {
                 return new ScalesResponseDTO("0", "uid数据为空");
             }
-            Integer parsePlanStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+            Integer parsePlanStudentId = Integer.valueOf(ParsePlanStudentUtils.parsePlanStudentId(uid));
             ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(parsePlanStudentId);
             if (Objects.isNull(planStudent)) {
                 return new ScalesResponseDTO("0", "uid找不到学生数据");
@@ -334,7 +334,7 @@ public class DeviceUploadDataService {
 
         Device device = getDevice(deviceSn);
         Integer orgId = getOrganizationIdThrowException(device);
-        Integer planStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
+        Integer planStudentId = Integer.valueOf(ParsePlanStudentUtils.parsePlanStudentId(uid));
         ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(orgId, planStudentId);
 
         SchoolGrade schoolGrade = schoolGradeService.getById(planStudent.getGradeId());
