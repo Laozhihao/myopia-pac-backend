@@ -175,6 +175,7 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
 
     @Override
     public void asyncGenerateExportFile(ExportCondition exportCondition) {
+        preProcess(exportCondition);
         PDFRequestDTO pdfRequestDTO = getAsyncRequestUrl(exportCondition);
         List<PDFRequestDTO.Item> items = pdfRequestDTO.getItems();
         String key = UUID.randomUUID().toString(true);
