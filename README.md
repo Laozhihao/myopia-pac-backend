@@ -99,14 +99,19 @@ private static StrategyConfig getStrategyConfig() {
 #### 配置MAVEN私库
 在maven的settings.xml文件中配置私服的账号密码地址
 
-#### 配置环境变量
-1. AWS_REGION : S3的REGION
-2. AWS_ACCESS_KEY_ID : S3的AccessKey
-3. AWS_SECRET_ACCESS_KEY : S3的SecretKey
+#### 安装配置AWS
+- 下载安装AWS CLI，并设置凭证
+  - 安装包和.aws可从微盘下载
+  - 安装完后把存放凭证的文件夹.aws放在当前系统用户目录下即可，在cmd下输入 echo %UserProfile% 可查看具体目录
+  - 私服搭在S3，访问协议是s3p，否则无法访问私服
+- 配置环境变量（使用utils访问S3需要）：
+  - AWS_REGION : S3的REGION
+  - AWS_ACCESS_KEY_ID : S3的AccessKey
+  - AWS_SECRET_ACCESS_KEY : S3的SecretKey
 
 #### 安装并连接VPN
-- 访问maven私服需要连接VPN
-- 安装包可从微盘下载
+- 访问maven私服、测试环境数据库等需要连接VPN
+- OpenVPN安装包可从微盘下载
 
 #### 修改配置文件
 1. copy对应微服务config/sample目录下的配置文件到resource目录下
