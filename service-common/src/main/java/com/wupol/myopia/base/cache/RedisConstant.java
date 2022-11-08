@@ -206,4 +206,9 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_ASYNC_LIST = "file:export:async:list";
 
+    /**
+     * 导出任务Key
+     */
+    String FILE_EXPORT_ASYNC_TASK_KEY = "file_export_async_task_key:%s";
+
 }

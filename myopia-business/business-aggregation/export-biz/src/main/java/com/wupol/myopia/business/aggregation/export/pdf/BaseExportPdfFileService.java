@@ -3,6 +3,7 @@ package com.wupol.myopia.business.aggregation.export.pdf;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -178,27 +180,32 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         preProcess(exportCondition);
         PDFRequestDTO pdfRequestDTO = getAsyncRequestUrl(exportCondition);
         List<PDFRequestDTO.Item> items = pdfRequestDTO.getItems();
-        String key = UUID.randomUUID().toString(true);
+        // 导出文件UUID
+        String exportUuid = UUID.randomUUID().toString(true);
+        // Redis Key
+        String key = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_KEY, exportUuid);
 
-        PdfGeneratorVO vo = new PdfGeneratorVO()
+        PdfGeneratorVO pdfGenerator = new PdfGeneratorVO()
                 .setUserId(exportCondition.getApplyExportFileUserId())
                 .setExportTotal(items.size())
                 .setExportCount(0)
                 .setZipFileName(pdfRequestDTO.getZipFileName())
-                .setLockKey(getLockKey(exportCondition));
+                .setLockKey(getLockKey(exportCondition))
+                .setCreateTime(new Date());
 
-        redisUtil.set(key, vo, 600);
+        redisUtil.set(key, pdfGenerator);
 
+        // 重试三次
         for (int i = 1; i <= 3; i++) {
             if (CollectionUtils.isEmpty(items)) {
                 return;
             }
-            items = requestHtml2Pdf(items, key);
+            items = requestHtml2Pdf(items, exportUuid);
         }
         if (CollectionUtils.isEmpty(items)) {
             log.error("生成PDF异常:{}", JSON.toJSONString(pdfRequestDTO));
-            vo.setStatus(Boolean.FALSE);
-            redisUtil.set(key, vo, 600);
+            pdfGenerator.setStatus(Boolean.FALSE);
+            redisUtil.set(key, pdfGenerator);
         }
     }
 

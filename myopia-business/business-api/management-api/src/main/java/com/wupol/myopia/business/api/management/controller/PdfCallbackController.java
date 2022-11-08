@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.handler.ResponseResultBody;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
@@ -50,7 +52,9 @@ public class PdfCallbackController {
     @Transactional(rollbackFor = Exception.class)
     public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
 
-        String key = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
+        String exportUuid = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
+        // Redis Key
+        String key = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_KEY, exportUuid);
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(key);
         if (Objects.isNull(pdfGeneratorVO) || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
             redisUtil.del(key);
@@ -62,25 +66,28 @@ public class PdfCallbackController {
         // 如果次数相同，则压缩文件
         int currentCount = pdfGeneratorVO.getExportCount() + 1;
         boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
-        com.wupol.myopia.business.common.utils.util.FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
-        if (isFinish) {
-            String srcPath = Paths.get(pdfSavePath, key).toString();
-            String zipFileName = pdfGeneratorVO.getZipFileName();
-            try {
-                File file = FileUtil.rename(ZipUtil.zip(srcPath), zipFileName, true, true);
-                noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));
-                FileUtil.del(file);
-            } catch (UtilException e) {
-                log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
-                noticeService.sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + zipFileName + "请稍后重试");
-            } finally {
-                redisUtil.del(key);
-                redisUtil.del(pdfGeneratorVO.getLockKey());
-                FileUtil.del(srcPath);
-            }
+        // 下载文件
+        FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
+
+        // 如果没有完成，则更新次数
+        if (!isFinish) {
+            pdfGeneratorVO.setExportCount(currentCount);
+            redisUtil.set(key, pdfGeneratorVO);
             return;
         }
-        pdfGeneratorVO.setExportCount(currentCount);
-        redisUtil.set(key, pdfGeneratorVO);
+        String srcPath = Paths.get(pdfSavePath, exportUuid).toString();
+        String zipFileName = pdfGeneratorVO.getZipFileName();
+        try {
+            File file = FileUtil.rename(ZipUtil.zip(srcPath), zipFileName, true, true);
+            noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));
+            FileUtil.del(file);
+        } catch (UtilException e) {
+            log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
+            noticeService.sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + zipFileName + "请稍后重试");
+        } finally {
+            redisUtil.del(key);
+            redisUtil.del(pdfGeneratorVO.getLockKey());
+            FileUtil.del(srcPath);
+        }
     }
 }
