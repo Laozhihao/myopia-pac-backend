@@ -57,4 +57,9 @@ public class PdfGeneratorVO {
      * 任务创建时间
      */
     private Date createTime;
+
+    /**
+     * 导出文件UUID
+     */
+    private String exportUuid;
 }

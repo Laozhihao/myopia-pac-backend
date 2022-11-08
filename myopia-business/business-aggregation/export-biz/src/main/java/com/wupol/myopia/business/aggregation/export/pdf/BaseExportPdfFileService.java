@@ -191,7 +191,8 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
                 .setExportCount(0)
                 .setZipFileName(pdfRequestDTO.getZipFileName())
                 .setLockKey(getLockKey(exportCondition))
-                .setCreateTime(new Date());
+                .setCreateTime(new Date())
+                .setExportUuid(exportUuid);
 
         redisUtil.set(key, pdfGenerator);
 

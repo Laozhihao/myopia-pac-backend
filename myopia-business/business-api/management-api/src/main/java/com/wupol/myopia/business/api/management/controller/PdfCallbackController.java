@@ -59,11 +59,12 @@ public class PdfCallbackController {
         if (Objects.isNull(pdfGeneratorVO) || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
             redisUtil.del(key);
             if (Objects.nonNull(pdfGeneratorVO) && Objects.nonNull(pdfGeneratorVO.getLockKey())) {
+                noticeService.sendErrorNotice(exportUuid, pdfGeneratorVO);
                 redisUtil.del(pdfGeneratorVO.getLockKey());
             }
             return;
         }
-        // 如果次数相同，则压缩文件
+        // 统计次数
         int currentCount = pdfGeneratorVO.getExportCount() + 1;
         boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
         // 下载文件
@@ -75,6 +76,7 @@ public class PdfCallbackController {
             redisUtil.set(key, pdfGeneratorVO);
             return;
         }
+        // 如果次数相同，则压缩文件
         String srcPath = Paths.get(pdfSavePath, exportUuid).toString();
         String zipFileName = pdfGeneratorVO.getZipFileName();
         try {

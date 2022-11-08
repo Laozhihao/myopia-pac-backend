@@ -1,13 +1,18 @@
 package com.wupol.myopia.business.core.system.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
+import com.wupol.myopia.business.core.system.domain.dos.AsyncExportNoticeDO;
 import com.wupol.myopia.business.core.system.domain.dto.UnreadNoticeResponse;
 import com.wupol.myopia.business.core.system.domain.mapper.NoticeMapper;
 import com.wupol.myopia.business.core.system.domain.model.Notice;
@@ -23,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +45,9 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
     @Autowired
     private OauthServiceClient oauthServiceClient;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 获取通知列表
@@ -198,6 +207,26 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
         List<User> userList = oauthServiceClient.getUserList(userDTO);
         List<Integer> userIds = userList.stream().map(User::getId).filter(userId -> !userId.equals(createUserId)).collect(Collectors.toList());
         batchCreateNotice(createUserId, null, userIds, type, title, content, null, null);
+    }
+
+    /**
+     * 异步导出发送异常站内信
+     *
+     * @param exportUuid     导出Uuid
+     * @param pdfGeneratorVO PDF生成Redis对象
+     */
+    public void sendErrorNotice(String exportUuid, PdfGeneratorVO pdfGeneratorVO) {
+        String noticeKey = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_ERROR_NOTICE, exportUuid);
+        AsyncExportNoticeDO notice = (AsyncExportNoticeDO) redisUtil.get(noticeKey);
+
+        // 如果通知过，则不需要在发通知
+        if (Objects.nonNull(notice)) {
+            return;
+        }
+        log.info("发送异步导出任务通知:{}", JSON.toJSONString(pdfGeneratorVO));
+        sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + pdfGeneratorVO.getZipFileName() + "请稍后重试");
+        // 默认给一天内处理
+        redisUtil.set(noticeKey, new AsyncExportNoticeDO(), 86400);
     }
 
 }
