@@ -266,7 +266,7 @@ public class ArchivePdfGenerator {
         });
     }
 
-    public PDFRequestDTO getUrl(String saveDirectory, ExportCondition exportCondition) {
+    public PDFRequestDTO getRequestPDF(String saveDirectory, ExportCondition exportCondition) {
         Integer planId = exportCondition.getPlanId();
         Integer schoolId = exportCondition.getSchoolId();
         Integer gradeId = exportCondition.getGradeId();

@@ -123,6 +123,6 @@ public class ExportSchoolOrGradeArchivesService extends BaseExportPdfFileService
 
     @Override
     public PDFRequestDTO getAsyncRequestUrl(ExportCondition exportCondition) {
-        return archivePdfGenerator.getUrl(getFileName(exportCondition), exportCondition);
+        return archivePdfGenerator.getRequestPDF(getFileName(exportCondition), exportCondition);
     }
 }
