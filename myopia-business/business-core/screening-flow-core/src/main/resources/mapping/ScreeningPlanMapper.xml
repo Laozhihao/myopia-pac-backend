@@ -146,7 +146,7 @@
         <if test="!needFilterAbolishPlan">
             and msp.release_status in (1, 2)
         </if>
-        and msp.screening_org_type = 0
+        and msp.screening_org_type = #{screeningOrgType}
         order by msp.create_time desc
     </select>
 

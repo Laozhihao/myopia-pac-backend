@@ -189,7 +189,7 @@ public class ScreeningOrganizationBizService {
      */
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser());
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser(), ScreeningOrgTypeEnum.ORG.getType());
         List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;

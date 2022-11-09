@@ -124,8 +124,7 @@
     </select>
 
     <select id="selectPageByQuery" resultMap="DataAndOrgNameMap">
-        SELECT
-        <include refid="Base_Column_List"/>
+        SELECT mdsd.*
         FROM `m_device_screening_data` mdsd
                  left join m_device md on mdsd.device_id = md.id
         <include refid="Page_Where_Clause"/>
