@@ -156,7 +156,7 @@
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
         </foreach>
-        and screening_org_type = 0
+        and screening_org_type = #{screeningOrgType}
         and release_status = 1
     </select>
 </mapper>

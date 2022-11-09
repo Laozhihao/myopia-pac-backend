@@ -560,7 +560,7 @@ public class ScreeningPlanStudentBizService {
             return Collections.emptySet();
         }
         List<Integer> orgIds = screeningOrganizations.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
-        List<ScreeningPlan> screeningPlans = screeningPlanService.getReleasePlanByOrgIds(orgIds);
+        List<ScreeningPlan> screeningPlans = screeningPlanService.getReleasePlanByOrgIds(orgIds, ScreeningOrgTypeEnum.ORG.getType());
         return screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toSet());
     }
 
