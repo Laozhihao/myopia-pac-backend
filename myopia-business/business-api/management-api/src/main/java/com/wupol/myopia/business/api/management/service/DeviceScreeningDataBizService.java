@@ -72,6 +72,10 @@ public class DeviceScreeningDataBizService {
         IPage<DeviceScreeningDataAndOrgDTO> datas = deviceScreeningDataService.selectPageByQuery(page, query);
         List<DeviceScreeningDataAndOrgDTO> records = datas.getRecords();
 
+        if (CollectionUtils.isEmpty(records)) {
+            return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
+        }
+
         // 获取学校
         Map<Integer, String> schoolMap = schoolService.getSchoolMap(records, DeviceScreeningDataAndOrgDTO::getScreeningOrgId);
         // 获取医院

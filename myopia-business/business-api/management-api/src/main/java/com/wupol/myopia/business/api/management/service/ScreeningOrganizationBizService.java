@@ -44,6 +44,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
@@ -188,7 +189,7 @@ public class ScreeningOrganizationBizService {
      */
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
-        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser());
+        IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser(), ScreeningOrgTypeEnum.ORG.getType());
         List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
         if (CollectionUtils.isEmpty(tasks)) {
             return planPages;
@@ -348,7 +349,7 @@ public class ScreeningOrganizationBizService {
         // 筛查次数
         List<ScreeningPlan> planLists = screeningPlanService
                 .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()), ScreeningOrgTypeEnum.ORG.getType());
         Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
                 .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
         // 封装DTO

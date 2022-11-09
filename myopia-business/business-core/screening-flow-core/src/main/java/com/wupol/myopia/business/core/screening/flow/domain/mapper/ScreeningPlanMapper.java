@@ -25,7 +25,7 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     Set<ScreeningPlanSchoolInfoDTO> selectSchoolInfo(Integer districtId, Integer taskId, Integer releaseStatus);
 
-    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
+    IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(@Param("page") Page<?> page, @Param("orgId") Integer orgId, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan, @Param("screeningOrgType") Integer screeningOrgType);
 
     /**
      * 查找学校的id
@@ -38,5 +38,5 @@ public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
     ScreeningPlan selectScreeningPlanDetailByOrgIdAndSchoolId(Integer schoolId, Integer screeningOrgId, Integer releaseStatus, Date currentDate, Integer channel);
 
-    List<ScreeningPlan> getReleasePlanByOrgIds(@Param("orgIds") List<Integer> orgIds);
+    List<ScreeningPlan> getReleasePlanByOrgIds(@Param("orgIds") List<Integer> orgIds, @Param("screeningOrgType") Integer screeningOrgType);
 }

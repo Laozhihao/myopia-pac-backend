@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizSe
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,9 @@ public class DeviceScreeningDataController {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             query.setScreeningOrgId(user.getScreeningOrgId());
-        } else if (user.isGovDeptUser()) {
-            throw new BusinessException("政府人员无权查看", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
+            query.setOrgType(OrgTypeEnum.SCREENING.getCode());
+        } else if (!user.isPlatformAdminUser()) {
+            throw new BusinessException("无访问权限", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
         }
         IPage<DeviceScreeningDataAndOrgDTO> page = deviceScreeningDataBizService.getPage(query, pageRequest);
         if (Objects.nonNull(page) && !CollectionUtils.isEmpty(page.getRecords())) {

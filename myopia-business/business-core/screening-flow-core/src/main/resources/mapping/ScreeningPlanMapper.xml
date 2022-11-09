@@ -146,6 +146,7 @@
         <if test="!needFilterAbolishPlan">
             and msp.release_status in (1, 2)
         </if>
+        and msp.screening_org_type = #{screeningOrgType}
         order by msp.create_time desc
     </select>
 
@@ -156,6 +157,7 @@
         <foreach collection="orgIds" open="(" close=")" separator="," item="orgId">
             #{orgId}
         </foreach>
+        and screening_org_type = #{screeningOrgType}
         and release_status = 1
     </select>
 </mapper>

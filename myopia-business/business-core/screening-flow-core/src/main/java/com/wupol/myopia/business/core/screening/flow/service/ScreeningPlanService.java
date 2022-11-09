@@ -223,8 +223,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param needFilterAbolishPlan   需要排除作废的计划
      * @return IPage<ScreeningTaskResponse>
      */
-    public IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(PageRequest pageRequest, Integer orgId, boolean needFilterAbolishPlan) {
-        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId, needFilterAbolishPlan);
+    public IPage<ScreeningOrgPlanResponseDTO> getPageByOrgId(PageRequest pageRequest, Integer orgId, boolean needFilterAbolishPlan, Integer screeningOrgType) {
+        return baseMapper.getPageByOrgId(pageRequest.toPage(), orgId, needFilterAbolishPlan, screeningOrgType);
     }
 
     /**
@@ -254,8 +254,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param orgIds 机构Ids
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getReleasePlanByOrgIds(List<Integer> orgIds) {
-        return baseMapper.getReleasePlanByOrgIds(orgIds);
+    public List<ScreeningPlan> getReleasePlanByOrgIds(List<Integer> orgIds, Integer screeningOrgType) {
+        return baseMapper.getReleasePlanByOrgIds(orgIds, screeningOrgType);
     }
 
     /**

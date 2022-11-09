@@ -60,4 +60,6 @@ public class DeviceScreeningDataQueryDTO extends DeviceScreeningData {
      */
     private List<Integer> screeningOrgIds;
 
+    private Integer orgType;
+
 }
