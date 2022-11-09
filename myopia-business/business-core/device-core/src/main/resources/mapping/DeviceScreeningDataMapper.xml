@@ -58,12 +58,12 @@
     <sql id="Page_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(param.patientAgeGroup)">and `mdsd.patient_age_group` = #{param.patientAgeGroup}</if>
-                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and `mdsd.screening_org_id` = #{param.screeningOrgId}</if>
-                <if test="@Ognl@isNotEmpty(param.patientGender)">and `mdsd.patient_gender` = #{param.patientGender}</if>
-                <if test="@Ognl@isNotEmpty(param.patientIdSearch)">and `mdsd.patient_id` like concat('%', #{param.patientIdSearch}, '%')</if>
-                <if test="@Ognl@isNotEmpty(param.deviceSnSearch)">and `mdsd.device_sn` like concat('%', #{param.deviceSnSearch}, '%')</if>
-                <if test="@Ognl@isNotEmpty(param.patientOrgSearch)">and `mdsd.patient_org` like concat('%', #{param.patientOrgSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.patientAgeGroup)">and mdsd.patient_age_group = #{param.patientAgeGroup}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mdsd.screening_org_id = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.patientGender)">and mdsd.patient_gender = #{param.patientGender}</if>
+                <if test="@Ognl@isNotEmpty(param.patientIdSearch)">and mdsd.patient_id like concat('%', #{param.patientIdSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.deviceSnSearch)">and mdsd.device_sn like concat('%', #{param.deviceSnSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.patientOrgSearch)">and mdsd.patient_org like concat('%', #{param.patientOrgSearch}, '%')</if>
                 <if test="@Ognl@isNotEmpty(param.screeningOrgIds)">
                     and mdsd.screening_org_id in <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
