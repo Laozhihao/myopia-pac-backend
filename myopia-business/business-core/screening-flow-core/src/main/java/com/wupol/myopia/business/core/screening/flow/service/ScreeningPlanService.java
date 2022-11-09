@@ -254,8 +254,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param orgIds 机构Ids
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getReleasePlanByOrgIds(List<Integer> orgIds) {
-        return baseMapper.getReleasePlanByOrgIds(orgIds);
+    public List<ScreeningPlan> getReleasePlanByOrgIds(List<Integer> orgIds, Integer screeningOrgType) {
+        return baseMapper.getReleasePlanByOrgIds(orgIds, screeningOrgType);
     }
 
     /**
