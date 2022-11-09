@@ -32,6 +32,7 @@ import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -165,6 +166,7 @@ public class ScreeningPlanController {
         }
         if (user.isScreeningUser() || (user.isHospitalUser() && (Objects.nonNull(user.getScreeningOrgId())))) {
             query.setScreeningOrgId(user.getScreeningOrgId());
+            query.setScreeningOrgType(ScreeningOrgTypeEnum.ORG.getType());
         }
         query.setNeedFilterAbolishPlan(!user.isPlatformAdminUser());
         return managementScreeningPlanBizService.getPage(query, page);
