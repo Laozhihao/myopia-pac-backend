@@ -133,6 +133,7 @@
         <foreach collection="districtIds" item="districtId" open="(" close=")" separator=",">
             #{districtId}
         </foreach>
+        and msp.screening_org_type = 0
     </select>
 
     <select id="getPageByOrgId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO">
