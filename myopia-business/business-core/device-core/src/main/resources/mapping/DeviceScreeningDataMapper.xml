@@ -58,51 +58,52 @@
     <sql id="Page_Where_Clause">
         <where>
             <trim prefixOverrides="and">
-                <if test="@Ognl@isNotEmpty(param.patientAgeGroup)">and `patient_age_group` = #{param.patientAgeGroup}</if>
-                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and `screening_org_id` = #{param.screeningOrgId}</if>
-                <if test="@Ognl@isNotEmpty(param.patientGender)">and `patient_gender` = #{param.patientGender}</if>
-                <if test="@Ognl@isNotEmpty(param.patientIdSearch)">and `patient_id` like concat('%', #{param.patientIdSearch}, '%')</if>
-                <if test="@Ognl@isNotEmpty(param.deviceSnSearch)">and `device_sn` like concat('%', #{param.deviceSnSearch}, '%')</if>
-                <if test="@Ognl@isNotEmpty(param.patientOrgSearch)">and `patient_org` like concat('%', #{param.patientOrgSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.patientAgeGroup)">and mdsd.patient_age_group = #{param.patientAgeGroup}</if>
+                <if test="@Ognl@isNotEmpty(param.screeningOrgId)">and mdsd.screening_org_id = #{param.screeningOrgId}</if>
+                <if test="@Ognl@isNotEmpty(param.patientGender)">and mdsd.patient_gender = #{param.patientGender}</if>
+                <if test="@Ognl@isNotEmpty(param.patientIdSearch)">and mdsd.patient_id like concat('%', #{param.patientIdSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.deviceSnSearch)">and mdsd.device_sn like concat('%', #{param.deviceSnSearch}, '%')</if>
+                <if test="@Ognl@isNotEmpty(param.patientOrgSearch)">and mdsd.patient_org like concat('%', #{param.patientOrgSearch}, '%')</if>
                 <if test="@Ognl@isNotEmpty(param.screeningOrgIds)">
-                    and `screening_org_id` in <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
+                    and mdsd.screening_org_id in <foreach collection="param.screeningOrgIds" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
                 <if test="@Ognl@isNotEmpty(param.screeningTimeStart)">
-                    and <![CDATA[ DATE(`screening_time`) >= DATE(#{param.screeningTimeStart})]]>
+                    and <![CDATA[ DATE(mdsd.screening_time) >= DATE(#{param.screeningTimeStart})]]>
                 </if>
                 <if test="@Ognl@isNotEmpty(param.screeningTimeEnd)">
-                    and <![CDATA[ DATE(`screening_time`) <= DATE(#{param.screeningTimeEnd})]]>
+                    and <![CDATA[ DATE(mdsd.screening_time) <= DATE(#{param.screeningTimeEnd})]]>
                 </if>
                 <choose>
                     <!-- 两边条件都不为空 -->
                     <when test="@Ognl@isNotEmpty(param.sphStart) and @Ognl@isNotEmpty(param.sphEnd)">
                         and (
-                        (<![CDATA[ `left_sph` >= #{param.sphStart}]]> and <![CDATA[ `left_sph` <= #{param.sphEnd}]]>)
+                        (<![CDATA[ mdsd.left_sph >= #{param.sphStart}]]> and <![CDATA[ mdsd.left_sph <= #{param.sphEnd}]]>)
                         or
-                        (<![CDATA[ `right_sph` >= #{param.sphStart}]]> and <![CDATA[ `right_sph` <= #{param.sphEnd}]]>))
+                        (<![CDATA[ mdsd.right_sph >= #{param.sphStart}]]> and <![CDATA[ mdsd.right_sph <= #{param.sphEnd}]]>))
                     </when>
                     <when test="@Ognl@isNotEmpty(param.sphStart)">
-                        and (<![CDATA[ `left_sph` >= #{param.sphStart}]]> or <![CDATA[ `right_sph` >= #{param.sphStart}]]>)
+                        and (<![CDATA[ mdsd.left_sph >= #{param.sphStart}]]> or <![CDATA[ mdsd.right_sph >= #{param.sphStart}]]>)
                     </when>
                     <when test="@Ognl@isNotEmpty(param.sphEnd)">
-                        and (<![CDATA[ `left_sph` <= #{param.sphEnd}]]> or <![CDATA[ `right_sph` <= #{param.sphEnd}]]>)
+                        and (<![CDATA[ mdsd.left_sph <= #{param.sphEnd}]]> or <![CDATA[ mdsd.right_sph <= #{param.sphEnd}]]>)
                     </when>
                 </choose>
                 <choose>
                     <!-- 两边条件都不为空 -->
                     <when test="@Ognl@isNotEmpty(param.cylStart) and @Ognl@isNotEmpty(param.cylEnd)">
                         and (
-                        (<![CDATA[ `left_cyl` >= #{param.cylStart}]]> and <![CDATA[ `left_cyl` <= #{param.cylEnd}]]>)
+                        (<![CDATA[ mdsd.left_cyl >= #{param.cylStart}]]> and <![CDATA[ mdsd.left_cyl <= #{param.cylEnd}]]>)
                         or
-                        (<![CDATA[ `right_cyl` >= #{param.cylStart}]]> and <![CDATA[ `right_cyl` <= #{param.cylEnd}]]>))
+                        (<![CDATA[ mdsd.right_cyl >= #{param.cylStart}]]> and <![CDATA[ mdsd.right_cyl <= #{param.cylEnd}]]>))
                     </when>
                     <when test="@Ognl@isNotEmpty(param.cylStart)">
-                        and (<![CDATA[ `left_cyl` >= #{param.cylStart}]]> or <![CDATA[ `right_cyl` >= #{param.cylStart}]]>)
+                        and (<![CDATA[ mdsd.left_cyl >= #{param.cylStart}]]> or <![CDATA[ mdsd.right_cyl >= #{param.cylStart}]]>)
                     </when>
                     <when test="@Ognl@isNotEmpty(param.cylEnd)">
-                        and (<![CDATA[ `left_cyl` <= #{param.cylEnd}]]> or <![CDATA[ `right_cyl` <= #{param.cylEnd}]]>)
+                        and (<![CDATA[ mdsd.left_cyl <= #{param.cylEnd}]]> or <![CDATA[ mdsd.right_cyl <= #{param.cylEnd}]]>)
                     </when>
                 </choose>
+                <if test="@Ognl@isNotEmpty(param.orgType)">and md.org_type = #{param.orgType}</if>
             </trim>
         </where>
     </sql>
@@ -123,9 +124,9 @@
     </select>
 
     <select id="selectPageByQuery" resultMap="DataAndOrgNameMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM `m_device_screening_data`
+        SELECT mdsd.*
+        FROM `m_device_screening_data` mdsd
+                 left join m_device md on mdsd.device_id = md.id
         <include refid="Page_Where_Clause"/>
         order by create_time desc
     </select>
