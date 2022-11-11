@@ -99,16 +99,16 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         }
     }
 
-    private PDFRequestDTO.Item getDistrictVisionReportUrl(Integer noticeId, Integer districtId, String fileName) {
-        return new PDFRequestDTO.Item().setUrl(String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId)).setFileName(fileName);
-    }
-
     @Override
     public PDFRequestDTO getDistrictReportPdfUrl(ExportCondition exportCondition) {
         District district = districtService.getById(exportCondition.getDistrictId());
         return new PDFRequestDTO()
                 .setItems(Lists.newArrayList(getDistrictVisionReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId(), getFileName(exportCondition))))
                 .setZipFileName(district.getName() + "筛查报告");
+    }
+
+    private PDFRequestDTO.Item getDistrictVisionReportUrl(Integer noticeId, Integer districtId, String fileName) {
+        return new PDFRequestDTO.Item().setUrl(String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId)).setFileName(fileName + ".pdf");
     }
 
     @Override
