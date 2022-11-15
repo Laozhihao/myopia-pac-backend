@@ -179,7 +179,12 @@ public class QuestionnaireManagementService {
         if (!CollectionUtils.isEmpty(screeningPlans)) {
             Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
             if (!CollectionUtils.isEmpty(districts)) {
-                questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                if (user.isPlatformAdminUser()) {
+                    questionAreaDTO.setDistricts(districtService.streetDistrictsTree(districts));
+                } else {
+                    questionAreaDTO.setDistricts(districtBizService.getValidDistrictTree(user, districts));
+                }
+
             } else {
                 questionAreaDTO.setDistricts(Lists.newArrayList());
             }
