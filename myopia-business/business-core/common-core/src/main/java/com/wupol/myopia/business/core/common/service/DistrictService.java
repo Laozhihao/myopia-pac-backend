@@ -1115,6 +1115,9 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     public List<District> streetDistrictsTree(Set<Integer> districts) {
+        if (CollectionUtils.isEmpty(districts)) {
+            return null;
+        }
         List<District> result = new ArrayList<>();
         listByIds(districts).forEach(s -> result.addAll(getTopDistrictByCode(s.getCode())));
         return keepStreetDistrictsTree(result);
