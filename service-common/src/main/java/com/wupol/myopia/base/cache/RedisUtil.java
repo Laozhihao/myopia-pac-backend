@@ -6,11 +6,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Redis工具类
@@ -611,6 +609,22 @@ public class RedisUtil {
      **/
     public List<Object> batchGet(List<String> keys) {
         return redisTemplate.opsForValue().multiGet(keys);
+    }
+
+    /**
+     * 通过Key的前缀获取
+     *
+     * @param key key
+     * @param <T> 类型
+     *
+     * @return List<T>
+     */
+    public <T> List<T> getListByKeyPrefix(String key) {
+        Set<String> keys = redisTemplate.keys(key.concat("*"));
+        if (CollectionUtils.isEmpty(keys)) {
+            return new ArrayList<>();
+        }
+        return keys.stream().map(s -> (T) redisTemplate.opsForValue().get(s)).collect(Collectors.toList());
     }
 }
 

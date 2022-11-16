@@ -201,4 +201,19 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_EXCEL_SCHOOL_EYE_HEALTH = "file:export:excel:school:eye_health:%s-%s";
 
+    /**
+     * 文件导出Key
+     */
+    String FILE_EXPORT_ASYNC_LIST = "file:export:async:list";
+
+    /**
+     * 导出任务Key
+     */
+    String FILE_EXPORT_ASYNC_TASK_KEY = "file_export_async_task_key:%s";
+
+    /**
+     * 异步导出通知Key
+     */
+    String FILE_EXPORT_ASYNC_TASK_ERROR_NOTICE = "file_export_async_task_error_notice:%s";
+
 }

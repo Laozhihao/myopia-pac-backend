@@ -107,7 +107,7 @@ public class ArchiveService {
             return exportStrategy.syncExport(exportCondition, archiveExportType.getServiceClassName());
         }
         // 异步导出
-        exportStrategy.doExport(exportCondition, archiveExportType.getServiceClassName());
+        exportStrategy.doAsyncExport(exportCondition, archiveExportType.getServiceClassName());
         return null;
     }
 

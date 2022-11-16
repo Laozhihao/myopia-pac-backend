@@ -125,6 +125,9 @@ public class StatManagementController {
             //查看该通知所有筛查学校的层级的 地区树
             List<ScreeningPlan> screeningPlans = managementScreeningPlanBizService.getScreeningPlanByNoticeIdAndUser(noticeId, currentUser);
             Set<Integer> districts = schoolBizService.getAllSchoolDistrictIdsByScreeningPlanIds(screeningPlans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+            if (currentUser.isPlatformAdminUser()) {
+                return districtService.streetDistrictsTree(districts);
+            }
             return districtBizService.getValidDistrictTree(currentUser, districts);
         }
         // 政府人员走新逻辑

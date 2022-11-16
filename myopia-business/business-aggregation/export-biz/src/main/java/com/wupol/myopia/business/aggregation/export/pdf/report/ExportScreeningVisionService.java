@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.aggregation.export.pdf.report;
 
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.ExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -9,6 +11,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -26,7 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +79,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         if (Objects.equals(exportCondition.getExportType(), ExportTypeConst.SCHOOL)) {
             String title = screeningPlanService.getById(exportCondition.getPlanId()).getTitle();
             String name = schoolService.getById(exportCondition.getSchoolId()).getName();
-            return String.format(PDF_NAME,title,name) + EXPORT_FILE_NAME;
+            return String.format(PDF_NAME, title, name) + EXPORT_FILE_NAME;
         }
         return StrUtil.EMPTY;
     }
@@ -94,9 +100,29 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
     }
 
     @Override
+    public PDFRequestDTO getDistrictReportPdfUrl(ExportCondition exportCondition) {
+        District district = districtService.getById(exportCondition.getDistrictId());
+        return new PDFRequestDTO()
+                .setItems(Lists.newArrayList(getDistrictVisionReportUrl(exportCondition.getNotificationId(), exportCondition.getDistrictId(), getFileName(exportCondition))))
+                .setZipFileName(district.getName() + "筛查报告");
+    }
+
+    private PDFRequestDTO.Item getDistrictVisionReportUrl(Integer noticeId, Integer districtId, String fileName) {
+        return new PDFRequestDTO.Item().setUrl(String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId)).setFileName(fileName + ".pdf");
+    }
+
+    @Override
     public void generateSchoolReportPdfFile(String fileSavePath, String fileName, ExportCondition exportCondition) {
         Set<Integer> preProcess = preProcess(exportCondition);
         preProcess.forEach(s -> generateReport(exportCondition.getPlanId(), exportCondition.getSchoolId(), fileSavePath, getName(exportCondition, s), s));
+    }
+
+    @Override
+    public PDFRequestDTO getSchoolReportPdfUrl(ExportCondition exportCondition) {
+        Set<Integer> preProcess = preProcess(exportCondition);
+        List<PDFRequestDTO.Item> collect = preProcess.stream().map(s -> generateReportUrl(exportCondition.getPlanId(), exportCondition.getSchoolId(), s, getName(exportCondition, s))).collect(Collectors.toList());
+        return new PDFRequestDTO().setItems(collect).
+                setZipFileName(schoolService.getNameById(exportCondition.getSchoolId()) + "筛查报告");
     }
 
     private Set<Integer> preProcess(ExportCondition exportCondition) {
@@ -138,6 +164,15 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         } catch (IOException e) {
             throw new BusinessException("生成区域报告PDF文件异常", e);
         }
+    }
+    private PDFRequestDTO.Item generateReportUrl(Integer planId, Integer schoolId, Integer schoolAge, String fileName) {
+        String reportHtmlUrl;
+        if (Objects.equals(SchoolAge.KINDERGARTEN.code, schoolAge)) {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_KINDERGARTEN_VISION, htmlUrlHost, planId, schoolId);
+        } else {
+            reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
+        }
+        return new PDFRequestDTO.Item().setFileName(fileName + ".pdf").setUrl(reportHtmlUrl);
     }
 
 }

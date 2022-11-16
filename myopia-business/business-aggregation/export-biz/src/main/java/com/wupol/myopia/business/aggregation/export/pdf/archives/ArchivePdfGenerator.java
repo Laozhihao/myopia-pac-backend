@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.PDFFileNameConstant;
@@ -7,7 +8,6 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.PlanSchoolGradeVO;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
-import com.wupol.myopia.business.common.utils.util.HtmlToPdfUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ExportPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
@@ -36,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -181,27 +181,20 @@ public class ArchivePdfGenerator {
                                               Integer type, String fileSavePath, String fileName, Integer screeningType) {
         // 根据不同筛查类型走不一样的生成方式 TODO：合并url
         if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
-            generateVisionArchivesPDF(planId, classId, planStudentIds, schoolId, templateId, fileSavePath, gradeId);
+            generateVisionArchivesPDF(planId, classId, planStudentIds, schoolId, templateId, fileSavePath, gradeId, fileName);
         } else {
             generateCommonDiseaseArchivesPDF(planId, classId, planStudentIds, type, templateId, fileSavePath, fileName);
         }
     }
 
-    /**
-     * 生成视力PDF
-     *
-     * @param planId
-     * @param classId
-     * @param planStudentIds
-     * @param schoolId
-     * @param templateId
-     * @param fileSavePath
-     * @param gradeId
-     * @return void
-     **/
-    private void generateVisionArchivesPDF(Integer planId, Integer classId, String planStudentIds, Integer schoolId, Integer templateId, String fileSavePath, Integer gradeId) {
+    private void generateVisionArchivesPDF(Integer planId, Integer classId, String planStudentIds, Integer schoolId, Integer templateId, String fileSavePath, Integer gradeId, String fileName) {
         String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
-        Assert.isTrue(HtmlToPdfUtil.convertArchives(studentPdfHtmlUrl, Paths.get(fileSavePath).toString()), "生成档案卡PDF文件异常");
+        String pdfUrl = html2PdfService.convertHtmlToPdf(studentPdfHtmlUrl, fileName);
+        try {
+            FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
+        } catch (IOException e) {
+            throw new BusinessException("生成常见病档案卡PDF文件异常", e);
+        }
     }
 
     /**
@@ -272,5 +265,48 @@ public class ArchivePdfGenerator {
             s.setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName());
         });
     }
+
+    public PDFRequestDTO getRequestPDF(String saveDirectory, ExportCondition exportCondition) {
+        Integer planId = exportCondition.getPlanId();
+        Integer schoolId = exportCondition.getSchoolId();
+        Integer gradeId = exportCondition.getGradeId();
+
+        // 必要参数校验
+        Assert.hasLength(saveDirectory, BizMsgConstant.SAVE_DIRECTORY_EMPTY);
+
+        // 获取档案卡模板ID
+        ScreeningPlan plan = screeningPlanService.getById(planId);
+        Integer templateId = templateDistrictService.getArchivesByDistrictId(districtService.getProvinceId(plan.getDistrictId()), TemplateConstants.getTemplateBizTypeByScreeningType(plan.getScreeningType()));
+
+        // 生成PDF（转换为年级维度）
+        School school = schoolService.getById(schoolId);
+        List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId, gradeId);
+        List<PDFRequestDTO.Item> result = new ArrayList<>();
+        for (PlanSchoolGradeVO grade : gradeAndClass) {
+            grade.getClasses().forEach(schoolClass -> result.add(generateClassArchivesPdfFile2(saveDirectory, planId, templateId, school.getId(), school.getName(), grade.getId(),
+                    grade.getGradeName(), schoolClass.getId(), schoolClass.getName(), exportCondition.getType(), exportCondition.getScreeningType())));
+        }
+        PDFRequestDTO requestDTO = new PDFRequestDTO();
+        requestDTO.setItems(result).setZipFileName(saveDirectory);
+        return requestDTO;
+    }
+    private PDFRequestDTO.Item generateClassArchivesPdfFile2(String saveDirectory, Integer planId, Integer templateId, Integer schoolId, String schoolName, Integer gradeId, String gradeName,
+                                              Integer classId, String className, Integer type, Integer screeningType) {
+        String fileName = String.format(PDFFileNameConstant.CLASS_ARCHIVES_PDF_FILE_NAME, schoolName, gradeName, className, ScreeningTypeEnum.isVisionScreeningType(screeningType) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
+        String fileSavePath = Paths.get(saveDirectory, schoolName, gradeName, className, fileName).toString();
+        return generateClassArchivesPdfFile2(planId, templateId, schoolId, gradeId, classId, null, type, fileSavePath, screeningType);
+    }
+
+    private PDFRequestDTO.Item generateClassArchivesPdfFile2(Integer planId, Integer templateId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
+                                              Integer type, String fileSavePath, Integer screeningType) {
+        if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
+            String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
+            return new PDFRequestDTO.Item().setUrl(studentPdfHtmlUrl).setFileName(fileSavePath);
+        } else {
+            String archiveHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVE_HTML_URL, htmlUrlHost, templateId, planId, classId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, type);
+            return new PDFRequestDTO.Item().setUrl(archiveHtmlUrl).setFileName(fileSavePath);
+        }
+    }
+
 
 }

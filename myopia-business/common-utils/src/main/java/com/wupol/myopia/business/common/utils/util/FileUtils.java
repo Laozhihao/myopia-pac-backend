@@ -68,7 +68,7 @@ public final class FileUtils {
      * @param fileUrl  下载路径
      * @param savePath 存放地址
      */
-    public static void downloadFile(String fileUrl, String savePath) throws IOException {
+    public static void downloadFile(String fileUrl, String savePath) {
 
         File file = new File(savePath);
         File parentFile = file.getParentFile();

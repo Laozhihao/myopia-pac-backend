@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
@@ -120,4 +121,8 @@ public class ExportSchoolOrGradeArchivesService extends BaseExportPdfFileService
                 exportCondition.getPlanStudentIds());
     }
 
+    @Override
+    public PDFRequestDTO getAsyncRequestUrl(ExportCondition exportCondition) {
+        return archivePdfGenerator.getRequestPDF(getFileName(exportCondition), exportCondition);
+    }
 }

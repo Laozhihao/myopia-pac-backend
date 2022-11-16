@@ -37,7 +37,34 @@ public class ExportStrategy {
 
 
     public void doExport(ExportCondition exportCondition, String serviceName) throws IOException {
+        validateAndLimit(exportCondition, serviceName);
+        // 设置进队列
+        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
+    }
 
+    /**
+     * 异步导出文件
+     *
+     * @param exportCondition 条件
+     * @param serviceName     服务名
+     *
+     * @throws IOException IOException
+     */
+    public void doAsyncExport(ExportCondition exportCondition, String serviceName) throws IOException {
+        validateAndLimit(exportCondition, serviceName);
+        // 设置进队列
+        redisUtil.lSet(RedisConstant.FILE_EXPORT_ASYNC_LIST, new QueueInfo(exportCondition, serviceName));
+    }
+
+    /**
+     * 检验和限制
+     *
+     * @param exportCondition 条件
+     * @param serviceName     服务名
+     *
+     * @throws IOException IOException
+     */
+    private void validateAndLimit(ExportCondition exportCondition, String serviceName) throws IOException {
         ExportFileService exportFileService = getExportFileService(serviceName);
 
         // 数据校验
@@ -49,14 +76,12 @@ public class ExportStrategy {
             throw new BusinessException("正在导出中，请勿重复导出");
         }
         // 导出限制(不做限制)
-        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)){
+        if (!serviceName.equals(ExportReportServiceNameConstant.EXPORT_QRCODE_SCREENING_SERVICE)) {
             if (!Objects.equals(ArchiveExportTypeEnum.CLASS.getServiceClassName(), serviceName)) {
                 String key = "doExport:" + lockKey;
-                sysUtilService.isNoPlatformRepeatExport(key, lockKey,exportCondition.getClassId());
+                sysUtilService.isNoPlatformRepeatExport(key, lockKey, exportCondition.getClassId());
             }
         }
-        // 设置进队列
-        redisUtil.lSet(RedisConstant.FILE_EXPORT_LIST, new QueueInfo(exportCondition, serviceName));
     }
 
     private ExportFileService getExportFileService(String serviceName) {
@@ -77,6 +102,18 @@ public class ExportStrategy {
 
         ExportCondition exportCondition = queueInfo.getExportCondition();
         exportFileService.export(exportCondition);
+    }
+
+    /**
+     * 导出文件
+     *
+     * @param queueInfo 导出
+     */
+    public void doAsyncExport(QueueInfo queueInfo) {
+        ExportFileService exportFileService = getExportFileService(queueInfo.getServiceName());
+
+        ExportCondition exportCondition = queueInfo.getExportCondition();
+        exportFileService.asyncGenerateExportFile(exportCondition);
     }
 
     /**

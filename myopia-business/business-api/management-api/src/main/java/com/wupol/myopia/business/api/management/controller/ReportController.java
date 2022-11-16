@@ -103,7 +103,7 @@ public class ReportController {
                 .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
 
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
+        exportStrategy.doAsyncExport(exportCondition, ExportReportServiceNameConstant.DISTRICT_SCREENING_REPORT_SERVICE);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ReportController {
                 .setSchoolId(schoolId)
                 .setExportType(type)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
-        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
+        exportStrategy.doAsyncExport(exportCondition, ExportReportServiceNameConstant.SCHOOL_SCREENING_REPORT_SERVICE);
     }
 
 

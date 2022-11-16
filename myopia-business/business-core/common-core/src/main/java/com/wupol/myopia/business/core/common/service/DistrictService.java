@@ -1114,4 +1114,36 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
                 PROVINCE_PARENT_CODE);
     }
 
+    public List<District> streetDistrictsTree(Set<Integer> districts) {
+        if (CollectionUtils.isEmpty(districts)) {
+            return null;
+        }
+        List<District> result = new ArrayList<>();
+        listByIds(districts).forEach(s -> result.addAll(getTopDistrictByCode(s.getCode())));
+        return keepStreetDistrictsTree(result);
+    }
+
+    /**
+     * 只保留到街道区域，并且构造成一棵树
+     * <p>
+     * 如：广东省-广州市-荔湾区-沙面街道-翠洲社区居民委员会，则返回<br/>
+     * 广东省<br/>
+     * --广州市<br/>
+     * ----荔湾区<br/>
+     * ------沙面街道<br/>
+     * </p>
+     *
+     * @param allDistrict allDistrict
+     *
+     * @return List<District>
+     */
+    public List<District> keepStreetDistrictsTree(List<District> allDistrict) {
+        List<District> areaDistrictList = allDistrict.stream().filter(s -> Objects.equals(String.valueOf(s.getCode()).length(), 9)).collect(Collectors.toList());
+        return districtListToTree(
+                areaDistrictList.stream()
+                        .collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                                new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new)),
+                PROVINCE_PARENT_CODE);
+    }
+
 }
