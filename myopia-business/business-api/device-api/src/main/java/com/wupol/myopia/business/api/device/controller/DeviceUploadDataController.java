@@ -71,8 +71,13 @@ public class DeviceUploadDataController {
     @PostMapping("/device/uploadData")
     public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
-        deviceDataService.uploadDate(requestDTO);
-        return ApiResult.success();
+        try {
+            deviceDataService.uploadDate(requestDTO);
+            return ApiResult.success();
+        } catch (Exception e) {
+            log.error("灯箱上传数据异常，原始数据:{}", JSON.toJSONString(requestDTO), e);
+            throw new BusinessException("灯箱上传数据异常");
+        }
     }
 
     /**
@@ -95,7 +100,12 @@ public class DeviceUploadDataController {
      */
     @GetMapping("getUserInfo")
     public ApiResult<UserInfoResponseDTO> getInfo(@Valid UserInfoRequestDTO request) {
-        return ApiResult.success(deviceUploadDataService.getUserInfo(request));
+        try {
+            return ApiResult.success(deviceUploadDataService.getUserInfo(request));
+        } catch (Exception e) {
+            log.error("获取学生信息，原始数据:{}", JSON.toJSONString(request), e);
+            throw new BusinessException("获取学生信息异常");
+        }
     }
 
     /**
