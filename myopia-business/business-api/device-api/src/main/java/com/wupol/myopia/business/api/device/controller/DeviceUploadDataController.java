@@ -103,7 +103,7 @@ public class DeviceUploadDataController {
         try {
             return ApiResult.success(deviceUploadDataService.getUserInfo(request));
         } catch (Exception e) {
-            log.error("灯箱上传数据异常，原始数据:{}", JSON.toJSONString(request), e);
+            log.error("获取学生信息，原始数据:{}", JSON.toJSONString(request), e);
             throw new BusinessException("获取学生信息异常");
         }
     }
