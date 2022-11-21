@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.school.management.service;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
@@ -12,7 +11,6 @@ import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -40,10 +38,10 @@ public class DataSubmitBizService {
     private NoticeService noticeService;
 
     @Async
-    public void dataSubmit(MultipartFile multipartFile, Integer dataSubmitId, Integer userId) {
+    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
         try {
-            dealDataSubmit(multipartFile, dataSubmit, userId);
+            dealDataSubmit(listMap, dataSubmit, userId);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);
@@ -52,8 +50,7 @@ public class DataSubmitBizService {
         }
     }
 
-    private void dealDataSubmit(MultipartFile multipartFile, DataSubmit dataSubmit, Integer userId) throws IOException, UtilException {
-        List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
+    private void dealDataSubmit(List<Map<Integer, String>> listMap, DataSubmit dataSubmit, Integer userId) throws IOException, UtilException {
 
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();

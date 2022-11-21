@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthRespo
 import com.wupol.myopia.business.api.school.management.service.DataSubmitBizService;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 防控中心
@@ -103,7 +105,8 @@ public class SchoolPreventionController {
     @PostMapping("data/submit")
     public void dataSubmit(MultipartFile file) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
-        dataSubmitBizService.dataSubmit(file, dataSubmitId, currentUser.getId());
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId());
     }
 }
