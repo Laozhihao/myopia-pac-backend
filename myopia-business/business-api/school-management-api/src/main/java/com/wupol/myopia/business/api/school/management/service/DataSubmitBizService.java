@@ -56,6 +56,7 @@ public class DataSubmitBizService {
 
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
+
             exportDTO.setGradeCode(s.get(0));
             exportDTO.setClassCode(s.get(1));
             exportDTO.setClassName(s.get(2));
@@ -65,7 +66,15 @@ public class DataSubmitBizService {
             exportDTO.setGender(s.get(6));
             exportDTO.setBirthday(s.get(7));
             exportDTO.setAddress(s.get(8));
-            exportDTO.setRight(s.get(9));
+
+            exportDTO.setRighta("1");
+            exportDTO.setRightb("1");
+            exportDTO.setRightc("1");
+            exportDTO.setLefta("1");
+            exportDTO.setLeftb("1");
+            exportDTO.setLeftc("1");
+            exportDTO.setIsOk("1");
+
             return exportDTO;
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
