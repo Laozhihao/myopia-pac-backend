@@ -48,6 +48,7 @@ public class DataSubmitBizService {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);
             dataSubmit.setDownloadMessage("系统错误，请重试");
+            dataSubmitService.updateById(dataSubmit);
         }
     }
 
