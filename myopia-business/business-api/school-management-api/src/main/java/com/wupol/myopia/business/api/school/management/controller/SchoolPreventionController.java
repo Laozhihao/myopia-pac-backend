@@ -8,14 +8,15 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
+import com.wupol.myopia.business.api.school.management.service.DataSubmitBizService;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
+import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -37,6 +38,12 @@ public class SchoolPreventionController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private DataSubmitBizService dataSubmitBizService;
+
+    @Resource
+    private DataSubmitService dataSubmitService;
 
 
     /**
@@ -74,5 +81,29 @@ public class SchoolPreventionController {
     @GetMapping("/getAllGradeList")
     public List<SchoolGradeItemsDTO> getAllGradeList() {
         return schoolStudentBizService.getAllGradeList(CurrentUserUtil.getCurrentUser().getOrgId());
+    }
+
+    /**
+     * 数据上报列表
+     *
+     * @param pageRequest 分页
+     *
+     * @return IPage<DataSubmit>
+     */
+    @GetMapping("/data/submit/list")
+    public IPage<DataSubmit> dataSubmitList(PageRequest pageRequest) {
+        return dataSubmitService.getList(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
+    }
+
+    /**
+     * 数据上报
+     *
+     * @param file 文件
+     */
+    @PostMapping("data/submit")
+    public void dataSubmit(MultipartFile file) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
+        dataSubmitBizService.dataSubmit(file, dataSubmitId, currentUser.getId());
     }
 }
