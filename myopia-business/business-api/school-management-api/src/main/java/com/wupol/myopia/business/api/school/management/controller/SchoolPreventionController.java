@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -12,6 +13,7 @@ import com.wupol.myopia.business.api.school.management.service.DataSubmitBizServ
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
@@ -23,6 +25,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 防控中心
@@ -46,6 +49,9 @@ public class SchoolPreventionController {
 
     @Resource
     private DataSubmitService dataSubmitService;
+
+    @Resource
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -108,5 +114,17 @@ public class SchoolPreventionController {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId());
+    }
+
+    /**
+     * 获取文件
+     *
+     * @param id id
+     *
+     * @return ApiResult<String>
+     */
+    @GetMapping("data/submit/file/{id}")
+    public ApiResult<String> abc(@PathVariable("id") Integer id) {
+        return ApiResult.success(resourceFileService.getResourcePath(id));
     }
 }
