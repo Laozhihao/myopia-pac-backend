@@ -4,6 +4,7 @@ import cn.hutool.core.date.DatePattern;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.DataSubmitMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
@@ -17,9 +18,6 @@ import java.util.Date;
  */
 @Service
 public class DataSubmitService extends BaseService<DataSubmitMapper, DataSubmit> {
-
-
-    private final static String FILE_NAME = "视力筛查数据报送表";
 
     /**
      * 获取列表
@@ -45,8 +43,8 @@ public class DataSubmitService extends BaseService<DataSubmitMapper, DataSubmit>
     public Integer createNewDataSubmit(Integer schoolId) {
         DataSubmit dataSubmit = new DataSubmit();
         dataSubmit.setSchoolId(schoolId);
-        dataSubmit.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + FILE_NAME);
-        dataSubmit.setDownloadMessage(FILE_NAME);
+        dataSubmit.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
+        dataSubmit.setDownloadMessage(CommonConst.FILE_NAME);
         save(dataSubmit);
         return dataSubmit.getId();
     }

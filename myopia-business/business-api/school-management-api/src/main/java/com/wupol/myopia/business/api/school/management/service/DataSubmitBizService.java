@@ -30,10 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DataSubmitBizService {
 
-    private static final String SUCCESS = "【导出成功】数据报送数据表填写完成，点击下载或点击数据报送功能菜单查看/下载导出情况和下载数据表";
-
-    private static final String ERROR = "【导出失败】尊敬的用户，非常抱歉通知您，因为系统问题导致视力筛查数据表填写失败，请前往数据报送功能菜单重新创建任务。如果多次出现该情况，请联系管理员，为您带来不便，我们深表歉意。";
-
     @Resource
     private DataSubmitService dataSubmitService;
 
@@ -47,16 +43,15 @@ public class DataSubmitBizService {
     public void dataSubmit(MultipartFile multipartFile, Integer dataSubmitId, Integer userId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
         try {
-            dealDataSubmit(multipartFile, dataSubmit);
-            noticeService.createExportNotice(userId, userId, SUCCESS, SUCCESS, null, CommonConst.NOTICE_STATION_LETTER);
+            dealDataSubmit(multipartFile, dataSubmit, userId);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
-            noticeService.createExportNotice(userId, userId, SUCCESS, SUCCESS, null, CommonConst.NOTICE_STATION_LETTER);
+            noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);
             dataSubmit.setDownloadMessage("系统错误，请重试");
         }
     }
 
-    private void dealDataSubmit(MultipartFile multipartFile, DataSubmit dataSubmit) throws IOException, UtilException {
+    private void dealDataSubmit(MultipartFile multipartFile, DataSubmit dataSubmit, Integer userId) throws IOException, UtilException {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
 
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
@@ -73,11 +68,12 @@ public class DataSubmitBizService {
             exportDTO.setRight(s.get(9));
             return exportDTO;
         }).collect(Collectors.toList());
-        File excel = ExcelUtil.exportListToExcel("视力数据采集表", collect, DataSubmitExportDTO.class);
+        File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
         Integer fileId = s3Utils.uploadFileToS3(excel);
         dataSubmit.setSuccessMatch(collect.size());
         dataSubmit.setFailMatch(collect.size());
         dataSubmit.setFileId(fileId);
         dataSubmitService.updateById(dataSubmit);
+        noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
     }
 }
