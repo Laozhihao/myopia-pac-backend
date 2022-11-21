@@ -54,25 +54,17 @@ public class DataSubmitBizService {
 
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
+            getOriginalInfo(s, exportDTO);
 
-            exportDTO.setGradeCode(s.get(0));
-            exportDTO.setClassCode(s.get(1));
-            exportDTO.setClassName(s.get(2));
-            exportDTO.setStudentNo(s.get(3));
-            exportDTO.setNation(s.get(4));
-            exportDTO.setName(s.get(5));
-            exportDTO.setGender(s.get(6));
-            exportDTO.setBirthday(s.get(7));
-            exportDTO.setAddress(s.get(8));
-
-            exportDTO.setRighta("1");
-            exportDTO.setRightb("1");
-            exportDTO.setRightc("1");
-            exportDTO.setLefta("1");
-            exportDTO.setLeftb("1");
-            exportDTO.setLeftc("1");
+            exportDTO.setRightN("1");
+            exportDTO.setLeftN("1");
+            exportDTO.setRightS("1");
+            exportDTO.setRightC("1");
+            exportDTO.setRightA("1");
+            exportDTO.setLeftS("1");
+            exportDTO.setLeftC("1");
+            exportDTO.setLeftA("1");
             exportDTO.setIsOk("1");
-
             return exportDTO;
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
@@ -82,5 +74,20 @@ public class DataSubmitBizService {
         dataSubmit.setFileId(fileId);
         dataSubmitService.updateById(dataSubmit);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 获取原始数据
+     */
+    private void getOriginalInfo(Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
+        exportDTO.setGradeCode(s.get(0));
+        exportDTO.setClassCode(s.get(1));
+        exportDTO.setClassName(s.get(2));
+        exportDTO.setStudentNo(s.get(3));
+        exportDTO.setNation(s.get(4));
+        exportDTO.setName(s.get(5));
+        exportDTO.setGender(s.get(6));
+        exportDTO.setBirthday(s.get(7));
+        exportDTO.setAddress(s.get(8));
     }
 }

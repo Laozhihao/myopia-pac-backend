@@ -51,22 +51,28 @@ public class DataSubmitExportDTO {
     private String address;
 
     @ExcelProperty({"右眼裸眼视力"})
-    private String righta;
-
-    @ExcelProperty({"右眼裸眼视力"})
-    private String rightb;
-
-    @ExcelProperty({"右眼屈光度"})
-    private String rightc;
+    private String rightN;
 
     @ExcelProperty({"左眼裸眼视力"})
-    private String lefta;
+    private String leftN;
 
-    @ExcelProperty({"左眼裸眼视力"})
-    private String leftb;
+    @ExcelProperty({"右眼屈光球镜S"})
+    private String rightS;
 
-    @ExcelProperty({"左眼裸眼视力"})
-    private String leftc;
+    @ExcelProperty({"右眼屈光柱镜C"})
+    private String rightC;
+
+    @ExcelProperty({"右眼屈光轴位A"})
+    private String rightA;
+
+    @ExcelProperty({"左眼屈光球镜S"})
+    private String leftS;
+
+    @ExcelProperty({"左眼屈光柱镜C"})
+    private String leftC;
+
+    @ExcelProperty({"左眼屈光轴位A"})
+    private String leftA;
 
     @ExcelProperty({"是否为角膜塑形镜（OK镜）佩戴者"})
     private String isOk;
