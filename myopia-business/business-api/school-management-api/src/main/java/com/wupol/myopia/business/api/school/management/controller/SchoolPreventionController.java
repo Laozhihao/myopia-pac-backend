@@ -124,7 +124,7 @@ public class SchoolPreventionController {
      * @return ApiResult<String>
      */
     @GetMapping("data/submit/file/{id}")
-    public ApiResult<String> abc(@PathVariable("id") Integer id) {
+    public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
         return ApiResult.success(resourceFileService.getResourcePath(id));
     }
 }
