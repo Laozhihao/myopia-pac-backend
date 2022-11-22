@@ -37,19 +37,9 @@ public final class FileUtils {
      * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
      **/
     public static List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
-        String tempPath = IOUtils.getTempPath();
-        String fileName =  multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-        fileName = Paths.get(tempPath,fileName).toString();
-        File file = new File(fileName);
+        TwoTuple<String, File> fileInfo = getParseFile(multipartFile);
         try {
-            org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
-        } catch (IOException e) {
-            log.error("导入数据异常:", e);
-            throw new BusinessException("导入数据异常");
-        }
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        try {
-            List<Map<Integer, String>> listMap = EasyExcelFactory.read(fileName).sheet().doReadSync();
+            List<Map<Integer, String>> listMap = EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
             if (!CollectionUtils.isEmpty(listMap)) {
                 listMap.remove(0);
             }
@@ -58,7 +48,7 @@ public final class FileUtils {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");
         }finally {
-            FileUtil.del(file);
+            FileUtil.del(fileInfo.getSecond());
         }
     }
 
@@ -149,5 +139,32 @@ public final class FileUtils {
                 fileList.add(file);
             }
         }
+    }
+
+    public static List<Map<Integer, String>> readExcelSheet(MultipartFile multipartFile) {
+        TwoTuple<String, File> fileInfo = getParseFile(multipartFile);
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        try {
+            return EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
+        } catch (Exception e) {
+            log.error("导入数据异常:", e);
+            throw new BusinessException("Excel解析异常");
+        }finally {
+            FileUtil.del(fileInfo.getSecond());
+        }
+    }
+
+    private static TwoTuple<String,File > getParseFile(MultipartFile multipartFile) {
+        String tempPath = IOUtils.getTempPath();
+        String fileName =  multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
+        fileName = Paths.get(tempPath,fileName).toString();
+        File file = new File(fileName);
+        try {
+            org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            log.error("导入数据异常:", e);
+            throw new BusinessException("导入数据异常");
+        }
+        return new TwoTuple<>(fileName, file);
     }
 }

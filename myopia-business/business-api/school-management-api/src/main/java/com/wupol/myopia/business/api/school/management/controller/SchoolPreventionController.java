@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 防控中心
@@ -111,7 +110,7 @@ public class SchoolPreventionController {
     @PostMapping("data/submit")
     public void dataSubmit(MultipartFile file) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
         Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId());
     }
