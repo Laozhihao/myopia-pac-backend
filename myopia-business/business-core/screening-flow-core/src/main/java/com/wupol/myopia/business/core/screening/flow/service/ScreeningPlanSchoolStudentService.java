@@ -536,13 +536,13 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     /**
      * 通过条件获取筛查学生
      *
-     * @param planIds         计划Id
-     * @param schoolId        学校Id
-     * @param gradeId         年级Id
-     * @param classId         班级Id
-     * @param planStudentId   筛查学生Id
-     * @param planStudentName 学生名称
-     * @param isFilter        是否过滤复筛
+     * @param planIds              计划Id
+     * @param schoolId             学校Id
+     * @param gradeId              年级Id
+     * @param classId              班级Id
+     * @param planStudentId        筛查学生Id
+     * @param planStudentName      学生名称
+     * @param isFilterDoubleScreen 是否过滤复筛
      *
      * @return List<ScreeningStudentDTO>
      */
@@ -896,15 +896,5 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             gradePlanSchoolStudentMap.putAll(map);
         }
         return gradePlanSchoolStudentMap;
-    }
-
-    /**
-     * 通过学号获取数据
-     */
-    public List<ScreeningPlanSchoolStudent> getLastBySno(List<String> snos) {
-        if (CollectionUtils.isEmpty(snos)) {
-            return new ArrayList<>();
-        }
-        return baseMapper.getLastBySno(snos);
     }
 }
