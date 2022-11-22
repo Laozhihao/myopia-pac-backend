@@ -623,15 +623,16 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     /**
      * 通过筛查学生查询筛查结果
      *
-     * @param planStudentIds 筛查学生
+     * @param studentIds 筛查学生
      * @return 筛查结果
      */
-    public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds, Boolean isDoubleScreen) {
-        if (CollectionUtils.isEmpty(planStudentIds)) {
-            return Collections.emptyList();
+    public Map<Integer, VisionScreeningResult> getLastByStudentIds(List<Integer> studentIds) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new HashMap<>();
         }
-        return baseMapper.selectList(new LambdaQueryWrapper<VisionScreeningResult>()
-                .in(VisionScreeningResult::getScreeningPlanSchoolStudentId, planStudentIds)
-                .eq(VisionScreeningResult::getIsDoubleScreen, isDoubleScreen));
+        List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
+        return resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
     }
 }
