@@ -619,4 +619,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return countScreeningTime(studentIds).stream().collect(Collectors.toMap(
                 StudentScreeningCountDTO::getStudentId, StudentScreeningCountDTO::getCount));
     }
+
+    /**
+     * 通过筛查学生查询筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     * @return 筛查结果
+     */
+    public List<VisionScreeningResult> getByPlanStudentIds(List<Integer> planStudentIds, Boolean isDoubleScreen) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectList(new LambdaQueryWrapper<VisionScreeningResult>()
+                .in(VisionScreeningResult::getScreeningPlanSchoolStudentId, planStudentIds)
+                .eq(VisionScreeningResult::getIsDoubleScreen, isDoubleScreen));
+    }
 }

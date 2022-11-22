@@ -1,22 +1,35 @@
 package com.wupol.myopia.business.api.school.management.service;
 
 import com.vistel.Interface.exception.UtilException;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +50,12 @@ public class DataSubmitBizService {
     @Resource
     private NoticeService noticeService;
 
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
+
     @Async
     public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
@@ -52,19 +71,16 @@ public class DataSubmitBizService {
 
     private void dealDataSubmit(List<Map<Integer, String>> listMap, DataSubmit dataSubmit, Integer userId) throws IOException, UtilException {
 
+        AtomicInteger success = new AtomicInteger(0);
+        AtomicInteger fail = new AtomicInteger(0);
+
+        TwoTuple<Map<String, ScreeningPlanSchoolStudent>, Map<Integer, VisionScreeningResult>> screeningData = getScreeningData(listMap);
+        Map<String, ScreeningPlanSchoolStudent> planStudentMap = screeningData.getFirst();
+        Map<Integer, VisionScreeningResult> resultMap = screeningData.getSecond();
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
             getOriginalInfo(s, exportDTO);
-
-            exportDTO.setRightN("1");
-            exportDTO.setLeftN("1");
-            exportDTO.setRightS("1");
-            exportDTO.setRightC("1");
-            exportDTO.setRightA("1");
-            exportDTO.setLeftS("1");
-            exportDTO.setLeftC("1");
-            exportDTO.setLeftA("1");
-            exportDTO.setIsOk("1");
+            getScreeningInfo(success, fail, planStudentMap, resultMap, s, exportDTO);
             return exportDTO;
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
@@ -74,6 +90,55 @@ public class DataSubmitBizService {
         dataSubmit.setFileId(fileId);
         dataSubmitService.updateById(dataSubmit);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 获取筛查信息
+     */
+    private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, ScreeningPlanSchoolStudent> planStudentMap, Map<Integer, VisionScreeningResult> resultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
+        String sno = s.get(3);
+        ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planStudentMap.get(sno);
+        if (Objects.nonNull(screeningPlanSchoolStudent)) {
+            VisionScreeningResult result = resultMap.get(screeningPlanSchoolStudent.getId());
+            if (Objects.nonNull(result)) {
+                exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
+                exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
+                exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
+                exportDTO.setRightCyl(EyeDataUtil.rightCyl(result).toString());
+                exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
+                exportDTO.setLeftSph(EyeDataUtil.leftSph(result).toString());
+                exportDTO.setLeftCyl(EyeDataUtil.leftCyl(result).toString());
+                exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
+                exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
+                success.incrementAndGet();
+            } else {
+                fail.incrementAndGet();
+            }
+        } else {
+            fail.incrementAndGet();
+        }
+    }
+
+    private String getNakedVision(BigDecimal nakedVision) {
+        if (Objects.isNull(nakedVision)) {
+            return StringUtils.EMPTY;
+        }
+        if (BigDecimalUtil.lessThan(nakedVision, "3.0")) {
+            return "9";
+        }
+        return nakedVision.toString();
+    }
+
+    /**
+     * 通过学号获取筛查信息
+     */
+    private TwoTuple<Map<String, ScreeningPlanSchoolStudent>, Map<Integer, VisionScreeningResult>> getScreeningData(List<Map<Integer, String>> listMap) {
+        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getLastBySno(snoList);
+        Map<String, ScreeningPlanSchoolStudent> planSchoolStudentMap = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, Function.identity()));
+        List<VisionScreeningResult> results = visionScreeningResultService.getByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()), false);
+        Map<Integer, VisionScreeningResult> resultMap = results.stream().collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        return new TwoTuple<>(planSchoolStudentMap, resultMap);
     }
 
     /**
