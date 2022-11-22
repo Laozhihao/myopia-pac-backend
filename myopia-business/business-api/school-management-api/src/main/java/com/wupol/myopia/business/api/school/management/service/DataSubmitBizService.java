@@ -85,8 +85,8 @@ public class DataSubmitBizService {
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
         Integer fileId = s3Utils.uploadFileToS3(excel);
-        dataSubmit.setSuccessMatch(collect.size());
-        dataSubmit.setFailMatch(collect.size());
+        dataSubmit.setSuccessMatch(success.get());
+        dataSubmit.setFailMatch(fail.get());
         dataSubmit.setFileId(fileId);
         dataSubmitService.updateById(dataSubmit);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
