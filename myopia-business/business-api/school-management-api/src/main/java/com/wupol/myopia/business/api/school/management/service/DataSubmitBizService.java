@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExport
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -50,9 +49,6 @@ public class DataSubmitBizService {
 
     @Resource
     private NoticeService noticeService;
-
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
