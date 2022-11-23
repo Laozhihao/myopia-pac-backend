@@ -5,14 +5,15 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +56,9 @@ public class DataSubmitBizService {
     @Resource
     private StudentService studentService;
 
+    @Resource
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
     @Async
     public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
@@ -74,13 +77,12 @@ public class DataSubmitBizService {
         AtomicInteger success = new AtomicInteger(0);
         AtomicInteger fail = new AtomicInteger(0);
 
-        TwoTuple<Map<String, Student>, Map<Integer, VisionScreeningResult>> screeningData = getScreeningData(listMap);
-        Map<String, Student> studentMap = screeningData.getFirst();
-        Map<Integer, VisionScreeningResult> resultMap = screeningData.getSecond();
+        Map<String, VisionScreeningResult> screeningData = getScreeningData(listMap);
+
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
             getOriginalInfo(s, exportDTO);
-            getScreeningInfo(success, fail, studentMap, resultMap, s, exportDTO);
+            getScreeningInfo(success, fail, screeningData, s, exportDTO);
             return exportDTO;
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
@@ -95,25 +97,19 @@ public class DataSubmitBizService {
     /**
      * 获取筛查信息
      */
-    private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, Student> planStudentMap, Map<Integer, VisionScreeningResult> resultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        String sno = s.get(3);
-        Student student = planStudentMap.get(sno);
-        if (Objects.nonNull(student)) {
-            VisionScreeningResult result = resultMap.get(student.getId());
-            if (Objects.nonNull(result)) {
-                exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
-                exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
-                exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
-                exportDTO.setRightCyl(EyeDataUtil.rightCyl(result).toString());
-                exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
-                exportDTO.setLeftSph(EyeDataUtil.leftSph(result).toString());
-                exportDTO.setLeftCyl(EyeDataUtil.leftCyl(result).toString());
-                exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
-                exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
-                success.incrementAndGet();
-            } else {
-                fail.incrementAndGet();
-            }
+    private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
+        VisionScreeningResult result = screeningResultMap.get(s.get(3));
+        if (Objects.nonNull(result)) {
+            exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
+            exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
+            exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
+            exportDTO.setRightCyl(EyeDataUtil.rightCyl(result).toString());
+            exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
+            exportDTO.setLeftSph(EyeDataUtil.leftSph(result).toString());
+            exportDTO.setLeftCyl(EyeDataUtil.leftCyl(result).toString());
+            exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
+            exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
+            success.incrementAndGet();
         } else {
             fail.incrementAndGet();
         }
@@ -132,12 +128,13 @@ public class DataSubmitBizService {
     /**
      * 通过学号获取筛查信息
      */
-    private TwoTuple<Map<String, Student>, Map<Integer, VisionScreeningResult>> getScreeningData(List<Map<Integer, String>> listMap) {
+    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap) {
         List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        List<Student> studentList = studentService.getLastBySno(snoList);
-        Map<String, Student> studentMap = studentList.stream().collect(Collectors.toMap(Student::getSno, Function.identity()));
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()));
-        return new TwoTuple<>(studentMap, resultMap);
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(planStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
+        return planStudentList.stream()
+                .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo))
+                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), null)));
     }
 
     /**

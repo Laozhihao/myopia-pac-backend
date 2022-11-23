@@ -11,6 +11,7 @@ import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanScho
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -39,8 +40,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -109,7 +108,7 @@ public class ReviewInformService {
 
         Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         return matchRescreenResults.stream()
-                .filter(distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
+                .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
                     if (StringUtils.isNotBlank(schoolName)) {
                         return StringUtils.countMatches(schoolName, s.getSchoolName()) > 0;
@@ -323,10 +322,5 @@ public class ReviewInformService {
             return schoolService.getById(schoolId).getName() + schoolGradeService.getById(gradeId).getName() + RESCREEN_NAME;
         }
         throw new BusinessException("类型异常");
-    }
-
-    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
-        Map<Object, Boolean> map = new HashMap<>();
-        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }
