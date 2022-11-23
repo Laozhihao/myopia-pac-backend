@@ -7,7 +7,6 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.common.util.S3Utils;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -52,9 +51,6 @@ public class DataSubmitBizService {
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
-
-    @Resource
-    private StudentService studentService;
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;

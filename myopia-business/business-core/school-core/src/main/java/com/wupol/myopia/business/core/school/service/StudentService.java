@@ -647,12 +647,4 @@ public class StudentService extends BaseService<StudentMapper, Student> {
         }
         return SourceClientEnum.SCREENING_PLAN.type.equals(student.getSourceClient());
     }
-
-    public List<Student> getLastBySno(List<String> snos) {
-        if (CollectionUtils.isEmpty(snos)) {
-            return new ArrayList<>();
-        }
-        return baseMapper.getLastBySno(snos);
-    }
-
 }
