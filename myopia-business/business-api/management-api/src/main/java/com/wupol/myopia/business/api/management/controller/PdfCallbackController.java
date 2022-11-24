@@ -9,6 +9,7 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -51,6 +52,16 @@ public class PdfCallbackController {
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
     public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
+
+        if (Objects.equals(responseDTO.getStatus(), Boolean.TRUE)) {
+            if (StringUtils.isBlank(responseDTO.getUrl()) || StringUtils.isBlank(responseDTO.getUuid())) {
+                throw new BusinessException("数据有误");
+            }
+
+        } else {
+            log.error("回调请求异常:{}", JSON.toJSONString(responseDTO));
+            return;
+        }
 
         String exportUuid = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
         // Redis Key

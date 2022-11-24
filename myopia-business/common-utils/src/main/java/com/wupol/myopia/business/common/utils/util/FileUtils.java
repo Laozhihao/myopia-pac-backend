@@ -74,24 +74,26 @@ public final class FileUtils {
         File parentFile = file.getParentFile();
         if (!parentFile.exists() && !parentFile.mkdirs()) {
             log.error("创建文件夹失败");
+            throw new BusinessException("创建文件失败");
         }
 
-        try(FileOutputStream fos = new FileOutputStream(savePath)){
+        try (FileOutputStream fos = new FileOutputStream(savePath)) {
 
             if (!file.exists() && !file.createNewFile()) {
                 log.error("创建文件失败");
+                throw new BusinessException("创建文件失败");
             }
             URL url = new URL(fileUrl);
-            InputStream inputStream= url.openConnection().getInputStream();
+            InputStream inputStream = url.openConnection().getInputStream();
             int byteRead;
             byte[] buffer = new byte[1024];
             while ((byteRead = inputStream.read(buffer)) != -1) {
                 fos.write(buffer, 0, byteRead);
             }
-        }catch (IOException e){
+        } catch (IOException e) {
+            log.error("创建文件异常，请求URL:{}, 保存地址:{}", fileUrl, savePath, e);
             throw new BusinessException("创建文件异常");
         }
-
     }
 
     /**
