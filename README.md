@@ -197,7 +197,7 @@ docker-compose -f docker-compose-nacos-cluster.yml up -d
 
 ## 开发规范约定
 ### 团队Java代码规范
-https://git.vistel.cn/web/web-toolkits/java-coding-guide【要求熟读】
+详见：https://git.vistel.cn/web/web-toolkits/java-coding-guide【要求熟读】
 ### 命名
 - 政府部门：gov_dept、筛查机构：screening_org、两者统称：org
 - Redis缓存key值命名，采用冒号来分类，为了方便维护和便于Redis可视化工具中排查问题。格式 = 类别:描述(或类别，下划线命名):唯一值描述_唯一值占位符
