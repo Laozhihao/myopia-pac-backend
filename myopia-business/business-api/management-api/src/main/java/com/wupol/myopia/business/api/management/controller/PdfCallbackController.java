@@ -9,7 +9,6 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.util.S3Utils;
@@ -71,7 +70,13 @@ public class PdfCallbackController {
         int currentCount = pdfGeneratorVO.getExportCount() + 1;
         boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
         // 下载文件
-        FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
+        try {
+            FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
+        } catch (Exception e) {
+            redisUtil.del(key);
+            noticeService.sendErrorNotice(exportUuid, pdfGeneratorVO);
+            redisUtil.del(pdfGeneratorVO.getLockKey());
+        }
 
         // 如果没有完成，则更新次数
         if (!isFinish) {
@@ -85,7 +90,7 @@ public class PdfCallbackController {
             File file = FileUtil.rename(ZipUtil.zip(Paths.get(pdfSavePath, exportUuid).toString()), zipFileName, true, true);
             noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));
             FileUtil.del(file);
-        } catch (UtilException e) {
+        } catch (Exception e) {
             log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
             noticeService.sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + pdfGeneratorVO.getZipFileName() + "请稍后重试");
         } finally {
