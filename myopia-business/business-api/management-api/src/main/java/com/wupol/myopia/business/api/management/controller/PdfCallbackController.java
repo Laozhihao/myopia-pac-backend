@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -49,7 +50,7 @@ public class PdfCallbackController {
 
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
+    public synchronized void callback(@RequestBody @Valid PdfResponseDTO responseDTO) {
         String exportUuid = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
         // Redis Key
         String key = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_KEY, exportUuid);
