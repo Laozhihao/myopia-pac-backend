@@ -44,7 +44,7 @@ public class PdfGeneratorVO {
     private Integer schoolId;
 
     /**
-     * lockKey
+     * 导出限制Key
      */
     private String lockKey;
 
