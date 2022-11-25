@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
-import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -50,46 +50,52 @@ public class PdfCallbackController {
 
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void callback(@RequestBody PdfResponseDTO responseDTO) {
-
+    public synchronized void callback(@RequestBody @Valid PdfResponseDTO responseDTO) {
         String exportUuid = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
         // Redis Key
         String key = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_KEY, exportUuid);
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(key);
-        if (Objects.isNull(pdfGeneratorVO) || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
-            redisUtil.del(key);
-            if (Objects.nonNull(pdfGeneratorVO) && Objects.nonNull(pdfGeneratorVO.getLockKey())) {
-                noticeService.sendErrorNotice(exportUuid, pdfGeneratorVO);
-                redisUtil.del(pdfGeneratorVO.getLockKey());
-            }
-            return;
-        }
-        // 统计次数
-        int currentCount = pdfGeneratorVO.getExportCount() + 1;
-        boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
-        // 下载文件
-        FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
-
-        // 如果没有完成，则更新次数
-        if (!isFinish) {
-            pdfGeneratorVO.setExportCount(currentCount);
-            redisUtil.set(key, pdfGeneratorVO);
-            return;
-        }
-        // 如果次数相同，则压缩文件
-        String srcPath = Paths.get(pdfSavePath, exportUuid).toString();
-        String zipFileName = pdfGeneratorVO.getZipFileName();
         try {
-            File file = FileUtil.rename(ZipUtil.zip(srcPath), zipFileName, true, true);
+            if (Objects.equals(responseDTO.getStatus(), Boolean.FALSE)
+                    || Objects.isNull(pdfGeneratorVO)
+                    || Objects.equals(pdfGeneratorVO.getStatus(), Boolean.FALSE)) {
+                errorSendNoticeMessage(pdfGeneratorVO, key, exportUuid);
+                return;
+            }
+            // 统计次数
+            int currentCount = pdfGeneratorVO.getExportCount() + 1;
+            boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
+            // 下载文件
+            FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
+
+            // 如果没有完成，则更新次数
+            if (!isFinish) {
+                pdfGeneratorVO.setExportCount(currentCount);
+                redisUtil.set(key, pdfGeneratorVO);
+                return;
+            }
+            // 如果次数相同，则压缩文件
+            String zipFileName = pdfGeneratorVO.getZipFileName();
+            File file = FileUtil.rename(ZipUtil.zip(Paths.get(pdfSavePath, exportUuid).toString()), zipFileName, true, true);
             noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));
-            FileUtil.del(file);
-        } catch (UtilException e) {
-            log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
-            noticeService.sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + zipFileName + "请稍后重试");
-        } finally {
             redisUtil.del(key);
             redisUtil.del(pdfGeneratorVO.getLockKey());
-            FileUtil.del(srcPath);
+            FileUtil.del(Paths.get(pdfSavePath, exportUuid).toString());
+        } catch (Exception e) {
+            log.error("PDF请求回调异常, 请求参数:{}", JSON.toJSONString(responseDTO), e);
+            errorSendNoticeMessage(pdfGeneratorVO, key, exportUuid);
         }
+    }
+
+    /**
+     * 发送导出失败站内信
+     */
+    private void errorSendNoticeMessage(PdfGeneratorVO pdfGeneratorVO, String key, String exportUuid) {
+        if (Objects.nonNull(pdfGeneratorVO)) {
+            noticeService.sendErrorNotice(exportUuid, pdfGeneratorVO);
+            redisUtil.del(pdfGeneratorVO.getLockKey());
+        }
+        redisUtil.del(key);
+        FileUtil.del(Paths.get(pdfSavePath, exportUuid).toString());
     }
 }
