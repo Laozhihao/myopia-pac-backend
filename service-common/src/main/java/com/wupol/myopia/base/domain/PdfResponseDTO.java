@@ -3,6 +3,8 @@ package com.wupol.myopia.base.domain;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -17,6 +19,7 @@ public class PdfResponseDTO implements Serializable {
     /**
      * UUID
      */
+    @NotBlank(message = "uuid不能为空")
     private String uuid;
 
     /**
@@ -32,6 +35,7 @@ public class PdfResponseDTO implements Serializable {
     /**
      * 状态
      */
+    @NotNull(message = "状态不能为空")
     private Boolean status;
 
     /**
