@@ -59,7 +59,7 @@ public class CommonDiseaseDataExportDTO implements Serializable {
     @ExcelProperty({"班级", "班级", "班级"})
     private String className;
 
-    @ExcelProperty({"学号", "学号", "学号"})
+    @ExcelProperty({"学籍号", "学籍号", "学籍号"})
     private String studentNo;
 
     @ExcelProperty({"家庭地址", "家庭地址", "家庭地址"})

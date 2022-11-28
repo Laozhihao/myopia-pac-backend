@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateException;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -36,7 +37,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -203,8 +203,10 @@ public class SchoolStudentExcelImportService {
             schoolStudent.setPassport(null);
         }
         try {
-            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
-        } catch (ParseException e) {
+            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ?
+                    cn.hutool.core.date.DateUtil.parse(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2) :
+                    IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
+        } catch (DateException e) {
             throw new BusinessException("生日格式异常");
         }
     }

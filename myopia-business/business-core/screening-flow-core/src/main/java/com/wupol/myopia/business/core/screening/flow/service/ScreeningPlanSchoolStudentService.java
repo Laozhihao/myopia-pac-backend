@@ -596,7 +596,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         for (ScreeningPlanSchoolStudent s : existPlanSchoolStudentList) {
             // 学号是否被使用
             if (StringUtils.equals(sno, s.getStudentNo()) && schoolId.equals(s.getSchoolId()) && ((StringUtils.isNotBlank(idCard) && !StringUtils.equals(idCard, s.getIdCard())) || (StringUtils.isNotBlank(passport) && !StringUtils.equals(passport, s.getPassport())))) {
-                throw new BusinessException("学号:" + sno + "重复");
+                throw new BusinessException("学籍号:" + sno + "重复");
             }
         }
     }

@@ -176,7 +176,7 @@ public class CommonConst {
     /**
      *  Excel格式
      */
-    public static final String FILE_SUFFIX = ".xlsx";
+    public static final String EXCEL_XLSX_FILE_SUFFIX = ".xlsx";
 
     /**
      *  中文逗号
@@ -252,4 +252,8 @@ public class CommonConst {
     public static final String QUESTIONNAIRE_MAIN_TITLE_VISION = "视力调查问卷";
     public static final String QUESTIONNAIRE_MAIN_TITLE_HEALTHY = "健康调查问卷";
 
+    /**
+     *  Excel格式
+     */
+    public static final String EXCEL_XLS_FILE_SUFFIX = ".xls";
 }

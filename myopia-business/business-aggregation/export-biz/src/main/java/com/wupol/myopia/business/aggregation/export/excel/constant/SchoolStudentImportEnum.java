@@ -9,21 +9,21 @@ import lombok.Getter;
  */
 public enum SchoolStudentImportEnum {
 
-    NAME(0, "姓名"),
-    GENDER(1, "性别"),
-    BIRTHDAY(2, "出生日期"),
-    NATION(3, "民族"),
-    GRADE_NAME(4, "年级"),
-    CLASS_NAME(5, "班级"),
-    SNO(6, "学号"),
-    ID_CARD(7, "身份证号"),
+    SNO(0, "学籍号"),
+    NAME(1, "姓名"),
+    ID_CARD(2, "身份证号"),
+    GENDER(3, "性别"),
+    BIRTHDAY(4, "出生日期"),
+    GRADE_NAME(5, "年级"),
+    CLASS_NAME(6, "班级"),
+    NATION(7, "民族"),
     PASSPORT(8, "护照号"),
-    PHONE(9, "手机号码"),
-    PROVINCE_NAME(10, "省"),
-    CITY_NAME(11, "市"),
-    AREA_NAME(12, "县"),
-    TOWN_NAME(13, "镇"),
-    ADDRESS(14, "地址");
+    PROVINCE_NAME(9, "省"),
+    CITY_NAME(10, "市"),
+    AREA_NAME(11, "县"),
+    TOWN_NAME(12, "镇"),
+    ADDRESS(13, "地址"),
+    PHONE(14, "手机号码");
 
     /**
      * 列标

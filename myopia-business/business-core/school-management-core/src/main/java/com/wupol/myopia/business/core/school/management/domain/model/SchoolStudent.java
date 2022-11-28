@@ -53,7 +53,7 @@ public class SchoolStudent extends AddressCode implements Serializable {
     /**
      * 学号
      */
-    @NotBlank(message = "学号不能为空")
+    @NotBlank(message = "学籍号不能为空")
     private String sno;
 
     /**
