@@ -631,7 +631,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             return new HashMap<>();
         }
         List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
-        return resultList.stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+        return resultList.stream().filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType())).collect(Collectors.toMap(VisionScreeningResult::getStudentId,
                 Function.identity(),
                 (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
     }
