@@ -130,6 +130,7 @@ public class DataSubmitBizService {
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(planStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
         return planStudentList.stream()
                 .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo))
+                .filter(s -> StringUtils.isNotBlank(s.getStudentNo()))
                 .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), null)));
     }
 
