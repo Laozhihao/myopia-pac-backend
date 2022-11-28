@@ -7,6 +7,8 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.model.Student;
+import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -56,6 +58,9 @@ public class DataSubmitBizService {
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
+    @Resource
+    private StudentService studentService;
+
     @Async
     public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
@@ -96,9 +101,12 @@ public class DataSubmitBizService {
      */
     private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap) {
         List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(planStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-        return planStudentList.stream().filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo)).filter(s -> StringUtils.isNotBlank(s.getStudentNo())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
+        List<Student> studentList = studentService.getLastBySno(snoList);
+//        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()));
+        return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
+                .filter(s -> StringUtils.isNotBlank(s.getSno()))
+                .collect(Collectors.toMap(Student::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 
     /**
