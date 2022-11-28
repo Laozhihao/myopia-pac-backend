@@ -91,6 +91,31 @@ public class DataSubmitBizService {
     }
 
     /**
+     * 通过学号获取筛查信息
+     */
+    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap) {
+        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(planStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
+        return planStudentList.stream().filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo)).filter(s -> StringUtils.isNotBlank(s.getStudentNo())).collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
+    }
+
+    /**
+     * 获取原始数据
+     */
+    private void getOriginalInfo(Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
+        exportDTO.setGradeCode(s.get(0));
+        exportDTO.setClassCode(s.get(1));
+        exportDTO.setClassName(s.get(2));
+        exportDTO.setStudentNo(s.get(3));
+        exportDTO.setNation(s.get(4));
+        exportDTO.setName(s.get(5));
+        exportDTO.setGender(s.get(6));
+        exportDTO.setBirthday(s.get(7));
+        exportDTO.setAddress(s.get(8));
+    }
+
+    /**
      * 获取筛查信息
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
@@ -98,11 +123,11 @@ public class DataSubmitBizService {
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
-            exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
-            exportDTO.setRightCyl(EyeDataUtil.rightCyl(result).toString());
+            exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
+            exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
             exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
-            exportDTO.setLeftSph(EyeDataUtil.leftSph(result).toString());
-            exportDTO.setLeftCyl(EyeDataUtil.leftCyl(result).toString());
+            exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
+            exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
             exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
             exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
             success.incrementAndGet();
@@ -119,33 +144,5 @@ public class DataSubmitBizService {
             return "9";
         }
         return nakedVision.toString();
-    }
-
-    /**
-     * 通过学号获取筛查信息
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap) {
-        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(planStudentList.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-        return planStudentList.stream()
-                .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo))
-                .filter(s -> StringUtils.isNotBlank(s.getStudentNo()))
-                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
-    }
-
-    /**
-     * 获取原始数据
-     */
-    private void getOriginalInfo(Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        exportDTO.setGradeCode(s.get(0));
-        exportDTO.setClassCode(s.get(1));
-        exportDTO.setClassName(s.get(2));
-        exportDTO.setStudentNo(s.get(3));
-        exportDTO.setNation(s.get(4));
-        exportDTO.setName(s.get(5));
-        exportDTO.setGender(s.get(6));
-        exportDTO.setBirthday(s.get(7));
-        exportDTO.setAddress(s.get(8));
     }
 }
