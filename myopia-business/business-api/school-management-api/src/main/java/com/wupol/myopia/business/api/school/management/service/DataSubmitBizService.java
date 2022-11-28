@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -136,13 +137,20 @@ public class DataSubmitBizService {
         }
     }
 
+    /**
+     * 处理裸眼视力
+     *
+     * @param nakedVision 裸眼视力
+     *
+     * @return 裸眼视力
+     */
     private String getNakedVision(BigDecimal nakedVision) {
         if (Objects.isNull(nakedVision)) {
             return StringUtils.EMPTY;
         }
         if (BigDecimalUtil.lessThan(nakedVision, "3.0")) {
-            return "9";
+            return "9.0";
         }
-        return nakedVision.toString();
+        return nakedVision.setScale(1, RoundingMode.DOWN).toString();
     }
 }
