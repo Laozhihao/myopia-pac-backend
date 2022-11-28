@@ -95,7 +95,7 @@ public class DataSubmitBizService {
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(s.get(3));
-        if (Objects.nonNull(result.getId())) {
+        if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
             exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
