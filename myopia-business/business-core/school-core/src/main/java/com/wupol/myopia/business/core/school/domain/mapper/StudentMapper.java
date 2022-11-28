@@ -82,5 +82,5 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     Student getAllByPassport(@Param("passport") String passport);
 
-    List<Student> getLastBySno(@Param("snos") List<String> snos);
+    List<Student> getLastBySno(@Param("snos") List<String> snos, @Param("schoolId") Integer schoolId);
 }

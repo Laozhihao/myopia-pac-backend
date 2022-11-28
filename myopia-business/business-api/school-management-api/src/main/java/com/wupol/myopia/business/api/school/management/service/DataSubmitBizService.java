@@ -56,16 +56,13 @@ public class DataSubmitBizService {
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Resource
     private StudentService studentService;
 
     @Async
-    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId) {
+    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId) {
         DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
         try {
-            dealDataSubmit(listMap, dataSubmit, userId);
+            dealDataSubmit(listMap, dataSubmit, userId, schoolId);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);
@@ -74,12 +71,12 @@ public class DataSubmitBizService {
         }
     }
 
-    private void dealDataSubmit(List<Map<Integer, String>> listMap, DataSubmit dataSubmit, Integer userId) throws IOException, UtilException {
+    private void dealDataSubmit(List<Map<Integer, String>> listMap, DataSubmit dataSubmit, Integer userId, Integer schoolId) throws IOException, UtilException {
 
         AtomicInteger success = new AtomicInteger(0);
         AtomicInteger fail = new AtomicInteger(0);
 
-        Map<String, VisionScreeningResult> screeningData = getScreeningData(listMap);
+        Map<String, VisionScreeningResult> screeningData = getScreeningData(listMap, schoolId);
 
         List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
             DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
@@ -99,11 +96,11 @@ public class DataSubmitBizService {
     /**
      * 通过学号获取筛查信息
      */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap) {
+    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
         List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        List<Student> studentList = studentService.getLastBySno(snoList);
+        List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
 //        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
         return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
                 .filter(s -> StringUtils.isNotBlank(s.getSno()))
                 .collect(Collectors.toMap(Student::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));

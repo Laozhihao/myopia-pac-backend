@@ -112,7 +112,7 @@ public class SchoolPreventionController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
         Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
-        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId());
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId());
     }
 
     /**
