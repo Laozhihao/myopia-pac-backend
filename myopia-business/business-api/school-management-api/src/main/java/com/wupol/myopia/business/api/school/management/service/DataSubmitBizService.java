@@ -95,7 +95,7 @@ public class DataSubmitBizService {
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(s.get(3));
-        if (Objects.nonNull(result)) {
+        if (Objects.nonNull(result.getId())) {
             exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
             exportDTO.setRightSph(EyeDataUtil.rightSph(result).toString());
@@ -131,7 +131,7 @@ public class DataSubmitBizService {
         return planStudentList.stream()
                 .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getStudentNo))
                 .filter(s -> StringUtils.isNotBlank(s.getStudentNo()))
-                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), null)));
+                .collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentNo, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
     }
 
     /**
