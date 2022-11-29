@@ -109,7 +109,6 @@ public class SchoolPreventionController {
      * @param file 文件
      */
     @PostMapping("data/submit")
-    @Transactional(rollbackFor = Exception.class)
     public void dataSubmit(MultipartFile file) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
