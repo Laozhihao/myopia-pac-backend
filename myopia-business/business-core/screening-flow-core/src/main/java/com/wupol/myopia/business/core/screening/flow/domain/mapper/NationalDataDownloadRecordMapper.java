@@ -1,6 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
-import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
+import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,6 +9,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @Author Simple4H
  * @Date 2022-11-21
  */
-public interface DataSubmitMapper extends BaseMapper<DataSubmit> {
+public interface NationalDataDownloadRecordMapper extends BaseMapper<NationalDataDownloadRecord> {
 
 }

@@ -9,10 +9,11 @@ import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownloadStatusEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
+import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
+import com.wupol.myopia.business.core.screening.flow.service.NationalDataDownloadRecordService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
 public class DataSubmitBizService {
 
     @Resource
-    private DataSubmitService dataSubmitService;
+    private NationalDataDownloadRecordService nationalDataDownloadRecordService;
 
     @Resource
     private S3Utils s3Utils;
@@ -56,20 +57,26 @@ public class DataSubmitBizService {
     @Resource
     private StudentService studentService;
 
+    /**
+     * 处理数据上报
+     */
     @Async
     public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId) {
-        DataSubmit dataSubmit = dataSubmitService.getById(dataSubmitId);
+        NationalDataDownloadRecord nationalDataDownloadRecord = nationalDataDownloadRecordService.getById(dataSubmitId);
         try {
-            dealDataSubmit(listMap, dataSubmit, userId, schoolId);
+            dealDataSubmit(listMap, nationalDataDownloadRecord, userId, schoolId);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);
-            dataSubmit.setDownloadMessage("系统错误，请重试");
-            dataSubmitService.updateById(dataSubmit);
+            nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.FAIL.getType());
+            nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
         }
     }
 
-    private void dealDataSubmit(List<Map<Integer, String>> listMap, DataSubmit dataSubmit, Integer userId, Integer schoolId) throws IOException, UtilException {
+    /**
+     * 生成Excel文件
+     */
+    private void dealDataSubmit(List<Map<Integer, String>> listMap, NationalDataDownloadRecord nationalDataDownloadRecord, Integer userId, Integer schoolId) throws IOException, UtilException {
 
         AtomicInteger success = new AtomicInteger(0);
         AtomicInteger fail = new AtomicInteger(0);
@@ -84,10 +91,11 @@ public class DataSubmitBizService {
         }).collect(Collectors.toList());
         File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
         Integer fileId = s3Utils.uploadFileToS3(excel);
-        dataSubmit.setSuccessMatch(success.get());
-        dataSubmit.setFailMatch(fail.get());
-        dataSubmit.setFileId(fileId);
-        dataSubmitService.updateById(dataSubmit);
+        nationalDataDownloadRecord.setSuccessMatch(success.get());
+        nationalDataDownloadRecord.setFailMatch(fail.get());
+        nationalDataDownloadRecord.setFileId(fileId);
+        nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.SUCCESS.getType());
+        nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
     }
 

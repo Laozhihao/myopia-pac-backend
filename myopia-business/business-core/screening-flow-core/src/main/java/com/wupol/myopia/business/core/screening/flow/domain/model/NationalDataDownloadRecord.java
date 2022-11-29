@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("m_data_submit")
-public class DataSubmit implements Serializable {
+@TableName("m_national_data_download_record")
+public class NationalDataDownloadRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -56,9 +56,9 @@ public class DataSubmit implements Serializable {
     private Integer fileId;
 
     /**
-     * 下载信息
+     * 状态 0-创建 1-进行中 2-成功 3-失败
      */
-    private String downloadMessage;
+    private Integer status;
 
     /**
      * 创建时间

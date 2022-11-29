@@ -16,8 +16,9 @@ import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
-import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
+import com.wupol.myopia.business.core.screening.flow.service.NationalDataDownloadRecordService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,7 +48,7 @@ public class SchoolPreventionController {
     private DataSubmitBizService dataSubmitBizService;
 
     @Resource
-    private DataSubmitService dataSubmitService;
+    private NationalDataDownloadRecordService nationalDataDownloadRecordService;
 
     @Resource
     private ResourceFileService resourceFileService;
@@ -98,8 +99,8 @@ public class SchoolPreventionController {
      * @return IPage<DataSubmit>
      */
     @GetMapping("/data/submit/list")
-    public IPage<DataSubmit> dataSubmitList(PageRequest pageRequest) {
-        return dataSubmitService.getList(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
+    public IPage<NationalDataDownloadRecord> dataSubmitList(PageRequest pageRequest) {
+        return nationalDataDownloadRecordService.getList(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
     }
 
     /**
@@ -108,10 +109,11 @@ public class SchoolPreventionController {
      * @param file 文件
      */
     @PostMapping("data/submit")
+    @Transactional(rollbackFor = Exception.class)
     public void dataSubmit(MultipartFile file) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
-        Integer dataSubmitId = dataSubmitService.createNewDataSubmit(currentUser.getOrgId());
+        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId());
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId());
     }
 
