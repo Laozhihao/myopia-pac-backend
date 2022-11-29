@@ -897,14 +897,4 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return gradePlanSchoolStudentMap;
     }
-
-    /**
-     * 通过学号获取数据
-     */
-    public List<ScreeningPlanSchoolStudent> getLastBySno(List<String> snos) {
-        if (CollectionUtils.isEmpty(snos)) {
-            return new ArrayList<>();
-        }
-        return baseMapper.getLastBySno(snos);
-    }
 }
