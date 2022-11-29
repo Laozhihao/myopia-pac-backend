@@ -11,8 +11,8 @@ public enum NationalDataDownloadStatusEnum {
 
     CREATE(0, "创建"),
     PROCESS(1, "进行中"),
-    SUCCESS(1, "成功"),
-    FAIL(1, "失败");
+    SUCCESS(2, "成功"),
+    FAIL(3, "失败");
 
     /**
      * 类型
