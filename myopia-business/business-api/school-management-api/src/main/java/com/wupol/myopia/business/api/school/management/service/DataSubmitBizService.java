@@ -11,10 +11,8 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.DataSubmit;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.DataSubmitService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
@@ -99,7 +97,6 @@ public class DataSubmitBizService {
     private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
         List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
         List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
-//        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getLastBySno(snoList);
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
         return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
                 .filter(s -> StringUtils.isNotBlank(s.getSno()))
