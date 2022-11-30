@@ -38,20 +38,6 @@ public final class FileUtils {
      * @return java.util.List<java.util.Map < java.lang.Integer, java.lang.String>>
      **/
     public static List<Map<Integer, String>> readExcel(MultipartFile multipartFile) {
-        String tempPath = IOUtils.getTempPath();
-        String suffix = Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().lastIndexOf("."));
-        String fileName = StringUtils.EMPTY;
-        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLSX_FILE_SUFFIX)) {
-            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLSX_FILE_SUFFIX;
-        }
-        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLS_FILE_SUFFIX)) {
-            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLS_FILE_SUFFIX;
-        }
-        if (StringUtils.isBlank(fileName)) {
-            throw new BusinessException("文件格式有误!");
-        }
-        fileName = Paths.get(tempPath, fileName).toString();
-        File file = new File(fileName);
         TwoTuple<String, File> fileInfo = getParseFile(multipartFile);
         try {
             List<Map<Integer, String>> listMap = EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
@@ -62,8 +48,6 @@ public final class FileUtils {
         } catch (Exception e) {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");
-        } finally {
-            FileUtil.del(file);
         }finally {
             FileUtil.del(fileInfo.getSecond());
         }
@@ -177,9 +161,18 @@ public final class FileUtils {
     }
 
     private static TwoTuple<String,File > getParseFile(MultipartFile multipartFile) {
-        String tempPath = IOUtils.getTempPath();
-        String fileName =  multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-        fileName = Paths.get(tempPath,fileName).toString();
+        String suffix = Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        String fileName = StringUtils.EMPTY;
+        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLSX_FILE_SUFFIX)) {
+            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLSX_FILE_SUFFIX;
+        }
+        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLS_FILE_SUFFIX)) {
+            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLS_FILE_SUFFIX;
+        }
+        if (StringUtils.isBlank(fileName)) {
+            throw new BusinessException("文件格式有误!");
+        }
+        fileName = Paths.get(IOUtils.getTempPath(), fileName).toString();
         File file = new File(fileName);
         try {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
