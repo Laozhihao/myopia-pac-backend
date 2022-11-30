@@ -46,21 +46,22 @@ public class ScreeningBizBuilder {
     /**
      * 筛查计划学校学生
      *
+     * @param screeningPlanId                  计划Id
      * @param schoolStudentList                选中的学生集合
      * @param school                           学校
      * @param schoolGradeMap                   年级集合
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
      */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+    public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(Integer screeningPlanId, List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
                                                                                                       List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList) {
         if (CollUtil.isEmpty(screeningPlanSchoolStudentDbList)){
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(schoolStudentList, school, schoolGradeMap);
+            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(screeningPlanId, schoolStudentList, school, schoolGradeMap);
             return TwoTuple.of(screeningPlanSchoolStudentList, Lists.newArrayList());
         }else {
             Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentDbList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
             List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
-            processAddAndUpdate(schoolStudentList, school, schoolGradeMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
+            processAddAndUpdate(screeningPlanId, schoolStudentList, school, schoolGradeMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
             List<Integer> dbStudentIds=Lists.newArrayList();
             return TwoTuple.of(screeningPlanSchoolStudentList,dbStudentIds) ;
         }
@@ -69,6 +70,7 @@ public class ScreeningBizBuilder {
     /**
      * 处理新增和更新数据
      *
+     * @param screeningPlanId                计划Id
      * @param schoolStudentList              学生集合
      * @param school                         学校信息
      * @param schoolGradeMap                 年级集合
@@ -76,7 +78,7 @@ public class ScreeningBizBuilder {
      * @param screeningPlanSchoolStudentList 新增和更新筛查计划学校学生集合
      * @param addOrUpdateStudentIds          新增和更新学生ID集合
      */
-    public void processAddAndUpdate(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+    public void processAddAndUpdate(Integer screeningPlanId,List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
                                      Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap,
                                      List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList, List<Integer> addOrUpdateStudentIds) {
         if (CollUtil.isEmpty(schoolStudentList)){
@@ -88,7 +90,7 @@ public class ScreeningBizBuilder {
             SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planSchoolStudentMap.get(schoolStudent.getStudentId());
             if (Objects.isNull(screeningPlanSchoolStudent)){
-                screeningPlanSchoolStudentList.add(buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade));
+                screeningPlanSchoolStudentList.add(buildScreeningPlanSchoolStudent(screeningPlanId, schoolStudent, school, schoolGrade));
             }else {
                 updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade);
                 screeningPlanSchoolStudentList.add(screeningPlanSchoolStudent);
@@ -99,28 +101,31 @@ public class ScreeningBizBuilder {
     /**
      * 获取筛查计划学生
      *
+     * @param screeningPlanId   计划Id
      * @param schoolStudentList 学校学生信息
      * @param school            学校信息
      * @param schoolGradeMap    年级信息
      */
-    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap) {
+    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudents(Integer screeningPlanId, List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap) {
         return schoolStudentList.stream().map(schoolStudent -> {
             SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
-            return buildScreeningPlanSchoolStudent(schoolStudent, school, schoolGrade);
+            return buildScreeningPlanSchoolStudent(screeningPlanId, schoolStudent, school, schoolGrade);
         }).collect(Collectors.toList());
     }
 
     /**
      * 构建筛查计划学校学生
      *
-     * @param schoolStudent 学生信息
-     * @param school        学校信息
-     * @param schoolGrade   年级集合
+     * @param screeningPlanId 计划Id
+     * @param schoolStudent   学生信息
+     * @param school          学校信息
+     * @param schoolGrade     年级集合
      */
-    public ScreeningPlanSchoolStudent buildScreeningPlanSchoolStudent(SchoolStudent schoolStudent,School school,SchoolGrade schoolGrade){
+    public ScreeningPlanSchoolStudent buildScreeningPlanSchoolStudent(Integer screeningPlanId,SchoolStudent schoolStudent,School school,SchoolGrade schoolGrade){
         ScreeningPlanSchoolStudent screeningPlanSchoolStudent = new ScreeningPlanSchoolStudent()
                 .setSrcScreeningNoticeId(CommonConst.DEFAULT_ID)
                 .setScreeningTaskId(CommonConst.DEFAULT_ID)
+                .setScreeningPlanId(screeningPlanId)
                 .setScreeningOrgId(school.getId())
                 .setSchoolId(school.getId())
                 .setStudentId(schoolStudent.getStudentId())

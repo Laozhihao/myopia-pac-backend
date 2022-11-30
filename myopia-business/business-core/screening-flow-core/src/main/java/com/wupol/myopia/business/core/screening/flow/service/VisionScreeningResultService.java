@@ -619,4 +619,23 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return countScreeningTime(studentIds).stream().collect(Collectors.toMap(
                 StudentScreeningCountDTO::getStudentId, StudentScreeningCountDTO::getCount));
     }
+
+    /**
+     * 通过筛查学生查询筛查结果
+     *
+     * @param studentIds 筛查学生
+     * @return 筛查结果
+     */
+    public Map<Integer, VisionScreeningResult> getLastByStudentIds(List<Integer> studentIds, Integer schoolId) {
+        if (CollectionUtils.isEmpty(studentIds)) {
+            return new HashMap<>();
+        }
+        List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
+        return resultList.stream()
+                .filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .filter(s-> Objects.equals(s.getSchoolId(), schoolId))
+                .collect(Collectors.toMap(VisionScreeningResult::getStudentId,
+                Function.identity(),
+                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+    }
 }

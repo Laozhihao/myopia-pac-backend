@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -8,18 +9,23 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
+import com.wupol.myopia.business.api.school.management.service.DataSubmitBizService;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
+import com.wupol.myopia.business.core.screening.flow.service.NationalDataDownloadRecordService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 防控中心
@@ -37,6 +43,15 @@ public class SchoolPreventionController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    @Resource
+    private DataSubmitBizService dataSubmitBizService;
+
+    @Resource
+    private NationalDataDownloadRecordService nationalDataDownloadRecordService;
+
+    @Resource
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -74,5 +89,42 @@ public class SchoolPreventionController {
     @GetMapping("/getAllGradeList")
     public List<SchoolGradeItemsDTO> getAllGradeList() {
         return schoolStudentBizService.getAllGradeList(CurrentUserUtil.getCurrentUser().getOrgId());
+    }
+
+    /**
+     * 数据上报列表
+     *
+     * @param pageRequest 分页
+     *
+     * @return IPage<DataSubmit>
+     */
+    @GetMapping("/data/submit/list")
+    public IPage<NationalDataDownloadRecord> dataSubmitList(PageRequest pageRequest) {
+        return nationalDataDownloadRecordService.getList(pageRequest, CurrentUserUtil.getCurrentUser().getOrgId());
+    }
+
+    /**
+     * 数据上报
+     *
+     * @param file 文件
+     */
+    @PostMapping("data/submit")
+    public void dataSubmit(MultipartFile file) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
+        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId());
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId());
+    }
+
+    /**
+     * 获取文件
+     *
+     * @param id id
+     *
+     * @return ApiResult<String>
+     */
+    @GetMapping("data/submit/file/{id}")
+    public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
+        return ApiResult.success(resourceFileService.getResourcePath(id));
     }
 }

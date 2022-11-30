@@ -418,4 +418,17 @@
         where id_card = #{info}
            or passport = #{info}
     </select>
+
+    <select id="getLastBySno" resultMap="BaseResultMap">
+        select *
+        from m_student
+        where id in (select max(id)
+                     from m_student
+        where m_student.school_id = #{schoolId}
+          and sno in
+        <foreach collection="snos" item="sno" index="index" open="(" separator="," close=")">
+            #{sno}
+        </foreach>
+        group by sno)
+    </select>
 </mapper>

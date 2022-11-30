@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import cn.hutool.core.util.StrUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -708,5 +709,18 @@ public class EyeDataUtil {
             return StringUtils.EMPTY;
         }
         return bigDecimal.toString();
+    }
+
+    /**
+     * 拼接符号
+     */
+    public String spliceSymbol(BigDecimal val) {
+        if (Objects.isNull(val)) {
+            return StringUtils.EMPTY;
+        }
+        if (BigDecimalUtil.moreThanAndEqual(val, "0")) {
+            return "+" + val;
+        }
+        return val.toString();
     }
 }

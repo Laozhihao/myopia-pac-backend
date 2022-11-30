@@ -108,9 +108,9 @@ public class SchoolStudentExcelImportService {
 
         // 获取已经存在的学校学生（判断是否重复）
         List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
-        Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
-        Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> passPortMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> snoMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getSno())).collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
+        Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
         // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
@@ -137,7 +137,8 @@ public class SchoolStudentExcelImportService {
 
             checkIsExist(snoMap, idCardMap, passPortMap,
                     item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
-                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
+                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()),
+                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
@@ -252,7 +253,7 @@ public class SchoolStudentExcelImportService {
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
                               Map<String, SchoolStudent> passPortMap, String sno, String idCard,
-                              String gradeName, String passport) {
+                              String gradeName, String passport, String birthday) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -268,6 +269,9 @@ public class SchoolStudentExcelImportService {
         }
         if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
             throw new BusinessException("护照" + passport + ERROR_MSG);
+        }
+        if (StringUtils.isAllBlank(birthday, idCard)) {
+            throw new BusinessException("学号" + sno + "出生日期为空");
         }
     }
 

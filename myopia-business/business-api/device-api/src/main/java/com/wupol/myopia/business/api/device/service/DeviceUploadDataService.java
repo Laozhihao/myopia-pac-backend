@@ -111,9 +111,10 @@ public class DeviceUploadDataService {
     /**
      * 保存设备上传数据到筛查结果中
      *
-     * @param deviceScreenDataDTOList
+     * @param deviceScreenDataDTOList 数据
+     * @param orgId                   机构Id
      */
-    public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList) {
+    public void updateOrSaveDeviceScreeningDatas2ScreeningResult(List<DeviceScreenDataDTO> deviceScreenDataDTOList, Integer orgId) {
         deviceScreenDataDTOList = deviceScreenDataDTOList.stream().filter(DeviceUploadDataService::dealStudentId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deviceScreenDataDTOList)) {
             return;
@@ -121,7 +122,7 @@ public class DeviceUploadDataService {
         // 将所有的patientId(planStudentId)拿出来
         Set<String> planStudentIdSet = deviceScreenDataDTOList.stream().map(DeviceScreenDataDTO::getPatientId).collect(Collectors.toSet());
         // 批量查找学生信息
-        List<ScreeningPlanSchoolStudent> screeningPlanStudents = screeningPlanSchoolStudentService.getByIds(planStudentIdSet);
+        List<ScreeningPlanSchoolStudent> screeningPlanStudents = getScreeningPlanSchoolStudent(orgId, planStudentIdSet);
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
         deviceScreenDataDTOList.forEach(deviceScreenDataDTO -> {
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planStudentMap.get(Integer.valueOf(deviceScreenDataDTO.getPatientId()));
@@ -222,7 +223,7 @@ public class DeviceUploadDataService {
         List<DeviceScreenDataDTO> existDeviceSourceDataDTOs = deviceScreeningDataService.listBatchWithMutiConditions(bindingScreeningOrgId, deviceSn, deviceScreenDataDTOList);
         deviceScreeningDataService.updateOrAddDeviceScreeningDataList(device, getUpdateAndAddData(deviceScreenDataDTOList, bindingScreeningOrgId, deviceSn, existDeviceSourceDataDTOs));
         //更新或者插入学生筛查数据的数据
-        updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList);
+        updateOrSaveDeviceScreeningDatas2ScreeningResult(deviceScreenDataDTOList, orgId);
     }
 
     /**
@@ -299,7 +300,7 @@ public class DeviceUploadDataService {
                 return new ScalesResponseDTO("0", "uid数据为空");
             }
             Integer parsePlanStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
-            ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(parsePlanStudentId);
+            ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(orgId, parsePlanStudentId);
             if (Objects.isNull(planStudent)) {
                 return new ScalesResponseDTO("0", "uid找不到学生数据");
             }
@@ -415,19 +416,36 @@ public class DeviceUploadDataService {
     /**
      * 获取筛查学生
      *
-     * @param orgId 筛查机构Id
-     * @param planStudentId         筛查学生Id
+     * @param orgId         筛查机构Id
+     * @param planStudentId 筛查学生Id
+     *
      * @return 筛查学生
      */
     public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(Integer orgId, Integer planStudentId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
+        checkPlanStudentInfo(orgId, planStudent);
+        return planStudent;
+    }
+
+    /**
+     * 获取筛查学生
+     */
+    public List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudent(Integer orgId, Set<String> planStudentIdSet) {
+        List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByIds(planStudentIdSet);
+        planSchoolStudents.forEach(s -> checkPlanStudentInfo(orgId, s));
+        return planSchoolStudents;
+    }
+
+    /**
+     * 检查筛查学生
+     */
+    private static void checkPlanStudentInfo(Integer orgId, ScreeningPlanSchoolStudent planStudent) {
         if (Objects.isNull(planStudent)) {
             throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
         }
         if (!planStudent.getScreeningOrgId().equals(orgId)) {
             throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());
         }
-        return planStudent;
     }
 
     /**

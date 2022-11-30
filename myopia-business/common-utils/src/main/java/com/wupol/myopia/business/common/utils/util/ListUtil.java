@@ -4,8 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -49,5 +52,10 @@ public class ListUtil {
             intersectionList.retainAll(qesIds);
         }
         return intersectionList;
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+        Map<Object, Boolean> map = new HashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

@@ -252,6 +252,12 @@ public class CommonConst {
     public static final String QUESTIONNAIRE_MAIN_TITLE_VISION = "视力调查问卷";
     public static final String QUESTIONNAIRE_MAIN_TITLE_HEALTHY = "健康调查问卷";
 
+    public static final String SUCCESS = "【导出成功】数据报送数据表填写完成，点击下载或点击数据报送功能菜单查看/下载导出情况和下载数据表";
+
+    public static final String ERROR = "【导出失败】尊敬的用户，非常抱歉通知您，因为系统问题导致视力筛查数据表填写失败，请前往数据报送功能菜单重新创建任务。如果多次出现该情况，请联系管理员，为您带来不便，我们深表歉意。";
+
+    public final static String FILE_NAME = "视力筛查数据报送表";
+
     /**
      *  Excel格式
      */

@@ -170,7 +170,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.nonNull(screeningPlanId)){
             screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
         }
-        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(schoolStudentList, school, schoolGradeAndClassMap.getFirst(), screeningPlanSchoolStudentDbList);
+        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(screeningPlanId, schoolStudentList, school, schoolGradeAndClassMap.getFirst(), screeningPlanSchoolStudentDbList);
     }
 
 }

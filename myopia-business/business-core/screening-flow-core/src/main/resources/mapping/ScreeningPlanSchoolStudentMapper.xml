@@ -582,6 +582,4 @@
         </foreach>
         ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
     </select>
-
-
 </mapper>
