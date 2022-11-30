@@ -53,5 +53,10 @@ public class ExportReportServiceNameConstant {
      */
     public final String EXPORT_QRCODE_SCREENING_SERVICE = "screeningQrCodeService";
 
+    /**
+     * 导出学校筛查结果模版
+     */
+    public final String EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_SERVICE = "exportSchoolResultTemplateExcelService";
+
 
 }

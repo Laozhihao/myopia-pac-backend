@@ -142,4 +142,16 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         return ApiResult.success();
     }
 
+    /**
+     * 导出学校筛查模板
+     */
+    @GetMapping("/school/template/export")
+    public void exportSchoolResultExcelTemplate(Integer screeningPlanId, Integer schoolId) throws IOException {
+        ExportCondition exportCondition = new ExportCondition()
+                .setPlanId(screeningPlanId)
+                .setSchoolId(schoolId)
+                .setApplyExportFileUserId(101);
+        exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_SERVICE);
+    }
+
 }

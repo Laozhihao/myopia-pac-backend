@@ -262,4 +262,9 @@ public class CommonConst {
      *  Excel格式
      */
     public static final String EXCEL_XLS_FILE_SUFFIX = ".xls";
+
+    /**
+     * 学校筛查数据模板通知Key
+     */
+    public static final String SCHOOL_TEMPLATE_EXCEL_NOTICE_KEY = "【模板下载】%s-%s导入筛查学生数据表格模板已完成生成";
 }
