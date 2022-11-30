@@ -144,6 +144,9 @@ public final class FileUtils {
     }
 
     public static List<Map<Integer, String>> readExcelSheet(MultipartFile multipartFile) {
+        if (Objects.isNull(multipartFile) || multipartFile.isEmpty()) {
+            throw new BusinessException("文件为空！");
+        }
         TwoTuple<String, File> fileInfo = getParseFile(multipartFile);
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         try {
