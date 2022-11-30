@@ -14,6 +14,8 @@ import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -343,7 +345,7 @@ public class StudentBizBuilder {
      * @param studentInfo 学生
      * @return 学生档案卡基本信息
      */
-    public CardInfoVO getCardInfo(StudentDTO studentInfo, ThreeTuple<String,String,String> districtInfo) {
+    public CardInfoVO getCardInfo(StudentDTO studentInfo, ThreeTuple<String,String,String> districtInfo, SchoolGrade schoolGrade, SchoolClass schoolClass) {
         CardInfoVO cardInfoVO = new CardInfoVO();
         cardInfoVO.setName(studentInfo.getName());
         cardInfoVO.setBirthday(studentInfo.getBirthday());
@@ -354,8 +356,8 @@ public class StudentBizBuilder {
         cardInfoVO.setParentPhone(studentInfo.getParentPhone());
         cardInfoVO.setSchoolName(studentInfo.getSchoolName());
         cardInfoVO.setSchoolId(studentInfo.getSchoolId());
-        cardInfoVO.setClassName(studentInfo.getClassName());
-        cardInfoVO.setGradeName(studentInfo.getGradeName());
+        cardInfoVO.setClassName(schoolClass.getName());
+        cardInfoVO.setGradeName(schoolGrade.getName());
         cardInfoVO.setDistrictName(districtInfo.getFirst());
         cardInfoVO.setNation(studentInfo.getNation());
         cardInfoVO.setNationDesc(NationEnum.getNameByCode(studentInfo.getNation()));

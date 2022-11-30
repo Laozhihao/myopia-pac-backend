@@ -31,6 +31,7 @@ import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -381,17 +382,20 @@ public class StudentFacade {
     public StudentCardResponseVO getStudentCardResponseDTO(VisionScreeningResult visionScreeningResult) {
         StudentCardResponseVO responseDTO = new StudentCardResponseVO();
         Integer studentId = visionScreeningResult.getStudentId();
+        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        SchoolGrade schoolGrade = schoolGradeService.getById(planSchoolStudent.getGradeId());
+        SchoolClass schoolClass = schoolClassService.getById(planSchoolStudent.getClassId());
         StudentDTO studentInfo = studentService.getStudentInfo(studentId);
 
         // 获取学生基本信息
         ThreeTuple<String, String, String> districtInfo = getDistrictInfo(studentInfo.getSchoolDistrictName(), studentInfo.getCityCode(), studentInfo.getAreaCode());
-        CardInfoVO cardInfoVO = StudentBizBuilder.getCardInfo(studentInfo,districtInfo);
+        CardInfoVO cardInfoVO = StudentBizBuilder.getCardInfo(studentInfo,districtInfo, schoolGrade, schoolClass);
         cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
         cardInfoVO.setCountNotCooperate(StudentBizBuilder.getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
 
         Integer templateId = getTemplateId(visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getScreeningType(),Objects.equals(visionScreeningResult.getSchoolId(),visionScreeningResult.getScreeningOrgId()));
-        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO, screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId()));
+        return generateCardDetail(visionScreeningResult, studentInfo, templateId, responseDTO, planSchoolStudent);
     }
 
     /**
@@ -415,9 +419,15 @@ public class StudentFacade {
         // 计划学生
         List<Integer> planStudentIds = resultList.stream().map(VisionScreeningResult::getScreeningPlanSchoolStudentId).collect(Collectors.toList());
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByIds(planStudentIds);
+        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(planStudents, ScreeningPlanSchoolStudent::getGradeId);
+        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(planStudents, ScreeningPlanSchoolStudent::getClassId);
         Map<Integer, ScreeningPlanSchoolStudent> planStudentMaps = planStudents.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getId, Function.identity()));
 
-        return resultList.stream().map(r -> generateStudentCard(r, studentMaps.get(r.getStudentId()), templateId, planStudentMaps.get(r.getScreeningPlanSchoolStudentId()))).collect(Collectors.toList());
+        return resultList.stream().map(r -> {
+            ScreeningPlanSchoolStudent planSchoolStudent = planStudentMaps.get(r.getScreeningPlanSchoolStudentId());
+            return generateStudentCard(r, studentMaps.get(r.getStudentId()),
+                    templateId, planSchoolStudent, gradeMap.getOrDefault(planSchoolStudent.getGradeId(), new SchoolGrade()), classMap.getOrDefault(planSchoolStudent.getClassId(), new SchoolClass()));
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -432,12 +442,13 @@ public class StudentFacade {
      */
     public StudentCardResponseVO generateStudentCard(VisionScreeningResult visionScreeningResult,
                                                      StudentDTO studentInfo, Integer templateId,
-                                                     ScreeningPlanSchoolStudent planSchoolStudent) {
+                                                     ScreeningPlanSchoolStudent planSchoolStudent,
+                                                     SchoolGrade schoolGrade, SchoolClass schoolClass) {
         StudentCardResponseVO responseDTO = new StudentCardResponseVO();
 
         // 获取学生基本信息
         ThreeTuple<String, String, String> districtInfo = getDistrictInfo(studentInfo.getSchoolDistrictName(), studentInfo.getCityCode(), studentInfo.getAreaCode());
-        CardInfoVO cardInfoVO = StudentBizBuilder.getCardInfo(studentInfo,districtInfo);
+        CardInfoVO cardInfoVO = StudentBizBuilder.getCardInfo(studentInfo,districtInfo, schoolGrade, schoolClass);
         cardInfoVO.setScreeningDate(visionScreeningResult.getCreateTime());
         cardInfoVO.setCountNotCooperate(StudentBizBuilder.getCountNotCooperate(visionScreeningResult));
         responseDTO.setInfo(cardInfoVO);
