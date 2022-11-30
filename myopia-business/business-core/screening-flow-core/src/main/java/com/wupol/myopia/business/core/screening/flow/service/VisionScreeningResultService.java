@@ -638,4 +638,19 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 Function.identity(),
                 (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
     }
+
+    /**
+     * 通过筛查学生查询初筛筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     *
+     * @return 筛查结果
+     */
+    public Map<Integer, VisionScreeningResult> getMapByPlanStudentIds(List<Integer> planStudentIds) {
+        if (CollectionUtils.isEmpty(planStudentIds)) {
+            return new HashMap<>();
+        }
+        List<VisionScreeningResult> resultList = baseMapper.getByPlanStudentIds(planStudentIds);
+        return resultList.stream().filter(s -> Objects.equals(s.getIsDoubleScreen(), Boolean.FALSE)).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+    }
 }

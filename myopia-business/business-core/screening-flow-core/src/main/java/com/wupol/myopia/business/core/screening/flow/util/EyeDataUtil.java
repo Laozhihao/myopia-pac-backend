@@ -723,4 +723,20 @@ public class EyeDataUtil {
         }
         return val.toString();
     }
+
+    /**
+     * 获取体重
+     *
+     * @param visionScreenResult 筛查结果
+     *
+     * @return 体重
+     */
+    public static String weightToStr(VisionScreeningResult visionScreenResult) {
+        BigDecimal bigDecimal = Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getHeightAndWeightData)
+                .map(HeightAndWeightDataDO::getWeight).orElse(null);
+        if (Objects.isNull(bigDecimal)) {
+            return StringUtils.EMPTY;
+        }
+        return bigDecimal.toString();
+    }
 }

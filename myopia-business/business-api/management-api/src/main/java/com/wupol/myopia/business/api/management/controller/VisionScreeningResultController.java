@@ -150,7 +150,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
         ExportCondition exportCondition = new ExportCondition()
                 .setPlanId(screeningPlanId)
                 .setSchoolId(schoolId)
-                .setApplyExportFileUserId(101);
+                .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_SERVICE);
     }
 
