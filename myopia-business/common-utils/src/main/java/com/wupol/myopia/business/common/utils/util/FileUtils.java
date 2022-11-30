@@ -161,6 +161,9 @@ public final class FileUtils {
     }
 
     private static TwoTuple<String,File > getParseFile(MultipartFile multipartFile) {
+        if (Objects.isNull(multipartFile) || multipartFile.isEmpty()) {
+            throw new BusinessException("文件为空！");
+        }
         String suffix = Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().lastIndexOf("."));
         String fileName = StringUtils.EMPTY;
         if (StringUtils.equals(suffix, CommonConst.EXCEL_XLSX_FILE_SUFFIX)) {
