@@ -269,7 +269,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("护照" + passport + ERROR_MSG);
         }
         if (StringUtils.isAllBlank(birthday, idCard)) {
-            throw new BusinessException("护照" + passport + "出生日期为空");
+            throw new BusinessException("学号" + sno + "出生日期为空");
         }
     }
 
