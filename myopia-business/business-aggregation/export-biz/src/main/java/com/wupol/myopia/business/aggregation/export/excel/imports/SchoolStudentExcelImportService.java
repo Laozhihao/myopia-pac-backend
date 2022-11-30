@@ -108,9 +108,9 @@ public class SchoolStudentExcelImportService {
 
         // 获取已经存在的学校学生（判断是否重复）
         List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
-        Map<String, SchoolStudent> snoMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
-        Map<String, SchoolStudent> idCardMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> passPortMap = studentList.stream().collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> snoMap = studentList.stream().filter(s->StringUtils.isNotBlank(s.getSno())).collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
+        Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s->StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
+        Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s->StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
 
         // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
