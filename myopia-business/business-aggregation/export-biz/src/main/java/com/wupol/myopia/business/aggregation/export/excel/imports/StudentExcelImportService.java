@@ -213,6 +213,9 @@ public class StudentExcelImportService {
         } catch (ParseException e) {
             throw new BusinessException("生日格式异常");
         }
+        if (StringUtils.isBlank(idCard) && Objects.isNull(student.getBirthday())) {
+            throw new BusinessException("出生日期不能为空");
+        }
     }
 
     /**
