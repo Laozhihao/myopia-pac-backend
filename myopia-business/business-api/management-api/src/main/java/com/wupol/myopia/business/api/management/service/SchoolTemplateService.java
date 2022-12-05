@@ -44,8 +44,7 @@ public class SchoolTemplateService {
      */
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels) {
-        Integer userId = -1;
+    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId) {
         SchoolResultTemplateExcel resultTemplateExcel = templateExcels.get(0);
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(Integer.valueOf(resultTemplateExcel.getPlanStudentId()));
         templateExcels.forEach(templateExcel -> {

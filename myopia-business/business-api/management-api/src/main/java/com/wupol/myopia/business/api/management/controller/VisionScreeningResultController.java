@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.controller;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.controller.BaseController;
 import com.wupol.myopia.base.domain.ApiResult;
+import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -162,12 +163,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     @PostMapping("/school/template/import")
     public void importSchoolResultExcelTemplate(MultipartFile file) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         if (CollectionUtils.isEmpty(listMap)) {
             throw new BusinessException("数据为空");
         }
         List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap);
-        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels);
+        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId());
     }
 
 }
