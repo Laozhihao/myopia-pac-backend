@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ public class SchoolTemplateService {
      * @param templateExcels 筛查数据
      */
     @Transactional(rollbackFor = Exception.class)
+    @Async
     public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels) {
         Integer userId = -1;
         SchoolResultTemplateExcel resultTemplateExcel = templateExcels.get(0);

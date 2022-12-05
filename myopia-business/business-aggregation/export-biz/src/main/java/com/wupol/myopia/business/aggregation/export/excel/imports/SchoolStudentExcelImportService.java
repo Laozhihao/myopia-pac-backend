@@ -104,6 +104,7 @@ public class SchoolStudentExcelImportService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+        CommonCheck.checkSnoLength(snos);
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）

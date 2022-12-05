@@ -170,6 +170,9 @@ public class ImportScreeningSchoolStudentBuilder {
 
         //学号
         if (StrUtil.isNotBlank(studentNo) ){
+            if (studentNo.length() > 25) {
+                errorItemList.add("学籍号长度");
+            }
             if (Objects.equals(Boolean.TRUE,checkSno(checkProcessBO.getExistPlanSchoolStudentList(),studentNo,idCard,passport,checkProcessBO.getSchoolId()))) {
                 errorItemList.add("学籍号错误");
             }

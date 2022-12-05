@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 通用校验
@@ -26,7 +27,7 @@ public class CommonCheck {
      */
     public static void checkHaveDuplicate(List<String> idCards, List<String> snoList, List<String> passports, Boolean isSchool) {
 
-        if (Objects.equals(isSchool,Boolean.TRUE) && CollectionUtils.isEmpty(snoList)) {
+        if (Objects.equals(isSchool, Boolean.TRUE) && CollectionUtils.isEmpty(snoList)) {
             throw new BusinessException("学号为空");
         }
 
@@ -45,6 +46,23 @@ public class CommonCheck {
         List<String> snoDuplicate = ListUtil.getDuplicateElements(snoList);
         if (!CollectionUtils.isEmpty(snoDuplicate)) {
             throw new BusinessException("学号：" + String.join(",", snoDuplicate) + "重复");
+        }
+    }
+
+    /**
+     * 检查学号长度限制
+     *
+     * @param snoList 学号
+     */
+    public static void checkSnoLength(List<String> snoList) {
+
+        //处理护照异常
+        List<String> errorList = snoList.stream()
+                .filter(Objects::nonNull)
+                .filter(s -> s.length() > 25)
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(errorList)) {
+            throw new BusinessException(String.format("学号异常:%s", errorList));
         }
     }
 }
