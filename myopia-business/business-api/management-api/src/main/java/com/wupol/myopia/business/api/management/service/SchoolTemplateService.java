@@ -175,11 +175,11 @@ public class SchoolTemplateService {
             return;
         }
         ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-        computerOptometryDTO.setLSph(new BigDecimal(data.getLeftSph()));
-        computerOptometryDTO.setLCyl(new BigDecimal(data.getLeftCyl()));
+        computerOptometryDTO.setLSph(new BigDecimal(replacePlusChar(data.getLeftSph())));
+        computerOptometryDTO.setLCyl(new BigDecimal(replacePlusChar(data.getLeftCyl())));
         computerOptometryDTO.setLAxial(new BigDecimal(data.getLeftAxial()));
-        computerOptometryDTO.setRSph(new BigDecimal(data.getRightSph()));
-        computerOptometryDTO.setRCyl(new BigDecimal(data.getRightCyl()));
+        computerOptometryDTO.setRSph(new BigDecimal(replacePlusChar(data.getRightSph())));
+        computerOptometryDTO.setRCyl(new BigDecimal(replacePlusChar(data.getRightCyl())));
         computerOptometryDTO.setRAxial(new BigDecimal(data.getRightAxial()));
         computerOptometryDTO.setIsCooperative(0);
         computerOptometryDTO.setSchoolId(String.valueOf(schoolId));
@@ -188,5 +188,16 @@ public class SchoolTemplateService {
         computerOptometryDTO.setPlanStudentId(data.getPlanStudentId());
         computerOptometryDTO.setIsState(0);
         visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
+    }
+
+    /**
+     * 除去+号
+     *
+     * @param val 值
+     *
+     * @return String
+     */
+    private String replacePlusChar(String val) {
+        return StringUtils.replace(val, "+", "");
     }
 }
