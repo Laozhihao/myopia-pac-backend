@@ -2,9 +2,12 @@ package com.wupol.myopia.business.common.utils.constant;
 
 import com.google.common.collect.ImmutableMap;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import lombok.experimental.UtilityClass;
+
+import java.util.Objects;
 
 /**
  * @Description
@@ -68,6 +71,13 @@ public class WearingGlassesSituation {
             throw new ManagementUncheckedException("无法找到该戴镜类型 type = " + type);
         }
         return glassesTypeKey;
+    }
+
+    public void checkKeyByDesc(String type) {
+        Integer glassesTypeKey = descriptionMapType.get(type);
+        if (Objects.isNull(glassesTypeKey)) {
+            throw new BusinessException("无法找到戴镜类型");
+        }
     }
 
 

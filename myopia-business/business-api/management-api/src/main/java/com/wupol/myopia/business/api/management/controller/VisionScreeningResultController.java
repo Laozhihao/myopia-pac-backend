@@ -10,8 +10,11 @@ import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
+import com.wupol.myopia.business.api.management.service.SchoolTemplateService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateExcel;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -22,12 +25,10 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +51,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
     private StudentFacade studentFacade;
     @Autowired
     private ExportStrategy exportStrategy;
+    @Autowired
+    private SchoolTemplateService schoolTemplateService;
 
     /**
      * 获取档案卡列表
@@ -152,6 +155,19 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
                 .setSchoolId(schoolId)
                 .setApplyExportFileUserId(CurrentUserUtil.getCurrentUser().getId());
         exportStrategy.doExport(exportCondition, ExportReportServiceNameConstant.EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_SERVICE);
+    }
+
+    /**
+     * 导入学校筛查模板
+     */
+    @PostMapping("/school/template/import")
+    public void importSchoolResultExcelTemplate(MultipartFile file) {
+        List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
+        if (CollectionUtils.isEmpty(listMap)) {
+            throw new BusinessException("数据为空");
+        }
+        List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap);
+        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels);
     }
 
 }

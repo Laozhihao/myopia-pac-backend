@@ -23,6 +23,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- *
+ * 导出学校筛查模板
  */
 @Service(ExportReportServiceNameConstant.EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_SERVICE)
 @Slf4j
@@ -94,17 +95,17 @@ public class ExportSchoolResultTemplateExcelService extends BaseExportExcelFileS
             templateExcel.setClassName(classMap.getOrDefault(s.getClassId(), new SchoolClass()).getName());
             templateExcel.setPassport(s.getPassport());
             VisionScreeningResult result = resultMap.get(s.getId());
-            templateExcel.setGlassesType(EyeDataUtil.glassesTypeString(result));
-            templateExcel.setRightNakedVision(EyeDataUtil.visionRightDataToStr(result));
-            templateExcel.setLeftNakedVision(EyeDataUtil.visionLeftDataToStr(result));
-            templateExcel.setRightCorrection(EyeDataUtil.correctedRightDataToStr(result));
-            templateExcel.setLeftCorrection(EyeDataUtil.correctedLeftDataToStr(result));
-            templateExcel.setRightSph(EyeDataUtil.computerRightSph(result));
-            templateExcel.setRightCyl(EyeDataUtil.computerRightCyl(result));
-            templateExcel.setRightAxial(EyeDataUtil.computerRightAxial(result));
-            templateExcel.setLeftSph(EyeDataUtil.computerLeftSph(result));
-            templateExcel.setLeftCyl(EyeDataUtil.computerLeftCyl(result));
-            templateExcel.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
+            templateExcel.setGlassesType(formatEyeDate(EyeDataUtil.glassesTypeString(result)));
+            templateExcel.setRightNakedVision(formatEyeDate(EyeDataUtil.visionRightDataToStr(result)));
+            templateExcel.setLeftNakedVision(formatEyeDate(EyeDataUtil.visionLeftDataToStr(result)));
+            templateExcel.setRightCorrection(formatEyeDate(EyeDataUtil.correctedRightDataToStr(result)));
+            templateExcel.setLeftCorrection(formatEyeDate(EyeDataUtil.correctedLeftDataToStr(result)));
+            templateExcel.setRightSph(formatEyeDate(EyeDataUtil.computerRightSph(result)));
+            templateExcel.setRightCyl(formatEyeDate(EyeDataUtil.computerRightCyl(result)));
+            templateExcel.setRightAxial(formatEyeDate(EyeDataUtil.computerRightAxial(result)));
+            templateExcel.setLeftSph(formatEyeDate(EyeDataUtil.computerLeftSph(result)));
+            templateExcel.setLeftCyl(formatEyeDate(EyeDataUtil.computerLeftCyl(result)));
+            templateExcel.setLeftAxial(formatEyeDate(EyeDataUtil.computerLeftAxial(result)));
             templateExcel.setHeight(EyeDataUtil.heightToStr(result));
             templateExcel.setWeight(EyeDataUtil.weightToStr(result));
             return templateExcel;
@@ -152,5 +153,19 @@ public class ExportSchoolResultTemplateExcelService extends BaseExportExcelFileS
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(exportCondition.getPlanId(), exportCondition.getSchoolId()))) {
             throw new BusinessException("数据为空");
         }
+    }
+
+    /**
+     * 格式化值
+     *
+     * @param val 值
+     *
+     * @return String
+     */
+    private String formatEyeDate(String val) {
+        if (StringUtils.isNotBlank(val) && StringUtils.equals(val, "--")) {
+            return StringUtils.EMPTY;
+        }
+        return val;
     }
 }
