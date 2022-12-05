@@ -89,7 +89,7 @@ public class SchoolTemplateService {
     private void preCheckData(List<SchoolResultTemplateExcel> templateExcels) {
         List<Integer> planStudentIds = templateExcels.stream().map(s -> Integer.valueOf(s.getPlanStudentId())).collect(Collectors.toList());
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(planStudentIds);
-        if (Objects.equals(planStudentIds.size(), planSchoolStudentList.size())) {
+        if (!Objects.equals(planStudentIds.size(), planSchoolStudentList.size())) {
             throw new BusinessException("筛查学生数据异常");
         }
 
