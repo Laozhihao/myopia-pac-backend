@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -173,6 +174,9 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @return List<SchoolStudent>
      */
     public List<SchoolStudent> getDeletedByIdCard(List<String> idCards, List<String> passports, Integer schoolId) {
+        if (CollectionUtils.isEmpty(idCards) && CollectionUtils.isEmpty(passports) ) {
+            throw new BusinessException("身份证/护照不能为空");
+        }
         return baseMapper.getDeletedByIdCardsAndPassports(idCards, passports, schoolId);
     }
 
