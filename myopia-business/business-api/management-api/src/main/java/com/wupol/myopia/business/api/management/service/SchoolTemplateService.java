@@ -132,7 +132,7 @@ public class SchoolTemplateService {
             return resultExcelData;
         }).collect(Collectors.toList());
         preCheckData(templateExcels);
-        redisUtil.set(key, screeningPlanId, 3600);
+        redisUtil.set(key, screeningPlanId, 36000);
         return templateExcels;
     }
 
