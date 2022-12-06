@@ -216,4 +216,9 @@ public interface RedisConstant {
      */
     String FILE_EXPORT_ASYNC_TASK_ERROR_NOTICE = "file_export_async_task_error_notice:%s";
 
+    /**
+     * 导出筛查数据
+     */
+    String IMPORT_SCHOOL_SCREENING_DATA = "import:school:screening:data:%s%s";
+
 }

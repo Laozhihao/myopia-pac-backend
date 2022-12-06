@@ -267,4 +267,14 @@ public class CommonConst {
      * 学校筛查数据模板通知Key
      */
     public static final String SCHOOL_TEMPLATE_EXCEL_NOTICE_KEY = "【模板下载】%s-%s导入筛查学生数据表格模板已完成生成";
+
+    /**
+     * 学校筛查数据导入成功
+     */
+    public static final String SCHOOL_TEMPLATE_EXCEL_IMPORT_SUCCESS = "【筛查计划数据导入完成】%s-%s筛查计划数据导入完成，请核对查看";
+
+    /**
+     * 学校筛查数据导入失败
+     */
+    public static final String SCHOOL_TEMPLATE_EXCEL_IMPORT_ERROR = "【筛查计划数据导入异常】%s-%s筛查计划数据导入异常，请联系管理员";
 }

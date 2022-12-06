@@ -1,16 +1,25 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.alibaba.fastjson.JSON;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateExcel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateImportEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.system.service.NoticeService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -32,6 +41,7 @@ import java.util.stream.Collectors;
  * @author Simple4H
  */
 @Service
+@Slf4j
 public class SchoolTemplateService {
 
     @Resource
@@ -39,6 +49,18 @@ public class SchoolTemplateService {
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    @Resource
+    private RedisUtil redisUtil;
+
+    @Resource
+    private NoticeService noticeService;
+
+    @Resource
+    private ScreeningPlanService screeningPlanService;
+
+    @Resource
+    private SchoolService schoolService;
 
     private final static String ERROR_MSG = "筛查学生Id为%s，数据错误：%s";
 
@@ -52,11 +74,31 @@ public class SchoolTemplateService {
     public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId) {
         SchoolResultTemplateExcel resultTemplateExcel = templateExcels.get(0);
         ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(Integer.valueOf(resultTemplateExcel.getPlanStudentId()));
-        templateExcels.forEach(templateExcel -> {
-            generateHeightAndWeight(templateExcel, planSchoolStudent.getScreeningOrgId(), planSchoolStudent.getSchoolId(), userId);
-            generateVisionData(templateExcel, planSchoolStudent.getScreeningOrgId(), planSchoolStudent.getSchoolId(), userId);
-            generateComputerOptometry(templateExcel, planSchoolStudent.getScreeningOrgId(), planSchoolStudent.getSchoolId(), userId);
-        });
+
+        Integer schoolId = planSchoolStudent.getSchoolId();
+        Integer screeningOrgId = planSchoolStudent.getScreeningOrgId();
+        Integer screeningPlanId = planSchoolStudent.getScreeningPlanId();
+        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
+
+        School school = schoolService.getById(schoolId);
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
+
+        try {
+            templateExcels.forEach(templateExcel -> {
+                generateHeightAndWeight(templateExcel, screeningOrgId, schoolId, userId);
+                generateVisionData(templateExcel, screeningOrgId, schoolId, userId);
+                generateComputerOptometry(templateExcel, screeningOrgId, schoolId, userId);
+            });
+            String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_SUCCESS, plan.getTitle(), school.getName());
+            noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
+        } catch (Exception e) {
+            String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_ERROR, plan.getTitle(), school.getName());
+            noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
+            log.error("导入筛查数据异常", e);
+            throw new BusinessException("导入筛查数据异常");
+        } finally {
+            redisUtil.del(key);
+        }
     }
 
     /**
@@ -66,7 +108,11 @@ public class SchoolTemplateService {
      *
      * @return List<SchoolResultTemplateExcel>
      */
-    public List<SchoolResultTemplateExcel> parseExcelData(List<Map<Integer, String>> listMap) {
+    public List<SchoolResultTemplateExcel> parseExcelData(List<Map<Integer, String>> listMap, Integer screeningPlanId, Integer schoolId) {
+        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
+        if (Objects.nonNull(redisUtil.get(key))) {
+            throw new BusinessException("正在导出中，请勿重复导出!");
+        }
         List<SchoolResultTemplateExcel> templateExcels = listMap.stream().map(s -> {
             SchoolResultTemplateExcel resultExcelData = new SchoolResultTemplateExcel();
             resultExcelData.setPlanStudentId(s.get(SchoolResultTemplateImportEnum.PLAN_STUDENT_ID.getIndex()));
@@ -86,6 +132,7 @@ public class SchoolTemplateService {
             return resultExcelData;
         }).collect(Collectors.toList());
         preCheckData(templateExcels);
+        redisUtil.set(key, screeningPlanId, 3600);
         return templateExcels;
     }
 

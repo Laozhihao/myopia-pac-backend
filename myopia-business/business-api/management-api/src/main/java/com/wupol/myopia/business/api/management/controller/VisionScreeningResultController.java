@@ -162,13 +162,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      * 导入学校筛查模板
      */
     @PostMapping("/school/template/import")
-    public void importSchoolResultExcelTemplate(MultipartFile file) {
+    public void importSchoolResultExcelTemplate(MultipartFile file, Integer screeningPlanId, Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         if (CollectionUtils.isEmpty(listMap)) {
             throw new BusinessException("数据为空");
         }
-        List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap);
+        List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap, screeningPlanId, schoolId);
         schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId());
     }
 
