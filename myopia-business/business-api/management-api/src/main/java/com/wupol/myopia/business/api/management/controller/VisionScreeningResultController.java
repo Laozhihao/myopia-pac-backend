@@ -24,6 +24,7 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -163,6 +164,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     @PostMapping("/school/template/import")
     public void importSchoolResultExcelTemplate(MultipartFile file, Integer screeningPlanId, Integer schoolId) {
+        Assert.isTrue(Objects.nonNull(screeningPlanId), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         if (CollectionUtils.isEmpty(listMap)) {
