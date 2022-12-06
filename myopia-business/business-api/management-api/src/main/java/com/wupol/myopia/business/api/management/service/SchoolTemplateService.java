@@ -111,7 +111,7 @@ public class SchoolTemplateService {
     public List<SchoolResultTemplateExcel> parseExcelData(List<Map<Integer, String>> listMap, Integer screeningPlanId, Integer schoolId) {
         String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
         if (Objects.nonNull(redisUtil.get(key))) {
-            throw new BusinessException("正在导出中，请勿重复导出!");
+            throw new BusinessException("数据处理中，请勿重复上传!");
         }
         redisUtil.set(key, screeningPlanId, 3600);
         List<SchoolResultTemplateExcel> templateExcels = listMap.stream().map(s -> {
