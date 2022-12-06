@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
@@ -14,10 +15,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +39,8 @@ public class SchoolTemplateService {
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+
+    private final static String ERROR_MSG = "筛查学生Id为%s，数据错误：%s";
 
     /**
      * 导入筛查数据
@@ -88,30 +93,40 @@ public class SchoolTemplateService {
      * @param templateExcels 数据
      */
     private void preCheckData(List<SchoolResultTemplateExcel> templateExcels) {
+        if (!(templateExcels.size() == templateExcels.stream().map(SchoolResultTemplateExcel::getPlanStudentId).count())) {
+            throw new BusinessException("存在筛查学生Id为空，请确认！");
+        }
         List<Integer> planStudentIds = templateExcels.stream().map(s -> Integer.valueOf(s.getPlanStudentId())).collect(Collectors.toList());
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(planStudentIds);
         if (!Objects.equals(planStudentIds.size(), planSchoolStudentList.size())) {
             throw new BusinessException("筛查学生数据异常");
         }
 
+        List<String> result = new ArrayList<>();
         templateExcels.forEach(s -> {
             if (!StringUtils.isAllBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
                 if (StringUtils.isAnyBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
-                    throw new BusinessException("视力数据异常");
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "视力数据异常"));
                 }
-                WearingGlassesSituation.checkKeyByDesc(s.getGlassesType());
+                if (WearingGlassesSituation.checkKeyByDesc(s.getGlassesType())) {
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "戴镜数据异常"));
+                }
             }
             if (!StringUtils.isAllBlank(s.getLeftSph(), s.getLeftCyl(), s.getLeftAxial(), s.getRightSph(), s.getRightCyl(), s.getRightAxial())) {
                 if (StringUtils.isAnyBlank(s.getLeftSph(), s.getLeftCyl(), s.getLeftAxial(), s.getRightSph(), s.getRightCyl(), s.getRightAxial())) {
-                    throw new BusinessException("电脑验光数据数据异常");
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "电脑验光数据数据异常"));
                 }
             }
             if (!StringUtils.isAllBlank(s.getHeight(), s.getWeight())) {
                 if (StringUtils.isAnyBlank(s.getHeight(), s.getWeight())) {
-                    throw new BusinessException("体重数据数据异常");
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "体重数据数据异常"));
                 }
             }
         });
+        if (CollectionUtils.isEmpty(result)) {
+            return;
+        }
+        throw new BusinessException(JSON.toJSONString(result));
     }
 
     /**
@@ -151,9 +166,9 @@ public class SchoolTemplateService {
         }
         VisionDataDTO visionDataDTO = new VisionDataDTO();
         visionDataDTO.setRightNakedVision(new BigDecimal(data.getRightNakedVision()));
-        visionDataDTO.setRightCorrectedVision(new BigDecimal(data.getRightCorrection()));
         visionDataDTO.setLeftNakedVision(new BigDecimal(data.getLeftNakedVision()));
-        visionDataDTO.setLeftCorrectedVision(new BigDecimal(data.getLeftCorrection()));
+        visionDataDTO.setRightCorrectedVision(Objects.isNull(data.getRightCorrection()) ? null : new BigDecimal(data.getRightCorrection()));
+        visionDataDTO.setLeftCorrectedVision(Objects.isNull(data.getLeftCorrection()) ? null : new BigDecimal(data.getLeftCorrection()));
         visionDataDTO.setIsCooperative(0);
         visionDataDTO.setDeptId(orgId);
         visionDataDTO.setCreateUserId(userId);

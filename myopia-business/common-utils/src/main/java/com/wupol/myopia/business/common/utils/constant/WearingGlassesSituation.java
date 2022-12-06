@@ -73,11 +73,9 @@ public class WearingGlassesSituation {
         return glassesTypeKey;
     }
 
-    public void checkKeyByDesc(String type) {
+    public Boolean checkKeyByDesc(String type) {
         Integer glassesTypeKey = descriptionMapType.get(type);
-        if (Objects.isNull(glassesTypeKey)) {
-            throw new BusinessException("无法找到戴镜类型");
-        }
+        return Objects.isNull(glassesTypeKey);
     }
 
 
