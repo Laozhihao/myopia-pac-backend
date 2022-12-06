@@ -163,13 +163,13 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
      */
     @PostMapping("/school/template/import")
     public void importSchoolResultExcelTemplate(MultipartFile file) {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcel(file);
         if (CollectionUtils.isEmpty(listMap)) {
             throw new BusinessException("数据为空");
         }
         List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap);
-        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, 16);
+        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId());
     }
 
 }
