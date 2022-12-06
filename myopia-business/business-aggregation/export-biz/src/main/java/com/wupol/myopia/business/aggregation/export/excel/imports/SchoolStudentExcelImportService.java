@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateException;
+import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -138,8 +139,9 @@ public class SchoolStudentExcelImportService {
 
             checkIsExist(snoMap, idCardMap, passPortMap,
                     item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
-                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()),
-                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()));
+                    item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()),
+                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
+                    item.get(SchoolStudentImportEnum.PHONE.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
@@ -254,7 +256,7 @@ public class SchoolStudentExcelImportService {
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
                               Map<String, SchoolStudent> passPortMap, String sno, String idCard,
-                              String gradeName, String passport, String birthday) {
+                              String gradeName, String passport, String birthday, String gender, String phone) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -272,8 +274,15 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("护照" + passport + ERROR_MSG);
         }
         if (StringUtils.isAllBlank(birthday, idCard)) {
-            throw new BusinessException("学号" + sno + "出生日期为空");
+            throw new BusinessException("学籍号" + sno + "出生日期为空");
         }
+        if (StringUtils.isBlank(gender)) {
+            throw new BusinessException("学籍号" + sno + "性别为空");
+        }
+        if (!PhoneUtil.isPhone(phone)) {
+            throw new BusinessException("学籍号" + sno + "手机号码异常");
+        }
+
     }
 
     /**
