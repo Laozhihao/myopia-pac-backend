@@ -113,6 +113,7 @@ public class SchoolTemplateService {
         if (Objects.nonNull(redisUtil.get(key))) {
             throw new BusinessException("正在导出中，请勿重复导出!");
         }
+        redisUtil.set(key, screeningPlanId, 3600);
         List<SchoolResultTemplateExcel> templateExcels = listMap.stream().map(s -> {
             SchoolResultTemplateExcel resultExcelData = new SchoolResultTemplateExcel();
             resultExcelData.setPlanStudentId(s.get(SchoolResultTemplateImportEnum.PLAN_STUDENT_ID.getIndex()));
@@ -131,15 +132,18 @@ public class SchoolTemplateService {
             resultExcelData.setWeight(s.get(SchoolResultTemplateImportEnum.WEIGHT.getIndex()));
             return resultExcelData;
         }).collect(Collectors.toList());
-        preCheckData(templateExcels);
-        redisUtil.set(key, screeningPlanId, 3600);
+        List<String> errorList = preCheckData(templateExcels);
+        if (!CollectionUtils.isEmpty(errorList)) {
+            redisUtil.del(key);
+            throw new BusinessException(JSON.toJSONString(errorList));
+        }
         return templateExcels;
     }
 
     /**
      * @param templateExcels 数据
      */
-    private void preCheckData(List<SchoolResultTemplateExcel> templateExcels) {
+    private List<String> preCheckData(List<SchoolResultTemplateExcel> templateExcels) {
         if (!(templateExcels.size() == templateExcels.stream().map(SchoolResultTemplateExcel::getPlanStudentId).filter(StringUtils::isNotBlank).count())) {
             throw new BusinessException("存在筛查学生Id为空，请确认！");
         }
@@ -176,10 +180,7 @@ public class SchoolTemplateService {
                 }
             }
         });
-        if (CollectionUtils.isEmpty(result)) {
-            return;
-        }
-        throw new BusinessException(JSON.toJSONString(result));
+        return result;
     }
 
     /**
