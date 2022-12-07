@@ -337,7 +337,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("数据为空");
         }
         if (total > snos.size()) {
-            throw new BusinessException("学号未填写");
+            throw new BusinessException("学籍号未填写");
         }
         if (total > names.size()) {
             throw new BusinessException("姓名未填写");

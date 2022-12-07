@@ -28,7 +28,7 @@ public class CommonCheck {
     public static void checkHaveDuplicate(List<String> idCards, List<String> snoList, List<String> passports, Boolean isSchool) {
 
         if (Objects.equals(isSchool, Boolean.TRUE) && CollectionUtils.isEmpty(snoList)) {
-            throw new BusinessException("学号为空");
+            throw new BusinessException("学籍号为空");
         }
 
         if (!CollectionUtils.isEmpty(idCards)) {
