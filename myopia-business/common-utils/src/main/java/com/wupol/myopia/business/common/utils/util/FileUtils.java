@@ -164,7 +164,11 @@ public final class FileUtils {
         if (Objects.isNull(multipartFile) || multipartFile.isEmpty()) {
             throw new BusinessException("文件为空！");
         }
-        String suffix = Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        String originalFilename = multipartFile.getOriginalFilename();
+        if (StringUtils.isBlank(originalFilename)) {
+            throw new BusinessException("文件名为空！");
+        }
+        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
         String fileName = StringUtils.EMPTY;
         if (StringUtils.equals(suffix, CommonConst.EXCEL_XLSX_FILE_SUFFIX)) {
             fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLSX_FILE_SUFFIX;
