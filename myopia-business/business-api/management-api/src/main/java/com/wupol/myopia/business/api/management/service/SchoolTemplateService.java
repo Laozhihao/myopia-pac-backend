@@ -144,22 +144,32 @@ public class SchoolTemplateService {
      * @param templateExcels 数据
      */
     private List<String> preCheckData(List<SchoolResultTemplateExcel> templateExcels) {
+        List<String> result = new ArrayList<>();
         if (!(templateExcels.size() == templateExcels.stream().map(SchoolResultTemplateExcel::getPlanStudentId).filter(StringUtils::isNotBlank).count())) {
-            throw new BusinessException("存在筛查学生Id为空，请确认！");
+            result.add("存在筛查学生Id为空，请确认！");
+        }
+        if (!CollectionUtils.isEmpty(result)) {
+            return result;
         }
         List<Integer> planStudentIds = templateExcels.stream().map(s -> {
             try {
                 return Integer.valueOf(s.getPlanStudentId());
             } catch (Exception e) {
-                throw new BusinessException("筛查学生Id异常" + s.getPlanStudentId());
+                result.add("筛查学生Id异常" + s.getPlanStudentId());
+                return null;
             }
-        }).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(result)) {
+            return result;
+        }
         List<ScreeningPlanSchoolStudent> planSchoolStudentList = screeningPlanSchoolStudentService.getByIds(planStudentIds);
         if (!Objects.equals(planStudentIds.size(), planSchoolStudentList.size())) {
-            throw new BusinessException("筛查学生数据异常");
+            result.add("存在筛查学生Id为空，请确认！");
+        }
+        if (!CollectionUtils.isEmpty(result)) {
+            return result;
         }
 
-        List<String> result = new ArrayList<>();
         templateExcels.forEach(s -> {
             if (!StringUtils.isAllBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
                 if (StringUtils.isAnyBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
