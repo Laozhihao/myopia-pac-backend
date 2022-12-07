@@ -80,7 +80,7 @@ public class SchoolStudentExcelImportService {
     public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
-            return;
+            throw new BusinessException("上传数据为空");
         }
         School school = schoolService.getById(schoolId);
 
