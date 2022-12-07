@@ -279,7 +279,7 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isBlank(gender)) {
             throw new BusinessException("学籍号" + sno + "性别为空");
         }
-        if (!PhoneUtil.isPhone(phone)) {
+        if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
             throw new BusinessException("学籍号" + sno + "手机号码异常");
         }
 
