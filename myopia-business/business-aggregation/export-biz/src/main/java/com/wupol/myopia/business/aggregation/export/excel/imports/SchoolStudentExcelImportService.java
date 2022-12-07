@@ -268,7 +268,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("身份证" + idCard + ERROR_MSG);
         }
         if (StringUtils.isBlank(gradeName)) {
-            throw new BusinessException("身份证" + idCard + "年级不能为空");
+            throw new BusinessException("年级不能为空");
         }
         if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
             throw new BusinessException("护照" + passport + ERROR_MSG);
