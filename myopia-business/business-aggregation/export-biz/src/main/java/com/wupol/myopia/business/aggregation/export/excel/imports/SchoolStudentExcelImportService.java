@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateException;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
@@ -190,8 +190,6 @@ public class SchoolStudentExcelImportService {
      */
     private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
-                .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-
                 .setNation(NationEnum.getCodeByName(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
@@ -210,12 +208,23 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
             schoolStudent.setPassport(null);
         }
-        try {
-            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ?
-                    cn.hutool.core.date.DateUtil.parse(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2) :
-                    IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
-        } catch (DateException e) {
-            throw new BusinessException("生日格式异常");
+        if (Objects.nonNull(schoolStudent.getIdCard())) {
+            schoolStudent.setBirthday(IdCardUtil.getBirthDay(schoolStudent.getIdCard()));
+            schoolStudent.setGender(IdCardUtil.getGender(schoolStudent.getIdCard()));
+        }
+        if (Objects.nonNull(schoolStudent.getPassport())) {
+            // 出生日期
+            if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()))) {
+                throw new BusinessException("出生日期不能为空");
+            }
+            DateTime parse = cn.hutool.core.date.DateUtil.parse(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2);
+            schoolStudent.setBirthday(parse);
+
+            // 性别
+            if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.GENDER.getIndex()))) {
+                throw new BusinessException("性别不能为空");
+            }
+            schoolStudent.setGender(GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())));
         }
     }
 
@@ -341,12 +350,6 @@ public class SchoolStudentExcelImportService {
         }
         if (total > names.size()) {
             throw new BusinessException("姓名未填写");
-        }
-        if (total > genderList.size()) {
-            throw new BusinessException("性别未填写");
-        }
-        if (total > birthdayList.size()) {
-            throw new BusinessException("生日未填写");
         }
         if (total > gradeList.size()) {
             throw new BusinessException("年级未填写");
