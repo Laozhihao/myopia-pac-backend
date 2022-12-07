@@ -84,10 +84,14 @@ public class SchoolStudentExcelImportService {
         }
         School school = schoolService.getById(schoolId);
 
-        // 收集身份证号码、学号
-        List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-
+        List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> names = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> genderList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.GENDER.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> birthdayList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> gradeList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> classList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.CLASS_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        checkRequiredFields(listMap.size(), snos, names, genderList, birthdayList, gradeList, classList);
 
         //处理护照异常
         List<String> errorList = listMap.stream()
@@ -322,5 +326,33 @@ public class SchoolStudentExcelImportService {
         managementStudent.setUpdateTime(new Date());
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
+    }
+
+    /**
+     * 数据校验
+     */
+    private void checkRequiredFields(Integer total, List<String> snos, List<String> names, List<String> genderList,
+                                     List<String> birthdayList, List<String> gradeList, List<String> classList) {
+        if (total <= 0) {
+            throw new BusinessException("数据为空");
+        }
+        if (total > snos.size()) {
+            throw new BusinessException("学号未填写");
+        }
+        if (total > names.size()) {
+            throw new BusinessException("姓名未填写");
+        }
+        if (total > genderList.size()) {
+            throw new BusinessException("性别未填写");
+        }
+        if (total > birthdayList.size()) {
+            throw new BusinessException("生日未填写");
+        }
+        if (total > gradeList.size()) {
+            throw new BusinessException("年级未填写");
+        }
+        if (total > classList.size()) {
+            throw new BusinessException("班级未填写");
+        }
     }
 }
