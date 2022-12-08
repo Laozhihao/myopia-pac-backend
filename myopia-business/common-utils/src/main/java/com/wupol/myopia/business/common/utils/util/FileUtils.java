@@ -9,6 +9,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.IOUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -160,9 +161,25 @@ public final class FileUtils {
     }
 
     private static TwoTuple<String,File > getParseFile(MultipartFile multipartFile) {
-        String tempPath = IOUtils.getTempPath();
-        String fileName =  multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.FILE_SUFFIX;
-        fileName = Paths.get(tempPath,fileName).toString();
+        if (Objects.isNull(multipartFile) || multipartFile.isEmpty()) {
+            throw new BusinessException("文件为空！");
+        }
+        String originalFilename = multipartFile.getOriginalFilename();
+        if (StringUtils.isBlank(originalFilename)) {
+            throw new BusinessException("文件名为空！");
+        }
+        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = StringUtils.EMPTY;
+        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLSX_FILE_SUFFIX)) {
+            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLSX_FILE_SUFFIX;
+        }
+        if (StringUtils.equals(suffix, CommonConst.EXCEL_XLS_FILE_SUFFIX)) {
+            fileName = multipartFile.getName() + StrUtil.UNDERLINE + System.currentTimeMillis() + CommonConst.EXCEL_XLS_FILE_SUFFIX;
+        }
+        if (StringUtils.isBlank(fileName)) {
+            throw new BusinessException("文件格式有误!");
+        }
+        fileName = Paths.get(IOUtils.getTempPath(), fileName).toString();
         File file = new File(fileName);
         try {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);

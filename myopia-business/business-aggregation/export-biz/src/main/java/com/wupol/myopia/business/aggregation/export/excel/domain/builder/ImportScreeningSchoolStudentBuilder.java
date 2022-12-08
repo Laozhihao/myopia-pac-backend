@@ -170,11 +170,14 @@ public class ImportScreeningSchoolStudentBuilder {
 
         //学号
         if (StrUtil.isNotBlank(studentNo) ){
+            if (studentNo.length() > 25) {
+                errorItemList.add("学籍号长度");
+            }
             if (Objects.equals(Boolean.TRUE,checkSno(checkProcessBO.getExistPlanSchoolStudentList(),studentNo,idCard,passport,checkProcessBO.getSchoolId()))) {
-                errorItemList.add("学号错误");
+                errorItemList.add("学籍号错误");
             }
             if (checkProcessBO.getSnoList().contains(studentNo)){
-                errorItemList.add("学号与其他重复");
+                errorItemList.add("学籍号与其他重复");
             }
         }
         //手机号码

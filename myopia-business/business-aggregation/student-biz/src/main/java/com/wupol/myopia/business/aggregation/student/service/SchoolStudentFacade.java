@@ -195,7 +195,7 @@ public class SchoolStudentFacade {
     private void checkSnoAndIdCardAndPassport(SchoolStudent schoolStudent, Integer schoolId) {
         List<SchoolStudent> schoolStudentList = schoolStudentService.listByIdCardAndSnoAndPassport(schoolStudent.getId(), schoolStudent.getIdCard(), schoolStudent.getSno(), schoolStudent.getPassport(), schoolId);
         if (CollUtil.isNotEmpty(schoolStudentList)){
-            SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学号重复");
+            SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getSno,"学籍号重复");
             SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getIdCard,"身份证重复");
             SchoolStudentInfoBuilder.checkParam(schoolStudent, schoolStudentList,SchoolStudent::getPassport,"护照重复");
         }

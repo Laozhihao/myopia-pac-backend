@@ -15,7 +15,7 @@ public class PDFFileNameConstant {
      */
     public static final String REPORT_NOTICE_QR_CODE_FILE_NAME = "%s%s%s告知书";
     public static final String REPORT_SCREENING_QR_CODE_FILE_NAME = "%s%s%s筛查二维码";
-    public static final String REPORT_VS666_QR_CODE_FILE_NAME = "%s%s%sVS666专属筛查二维码";
+    public static final String REPORT_VS666_QR_CODE_FILE_NAME = "%s%s%s学生筛查二维码";
     public static final String REPORT_FICTITIOUS_QR_CODE_FILE_NAME = "%s%s%s虚拟二维码";
 
     /**

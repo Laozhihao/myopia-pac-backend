@@ -27,7 +27,7 @@ public class StudentWarningArchive {
     public static final String TOP_HEADER = "学生预警跟踪数据表";
 
     /** 学号 */
-    @ExcelProperty({TOP_HEADER, "学号"})
+    @ExcelProperty({TOP_HEADER, "学籍号"})
     private String sno;
 
     /** 姓名 */

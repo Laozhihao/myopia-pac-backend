@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -36,7 +38,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -79,14 +80,18 @@ public class SchoolStudentExcelImportService {
     public void importSchoolStudent(Integer createUserId, MultipartFile multipartFile, Integer schoolId) {
         List<Map<Integer, String>> listMap = FileUtils.readExcel(multipartFile);
         if (CollectionUtils.isEmpty(listMap)) {
-            return;
+            throw new BusinessException("上传数据为空");
         }
         School school = schoolService.getById(schoolId);
 
-        // 收集身份证号码、学号
-        List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> snos = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.SNO.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
-
+        List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> names = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> genderList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.GENDER.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> birthdayList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> gradeList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> classList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.CLASS_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        checkRequiredFields(listMap.size(), snos, names, genderList, birthdayList, gradeList, classList);
 
         //处理护照异常
         List<String> errorList = listMap.stream()
@@ -104,6 +109,7 @@ public class SchoolStudentExcelImportService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+        CommonCheck.checkSnoLength(snos);
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
@@ -137,8 +143,9 @@ public class SchoolStudentExcelImportService {
 
             checkIsExist(snoMap, idCardMap, passPortMap,
                     item.get(SchoolStudentImportEnum.SNO.getIndex()), item.get(SchoolStudentImportEnum.ID_CARD.getIndex()),
-                    item.get(SchoolStudentImportEnum.GENDER.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()),
-                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()));
+                    item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex()), item.get(SchoolStudentImportEnum.PASSPORT.getIndex()),
+                    item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), item.get(SchoolStudentImportEnum.GENDER.getIndex()),
+                    item.get(SchoolStudentImportEnum.PHONE.getIndex()));
 
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent);
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
@@ -183,8 +190,6 @@ public class SchoolStudentExcelImportService {
      */
     private void setSchoolStudentInfo(Integer createUserId, Integer schoolId, Map<Integer, String> item, SchoolStudent schoolStudent) {
         schoolStudent.setName(item.get(SchoolStudentImportEnum.NAME.getIndex()))
-                .setGender(Objects.nonNull(item.get(SchoolStudentImportEnum.GENDER.getIndex())) ? GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())) : IdCardUtil.getGender(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
-
                 .setNation(NationEnum.getCodeByName(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
@@ -203,10 +208,23 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isNoneBlank(schoolStudent.getIdCard(), schoolStudent.getPassport())) {
             schoolStudent.setPassport(null);
         }
-        try {
-            schoolStudent.setBirthday(Objects.nonNull(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())) ? DateFormatUtil.parseDate(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE2) : IdCardUtil.getBirthDay(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())));
-        } catch (ParseException e) {
-            throw new BusinessException("生日格式异常");
+        if (Objects.nonNull(schoolStudent.getIdCard())) {
+            schoolStudent.setBirthday(IdCardUtil.getBirthDay(schoolStudent.getIdCard()));
+            schoolStudent.setGender(IdCardUtil.getGender(schoolStudent.getIdCard()));
+        }
+        if (Objects.nonNull(schoolStudent.getPassport())) {
+            // 出生日期
+            if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()))) {
+                throw new BusinessException("出生日期不能为空");
+            }
+            DateTime parse = cn.hutool.core.date.DateUtil.parse(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2);
+            schoolStudent.setBirthday(parse);
+
+            // 性别
+            if (StringUtils.isBlank(item.get(SchoolStudentImportEnum.GENDER.getIndex()))) {
+                throw new BusinessException("性别不能为空");
+            }
+            schoolStudent.setGender(GenderEnum.getType(item.get(SchoolStudentImportEnum.GENDER.getIndex())));
         }
     }
 
@@ -251,7 +269,7 @@ public class SchoolStudentExcelImportService {
      */
     private void checkIsExist(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap,
                               Map<String, SchoolStudent> passPortMap, String sno, String idCard,
-                              String gradeName, String passport, String birthday) {
+                              String gradeName, String passport, String birthday, String gender, String phone) {
 
         if (StringUtils.isAllBlank(sno, idCard)) {
             throw new BusinessException("学号或身份证为空");
@@ -263,14 +281,21 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("身份证" + idCard + ERROR_MSG);
         }
         if (StringUtils.isBlank(gradeName)) {
-            throw new BusinessException("身份证" + idCard + "年级不能为空");
+            throw new BusinessException("年级不能为空");
         }
         if (Objects.nonNull(passport) && Objects.nonNull(passPortMap.get(passport))) {
             throw new BusinessException("护照" + passport + ERROR_MSG);
         }
         if (StringUtils.isAllBlank(birthday, idCard)) {
-            throw new BusinessException("学号" + sno + "出生日期为空");
+            throw new BusinessException("学籍号" + sno + "出生日期为空");
         }
+        if (StringUtils.isBlank(gender)) {
+            throw new BusinessException("学籍号" + sno + "性别为空");
+        }
+        if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
+            throw new BusinessException("学籍号" + sno + "手机号码异常");
+        }
+
     }
 
     /**
@@ -310,5 +335,27 @@ public class SchoolStudentExcelImportService {
         managementStudent.setUpdateTime(new Date());
         studentService.updateStudent(managementStudent);
         return managementStudent.getId();
+    }
+
+    /**
+     * 数据校验
+     */
+    private void checkRequiredFields(Integer total, List<String> snos, List<String> names, List<String> genderList,
+                                     List<String> birthdayList, List<String> gradeList, List<String> classList) {
+        if (total <= 0) {
+            throw new BusinessException("数据为空");
+        }
+        if (total > snos.size()) {
+            throw new BusinessException("学籍号未填写");
+        }
+        if (total > names.size()) {
+            throw new BusinessException("姓名未填写");
+        }
+        if (total > gradeList.size()) {
+            throw new BusinessException("年级未填写");
+        }
+        if (total > classList.size()) {
+            throw new BusinessException("班级未填写");
+        }
     }
 }

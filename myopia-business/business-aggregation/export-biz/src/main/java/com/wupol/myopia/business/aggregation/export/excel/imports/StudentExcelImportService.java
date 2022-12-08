@@ -6,6 +6,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
 import com.wupol.myopia.base.util.RegularUtils;
+import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
@@ -102,6 +103,7 @@ public class StudentExcelImportService {
         if (!CollectionUtils.isEmpty(errorList)){
             throw new BusinessException(String.format("护照异常:%s",errorList));
         }
+        CommonCheck.checkSnoLength(listMap.stream().map(s -> s.get(7 - offset)).filter(Objects::nonNull).collect(Collectors.toList()));
 
         // 收集护照
         List<String> passports = listMap.stream()
@@ -193,7 +195,6 @@ public class StudentExcelImportService {
     private void setStudentInfo(Integer createUserId, int offset, Map<Integer, String> item, Student student, String idCard, String passport){
         student.setName(item.get(0))
                 .setGender(Objects.nonNull(item.get(1)) ? GenderEnum.getType(item.get(1)) : IdCardUtil.getGender(idCard))
-
                 .setNation(NationEnum.getCodeByName(item.get(3))).setGradeType(GradeCodeEnum.getByName(item.get(5 - offset)).getType())
                 .setSno((item.get(7 - offset)))
                 .setIdCard(idCard)

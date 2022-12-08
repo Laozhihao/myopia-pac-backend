@@ -65,9 +65,9 @@ public class ImportScreeningSchoolStudentFailDTO implements Serializable {
     @ExcelProperty(value = "班级")
     private String className;
     /**
-     * 学号
+     * 学籍号
      */
-    @ExcelProperty(value = "学号")
+    @ExcelProperty(value = "学籍号")
     private String studentNo;
     /**
      * 手机号码
