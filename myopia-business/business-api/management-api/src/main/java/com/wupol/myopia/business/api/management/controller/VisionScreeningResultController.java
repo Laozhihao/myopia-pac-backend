@@ -172,7 +172,7 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("数据为空");
         }
         List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap, screeningPlanId, schoolId);
-        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId());
+        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId(), screeningPlanId, schoolId);
     }
 
 }

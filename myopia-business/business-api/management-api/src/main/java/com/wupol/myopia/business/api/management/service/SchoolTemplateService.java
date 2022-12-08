@@ -71,23 +71,23 @@ public class SchoolTemplateService {
      */
     @Transactional(rollbackFor = Exception.class)
     @Async
-    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId) {
-        SchoolResultTemplateExcel resultTemplateExcel = templateExcels.get(0);
-        ScreeningPlanSchoolStudent planSchoolStudent = screeningPlanSchoolStudentService.getById(Integer.valueOf(resultTemplateExcel.getPlanStudentId()));
+    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId, Integer screeningPlanId, Integer schoolId) {
 
-        Integer schoolId = planSchoolStudent.getSchoolId();
-        Integer screeningOrgId = planSchoolStudent.getScreeningOrgId();
-        Integer screeningPlanId = planSchoolStudent.getScreeningPlanId();
-        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
 
         School school = schoolService.getById(schoolId);
         ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
 
+        if (Objects.isNull(school) || Objects.isNull(plan)) {
+            unLock(screeningPlanId, schoolId);
+            log.error("导入筛查数据异常，userId:{}, screeningPlanId:{}, schoolId:{}", userId, screeningPlanId, schoolId);
+            throw new BusinessException("导入筛查数据异常");
+        }
+
         try {
             templateExcels.forEach(templateExcel -> {
-                generateHeightAndWeight(templateExcel, screeningOrgId, schoolId, userId);
-                generateVisionData(templateExcel, screeningOrgId, schoolId, userId);
-                generateComputerOptometry(templateExcel, screeningOrgId, schoolId, userId);
+                generateHeightAndWeight(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
+                generateVisionData(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
+                generateComputerOptometry(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
             });
             String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_SUCCESS, plan.getTitle(), school.getName());
             noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
@@ -97,7 +97,7 @@ public class SchoolTemplateService {
             log.error("导入筛查数据异常", e);
             throw new BusinessException("导入筛查数据异常");
         } finally {
-            redisUtil.del(key);
+            unLock(screeningPlanId, schoolId);
         }
     }
 
@@ -109,11 +109,7 @@ public class SchoolTemplateService {
      * @return List<SchoolResultTemplateExcel>
      */
     public List<SchoolResultTemplateExcel> parseExcelData(List<Map<Integer, String>> listMap, Integer screeningPlanId, Integer schoolId) {
-        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
-        if (Objects.nonNull(redisUtil.get(key))) {
-            throw new BusinessException("数据处理中，请勿重复上传!");
-        }
-        redisUtil.set(key, screeningPlanId, 3600);
+        tryLock(screeningPlanId, schoolId);
         List<SchoolResultTemplateExcel> templateExcels = listMap.stream().map(s -> {
             SchoolResultTemplateExcel resultExcelData = new SchoolResultTemplateExcel();
             resultExcelData.setPlanStudentId(s.get(SchoolResultTemplateImportEnum.PLAN_STUDENT_ID.getIndex()));
@@ -134,7 +130,7 @@ public class SchoolTemplateService {
         }).collect(Collectors.toList());
         List<String> errorList = preCheckData(templateExcels);
         if (!CollectionUtils.isEmpty(errorList)) {
-            redisUtil.del(key);
+            unLock(screeningPlanId, schoolId);
             throw new BusinessException(JSON.toJSONString(errorList));
         }
         return templateExcels;
@@ -279,5 +275,30 @@ public class SchoolTemplateService {
      */
     private String replacePlusChar(String val) {
         return StringUtils.replace(val, "+", "");
+    }
+
+    /**
+     * 上锁
+     *
+     * @param screeningPlanId 计划Id
+     * @param schoolId        学校Id
+     */
+    private synchronized void tryLock(Integer screeningPlanId, Integer schoolId) {
+        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
+        if (Objects.nonNull(redisUtil.get(key))) {
+            throw new BusinessException("数据处理中，请勿重复上传!");
+        }
+        redisUtil.set(key, screeningPlanId, 3600);
+    }
+
+    /**
+     * 解锁
+     *
+     * @param screeningPlanId 计划Id
+     * @param schoolId        学校Id
+     */
+    private void unLock(Integer screeningPlanId, Integer schoolId) {
+        String key = String.format(RedisConstant.IMPORT_SCHOOL_SCREENING_DATA, screeningPlanId, schoolId);
+        redisUtil.del(key);
     }
 }

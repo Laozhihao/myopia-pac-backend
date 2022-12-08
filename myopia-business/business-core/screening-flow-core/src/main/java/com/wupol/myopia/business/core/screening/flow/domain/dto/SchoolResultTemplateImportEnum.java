@@ -19,7 +19,7 @@ public enum SchoolResultTemplateImportEnum {
 
     GENDER(4, "性别"),
 
-    BITRHDAY(5, "出生日期"),
+    BIRTHDAY(5, "出生日期"),
 
     GRADE_NAME(6, "年级"),
 
