@@ -120,6 +120,7 @@ public class HospitalStudentBizService {
         if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {
             hospitalStudent.setCommitteeLists(districtService.getDistrictPositionDetail(hospitalStudent.getCommitteeCode()));
         }
+        hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
         return hospitalStudent;
     }
 }
