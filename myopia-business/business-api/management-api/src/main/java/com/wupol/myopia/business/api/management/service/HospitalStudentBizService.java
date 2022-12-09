@@ -107,16 +107,12 @@ public class HospitalStudentBizService {
      */
     public HospitalStudentResponseDTO getByHospitalStudentId(Integer id) {
         HospitalStudentResponseDTO hospitalStudent = hospitalStudentService.getByHospitalStudentId(id);
-        Integer schoolId = hospitalStudent.getSchoolId();
-        if (Objects.nonNull(schoolId)) {
-            hospitalStudent.setSchoolName(schoolService.getNameById(schoolId));
-        }
-        SchoolGradeClassVO schoolGradeClassVO = schoolService.getBySchoolIdAndGradeIdAndClassId(schoolId,
+        SchoolGradeClassVO schoolGradeClassVO = schoolService.getBySchoolIdAndGradeIdAndClassId(hospitalStudent.getSchoolId(),
                 hospitalStudent.getGradeId(), hospitalStudent.getClassId());
         if (Objects.nonNull(schoolGradeClassVO)) {
+            hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
             hospitalStudent.setGradeName(schoolGradeClassVO.getGradeName());
             hospitalStudent.setClassName(schoolGradeClassVO.getClassName());
-            hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
         }
         if (Objects.nonNull(hospitalStudent.getBirthday())) {
             hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
