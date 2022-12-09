@@ -113,6 +113,7 @@ public class HospitalStudentBizService {
             hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
             hospitalStudent.setGradeName(schoolGradeClassVO.getGradeName());
             hospitalStudent.setClassName(schoolGradeClassVO.getClassName());
+            hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
         }
         if (Objects.nonNull(hospitalStudent.getBirthday())) {
             hospitalStudent.setBirthdayInfo(DateUtil.getAgeInfo(hospitalStudent.getBirthday(), new Date()));
@@ -120,7 +121,6 @@ public class HospitalStudentBizService {
         if (Objects.nonNull(hospitalStudent.getCommitteeCode())) {
             hospitalStudent.setCommitteeLists(districtService.getDistrictPositionDetail(hospitalStudent.getCommitteeCode()));
         }
-        hospitalStudent.setSchoolName(schoolGradeClassVO.getSchoolName());
         return hospitalStudent;
     }
 }
