@@ -1295,4 +1295,17 @@ public class ScreeningAppController {
         }
         return ScreeningOrganizationStaff.AUTO_CREATE_SCREENING_PERSONNEL == staff.getType();
     }
+
+    /**
+     * 查询某个筛查机构下的学校的学生
+     *
+     * @param schoolId 学校Id
+     *
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    @GetMapping("/school/planStudentList")
+    public List<ScreeningPlanSchoolStudent> schoolPlanStudentList(Integer schoolId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningPlanBizService.getPlanSchoolStudent(currentUser.getOrgId(), schoolId);
+    }
 }
