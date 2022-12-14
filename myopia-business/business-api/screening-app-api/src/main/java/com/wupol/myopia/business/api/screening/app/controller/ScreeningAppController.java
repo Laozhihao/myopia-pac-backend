@@ -1308,4 +1308,16 @@ public class ScreeningAppController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningPlanBizService.getPlanSchoolStudent(currentUser.getOrgId(), schoolId);
     }
+
+    /**
+     * 查询学校的班级
+     *
+     * @param schoolId 学校Id
+     *
+     * @return List<SchoolClass>
+     */
+    @GetMapping("/school/getClassBySchoolId")
+    public List<SchoolClass> getClassBySchoolId(@NotNull(message = "schoolId不能为空") Integer schoolId) {
+        return schoolClassService.listBySchoolId(schoolId);
+    }
 }
