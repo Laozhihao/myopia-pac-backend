@@ -126,7 +126,12 @@ public class ScreeningPlanBizService {
         if (Objects.isNull(planSchool)) {
             return new ArrayList<>();
         }
-        return screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planSchool.getScreeningPlanId(), planSchool.getSchoolId());
-
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planSchool.getScreeningPlanId(), planSchool.getSchoolId());
+        if (CollectionUtils.isEmpty(planStudents)) {
+            return new ArrayList<>();
+        }
+        // 特殊处理App的学生Id
+        planStudents.forEach(planStudent -> planStudent.setStudentId(planStudent.getId()));
+        return planStudents;
     }
 }
