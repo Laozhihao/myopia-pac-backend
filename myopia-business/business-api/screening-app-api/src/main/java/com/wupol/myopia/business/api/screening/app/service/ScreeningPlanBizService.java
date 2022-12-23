@@ -121,8 +121,8 @@ public class ScreeningPlanBizService {
      *
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getPlanSchoolStudent(Integer screeningOrgId, Integer schoolId) {
-        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, schoolId);
+    public List<ScreeningPlanSchoolStudent> getPlanSchoolStudent(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, schoolId, channel);
         if (Objects.isNull(planSchool)) {
             return new ArrayList<>();
         }

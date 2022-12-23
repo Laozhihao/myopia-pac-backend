@@ -1304,9 +1304,9 @@ public class ScreeningAppController {
      * @return List<ScreeningPlanSchoolStudent>
      */
     @GetMapping("/school/planStudentList")
-    public List<ScreeningPlanSchoolStudent> schoolPlanStudentList(Integer schoolId) {
+    public List<ScreeningPlanSchoolStudent> schoolPlanStudentList(@NotNull(message = "schoolId不能为空") Integer schoolId, @NotNull(message = "渠道不能为空") Integer channel) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return screeningPlanBizService.getPlanSchoolStudent(currentUser.getOrgId(), schoolId);
+        return screeningPlanBizService.getPlanSchoolStudent(currentUser.getScreeningOrgId(), schoolId, channel);
     }
 
     /**

@@ -60,5 +60,5 @@ public interface ScreeningPlanSchoolMapper extends BaseMapper<ScreeningPlanSchoo
 
     List<ScreeningPlanSchool> listBySchoolIdAndOrgId(@Param("schoolId") Integer schoolId,@Param("orgId") Integer orgId, @Param("screeningType") Integer screeningType,@Param("currentDate") Date currentDate);
 
-    ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(@Param("screeningOrgId") Integer screeningOrgId, @Param("releaseStatus") Integer releaseStatus, @Param("currentDate") Date currentDate, @Param("schoolId") Integer schoolId);
+    ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(@Param("screeningOrgId") Integer screeningOrgId, @Param("releaseStatus") Integer releaseStatus, @Param("currentDate") Date currentDate, @Param("schoolId") Integer schoolId, @Param("channel") Integer channel);
 }

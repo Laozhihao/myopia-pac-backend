@@ -331,7 +331,7 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      *
      * @return ScreeningPlanSchool
      */
-    public ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(Integer screeningOrgId, Integer schoolId) {
-        return baseMapper.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), schoolId);
+    public ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        return baseMapper.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), schoolId, channel);
     }
 }
