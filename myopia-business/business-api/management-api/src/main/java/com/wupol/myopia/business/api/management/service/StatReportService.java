@@ -668,7 +668,7 @@ public class StatReportService {
                 .schoolAgeDistribution(businessSchoolAge.getSortedDistributionMap())
                 .schoolExamples(schoolExamples)
                 .schoolPersonnel(getSchoolPersonnel(schools, planSchoolStudentMap, schoolFirstScreenMap, schoolValidMap))
-                .schoolAgePersonnel(getSchoolAgePersonne(planSchoolAgeStudentMap, businessSchoolAge))
+                .schoolAgePersonnel(getSchoolAgePersonnel(planSchoolAgeStudentMap, businessSchoolAge))
                 .myopia(getMyopiaRatio(statBase.getValid()))
                 .visionCorrection(getVisionCorrection(statBase.getValid()))
                 .warnLevel(getWarnLevel(statBase.getValid()))
@@ -716,7 +716,7 @@ public class StatReportService {
      * 获取各学段筛查人员信息
      * @return
      */
-    private List<StatSchoolAgePersonnelDTO> getSchoolAgePersonne(Map<Integer, Long> planSchoolAgeStudentMap, StatBusinessSchoolAgeDTO businessSchoolAge) {
+    private List<StatSchoolAgePersonnelDTO> getSchoolAgePersonnel(Map<Integer, Long> planSchoolAgeStudentMap, StatBusinessSchoolAgeDTO businessSchoolAge) {
 
         return planSchoolAgeStudentMap.keySet().stream().sorted().map(gradeType -> {
             StatSchoolAgePersonnelDTO persionnel = new StatSchoolAgePersonnelDTO();
