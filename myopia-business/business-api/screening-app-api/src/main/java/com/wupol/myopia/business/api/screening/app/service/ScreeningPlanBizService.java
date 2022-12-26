@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.screening.app.service;
 
 import com.alibaba.excel.util.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.AgeUtil;
@@ -12,15 +14,20 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author HaoHao
@@ -37,6 +44,8 @@ public class ScreeningPlanBizService {
     private SchoolService schoolService;
     @Autowired
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Autowired
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
 
     /**
      * 从学生中插入
@@ -102,5 +111,27 @@ public class ScreeningPlanBizService {
             return Collections.emptyList();
         }
         return schoolService.getSchoolByIdsAndName(schoolIds,schoolName);
+    }
+
+    /**
+     * 查询某个筛查机构下的学校的学生
+     *
+     * @param screeningOrgId 机构Id
+     * @param schoolId       学校Id
+     *
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getPlanSchoolStudent(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        ScreeningPlanSchool planSchool = screeningPlanSchoolService.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, schoolId, channel);
+        if (Objects.isNull(planSchool)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planSchool.getScreeningPlanId(), planSchool.getSchoolId());
+        if (CollectionUtils.isEmpty(planStudents)) {
+            return new ArrayList<>();
+        }
+        // 特殊处理App的学生Id
+        planStudents.forEach(planStudent -> planStudent.setStudentId(planStudent.getId()));
+        return planStudents;
     }
 }

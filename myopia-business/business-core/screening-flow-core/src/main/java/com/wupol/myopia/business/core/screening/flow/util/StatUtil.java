@@ -239,18 +239,11 @@ public class StatUtil {
      */
     public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
 
-        MyopiaLevelEnum screeningMyopia = getScreeningMyopia(sphere, cylinder, age, nakedVision);
-        MyopiaLevelEnum myopiaLevel = getMyopiaLevel(sphere, cylinder);
-
-        if (Objects.isNull(screeningMyopia)){
-            if (Objects.nonNull(myopiaLevel) ){
-                return !Objects.equals(MyopiaLevelEnum.MYOPIA_LEVEL_EARLY, myopiaLevel);
-            }
-        }else {
-            return Boolean.TRUE;
+        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        if (Objects.isNull(se) || Objects.isNull(nakedVision)) {
+            return null;
         }
-
-        return null;
+        return BigDecimalUtil.lessThan(nakedVision, "5.0") && BigDecimalUtil.lessThan(se, MINUS_NEGATIVE_0_5);
     }
 
     /**
@@ -1793,20 +1786,20 @@ public class StatUtil {
      * @param left  左眼
      * @param right 右眼
      */
-    public Boolean getIsExist(Boolean left,Boolean right){
-        if (ObjectsUtil.allNull(left,right)){
+    public Boolean getIsExist(Boolean left, Boolean right) {
+        if (ObjectsUtil.allNull(left, right)) {
             return null;
         }
         //两眼都存在
-        if (Objects.nonNull(left) && Objects.nonNull(right)){
-            return  left || right;
+        if (Objects.nonNull(left) && Objects.nonNull(right)) {
+            return left || right;
         }
         //左眼不存
-        if (Objects.isNull(left)){
+        if (Objects.isNull(left)) {
             return right;
         }
         //右眼
-        return  left;
+        return left;
     }
 
     /**
