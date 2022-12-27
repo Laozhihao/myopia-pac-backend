@@ -154,6 +154,8 @@ public class RefractiveSituationDTO {
     /**
      * 总结
      */
+    @Getter
+    @Setter
     public static class GradeRefractiveSituationSummary {
 
         /**
