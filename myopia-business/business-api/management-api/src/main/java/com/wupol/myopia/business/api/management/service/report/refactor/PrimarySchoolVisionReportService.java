@@ -85,12 +85,14 @@ public class PrimarySchoolVisionReportService {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
+        // 视力矫正情况
         VisionCorrectionSituationDTO.VisionCorrectionSituationInfo visionCorrectionSituationInfo = new VisionCorrectionSituationDTO.VisionCorrectionSituationInfo();
         visionCorrectionSituationInfo.setScreeningStudentNum(screeningTotal);
         visionCorrectionSituationInfo.setWearingGlassesNum(statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count());
         visionCorrectionSituationInfo.setWearingGlassesRatio(BigDecimalUtil.divideRadio(visionCorrectionSituationInfo.getWearingGlassesNum(), visionCorrectionSituationInfo.getScreeningStudentNum()));
         visionCorrectionSituationDTO.setVisionCorrectionSituationInfo(visionCorrectionSituationInfo);
 
+        // 戴镜情况
         VisionCorrectionSituationDTO.WearingGlasses wearingGlasses = new VisionCorrectionSituationDTO.WearingGlasses();
         VisionCorrectionSituationDTO.WearingGlassesItem wearingGlassesItem = new VisionCorrectionSituationDTO.WearingGlassesItem();
         wearingGlassesItem.setScreeningStudentNum(screeningTotal);
@@ -106,11 +108,13 @@ public class PrimarySchoolVisionReportService {
         wearingGlasses.setTable(null);
         visionCorrectionSituationDTO.setWearingGlasses(wearingGlasses);
 
+        // 矫正情况
         VisionCorrectionSituationDTO.CorrectionSituation correctionSituation = new VisionCorrectionSituationDTO.CorrectionSituation();
         correctionSituation.setUnderCorrectedAndUncorrected(getUnderCorrectedAndUncorrected(statConclusions, new VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected()));
         correctionSituation.setTable(null);
         visionCorrectionSituationDTO.setCorrectionSituation(correctionSituation);
 
+        // 年级未矫/欠矫
         VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected gradeUnderCorrectedAndUncorrected = new VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected();
         List<VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrectedItem> gradeUnderCorrectedAndUncorrectedItems = gradeCodes.stream().map(s -> {
             List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
@@ -122,6 +126,7 @@ public class PrimarySchoolVisionReportService {
         gradeUnderCorrectedAndUncorrected.setTable(null);
         visionCorrectionSituationDTO.setGradeUnderCorrectedAndUncorrected(gradeUnderCorrectedAndUncorrected);
 
+        // 班级未矫/欠矫
         VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrected classUnderCorrectedAndUncorrected = new VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrected();
         List<VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrectedItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
@@ -151,10 +156,12 @@ public class PrimarySchoolVisionReportService {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
+        // 屈光情况信息
         RefractiveSituationDTO.RefractiveSituationInfo refractiveSituationInfo = new RefractiveSituationDTO.RefractiveSituationInfo();
         refractiveSituationInfo.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
         refractiveSituationDTO.setRefractiveSituationInfo(getRefractiveSituation(statConclusions, refractiveSituationInfo));
 
+        // 不同性别屈光情况
         RefractiveSituationDTO.GenderRefractiveSituation genderRefractiveSituation = new RefractiveSituationDTO.GenderRefractiveSituation();
         Map<Integer, List<StatConclusion>> genderStatConclusion = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
         List<RefractiveSituationDTO.RefractiveSituationItem> genderList = GenderEnum.genderList().stream().map(s -> {
@@ -173,6 +180,7 @@ public class PrimarySchoolVisionReportService {
         genderRefractiveSituation.setTable3(null);
         refractiveSituationDTO.setGenderRefractiveSituation(genderRefractiveSituation);
 
+        // 不同年级屈光情况
         RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation = new RefractiveSituationDTO.GradeRefractiveSituation();
         gradeRefractiveSituation.setItems(gradeCodes.stream().map(s -> {
             List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
@@ -189,6 +197,7 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
         refractiveSituationDTO.setGradeRefractiveSituation(gradeRefractiveSituation);
 
+        // 不同班级屈光情况/欠矫
         List<RefractiveSituationDTO.ClassRefractiveSituationItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
             List<SchoolClass> schoolClasses = classMap.get(s);
@@ -216,6 +225,8 @@ public class PrimarySchoolVisionReportService {
      */
     private WarningSituationDTO generateWarningSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes) {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+
+        // 不同年级学生视力预警情况
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
         WarningSituationDTO.GradeWarningSituation gradeWarningSituation = new WarningSituationDTO.GradeWarningSituation();
         List<WarningSituationDTO.GradeWarningSituationItem> items = gradeCodes.stream().map(s -> {
