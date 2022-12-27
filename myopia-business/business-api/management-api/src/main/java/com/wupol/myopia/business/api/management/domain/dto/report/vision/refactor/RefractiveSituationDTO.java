@@ -55,7 +55,7 @@ public class RefractiveSituationDTO {
     @Setter
     public static class GenderRefractiveSituation {
 
-        private List<RefractiveSituation> items;
+        private List<RefractiveSituationItem> items;
 
         /**
          * 屈光整体情况
@@ -71,6 +71,20 @@ public class RefractiveSituationDTO {
          * 女生
          */
         private List<PieChart> table3;
+
+    }
+
+    /**
+     * 不同性别屈光情况
+     */
+    @Getter
+    @Setter
+    public static class RefractiveSituationItem extends RefractiveSituation {
+
+        /**
+         * 性别名称
+         */
+        private String genderName;
 
     }
 

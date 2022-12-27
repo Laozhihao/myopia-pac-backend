@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 @Service
 public class PrimarySchoolVisionReportService {
 
+    private final static String TOTAL_DESC = "总体情况";
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -86,7 +87,6 @@ public class PrimarySchoolVisionReportService {
         visionCorrectionSituationInfo.setWearingGlassesRatio(BigDecimalUtil.divideRadio(visionCorrectionSituationInfo.getWearingGlassesNum(), visionCorrectionSituationInfo.getScreeningStudentNum()));
         visionCorrectionSituationDTO.setVisionCorrectionSituationInfo(visionCorrectionSituationInfo);
 
-
         // ------------------------
         VisionCorrectionSituationDTO.WearingGlasses wearingGlasses = new VisionCorrectionSituationDTO.WearingGlasses();
         VisionCorrectionSituationDTO.WearingGlassesItem wearingGlassesItem = new VisionCorrectionSituationDTO.WearingGlassesItem();
@@ -102,7 +102,6 @@ public class PrimarySchoolVisionReportService {
         wearingGlasses.setWearingGlassesItem(wearingGlassesItem);
         wearingGlasses.setTable(null);
         visionCorrectionSituationDTO.setWearingGlasses(wearingGlasses);
-
 
         // ------------------------
         VisionCorrectionSituationDTO.CorrectionSituation correctionSituation = new VisionCorrectionSituationDTO.CorrectionSituation();
@@ -160,16 +159,23 @@ public class PrimarySchoolVisionReportService {
         // ------------------------
         RefractiveSituationDTO.GenderRefractiveSituation genderRefractiveSituation = new RefractiveSituationDTO.GenderRefractiveSituation();
         Map<Integer, List<StatConclusion>> genderStatConclusion = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
-        List<RefractiveSituationDTO.RefractiveSituation> genderList = GenderEnum.genderList().stream().map(s -> {
+        List<RefractiveSituationDTO.RefractiveSituationItem> genderList = GenderEnum.genderList().stream().map(s -> {
             List<StatConclusion> genderStatConclusionList = genderStatConclusion.getOrDefault(s.type, new ArrayList<>());
-            return getRefractiveSituation(genderStatConclusionList, new RefractiveSituationDTO.RefractiveSituation());
+            RefractiveSituationDTO.RefractiveSituationItem refractiveSituation = new RefractiveSituationDTO.RefractiveSituationItem();
+            refractiveSituation.setGenderName(s.desc);
+            getRefractiveSituation(genderStatConclusionList, refractiveSituation);
+            return refractiveSituation;
         }).collect(Collectors.toList());
-        genderList.add(getRefractiveSituation(statConclusions, new RefractiveSituationDTO.RefractiveSituation()));
+        RefractiveSituationDTO.RefractiveSituationItem totalRefractiveSituationItem = new RefractiveSituationDTO.RefractiveSituationItem();
+        totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
+        genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
         genderRefractiveSituation.setItems(genderList);
+
         genderRefractiveSituation.setTable1(null);
         genderRefractiveSituation.setTable2(null);
         genderRefractiveSituation.setTable3(null);
         refractiveSituationDTO.setGenderRefractiveSituation(genderRefractiveSituation);
+
         // ------------------------
         RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation = new RefractiveSituationDTO.GradeRefractiveSituation();
         gradeRefractiveSituation.setItems(gradeCodes.stream().map(s -> {
@@ -181,8 +187,6 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setTable1(null);
         gradeRefractiveSituation.setTable2(null);
         gradeRefractiveSituation.setTable3(null);
-
-
         RefractiveSituationDTO.GradeRefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
         RefractiveSituationDTO.GradeRefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
         RefractiveSituationDTO.GradeRefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
