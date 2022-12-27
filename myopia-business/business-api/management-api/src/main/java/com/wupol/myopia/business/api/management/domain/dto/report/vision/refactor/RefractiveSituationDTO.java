@@ -118,7 +118,7 @@ public class RefractiveSituationDTO {
         /**
          * 总结
          */
-        private List<GradeRefractiveSituationSummary> summary;
+        private List<RefractiveSituationSummary> summary;
 
     }
 
@@ -185,7 +185,7 @@ public class RefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class GradeRefractiveSituationSummary {
+    public static class RefractiveSituationSummary {
 
         /**
          * 名称
@@ -193,24 +193,24 @@ public class RefractiveSituationDTO {
         private String keyName;
 
         /**
-         * 最高年级名称
+         * 最高名称
          */
-        private List<String> gradeNameHigh;
+        private List<String> highName;
 
         /**
          * 最高百分比
          */
-        private String radioHigh;
+        private String highRadio;
 
         /**
-         * 最低年级名称
+         * 最低名称
          */
-        private List<String> gradeNameLow;
+        private List<String> lowName;
 
         /**
          * 最低百分比
          */
-        private String radioLow;
+        private String lowRadio;
     }
 
     /**

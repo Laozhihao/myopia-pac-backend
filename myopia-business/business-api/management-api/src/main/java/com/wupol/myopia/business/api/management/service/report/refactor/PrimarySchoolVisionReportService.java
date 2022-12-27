@@ -178,9 +178,9 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setTable1(null);
         gradeRefractiveSituation.setTable2(null);
         gradeRefractiveSituation.setTable3(null);
-        RefractiveSituationDTO.GradeRefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
-        RefractiveSituationDTO.GradeRefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
-        RefractiveSituationDTO.GradeRefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
+        RefractiveSituationDTO.RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
+        RefractiveSituationDTO.RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
+        RefractiveSituationDTO.RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
         gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
         refractiveSituationDTO.setGradeRefractiveSituation(gradeRefractiveSituation);
 
@@ -231,19 +231,19 @@ public class PrimarySchoolVisionReportService {
      *
      * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
      */
-    private RefractiveSituationDTO.GradeRefractiveSituationSummary getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems,
-                                                                                                      Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> myopiaLevelFunction,
-                                                                                                      String keyName) {
-        RefractiveSituationDTO.GradeRefractiveSituationSummary gradeRefractiveSituationSummary = new RefractiveSituationDTO.GradeRefractiveSituationSummary();
+    private RefractiveSituationDTO.RefractiveSituationSummary getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems,
+                                                                                                 Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> myopiaLevelFunction,
+                                                                                                 String keyName) {
+        RefractiveSituationDTO.RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationDTO.RefractiveSituationSummary();
         Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
         String firstKey = MapUtils.getFirstKey(sortMap);
         Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = MapUtils.getLastKey(sortMap);
-        gradeRefractiveSituationSummary.setGradeNameHigh(sortMap.get(tail.getKey()).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        gradeRefractiveSituationSummary.setRadioHigh(tail.getKey());
-        gradeRefractiveSituationSummary.setGradeNameLow(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        gradeRefractiveSituationSummary.setRadioLow(firstKey);
-        gradeRefractiveSituationSummary.setKeyName(keyName);
-        return gradeRefractiveSituationSummary;
+        refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        refractiveSituationSummary.setHighRadio(tail.getKey());
+        refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        refractiveSituationSummary.setLowRadio(firstKey);
+        refractiveSituationSummary.setKeyName(keyName);
+        return refractiveSituationSummary;
     }
 
     /**
