@@ -143,38 +143,6 @@ public class PrimarySchoolVisionReportService {
     }
 
     /**
-     * 戴镜统计
-     *
-     * @return Long
-     */
-    private Long wearingGlassesCount(List<StatConclusion> statConclusions, Integer glassesType) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), glassesType)).count();
-    }
-
-    /**
-     * 矫正统计
-     *
-     * @return Long
-     */
-    private Long underCorrectedAndUncorrectedCount(List<StatConclusion> statConclusions, Integer type) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), type)).count();
-    }
-
-    /**
-     * 矫正统计
-     *
-     * @return Long
-     */
-    private <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrected(List<StatConclusion> statConclusions, T t) {
-        t.setScreeningStudentNum((long) statConclusions.size());
-        t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
-        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
-        t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
-        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count()));
-        return t;
-    }
-
-    /**
      * 屈光情况
      *
      * @return RefractiveSituationDTO
@@ -242,6 +210,32 @@ public class PrimarySchoolVisionReportService {
         return refractiveSituationDTO;
     }
 
+    /**
+     * 预警情况
+     *
+     * @return WarningSituationDTO
+     */
+    private WarningSituationDTO generateWarningSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes) {
+        Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
+        WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
+        WarningSituationDTO.GradeWarningSituation gradeWarningSituation = new WarningSituationDTO.GradeWarningSituation();
+        List<WarningSituationDTO.GradeWarningSituationItem> items = gradeCodes.stream().map(s -> {
+            List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
+            WarningSituationDTO.GradeWarningSituationItem gradeWarningSituationItem = new WarningSituationDTO.GradeWarningSituationItem();
+            gradeWarningSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
+            return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
+        }).collect(Collectors.toList());
+        gradeWarningSituation.setItems(items);
+        gradeWarningSituation.setTable(null);
+        warningSituationDTO.setGradeWarningSituation(gradeWarningSituation);
+        return warningSituationDTO;
+    }
+
+    /**
+     * 总结
+     *
+     * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
+     */
     private RefractiveSituationDTO.GradeRefractiveSituationSummary getGradeRefractiveSituationSummary(RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation,
                                                                                                       Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> myopiaLevelFunction,
                                                                                                       String keyName) {
@@ -258,6 +252,37 @@ public class PrimarySchoolVisionReportService {
         return gradeRefractiveSituationSummary;
     }
 
+    /**
+     * 戴镜统计
+     *
+     * @return Long
+     */
+    private Long wearingGlassesCount(List<StatConclusion> statConclusions, Integer glassesType) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), glassesType)).count();
+    }
+
+    /**
+     * 矫正统计
+     *
+     * @return Long
+     */
+    private Long underCorrectedAndUncorrectedCount(List<StatConclusion> statConclusions, Integer type) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), type)).count();
+    }
+
+    /**
+     * 矫正统计
+     *
+     * @return Long
+     */
+    private <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrected(List<StatConclusion> statConclusions, T t) {
+        t.setScreeningStudentNum((long) statConclusions.size());
+        t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
+        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
+        t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
+        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count()));
+        return t;
+    }
 
     /**
      * 屈光情况
@@ -283,27 +308,6 @@ public class PrimarySchoolVisionReportService {
      */
     private Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
-    }
-
-    /**
-     * 预警情况
-     *
-     * @return WarningSituationDTO
-     */
-    private WarningSituationDTO generateWarningSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes) {
-        Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
-        WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
-        WarningSituationDTO.GradeWarningSituation gradeWarningSituation = new WarningSituationDTO.GradeWarningSituation();
-        List<WarningSituationDTO.GradeWarningSituationItem> items = gradeCodes.stream().map(s -> {
-            List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
-            WarningSituationDTO.GradeWarningSituationItem gradeWarningSituationItem = new WarningSituationDTO.GradeWarningSituationItem();
-            gradeWarningSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
-            return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
-        }).collect(Collectors.toList());
-        gradeWarningSituation.setItems(items);
-        gradeWarningSituation.setTable(null);
-        warningSituationDTO.setGradeWarningSituation(gradeWarningSituation);
-        return warningSituationDTO;
     }
 
     /**
