@@ -80,14 +80,12 @@ public class PrimarySchoolVisionReportService {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
-        // ------------------------
         VisionCorrectionSituationDTO.VisionCorrectionSituationInfo visionCorrectionSituationInfo = new VisionCorrectionSituationDTO.VisionCorrectionSituationInfo();
         visionCorrectionSituationInfo.setScreeningStudentNum(screeningTotal);
         visionCorrectionSituationInfo.setWearingGlassesNum(statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count());
         visionCorrectionSituationInfo.setWearingGlassesRatio(BigDecimalUtil.divideRadio(visionCorrectionSituationInfo.getWearingGlassesNum(), visionCorrectionSituationInfo.getScreeningStudentNum()));
         visionCorrectionSituationDTO.setVisionCorrectionSituationInfo(visionCorrectionSituationInfo);
 
-        // ------------------------
         VisionCorrectionSituationDTO.WearingGlasses wearingGlasses = new VisionCorrectionSituationDTO.WearingGlasses();
         VisionCorrectionSituationDTO.WearingGlassesItem wearingGlassesItem = new VisionCorrectionSituationDTO.WearingGlassesItem();
         wearingGlassesItem.setScreeningStudentNum(screeningTotal);
@@ -103,13 +101,11 @@ public class PrimarySchoolVisionReportService {
         wearingGlasses.setTable(null);
         visionCorrectionSituationDTO.setWearingGlasses(wearingGlasses);
 
-        // ------------------------
         VisionCorrectionSituationDTO.CorrectionSituation correctionSituation = new VisionCorrectionSituationDTO.CorrectionSituation();
         correctionSituation.setUnderCorrectedAndUncorrected(getUnderCorrectedAndUncorrected(statConclusions, new VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected()));
         correctionSituation.setTable(null);
         visionCorrectionSituationDTO.setCorrectionSituation(correctionSituation);
 
-        // ------------------------
         VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected gradeUnderCorrectedAndUncorrected = new VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected();
         List<VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrectedItem> gradeUnderCorrectedAndUncorrectedItems = gradeCodes.stream().map(s -> {
             List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
@@ -121,7 +117,6 @@ public class PrimarySchoolVisionReportService {
         gradeUnderCorrectedAndUncorrected.setTable(null);
         visionCorrectionSituationDTO.setGradeUnderCorrectedAndUncorrected(gradeUnderCorrectedAndUncorrected);
 
-        // ------------------------
         VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrected classUnderCorrectedAndUncorrected = new VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrected();
         List<VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrectedItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
@@ -151,12 +146,10 @@ public class PrimarySchoolVisionReportService {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
-        // ------------------------
         RefractiveSituationDTO.RefractiveSituationInfo refractiveSituationInfo = new RefractiveSituationDTO.RefractiveSituationInfo();
         refractiveSituationInfo.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
         refractiveSituationDTO.setRefractiveSituationInfo(getRefractiveSituation(statConclusions, refractiveSituationInfo));
 
-        // ------------------------
         RefractiveSituationDTO.GenderRefractiveSituation genderRefractiveSituation = new RefractiveSituationDTO.GenderRefractiveSituation();
         Map<Integer, List<StatConclusion>> genderStatConclusion = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
         List<RefractiveSituationDTO.RefractiveSituationItem> genderList = GenderEnum.genderList().stream().map(s -> {
@@ -170,13 +163,11 @@ public class PrimarySchoolVisionReportService {
         totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
         genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
         genderRefractiveSituation.setItems(genderList);
-
         genderRefractiveSituation.setTable1(null);
         genderRefractiveSituation.setTable2(null);
         genderRefractiveSituation.setTable3(null);
         refractiveSituationDTO.setGenderRefractiveSituation(genderRefractiveSituation);
 
-        // ------------------------
         RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation = new RefractiveSituationDTO.GradeRefractiveSituation();
         gradeRefractiveSituation.setItems(gradeCodes.stream().map(s -> {
             List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
@@ -193,7 +184,6 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
         refractiveSituationDTO.setGradeRefractiveSituation(gradeRefractiveSituation);
 
-        // ------------------------
         List<RefractiveSituationDTO.ClassRefractiveSituationItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
             List<SchoolClass> schoolClasses = classMap.get(s);
@@ -235,6 +225,7 @@ public class PrimarySchoolVisionReportService {
         return warningSituationDTO;
     }
 
+
     /**
      * 总结
      *
@@ -253,24 +244,6 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituationSummary.setRadioLow(firstKey);
         gradeRefractiveSituationSummary.setKeyName(keyName);
         return gradeRefractiveSituationSummary;
-    }
-
-    /**
-     * 戴镜统计
-     *
-     * @return Long
-     */
-    private Long wearingGlassesCount(List<StatConclusion> statConclusions, Integer glassesType) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), glassesType)).count();
-    }
-
-    /**
-     * 矫正统计
-     *
-     * @return Long
-     */
-    private Long underCorrectedAndUncorrectedCount(List<StatConclusion> statConclusions, Integer type) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), type)).count();
     }
 
     /**
@@ -305,15 +278,6 @@ public class PrimarySchoolVisionReportService {
     }
 
     /**
-     * 近视
-     *
-     * @return T
-     */
-    private Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
-    }
-
-    /**
      * 预警情况
      *
      * @return T
@@ -330,6 +294,33 @@ public class PrimarySchoolVisionReportService {
         t.setThreeWarningNum(warningSituationCount(statConclusions, WarningLevel.THREE.code));
         t.setThreeWarningRatio(BigDecimalUtil.divideRadio(t.getThreeWarningNum(), screeningTotal));
         return t;
+    }
+
+    /**
+     * 戴镜统计
+     *
+     * @return Long
+     */
+    private Long wearingGlassesCount(List<StatConclusion> statConclusions, Integer glassesType) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), glassesType)).count();
+    }
+
+    /**
+     * 矫正统计
+     *
+     * @return Long
+     */
+    private Long underCorrectedAndUncorrectedCount(List<StatConclusion> statConclusions, Integer type) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), type)).count();
+    }
+
+    /**
+     * 近视
+     *
+     * @return T
+     */
+    private Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
     }
 
     /**
