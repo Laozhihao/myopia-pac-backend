@@ -433,9 +433,9 @@ public class BigDecimalUtil {
         Assert.notNull(val1, NOT_NULL_MSG);
         Assert.notNull(val2, NOT_NULL_MSG);
         if (BigDecimal.ZERO.compareTo(new BigDecimal(val2)) == 0) {
-            return "0.00%";
+            return "0.00";
         }
         return new BigDecimal(val1).divide(new BigDecimal(val2), 4, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP) + "%";
+                .multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString();
     }
 }

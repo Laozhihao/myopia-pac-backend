@@ -103,7 +103,7 @@ public class RefractiveSituationDTO {
         /**
          * 总结
          */
-        private GradeRefractiveSituationSummary summary;
+        private List<GradeRefractiveSituationSummary> summary;
 
     }
 

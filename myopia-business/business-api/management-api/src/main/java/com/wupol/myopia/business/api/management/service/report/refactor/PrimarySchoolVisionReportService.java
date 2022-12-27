@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.service.report.refactor;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PrimarySchoolVisionReportDTO;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -208,7 +210,12 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setTable1(null);
         gradeRefractiveSituation.setTable2(null);
         gradeRefractiveSituation.setTable3(null);
-        gradeRefractiveSituation.setSummary(null);
+
+
+        RefractiveSituationDTO.GradeRefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio);
+        RefractiveSituationDTO.GradeRefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio);
+        RefractiveSituationDTO.GradeRefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio);
+        gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
         refractiveSituationDTO.setGradeRefractiveSituation(gradeRefractiveSituation);
 
         // ------------------------
@@ -229,6 +236,21 @@ public class PrimarySchoolVisionReportService {
 
         return refractiveSituationDTO;
     }
+
+    private RefractiveSituationDTO.GradeRefractiveSituationSummary getGradeRefractiveSituationSummary(RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation,
+                                                                                                      Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> getLowMyopiaRatio) {
+        List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems = gradeRefractiveSituation.getItems();
+        RefractiveSituationDTO.GradeRefractiveSituationSummary gradeRefractiveSituationSummary = new RefractiveSituationDTO.GradeRefractiveSituationSummary();
+        Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(getLowMyopiaRatio)));
+        String firstKey = getFirstKey(sortMap);
+        Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = getLastKey(sortMap);
+        gradeRefractiveSituationSummary.setGradeNameHigh(sortMap.get(tail.getKey()).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        gradeRefractiveSituationSummary.setRadioHigh(tail.getKey());
+        gradeRefractiveSituationSummary.setGradeNameLow(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        gradeRefractiveSituationSummary.setRadioLow(firstKey);
+        return gradeRefractiveSituationSummary;
+    }
+
 
     /**
      * 屈光情况
@@ -304,4 +326,54 @@ public class PrimarySchoolVisionReportService {
     private Long warningSituationCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), type)).count();
     }
+
+
+    /**
+     * Map排序
+     *
+     * @return Map<String, List < RefractiveSituationDTO.GradeRefractiveSituationItem>>
+     */
+    private static Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap(Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> codes) {
+        return codes.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (oldVal, newVal) -> oldVal,
+                                LinkedHashMap::new
+                        )
+                );
+    }
+
+    /**
+     * 获取第一个Key
+     *
+     * @return String
+     */
+    private static String getFirstKey(Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> map) {
+        String obj = null;
+        for (Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> entry : map.entrySet()) {
+            obj = entry.getKey();
+            if (Objects.nonNull(obj)) {
+                break;
+            }
+        }
+        return obj;
+    }
+
+    /**
+     * 获取最后一个Key
+     *
+     * @return String
+     */
+    public Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> getLastKey(Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> map) {
+        Iterator<Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>>> iterator = map.entrySet().iterator();
+        Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = null;
+        while (iterator.hasNext()) {
+            tail = iterator.next();
+        }
+        return tail;
+    }
+
 }
