@@ -200,7 +200,7 @@ public class RefractiveSituationDTO {
         /**
          * 最高百分比
          */
-        private String highRadio;
+        private Float highRadio;
 
         /**
          * 最低名称
@@ -210,7 +210,7 @@ public class RefractiveSituationDTO {
         /**
          * 最低百分比
          */
-        private String lowRadio;
+        private Float lowRadio;
     }
 
     /**
@@ -233,7 +233,7 @@ public class RefractiveSituationDTO {
         /**
          * 低度近视百分比
          */
-        private String lowMyopiaRatio;
+        private Float lowMyopiaRatio;
 
         /**
          * 高度近视人数
@@ -243,7 +243,7 @@ public class RefractiveSituationDTO {
         /**
          * 高度近视百分比
          */
-        private String highMyopiaRatio;
+        private Float highMyopiaRatio;
 
         /**
          * 散光人数
@@ -253,7 +253,7 @@ public class RefractiveSituationDTO {
         /**
          * 散光百分比
          */
-        private String astigmatismRatio;
+        private Float astigmatismRatio;
     }
 
 }

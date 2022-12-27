@@ -248,12 +248,12 @@ public class PrimarySchoolVisionReportService {
      * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
      */
     private RefractiveSituationDTO.RefractiveSituationSummary getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems,
-                                                                                                 Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> myopiaLevelFunction,
+                                                                                                 Function<RefractiveSituationDTO.GradeRefractiveSituationItem, Float> myopiaLevelFunction,
                                                                                                  String keyName) {
         RefractiveSituationDTO.RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationDTO.RefractiveSituationSummary();
-        Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
-        String firstKey = MapUtils.getFirstKey(sortMap);
-        Map.Entry<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = MapUtils.getLastKey(sortMap);
+        Map<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
+        Float firstKey = MapUtils.getFirstKey(sortMap);
+        Map.Entry<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = MapUtils.getLastKey(sortMap);
         refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
         refractiveSituationSummary.setHighRadio(tail.getKey());
         refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));

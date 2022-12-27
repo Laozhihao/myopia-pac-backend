@@ -60,7 +60,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 戴镜人数百分比
          */
-        private String wearingGlassesRatio;
+        private Float wearingGlassesRatio;
     }
 
     /**
@@ -101,7 +101,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 不戴镜百分比
          */
-        private String notWearingRatio;
+        private Float notWearingRatio;
 
         /**
          * 框架眼镜人数
@@ -111,7 +111,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 框架眼镜百分比
          */
-        private String frameGlassesRatio;
+        private Float frameGlassesRatio;
 
         /**
          * 隐形眼镜人数
@@ -121,7 +121,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 隐形眼镜人数百分比
          */
-        private String contactLensRatio;
+        private Float contactLensRatio;
 
         /**
          * 夜戴角膜塑形镜人数
@@ -131,7 +131,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 夜戴角膜塑形镜人数百分比
          */
-        private String orthokeratologyRatio;
+        private Float orthokeratologyRatio;
     }
 
     /**
@@ -247,7 +247,7 @@ public class VisionCorrectionSituationDTO {
         /**
          * 未矫百分比
          */
-        private String uncorrectedRatio;
+        private Float uncorrectedRatio;
 
         /**
          * 欠矫人数
@@ -257,6 +257,6 @@ public class VisionCorrectionSituationDTO {
         /**
          * 欠矫百分比
          */
-        private String underCorrectedRatio;
+        private Float underCorrectedRatio;
     }
 }

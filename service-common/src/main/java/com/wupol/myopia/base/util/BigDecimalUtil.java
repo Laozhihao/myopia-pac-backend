@@ -429,13 +429,13 @@ public class BigDecimalUtil {
         return Objects.equals(isDegree,Boolean.TRUE)? text+"D":text;
     }
 
-    public static String divideRadio(Long val1, Long val2) {
+    public static Float divideRadio(Long val1, Long val2) {
         Assert.notNull(val1, NOT_NULL_MSG);
         Assert.notNull(val2, NOT_NULL_MSG);
         if (BigDecimal.ZERO.compareTo(new BigDecimal(val2)) == 0) {
-            return "0.00";
+            return 0.00F;
         }
         return new BigDecimal(val1).divide(new BigDecimal(val2), 4, RoundingMode.HALF_UP)
-                .multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).toString();
+                .multiply(new BigDecimal(100)).setScale(2, RoundingMode.HALF_UP).floatValue();
     }
 }

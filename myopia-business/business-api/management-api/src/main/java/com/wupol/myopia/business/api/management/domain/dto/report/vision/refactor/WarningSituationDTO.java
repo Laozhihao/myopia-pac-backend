@@ -70,7 +70,7 @@ public class WarningSituationDTO {
         /**
          * 0级预警人数百分比
          */
-        private String zeroWarningRatio;
+        private Float zeroWarningRatio;
 
         /**
          * 1级预警人数
@@ -80,7 +80,7 @@ public class WarningSituationDTO {
         /**
          * 1级预警人数百分比
          */
-        private String oneWarningRatio;
+        private Float oneWarningRatio;
 
         /**
          * 2级预警人数
@@ -90,7 +90,7 @@ public class WarningSituationDTO {
         /**
          * 2级预警人数百分比
          */
-        private String twoWarningRatio;
+        private Float twoWarningRatio;
 
         /**
          * 3级预警人数
@@ -100,7 +100,7 @@ public class WarningSituationDTO {
         /**
          * 3级预警人数百分比
          */
-        private String threeWarningRatio;
+        private Float threeWarningRatio;
     }
 
 }
