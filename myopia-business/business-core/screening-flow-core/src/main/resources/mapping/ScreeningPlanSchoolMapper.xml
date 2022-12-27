@@ -227,4 +227,17 @@
         on p.id = sps.screening_plan_id
     </select>
 
+    <select id="getReleasePlanByScreeningOrgIdAndSchoolId" resultMap="BaseResultMap">
+        select sps.*
+        from m_screening_plan_school sps
+                 left join m_screening_plan p on p.id = sps.screening_plan_id
+        where p.screening_org_id = #{screeningOrgId}
+          and p.release_status = #{releaseStatus}
+          and sps.school_id = #{schoolId}
+          and <![CDATA[ DATE(p.`start_time`) <= DATE(#{currentDate})]]>
+          and <![CDATA[ DATE(p.`end_time`) >= DATE(#{currentDate})]]>
+          and p.screening_type = #{channel}
+        order by create_time desc
+        limit 1
+    </select>
 </mapper>
