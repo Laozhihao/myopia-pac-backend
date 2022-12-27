@@ -53,8 +53,13 @@ public class PrimarySchoolVisionReportService {
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planId, schoolId);
         // 获取年级
-        List<SchoolGrade> gradeList = schoolGradeService.getByIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
-        List<String> gradeCodes = gradeList.stream().filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getGradeCode())).sorted(Comparator.comparing(s -> Integer.valueOf(s.getGradeCode()))).map(SchoolGrade::getGradeCode).collect(Collectors.toList());
+        List<SchoolGrade> gradeList = schoolGradeService.getByIds(planSchoolStudents.stream()
+                .map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
+
+        List<String> gradeCodes = gradeList.stream()
+                .filter(grade -> !GradeCodeEnum.kindergartenSchoolCode().contains(grade.getGradeCode())).
+                sorted(Comparator.comparing(s -> Integer.valueOf(s.getGradeCode())))
+                .map(SchoolGrade::getGradeCode).collect(Collectors.toList());
         Map<Integer, String> gradeMap = gradeList.stream().collect(Collectors.toMap(SchoolGrade::getId, SchoolGrade::getGradeCode));
 
         // 获取班级
