@@ -249,7 +249,7 @@ public class PrimarySchoolVisionReportService {
     /**
      * 矫正统计
      *
-     * @return Long
+     * @return T
      */
     private <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrected(List<StatConclusion> statConclusions, T t) {
         t.setScreeningStudentNum((long) statConclusions.size());
@@ -317,7 +317,7 @@ public class PrimarySchoolVisionReportService {
     /**
      * 近视
      *
-     * @return T
+     * @return Long
      */
     private Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
