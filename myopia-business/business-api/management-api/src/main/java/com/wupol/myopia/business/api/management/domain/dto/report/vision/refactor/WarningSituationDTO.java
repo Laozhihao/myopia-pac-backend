@@ -19,15 +19,27 @@ public class WarningSituationDTO {
      */
     private GradeWarningSituation gradeWarningSituation;
 
+    /**
+     * 年级学生视力预警情况
+     */
     @Getter
     @Setter
     public static class GradeWarningSituation {
 
+        /**
+         * 详情
+         */
         private List<GradeWarningSituationItem> items;
 
-        private Object tables;
+        /**
+         * 表格
+         */
+        private Object table;
     }
 
+    /**
+     * 年级学生视力预警情况
+     */
     @Getter
     @Setter
     public static class GradeWarningSituationItem extends WarningSituation {
@@ -38,7 +50,9 @@ public class WarningSituationDTO {
         private String gradeName;
     }
 
-
+    /**
+     * 生视力预警情况
+     */
     @Getter
     @Setter
     public static class WarningSituation {

@@ -64,6 +64,11 @@ public class PrimarySchoolVisionReportService {
         return reportDTO;
     }
 
+    /**
+     * 生成视力矫正情况
+     *
+     * @return VisionCorrectionSituationDTO
+     */
     private VisionCorrectionSituationDTO generateVisionCorrectionSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes, Map<String, List<SchoolClass>> classMap) {
         VisionCorrectionSituationDTO visionCorrectionSituationDTO = new VisionCorrectionSituationDTO();
         long screeningTotal = statConclusions.size();
@@ -131,14 +136,29 @@ public class PrimarySchoolVisionReportService {
         return visionCorrectionSituationDTO;
     }
 
+    /**
+     * 戴镜统计
+     *
+     * @return Long
+     */
     private Long wearingGlassesCount(List<StatConclusion> statConclusions, Integer glassesType) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getGlassesType(), glassesType)).count();
     }
 
+    /**
+     * 矫正统计
+     *
+     * @return Long
+     */
     private Long underCorrectedAndUncorrectedCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getVisionCorrection(), type)).count();
     }
 
+    /**
+     * 矫正统计
+     *
+     * @return Long
+     */
     private <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrected(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
@@ -149,7 +169,11 @@ public class PrimarySchoolVisionReportService {
         return t;
     }
 
-
+    /**
+     * 屈光情况
+     *
+     * @return RefractiveSituationDTO
+     */
     private RefractiveSituationDTO generateRefractiveSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes, Map<String, List<SchoolClass>> classMap) {
         RefractiveSituationDTO refractiveSituationDTO = new RefractiveSituationDTO();
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
@@ -206,6 +230,11 @@ public class PrimarySchoolVisionReportService {
         return refractiveSituationDTO;
     }
 
+    /**
+     * 屈光情况
+     *
+     * @return T
+     */
     private <T extends RefractiveSituationDTO.RefractiveSituation> T getRefractiveSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
@@ -218,10 +247,20 @@ public class PrimarySchoolVisionReportService {
         return t;
     }
 
+    /**
+     * 近视
+     *
+     * @return T
+     */
     private Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
     }
 
+    /**
+     * 预警情况
+     *
+     * @return WarningSituationDTO
+     */
     private WarningSituationDTO generateWarningSituationDTO(List<StatConclusion> statConclusions, List<String> gradeCodes) {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
@@ -233,11 +272,16 @@ public class PrimarySchoolVisionReportService {
             return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
         }).collect(Collectors.toList());
         gradeWarningSituation.setItems(items);
-        gradeWarningSituation.setTables(null);
+        gradeWarningSituation.setTable(null);
         warningSituationDTO.setGradeWarningSituation(gradeWarningSituation);
         return warningSituationDTO;
     }
 
+    /**
+     * 预警情况
+     *
+     * @return T
+     */
     private <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
@@ -252,6 +296,11 @@ public class PrimarySchoolVisionReportService {
         return t;
     }
 
+    /**
+     * 预警情况统计
+     *
+     * @return Long
+     */
     private Long warningSituationCount(List<StatConclusion> statConclusions, Integer type) {
         return statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), type)).count();
     }

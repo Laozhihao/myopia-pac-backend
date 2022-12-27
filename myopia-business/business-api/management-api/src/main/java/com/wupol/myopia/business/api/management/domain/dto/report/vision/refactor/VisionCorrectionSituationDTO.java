@@ -62,18 +62,27 @@ public class VisionCorrectionSituationDTO {
         private String wearingGlassesRatio;
     }
 
+    /**
+     * 戴镜情况
+     */
     @Getter
     @Setter
     public static class WearingGlasses {
 
+        /**
+         * 戴镜详情
+         */
         private WearingGlassesItem wearingGlassesItem;
 
         /**
          * 表格
          */
-        private Object table;
+        private List<PieChart> table;
     }
 
+    /**
+     * 戴镜详情
+     */
     @Getter
     @Setter
     public static class WearingGlassesItem {
@@ -124,22 +133,34 @@ public class VisionCorrectionSituationDTO {
         private String orthokeratologyRatio;
     }
 
+    /**
+     * 矫正情况
+     */
     @Getter
     @Setter
     public static class CorrectionSituation {
 
+        /**
+         * 矫正情况
+         */
         private UnderCorrectedAndUncorrected underCorrectedAndUncorrected;
 
         /**
          * 表格
          */
-        private Object table;
+        private List<PieChart> table;
     }
 
+    /**
+     * 年级矫正情况
+     */
     @Getter
     @Setter
     public static class GradeUnderCorrectedAndUncorrected {
 
+        /**
+         * 详情
+         */
         private List<GradeUnderCorrectedAndUncorrectedItem> items;
 
         /**
@@ -148,19 +169,35 @@ public class VisionCorrectionSituationDTO {
         private Object table;
     }
 
+    /**
+     * 年级矫正情况
+     */
     @Getter
     @Setter
     public static class GradeUnderCorrectedAndUncorrectedItem extends UnderCorrectedAndUncorrected {
 
+        /**
+         * 年级名称
+         */
         private String gradeName;
     }
 
+    /**
+     * 班级矫正情况
+     */
     @Getter
     @Setter
     public static class ClassUnderCorrectedAndUncorrected {
+
+        /**
+         * 详情
+         */
         private List<ClassUnderCorrectedAndUncorrectedItem> items;
     }
 
+    /**
+     * 班级矫正情况
+     */
     @Getter
     @Setter
     public static class ClassUnderCorrectedAndUncorrectedItem extends UnderCorrectedAndUncorrected {
@@ -177,6 +214,9 @@ public class VisionCorrectionSituationDTO {
         private String className;
     }
 
+    /**
+     * 矫正情况
+     */
     @Getter
     @Setter
     public static class UnderCorrectedAndUncorrected {
