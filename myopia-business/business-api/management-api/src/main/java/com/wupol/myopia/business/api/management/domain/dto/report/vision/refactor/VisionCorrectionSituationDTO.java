@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 视力矫正情况
@@ -202,7 +203,6 @@ public class VisionCorrectionSituationDTO {
     @Setter
     public static class ClassUnderCorrectedAndUncorrectedItem extends UnderCorrectedAndUncorrected {
 
-
         /**
          * 年级名称
          */
@@ -217,6 +217,15 @@ public class VisionCorrectionSituationDTO {
          * rowSpan
          */
         private Integer rowSpan;
+
+        public void setRowSpan(AtomicBoolean isFirst, Integer size) {
+            if (isFirst.get()) {
+                isFirst.set(false);
+                rowSpan = size;
+            } else {
+                rowSpan = 0;
+            }
+        }
     }
 
     /**
