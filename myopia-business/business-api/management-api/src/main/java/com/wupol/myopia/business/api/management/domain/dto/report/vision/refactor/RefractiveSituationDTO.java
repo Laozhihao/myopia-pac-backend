@@ -149,6 +149,11 @@ public class RefractiveSituationDTO {
          * 班级名称
          */
         private String className;
+
+        /**
+         * rowSpan
+         */
+        private Integer rowSpan;
     }
 
     /**
@@ -157,6 +162,11 @@ public class RefractiveSituationDTO {
     @Getter
     @Setter
     public static class GradeRefractiveSituationSummary {
+
+        /**
+         * 名称
+         */
+        private String keyName;
 
         /**
          * 最高年级名称

@@ -212,6 +212,11 @@ public class VisionCorrectionSituationDTO {
          * 班级名称
          */
         private String className;
+
+        /**
+         * rowSpan
+         */
+        private Integer rowSpan;
     }
 
     /**

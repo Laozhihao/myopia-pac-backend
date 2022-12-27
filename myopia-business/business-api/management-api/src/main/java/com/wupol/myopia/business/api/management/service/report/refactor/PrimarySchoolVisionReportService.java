@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -125,11 +126,13 @@ public class PrimarySchoolVisionReportService {
         List<VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrectedItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
             List<SchoolClass> schoolClasses = classMap.get(s);
+            AtomicBoolean isFirst = new AtomicBoolean(true);
             schoolClasses.forEach(schoolClass -> {
                 List<StatConclusion> classStatConclusion = statConclusionClassMap.getOrDefault(s + schoolClass.getName(), new ArrayList<>());
                 VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrectedItem classUnderCorrectedAndUncorrectedItem = new VisionCorrectionSituationDTO.ClassUnderCorrectedAndUncorrectedItem();
                 classUnderCorrectedAndUncorrectedItem.setGradeName(GradeCodeEnum.getDesc(s));
                 classUnderCorrectedAndUncorrectedItem.setClassName(schoolClass.getName());
+                classUnderCorrectedAndUncorrectedItem.setRowSpan(getRowSpan(isFirst, schoolClasses.size()));
                 items.add(getUnderCorrectedAndUncorrected(classStatConclusion, classUnderCorrectedAndUncorrectedItem));
             });
         });
@@ -162,12 +165,11 @@ public class PrimarySchoolVisionReportService {
      * @return Long
      */
     private <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrected(List<StatConclusion> statConclusions, T t) {
-        long screeningTotal = statConclusions.size();
-        t.setScreeningStudentNum(screeningTotal);
+        t.setScreeningStudentNum((long) statConclusions.size());
         t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
-        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), screeningTotal));
+        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
         t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
-        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), screeningTotal));
+        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count()));
         return t;
     }
 
@@ -212,9 +214,9 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituation.setTable3(null);
 
 
-        RefractiveSituationDTO.GradeRefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio);
-        RefractiveSituationDTO.GradeRefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio);
-        RefractiveSituationDTO.GradeRefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio);
+        RefractiveSituationDTO.GradeRefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
+        RefractiveSituationDTO.GradeRefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
+        RefractiveSituationDTO.GradeRefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation, RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
         gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
         refractiveSituationDTO.setGradeRefractiveSituation(gradeRefractiveSituation);
 
@@ -222,11 +224,13 @@ public class PrimarySchoolVisionReportService {
         List<RefractiveSituationDTO.ClassRefractiveSituationItem> items = new ArrayList<>();
         gradeCodes.forEach(s -> {
             List<SchoolClass> schoolClasses = classMap.get(s);
+            AtomicBoolean isFirst = new AtomicBoolean(true);
             schoolClasses.forEach(schoolClass -> {
                 List<StatConclusion> classStatConclusion = statConclusionClassMap.getOrDefault(s + schoolClass.getName(), new ArrayList<>());
                 RefractiveSituationDTO.ClassRefractiveSituationItem classRefractiveSituationItem = new RefractiveSituationDTO.ClassRefractiveSituationItem();
                 classRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 classRefractiveSituationItem.setClassName(schoolClass.getName());
+                classRefractiveSituationItem.setRowSpan(getRowSpan(isFirst, schoolClasses.size()));
                 items.add(getRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
             });
         });
@@ -238,7 +242,8 @@ public class PrimarySchoolVisionReportService {
     }
 
     private RefractiveSituationDTO.GradeRefractiveSituationSummary getGradeRefractiveSituationSummary(RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation,
-                                                                                                      Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> getLowMyopiaRatio) {
+                                                                                                      Function<RefractiveSituationDTO.GradeRefractiveSituationItem, String> getLowMyopiaRatio,
+                                                                                                      String keyName) {
         List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems = gradeRefractiveSituation.getItems();
         RefractiveSituationDTO.GradeRefractiveSituationSummary gradeRefractiveSituationSummary = new RefractiveSituationDTO.GradeRefractiveSituationSummary();
         Map<String, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(getLowMyopiaRatio)));
@@ -248,6 +253,7 @@ public class PrimarySchoolVisionReportService {
         gradeRefractiveSituationSummary.setRadioHigh(tail.getKey());
         gradeRefractiveSituationSummary.setGradeNameLow(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
         gradeRefractiveSituationSummary.setRadioLow(firstKey);
+        gradeRefractiveSituationSummary.setKeyName(keyName);
         return gradeRefractiveSituationSummary;
     }
 
@@ -376,4 +382,17 @@ public class PrimarySchoolVisionReportService {
         return tail;
     }
 
+    /**
+     * 获取行数
+     *
+     * @return Integer
+     */
+    private Integer getRowSpan(AtomicBoolean isFirst, Integer size) {
+        if (isFirst.get()) {
+            isFirst.set(false);
+            return size;
+        } else {
+            return 0;
+        }
+    }
 }
