@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -11,13 +13,10 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 public class MyopiaLevelDTO {
-
-    /**
-     * 维度名称，性别/年级名称/班级名称
-     */
-    private String name;
 
     /**
      * 有效筛查人数
@@ -42,7 +41,7 @@ public class MyopiaLevelDTO {
     /**
      * 低度近视率
      */
-    private String lightMyopiaRatio;
+    private Float lightMyopiaRatio;
 
     /**
      * 中度近视人数
@@ -52,7 +51,7 @@ public class MyopiaLevelDTO {
     /**
      * 中度近视率
      */
-    private String middleMyopiaRatio;
+    private Float middleMyopiaRatio;
 
     /**
      * 高度近视人数
@@ -62,6 +61,6 @@ public class MyopiaLevelDTO {
     /**
      * 高度近视率
      */
-    private String highMyopiaRatio;
+    private Float highMyopiaRatio;
 
 }

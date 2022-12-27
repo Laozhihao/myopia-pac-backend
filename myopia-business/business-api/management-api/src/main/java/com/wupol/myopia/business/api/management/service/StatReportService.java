@@ -1681,4 +1681,28 @@ public class StatReportService {
         }
         return planStudentNum;
     }
+
+    public VisualScreeningReportDTO getSchoolVisualReport(Integer planId, Integer schoolId) {
+
+        ScreeningPlan sp = screeningPlanService.getById(planId);
+
+        List<ScreeningPlanSchoolStudent> screenPlanSchoolStudent = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(planId, schoolId);
+        Map<Integer, Long> planSchoolAgeStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType, Collectors.counting()));
+
+        // 预计需要筛查的学生数
+        long planStudentNum = screenPlanSchoolStudent.size();
+        // 通过筛查数据进行统计
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setPlanId(planId).setSchoolId(schoolId);
+        List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
+        if (CollectionUtil.isEmpty(statConclusions)) {
+            return null;
+        }
+        StatBaseDTO statBase = new StatBaseDTO(statConclusions);
+
+
+        return new VisualScreeningReportDTO();
+    }
+
+
 }

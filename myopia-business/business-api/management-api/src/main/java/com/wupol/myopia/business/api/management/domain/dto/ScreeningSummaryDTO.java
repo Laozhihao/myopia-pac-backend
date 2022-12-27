@@ -115,7 +115,7 @@ public class ScreeningSummaryDTO {
     /**
      * 低度近视率
      */
-    private Float lowMyopiaRatio;
+    private Float lightMyopiaRatio;
 
     /**
      * 高度近视率
@@ -130,7 +130,7 @@ public class ScreeningSummaryDTO {
     /**
      * 预警人数百分比
      */
-    private String warningRatio;
+    private Float warningRatio;
 
     /**
      * 0级预警人数

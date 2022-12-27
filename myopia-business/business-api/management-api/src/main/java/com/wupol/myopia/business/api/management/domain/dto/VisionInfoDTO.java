@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 学生视力情况
@@ -23,18 +22,63 @@ public class VisionInfoDTO {
     private MyopiaLevelDTO general;
 
     /**
+     * 视力不良程度情况
+     */
+    private MyopiaLevelDTO lowVision;
+
+    /**
      * 视力程度情况（性别）
      */
-    private List<MyopiaLevelDTO> genderVision;
+    private List<GenderMyopiaLevel> genderVision;
+
+    /**
+     * 性别视力情况总结
+     */
+    private List<SummaryDTO> genderVisionSummary;
 
     /**
      * 视力程度情况（年级）
      */
-    private List<MyopiaLevelDTO> gradeVision;
+    private List<StudentMyopiaLevel> gradeVision;
+
+    /**
+     * 年级视力总结
+     */
+    private SummaryDTO gradeVisionSummary;
 
     /**
      * 视力程度情况（班级）
      */
-    private Map<String, List<MyopiaInfoDTO>> classVision;
+    private List<StudentMyopiaLevel> classVision;
+
+    @Data
+    public static class GenderMyopiaLevel extends MyopiaLevelDTO {
+
+        /**
+         * 性别：男/女
+         */
+        private String gender;
+
+    }
+
+    @Data
+    public static class StudentMyopiaLevel extends MyopiaLevelDTO {
+
+        /**
+         * 年级名称
+         */
+        private String gradeName;
+
+        /**
+         * 班级名称
+         */
+        private String className;
+
+        /**
+         * rowSpan
+         */
+        private Integer rowSpan;
+
+    }
 
 }

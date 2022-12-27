@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -11,13 +13,10 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 public class GenderMyopiaInfoDTO {
-
-    /**
-     * 维度名称，年级名称/班级名称
-     */
-    private String name;
 
     /**
      * 有效筛查人数
@@ -47,7 +46,7 @@ public class GenderMyopiaInfoDTO {
     /**
      * 近视率（男）
      */
-    private Long maleMyopiaRatio;
+    private Float maleMyopiaRatio;
 
     /**
      * 有效筛查人数（女）
@@ -62,6 +61,6 @@ public class GenderMyopiaInfoDTO {
     /**
      * 近视率（女）
      */
-    private Long femaleMyopiaRatio;
+    private Float femaleMyopiaRatio;
 
 }
