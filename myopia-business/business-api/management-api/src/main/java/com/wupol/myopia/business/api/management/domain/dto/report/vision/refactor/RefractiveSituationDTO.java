@@ -1,10 +1,23 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
+import com.google.common.collect.Lists;
+import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.MapUtils;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 屈光情况
@@ -14,6 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Getter
 @Setter
 public class RefractiveSituationDTO {
+
+    private final static String TOTAL_DESC = "总体情况";
 
     /**
      * 信息
@@ -46,6 +61,12 @@ public class RefractiveSituationDTO {
          * 屈光不正人数
          */
         private Long refractiveErrorNum;
+
+        public static RefractiveSituationInfo getInstance(List<StatConclusion> statConclusions) {
+            RefractiveSituationDTO.RefractiveSituationInfo refractiveSituationInfo = new RefractiveSituationDTO.RefractiveSituationInfo();
+            refractiveSituationInfo.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
+            return refractiveSituationInfo;
+        }
     }
 
     /**
@@ -71,6 +92,26 @@ public class RefractiveSituationDTO {
          * 女生
          */
         private List<PieChart> table3;
+
+        public static GenderRefractiveSituation getInstance(List<StatConclusion> statConclusions) {
+            RefractiveSituationDTO.GenderRefractiveSituation genderRefractiveSituation = new RefractiveSituationDTO.GenderRefractiveSituation();
+            Map<Integer, List<StatConclusion>> genderStatConclusion = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
+            List<RefractiveSituationDTO.RefractiveSituationItem> genderList = GenderEnum.genderList().stream().map(s -> {
+                List<StatConclusion> genderStatConclusionList = genderStatConclusion.getOrDefault(s.type, new ArrayList<>());
+                RefractiveSituationDTO.RefractiveSituationItem refractiveSituation = new RefractiveSituationDTO.RefractiveSituationItem();
+                refractiveSituation.setGenderName(s.desc);
+                getRefractiveSituation(genderStatConclusionList, refractiveSituation);
+                return refractiveSituation;
+            }).collect(Collectors.toList());
+            RefractiveSituationDTO.RefractiveSituationItem totalRefractiveSituationItem = new RefractiveSituationDTO.RefractiveSituationItem();
+            totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
+            genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
+            genderRefractiveSituation.setItems(genderList);
+            genderRefractiveSituation.setTable1(null);
+            genderRefractiveSituation.setTable2(null);
+            genderRefractiveSituation.setTable3(null);
+            return genderRefractiveSituation;
+        }
 
     }
 
@@ -120,6 +161,24 @@ public class RefractiveSituationDTO {
          */
         private List<RefractiveSituationSummary> summary;
 
+        public static GradeRefractiveSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
+            RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation = new RefractiveSituationDTO.GradeRefractiveSituation();
+            gradeRefractiveSituation.setItems(gradeCodes.stream().map(s -> {
+                List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
+                RefractiveSituationDTO.GradeRefractiveSituationItem gradeRefractiveSituationItem = new RefractiveSituationDTO.GradeRefractiveSituationItem();
+                gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
+                return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
+            }).collect(Collectors.toList()));
+            gradeRefractiveSituation.setTable1(null);
+            gradeRefractiveSituation.setTable2(null);
+            gradeRefractiveSituation.setTable3(null);
+            RefractiveSituationDTO.RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
+            RefractiveSituationDTO.RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
+            RefractiveSituationDTO.RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
+            gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
+            return gradeRefractiveSituation;
+        }
+
     }
 
     /**
@@ -146,6 +205,25 @@ public class RefractiveSituationDTO {
          * 详情
          */
         private List<ClassRefractiveSituationItem> items;
+
+        public static ClassRefractiveSituation getInstance(List<String> gradeCodes, Map<String, List<SchoolClass>> classMap, Map<String, List<StatConclusion>> statConclusionClassMap) {
+            RefractiveSituationDTO.ClassRefractiveSituation classRefractiveSituation = new RefractiveSituationDTO.ClassRefractiveSituation();
+            List<RefractiveSituationDTO.ClassRefractiveSituationItem> items = new ArrayList<>();
+            gradeCodes.forEach(s -> {
+                List<SchoolClass> schoolClasses = classMap.get(s);
+                AtomicBoolean isFirst = new AtomicBoolean(true);
+                schoolClasses.forEach(schoolClass -> {
+                    List<StatConclusion> classStatConclusion = statConclusionClassMap.getOrDefault(s + schoolClass.getName(), new ArrayList<>());
+                    RefractiveSituationDTO.ClassRefractiveSituationItem classRefractiveSituationItem = new RefractiveSituationDTO.ClassRefractiveSituationItem();
+                    classRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
+                    classRefractiveSituationItem.setClassName(schoolClass.getName());
+                    classRefractiveSituationItem.setRowSpan(isFirst, schoolClasses.size());
+                    items.add(getRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
+                });
+            });
+            classRefractiveSituation.setItems(items);
+            return classRefractiveSituation;
+        }
     }
 
     /**
@@ -254,6 +332,50 @@ public class RefractiveSituationDTO {
          * 散光百分比
          */
         private Float astigmatismRatio;
+    }
+
+    /**
+     * 屈光情况
+     *
+     * @return T
+     */
+    private static <T extends RefractiveSituationDTO.RefractiveSituation> T getRefractiveSituation(List<StatConclusion> statConclusions, T t) {
+        long screeningTotal = statConclusions.size();
+        t.setScreeningStudentNum(screeningTotal);
+        t.setLowMyopiaNum(myopiaLevelCount(statConclusions, MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code));
+        t.setLowMyopiaRatio(BigDecimalUtil.divideRadio(t.getLowMyopiaNum(), screeningTotal));
+        t.setHighMyopiaNum(myopiaLevelCount(statConclusions, MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code));
+        t.setHighMyopiaRatio(BigDecimalUtil.divideRadio(t.getHighMyopiaNum(), screeningTotal));
+        t.setAstigmatismNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
+        t.setAstigmatismRatio(BigDecimalUtil.divideRadio(t.getAstigmatismNum(), screeningTotal));
+        return t;
+    }
+
+    /**
+     * 近视
+     *
+     * @return Long
+     */
+    private static Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
+        return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
+    }
+
+    /**
+     * 总结
+     *
+     * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
+     */
+    private static RefractiveSituationDTO.RefractiveSituationSummary getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
+        RefractiveSituationDTO.RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationDTO.RefractiveSituationSummary();
+        Map<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
+        Float firstKey = MapUtils.getFirstKey(sortMap);
+        Map.Entry<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = MapUtils.getLastKey(sortMap);
+        refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        refractiveSituationSummary.setHighRadio(tail.getKey());
+        refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(RefractiveSituationDTO.GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+        refractiveSituationSummary.setLowRadio(firstKey);
+        refractiveSituationSummary.setKeyName(keyName);
+        return refractiveSituationSummary;
     }
 
 }
