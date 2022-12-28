@@ -63,7 +63,7 @@ public class RefractiveSituationDTO {
         private Long refractiveErrorNum;
 
         public static RefractiveSituationInfo getInstance(List<StatConclusion> statConclusions) {
-            RefractiveSituationDTO.RefractiveSituationInfo refractiveSituationInfo = new RefractiveSituationDTO.RefractiveSituationInfo();
+            RefractiveSituationInfo refractiveSituationInfo = getRefractiveSituation(statConclusions, new RefractiveSituationInfo());
             refractiveSituationInfo.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
             return refractiveSituationInfo;
         }
