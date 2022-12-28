@@ -68,9 +68,9 @@ public class PrimarySchoolVisionReportService {
 
         PrimarySchoolVisionReportDTO reportDTO = new PrimarySchoolVisionReportDTO();
 
-        reportDTO.setVisionCorrectionSituationDTO(generateVisionCorrectionSituationDTO(statConclusions, gradeCodes, classMap));
-        reportDTO.setRefractiveSituationDTO(generateRefractiveSituationDTO(statConclusions, gradeCodes, classMap));
-        reportDTO.setWarningSituationDTO(generateWarningSituationDTO(statConclusions, gradeCodes));
+        reportDTO.setVisionCorrectionSituation(generateVisionCorrectionSituationDTO(statConclusions, gradeCodes, classMap));
+        reportDTO.setRefractiveSituation(generateRefractiveSituationDTO(statConclusions, gradeCodes, classMap));
+        reportDTO.setWarningSituation(generateWarningSituationDTO(statConclusions, gradeCodes));
         return reportDTO;
     }
 

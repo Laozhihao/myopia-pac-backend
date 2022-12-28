@@ -15,15 +15,15 @@ public class PrimarySchoolVisionReportDTO {
     /**
      * 视力矫正情况
      */
-    private VisionCorrectionSituationDTO visionCorrectionSituationDTO;
+    private VisionCorrectionSituationDTO visionCorrectionSituation;
 
     /**
      * 屈光情况
      */
-    private RefractiveSituationDTO refractiveSituationDTO;
+    private RefractiveSituationDTO refractiveSituation;
 
     /**
      * 预警情况
      */
-    private WarningSituationDTO warningSituationDTO;
+    private WarningSituationDTO warningSituation;
 }
