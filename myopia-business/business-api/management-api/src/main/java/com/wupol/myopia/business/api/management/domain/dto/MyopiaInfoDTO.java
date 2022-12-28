@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,7 +11,6 @@ import java.util.List;
  * @Date 2022/12/26 12:27
  */
 @Data
-@Builder
 @Accessors(chain = true)
 public class MyopiaInfoDTO {
 
@@ -47,6 +45,7 @@ public class MyopiaInfoDTO {
     private List<StudentGenderMyopia> classMyopia;
 
     @Data
+    @Accessors(chain = true)
     public static class StudentGenderMyopia extends GenderMyopiaInfoDTO {
 
         /**
@@ -63,6 +62,7 @@ public class MyopiaInfoDTO {
          * rowSpan
          */
         private Integer rowSpan;
+
     }
 
 }

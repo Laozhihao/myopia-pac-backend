@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.*;
@@ -1685,9 +1686,14 @@ public class StatReportService {
     public VisualScreeningReportDTO getSchoolVisualReport(Integer planId, Integer schoolId) {
 
         ScreeningPlan sp = screeningPlanService.getById(planId);
+        School school = schoolService.getById(schoolId);
 
         List<ScreeningPlanSchoolStudent> screenPlanSchoolStudent = screeningPlanSchoolStudentService.getByScreeningPlanIdAndSchoolId(planId, schoolId);
-        Map<Integer, Long> planSchoolAgeStudentMap = screenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeType, Collectors.counting()));
+        // 过滤幼儿园
+        List<ScreeningPlanSchoolStudent> validScreenPlanSchoolStudent = screenPlanSchoolStudent.stream().filter(student -> !SchoolAge.KINDERGARTEN.code.equals(student.getGradeType())).collect(Collectors.toList());
+        // 获取按年级分数据,按班级分数据
+        Map<Integer, List<ScreeningPlanSchoolStudent>> gradeStudentMap = validScreenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
+        Map<Integer, List<ScreeningPlanSchoolStudent>> classStudentMap = validScreenPlanSchoolStudent.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
 
         // 预计需要筛查的学生数
         long planStudentNum = screenPlanSchoolStudent.size();
@@ -1698,11 +1704,115 @@ public class StatReportService {
         if (CollectionUtil.isEmpty(statConclusions)) {
             return null;
         }
-        StatBaseDTO statBase = new StatBaseDTO(statConclusions);
+        // 过滤掉幼儿园数据
+        List<StatConclusion> vaildStatConclusions = statConclusions.stream().filter(stat -> !SchoolAge.KINDERGARTEN.code.equals(stat.getSchoolAge())).collect(Collectors.toList());
+        StatBaseDTO statBase = new StatBaseDTO(vaildStatConclusions);
 
+        StatGenderDTO statGender = new StatGenderDTO(statBase.getValid());
 
         return new VisualScreeningReportDTO();
     }
 
+    /**
+     * 获取报告总述信息
+     * @param sp
+     * @param school
+     * @param statBase
+     * @param planScreeningNum
+     * @return
+     */
+    public ScreeningSummaryDTO getScreeningSummary(ScreeningPlan sp, School school, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
+
+        // 按预警等级分类，计算预警人数
+        List<StatConclusion> valid = statBase.getValid();
+        int validSize = valid.size();
+        Map<Integer, Long> warningLevelMap = valid.stream().filter(s->Objects.nonNull(s.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
+        long warningNum = warningLevelMap.keySet().stream().filter(WarningLevel::isWarning).mapToLong(x -> warningLevelMap.getOrDefault(x, 0L)).sum();
+
+        // 视力不良人数
+        long lowVisionNum = valid.stream().filter(StatConclusion::getIsLowVision).count();
+        // 近视人数
+        long myopiaNum = valid.stream().filter(StatConclusion::getIsMyopia).count();
+
+        return ScreeningSummaryDTO.builder()
+                .schoolName(school.getName())
+                .schoolDistrict(districtService.getDistrictName(school.getDistrictDetail()))
+                .reportTime(new Date())
+                .startTime(sp.getStartTime())
+                .endTime(sp.getEndTime())
+                .gradeNum(gradeNum)
+                .classNum(classNum)
+                .planScreeningNum(planScreeningNum)
+                .unscreenedNum(planScreeningNum - statBase.getFirstScreen().size())
+                .invalidScreeningNum(statBase.getFirstScreen().size() - validSize)
+                .validScreeningNum(validSize)
+                .maleValidScreeningNum(statGender.getMale().size())
+                .femaleValidScreeningNum(statGender.getFemale().size())
+                .averageVision(convertToPercentage(averageVision(valid).floatValue()))
+                .lowVisionNum(lowVisionNum)
+                .lowVisionRatio(convertToPercentage(lowVisionNum * 1.0f / validSize))
+                .myopiaNum(myopiaNum)
+                .myopiaRatio(convertToPercentage(myopiaNum * 1.0f / validSize))
+                .uncorrectedRatio(convertToPercentage(valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f / myopiaNum))
+                .underCorrectedRatio(valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f /
+                        valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count())
+                .lightMyopiaRatio(convertToPercentage(valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count() * 1.0f / validSize))
+                .highMyopiaRatio(convertToPercentage(valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count() * 1.0f / validSize))
+                .warningNum(warningNum)
+                .warningRatio(convertToPercentage(warningNum * 1.0f / validSize))
+                .warningLevelZeroNum(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) + warningLevelMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L))
+                .warningLevelOneNum(warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L))
+                .warningLevelTwoNum(warningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L))
+                .warningLevelThreeNum(warningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L))
+                .build();
+
+    }
+
+    /**
+     * 平均视力
+     * @param valid
+     * @return
+     */
+    public BigDecimal averageVision(List<StatConclusion> valid) {
+        // 去除夜戴角膜塑形镜的无法视力数据
+        List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
+        BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return visionNum.divide(new BigDecimal(valid.size() * 2));
+    }
+
+    /**
+     * 学生近视情况
+     * @param valid
+     * @param statGender
+     * @param summary
+     * @return
+     */
+    public MyopiaInfoDTO getMyopiaInfo(List<StatConclusion> valid, StatGenderDTO statGender, ScreeningSummaryDTO summary) {
+        ThreeTuple<List<MyopiaDTO>, Float, Float> genderMyopia = getGenderMyopia(statGender, summary);
+        return new MyopiaInfoDTO();
+    }
+
+    /**
+     * 获取不同性别学生近视情况
+     * @param statGender
+     * @param summary
+     * @return 不同性别近视情况，男生占总体近视率，女生占总体近视率
+     */
+    public ThreeTuple<List<MyopiaDTO>, Float, Float> getGenderMyopia(StatGenderDTO statGender, ScreeningSummaryDTO summary) {
+
+        int maleNum = statGender.getMale().size();
+        int femaleNum = statGender.getFemale().size();
+
+        long maleMyopiaNum = statGender.getMale().stream().filter(StatConclusion::getIsMyopia).count();
+        long femaleMyopiaNum = statGender.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
+
+        MyopiaDTO male = MyopiaDTO.getInstance(maleNum, "男", maleMyopiaNum, convertToPercentage(maleMyopiaNum * 1.0f / maleNum));
+        MyopiaDTO female = MyopiaDTO.getInstance(femaleNum, "女", femaleMyopiaNum, convertToPercentage(femaleMyopiaNum * 1.0f / femaleNum));
+        MyopiaDTO total = MyopiaDTO.getInstance(summary.getValidScreeningNum(), "总体情况", summary.getMyopiaNum(), summary.getMyopiaRatio());
+
+        return new ThreeTuple<>(Arrays.asList(male, female, total),
+                convertToPercentage(maleMyopiaNum * 1.0f / summary.getValidScreeningNum()),
+                convertToPercentage(femaleMyopiaNum * 1.0f / summary.getValidScreeningNum()));
+    }
 
 }

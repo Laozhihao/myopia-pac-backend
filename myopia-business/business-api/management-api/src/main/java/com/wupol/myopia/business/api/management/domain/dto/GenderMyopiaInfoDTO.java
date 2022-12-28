@@ -21,12 +21,12 @@ public class GenderMyopiaInfoDTO {
     /**
      * 有效筛查人数
      */
-    private Long validScreeningNum;
+    private int validScreeningNum;
 
     /**
      * 近视人数
      */
-    private Long myopiaNum;
+    private int myopiaNum;
 
     /**
      * 近视率
@@ -36,12 +36,12 @@ public class GenderMyopiaInfoDTO {
     /**
      * 有效筛查人数（男）
      */
-    private Long maleNum;
+    private int maleNum;
 
     /**
      * 近视人数（男）
      */
-    private Long maleMyopiaNum;
+    private int maleMyopiaNum;
 
     /**
      * 近视率（男）
@@ -51,12 +51,12 @@ public class GenderMyopiaInfoDTO {
     /**
      * 有效筛查人数（女）
      */
-    private Long femaleNum;
+    private int femaleNum;
 
     /**
      * 近视人数（女）
      */
-    private Long femaleMyopiaNum;
+    private int femaleMyopiaNum;
 
     /**
      * 近视率（女）

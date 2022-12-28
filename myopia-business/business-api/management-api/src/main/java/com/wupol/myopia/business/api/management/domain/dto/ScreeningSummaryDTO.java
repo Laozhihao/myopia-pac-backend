@@ -55,32 +55,32 @@ public class ScreeningSummaryDTO {
     /**
      * 计划筛查人数
      */
-    private Long planScreeningNum;
+    private Integer planScreeningNum;
 
     /**
      * 未筛查人数
      */
-    private Long unscreenedNum;
+    private Integer unscreenedNum;
 
     /**
      * 无效筛查人数
      */
-    private Long invalidScreeningNum;
+    private Integer invalidScreeningNum;
 
     /**
      * 有效筛查人数
      */
-    private Long validScreeningNum;
+    private Integer validScreeningNum;
 
     /**
      * 有效筛查人数（男）
      */
-    private Long maleValidScreeningNum;
+    private Integer maleValidScreeningNum;
 
     /**
      * 有效筛查人数（女）
      */
-    private Long femaleValidScreeningNum;
+    private Integer femaleValidScreeningNum;
 
     /**
      * 平均视力
@@ -96,6 +96,11 @@ public class ScreeningSummaryDTO {
      * 视力不良率
      */
     private Float lowVisionRatio;
+
+    /**
+     * 近视人数
+     */
+    private Long myopiaNum;
 
     /**
      * 近视率
@@ -135,21 +140,21 @@ public class ScreeningSummaryDTO {
     /**
      * 0级预警人数
      */
-    private long warningLevelZeroNum;
+    private Long warningLevelZeroNum;
 
     /**
      * 1级预警人数
      */
-    private long warningLevelOneNum;
+    private Long warningLevelOneNum;
 
     /**
      * 2级预警人数
      */
-    private long warningLevelTwoNum;
+    private Long warningLevelTwoNum;
 
     /**
      * 3级预警人数
      */
-    private long warningLevelThreeNum;
+    private Long warningLevelThreeNum;
 
 }

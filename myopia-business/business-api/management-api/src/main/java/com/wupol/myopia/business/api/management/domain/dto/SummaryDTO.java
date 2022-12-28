@@ -1,5 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 /**
@@ -7,31 +11,34 @@ import java.util.List;
  * @Author wulizhou
  * @Date 2022/12/27 17:18
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SummaryDTO {
 
     /**
-     * 类型
+     * 名称
      */
     private String keyName;
 
     /**
-     * 高占比项名称
+     * 最高名称
      */
-    private List<String> itemNameHigh;
+    private List<String> highName;
 
     /**
-     * 占比（高）
+     * 最高百分比
      */
-    private String radioHigh;
+    private Float highRadio;
 
     /**
-     * 低占比项名称
+     * 最低名称
      */
-    private List<String> itemNameLow;
+    private List<String> lowName;
 
     /**
-     * 占比（低）
+     * 最低百分比
      */
-    private String radioLow;
+    private Float lowRadio;
 
 }
