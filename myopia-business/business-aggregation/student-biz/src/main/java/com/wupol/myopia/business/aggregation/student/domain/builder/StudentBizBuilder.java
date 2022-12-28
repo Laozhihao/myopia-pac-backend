@@ -7,6 +7,7 @@ import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import lombok.experimental.UtilityClass;
@@ -537,16 +539,22 @@ public class StudentBizBuilder {
         VisionDataDO visionData = result.getVisionData();
 
         // 左眼
-        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getLeftEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getLeftEyeData())
-                && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), visionData.getLeftEyeData().getNakedVision())) {
-            left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), age, visionData.getLeftEyeData().getNakedVision()));
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getLeftEyeData()) && Objects.nonNull(computerOptometry.getLeftEyeData()) && ObjectsUtil.allNotNull(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), visionData.getLeftEyeData().getNakedVision())) {
+            if (GlassesTypeEnum.ORTHOKERATOLOGY.getCode().equals(EyeDataUtil.glassesType(result))) {
+                left.setMyopia(true);
+            } else {
+                left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), age, visionData.getLeftEyeData().getNakedVision()));
+            }
             left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         }
 
         // 右眼
-        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) && Objects.nonNull(computerOptometry) && Objects.nonNull(computerOptometry.getRightEyeData())
-                && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision())) {
-            right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), age, visionData.getRightEyeData().getNakedVision()));
+        if (Objects.nonNull(visionData) && Objects.nonNull(visionData.getRightEyeData()) && Objects.nonNull(computerOptometry.getRightEyeData()) && ObjectsUtil.allNotNull(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision())) {
+            if (GlassesTypeEnum.ORTHOKERATOLOGY.getCode().equals(EyeDataUtil.glassesType(result))) {
+                right.setMyopia(true);
+            } else {
+                right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), age, visionData.getRightEyeData().getNakedVision()));
+            }
             right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         }
 

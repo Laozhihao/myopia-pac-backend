@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -35,6 +36,10 @@ public class SchoolVisionStatisticBuilder {
 
         Integer bindMpNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getIsBindMp()) && s.getIsBindMp()).count();
         Integer reviewNumber = (int) statConclusions.stream().filter(s -> Objects.nonNull(s.getReportId())).count();
+
+        // 小学以上人数
+        Integer primaryAbove = (int) statConclusions.stream().filter(s -> !SchoolAge.KINDERGARTEN.getCode().equals(s.getSchoolAge())).count();
+
         // 近视等级人数
         Map<Integer, Long> myopiaLevelMap = statConclusions.stream().filter(stat -> Objects.nonNull(stat.getMyopiaLevel())).collect(Collectors.groupingBy(StatConclusion::getMyopiaLevel, Collectors.counting()));
         // 预警人群、建议就诊使用所有筛查数据（有效、无效）
@@ -54,7 +59,8 @@ public class SchoolVisionStatisticBuilder {
                 .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(school.getDistrictId())
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision).setScale(2, RoundingMode.HALF_UP)).setAvgRightVision(BigDecimal.valueOf(avgRightVision).setScale(2, RoundingMode.HALF_UP))
                 .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
-                .setMyopiaNumbers(myopiaNumber).setMyopiaRatio(MathUtil.divide(myopiaNumber, validScreeningNumbers))
+                .setMyopiaNumbers(myopiaNumber)
+                .setMyopiaRatio(MathUtil.divide(myopiaNumber, primaryAbove))
                 .setAmetropiaNumbers(ametropiaNumber).setAmetropiaRatio(MathUtil.divide(ametropiaNumber, validScreeningNumbers))
                 .setLowVisionNumbers(lowVisionNumber).setLowVisionRatio(MathUtil.divide(lowVisionNumber, validScreeningNumbers))
                 .setVisionLabel0Numbers(visionLabel0Numbers + visionLabelZeroSPNumbers).setVisionLabel0Ratio(MathUtil.divide(visionLabel0Numbers + visionLabelZeroSPNumbers, validScreeningNumbers))

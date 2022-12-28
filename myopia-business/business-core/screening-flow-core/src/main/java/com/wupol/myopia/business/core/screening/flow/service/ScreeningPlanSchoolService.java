@@ -322,4 +322,16 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
     public List<ScreeningPlanSchool> listBySchoolIdAndOrgId(Integer schoolId,Integer orgId,Integer screeningType) {
        return baseMapper.listBySchoolIdAndOrgId(schoolId,orgId,screeningType,new Date());
     }
+
+    /**
+     * 通过学校、机构Id获取计划学校
+     *
+     * @param screeningOrgId 机构Id
+     * @param schoolId       学校Id
+     *
+     * @return ScreeningPlanSchool
+     */
+    public ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(Integer screeningOrgId, Integer schoolId, Integer channel) {
+        return baseMapper.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), schoolId, channel);
+    }
 }
