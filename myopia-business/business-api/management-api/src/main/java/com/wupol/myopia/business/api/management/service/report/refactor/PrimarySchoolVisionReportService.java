@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +46,9 @@ public class PrimarySchoolVisionReportService {
 
     @Resource
     private SchoolClassService schoolClassService;
+
+    @Resource
+    private ThreadPoolTaskExecutor executor;
 
     public PrimarySchoolVisionReportDTO primarySchoolVisionReport(Integer planId, Integer schoolId) {
         List<StatConclusion> statConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> Objects.equals(s.getIsValid(), Boolean.TRUE)).filter(s -> !Objects.equals(SchoolAge.KINDERGARTEN.getCode(), s.getSchoolAge())).sorted(Comparator.comparing(s -> Integer.valueOf(s.getSchoolGradeCode()))).collect(Collectors.toList());
@@ -69,9 +74,22 @@ public class PrimarySchoolVisionReportService {
 
         PrimarySchoolVisionReportDTO reportDTO = new PrimarySchoolVisionReportDTO();
 
-        reportDTO.setVisionCorrectionSituation(generateVisionCorrectionSituationDTO(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap));
-        reportDTO.setRefractiveSituation(generateRefractiveSituationDTO(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap));
-        reportDTO.setWarningSituation(generateWarningSituationDTO(gradeCodes, statConclusionGradeMap));
+        CompletableFuture<VisionCorrectionSituationDTO> c1 = CompletableFuture.supplyAsync(() -> {
+            VisionCorrectionSituationDTO visionCorrectionSituationDTO = generateVisionCorrectionSituationDTO(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap);
+            reportDTO.setVisionCorrectionSituation(visionCorrectionSituationDTO);
+            return visionCorrectionSituationDTO;
+        }, executor);
+        CompletableFuture<RefractiveSituationDTO> c2 = CompletableFuture.supplyAsync(() -> {
+            RefractiveSituationDTO refractiveSituationDTO = generateRefractiveSituationDTO(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap);
+            reportDTO.setRefractiveSituation(refractiveSituationDTO);
+            return refractiveSituationDTO;
+        }, executor);
+        CompletableFuture<WarningSituationDTO> c3 = CompletableFuture.supplyAsync(() -> {
+            WarningSituationDTO warningSituation = generateWarningSituationDTO(gradeCodes, statConclusionGradeMap);
+            reportDTO.setWarningSituation(warningSituation);
+            return warningSituation;
+        }, executor);
+        CompletableFuture.allOf(c1, c2, c3).join();
         return reportDTO;
     }
 
