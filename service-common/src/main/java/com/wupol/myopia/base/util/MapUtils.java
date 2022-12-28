@@ -55,12 +55,12 @@ public class MapUtils {
      *
      * @return Map.Entry<K, V>
      */
-    public static <K, V> Map.Entry<K, V> getLastKey(Map<K, V> map) {
+    public static <K, V> Map.Entry<K, V> getLastEntry(Map<K, V> map) {
         Iterator<Map.Entry<K, V>> iterator = map.entrySet().iterator();
-        Map.Entry<K, V> tail = null;
+        Map.Entry<K, V> last = null;
         while (iterator.hasNext()) {
-            tail = iterator.next();
+            last = iterator.next();
         }
-        return tail;
+        return last;
     }
 }
