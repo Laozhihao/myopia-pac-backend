@@ -300,8 +300,16 @@ public class ReportController {
         return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId));
     }
 
-    @GetMapping("/test")
-    public ApiResult<PrimarySchoolVisionReportDTO> test(Integer planId, Integer schoolId) {
+    /**
+     * 重构报告-中小学
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     *
+     * @return ApiResult<PrimarySchoolVisionReportDTO>
+     */
+    @GetMapping("/refactor/school/primary")
+    public ApiResult<PrimarySchoolVisionReportDTO> refactorPrimarySchoolVisionReport(Integer planId, Integer schoolId) {
         return ApiResult.success(primarySchoolVisionReportService.primarySchoolVisionReport(planId, schoolId));
     }
 }

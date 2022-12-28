@@ -159,3 +159,4 @@ white-list:
   - "/management/report/districtCommonDiseaseReport"
   - "/management/report/schoolCommonDiseaseReport"
   - "/api/device/uploadFundus"
+  - "/management/report/refactor/school/primary"
