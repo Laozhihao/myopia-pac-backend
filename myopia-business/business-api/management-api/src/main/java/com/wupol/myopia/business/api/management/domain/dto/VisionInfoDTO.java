@@ -1,7 +1,9 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -25,6 +27,11 @@ public class VisionInfoDTO {
      * 视力不良程度情况
      */
     private MyopiaLevelDTO lowVision;
+
+    /**
+     * 视力不良总结
+     */
+    private LowVisionSummary lowVisionSummary;
 
     /**
      * 视力程度情况（性别）
@@ -52,6 +59,7 @@ public class VisionInfoDTO {
     private List<StudentMyopiaLevel> classVision;
 
     @Data
+    @Accessors(chain = true)
     public static class GenderMyopiaLevel extends MyopiaLevelDTO {
 
         /**
@@ -59,9 +67,15 @@ public class VisionInfoDTO {
          */
         private String gender;
 
+        public static GenderMyopiaLevel getInstance(String gender) {
+            GenderMyopiaLevel genderMyopiaLevel = new GenderMyopiaLevel();
+            return genderMyopiaLevel.setGender(gender);
+        }
+
     }
 
     @Data
+    @Accessors(chain = true)
     public static class StudentMyopiaLevel extends MyopiaLevelDTO {
 
         /**
@@ -78,6 +92,42 @@ public class VisionInfoDTO {
          * rowSpan
          */
         private Integer rowSpan;
+
+        /**
+         * 获取以年级为维度的对象
+         * @param gradeName
+         * @return
+         */
+        public static StudentMyopiaLevel getGradeInstance(String gradeName) {
+            StudentMyopiaLevel gradeMyopiaLevel = new StudentMyopiaLevel();
+            return gradeMyopiaLevel.setGradeName(gradeName).setRowSpan(1);
+        }
+
+        /**
+         * 获取以班级为维度的对象
+         * @param gradeName
+         * @param className
+         * @return
+         */
+        public static StudentMyopiaLevel getClassInstance(String gradeName, String className) {
+            StudentMyopiaLevel classMyopiaLevel = new StudentMyopiaLevel();
+            return classMyopiaLevel.setGradeName(gradeName).setClassName(className).setRowSpan(0);
+        }
+
+    }
+
+    /**
+     * 视力不良总结
+     */
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LowVisionSummary extends SummaryDTO {
+
+        /**
+         * 占视力不良总人数比
+         */
+        private Float lowVisionRatio;
 
     }
 

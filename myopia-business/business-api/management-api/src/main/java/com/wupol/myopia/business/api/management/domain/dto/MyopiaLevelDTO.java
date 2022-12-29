@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,12 +22,12 @@ public class MyopiaLevelDTO {
     /**
      * 有效筛查人数
      */
-    private Long validScreeningNum;
+    private Integer validScreeningNum;
 
     /**
      * 视力不良人数
      */
-    private Long lowVisionNum;
+    private Integer lowVisionNum;
 
     /**
      * 视力不良率
@@ -36,7 +37,7 @@ public class MyopiaLevelDTO {
     /**
      * 低度近视人数
      */
-    private Long lightMyopiaNum;
+    private Integer lightMyopiaNum;
 
     /**
      * 低度近视率
@@ -46,7 +47,7 @@ public class MyopiaLevelDTO {
     /**
      * 中度近视人数
      */
-    private Long middleMyopiaNum;
+    private Integer middleMyopiaNum;
 
     /**
      * 中度近视率
@@ -56,11 +57,56 @@ public class MyopiaLevelDTO {
     /**
      * 高度近视人数
      */
-    private Long highMyopiaNum;
+    private Integer highMyopiaNum;
 
     /**
      * 高度近视率
      */
     private Float highMyopiaRatio;
+
+    public void empty() {
+        setValidScreeningNum(0);
+        setLowVisionNum(0);
+        setLowVisionRatio(0.0f);
+        setLightMyopiaNum(0);
+        setLightMyopiaRatio(0.0f);
+        setMiddleMyopiaNum(0);
+        setMiddleMyopiaRatio(0.0f);
+        setHighMyopiaNum(0);
+        setHighMyopiaRatio(0.0f);
+    }
+
+    /**
+     * 生成视力情况(全局比例)
+     * @param validScreeningNum
+     * @param lowVisionNum
+     * @param lightMyopiaNum
+     * @param middleMyopiaNum
+     * @param highMyopiaNum
+     */
+    public void generateData(int validScreeningNum, int lowVisionNum, int lightMyopiaNum, int middleMyopiaNum, int highMyopiaNum) {
+        generateData(validScreeningNum, lowVisionNum, lightMyopiaNum, middleMyopiaNum, highMyopiaNum, true);
+    }
+
+    /**
+     * 生成视力情况
+     * @param validScreeningNum
+     * @param lowVisionNum
+     * @param lightMyopiaNum
+     * @param middleMyopiaNum
+     * @param highMyopiaNum
+     * @param isGlobalRatio 是否全局占比，若为全局占比，不良率分母为有效筛查人数，否则为视力不良人数
+     */
+    public void generateData(int validScreeningNum, int lowVisionNum, int lightMyopiaNum, int middleMyopiaNum, int highMyopiaNum, boolean isGlobalRatio) {
+        setValidScreeningNum(validScreeningNum);
+        setLowVisionNum(lowVisionNum);
+        setLowVisionRatio(MathUtil.divide(lowVisionNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setLightMyopiaNum(lightMyopiaNum);
+        setLightMyopiaRatio(MathUtil.divide(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setMiddleMyopiaNum(middleMyopiaNum);
+        setMiddleMyopiaRatio(MathUtil.divide(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setHighMyopiaNum(highMyopiaNum);
+        setHighMyopiaRatio(MathUtil.divide(highMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+    }
 
 }

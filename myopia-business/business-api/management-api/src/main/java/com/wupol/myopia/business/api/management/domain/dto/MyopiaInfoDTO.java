@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @Date 2022/12/26 12:27
  */
 @Data
+@Builder
 @Accessors(chain = true)
 public class MyopiaInfoDTO {
 
@@ -62,6 +64,27 @@ public class MyopiaInfoDTO {
          * rowSpan
          */
         private Integer rowSpan;
+
+        /**
+         * 获取以年级为维度的对象
+         * @param gradeName
+         * @return
+         */
+        public static StudentGenderMyopia getGradeInstance(String gradeName) {
+            StudentGenderMyopia studentGenderMyopia = new StudentGenderMyopia();
+            return studentGenderMyopia.setGradeName(gradeName).setRowSpan(1);
+        }
+
+        /**
+         * 获取以班级为维度的对象
+         * @param gradeName
+         * @param className
+         * @return
+         */
+        public static StudentGenderMyopia getClassInstance(String gradeName, String className) {
+            StudentGenderMyopia studentGenderMyopia = new StudentGenderMyopia();
+            return studentGenderMyopia.setGradeName(gradeName).setClassName(className).setRowSpan(0);
+        }
 
     }
 

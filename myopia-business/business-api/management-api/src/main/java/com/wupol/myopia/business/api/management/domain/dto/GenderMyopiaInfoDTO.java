@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto;
 
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -62,5 +63,38 @@ public class GenderMyopiaInfoDTO {
      * 近视率（女）
      */
     private Float femaleMyopiaRatio;
+
+    public void empty() {
+        setValidScreeningNum(0);
+        setMyopiaNum(0);
+        setMyopiaRatio(0.0f);
+        setMaleNum(0);
+        setMaleMyopiaNum(0);
+        setMaleMyopiaRatio(0.0f);
+        setFemaleNum(0);
+        setFemaleMyopiaNum(0);
+        setFemaleMyopiaRatio(0.0f);
+    }
+
+    /**
+     * 生成近视情况
+     * @param validScreeningNum
+     * @param myopiaNum
+     * @param maleNum
+     * @param maleMyopiaNum
+     * @param femaleNum
+     * @param femaleMyopiaNum
+     */
+    public void generateData(int validScreeningNum, int myopiaNum, int maleNum, int maleMyopiaNum, int femaleNum, int femaleMyopiaNum) {
+        setValidScreeningNum(validScreeningNum);
+        setMyopiaNum(myopiaNum);
+        setMyopiaRatio(MathUtil.divide(myopiaNum, validScreeningNum).floatValue());
+        setMaleNum(maleNum);
+        setMaleMyopiaNum(maleMyopiaNum);
+        setMaleMyopiaRatio(MathUtil.divide(maleNum, maleMyopiaNum).floatValue());
+        setFemaleNum(femaleNum);
+        setFemaleMyopiaNum(femaleMyopiaNum);
+        setFemaleMyopiaRatio(MathUtil.divide(femaleNum, femaleMyopiaNum).floatValue());
+    }
 
 }
