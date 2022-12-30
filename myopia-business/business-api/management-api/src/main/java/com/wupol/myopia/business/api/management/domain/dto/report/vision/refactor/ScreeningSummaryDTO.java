@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
 import lombok.Builder;
 import lombok.Data;
@@ -90,7 +90,7 @@ public class ScreeningSummaryDTO {
     /**
      * 视力不良人数
      */
-    private Long lowVisionNum;
+    private Integer lowVisionNum;
 
     /**
      * 视力不良率
@@ -100,7 +100,7 @@ public class ScreeningSummaryDTO {
     /**
      * 近视人数
      */
-    private Long myopiaNum;
+    private Integer myopiaNum;
 
     /**
      * 近视率
@@ -130,7 +130,7 @@ public class ScreeningSummaryDTO {
     /**
      * 预警总人数
      */
-    private Long warningNum;
+    private Integer warningNum;
 
     /**
      * 预警人数百分比

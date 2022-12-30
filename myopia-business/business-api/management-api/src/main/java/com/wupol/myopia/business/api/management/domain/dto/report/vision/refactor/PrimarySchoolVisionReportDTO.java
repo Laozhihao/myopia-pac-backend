@@ -13,6 +13,21 @@ import lombok.Setter;
 public class PrimarySchoolVisionReportDTO {
 
     /**
+     * 概述
+     */
+    private ScreeningSummaryDTO summary;
+
+    /**
+     * 学生近视情况
+     */
+    private MyopiaInfoDTO studentMyopia;
+
+    /**
+     * 学生视力情况
+     */
+    private VisionInfoDTO studentVision;
+
+    /**
      * 视力矫正情况
      */
     private VisionCorrectionSituationDTO visionCorrectionSituation;

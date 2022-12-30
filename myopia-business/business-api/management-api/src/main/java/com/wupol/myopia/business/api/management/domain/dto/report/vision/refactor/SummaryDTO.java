@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
