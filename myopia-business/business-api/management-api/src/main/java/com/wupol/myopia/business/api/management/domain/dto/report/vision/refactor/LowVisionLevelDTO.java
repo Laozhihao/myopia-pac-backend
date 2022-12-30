@@ -1,11 +1,14 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
+import com.wupol.myopia.business.common.utils.constant.NumberCommonConst;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.math.BigDecimal;
 
 /**
  * 近视情况（程度）
@@ -17,7 +20,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class MyopiaLevelDTO {
+public class LowVisionLevelDTO {
 
     /**
      * 有效筛查人数
@@ -35,45 +38,45 @@ public class MyopiaLevelDTO {
     private Float lowVisionRatio;
 
     /**
-     * 低度近视人数
+     * 低度视力不良人数
      */
-    private Integer lightMyopiaNum;
+    private Integer lightLowVisionNum;
 
     /**
-     * 低度近视率
+     * 低度视力不良率
      */
-    private Float lightMyopiaRatio;
+    private Float lightLowVisionRatio;
 
     /**
-     * 中度近视人数
+     * 中度视力不良人数
      */
-    private Integer middleMyopiaNum;
+    private Integer middleLowVisionNum;
 
     /**
-     * 中度近视率
+     * 中度视力不良率
      */
-    private Float middleMyopiaRatio;
+    private Float middleLowVisionRatio;
 
     /**
-     * 高度近视人数
+     * 高度视力不良人数
      */
-    private Integer highMyopiaNum;
+    private Integer highLowVisionNum;
 
     /**
-     * 高度近视率
+     * 高度视力不良率
      */
-    private Float highMyopiaRatio;
+    private Float highLowVisionRatio;
 
     public void empty() {
         setValidScreeningNum(0);
         setLowVisionNum(0);
         setLowVisionRatio(0.0f);
-        setLightMyopiaNum(0);
-        setLightMyopiaRatio(0.0f);
-        setMiddleMyopiaNum(0);
-        setMiddleMyopiaRatio(0.0f);
-        setHighMyopiaNum(0);
-        setHighMyopiaRatio(0.0f);
+        setLightLowVisionNum(0);
+        setLightLowVisionRatio(0.0f);
+        setMiddleLowVisionNum(0);
+        setMiddleLowVisionRatio(0.0f);
+        setHighLowVisionNum(0);
+        setHighLowVisionRatio(0.0f);
     }
 
     /**
@@ -101,12 +104,18 @@ public class MyopiaLevelDTO {
         setValidScreeningNum(validScreeningNum);
         setLowVisionNum(lowVisionNum);
         setLowVisionRatio(MathUtil.divide(lowVisionNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
-        setLightMyopiaNum(lightMyopiaNum);
-        setLightMyopiaRatio(MathUtil.divide(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
-        setMiddleMyopiaNum(middleMyopiaNum);
-        setMiddleMyopiaRatio(MathUtil.divide(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
-        setHighMyopiaNum(highMyopiaNum);
-        setHighMyopiaRatio(MathUtil.divide(highMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setLightLowVisionNum(lightMyopiaNum);
+        setLightLowVisionRatio(MathUtil.divide(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setMiddleLowVisionNum(middleMyopiaNum);
+        setMiddleLowVisionRatio(MathUtil.divide(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setHighLowVisionNum(highMyopiaNum);
+        if (isGlobalRatio) {
+            setHighLowVisionRatio(MathUtil.divide(highMyopiaNum, validScreeningNum).floatValue());
+        } else {
+            // 若是计算占总视力不良数占比，用100-轻度占比-中度占比，得到高度的%比，避免三者加起来不为1
+            setHighLowVisionRatio(new BigDecimal(100).subtract(new BigDecimal(getLightLowVisionRatio())).subtract(new BigDecimal(getMiddleLowVisionRatio()))
+                    .setScale(NumberCommonConst.TWO_INT, BigDecimal.ROUND_HALF_UP).floatValue());
+        }
     }
 
 }

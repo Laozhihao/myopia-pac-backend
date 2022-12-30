@@ -807,7 +807,7 @@ public class StatReportService {
         List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     int statNum = stat.size();
                     Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
                     Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
@@ -845,7 +845,7 @@ public class StatReportService {
                         return MyopiaDTO.getInstance(0, x.getName(),
                                 0, 0.00f);
                     }
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     return MyopiaDTO.getInstance(stat.size(), x.getName(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 })
@@ -869,7 +869,7 @@ public class StatReportService {
         return gradeMap.keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = gradeMap.get(x);
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     return MyopiaDTO.getInstance(stat.size(), GradeCodeEnum.getByCode(x).name(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());

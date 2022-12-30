@@ -21,12 +21,12 @@ public class VisionInfoDTO {
     /**
      * 整体视力程度情况
      */
-    private MyopiaLevelDTO general;
+    private LowVisionLevelDTO general;
 
     /**
      * 视力不良程度情况
      */
-    private MyopiaLevelDTO lowVision;
+    private LowVisionLevelDTO lowVision;
 
     /**
      * 视力不良总结
@@ -36,7 +36,7 @@ public class VisionInfoDTO {
     /**
      * 视力程度情况（性别）
      */
-    private List<GenderMyopiaLevel> genderVision;
+    private List<GenderLowVisionLevel> genderVision;
 
     /**
      * 性别视力情况总结
@@ -46,7 +46,7 @@ public class VisionInfoDTO {
     /**
      * 视力程度情况（年级）
      */
-    private List<StudentMyopiaLevel> gradeVision;
+    private List<StudentLowVisionLevel> gradeVision;
 
     /**
      * 年级视力总结
@@ -56,19 +56,19 @@ public class VisionInfoDTO {
     /**
      * 视力程度情况（班级）
      */
-    private List<StudentMyopiaLevel> classVision;
+    private List<StudentLowVisionLevel> classVision;
 
     @Data
     @Accessors(chain = true)
-    public static class GenderMyopiaLevel extends MyopiaLevelDTO {
+    public static class GenderLowVisionLevel extends LowVisionLevelDTO {
 
         /**
          * 性别：男/女
          */
         private String gender;
 
-        public static GenderMyopiaLevel getInstance(String gender) {
-            GenderMyopiaLevel genderMyopiaLevel = new GenderMyopiaLevel();
+        public static GenderLowVisionLevel getInstance(String gender) {
+            GenderLowVisionLevel genderMyopiaLevel = new GenderLowVisionLevel();
             return genderMyopiaLevel.setGender(gender);
         }
 
@@ -76,7 +76,7 @@ public class VisionInfoDTO {
 
     @Data
     @Accessors(chain = true)
-    public static class StudentMyopiaLevel extends MyopiaLevelDTO {
+    public static class StudentLowVisionLevel extends LowVisionLevelDTO {
 
         /**
          * 年级名称
@@ -98,9 +98,9 @@ public class VisionInfoDTO {
          * @param gradeName
          * @return
          */
-        public static StudentMyopiaLevel getGradeInstance(String gradeName) {
-            StudentMyopiaLevel gradeMyopiaLevel = new StudentMyopiaLevel();
-            return gradeMyopiaLevel.setGradeName(gradeName).setRowSpan(1);
+        public static StudentLowVisionLevel getGradeInstance(String gradeName) {
+            StudentLowVisionLevel gradeVisionLevel = new StudentLowVisionLevel();
+            return gradeVisionLevel.setGradeName(gradeName).setRowSpan(1);
         }
 
         /**
@@ -109,9 +109,9 @@ public class VisionInfoDTO {
          * @param className
          * @return
          */
-        public static StudentMyopiaLevel getClassInstance(String gradeName, String className) {
-            StudentMyopiaLevel classMyopiaLevel = new StudentMyopiaLevel();
-            return classMyopiaLevel.setGradeName(gradeName).setClassName(className).setRowSpan(0);
+        public static StudentLowVisionLevel getClassInstance(String gradeName, String className) {
+            StudentLowVisionLevel classVisionLevel = new StudentLowVisionLevel();
+            return classVisionLevel.setGradeName(gradeName).setClassName(className).setRowSpan(0);
         }
 
     }

@@ -74,6 +74,7 @@ public class PrimarySchoolVisionReportService {
     public PrimarySchoolVisionReportDTO primarySchoolVisionReport(Integer planId, Integer schoolId) {
 
         List<StatConclusion> allConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> !Objects.equals(SchoolAge.KINDERGARTEN.getCode(), s.getSchoolAge())).collect(Collectors.toList());
+        // TODO wulizhou 重新计算是否欠娇，重新计算是否近视
         StatBaseDTO statBase = new StatBaseDTO(allConclusions);
 
         List<StatConclusion> statConclusions = statBase.getValid().stream().sorted(Comparator.comparing(s -> Integer.valueOf(s.getSchoolGradeCode()))).collect(Collectors.toList());
@@ -230,7 +231,7 @@ public class PrimarySchoolVisionReportService {
         // 视力不良人数
         int lowVisionNum = (int)valid.stream().filter(StatConclusion::getIsLowVision).count();
         // 近视人数
-        int myopiaNum = (int)valid.stream().filter(StatConclusion::getIsMyopia).count();
+        int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
         return ScreeningSummaryDTO.builder()
                 .schoolName(school.getName())
@@ -275,7 +276,7 @@ public class PrimarySchoolVisionReportService {
         // 去除夜戴角膜塑形镜的无法视力数据
         List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
         BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return visionNum.divide(new BigDecimal(valid.size() * 2));
+        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.TWO_INT, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -315,8 +316,8 @@ public class PrimarySchoolVisionReportService {
         int maleNum = statGender.getMale().size();
         int femaleNum = statGender.getFemale().size();
 
-        int maleMyopiaNum = (int)statGender.getMale().stream().filter(StatConclusion::getIsMyopia).count();
-        int femaleMyopiaNum = (int)statGender.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
+        int maleMyopiaNum = (int)statGender.getMale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
+        int femaleMyopiaNum = (int)statGender.getFemale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
         MyopiaDTO male = MyopiaDTO.getInstance(maleNum, "男", maleMyopiaNum, MathUtil.divideFloat(maleMyopiaNum, maleNum));
         MyopiaDTO female = MyopiaDTO.getInstance(femaleNum, "女", femaleMyopiaNum, MathUtil.divideFloat(femaleMyopiaNum, femaleNum));
@@ -405,12 +406,12 @@ public class PrimarySchoolVisionReportService {
         }
         // 统计按性别近视情况
         int validScreeningNum = stats.size();
-        int myopiaNum = (int)stats.stream().filter(StatConclusion::getIsMyopia).count();
+        int myopiaNum = (int)stats.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
         StatGenderDTO statGender = new StatGenderDTO(stats);
         int maleNum = statGender.getMale().size();
-        int maleMyopiaNum = (int)statGender.getMale().stream().filter(StatConclusion::getIsMyopia).count();
+        int maleMyopiaNum = (int)statGender.getMale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
         int femaleNum = statGender.getFemale().size();
-        int femaleMyopiaNum = (int)statGender.getFemale().stream().filter(StatConclusion::getIsMyopia).count();
+        int femaleMyopiaNum = (int)statGender.getFemale().stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
         genderMyopia.generateData(validScreeningNum, myopiaNum, maleNum, maleMyopiaNum, femaleNum, femaleMyopiaNum);
     }
 
@@ -429,9 +430,9 @@ public class PrimarySchoolVisionReportService {
                                        Map<String, List<StatConclusion>> statConclusionGradeMap,
                                        Map<String, List<SchoolClass>> classMap,
                                        Map<String, List<StatConclusion>> statConclusionClassMap) {
-        ThreeTuple<MyopiaLevelDTO, MyopiaLevelDTO, VisionInfoDTO.LowVisionSummary> generalVision = getGeneralVision(valid);
-        TwoTuple<List<VisionInfoDTO.GenderMyopiaLevel>, List<SummaryDTO>> genderVision = getGenderVision(statGender);
-        TwoTuple<List<VisionInfoDTO.StudentMyopiaLevel>, SummaryDTO> gradeVision = getGradeVision(gradeCodes, statConclusionGradeMap);
+        ThreeTuple<LowVisionLevelDTO, LowVisionLevelDTO, VisionInfoDTO.LowVisionSummary> generalVision = getGeneralVision(valid);
+        TwoTuple<List<VisionInfoDTO.GenderLowVisionLevel>, List<SummaryDTO>> genderVision = getGenderVision(statGender);
+        TwoTuple<List<VisionInfoDTO.StudentLowVisionLevel>, SummaryDTO> gradeVision = getGradeVision(gradeCodes, statConclusionGradeMap);
         return VisionInfoDTO.builder()
                 .general(generalVision.getFirst())
                 .lowVision(generalVision.getSecond())
@@ -449,17 +450,17 @@ public class PrimarySchoolVisionReportService {
      * @param valid
      * @return 整体视力程度情况, 视力不良程度情况, 视力不良总结
      */
-    public ThreeTuple<MyopiaLevelDTO, MyopiaLevelDTO, VisionInfoDTO.LowVisionSummary> getGeneralVision(List<StatConclusion> valid) {
+    public ThreeTuple<LowVisionLevelDTO, LowVisionLevelDTO, VisionInfoDTO.LowVisionSummary> getGeneralVision(List<StatConclusion> valid) {
         // 整体视力程度情况
-        MyopiaLevelDTO general = new MyopiaLevelDTO();
+        LowVisionLevelDTO general = new LowVisionLevelDTO();
         conclusion2MyopiaLevel(valid, general, true);
         // 视力不良程度情况
-        MyopiaLevelDTO lowVision = new MyopiaLevelDTO();
+        LowVisionLevelDTO lowVision = new LowVisionLevelDTO();
         conclusion2MyopiaLevel(valid, lowVision, false);
         // 视力不良总结
         VisionInfoDTO.LowVisionSummary lowVisionSummary = new VisionInfoDTO.LowVisionSummary();
         BeanUtils.copyProperties(getLowVisionSummary(general), lowVisionSummary);
-        lowVisionSummary.setLowVisionRatio(Math.max(Math.max(lowVision.getLightMyopiaRatio(), lowVision.getMiddleMyopiaRatio()), lowVision.getHighMyopiaRatio()));
+        lowVisionSummary.setLowVisionRatio(Math.max(Math.max(lowVision.getLightLowVisionRatio(), lowVision.getMiddleLowVisionRatio()), lowVision.getHighLowVisionRatio()));
         return new ThreeTuple(general, lowVision, lowVisionSummary);
     }
 
@@ -468,12 +469,12 @@ public class PrimarySchoolVisionReportService {
      * @param statGender
      * @return 性别视力情况，总结
      */
-    public TwoTuple<List<VisionInfoDTO.GenderMyopiaLevel>, List<SummaryDTO>> getGenderVision(StatGenderDTO statGender) {
+    public TwoTuple<List<VisionInfoDTO.GenderLowVisionLevel>, List<SummaryDTO>> getGenderVision(StatGenderDTO statGender) {
         // 男女视力情况
-        VisionInfoDTO.GenderMyopiaLevel male = VisionInfoDTO.GenderMyopiaLevel.getInstance("男");
+        VisionInfoDTO.GenderLowVisionLevel male = VisionInfoDTO.GenderLowVisionLevel.getInstance("男");
         conclusion2MyopiaLevel(statGender.getMale(), male, true);
-        VisionInfoDTO.GenderMyopiaLevel female = VisionInfoDTO.GenderMyopiaLevel.getInstance("女");
-        conclusion2MyopiaLevel(statGender.getFemale(), male,true);
+        VisionInfoDTO.GenderLowVisionLevel female = VisionInfoDTO.GenderLowVisionLevel.getInstance("女");
+        conclusion2MyopiaLevel(statGender.getFemale(), female,true);
         // 视力情况及总结
         return TwoTuple.of(Arrays.asList(male, female),  Arrays.asList(getLowVisionSummary(male), getLowVisionSummary(female)));
     }
@@ -484,15 +485,15 @@ public class PrimarySchoolVisionReportService {
      * @param statConclusionGradeMap
      * @return 视力程度情况（年级），总结
      */
-    public TwoTuple<List<VisionInfoDTO.StudentMyopiaLevel>, SummaryDTO> getGradeVision(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
+    public TwoTuple<List<VisionInfoDTO.StudentLowVisionLevel>, SummaryDTO> getGradeVision(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
         // 整体年级各性别视力情况
-        List<VisionInfoDTO.StudentMyopiaLevel> gradeMyopia = gradeCodes.stream().map(grade -> {
-            VisionInfoDTO.StudentMyopiaLevel item = VisionInfoDTO.StudentMyopiaLevel.getGradeInstance(GradeCodeEnum.getDesc(grade));
+        List<VisionInfoDTO.StudentLowVisionLevel> gradeMyopia = gradeCodes.stream().map(grade -> {
+            VisionInfoDTO.StudentLowVisionLevel item = VisionInfoDTO.StudentLowVisionLevel.getGradeInstance(GradeCodeEnum.getDesc(grade));
             conclusion2MyopiaLevel(statConclusionGradeMap.get(grade), item, true);
             return item;
         }).collect(Collectors.toList());
         // 年级整体视力不良总结
-        SummaryDTO general = gradeVisionSummary(gradeMyopia, VisionInfoDTO.StudentMyopiaLevel::getLowVisionRatio, "general");
+        SummaryDTO general = gradeVisionSummary(gradeMyopia, VisionInfoDTO.StudentLowVisionLevel::getLowVisionRatio, "general");
         return TwoTuple.of(gradeMyopia, general);
     }
 
@@ -503,14 +504,14 @@ public class PrimarySchoolVisionReportService {
      * @param statConclusionClassMap
      * @return
      */
-    public List<VisionInfoDTO.StudentMyopiaLevel> getClassVision(List<String> gradeCodes,
-                                                                 Map<String, List<SchoolClass>> classMap,
-                                                                 Map<String, List<StatConclusion>> statConclusionClassMap) {
+    public List<VisionInfoDTO.StudentLowVisionLevel> getClassVision(List<String> gradeCodes,
+                                                                    Map<String, List<SchoolClass>> classMap,
+                                                                    Map<String, List<StatConclusion>> statConclusionClassMap) {
         return gradeCodes.stream().map(grade -> {
             // 生成班级视力情况数据
             List<SchoolClass> classes = classMap.getOrDefault(grade, Collections.emptyList());
-            List<VisionInfoDTO.StudentMyopiaLevel> classVision = classes.stream().map(clazz -> {
-                VisionInfoDTO.StudentMyopiaLevel gradeVision = VisionInfoDTO.StudentMyopiaLevel.getClassInstance(GradeCodeEnum.getDesc(grade), clazz.getName());
+            List<VisionInfoDTO.StudentLowVisionLevel> classVision = classes.stream().map(clazz -> {
+                VisionInfoDTO.StudentLowVisionLevel gradeVision = VisionInfoDTO.StudentLowVisionLevel.getClassInstance(GradeCodeEnum.getDesc(grade), clazz.getName());
                 conclusion2MyopiaLevel(statConclusionClassMap.get(grade + clazz.getName()), gradeVision, true);
                 return gradeVision;
             }).collect(Collectors.toList());
@@ -527,19 +528,19 @@ public class PrimarySchoolVisionReportService {
      * @param general
      * @return
      */
-    public SummaryDTO getLowVisionSummary(MyopiaLevelDTO general) {
+    public SummaryDTO getLowVisionSummary(LowVisionLevelDTO general) {
         SummaryDTO summary = new SummaryDTO();
         // 设置最高占比
-        summary.setHighRadio(Math.max(Math.max(general.getLightMyopiaRatio(), general.getMiddleMyopiaRatio()), general.getHighMyopiaRatio()));
+        summary.setHighRadio(Math.max(Math.max(general.getLightLowVisionRatio(), general.getMiddleLowVisionRatio()), general.getHighLowVisionRatio()));
         // 设置最高占比说明
         List<String> highLowVisionLevel = new ArrayList<>();
-        if (summary.getHighRadio().equals(general.getLightMyopiaRatio())) {
+        if (summary.getHighRadio().equals(general.getLightLowVisionRatio())) {
             highLowVisionLevel.add("轻度视力不良率");
         }
-        if (summary.getHighRadio().equals(general.getMiddleMyopiaRatio())) {
+        if (summary.getHighRadio().equals(general.getMiddleLowVisionRatio())) {
             highLowVisionLevel.add("中度视力不良率");
         }
-        if (summary.getHighRadio().equals(general.getHighMyopiaRatio())) {
+        if (summary.getHighRadio().equals(general.getHighLowVisionRatio())) {
             highLowVisionLevel.add("高度视力不良率");
 
         }
@@ -554,7 +555,7 @@ public class PrimarySchoolVisionReportService {
      * @param keyName
      * @return
      */
-    private SummaryDTO gradeVisionSummary(List<VisionInfoDTO.StudentMyopiaLevel> gradeVistel, Function<? super VisionInfoDTO.StudentMyopiaLevel, ? extends Float> keyMapper, String keyName) {
+    private SummaryDTO gradeVisionSummary(List<VisionInfoDTO.StudentLowVisionLevel> gradeVistel, Function<? super VisionInfoDTO.StudentLowVisionLevel, ? extends Float> keyMapper, String keyName) {
         TreeMap<Float, List<String>> summaryMap = gradeVistel.stream()
                 .collect(Collectors.toMap(keyMapper,
                         value -> Lists.newArrayList(value.getGradeName()),
@@ -569,14 +570,14 @@ public class PrimarySchoolVisionReportService {
      * @param myopiaLevel
      * @return
      */
-    private void conclusion2MyopiaLevel(List<StatConclusion> stats, MyopiaLevelDTO myopiaLevel, boolean isGlobalRatio) {
+    private void conclusion2MyopiaLevel(List<StatConclusion> stats, LowVisionLevelDTO myopiaLevel, boolean isGlobalRatio) {
         // 若没有统计数据，生成无数据情况下近视情况
         if (CollectionUtils.isEmpty(stats)) {
             myopiaLevel.empty();
             return ;
         }
         // 统计视力不良各级情况
-        Map<Integer, Long> lowVisionLevelMap = stats.stream().collect(Collectors.groupingBy(StatConclusion::getLowVisionLevel, Collectors.counting()));
+        Map<Integer, Long> lowVisionLevelMap = stats.stream().filter(stat -> Objects.nonNull(stat.getLowVisionLevel())).collect(Collectors.groupingBy(StatConclusion::getLowVisionLevel, Collectors.counting()));
         int validScreeningNum = stats.size();
         int lowVisionNum = (int)stats.stream().filter(StatConclusion::getIsLowVision).count();
         int lightMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT.code, 0L).intValue();
