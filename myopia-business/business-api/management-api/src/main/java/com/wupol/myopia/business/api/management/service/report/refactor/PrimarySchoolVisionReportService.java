@@ -262,7 +262,7 @@ public class PrimarySchoolVisionReportService {
                 .uncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
                 .underCorrectedRatio(count != 0 ? valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f / count : 0)
                 .lightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
-                .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
+                .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .warningNum(warningNum)
                 .warningRatio(MathUtil.divideFloat(warningNum, validSize))
                 .warningLevelZeroNum(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) + warningLevelMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L))
