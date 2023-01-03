@@ -239,7 +239,6 @@ public class PrimarySchoolVisionReportService {
         // 近视人数
         int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
-        long count = valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count();
         return ScreeningSummaryDTO.builder()
                 .schoolName(school.getName())
                 .schoolDistrict(districtService.getDistrictName(school.getDistrictDetail()))
@@ -260,7 +259,8 @@ public class PrimarySchoolVisionReportService {
                 .myopiaNum(myopiaNum)
                 .myopiaRatio(MathUtil.divideFloat(myopiaNum, validSize))
                 .uncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
-                .underCorrectedRatio(count != 0 ? valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f / count : 0)
+                .underCorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count(),
+                        (int)valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count()))
                 .lightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .warningNum(warningNum)
