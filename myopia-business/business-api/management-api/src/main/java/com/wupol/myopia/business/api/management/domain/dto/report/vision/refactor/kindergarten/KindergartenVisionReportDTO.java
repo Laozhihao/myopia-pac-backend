@@ -1,6 +1,6 @@
-package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenRefractiveSituationDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.WarningSituationDTO;
 import lombok.Data;
 
 /**

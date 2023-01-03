@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.business.api.management.domain.dto.GenderMyopiaInfoDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.GenderMyopiaInfoDTO;
 import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatGenderDTO;
