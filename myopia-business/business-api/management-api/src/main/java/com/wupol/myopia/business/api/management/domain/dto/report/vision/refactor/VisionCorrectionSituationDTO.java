@@ -351,7 +351,7 @@ public class VisionCorrectionSituationDTO {
      * @return T
      */
     private static <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrectedInfo(List<StatConclusion> statConclusions, T t) {
-        t.setScreeningStudentNum((long) statConclusions.size());
+        t.setScreeningStudentNum(statConclusions.stream().filter(s->Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count());
         t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
         t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
         t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));

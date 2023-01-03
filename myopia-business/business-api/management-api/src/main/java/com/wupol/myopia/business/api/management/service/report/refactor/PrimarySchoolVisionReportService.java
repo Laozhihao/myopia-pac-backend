@@ -140,7 +140,7 @@ public class PrimarySchoolVisionReportService {
         }, executor);
         // 视力检测预警情况
         CompletableFuture<WarningSituationDTO> c5 = CompletableFuture.supplyAsync(() -> {
-            WarningSituationDTO warningSituation = generateWarningSituationDTO(gradeCodes, statConclusionGradeMap);
+            WarningSituationDTO warningSituation = generateWarningSituationDTO(gradeCodes, statConclusionGradeMap, statConclusions);
             reportDTO.setWarningSituation(warningSituation);
             return warningSituation;
         }, executor);
@@ -207,11 +207,11 @@ public class PrimarySchoolVisionReportService {
      *
      * @return WarningSituationDTO
      */
-    private WarningSituationDTO generateWarningSituationDTO(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
+    private WarningSituationDTO generateWarningSituationDTO(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap, List<StatConclusion> statConclusions) {
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
 
         // 不同年级学生视力预警情况
-        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap));
+        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions));
         return warningSituationDTO;
     }
 

@@ -44,7 +44,7 @@ public class WarningSituationDTO {
          */
         private Object table;
 
-        public static GradeWarningSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
+        public static GradeWarningSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap, List<StatConclusion> statConclusions) {
             WarningSituationDTO.GradeWarningSituation gradeWarningSituation = new WarningSituationDTO.GradeWarningSituation();
             List<WarningSituationDTO.GradeWarningSituationItem> items = gradeCodes.stream().map(s -> {
                 List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
@@ -52,6 +52,10 @@ public class WarningSituationDTO {
                 gradeWarningSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
             }).collect(Collectors.toList());
+            WarningSituationDTO.GradeWarningSituationItem total = new GradeWarningSituationItem();
+            total.setGradeName("全校");
+            getWarningSituation(statConclusions, total);
+            items.add(total);
             gradeWarningSituation.setItems(items);
             gradeWarningSituation.setTable(null);
             return gradeWarningSituation;
