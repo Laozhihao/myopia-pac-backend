@@ -53,6 +53,7 @@ public class WarningSituationDTO {
                 return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
             }).collect(Collectors.toList());
             WarningSituationDTO.GradeWarningSituationItem total = new GradeWarningSituationItem();
+            total.setGradeName("全校");
             getWarningSituation(statConclusions, total);
             items.add(total);
             gradeWarningSituation.setItems(items);
