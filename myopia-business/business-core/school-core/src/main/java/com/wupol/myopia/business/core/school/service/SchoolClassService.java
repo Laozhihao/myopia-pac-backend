@@ -17,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -164,6 +161,9 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
     }
 
     public List<SchoolClass> getByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
         return baseMapper.selectBatchIds(ids);
     }
 

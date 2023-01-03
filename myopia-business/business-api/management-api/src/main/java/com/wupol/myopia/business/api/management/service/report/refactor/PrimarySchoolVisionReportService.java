@@ -229,7 +229,7 @@ public class PrimarySchoolVisionReportService {
         int warningNum = (int)warningLevelMap.keySet().stream().filter(WarningLevel::isWarning).mapToLong(x -> warningLevelMap.getOrDefault(x, 0L)).sum();
 
         // 视力不良人数
-        int lowVisionNum = (int)valid.stream().filter(StatConclusion::getIsLowVision).count();
+        int lowVisionNum = (int)valid.stream().filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
         // 近视人数
         int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
@@ -273,6 +273,9 @@ public class PrimarySchoolVisionReportService {
      * @return
      */
     public BigDecimal averageVision(List<StatConclusion> valid) {
+        if (CollectionUtils.isEmpty(valid)) {
+            return new BigDecimal("0");
+        }
         // 去除夜戴角膜塑形镜的无法视力数据
         List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
         BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -579,7 +582,7 @@ public class PrimarySchoolVisionReportService {
         // 统计视力不良各级情况
         Map<Integer, Long> lowVisionLevelMap = stats.stream().filter(stat -> Objects.nonNull(stat.getLowVisionLevel())).collect(Collectors.groupingBy(StatConclusion::getLowVisionLevel, Collectors.counting()));
         int validScreeningNum = stats.size();
-        int lowVisionNum = (int)stats.stream().filter(StatConclusion::getIsLowVision).count();
+        int lowVisionNum = (int)stats.stream().filter(s->Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
         int lightMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT.code, 0L).intValue();
         int middleMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_MIDDLE.code, 0L).intValue();
         int highMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_HIGH.code, 0L).intValue();
