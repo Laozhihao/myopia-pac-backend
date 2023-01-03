@@ -25,6 +25,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -71,11 +72,15 @@ public class PrimarySchoolVisionReportService {
     @Resource
     private SchoolService schoolService;
 
+    @Resource
+    private VisionScreeningResultService visionScreeningResultService;
+
     public PrimarySchoolVisionReportDTO primarySchoolVisionReport(Integer planId, Integer schoolId) {
 
         List<StatConclusion> allConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> !Objects.equals(SchoolAge.KINDERGARTEN.getCode(), s.getSchoolAge())).collect(Collectors.toList());
-        // TODO wulizhou 重新计算是否欠娇，重新计算是否近视
-        StatBaseDTO statBase = new StatBaseDTO(allConclusions);
+
+
+        StatBaseDTO statBase = new StatBaseDTO(allConclusions, visionScreeningResultService.getMapByIds(allConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList())));
 
         List<StatConclusion> statConclusions = statBase.getValid().stream().sorted(Comparator.comparing(s -> Integer.valueOf(s.getSchoolGradeCode()))).collect(Collectors.toList());
         statBase.setValid(statConclusions);
@@ -233,6 +238,7 @@ public class PrimarySchoolVisionReportService {
         // 近视人数
         int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
+        long count = valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count();
         return ScreeningSummaryDTO.builder()
                 .schoolName(school.getName())
                 .schoolDistrict(districtService.getDistrictName(school.getDistrictDetail()))
@@ -253,8 +259,7 @@ public class PrimarySchoolVisionReportService {
                 .myopiaNum(myopiaNum)
                 .myopiaRatio(MathUtil.divideFloat(myopiaNum, validSize))
                 .uncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
-                .underCorrectedRatio(valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f /
-                        valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count())
+                .underCorrectedRatio(count != 0 ? valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f / count : 0)
                 .lightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .warningNum(warningNum)
