@@ -24,6 +24,7 @@ public class StatBaseDTO {
 
     private List<StatConclusion> firstScreen;
     private List<StatConclusion> valid;
+    private List<Integer> WaitingRepairIds;
 
     public StatBaseDTO(List<StatConclusion> statConclusions) {
         if (Objects.isNull(statConclusions)) {
@@ -35,22 +36,28 @@ public class StatBaseDTO {
                 .collect(Collectors.toList());
     }
 
-        public StatBaseDTO(List<StatConclusion> statConclusions, Map<Integer, VisionScreeningResult> resultMap) {
-        if (Objects.isNull(statConclusions)) {
-            statConclusions = new ArrayList<>();
-        }
+    /**
+     * 获取需要修复的数据的原始数据id集
+     * @return
+     */
+    public List<Integer> getWaitingRepairResultIds() {
+        return valid.stream().filter(stat -> Objects.isNull(stat.getIsMyopia())
+                || Objects.equals(stat.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.getCode()))
+                .map(StatConclusion::getResultId).collect(Collectors.toList());
+    }
+
+    public StatBaseDTO dataRepair(Map<Integer, VisionScreeningResult> resultMap) {
         // 重新计算是否近视、矫正情况
-        statConclusions.forEach(statConclusion -> {
-            statConclusion.setIsMyopia(isMyopia(resultMap.get(statConclusion.getResultId())));
-            if (Objects.equals(statConclusion.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.getCode())) {
-                statConclusion.setVisionCorrection(setVisionCorrection(resultMap.get(statConclusion.getResultId())));
+        valid.forEach(stat -> {
+            if (Objects.isNull(stat.getIsMyopia())) {
+                stat.setIsMyopia(isMyopia(resultMap.get(stat.getResultId())));
+            }
+            if (Objects.equals(stat.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.getCode())) {
+                stat.setVisionCorrection(setVisionCorrection(resultMap.get(stat.getResultId())));
             }
 
         });
-        firstScreen = statConclusions.stream().filter(x -> Boolean.FALSE.equals(x.getIsRescreen()))
-                        .collect(Collectors.toList());
-        valid = firstScreen.stream().filter(x -> Boolean.TRUE.equals(x.getIsValid()))
-                .collect(Collectors.toList());
+        return this;
     }
 
     private Boolean isMyopia(VisionScreeningResult result) {

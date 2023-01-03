@@ -79,8 +79,9 @@ public class PrimarySchoolVisionReportService {
 
         List<StatConclusion> allConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> !Objects.equals(SchoolAge.KINDERGARTEN.getCode(), s.getSchoolAge())).collect(Collectors.toList());
 
-
-        StatBaseDTO statBase = new StatBaseDTO(allConclusions, visionScreeningResultService.getMapByIds(allConclusions.stream().map(StatConclusion::getResultId).collect(Collectors.toList())));
+        // 获取数据，并修复数据
+        StatBaseDTO statBase = new StatBaseDTO(allConclusions);
+        statBase.dataRepair(visionScreeningResultService.getMapByIds(statBase.getWaitingRepairResultIds()));
 
         List<StatConclusion> statConclusions = statBase.getValid().stream().sorted(Comparator.comparing(s -> Integer.valueOf(s.getSchoolGradeCode()))).collect(Collectors.toList());
         statBase.setValid(statConclusions);
