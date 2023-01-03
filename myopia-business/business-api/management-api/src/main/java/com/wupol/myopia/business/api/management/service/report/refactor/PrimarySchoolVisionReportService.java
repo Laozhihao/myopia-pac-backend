@@ -285,7 +285,7 @@ public class PrimarySchoolVisionReportService {
         // 去除夜戴角膜塑形镜的无法视力数据
         List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
         BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.TWO_INT, BigDecimal.ROUND_HALF_UP);
+        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.ONE_INT, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
