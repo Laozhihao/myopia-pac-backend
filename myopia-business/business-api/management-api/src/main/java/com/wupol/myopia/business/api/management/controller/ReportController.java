@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PrimarySchoolVisionReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SchoolStudentResponseDTO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
@@ -312,4 +313,18 @@ public class ReportController {
     public ApiResult<PrimarySchoolVisionReportDTO> refactorPrimarySchoolVisionReport(Integer planId, Integer schoolId) {
         return ApiResult.success(primarySchoolVisionReportService.primarySchoolVisionReport(planId, schoolId));
     }
+
+    /**
+     * 重构报告-判断学生类型
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     *
+     * @return ApiResult<SchoolStudentResponseDTO>
+     */
+    @GetMapping("/refactor/school/studentType")
+    public ApiResult<SchoolStudentResponseDTO> refactorSchoolStudentType(Integer planId, Integer schoolId) {
+        return ApiResult.success(primarySchoolVisionReportService.schoolStudentType(planId, schoolId));
+    }
+
 }
