@@ -23,17 +23,12 @@ public class KindergartenVisionInfoDTO {
     /**
      * 视力程度情况（性别）
      */
-    private List<KindergartenLowVision> genderVision;
-
-    /**
-     * 性别视力情况总结
-     */
-    private List<SummaryDTO> genderVisionSummary;
+    private List<KindergartenGenderLowVision> genderVision;
 
     /**
      * 视力程度情况（年级）
      */
-    private List<KindergartenGenderLowVision> gradeVision;
+    private List<KindergartenStudentLowVision> gradeVision;
 
     /**
      * 年级视力总结
@@ -43,7 +38,7 @@ public class KindergartenVisionInfoDTO {
     /**
      * 视力程度情况（班级）
      */
-    private List<KindergartenGenderLowVision> classVision;
+    private List<KindergartenStudentLowVision> classVision;
 
 
     /**
