@@ -136,7 +136,7 @@ public class WarningSituationDTO {
     private static <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
-        t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code) || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count());
+        t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ONE.code)).count());
         t.setZeroWarningRatio(BigDecimalUtil.divideRadio(t.getZeroWarningNum(), screeningTotal));
         t.setOneWarningNum(warningSituationCount(statConclusions, WarningLevel.ONE.code));
         t.setOneWarningRatio(BigDecimalUtil.divideRadio(t.getOneWarningNum(), screeningTotal));
