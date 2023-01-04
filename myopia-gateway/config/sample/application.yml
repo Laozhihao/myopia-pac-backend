@@ -160,3 +160,4 @@ white-list:
   - "/management/report/schoolCommonDiseaseReport"
   - "/api/device/uploadFundus"
   - "/management/report/refactor/school/primary"
+  - "/management/report/refactor/school/studentType"
