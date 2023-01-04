@@ -325,6 +325,11 @@ public class VisionCorrectionSituationDTO {
         private Long screeningStudentNum;
 
         /**
+         * 已矫人数
+         */
+        private Long correctedNum;
+
+        /**
          * 未矫人数
          */
         private Long uncorrectedNum;
@@ -352,6 +357,7 @@ public class VisionCorrectionSituationDTO {
      */
     private static <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrectedInfo(List<StatConclusion> statConclusions, T t) {
         t.setScreeningStudentNum(statConclusions.stream().filter(s->Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count());
+        t.setCorrectedNum(statConclusions.stream().filter(s->!(Objects.equals(s.getVisionCorrection(),VisionCorrection.NORMAL.getCode()) || Objects.equals(s.getVisionCorrection(),VisionCorrection.ENOUGH_CORRECTED.getCode()))).count());
         t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
         t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
         t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
