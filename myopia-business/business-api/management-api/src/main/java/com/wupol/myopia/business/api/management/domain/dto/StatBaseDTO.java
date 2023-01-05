@@ -64,20 +64,19 @@ public class StatBaseDTO {
             return false;
         }
 
-        Boolean leftMyopia = StatUtil.isMyopia( EyeDataUtil.leftSph(result),  EyeDataUtil.leftSph(result), null, EyeDataUtil.leftNakedVision(result));
-        Boolean rightMyopia = StatUtil.isMyopia( EyeDataUtil.rightSph(result),  EyeDataUtil.rightSph(result), null, EyeDataUtil.rightNakedVision(result));
+        Boolean leftMyopia = StatUtil.isMyopia(EyeDataUtil.leftSph(result), EyeDataUtil.leftSph(result), EyeDataUtil.leftNakedVision(result));
+        Boolean rightMyopia = StatUtil.isMyopia(EyeDataUtil.rightSph(result), EyeDataUtil.rightSph(result), EyeDataUtil.rightNakedVision(result));
         if (ObjectsUtil.allNull(leftMyopia, rightMyopia)) {
             return false;
         }
-        return StatUtil.getIsExist(leftMyopia,rightMyopia);
+        return StatUtil.getIsExist(leftMyopia, rightMyopia);
     }
 
     private Integer setVisionCorrection(VisionScreeningResult result) {
-        if (BigDecimalUtil.lessThan(EyeDataUtil.leftCorrectedVision(result),"4.9") || BigDecimalUtil.lessThan(EyeDataUtil.rightCorrectedVision(result),"4.9")) {
+        if (BigDecimalUtil.lessThan(EyeDataUtil.leftCorrectedVision(result), "4.9") || BigDecimalUtil.lessThan(EyeDataUtil.rightCorrectedVision(result), "4.9")) {
             return VisionCorrection.UNDER_CORRECTED.getCode();
         }
         return VisionCorrection.ENOUGH_CORRECTED.getCode();
-
     }
 
 }

@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.CollectionUtils;
-import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -448,8 +447,8 @@ public class StatConclusionCheck {
                 ScreeningPlanSchoolStudent screeningPlanSchoolStudent = tuple.getFirst();
                 VisionScreeningResult visionScreeningResult = tuple.getSecond();
                 BasicData basicData = dealWithData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());
-                Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.leftNakedVision);
-                Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+                Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, basicData.leftNakedVision);
+                Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, basicData.rightNakedVision);
                 return StatUtil.getIsExist(leftMyopia, rightMyopia);
             }).filter(Objects::nonNull).filter(Boolean::booleanValue).collect(Collectors.toList());
             int myopia = tupleList.size();
@@ -1032,8 +1031,8 @@ public class StatConclusionCheck {
                 Boolean leftLowVision = StatUtil.isLowVision(basicData.leftNakedVision, screeningPlanSchoolStudent.getStudentAge());
                 Boolean rightLowVision = StatUtil.isLowVision(basicData.rightNakedVision, screeningPlanSchoolStudent.getStudentAge());
 
-                Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.leftNakedVision);
-                Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge(),basicData.rightNakedVision);
+                Boolean leftMyopia = StatUtil.isMyopia(basicData.leftSph,basicData.leftCyl, basicData.leftNakedVision);
+                Boolean rightMyopia = StatUtil.isMyopia(basicData.rightSph,basicData.rightCyl, basicData.rightNakedVision);
 
                 Boolean leftHyperopia = StatUtil.isHyperopia(basicData.leftSph,basicData.leftCyl, screeningPlanSchoolStudent.getStudentAge());
                 Boolean rightHyperopia = StatUtil.isHyperopia(basicData.rightSph,basicData.rightCyl, screeningPlanSchoolStudent.getStudentAge());

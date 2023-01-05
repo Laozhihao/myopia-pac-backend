@@ -234,10 +234,9 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
      * @param nakedVision 裸眼视力
      */
-    public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
+    public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, BigDecimal nakedVision) {
 
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se) || Objects.isNull(nakedVision)) {
