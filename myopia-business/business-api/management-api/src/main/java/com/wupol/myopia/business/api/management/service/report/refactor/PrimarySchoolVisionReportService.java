@@ -4,14 +4,15 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.GenderMyopiaInfoDTO;
 import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatGenderDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.*;
-import com.wupol.myopia.business.common.utils.constant.*;
+import com.wupol.myopia.business.common.utils.constant.LowVisionLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
+import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -33,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -64,9 +64,6 @@ public class PrimarySchoolVisionReportService {
     private ThreadPoolTaskExecutor executor;
 
     @Resource
-    private DistrictService districtService;
-
-    @Resource
     private ScreeningPlanService screeningPlanService;
 
     @Resource
@@ -74,6 +71,9 @@ public class PrimarySchoolVisionReportService {
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
+
+    @Resource
+    private VisionReportService visionReportService;
 
     public PrimarySchoolVisionReportDTO primarySchoolVisionReport(Integer planId, Integer schoolId) {
 
@@ -228,64 +228,25 @@ public class PrimarySchoolVisionReportService {
      */
     public ScreeningSummaryDTO getScreeningSummary(ScreeningPlan sp, School school, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
 
+        ScreeningSummaryDTO summary = new ScreeningSummaryDTO();
+        // 获取通用概述
+        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(sp, school, statBase, statGender, planScreeningNum, gradeNum, classNum);
+        BeanUtils.copyProperties(baseSummary, summary);
+
         // 按预警等级分类，计算预警人数
         List<StatConclusion> valid = statBase.getValid();
         int validSize = valid.size();
-        Map<Integer, Long> warningLevelMap = valid.stream().filter(s->Objects.nonNull(s.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
-        int warningNum = (int)warningLevelMap.keySet().stream().filter(WarningLevel::isWarning).mapToLong(x -> warningLevelMap.getOrDefault(x, 0L)).sum();
 
-        // 视力不良人数
-        int lowVisionNum = (int)valid.stream().filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
         // 近视人数
         int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
-
-        return ScreeningSummaryDTO.builder()
-                .schoolName(school.getName())
-                .schoolDistrict(districtService.getDistrictName(school.getDistrictDetail()))
-                .reportTime(new Date())
-                .startTime(sp.getStartTime())
-                .endTime(sp.getEndTime())
-                .gradeNum(gradeNum)
-                .classNum(classNum)
-                .planScreeningNum(planScreeningNum)
-                .unscreenedNum(planScreeningNum - statBase.getFirstScreen().size())
-                .invalidScreeningNum(statBase.getFirstScreen().size() - validSize)
-                .validScreeningNum(validSize)
-                .maleValidScreeningNum(statGender.getMale().size())
-                .femaleValidScreeningNum(statGender.getFemale().size())
-                .averageVision((averageVision(valid).floatValue()))
-                .lowVisionNum(lowVisionNum)
-                .lowVisionRatio(MathUtil.divideFloat(lowVisionNum, validSize))
-                .myopiaNum(myopiaNum)
-                .myopiaRatio(MathUtil.divideFloat(myopiaNum, validSize))
-                .uncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
-                .underCorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count(),
+        return summary.setMyopiaNum(myopiaNum)
+                .setMyopiaRatio(MathUtil.divideFloat(myopiaNum, validSize))
+                .setUncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
+                .setUnderCorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count(),
                         (int)valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count()))
-                .lightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
-                .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(stat.getMyopiaLevel())).count(), validSize))
-                .warningNum(warningNum)
-                .warningRatio(MathUtil.divideFloat(warningNum, validSize))
-                .warningLevelZeroNum(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) + warningLevelMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L))
-                .warningLevelOneNum(warningLevelMap.getOrDefault(WarningLevel.ONE.code, 0L))
-                .warningLevelTwoNum(warningLevelMap.getOrDefault(WarningLevel.TWO.code, 0L))
-                .warningLevelThreeNum(warningLevelMap.getOrDefault(WarningLevel.THREE.code, 0L))
-                .build();
+                .setLightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
+                .setHighMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(stat.getMyopiaLevel())).count(), validSize));
 
-    }
-
-    /**
-     * 平均视力
-     * @param valid
-     * @return
-     */
-    public BigDecimal averageVision(List<StatConclusion> valid) {
-        if (CollectionUtils.isEmpty(valid)) {
-            return new BigDecimal("0");
-        }
-        // 去除夜戴角膜塑形镜的无法视力数据
-        List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
-        BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.ONE_INT, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
