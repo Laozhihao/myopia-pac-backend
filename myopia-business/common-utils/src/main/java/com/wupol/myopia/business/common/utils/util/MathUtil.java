@@ -39,6 +39,9 @@ public class MathUtil {
      * @return
      */
     public Float divideFloat(Integer numerator, Integer denominator) {
+        if (denominator.equals(0)) {
+            return 0.0f;
+        }
         return divide(numerator, denominator).floatValue();
     }
 

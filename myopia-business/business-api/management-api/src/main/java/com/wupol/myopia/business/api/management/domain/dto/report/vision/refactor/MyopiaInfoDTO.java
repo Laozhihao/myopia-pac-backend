@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
-import com.wupol.myopia.business.api.management.domain.dto.GenderMyopiaInfoDTO;
 import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import lombok.Builder;
 import lombok.Data;

@@ -103,14 +103,14 @@ public class LowVisionLevelDTO {
     public void generateData(int validScreeningNum, int lowVisionNum, int lightMyopiaNum, int middleMyopiaNum, int highMyopiaNum, boolean isGlobalRatio) {
         setValidScreeningNum(validScreeningNum);
         setLowVisionNum(lowVisionNum);
-        setLowVisionRatio(MathUtil.divide(lowVisionNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setLowVisionRatio(MathUtil.divideFloat(lowVisionNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
         setLightLowVisionNum(lightMyopiaNum);
-        setLightLowVisionRatio(MathUtil.divide(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setLightLowVisionRatio(MathUtil.divideFloat(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
         setMiddleLowVisionNum(middleMyopiaNum);
-        setMiddleLowVisionRatio(MathUtil.divide(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum).floatValue());
+        setMiddleLowVisionRatio(MathUtil.divideFloat(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
         setHighLowVisionNum(highMyopiaNum);
         if (isGlobalRatio) {
-            setHighLowVisionRatio(MathUtil.divide(highMyopiaNum, validScreeningNum).floatValue());
+            setHighLowVisionRatio(MathUtil.divideFloat(highMyopiaNum, validScreeningNum));
         } else {
             // 若是计算占总视力不良数占比，用100-轻度占比-中度占比，得到高度的%比，避免三者加起来不为1
             setHighLowVisionRatio(new BigDecimal(100).subtract(new BigDecimal(getLightLowVisionRatio())).subtract(new BigDecimal(getMiddleLowVisionRatio()))

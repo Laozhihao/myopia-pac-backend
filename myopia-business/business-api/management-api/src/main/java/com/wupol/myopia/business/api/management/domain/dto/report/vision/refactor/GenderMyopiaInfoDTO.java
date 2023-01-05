@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.management.domain.dto;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
 
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import lombok.AllArgsConstructor;
@@ -88,13 +88,13 @@ public class GenderMyopiaInfoDTO {
     public void generateData(int validScreeningNum, int myopiaNum, int maleNum, int maleMyopiaNum, int femaleNum, int femaleMyopiaNum) {
         setValidScreeningNum(validScreeningNum);
         setMyopiaNum(myopiaNum);
-        setMyopiaRatio(MathUtil.divide(myopiaNum, validScreeningNum).floatValue());
+        setMyopiaRatio(MathUtil.divideFloat(myopiaNum, validScreeningNum));
         setMaleNum(maleNum);
         setMaleMyopiaNum(maleMyopiaNum);
-        setMaleMyopiaRatio(MathUtil.divide(maleNum, maleMyopiaNum).floatValue());
+        setMaleMyopiaRatio(MathUtil.divideFloat(maleNum, maleMyopiaNum));
         setFemaleNum(femaleNum);
         setFemaleMyopiaNum(femaleMyopiaNum);
-        setFemaleMyopiaRatio(MathUtil.divide(femaleNum, femaleMyopiaNum).floatValue());
+        setFemaleMyopiaRatio(MathUtil.divideFloat(femaleNum, femaleMyopiaNum));
     }
 
 }

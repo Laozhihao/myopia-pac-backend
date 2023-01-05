@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
-import com.wupol.myopia.business.api.management.domain.dto.GenderMyopiaInfoDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.GenderMyopiaInfoDTO;
 import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatGenderDTO;
@@ -264,7 +264,6 @@ public class PrimarySchoolVisionReportService {
         // 近视人数
         int myopiaNum = (int)valid.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
 
-        long count = valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count();
         return ScreeningSummaryDTO.builder()
                 .schoolName(school.getName())
                 .schoolDistrict(districtService.getDistrictName(school.getDistrictDetail()))
@@ -285,9 +284,10 @@ public class PrimarySchoolVisionReportService {
                 .myopiaNum(myopiaNum)
                 .myopiaRatio(MathUtil.divideFloat(myopiaNum, validSize))
                 .uncorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNCORRECTED.code.equals(stat.getVisionCorrection())).count(), myopiaNum))
-                .underCorrectedRatio(count != 0 ? valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count() * 1.0f / count : 0)
+                .underCorrectedRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> VisionCorrection.UNDER_CORRECTED.code.equals(stat.getVisionCorrection())).count(),
+                        (int)valid.stream().filter(stat -> !GlassesTypeEnum.NOT_WEARING.code.equals(stat.getGlassesType())).count()))
                 .lightMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
-                .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code.equals(stat.getMyopiaLevel())).count(), validSize))
+                .highMyopiaRatio(MathUtil.divideFloat((int)valid.stream().filter(stat -> MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code.equals(stat.getMyopiaLevel())).count(), validSize))
                 .warningNum(warningNum)
                 .warningRatio(MathUtil.divideFloat(warningNum, validSize))
                 .warningLevelZeroNum(warningLevelMap.getOrDefault(WarningLevel.ZERO.code, 0L) + warningLevelMap.getOrDefault(WarningLevel.ZERO_SP.code, 0L))
@@ -310,7 +310,7 @@ public class PrimarySchoolVisionReportService {
         // 去除夜戴角膜塑形镜的无法视力数据
         List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
         BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.TWO_INT, BigDecimal.ROUND_HALF_UP);
+        return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.ONE_INT, BigDecimal.ROUND_HALF_UP);
     }
 
     /**

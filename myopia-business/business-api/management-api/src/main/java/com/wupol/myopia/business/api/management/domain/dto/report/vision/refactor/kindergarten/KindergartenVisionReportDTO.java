@@ -1,6 +1,6 @@
-package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor;
+package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten;
 
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenRefractiveSituationDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.WarningSituationDTO;
 import lombok.Data;
 
 /**
@@ -14,12 +14,12 @@ public class KindergartenVisionReportDTO {
     /**
      * 概述
      */
-    private Object summary;
+    private KindergartenScreeningSummaryDTO summary;
 
     /**
      * 学生视力情况
      */
-    private Object studentVision;
+    private KindergartenVisionInfoDTO studentVision;
 
     /**
      * 屈光情况
