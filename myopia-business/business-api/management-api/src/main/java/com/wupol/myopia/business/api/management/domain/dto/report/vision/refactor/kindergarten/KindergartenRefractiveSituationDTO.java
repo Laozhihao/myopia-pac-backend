@@ -1,11 +1,7 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten;
 
-import com.google.common.collect.Lists;
-import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PieChart;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
