@@ -543,7 +543,7 @@ public class StudentBizBuilder {
             if (GlassesTypeEnum.ORTHOKERATOLOGY.getCode().equals(EyeDataUtil.glassesType(result))) {
                 left.setMyopia(true);
             } else {
-                left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), age, visionData.getLeftEyeData().getNakedVision()));
+                left.setMyopia(StatUtil.isMyopia(computerOptometry.getLeftEyeData().getSph(), computerOptometry.getLeftEyeData().getCyl(), visionData.getLeftEyeData().getNakedVision()));
             }
             left.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getLeftEyeData().getSph().floatValue(), computerOptometry.getLeftEyeData().getCyl().floatValue(), age));
         }
@@ -553,7 +553,7 @@ public class StudentBizBuilder {
             if (GlassesTypeEnum.ORTHOKERATOLOGY.getCode().equals(EyeDataUtil.glassesType(result))) {
                 right.setMyopia(true);
             } else {
-                right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), age, visionData.getRightEyeData().getNakedVision()));
+                right.setMyopia(StatUtil.isMyopia(computerOptometry.getRightEyeData().getSph(), computerOptometry.getRightEyeData().getCyl(), visionData.getRightEyeData().getNakedVision()));
             }
             right.setFarsightedness(StatUtil.isHyperopia(computerOptometry.getRightEyeData().getSph().floatValue(), computerOptometry.getRightEyeData().getCyl().floatValue(), age));
         }
@@ -748,8 +748,8 @@ public class StudentBizBuilder {
         BigDecimal leftNakedVision = visionData.getLeftEyeData().getNakedVision();
         BigDecimal rightNakedVision = visionData.getRightEyeData().getNakedVision();
         // 是否近视
-        Boolean leftMyopia = StatUtil.isMyopia(leftSph, leftCyl, age, leftNakedVision);
-        Boolean rightMyopia = StatUtil.isMyopia(rightSph, rightCyl, age, rightNakedVision);
+        Boolean leftMyopia = StatUtil.isMyopia(leftSph, leftCyl, leftNakedVision);
+        Boolean rightMyopia = StatUtil.isMyopia(rightSph, rightCyl, rightNakedVision);
         cardDetail.setIsMyopia(StatUtil.getIsExist(leftMyopia,rightMyopia));
 
         // 是否远视
