@@ -338,12 +338,14 @@ public class VisionCorrectionSituationDTO {
      * @return T
      */
     private static <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrectedInfo(List<StatConclusion> statConclusions, T t) {
-        t.setScreeningStudentNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count());
-        t.setCorrectedNum(statConclusions.stream().filter(s -> !(Objects.equals(s.getVisionCorrection(), VisionCorrection.NORMAL.getCode()) || Objects.equals(s.getVisionCorrection(), VisionCorrection.UNCORRECTED.getCode()))).count());
+        long myopiaCount = statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count();
+        long correctedCount = statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count();
+        t.setScreeningStudentNum(myopiaCount);
+        t.setCorrectedNum(correctedCount);
         t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
-        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
+        t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), myopiaCount));
         t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
-        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), statConclusions.stream().filter(s -> !Objects.equals(s.getGlassesType(), GlassesTypeEnum.NOT_WEARING.getCode())).count()));
+        t.setUnderCorrectedRatio(BigDecimalUtil.divideRadio(t.getUnderCorrectedNum(), correctedCount));
         return t;
     }
 
