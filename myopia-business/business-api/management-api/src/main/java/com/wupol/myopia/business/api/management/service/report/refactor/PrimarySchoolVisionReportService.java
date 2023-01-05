@@ -149,6 +149,31 @@ public class PrimarySchoolVisionReportService {
     }
 
     /**
+     * 判断学生类型
+     *
+     * @param planId 计划Id
+     * @param schoolId 学校Id
+     *
+     * @return SchoolStudentResponseDTO
+     */
+    public SchoolStudentResponseDTO schoolStudentType(Integer planId, Integer schoolId) {
+        SchoolStudentResponseDTO responseDTO = new SchoolStudentResponseDTO();
+
+        List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planId, schoolId);
+        if (CollectionUtils.isEmpty(planSchoolStudents)){
+            responseDTO.setIsHavePrimary(false);
+            responseDTO.setIsHaveKindergarten(false);
+            return responseDTO;
+        }
+        // 幼儿园
+        responseDTO.setIsHaveKindergarten(planSchoolStudents.stream().anyMatch(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.getType())));
+
+        // 小学及以上
+        responseDTO.setIsHavePrimary(planSchoolStudents.stream().anyMatch(s -> SchoolAge.primaryAndAboveCode().contains(s.getGradeType())));
+        return responseDTO;
+    }
+
+    /**
      * 生成视力矫正情况
      *
      * @return VisionCorrectionSituationDTO
@@ -211,7 +236,7 @@ public class PrimarySchoolVisionReportService {
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
 
         // 不同年级学生视力预警情况
-        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions));
+        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions, false));
         return warningSituationDTO;
     }
 

@@ -91,10 +91,10 @@ public class GenderMyopiaInfoDTO {
         setMyopiaRatio(MathUtil.divideFloat(myopiaNum, validScreeningNum));
         setMaleNum(maleNum);
         setMaleMyopiaNum(maleMyopiaNum);
-        setMaleMyopiaRatio(MathUtil.divideFloat(maleNum, maleMyopiaNum));
+        setMaleMyopiaRatio(MathUtil.divideFloat(maleMyopiaNum, maleNum));
         setFemaleNum(femaleNum);
         setFemaleMyopiaNum(femaleMyopiaNum);
-        setFemaleMyopiaRatio(MathUtil.divideFloat(femaleNum, femaleMyopiaNum));
+        setFemaleMyopiaRatio(MathUtil.divideFloat(femaleMyopiaNum, femaleNum));
     }
 
 }

@@ -94,11 +94,6 @@ public class VisionCorrectionSituationDTO {
          */
         private WearingGlassesItem wearingGlassesItem;
 
-        /**
-         * 表格
-         */
-        private List<PieChart> table;
-
         public static WearingGlasses getInstance(List<StatConclusion> statConclusions) {
             long screeningTotal = statConclusions.size();
             VisionCorrectionSituationDTO.WearingGlasses wearingGlasses = new VisionCorrectionSituationDTO.WearingGlasses();
@@ -113,7 +108,6 @@ public class VisionCorrectionSituationDTO {
             wearingGlassesItem.setOrthokeratologyNum(wearingGlassesCount(statConclusions, GlassesTypeEnum.ORTHOKERATOLOGY.getCode()));
             wearingGlassesItem.setOrthokeratologyRatio(BigDecimalUtil.divideRadio(wearingGlassesItem.getOrthokeratologyNum(), screeningTotal));
             wearingGlasses.setWearingGlassesItem(wearingGlassesItem);
-            wearingGlasses.setTable(null);
             return wearingGlasses;
         }
 
@@ -192,15 +186,9 @@ public class VisionCorrectionSituationDTO {
          */
         private UnderCorrectedAndUncorrected underCorrectedAndUncorrected;
 
-        /**
-         * 表格
-         */
-        private List<PieChart> table;
-
         public static CorrectionSituation getInstance(List<StatConclusion> statConclusions) {
             VisionCorrectionSituationDTO.CorrectionSituation correctionSituation = new VisionCorrectionSituationDTO.CorrectionSituation();
             correctionSituation.setUnderCorrectedAndUncorrected(getUnderCorrectedAndUncorrectedInfo(statConclusions, new VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected()));
-            correctionSituation.setTable(null);
             return correctionSituation;
         }
     }
@@ -217,11 +205,6 @@ public class VisionCorrectionSituationDTO {
          */
         private List<GradeUnderCorrectedAndUncorrectedItem> items;
 
-        /**
-         * 表格
-         */
-        private Object table;
-
         public static GradeUnderCorrectedAndUncorrected getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
             VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected gradeUnderCorrectedAndUncorrected = new VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrected();
             List<VisionCorrectionSituationDTO.GradeUnderCorrectedAndUncorrectedItem> gradeUnderCorrectedAndUncorrectedItems = gradeCodes.stream().map(s -> {
@@ -231,7 +214,6 @@ public class VisionCorrectionSituationDTO {
                 return getUnderCorrectedAndUncorrectedInfo(gradeStatConclusion, correctedAndUncorrectedItem);
             }).collect(Collectors.toList());
             gradeUnderCorrectedAndUncorrected.setItems(gradeUnderCorrectedAndUncorrectedItems);
-            gradeUnderCorrectedAndUncorrected.setTable(null);
             return gradeUnderCorrectedAndUncorrected;
         }
     }
@@ -325,6 +307,11 @@ public class VisionCorrectionSituationDTO {
         private Long screeningStudentNum;
 
         /**
+         * 已矫人数
+         */
+        private Long correctedNum;
+
+        /**
          * 未矫人数
          */
         private Long uncorrectedNum;
@@ -351,7 +338,8 @@ public class VisionCorrectionSituationDTO {
      * @return T
      */
     private static <T extends VisionCorrectionSituationDTO.UnderCorrectedAndUncorrected> T getUnderCorrectedAndUncorrectedInfo(List<StatConclusion> statConclusions, T t) {
-        t.setScreeningStudentNum(statConclusions.stream().filter(s->Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count());
+        t.setScreeningStudentNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count());
+        t.setCorrectedNum(statConclusions.stream().filter(s -> !(Objects.equals(s.getVisionCorrection(), VisionCorrection.NORMAL.getCode()) || Objects.equals(s.getVisionCorrection(), VisionCorrection.UNCORRECTED.getCode()))).count());
         t.setUncorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNCORRECTED.getCode()));
         t.setUncorrectedRatio(BigDecimalUtil.divideRadio(t.getUncorrectedNum(), statConclusions.stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count()));
         t.setUnderCorrectedNum(underCorrectedAndUncorrectedCount(statConclusions, VisionCorrection.UNDER_CORRECTED.getCode()));
