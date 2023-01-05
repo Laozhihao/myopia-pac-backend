@@ -78,21 +78,6 @@ public class RefractiveSituationDTO {
 
         private List<RefractiveSituationItem> items;
 
-        /**
-         * 屈光整体情况
-         */
-        private List<PieChart> table1;
-
-        /**
-         * 男生屈光整体情况
-         */
-        private List<PieChart> table2;
-
-        /**
-         * 女生
-         */
-        private List<PieChart> table3;
-
         public static GenderRefractiveSituation getInstance(List<StatConclusion> statConclusions) {
             RefractiveSituationDTO.GenderRefractiveSituation genderRefractiveSituation = new RefractiveSituationDTO.GenderRefractiveSituation();
             Map<Integer, List<StatConclusion>> genderStatConclusion = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getGender));
@@ -107,9 +92,6 @@ public class RefractiveSituationDTO {
             totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
             genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
             genderRefractiveSituation.setItems(genderList);
-            genderRefractiveSituation.setTable1(null);
-            genderRefractiveSituation.setTable2(null);
-            genderRefractiveSituation.setTable3(null);
             return genderRefractiveSituation;
         }
 
@@ -142,21 +124,6 @@ public class RefractiveSituationDTO {
         private List<GradeRefractiveSituationItem> items;
 
         /**
-         * 表格
-         */
-        private Object table1;
-
-        /**
-         * 表格
-         */
-        private Object table2;
-
-        /**
-         * 表格
-         */
-        private Object table3;
-
-        /**
          * 总结
          */
         private List<RefractiveSituationSummary> summary;
@@ -169,9 +136,6 @@ public class RefractiveSituationDTO {
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-            gradeRefractiveSituation.setTable1(null);
-            gradeRefractiveSituation.setTable2(null);
-            gradeRefractiveSituation.setTable3(null);
             RefractiveSituationDTO.RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
             RefractiveSituationDTO.RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
             RefractiveSituationDTO.RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");

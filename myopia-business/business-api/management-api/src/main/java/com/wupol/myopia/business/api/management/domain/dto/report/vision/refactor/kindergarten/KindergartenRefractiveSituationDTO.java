@@ -3,9 +3,8 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PieChart;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
+import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -46,24 +45,6 @@ public class KindergartenRefractiveSituationDTO {
      */
     private ClassRefractiveSituation classRefractiveSituation;
 
-    /**
-     * 屈光情况信息
-     */
-    @Getter
-    @Setter
-    public static class RefractiveSituationInfo extends RefractiveSituation {
-
-        /**
-         * 屈光不正人数
-         */
-        private Long refractiveErrorNum;
-
-        public static RefractiveSituationInfo getInstance(List<StatConclusion> statConclusions) {
-            RefractiveSituationInfo refractiveSituationInfo = getRefractiveSituation(statConclusions, new RefractiveSituationInfo());
-            refractiveSituationInfo.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
-            return refractiveSituationInfo;
-        }
-    }
 
     /**
      * 不同性别屈光情况
@@ -73,8 +54,6 @@ public class KindergartenRefractiveSituationDTO {
     public static class GenderRefractiveSituation {
 
         private List<RefractiveSituationItem> items;
-
-        private Object summary;
 
         public static GenderRefractiveSituation getInstance(List<StatConclusion> statConclusions) {
             GenderRefractiveSituation genderRefractiveSituation = new GenderRefractiveSituation();
@@ -134,10 +113,10 @@ public class KindergartenRefractiveSituationDTO {
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-//            RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
-//            RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getHighMyopiaRatio, "highMyopia");
-//            RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAstigmatismRatio, "astigmatism");
-//            gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
+            RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getRefractiveErrorRatio, "refractiveError");
+            RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAnisometropiaRatio, "anisometropia");
+            RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
+            gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
             return gradeRefractiveSituation;
         }
 
@@ -305,22 +284,13 @@ public class KindergartenRefractiveSituationDTO {
     private static <T extends RefractiveSituation> T getRefractiveSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
-//        t.setLowMyopiaNum(myopiaLevelCount(statConclusions, MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.code));
-//        t.setLowMyopiaRatio(BigDecimalUtil.divideRadio(t.getLowMyopiaNum(), screeningTotal));
-//        t.setHighMyopiaNum(myopiaLevelCount(statConclusions, MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.code));
-//        t.setHighMyopiaRatio(BigDecimalUtil.divideRadio(t.getHighMyopiaNum(), screeningTotal));
-//        t.setAstigmatismNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count());
-//        t.setAstigmatismRatio(BigDecimalUtil.divideRadio(t.getAstigmatismNum(), screeningTotal));
+        t.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsRefractiveError(), Boolean.TRUE)).count());
+        t.setRefractiveErrorRatio(BigDecimalUtil.divideRadio(t.getRefractiveErrorNum(), screeningTotal));
+        t.setAnisometropiaNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsAnisometropia(), Boolean.TRUE)).count());
+        t.setAnisometropiaRatio(BigDecimalUtil.divideRadio(t.getAnisometropiaNum(), screeningTotal));
+        t.setInsufficientHyperopiaNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.getCode())).count());
+        t.setInsufficientHyperopiaRatio(BigDecimalUtil.divideRadio(t.getInsufficientHyperopiaNum(), screeningTotal));
         return t;
-    }
-
-    /**
-     * 近视
-     *
-     * @return Long
-     */
-    private static Long myopiaLevelCount(List<StatConclusion> statConclusions, Integer type) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), type)).count();
     }
 
     /**
