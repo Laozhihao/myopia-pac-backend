@@ -1692,7 +1692,7 @@ public class StatUtil {
             //近视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 0));
             //散光
-            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
+//            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
             //远视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 2));
         }
