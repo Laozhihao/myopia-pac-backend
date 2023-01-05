@@ -39,25 +39,19 @@ public class WarningSituationDTO {
          */
         private List<GradeWarningSituationItem> items;
 
-        /**
-         * 表格
-         */
-        private Object table;
-
-        public static GradeWarningSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap, List<StatConclusion> statConclusions) {
+        public static GradeWarningSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap, List<StatConclusion> statConclusions, Boolean isKindergarten) {
             WarningSituationDTO.GradeWarningSituation gradeWarningSituation = new WarningSituationDTO.GradeWarningSituation();
             List<WarningSituationDTO.GradeWarningSituationItem> items = gradeCodes.stream().map(s -> {
                 List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
                 WarningSituationDTO.GradeWarningSituationItem gradeWarningSituationItem = new WarningSituationDTO.GradeWarningSituationItem();
                 gradeWarningSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
-                return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem);
+                return getWarningSituation(gradeStatConclusion, gradeWarningSituationItem, isKindergarten);
             }).collect(Collectors.toList());
             WarningSituationDTO.GradeWarningSituationItem total = new GradeWarningSituationItem();
             total.setGradeName("全校");
-            getWarningSituation(statConclusions, total);
+            getWarningSituation(statConclusions, total, isKindergarten);
             items.add(total);
             gradeWarningSituation.setItems(items);
-            gradeWarningSituation.setTable(null);
             return gradeWarningSituation;
         }
     }
@@ -133,10 +127,14 @@ public class WarningSituationDTO {
      *
      * @return T
      */
-    private static <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t) {
+    private static <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t, Boolean isKindergarten) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
-        t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count());
+        if (Objects.equals(isKindergarten, Boolean.TRUE)) {
+            t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code) || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count());
+        } else {
+            t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count());
+        }
         t.setZeroWarningRatio(BigDecimalUtil.divideRadio(t.getZeroWarningNum(), screeningTotal));
         t.setOneWarningNum(warningSituationCount(statConclusions, WarningLevel.ONE.code));
         t.setOneWarningRatio(BigDecimalUtil.divideRadio(t.getOneWarningNum(), screeningTotal));

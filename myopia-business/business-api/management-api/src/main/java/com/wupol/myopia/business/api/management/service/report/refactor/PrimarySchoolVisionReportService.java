@@ -236,7 +236,7 @@ public class PrimarySchoolVisionReportService {
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
 
         // 不同年级学生视力预警情况
-        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions));
+        warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions, false));
         return warningSituationDTO;
     }
 

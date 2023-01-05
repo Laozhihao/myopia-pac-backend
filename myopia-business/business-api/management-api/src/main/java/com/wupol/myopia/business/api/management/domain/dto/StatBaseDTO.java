@@ -46,7 +46,7 @@ public class StatBaseDTO {
                 .map(StatConclusion::getResultId).collect(Collectors.toList());
     }
 
-    public StatBaseDTO dataRepair(Map<Integer, VisionScreeningResult> resultMap) {
+    public void dataRepair(Map<Integer, VisionScreeningResult> resultMap) {
         // 重新计算是否近视、矫正情况
         valid.forEach(stat -> {
             if (Objects.isNull(stat.getIsMyopia())) {
@@ -57,7 +57,6 @@ public class StatBaseDTO {
             }
 
         });
-        return this;
     }
 
     private Boolean isMyopia(VisionScreeningResult result) {

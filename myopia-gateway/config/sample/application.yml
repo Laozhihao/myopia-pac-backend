@@ -161,3 +161,4 @@ white-list:
   - "/api/device/uploadFundus"
   - "/management/report/refactor/school/primary"
   - "/management/report/refactor/school/studentType"
+  - "/management/report/refactor/school/kindergarten"
