@@ -1688,7 +1688,7 @@ public class StatUtil {
         List<WarningLevel> warningLevelList = Lists.newArrayList();
         if (!Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
             //裸眼视力
-            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+//            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
             //近视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 0));
             //散光
