@@ -15,17 +15,13 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
@@ -65,12 +61,6 @@ public class PrimarySchoolVisionReportService {
     private ThreadPoolTaskExecutor executor;
 
     @Resource
-    private ScreeningPlanService screeningPlanService;
-
-    @Resource
-    private SchoolService schoolService;
-
-    @Resource
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
@@ -103,13 +93,10 @@ public class PrimarySchoolVisionReportService {
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
-        ScreeningPlan sp = screeningPlanService.getById(planId);
-        School school = schoolService.getById(schoolId);
-
         // 通过筛查数据进行统计
         PrimarySchoolVisionReportDTO reportDTO = new PrimarySchoolVisionReportDTO();
         // 总述
-        reportDTO.setSummary(getScreeningSummary(sp, school, statBase, statGender, planSchoolStudents.size(), statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
+        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudents.size(), statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
 
         // 学生近视情况
         CompletableFuture<MyopiaInfoDTO> c1 = CompletableFuture.supplyAsync(() -> {
@@ -256,8 +243,8 @@ public class PrimarySchoolVisionReportService {
 
     /**
      * 获取报告总述信息
-     * @param sp
-     * @param school
+     * @param planId
+     * @param schoolId
      * @param statBase
      * @param statGender
      * @param planScreeningNum
@@ -265,11 +252,11 @@ public class PrimarySchoolVisionReportService {
      * @param classNum
      * @return
      */
-    public ScreeningSummaryDTO getScreeningSummary(ScreeningPlan sp, School school, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
+    public ScreeningSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
 
         ScreeningSummaryDTO summary = new ScreeningSummaryDTO();
         // 获取通用概述
-        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(sp, school, statBase, statGender, planScreeningNum, gradeNum, classNum);
+        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(planId, schoolId, statBase, statGender, planScreeningNum, gradeNum, classNum);
         BeanUtils.copyProperties(baseSummary, summary);
 
         // 按预警等级分类，计算预警人数

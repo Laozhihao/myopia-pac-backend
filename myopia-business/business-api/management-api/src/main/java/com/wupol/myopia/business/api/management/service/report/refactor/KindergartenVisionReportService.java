@@ -14,24 +14,18 @@ import com.wupol.myopia.business.api.management.domain.dto.report.vision.refacto
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
-import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
-import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -63,19 +57,7 @@ public class KindergartenVisionReportService {
     private SchoolClassService schoolClassService;
 
     @Resource
-    private ThreadPoolTaskExecutor executor;
-
-    @Resource
     private VisionReportService visionReportService;
-
-    @Resource
-    private DistrictService districtService;
-
-    @Resource
-    private ScreeningPlanService screeningPlanService;
-
-    @Resource
-    private SchoolService schoolService;
 
     @Resource
     private VisionScreeningResultService visionScreeningResultService;
@@ -113,8 +95,8 @@ public class KindergartenVisionReportService {
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
         KindergartenVisionReportDTO reportDTO = new KindergartenVisionReportDTO();
-        reportDTO.setSummary(null);
-        reportDTO.setStudentVision(null);
+        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudents.size(), statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
+        reportDTO.setStudentVision(getVisionInfo(statGender, reportDTO.getSummary(), gradeCodes, statConclusionGradeMap, classMap, statConclusionClassMap));
         reportDTO.setKindergartenRefractiveSituationDTO(generateRefractiveSituation(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap));
         reportDTO.setWarningSituation(generateWarningSituation(gradeCodes, statConclusionGradeMap, statConclusions));
         return reportDTO;
@@ -140,8 +122,8 @@ public class KindergartenVisionReportService {
 
     /**
      * 获取报告总述信息
-     * @param sp
-     * @param school
+     * @param planId
+     * @param schoolId
      * @param statBase
      * @param statGender
      * @param planScreeningNum
@@ -149,11 +131,11 @@ public class KindergartenVisionReportService {
      * @param classNum
      * @return
      */
-    public KindergartenScreeningSummaryDTO getScreeningSummary(ScreeningPlan sp, School school, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
+    public KindergartenScreeningSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
 
         KindergartenScreeningSummaryDTO summary = new KindergartenScreeningSummaryDTO();
         // 获取通用概述
-        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(sp, school, statBase, statGender, planScreeningNum, gradeNum, classNum);
+        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(planId, schoolId, statBase, statGender, planScreeningNum, gradeNum, classNum);
         BeanUtils.copyProperties(baseSummary, summary);
 
         // 按预警等级分类，计算预警人数

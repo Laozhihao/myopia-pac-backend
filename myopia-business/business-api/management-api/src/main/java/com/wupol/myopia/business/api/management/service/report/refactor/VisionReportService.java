@@ -9,8 +9,10 @@ import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,10 +37,16 @@ public class VisionReportService {
     @Autowired
     private DistrictService districtService;
 
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+
+    @Autowired
+    private SchoolService schoolService;
+
     /**
      * 获取报告总述信息
-     * @param sp
-     * @param school
+     * @param planId
+     * @param schoolId
      * @param statBase
      * @param statGender
      * @param planScreeningNum
@@ -46,8 +54,10 @@ public class VisionReportService {
      * @param classNum
      * @return
      */
-    public ReportBaseSummaryDTO getScreeningSummary(ScreeningPlan sp, School school, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
+    public ReportBaseSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
 
+        ScreeningPlan sp = screeningPlanService.getById(planId);
+        School school = schoolService.getById(schoolId);
         // 按预警等级分类，计算预警人数
         int validSize = statBase.getValid().size();
         Map<Integer, Long> warningLevelMap = statBase.getValid().stream().filter(s-> Objects.nonNull(s.getWarningLevel())).collect(Collectors.groupingBy(StatConclusion::getWarningLevel, Collectors.counting()));
