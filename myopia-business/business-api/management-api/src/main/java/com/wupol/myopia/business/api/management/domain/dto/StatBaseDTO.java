@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.dto;
 
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -41,9 +42,7 @@ public class StatBaseDTO {
      * @return
      */
     public List<Integer> getWaitingRepairResultIds() {
-        return valid.stream().filter(stat -> Objects.isNull(stat.getIsMyopia())
-                || Objects.equals(stat.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.getCode()))
-                .map(StatConclusion::getResultId).collect(Collectors.toList());
+        return valid.stream().map(StatConclusion::getResultId).collect(Collectors.toList());
     }
 
     public void dataRepair(Map<Integer, VisionScreeningResult> resultMap) {
@@ -52,10 +51,7 @@ public class StatBaseDTO {
             if (Objects.isNull(stat.getIsMyopia())) {
                 stat.setIsMyopia(isMyopia(resultMap.get(stat.getResultId())));
             }
-            if (Objects.equals(stat.getVisionCorrection(), VisionCorrection.UNDER_CORRECTED.getCode())) {
-                stat.setVisionCorrection(setVisionCorrection(resultMap.get(stat.getResultId())));
-            }
-
+            stat.setVisionCorrection(setVisionCorrection(stat, resultMap.get(stat.getResultId())));
         });
     }
 
@@ -64,20 +60,27 @@ public class StatBaseDTO {
             return false;
         }
 
-        Boolean leftMyopia = StatUtil.isMyopia( EyeDataUtil.leftSph(result),  EyeDataUtil.leftSph(result), null, EyeDataUtil.leftNakedVision(result));
-        Boolean rightMyopia = StatUtil.isMyopia( EyeDataUtil.rightSph(result),  EyeDataUtil.rightSph(result), null, EyeDataUtil.rightNakedVision(result));
+        Boolean leftMyopia = StatUtil.isMyopia(EyeDataUtil.leftSph(result), EyeDataUtil.leftSph(result), EyeDataUtil.leftNakedVision(result));
+        Boolean rightMyopia = StatUtil.isMyopia(EyeDataUtil.rightSph(result), EyeDataUtil.rightSph(result), EyeDataUtil.rightNakedVision(result));
         if (ObjectsUtil.allNull(leftMyopia, rightMyopia)) {
             return false;
         }
-        return StatUtil.getIsExist(leftMyopia,rightMyopia);
+        return StatUtil.getIsExist(leftMyopia, rightMyopia);
     }
 
-    private Integer setVisionCorrection(VisionScreeningResult result) {
-        if (BigDecimalUtil.lessThan(EyeDataUtil.leftCorrectedVision(result),"4.9") || BigDecimalUtil.lessThan(EyeDataUtil.rightCorrectedVision(result),"4.9")) {
-            return VisionCorrection.UNDER_CORRECTED.getCode();
+    private Integer setVisionCorrection(StatConclusion statConclusion, VisionScreeningResult result) {
+        if (Objects.isNull(result)) {
+            return null;
         }
-        return VisionCorrection.ENOUGH_CORRECTED.getCode();
-
+        if (Objects.equals(statConclusion.getIsMyopia(), Boolean.TRUE)) {
+            if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.NOT_WEARING.getCode())) {
+                return VisionCorrection.UNCORRECTED.getCode();
+            }
+            if (BigDecimalUtil.lessThan(EyeDataUtil.leftCorrectedVision(result), "4.9") || BigDecimalUtil.lessThan(EyeDataUtil.rightCorrectedVision(result), "4.9")) {
+                return VisionCorrection.UNDER_CORRECTED.getCode();
+            }
+        }
+        return null;
     }
 
 }
