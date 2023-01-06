@@ -26,6 +26,16 @@ public class KindergartenVisionInfoDTO {
     private List<KindergartenGenderLowVision> genderVision;
 
     /**
+     * 男生占总体低常率
+     */
+    private Float maleGeneralLowVisionRatio;
+
+    /**
+     * 女生占总体低常率
+     */
+    private Float femaleGeneralLowVisionRatio;
+
+    /**
      * 视力程度情况（年级）
      */
     private List<KindergartenStudentLowVision> gradeVision;

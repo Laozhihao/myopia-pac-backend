@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.api.management.service.report.refactor;
 
 import com.google.common.collect.Lists;
+import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatGenderDTO;
@@ -173,10 +174,14 @@ public class KindergartenVisionReportService {
                                                    Map<String, List<StatConclusion>> statConclusionGradeMap,
                                                    Map<String, List<SchoolClass>> classMap,
                                                    Map<String, List<StatConclusion>> statConclusionClassMap) {
+        // 获取性别维度视力情况
+        ThreeTuple<List<KindergartenVisionInfoDTO.KindergartenGenderLowVision>, Float, Float> genderVision = getGenderVision(statGender, summary);
         // 获取年级视力情况及总结
         TwoTuple<List<KindergartenVisionInfoDTO.KindergartenStudentLowVision>, SummaryDTO> gradeVision = getGradeVision(gradeCodes, statConclusionGradeMap);
         return KindergartenVisionInfoDTO.builder()
-                .genderVision(getGenderVision(statGender, summary))
+                .genderVision(genderVision.getFirst())
+                .maleGeneralLowVisionRatio(genderVision.getSecond())
+                .femaleGeneralLowVisionRatio(genderVision.getThird())
                 .gradeVision(gradeVision.getFirst())
                 .gradeVisionSummary(gradeVision.getSecond())
                 .classVision(getClassVision(gradeCodes, classMap, statConclusionClassMap))
@@ -186,9 +191,9 @@ public class KindergartenVisionReportService {
     /**
      * 获取性别视力情况及总结
      * @param statGender
-     * @return 性别视力情况
+     * @return 性别视力情况, 男生总休视力低常率， 女生总体视力低常率
      */
-    public List<KindergartenVisionInfoDTO.KindergartenGenderLowVision> getGenderVision(StatGenderDTO statGender, KindergartenScreeningSummaryDTO summary) {
+    public ThreeTuple<List<KindergartenVisionInfoDTO.KindergartenGenderLowVision>, Float, Float> getGenderVision(StatGenderDTO statGender, KindergartenScreeningSummaryDTO summary) {
         // 男女视力情况
         KindergartenVisionInfoDTO.KindergartenGenderLowVision male = KindergartenVisionInfoDTO.KindergartenGenderLowVision.getInstance("男");
         conclusion2Vision(statGender.getMale(), male);
@@ -197,7 +202,9 @@ public class KindergartenVisionReportService {
         // 总结
         KindergartenVisionInfoDTO.KindergartenGenderLowVision total = KindergartenVisionInfoDTO.KindergartenGenderLowVision.getInstance("总体情况");
         total.setLowVisionNum(summary.getLowVisionNum()).setLowVisionRatio(summary.getLowVisionRatio()).setValidScreeningNum(summary.getValidScreeningNum());
-        return Arrays.asList(male, female, total);
+        return new ThreeTuple(Arrays.asList(male, female, total),
+                MathUtil.divideFloat(male.getLowVisionNum(), summary.getValidScreeningNum()),
+                MathUtil.divideFloat(female.getLowVisionNum(), summary.getValidScreeningNum()));
     }
 
     /**
