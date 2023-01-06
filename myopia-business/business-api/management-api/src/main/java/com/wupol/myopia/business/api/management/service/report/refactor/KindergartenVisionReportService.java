@@ -65,7 +65,7 @@ public class KindergartenVisionReportService {
     public KindergartenVisionReportDTO kindergartenSchoolVisionReport(Integer planId, Integer schoolId) {
 
 
-        List<StatConclusion> allConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> SchoolAge.primaryAndAboveCode().contains(s.getSchoolAge())).collect(Collectors.toList());
+        List<StatConclusion> allConclusions = statConclusionService.getByPlanIdSchoolId(planId, schoolId).stream().filter(s -> Objects.equals(s.getSchoolAge(), SchoolAge.KINDERGARTEN.code)).collect(Collectors.toList());
 
         // 获取数据，并修复数据
         StatBaseDTO statBase = new StatBaseDTO(allConclusions);
