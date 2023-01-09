@@ -126,7 +126,7 @@ public class RefractiveSituationDTO {
         /**
          * 总结
          */
-        private List<RefractiveSituationSummary> summary;
+        private List<CompareSummaryDTO> summary;
 
         public static GradeRefractiveSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
             RefractiveSituationDTO.GradeRefractiveSituation gradeRefractiveSituation = new RefractiveSituationDTO.GradeRefractiveSituation();
@@ -136,9 +136,9 @@ public class RefractiveSituationDTO {
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-            RefractiveSituationDTO.RefractiveSituationSummary lowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
-            RefractiveSituationDTO.RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
-            RefractiveSituationDTO.RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
+            CompareSummaryDTO lowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getLowMyopiaRatio, "lowMyopia");
+            CompareSummaryDTO highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getHighMyopiaRatio, "highMyopia");
+            CompareSummaryDTO astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituationDTO.RefractiveSituation::getAstigmatismRatio, "astigmatism");
             gradeRefractiveSituation.setSummary(Lists.newArrayList(lowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
             return gradeRefractiveSituation;
         }
@@ -146,10 +146,10 @@ public class RefractiveSituationDTO {
         /**
          * 总结
          *
-         * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
+         * @return CompareSummaryDTO
          */
-        private static RefractiveSituationDTO.RefractiveSituationSummary getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
-            RefractiveSituationDTO.RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationDTO.RefractiveSituationSummary();
+        private static CompareSummaryDTO getGradeRefractiveSituationSummary(List<RefractiveSituationDTO.GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
+            CompareSummaryDTO refractiveSituationSummary = new CompareSummaryDTO();
             Map<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
             Float firstKey = MapUtils.getFirstKey(sortMap);
             Map.Entry<Float, List<RefractiveSituationDTO.GradeRefractiveSituationItem>> tail = MapUtils.getLastEntry(sortMap);
@@ -233,39 +233,6 @@ public class RefractiveSituationDTO {
         public void setRowSpan(AtomicBoolean isFirst, Integer size) {
             rowSpan = RowSpanUtils.setRowSpan(isFirst, size);
         }
-    }
-
-    /**
-     * 总结
-     */
-    @Getter
-    @Setter
-    public static class RefractiveSituationSummary {
-
-        /**
-         * 名称
-         */
-        private String keyName;
-
-        /**
-         * 最高名称
-         */
-        private List<String> highName;
-
-        /**
-         * 最高百分比
-         */
-        private Float highRadio;
-
-        /**
-         * 最低名称
-         */
-        private List<String> lowName;
-
-        /**
-         * 最低百分比
-         */
-        private Float lowRadio;
     }
 
     /**
