@@ -77,6 +77,7 @@ public class KindergartenVisionReportService {
         StatGenderDTO statGender = new StatGenderDTO(statBase.getValid());
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planId, schoolId);
+        int planSchoolStudentCount = (int)planSchoolStudents.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.code)).count();
         // 获取年级
         List<SchoolGrade> gradeList = schoolGradeService.getByIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
 
@@ -92,7 +93,7 @@ public class KindergartenVisionReportService {
         Map<String, List<StatConclusion>> statConclusionClassMap = statConclusions.stream().collect(Collectors.groupingBy(s -> s.getSchoolGradeCode() + s.getSchoolClassName()));
 
         KindergartenVisionReportDTO reportDTO = new KindergartenVisionReportDTO();
-        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudents.size(), statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
+        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudentCount, statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
         reportDTO.setStudentVision(getVisionInfo(statGender, reportDTO.getSummary(), gradeCodes, statConclusionGradeMap, classMap, statConclusionClassMap));
         reportDTO.setKindergartenRefractiveSituationDTO(generateRefractiveSituation(statConclusions, gradeCodes, classMap, statConclusionGradeMap, statConclusionClassMap));
         reportDTO.setWarningSituation(generateWarningSituation(gradeCodes, statConclusionGradeMap, statConclusions));
