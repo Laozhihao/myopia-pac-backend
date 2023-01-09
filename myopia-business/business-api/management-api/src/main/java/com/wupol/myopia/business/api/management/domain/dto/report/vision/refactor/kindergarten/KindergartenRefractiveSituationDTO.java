@@ -63,12 +63,12 @@ public class KindergartenRefractiveSituationDTO {
                 List<StatConclusion> genderStatConclusionList = genderStatConclusion.getOrDefault(s.type, new ArrayList<>());
                 RefractiveSituationItem refractiveSituation = new RefractiveSituationItem();
                 refractiveSituation.setGenderName(s.desc);
-                getRefractiveSituation(genderStatConclusionList, refractiveSituation);
+                getKindergartenRefractiveSituation(genderStatConclusionList, refractiveSituation);
                 return refractiveSituation;
             }).collect(Collectors.toList());
             RefractiveSituationItem totalRefractiveSituationItem = new RefractiveSituationItem();
             totalRefractiveSituationItem.setGenderName(CommonConst.TOTAL_DESC);
-            genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
+            genderList.add(getKindergartenRefractiveSituation(statConclusions, totalRefractiveSituationItem));
             genderRefractiveSituation.setItems(genderList);
             return genderRefractiveSituation;
         }
@@ -80,7 +80,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class RefractiveSituationItem extends RefractiveSituation {
+    public static class RefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 性别名称
@@ -112,11 +112,11 @@ public class KindergartenRefractiveSituationDTO {
                 List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
                 GradeRefractiveSituationItem gradeRefractiveSituationItem = new GradeRefractiveSituationItem();
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
-                return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
+                return getKindergartenRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-            CompareSummaryDTO refractiveError = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getRefractiveErrorRatio, "refractiveError");
-            CompareSummaryDTO anisometropia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAnisometropiaRatio, "anisometropia");
-            CompareSummaryDTO insufficientHyperopia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
+            CompareSummaryDTO refractiveError = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getRefractiveErrorRatio, "refractiveError");
+            CompareSummaryDTO anisometropia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getAnisometropiaRatio, "anisometropia");
+            CompareSummaryDTO insufficientHyperopia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
             gradeRefractiveSituation.setSummary(Lists.newArrayList(refractiveError, anisometropia, insufficientHyperopia));
             return gradeRefractiveSituation;
         }
@@ -146,7 +146,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class GradeRefractiveSituationItem extends RefractiveSituation {
+    public static class GradeRefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 年级名称
@@ -178,7 +178,7 @@ public class KindergartenRefractiveSituationDTO {
                     classRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                     classRefractiveSituationItem.setClassName(schoolClass.getName());
                     classRefractiveSituationItem.setRowSpan(isFirst, schoolClasses.size());
-                    items.add(getRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
+                    items.add(getKindergartenRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
                 });
             });
             classRefractiveSituation.setItems(items);
@@ -191,7 +191,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class ClassRefractiveSituationItem extends RefractiveSituation {
+    public static class ClassRefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 班级名称
@@ -218,7 +218,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class RefractiveSituation {
+    public static class KindergartenRefractiveSituation {
 
         /**
          * 筛查学生
@@ -262,7 +262,7 @@ public class KindergartenRefractiveSituationDTO {
      *
      * @return T
      */
-    private static <T extends RefractiveSituation> T getRefractiveSituation(List<StatConclusion> statConclusions, T t) {
+    private static <T extends KindergartenRefractiveSituation> T getKindergartenRefractiveSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
         t.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsRefractiveError(), Boolean.TRUE)).count());
