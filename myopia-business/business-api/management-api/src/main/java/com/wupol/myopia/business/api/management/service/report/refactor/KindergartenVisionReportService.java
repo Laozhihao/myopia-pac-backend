@@ -103,6 +103,17 @@ public class KindergartenVisionReportService {
         return reportDTO;
     }
 
+    /**
+     * 屈光情况
+     *
+     * @param statConclusions        统计数据
+     * @param gradeCodes             年级Code
+     * @param classMap               班级Map
+     * @param statConclusionGradeMap 年级数据分组
+     * @param statConclusionClassMap 班级数据分组
+     *
+     * @return KindergartenRefractiveSituationDTO
+     */
     private KindergartenRefractiveSituationDTO generateRefractiveSituation(List<StatConclusion> statConclusions, List<String> gradeCodes,
                                                                            Map<String, List<SchoolClass>> classMap,
                                                                            Map<String, List<StatConclusion>> statConclusionGradeMap,
@@ -114,9 +125,17 @@ public class KindergartenVisionReportService {
         return refractiveSituationDTO;
     }
 
+    /**
+     * 预警情况
+     *
+     * @param gradeCodes             年级Code
+     * @param statConclusionGradeMap 年级数据分组
+     * @param statConclusions        统计数据
+     *
+     * @return WarningSituationDTO
+     */
     private WarningSituationDTO generateWarningSituation(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap, List<StatConclusion> statConclusions) {
         WarningSituationDTO warningSituationDTO = new WarningSituationDTO();
-
         warningSituationDTO.setGradeWarningSituation(WarningSituationDTO.GradeWarningSituation.getInstance(gradeCodes, statConclusionGradeMap, statConclusions, true));
         return warningSituationDTO;
     }
