@@ -3,6 +3,9 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
+import com.wupol.myopia.base.util.RowSpanUtils;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.CompareSummaryDTO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -27,8 +30,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class KindergartenRefractiveSituationDTO {
-
-    private final static String TOTAL_DESC = "总体情况";
 
     /**
      * 不同性别屈光情况
@@ -62,12 +63,12 @@ public class KindergartenRefractiveSituationDTO {
                 List<StatConclusion> genderStatConclusionList = genderStatConclusion.getOrDefault(s.type, new ArrayList<>());
                 RefractiveSituationItem refractiveSituation = new RefractiveSituationItem();
                 refractiveSituation.setGenderName(s.desc);
-                getRefractiveSituation(genderStatConclusionList, refractiveSituation);
+                getKindergartenRefractiveSituation(genderStatConclusionList, refractiveSituation);
                 return refractiveSituation;
             }).collect(Collectors.toList());
             RefractiveSituationItem totalRefractiveSituationItem = new RefractiveSituationItem();
-            totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
-            genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
+            totalRefractiveSituationItem.setGenderName(CommonConst.TOTAL_DESC);
+            genderList.add(getKindergartenRefractiveSituation(statConclusions, totalRefractiveSituationItem));
             genderRefractiveSituation.setItems(genderList);
             return genderRefractiveSituation;
         }
@@ -79,7 +80,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class RefractiveSituationItem extends RefractiveSituation {
+    public static class RefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 性别名称
@@ -103,7 +104,7 @@ public class KindergartenRefractiveSituationDTO {
         /**
          * 总结
          */
-        private List<RefractiveSituationSummary> summary;
+        private List<CompareSummaryDTO> summary;
 
         public static GradeRefractiveSituation getInstance(List<String> gradeCodes, Map<String, List<StatConclusion>> statConclusionGradeMap) {
             GradeRefractiveSituation gradeRefractiveSituation = new GradeRefractiveSituation();
@@ -111,13 +112,31 @@ public class KindergartenRefractiveSituationDTO {
                 List<StatConclusion> gradeStatConclusion = statConclusionGradeMap.getOrDefault(s, new ArrayList<>());
                 GradeRefractiveSituationItem gradeRefractiveSituationItem = new GradeRefractiveSituationItem();
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
-                return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
+                return getKindergartenRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-            RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getRefractiveErrorRatio, "refractiveError");
-            RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAnisometropiaRatio, "anisometropia");
-            RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
-            gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
+            CompareSummaryDTO refractiveError = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getRefractiveErrorRatio, "refractiveError");
+            CompareSummaryDTO anisometropia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getAnisometropiaRatio, "anisometropia");
+            CompareSummaryDTO insufficientHyperopia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), KindergartenRefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
+            gradeRefractiveSituation.setSummary(Lists.newArrayList(refractiveError, anisometropia, insufficientHyperopia));
             return gradeRefractiveSituation;
+        }
+
+        /**
+         * 总结
+         *
+         * @return CompareSummaryDTO
+         */
+        private static CompareSummaryDTO getGradeRefractiveSituationSummary(List<GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
+            CompareSummaryDTO refractiveSituationSummary = new CompareSummaryDTO();
+            Map<Float, List<GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
+            Float firstKey = MapUtils.getFirstKey(sortMap);
+            Map.Entry<Float, List<GradeRefractiveSituationItem>> tail = MapUtils.getLastEntry(sortMap);
+            refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+            refractiveSituationSummary.setHighRadio(tail.getKey());
+            refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+            refractiveSituationSummary.setLowRadio(firstKey);
+            refractiveSituationSummary.setKeyName(keyName);
+            return refractiveSituationSummary;
         }
 
     }
@@ -127,7 +146,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class GradeRefractiveSituationItem extends RefractiveSituation {
+    public static class GradeRefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 年级名称
@@ -159,7 +178,7 @@ public class KindergartenRefractiveSituationDTO {
                     classRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                     classRefractiveSituationItem.setClassName(schoolClass.getName());
                     classRefractiveSituationItem.setRowSpan(isFirst, schoolClasses.size());
-                    items.add(getRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
+                    items.add(getKindergartenRefractiveSituation(classStatConclusion, classRefractiveSituationItem));
                 });
             });
             classRefractiveSituation.setItems(items);
@@ -172,12 +191,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class ClassRefractiveSituationItem extends RefractiveSituation {
-
-        /**
-         * 年级名称
-         */
-        private String gradeName;
+    public static class ClassRefractiveSituationItem extends KindergartenRefractiveSituation {
 
         /**
          * 班级名称
@@ -185,51 +199,18 @@ public class KindergartenRefractiveSituationDTO {
         private String className;
 
         /**
+         * 年级名称
+         */
+        private String gradeName;
+
+        /**
          * rowSpan
          */
         private Integer rowSpan;
 
         public void setRowSpan(AtomicBoolean isFirst, Integer size) {
-            if (isFirst.get()) {
-                isFirst.set(false);
-                rowSpan = size;
-            } else {
-                rowSpan = 0;
-            }
+            rowSpan = RowSpanUtils.setRowSpan(isFirst, size);
         }
-    }
-
-    /**
-     * 总结
-     */
-    @Getter
-    @Setter
-    public static class RefractiveSituationSummary {
-
-        /**
-         * 名称
-         */
-        private String keyName;
-
-        /**
-         * 最高名称
-         */
-        private List<String> highName;
-
-        /**
-         * 最高百分比
-         */
-        private Float highRadio;
-
-        /**
-         * 最低名称
-         */
-        private List<String> lowName;
-
-        /**
-         * 最低百分比
-         */
-        private Float lowRadio;
     }
 
     /**
@@ -237,7 +218,7 @@ public class KindergartenRefractiveSituationDTO {
      */
     @Getter
     @Setter
-    public static class RefractiveSituation {
+    public static class KindergartenRefractiveSituation {
 
         /**
          * 筛查学生
@@ -281,7 +262,7 @@ public class KindergartenRefractiveSituationDTO {
      *
      * @return T
      */
-    private static <T extends RefractiveSituation> T getRefractiveSituation(List<StatConclusion> statConclusions, T t) {
+    private static <T extends KindergartenRefractiveSituation> T getKindergartenRefractiveSituation(List<StatConclusion> statConclusions, T t) {
         long screeningTotal = statConclusions.size();
         t.setScreeningStudentNum(screeningTotal);
         t.setRefractiveErrorNum(statConclusions.stream().filter(s -> Objects.equals(s.getIsRefractiveError(), Boolean.TRUE)).count());
@@ -291,24 +272,6 @@ public class KindergartenRefractiveSituationDTO {
         t.setInsufficientHyperopiaNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.getCode())).count());
         t.setInsufficientHyperopiaRatio(BigDecimalUtil.divideRadio(t.getInsufficientHyperopiaNum(), screeningTotal));
         return t;
-    }
-
-    /**
-     * 总结
-     *
-     * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
-     */
-    private static RefractiveSituationSummary getGradeRefractiveSituationSummary(List<GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
-        RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationSummary();
-        Map<Float, List<GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
-        Float firstKey = MapUtils.getFirstKey(sortMap);
-        Map.Entry<Float, List<GradeRefractiveSituationItem>> tail = MapUtils.getLastEntry(sortMap);
-        refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        refractiveSituationSummary.setHighRadio(tail.getKey());
-        refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        refractiveSituationSummary.setLowRadio(firstKey);
-        refractiveSituationSummary.setKeyName(keyName);
-        return refractiveSituationSummary;
     }
 
 }

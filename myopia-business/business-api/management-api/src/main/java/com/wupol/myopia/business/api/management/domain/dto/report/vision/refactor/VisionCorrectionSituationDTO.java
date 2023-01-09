@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.RowSpanUtils;
 import com.wupol.myopia.business.common.utils.constant.VisionCorrection;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -286,12 +287,7 @@ public class VisionCorrectionSituationDTO {
         private Integer rowSpan;
 
         public void setRowSpan(AtomicBoolean isFirst, Integer size) {
-            if (isFirst.get()) {
-                isFirst.set(false);
-                rowSpan = size;
-            } else {
-                rowSpan = 0;
-            }
+            rowSpan = RowSpanUtils.setRowSpan(isFirst, size);
         }
     }
 
