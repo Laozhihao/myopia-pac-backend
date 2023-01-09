@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
+import com.wupol.myopia.base.util.RowSpanUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
@@ -230,12 +231,7 @@ public class RefractiveSituationDTO {
         private Integer rowSpan;
 
         public void setRowSpan(AtomicBoolean isFirst, Integer size) {
-            if (isFirst.get()) {
-                isFirst.set(false);
-                rowSpan = size;
-            } else {
-                rowSpan = 0;
-            }
+            rowSpan = RowSpanUtils.setRowSpan(isFirst, size);
         }
     }
 

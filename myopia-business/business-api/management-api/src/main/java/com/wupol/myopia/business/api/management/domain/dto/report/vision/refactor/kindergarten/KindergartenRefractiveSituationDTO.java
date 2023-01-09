@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
+import com.wupol.myopia.base.util.RowSpanUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
@@ -119,6 +120,24 @@ public class KindergartenRefractiveSituationDTO {
             return gradeRefractiveSituation;
         }
 
+        /**
+         * 总结
+         *
+         * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
+         */
+        private static RefractiveSituationSummary getGradeRefractiveSituationSummary(List<GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
+            RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationSummary();
+            Map<Float, List<GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
+            Float firstKey = MapUtils.getFirstKey(sortMap);
+            Map.Entry<Float, List<GradeRefractiveSituationItem>> tail = MapUtils.getLastEntry(sortMap);
+            refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+            refractiveSituationSummary.setHighRadio(tail.getKey());
+            refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
+            refractiveSituationSummary.setLowRadio(firstKey);
+            refractiveSituationSummary.setKeyName(keyName);
+            return refractiveSituationSummary;
+        }
+
     }
 
     /**
@@ -189,12 +208,7 @@ public class KindergartenRefractiveSituationDTO {
         private Integer rowSpan;
 
         public void setRowSpan(AtomicBoolean isFirst, Integer size) {
-            if (isFirst.get()) {
-                isFirst.set(false);
-                rowSpan = size;
-            } else {
-                rowSpan = 0;
-            }
+            rowSpan = RowSpanUtils.setRowSpan(isFirst, size);
         }
     }
 
@@ -290,24 +304,6 @@ public class KindergartenRefractiveSituationDTO {
         t.setInsufficientHyperopiaNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.getCode())).count());
         t.setInsufficientHyperopiaRatio(BigDecimalUtil.divideRadio(t.getInsufficientHyperopiaNum(), screeningTotal));
         return t;
-    }
-
-    /**
-     * 总结
-     *
-     * @return RefractiveSituationDTO.GradeRefractiveSituationSummary
-     */
-    private static RefractiveSituationSummary getGradeRefractiveSituationSummary(List<GradeRefractiveSituationItem> gradeRefractiveSituationItems, Function<GradeRefractiveSituationItem, Float> myopiaLevelFunction, String keyName) {
-        RefractiveSituationSummary refractiveSituationSummary = new RefractiveSituationSummary();
-        Map<Float, List<GradeRefractiveSituationItem>> sortMap = MapUtils.sortMap(gradeRefractiveSituationItems.stream().collect(Collectors.groupingBy(myopiaLevelFunction)));
-        Float firstKey = MapUtils.getFirstKey(sortMap);
-        Map.Entry<Float, List<GradeRefractiveSituationItem>> tail = MapUtils.getLastEntry(sortMap);
-        refractiveSituationSummary.setHighName(sortMap.get(tail.getKey()).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        refractiveSituationSummary.setHighRadio(tail.getKey());
-        refractiveSituationSummary.setLowName(sortMap.get(firstKey).stream().map(GradeRefractiveSituationItem::getGradeName).collect(Collectors.toList()));
-        refractiveSituationSummary.setLowRadio(firstKey);
-        refractiveSituationSummary.setKeyName(keyName);
-        return refractiveSituationSummary;
     }
 
 }
