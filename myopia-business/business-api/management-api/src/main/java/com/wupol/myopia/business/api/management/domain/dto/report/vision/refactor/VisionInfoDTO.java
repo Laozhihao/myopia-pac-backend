@@ -76,7 +76,7 @@ public class VisionInfoDTO {
 
     @Data
     @Accessors(chain = true)
-    public static class StudentLowVisionLevel extends LowVisionLevelDTO {
+    public static class StudentLowVisionLevel extends LowVisionLevelDTO implements HasDimension {
 
         /**
          * 年级名称
@@ -114,6 +114,10 @@ public class VisionInfoDTO {
             return classVisionLevel.setGradeName(gradeName).setClassName(className).setRowSpan(0);
         }
 
+        @Override
+        public String dimensionName() {
+            return getGradeName();
+        }
     }
 
     /**

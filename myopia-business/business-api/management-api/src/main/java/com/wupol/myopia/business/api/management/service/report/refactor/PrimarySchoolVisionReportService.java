@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.service.report.refactor;
 
-import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
@@ -32,7 +31,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -321,28 +319,12 @@ public class PrimarySchoolVisionReportService {
             return item;
         }).collect(Collectors.toList());
         // 年级近视总结
-        SummaryDTO general = gradeMyopiaSummary(gradeMyopia, MyopiaInfoDTO.StudentGenderMyopia::getMyopiaRatio, "general");
+        SummaryDTO general = visionReportService.getSummary(gradeMyopia, (x -> ((MyopiaInfoDTO.StudentGenderMyopia)x).getMyopiaRatio()), "general");
         // 男生近视总结
-        SummaryDTO male = gradeMyopiaSummary(gradeMyopia, MyopiaInfoDTO.StudentGenderMyopia::getMaleMyopiaRatio, "male");
+        SummaryDTO male = visionReportService.getSummary(gradeMyopia, (x -> ((MyopiaInfoDTO.StudentGenderMyopia)x).getMaleMyopiaRatio()), "male");
         // 女生近视总结
-        SummaryDTO female = gradeMyopiaSummary(gradeMyopia, MyopiaInfoDTO.StudentGenderMyopia::getFemaleMyopiaRatio, "female");
+        SummaryDTO female = visionReportService.getSummary(gradeMyopia, (x -> ((MyopiaInfoDTO.StudentGenderMyopia)x).getFemaleMyopiaRatio()), "female");
         return TwoTuple.of(gradeMyopia, Arrays.asList(general, male, female));
-    }
-
-    /**
-     * 年级近视总结
-     * @param gradeMyopia
-     * @param keyMapper
-     * @param keyName
-     * @return
-     */
-    private SummaryDTO gradeMyopiaSummary(List<MyopiaInfoDTO.StudentGenderMyopia> gradeMyopia, Function<? super MyopiaInfoDTO.StudentGenderMyopia, ? extends Float> keyMapper, String keyName) {
-        TreeMap<Float, List<String>> summaryMap = gradeMyopia.stream()
-                .collect(Collectors.toMap(keyMapper,
-                        value -> Lists.newArrayList(value.getGradeName()),
-                        (List<String> value1, List<String> value2) -> { value1.addAll(value2); return value1;},
-                        TreeMap::new));
-        return new SummaryDTO(keyName, summaryMap.lastEntry().getValue(), summaryMap.lastKey(), summaryMap.firstEntry().getValue(), summaryMap.firstKey());
     }
 
     /**
@@ -472,7 +454,7 @@ public class PrimarySchoolVisionReportService {
             return item;
         }).collect(Collectors.toList());
         // 年级整体视力不良总结
-        SummaryDTO general = gradeVisionSummary(gradeMyopia, VisionInfoDTO.StudentLowVisionLevel::getLowVisionRatio, "general");
+        SummaryDTO general = visionReportService.getSummary(gradeMyopia, (x ->((VisionInfoDTO.StudentLowVisionLevel)x).getLowVisionRatio()), "general");
         return TwoTuple.of(gradeMyopia, general);
     }
 
@@ -525,22 +507,6 @@ public class PrimarySchoolVisionReportService {
         }
         summary.setHighName(highLowVisionLevel);
         return summary;
-    }
-
-    /**
-     * 年级近视总结
-     * @param gradeVistel
-     * @param keyMapper
-     * @param keyName
-     * @return
-     */
-    private SummaryDTO gradeVisionSummary(List<VisionInfoDTO.StudentLowVisionLevel> gradeVistel, Function<? super VisionInfoDTO.StudentLowVisionLevel, ? extends Float> keyMapper, String keyName) {
-        TreeMap<Float, List<String>> summaryMap = gradeVistel.stream()
-                .collect(Collectors.toMap(keyMapper,
-                        value -> Lists.newArrayList(value.getGradeName()),
-                        (List<String> value1, List<String> value2) -> { value1.addAll(value2); return value1;},
-                        TreeMap::new));
-        return new SummaryDTO(keyName, summaryMap.lastEntry().getValue(), summaryMap.lastKey(), summaryMap.firstEntry().getValue(), summaryMap.firstKey());
     }
 
     /**

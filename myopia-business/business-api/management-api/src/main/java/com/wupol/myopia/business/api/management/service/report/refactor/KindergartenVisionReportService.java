@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.management.service.report.refactor;
 
-import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
@@ -32,7 +31,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -237,7 +235,7 @@ public class KindergartenVisionReportService {
             return item;
         }).collect(Collectors.toList());
         // 年级近视总结
-        SummaryDTO general = gradeVisionSummary(gradeVision, KindergartenVisionInfoDTO.KindergartenStudentLowVision::getLowVisionRatio, "general");
+        SummaryDTO general = visionReportService.getSummary(gradeVision, (x ->((KindergartenVisionInfoDTO.KindergartenStudentLowVision)x).getLowVisionRatio()), "general");
         return TwoTuple.of(gradeVision, general);
     }
 
@@ -282,22 +280,6 @@ public class KindergartenVisionReportService {
         // 统计视力低常情况
         int lowVisionNum = (int)stats.stream().filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
         vision.generateData(stats.size(), lowVisionNum);
-    }
-
-    /**
-     * 年级低常总结
-     * @param gradeVision
-     * @param keyMapper
-     * @param keyName
-     * @return
-     */
-    private SummaryDTO gradeVisionSummary(List<KindergartenVisionInfoDTO.KindergartenStudentLowVision> gradeVision, Function<? super KindergartenVisionInfoDTO.KindergartenStudentLowVision, ? extends Float> keyMapper, String keyName) {
-        TreeMap<Float, List<String>> summaryMap = gradeVision.stream()
-                .collect(Collectors.toMap(keyMapper,
-                        value -> Lists.newArrayList(value.getGradeName()),
-                        (List<String> value1, List<String> value2) -> { value1.addAll(value2); return value1;},
-                        TreeMap::new));
-        return new SummaryDTO(keyName, summaryMap.lastEntry().getValue(), summaryMap.lastKey(), summaryMap.firstEntry().getValue(), summaryMap.firstKey());
     }
 
 }

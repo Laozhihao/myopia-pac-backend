@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten;
 
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.HasDimension;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SummaryDTO;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import lombok.AllArgsConstructor;
@@ -114,7 +115,7 @@ public class KindergartenVisionInfoDTO {
 
     @Data
     @Accessors(chain = true)
-    public static class KindergartenStudentLowVision extends KindergartenLowVision {
+    public static class KindergartenStudentLowVision extends KindergartenLowVision implements HasDimension {
 
         /**
          * 年级名称
@@ -152,6 +153,10 @@ public class KindergartenVisionInfoDTO {
             return classLowVision.setGradeName(gradeName).setClassName(className).setRowSpan(0);
         }
 
+        @Override
+        public String dimensionName() {
+            return getGradeName();
+        }
     }
 
 }

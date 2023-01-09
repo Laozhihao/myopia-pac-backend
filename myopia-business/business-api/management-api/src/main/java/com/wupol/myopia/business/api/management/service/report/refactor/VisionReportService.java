@@ -1,9 +1,12 @@
 package com.wupol.myopia.business.api.management.service.report.refactor;
 
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatGenderDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.HasDimension;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.ReportBaseSummaryDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SummaryDTO;
 import com.wupol.myopia.business.common.utils.constant.NumberCommonConst;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -19,10 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -108,6 +109,22 @@ public class VisionReportService {
         List<StatConclusion> hasVision = valid.stream().filter(stat -> !GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).collect(Collectors.toList());
         BigDecimal visionNum = hasVision.stream().map(stat -> stat.getVisionR().add(stat.getVisionL())).reduce(BigDecimal.ZERO, BigDecimal::add);
         return visionNum.divide(new BigDecimal(hasVision.size() * 2), NumberCommonConst.ONE_INT, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * 获取总结
+     * @param dimensions
+     * @param keyMapper
+     * @param keyName
+     * @return
+     */
+    public SummaryDTO getSummary(List<? extends HasDimension> dimensions, Function<? super HasDimension, ? extends Float> keyMapper, String keyName) {
+        TreeMap<Float, List<String>> summaryMap = dimensions.stream()
+                .collect(Collectors.toMap(keyMapper,
+                        value -> Lists.newArrayList(value.dimensionName()),
+                        (List<String> value1, List<String> value2) -> { value1.addAll(value2); return value1;},
+                        TreeMap::new));
+        return new SummaryDTO(keyName, summaryMap.lastEntry().getValue(), summaryMap.lastKey(), summaryMap.firstEntry().getValue(), summaryMap.firstKey());
     }
 
 }

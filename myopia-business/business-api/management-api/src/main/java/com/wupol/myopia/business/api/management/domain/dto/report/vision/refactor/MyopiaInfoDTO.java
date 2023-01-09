@@ -49,7 +49,7 @@ public class MyopiaInfoDTO {
 
     @Data
     @Accessors(chain = true)
-    public static class StudentGenderMyopia extends GenderMyopiaInfoDTO {
+    public static class StudentGenderMyopia extends GenderMyopiaInfoDTO implements HasDimension {
 
         /**
          * 年级名称
@@ -87,6 +87,10 @@ public class MyopiaInfoDTO {
             return studentGenderMyopia.setGradeName(gradeName).setClassName(className).setRowSpan(0);
         }
 
+        @Override
+        public String dimensionName() {
+            return getGradeName();
+        }
     }
 
 }
