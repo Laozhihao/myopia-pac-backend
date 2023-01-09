@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.dto.report.vision.refact
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.MapUtils;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -27,8 +28,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class KindergartenRefractiveSituationDTO {
-
-    private final static String TOTAL_DESC = "总体情况";
 
     /**
      * 不同性别屈光情况
@@ -66,7 +65,7 @@ public class KindergartenRefractiveSituationDTO {
                 return refractiveSituation;
             }).collect(Collectors.toList());
             RefractiveSituationItem totalRefractiveSituationItem = new RefractiveSituationItem();
-            totalRefractiveSituationItem.setGenderName(TOTAL_DESC);
+            totalRefractiveSituationItem.setGenderName(CommonConst.TOTAL_DESC);
             genderList.add(getRefractiveSituation(statConclusions, totalRefractiveSituationItem));
             genderRefractiveSituation.setItems(genderList);
             return genderRefractiveSituation;
@@ -113,10 +112,10 @@ public class KindergartenRefractiveSituationDTO {
                 gradeRefractiveSituationItem.setGradeName(GradeCodeEnum.getDesc(s));
                 return getRefractiveSituation(gradeStatConclusion, gradeRefractiveSituationItem);
             }).collect(Collectors.toList()));
-            RefractiveSituationSummary LowMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getRefractiveErrorRatio, "refractiveError");
-            RefractiveSituationSummary highMyopiaSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAnisometropiaRatio, "anisometropia");
-            RefractiveSituationSummary astigmatismSummary = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
-            gradeRefractiveSituation.setSummary(Lists.newArrayList(LowMyopiaSummary, highMyopiaSummary, astigmatismSummary));
+            RefractiveSituationSummary refractiveError = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getRefractiveErrorRatio, "refractiveError");
+            RefractiveSituationSummary anisometropia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getAnisometropiaRatio, "anisometropia");
+            RefractiveSituationSummary insufficientHyperopia = getGradeRefractiveSituationSummary(gradeRefractiveSituation.getItems(), RefractiveSituation::getInsufficientHyperopiaRatio, "insufficientHyperopia");
+            gradeRefractiveSituation.setSummary(Lists.newArrayList(refractiveError, anisometropia, insufficientHyperopia));
             return gradeRefractiveSituation;
         }
 
