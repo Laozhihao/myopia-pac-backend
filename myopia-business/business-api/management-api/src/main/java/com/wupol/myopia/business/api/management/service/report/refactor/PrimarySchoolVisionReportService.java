@@ -78,6 +78,7 @@ public class PrimarySchoolVisionReportService {
         StatGenderDTO statGender = new StatGenderDTO(statBase.getValid());
 
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(planId, schoolId);
+        int planSchoolStudentCount = (int)planSchoolStudents.stream().filter(s -> !Objects.equals(SchoolAge.KINDERGARTEN.getCode(), s.getGradeType())).count();
         // 获取年级
         List<SchoolGrade> gradeList = schoolGradeService.getByIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getGradeId).collect(Collectors.toList()));
 
@@ -95,7 +96,7 @@ public class PrimarySchoolVisionReportService {
         // 通过筛查数据进行统计
         PrimarySchoolVisionReportDTO reportDTO = new PrimarySchoolVisionReportDTO();
         // 总述
-        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudents.size(), statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
+        reportDTO.setSummary(getScreeningSummary(planId, schoolId, statBase, statGender, planSchoolStudentCount, statConclusionGradeMap.keySet().size(), statConclusionClassMap.keySet().size()));
 
         // 学生近视情况
         CompletableFuture<MyopiaInfoDTO> c1 = CompletableFuture.supplyAsync(() -> {
