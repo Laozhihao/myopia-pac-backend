@@ -216,7 +216,7 @@ public class KindergartenVisionReportService {
         // 总结
         KindergartenVisionInfoDTO.KindergartenGenderLowVision total = KindergartenVisionInfoDTO.KindergartenGenderLowVision.getInstance("总体情况");
         total.setLowVisionNum(summary.getLowVisionNum()).setLowVisionRatio(summary.getLowVisionRatio()).setValidScreeningNum(summary.getValidScreeningNum());
-        return new ThreeTuple(Arrays.asList(male, female, total),
+        return new ThreeTuple<>(Arrays.asList(male, female, total),
                 MathUtil.divideFloat(male.getLowVisionNum(), summary.getValidScreeningNum()),
                 MathUtil.divideFloat(female.getLowVisionNum(), summary.getValidScreeningNum()));
     }

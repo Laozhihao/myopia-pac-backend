@@ -54,6 +54,38 @@ public class WarningSituationDTO {
             gradeWarningSituation.setItems(items);
             return gradeWarningSituation;
         }
+
+        /**
+         * 预警情况
+         *
+         * @return T
+         */
+        private static <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t, Boolean isKindergarten) {
+            long screeningTotal = statConclusions.size();
+            t.setScreeningStudentNum(screeningTotal);
+            if (Objects.equals(isKindergarten, Boolean.TRUE)) {
+                t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code) || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count());
+            } else {
+                t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count());
+            }
+            t.setZeroWarningRatio(BigDecimalUtil.divideRadio(t.getZeroWarningNum(), screeningTotal));
+            t.setOneWarningNum(warningSituationCount(statConclusions, WarningLevel.ONE.code));
+            t.setOneWarningRatio(BigDecimalUtil.divideRadio(t.getOneWarningNum(), screeningTotal));
+            t.setTwoWarningNum(warningSituationCount(statConclusions, WarningLevel.TWO.code));
+            t.setTwoWarningRatio(BigDecimalUtil.divideRadio(t.getTwoWarningNum(), screeningTotal));
+            t.setThreeWarningNum(warningSituationCount(statConclusions, WarningLevel.THREE.code));
+            t.setThreeWarningRatio(BigDecimalUtil.divideRadio(t.getThreeWarningNum(), screeningTotal));
+            return t;
+        }
+
+        /**
+         * 预警情况统计
+         *
+         * @return Long
+         */
+        private static Long warningSituationCount(List<StatConclusion> statConclusions, Integer type) {
+            return statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), type)).count();
+        }
     }
 
     /**
@@ -121,37 +153,4 @@ public class WarningSituationDTO {
          */
         private Float threeWarningRatio;
     }
-
-    /**
-     * 预警情况
-     *
-     * @return T
-     */
-    private static <T extends WarningSituationDTO.WarningSituation> T getWarningSituation(List<StatConclusion> statConclusions, T t, Boolean isKindergarten) {
-        long screeningTotal = statConclusions.size();
-        t.setScreeningStudentNum(screeningTotal);
-        if (Objects.equals(isKindergarten, Boolean.TRUE)) {
-            t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code) || Objects.equals(s.getWarningLevel(), WarningLevel.ZERO_SP.code)).count());
-        } else {
-            t.setZeroWarningNum(statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), WarningLevel.ZERO.code)).count());
-        }
-        t.setZeroWarningRatio(BigDecimalUtil.divideRadio(t.getZeroWarningNum(), screeningTotal));
-        t.setOneWarningNum(warningSituationCount(statConclusions, WarningLevel.ONE.code));
-        t.setOneWarningRatio(BigDecimalUtil.divideRadio(t.getOneWarningNum(), screeningTotal));
-        t.setTwoWarningNum(warningSituationCount(statConclusions, WarningLevel.TWO.code));
-        t.setTwoWarningRatio(BigDecimalUtil.divideRadio(t.getTwoWarningNum(), screeningTotal));
-        t.setThreeWarningNum(warningSituationCount(statConclusions, WarningLevel.THREE.code));
-        t.setThreeWarningRatio(BigDecimalUtil.divideRadio(t.getThreeWarningNum(), screeningTotal));
-        return t;
-    }
-
-    /**
-     * 预警情况统计
-     *
-     * @return Long
-     */
-    private static Long warningSituationCount(List<StatConclusion> statConclusions, Integer type) {
-        return statConclusions.stream().filter(s -> Objects.equals(s.getWarningLevel(), type)).count();
-    }
-
 }
