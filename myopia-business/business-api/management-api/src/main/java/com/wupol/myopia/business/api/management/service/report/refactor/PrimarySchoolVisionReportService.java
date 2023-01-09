@@ -3,7 +3,6 @@ package com.wupol.myopia.business.api.management.service.report.refactor;
 import com.google.common.collect.Lists;
 import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.framework.domain.TwoTuple;
-import com.wupol.myopia.base.util.DigitUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.StatBaseDTO;
@@ -87,7 +86,7 @@ public class PrimarySchoolVisionReportService {
 
         // 获取班级
         List<SchoolClass> classList = schoolClassService.getByIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList()));
-        sortStatList(planId, schoolId, classList);
+        schoolClassService.sortStatList(classList);
         Map<String, List<SchoolClass>> classMap = classList.stream().collect(Collectors.groupingBy(s -> gradeMap.get(s.getGradeId())));
 
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
@@ -130,23 +129,6 @@ public class PrimarySchoolVisionReportService {
         }, executor);
         CompletableFuture.allOf(c1, c2, c3, c4, c5).join();
         return reportDTO;
-    }
-
-    /**
-     * 排序
-     */
-    private static void sortStatList(Integer planId, Integer schoolId, List<SchoolClass> classList) {
-        try {
-            classList.sort(Comparator.comparing(s -> Integer.valueOf(s.getName().substring(0, s.getName().length() - 1))));
-            return;
-        } catch (Exception e) {
-            log.error("中小学报告年级排序异常,planId:{},schoolId:{}", planId, schoolId);
-        }
-        try {
-            classList.sort(Comparator.comparing(s -> DigitUtil.chineseNumToArabicNum(s.getName().substring(0, s.getName().length() - 1))));
-        } catch (Exception e) {
-            log.error("中小学报告年级排序异常,planId:{},schoolId:{}", planId, schoolId);
-        }
     }
 
     /**

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.DigitUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
@@ -252,6 +253,21 @@ public class SchoolClassService extends BaseService<SchoolClassMapper, SchoolCla
      */
     public List<SchoolClassDTO> getClassDTOByIds(List<Integer> ids) {
         return baseMapper.getByIds(ids);
+    }
+
+    /**
+     * 排序
+     */
+    public void sortStatList(List<SchoolClass> classList) {
+        try {
+            classList.sort(Comparator.comparing(s -> Integer.valueOf(s.getName().substring(0, s.getName().length() - 1))));
+            return;
+        } catch (Exception ignored) {
+        }
+        try {
+            classList.sort(Comparator.comparing(s -> DigitUtil.chineseNumToArabicNum(s.getName().substring(0, s.getName().length() - 1))));
+        } catch (Exception ignored) {
+        }
     }
 
 }

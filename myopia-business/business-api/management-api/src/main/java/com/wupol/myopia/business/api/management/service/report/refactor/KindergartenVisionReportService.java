@@ -85,11 +85,7 @@ public class KindergartenVisionReportService {
 
         // 获取班级
         List<SchoolClass> classList = schoolClassService.getByIds(planSchoolStudents.stream().map(ScreeningPlanSchoolStudent::getClassId).collect(Collectors.toList()));
-        try {
-            classList.sort(Comparator.comparing(s -> Integer.valueOf(s.getName().substring(0, s.getName().length() - 1))));
-        } catch (Exception e) {
-            log.error("中小学报告年级排序异常!planId:{},schoolId:{}", planId, schoolId);
-        }
+        schoolClassService.sortStatList(classList);
         Map<String, List<SchoolClass>> classMap = classList.stream().collect(Collectors.groupingBy(s -> gradeMap.get(s.getGradeId())));
 
         Map<String, List<StatConclusion>> statConclusionGradeMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolGradeCode));
