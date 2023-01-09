@@ -159,6 +159,3 @@ white-list:
   - "/management/report/districtCommonDiseaseReport"
   - "/management/report/schoolCommonDiseaseReport"
   - "/api/device/uploadFundus"
-  - "/management/report/refactor/school/primary"
-  - "/management/report/refactor/school/studentType"
-  - "/management/report/refactor/school/kindergarten"
