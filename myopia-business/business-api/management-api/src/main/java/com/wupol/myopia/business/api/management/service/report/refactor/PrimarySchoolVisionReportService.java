@@ -149,7 +149,7 @@ public class PrimarySchoolVisionReportService {
             return responseDTO;
         }
         // 幼儿园
-        responseDTO.setIsHaveKindergarten(planSchoolStudents.stream().anyMatch(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.getType())));
+        responseDTO.setIsHaveKindergarten(planSchoolStudents.stream().anyMatch(s -> Objects.equals(s.getGradeType(), SchoolAge.KINDERGARTEN.getCode())));
 
         // 小学及以上
         responseDTO.setIsHavePrimary(planSchoolStudents.stream().anyMatch(s -> SchoolAge.primaryAndAboveCode().contains(s.getGradeType())));
