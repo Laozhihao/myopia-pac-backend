@@ -24,7 +24,8 @@
     </resultMap>
 
     <resultMap id="ResultWithPlanInfo" type="com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO" extends="BaseResultMap">
-
+    </resultMap>
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
     </resultMap>
 
 
@@ -103,14 +104,19 @@
         WHERE msp.release_status = 1 AND DATE(mvsr.update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
     </select>
 
-    <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="getSchoolCountByPlanIdAndSchoolIds" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
         from m_vision_screening_result
-        where school_id = #{schoolId}
-          and screening_org_id = #{orgId}
-          and plan_id = #{planId}
-          and is_double_screen = 0
+        where plan_id = #{planId}
+          <if test="isDoubleScreen != null">
+              and is_double_screen = #{isDoubleScreen}
+          </if>
+          <if test="schoolIds != null and schoolIds.size() != 0">
+              and school_id in
+              <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+                  #{schoolId}
+              </foreach>
+          </if>
     </select>
 
     <select id="getReleasePlanResultByStudentId" resultMap="BaseResultMap">

@@ -13,6 +13,8 @@
     </resultMap>
     <resultMap id="CommonDiseasePlanStudent" type="com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent">
     </resultMap>
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -329,6 +331,12 @@
         from m_screening_plan_school_student
         where school_id = #{schoolId}
           and src_screening_notice_id = #{noticeId}
+    </select>
+
+    <select id="getSchoolCountByPlanId" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId} GROUP BY school_id
     </select>
 
     <delete id="deleteByPlanIdAndExcludeSchoolIds">

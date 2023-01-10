@@ -227,18 +227,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     }
 
     /**
-     * 获取筛查结果
-     *
-     * @param schoolId 学校ID
-     * @param orgId    机构ID
-     * @param planId   计划ID
-     * @return List<VisionScreeningResult> 筛查结果
-     */
-    public List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(Integer schoolId, Integer orgId, Integer planId) {
-        return baseMapper.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId);
-    }
-
-    /**
      * 获取学生的筛查记录
      *
      * @return 学生筛查记录
@@ -320,11 +308,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
     }
 
-    public List<VisionScreeningResult> getByPlanIdAndIsDoubleScreen(Integer planId,Boolean isDoubleScreen,Integer schoolId) {
-        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
-                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen)
-                .eq(VisionScreeningResult::getPlanId,planId)
-                .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
+    public List<SchoolCountDO> getSchoolCountByPlanIdAndSchoolIds(Integer planId, Integer isDoubleScreen, Set<Integer> schoolIds) {
+        return baseMapper.getSchoolCountByPlanIdAndSchoolIds(planId, isDoubleScreen, schoolIds);
     }
 
     /**
