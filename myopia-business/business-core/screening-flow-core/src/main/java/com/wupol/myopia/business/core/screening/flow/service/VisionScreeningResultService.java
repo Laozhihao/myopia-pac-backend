@@ -653,4 +653,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> resultList = baseMapper.getByPlanStudentIds(planStudentIds);
         return resultList.stream().filter(s -> Objects.equals(s.getIsDoubleScreen(), Boolean.FALSE)).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
     }
+
+    public Map<Integer, VisionScreeningResult> getMapByIds(List<Integer> resultId) {
+        if (CollectionUtils.isEmpty(resultId)) {
+            return new HashMap<>();
+        }
+        List<VisionScreeningResult> visionScreeningResults = baseMapper.selectBatchIds(resultId);
+        return visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
+    }
+
 }

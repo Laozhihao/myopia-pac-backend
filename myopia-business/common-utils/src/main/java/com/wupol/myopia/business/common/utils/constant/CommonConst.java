@@ -277,4 +277,9 @@ public class CommonConst {
      * 学校筛查数据导入失败
      */
     public static final String SCHOOL_TEMPLATE_EXCEL_IMPORT_ERROR = "【筛查计划数据导入异常】%s-%s筛查计划数据导入异常，请联系管理员";
+
+    /**
+     * 总体情况
+     */
+    public static final String TOTAL_DESC = "总体情况";
 }

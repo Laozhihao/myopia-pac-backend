@@ -380,8 +380,8 @@ public class StatConclusionBuilder {
             statConclusion.setIsMyopia(Boolean.TRUE);
             return;
         }
-        Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(),basicData.getAge(),basicData.getLeftNakedVision());
-        Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(),basicData.getAge(),basicData.getRightNakedVision());
+        Boolean isLeftMyopia = StatUtil.isMyopia(basicData.getLeftSph(),basicData.getLeftCyl(), basicData.getLeftNakedVision());
+        Boolean isRightMyopia = StatUtil.isMyopia(basicData.getRightSph(),basicData.getRightCyl(), basicData.getRightNakedVision());
         statConclusion.setIsMyopia(StatUtil.getIsExist(isLeftMyopia,isRightMyopia));
     }
 

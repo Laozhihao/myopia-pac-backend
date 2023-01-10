@@ -168,6 +168,9 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
      * 根据id列表查询
      */
     public List<SchoolGrade> getByIds(List<Integer> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
         return baseMapper.getByIds(ids);
     }
 

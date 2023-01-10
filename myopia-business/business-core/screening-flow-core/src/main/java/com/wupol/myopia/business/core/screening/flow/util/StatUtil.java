@@ -234,10 +234,9 @@ public class StatUtil {
      *
      * @param sphere      球镜
      * @param cylinder    柱镜
-     * @param age         年龄
      * @param nakedVision 裸眼视力
      */
-    public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, Integer age, BigDecimal nakedVision) {
+    public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, BigDecimal nakedVision) {
 
         BigDecimal se = getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se) || Objects.isNull(nakedVision)) {
@@ -1689,11 +1688,11 @@ public class StatUtil {
         List<WarningLevel> warningLevelList = Lists.newArrayList();
         if (!Objects.equals(schoolType,SchoolAge.KINDERGARTEN.code)){
             //裸眼视力
-            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
+//            warningLevelList.add(StatUtil.nakedVision(nakedVision, age));
             //近视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 0));
             //散光
-            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
+//            warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 1));
             //远视
             warningLevelList.add(StatUtil.warningLevel(spn, cyl, age, 2));
         }
