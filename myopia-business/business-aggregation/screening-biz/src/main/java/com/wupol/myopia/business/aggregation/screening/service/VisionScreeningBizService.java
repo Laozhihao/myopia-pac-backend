@@ -79,7 +79,7 @@ public class VisionScreeningBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public TwoTuple<VisionScreeningResult, StatConclusion> saveOrUpdateStudentScreenData(ScreeningResultBasicData screeningResultBasicData) {
-        // 1: 根据筛查计划获得 初筛和复测数据
+        // 1: 根据筛查计划获得 历史初筛和复测数据，第一个数据与当前上传数据的筛查阶段一致
         // 2: 本次检查数据如果是复测，要验证是否符合初筛条件
         TwoTuple<VisionScreeningResult, VisionScreeningResult> currentAndOtherResult = getAllFirstAndSecondResult(screeningResultBasicData);
 
@@ -87,7 +87,7 @@ public class VisionScreeningBizService {
         checkCanSaveScreeningResultBasicDataWithUpdateTime(screeningResultBasicData, currentAndOtherResult);
 
         VisionScreeningResult currentVisionScreeningResult = currentAndOtherResult.getFirst();
-        // 获取了筛查计划
+        // 构建VisionScreeningResult,放入当前检查项数据
         currentVisionScreeningResult = getScreeningResult(screeningResultBasicData, currentVisionScreeningResult);
         if (Objects.isNull(currentAndOtherResult.getFirst())) {
             currentAndOtherResult.setFirst(currentVisionScreeningResult);

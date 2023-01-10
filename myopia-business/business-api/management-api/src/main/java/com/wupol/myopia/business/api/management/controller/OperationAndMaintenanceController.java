@@ -2,9 +2,9 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
+import com.wupol.myopia.business.api.management.service.stressTest.StressTestService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,7 +41,7 @@ public class OperationAndMaintenanceController {
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
     @Autowired
-    private StudentFacade studentFacade;
+    private StressTestService stressTestService;
 
     /**
      * 触发大屏统计
@@ -98,5 +99,13 @@ public class OperationAndMaintenanceController {
     public void statTaskTrigger() {
         log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
         CompletableFuture.runAsync(()-> statisticScheduledTaskService.statistic(),asyncServiceExecutor);
+    }
+
+    /**
+     * 批量插入数据 http://127.0.0.1:8020/management/test/batchInsertData
+     */
+    @GetMapping("batchInsertData")
+    public void batchInsertData() throws SQLException, InterruptedException {
+        stressTestService.generateDataBatch();
     }
 }

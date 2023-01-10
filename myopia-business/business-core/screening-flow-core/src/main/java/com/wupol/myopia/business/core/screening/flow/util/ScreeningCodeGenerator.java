@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @Author HaoHao
  * @Date 2021/9/9
  **/
+@Log4j2
 @Component
 public class ScreeningCodeGenerator implements CommandLineRunner {
 
@@ -30,6 +32,7 @@ public class ScreeningCodeGenerator implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        log.info("初始化筛查编号生成器");
         Long currentMaxCode = screeningPlanSchoolService.getCurrentMaxScreeningCode();
         initOffSetOnlyOnce(Objects.isNull(currentMaxCode) ? DEFAULT_OFFSET : currentMaxCode);
     }
