@@ -45,4 +45,17 @@ public enum WarningLevel {
                 .orElse(StrUtil.EMPTY);
     }
 
+    /**
+     * 是否到达预警线
+     * @param code
+     * @return
+     */
+    public static boolean isWarning(int code) {
+        if (ZERO.code.equals(code) || ONE.code.equals(code)
+            || TWO.code.equals(code) || THREE.code.equals(code) || ZERO_SP.code.equals(code)) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -6,6 +6,7 @@ import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundExc
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.api.management.domain.dto.*;
+import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -668,7 +669,7 @@ public class StatReportService {
                 .schoolAgeDistribution(businessSchoolAge.getSortedDistributionMap())
                 .schoolExamples(schoolExamples)
                 .schoolPersonnel(getSchoolPersonnel(schools, planSchoolStudentMap, schoolFirstScreenMap, schoolValidMap))
-                .schoolAgePersonnel(getSchoolAgePersonne(planSchoolAgeStudentMap, businessSchoolAge))
+                .schoolAgePersonnel(getSchoolAgePersonnel(planSchoolAgeStudentMap, businessSchoolAge))
                 .myopia(getMyopiaRatio(statBase.getValid()))
                 .visionCorrection(getVisionCorrection(statBase.getValid()))
                 .warnLevel(getWarnLevel(statBase.getValid()))
@@ -716,7 +717,7 @@ public class StatReportService {
      * 获取各学段筛查人员信息
      * @return
      */
-    private List<StatSchoolAgePersonnelDTO> getSchoolAgePersonne(Map<Integer, Long> planSchoolAgeStudentMap, StatBusinessSchoolAgeDTO businessSchoolAge) {
+    private List<StatSchoolAgePersonnelDTO> getSchoolAgePersonnel(Map<Integer, Long> planSchoolAgeStudentMap, StatBusinessSchoolAgeDTO businessSchoolAge) {
 
         return planSchoolAgeStudentMap.keySet().stream().sorted().map(gradeType -> {
             StatSchoolAgePersonnelDTO persionnel = new StatSchoolAgePersonnelDTO();
@@ -806,7 +807,7 @@ public class StatReportService {
         List<MyopiaDTO> schoolAgeList = businessSchoolAge.getValidSchoolAgeNumMap().keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = businessSchoolAge.getValidSchoolAgeMap().getOrDefault(x, Collections.emptyList());
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     int statNum = stat.size();
                     Long schoolNum = businessSchoolAge.getValidSchoolAgeDistributionMap().getOrDefault(x, 0L);
                     Float ratio = convertToPercentage(myopiaNum * 1f / statNum);
@@ -844,7 +845,7 @@ public class StatReportService {
                         return MyopiaDTO.getInstance(0, x.getName(),
                                 0, 0.00f);
                     }
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     return MyopiaDTO.getInstance(stat.size(), x.getName(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 })
@@ -868,7 +869,7 @@ public class StatReportService {
         return gradeMap.keySet().stream()
                 .map(x -> {
                     List<StatConclusion> stat = gradeMap.get(x);
-                    long myopiaNum = stat.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).count();
+                    long myopiaNum = stat.stream().filter(sc->Objects.equals(Boolean.TRUE,sc.getIsMyopia())).count();
                     return MyopiaDTO.getInstance(stat.size(), GradeCodeEnum.getByCode(x).name(),
                             myopiaNum, convertToPercentage(myopiaNum * 1f / stat.size()));
                 }).collect(Collectors.toList());
@@ -1681,4 +1682,7 @@ public class StatReportService {
         }
         return planStudentNum;
     }
+
+
+
 }

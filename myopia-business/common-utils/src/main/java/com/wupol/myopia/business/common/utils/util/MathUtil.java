@@ -33,6 +33,19 @@ public class MathUtil {
     }
 
     /**
+     * 除法，乘100后，四舍五入保留两位小数位。如45.34%，保存45.34
+     * @param numerator
+     * @param denominator
+     * @return
+     */
+    public Float divideFloat(Integer numerator, Integer denominator) {
+        if (denominator.equals(0)) {
+            return 0.0f;
+        }
+        return divide(numerator, denominator).floatValue();
+    }
+
+    /**
      * 占比 （带%）
      * @param numerator
      * @param denominator

@@ -11,15 +11,20 @@ import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStude
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PrimarySchoolVisionReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SchoolStudentResponseDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenVisionReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
 import com.wupol.myopia.business.api.management.service.ScreeningAreaReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningKindergartenReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningPrimaryReportService;
+import com.wupol.myopia.business.api.management.service.report.refactor.KindergartenVisionReportService;
+import com.wupol.myopia.business.api.management.service.report.refactor.PrimarySchoolVisionReportService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import com.wupol.myopia.business.core.hospital.domain.dto.ReceiptDTO;
 import com.wupol.myopia.business.core.hospital.service.PreschoolCheckRecordService;
@@ -82,6 +87,12 @@ public class ReportController {
 
     @Autowired
     private CommonDiseaseReportService commonDiseaseReportService;
+
+    @Autowired
+    private PrimarySchoolVisionReportService primarySchoolVisionReportService;
+
+    @Autowired
+    private KindergartenVisionReportService kindergartenVisionReportService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -295,5 +306,43 @@ public class ReportController {
         return ApiResult.success(commonDiseaseReportService.schoolCommonDiseaseReport(schoolId,planId));
     }
 
+    /**
+     * 重构报告-中小学
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     *
+     * @return ApiResult<PrimarySchoolVisionReportDTO>
+     */
+    @GetMapping("/refactor/school/primary")
+    public ApiResult<PrimarySchoolVisionReportDTO> refactorPrimarySchoolVisionReport(@RequestParam Integer planId, @RequestParam Integer schoolId) {
+        return ApiResult.success(primarySchoolVisionReportService.primarySchoolVisionReport(planId, schoolId));
+    }
+
+    /**
+     * 重构报告-判断学生类型
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     *
+     * @return ApiResult<SchoolStudentResponseDTO>
+     */
+    @GetMapping("/refactor/school/studentType")
+    public ApiResult<SchoolStudentResponseDTO> refactorSchoolStudentType(@RequestParam Integer planId, @RequestParam Integer schoolId) {
+        return ApiResult.success(primarySchoolVisionReportService.schoolStudentType(planId, schoolId));
+    }
+
+    /**
+     * 重构报告-幼儿园
+     *
+     * @param planId   计划Id
+     * @param schoolId 学校Id
+     *
+     * @return ApiResult<KindergartenVisionReportDTO>
+     */
+    @GetMapping("/refactor/school/kindergarten")
+    public ApiResult<KindergartenVisionReportDTO> refactorKindergartenSchoolVisionReport(@RequestParam Integer planId, @RequestParam Integer schoolId) {
+        return ApiResult.success(kindergartenVisionReportService.kindergartenSchoolVisionReport(planId, schoolId));
+    }
 
 }
