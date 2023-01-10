@@ -11,16 +11,15 @@ import com.wupol.myopia.business.aggregation.export.pdf.archives.SyncExportStude
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PrimarySchoolVisionReportDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SchoolStudentResponseDTO;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenRefractiveSituationDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenVisionReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
 import com.wupol.myopia.business.api.management.domain.vo.report.DistrictCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.domain.vo.report.SchoolCommonDiseaseReportVO;
 import com.wupol.myopia.business.api.management.service.CommonDiseaseReportService;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.kindergarten.KindergartenReportDTO;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.PrimaryReportDTO;
 import com.wupol.myopia.business.api.management.service.ScreeningAreaReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningKindergartenReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningPrimaryReportService;
@@ -316,7 +315,7 @@ public class ReportController {
      * @return ApiResult<PrimarySchoolVisionReportDTO>
      */
     @GetMapping("/refactor/school/primary")
-    public ApiResult<PrimarySchoolVisionReportDTO> refactorPrimarySchoolVisionReport(Integer planId, Integer schoolId) {
+    public ApiResult<PrimarySchoolVisionReportDTO> refactorPrimarySchoolVisionReport(@RequestParam Integer planId, @RequestParam Integer schoolId) {
         return ApiResult.success(primarySchoolVisionReportService.primarySchoolVisionReport(planId, schoolId));
     }
 
@@ -329,7 +328,7 @@ public class ReportController {
      * @return ApiResult<SchoolStudentResponseDTO>
      */
     @GetMapping("/refactor/school/studentType")
-    public ApiResult<SchoolStudentResponseDTO> refactorSchoolStudentType(Integer planId, Integer schoolId) {
+    public ApiResult<SchoolStudentResponseDTO> refactorSchoolStudentType(@RequestParam Integer planId, @RequestParam Integer schoolId) {
         return ApiResult.success(primarySchoolVisionReportService.schoolStudentType(planId, schoolId));
     }
 
@@ -342,7 +341,7 @@ public class ReportController {
      * @return ApiResult<KindergartenVisionReportDTO>
      */
     @GetMapping("/refactor/school/kindergarten")
-    public ApiResult<KindergartenVisionReportDTO> refactorKindergartenSchoolVisionReport(Integer planId, Integer schoolId) {
+    public ApiResult<KindergartenVisionReportDTO> refactorKindergartenSchoolVisionReport(@RequestParam Integer planId, @RequestParam Integer schoolId) {
         return ApiResult.success(kindergartenVisionReportService.kindergartenSchoolVisionReport(planId, schoolId));
     }
 
