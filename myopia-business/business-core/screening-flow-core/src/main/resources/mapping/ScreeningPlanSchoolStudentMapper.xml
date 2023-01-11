@@ -128,7 +128,7 @@
         left join m_screening_plan msp on msp.id = mspss.screening_plan_id
         <where>
             <trim prefixOverrides="and">
-                and (vsc.is_double_screen is null or vsc.is_double_screen != 1)
+                and vsc.is_double_screen = 0
                 <if test="param.screeningPlanId != null">
                     AND mspss.screening_plan_id = #{param.screeningPlanId}
                 </if>
@@ -183,7 +183,6 @@
                 <if test="param.screeningType != null">
                     and msp.screening_type = #{param.screeningType}
                 </if>
-                    and (ISNULL(vsc.is_double_screen) or vsc.is_double_screen = 0)
             </trim>
                 order by mspss.id desc
         </where>

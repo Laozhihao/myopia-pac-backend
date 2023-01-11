@@ -530,9 +530,8 @@ public class ScreeningPlanStudentBizService {
             return screeningStudentDTOS;
         }
         List<VisionScreeningResult> resultList = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> planStudentVisionResultMap = resultList.stream()
-                .filter(result->Objects.equals(result.getIsDoubleScreen(),Boolean.FALSE))
-                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer,VisionScreeningResult> firstScreeningResultMap = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer,VisionScreeningResult> reScreeningResultMap= resultList.stream().filter(visionScreeningResult -> Boolean.TRUE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         Set<Integer> orgIdSet = screeningStudentDTOS.stream().map(ScreeningStudentDTO::getScreeningOrgId).collect(Collectors.toSet());
         Map<Integer, String> orgIdMap = screeningOrganizationService.getByIds(orgIdSet).stream().collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName, (v1, v2) -> v2));
@@ -541,7 +540,7 @@ public class ScreeningPlanStudentBizService {
             studentDTO.setNationDesc(NationEnum.getNameByCode(studentDTO.getNation()))
                     .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
             studentDTO.setScreeningOrgName(orgIdMap.get(studentDTO.getScreeningOrgId()));
-            screeningPlanSchoolStudentFacadeService.setStudentEyeInfo(studentDTO, planStudentVisionResultMap);
+            screeningPlanSchoolStudentFacadeService.setStudentEyeInfo(studentDTO, firstScreeningResultMap, reScreeningResultMap);
         }
         return screeningStudentDTOS;
     }

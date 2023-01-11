@@ -117,6 +117,7 @@
                   #{schoolId}
               </foreach>
           </if>
+        GROUP BY school_id
     </select>
 
     <select id="getReleasePlanResultByStudentId" resultMap="BaseResultMap">
