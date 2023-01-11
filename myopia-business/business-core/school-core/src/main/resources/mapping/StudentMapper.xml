@@ -192,6 +192,10 @@
         select count(1) as count, school_id
         from m_student
         where status = 0
+        and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
         group by school_id
     </select>
 

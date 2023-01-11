@@ -237,6 +237,7 @@ public class SchoolBizService {
                 schoolQueryDTO, resultDistrictId.getFirst(), userIds, resultDistrictId.getSecond());
 
         List<SchoolResponseDTO> schools = schoolDtoIPage.getRecords();
+        List<Integer> schoolIdList = schools.stream().map(School::getId).collect(Collectors.toList());
 
         // 为空直接返回
         if (CollectionUtils.isEmpty(schools)) {
@@ -248,14 +249,12 @@ public class SchoolBizService {
         Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolId();
+        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolId(schoolIdList);
         Map<Integer, Integer> studentCountMaps = studentCountDTOS.stream()
                 .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
 
         // 学校筛查次数
-        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService
-                .getBySchoolIds(schools.stream().map(School::getId)
-                        .collect(Collectors.toList()));
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIdList);
         Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
 
         // 封装DTO
