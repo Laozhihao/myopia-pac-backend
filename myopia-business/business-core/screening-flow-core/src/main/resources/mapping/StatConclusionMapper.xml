@@ -41,6 +41,9 @@
     <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
     </resultMap>
 
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -428,15 +431,19 @@
         ORDER BY mspss.school_name, mspss.student_no
     </select>
 
-    <select id="getReviewByPlanIdAndSchoolIds" resultMap="BaseResultMap">
-        select *
-        from m_stat_conclusion where plan_id = #{planId}
-                                 and school_id in
-        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
-            #{schoolId}
-        </foreach>
-        and is_review = 1
-        and is_rescreen = 0
+    <select id="getSchoolReviewCountByPlanIdAndSchoolIds" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
+        from m_stat_conclusion
+        where plan_id = #{planId}
+        <if test="schoolIds != null and schoolIds.size() != 0">
+            and school_id in
+            <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+                #{schoolId}
+            </foreach>
+        </if>
+            and is_review = 1
+            and is_rescreen = 0
+        GROUP BY school_id
     </select>
 
     <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">

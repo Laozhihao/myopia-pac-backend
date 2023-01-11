@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
@@ -129,7 +130,7 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      */
     StatConclusion getByResultId(@Param("resultId") Integer resultId);
 
-    List<StatConclusion> getReviewByPlanIdAndSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
+    List<SchoolCountDO> getSchoolReviewCountByPlanIdAndSchoolIds(@Param("planId") Integer planId, @Param("schoolIds") List<Integer> schoolIds);
 
     List<StatConclusion> getByNoticeIdDistrictIds(@Param("noticeId") Integer noticeId, @Param("districtIds") List<Integer> districtIds);
 

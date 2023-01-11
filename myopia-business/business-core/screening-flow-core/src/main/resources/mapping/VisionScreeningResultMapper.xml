@@ -66,12 +66,10 @@
         GROUP BY school_id
     </select>
 
-    <select id="getCreateUserIdByPlanIdAndOrgId" resultType="java.lang.Integer">
-        SELECT create_user_id
+    <select id="getCreateUserIdByPlanId" resultType="java.lang.Integer">
+        SELECT distinct create_user_id
         FROM m_vision_screening_result
         WHERE plan_id = #{planId}
-          and screening_org_id = #{orgId}
-        GROUP BY create_user_id
     </select>
 
     <select id="countScreeningTime"
