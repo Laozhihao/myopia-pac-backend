@@ -11,3 +11,7 @@ ALTER TABLE `m_vision_screening_result`
 -- 表 m_stat_conclusion 加索引
 ALTER TABLE `m_stat_conclusion`
     ADD INDEX `m_vsr_plan_id_school_id_index`(`plan_id`, `school_id`) USING BTREE;
+
+-- 表 m_student 加索引
+ALTER TABLE `m_student`
+    ADD INDEX `m_student_school_id_status_index`(`school_id`, `status`) USING BTREE;

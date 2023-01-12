@@ -344,46 +344,32 @@ public class ScreeningOrganizationBizService {
             return orgLists;
         }
         // 获取筛查人员信息
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
-                .getOrgStaffMapByIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()),currentUser.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
+        List<Integer> orgIdList = orgListsRecords.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+        Map<Integer, Integer> staffCountMap = screeningOrganizationStaffService.countByOrgIds(orgIdList, currentUser.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
-
         // 筛查次数
-        List<ScreeningPlan> planLists = screeningPlanService
-                .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()), ScreeningOrgTypeEnum.ORG.getType());
-        Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
-                .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
+        List<ScreeningPlan> planLists = screeningPlanService.getReleasePlanByOrgIds(orgIdList, ScreeningOrgTypeEnum.ORG.getType());
+        Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors.groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
+        // 合作医院
+        Map<Integer, Integer> screeningOrgCooperationHospitalCountMap = orgCooperationHospitalService.countByScreeningOrgIdList(orgIdList);
+
         // 封装DTO
         orgListsRecords.forEach(orgResponseDTO -> {
             // 同一部门才能更新
             setCanUpdate(currentUser, orgResponseDTO);
             // 筛查人员
-            List<ScreeningOrganizationStaff> staffLists = staffMaps.get(orgResponseDTO.getId());
-            if (!CollectionUtils.isEmpty(staffLists)) {
-                orgResponseDTO.setStaffCount(staffLists.size());
-            } else {
-                orgResponseDTO.setStaffCount(0);
-            }
+            orgResponseDTO.setStaffCount(staffCountMap.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO));
             // 区域名字
             orgResponseDTO.setDistrictName(districtService.getDistrictName(orgResponseDTO.getDistrictDetail()));
-
             // 筛查次数
-            orgResponseDTO.setScreeningTime(orgPlanMaps.getOrDefault(orgResponseDTO.getId(), 0L));
+            orgResponseDTO.setScreeningTime(orgPlanMaps.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO_L));
             orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(orgResponseDTO.getId()));
-
             // 详细地址
             orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
-            Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId());
-            if (Objects.isNull(countCooperationHospital) || countCooperationHospital == 0) {
-                orgResponseDTO.setCountCooperationHospital(0);
-            } else {
-                orgResponseDTO.setCountCooperationHospital(countCooperationHospital);
-            }
-
+            // 合作医院
+            orgResponseDTO.setCountCooperationHospital(screeningOrgCooperationHospitalCountMap.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO));
         });
         return orgLists;
     }
