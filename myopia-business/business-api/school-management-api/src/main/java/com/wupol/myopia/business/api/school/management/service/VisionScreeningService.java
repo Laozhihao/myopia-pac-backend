@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
@@ -266,15 +265,7 @@ public class VisionScreeningService {
      * @param planIds 筛查计划ID集合
      */
     public Map<Integer, Integer> getVisionScreeningResultMap(List<Integer> planIds) {
-        Map<Integer,Integer> visionScreeningResultMap = Maps.newHashMap();
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIds(planIds);
-        if (CollUtil.isEmpty(visionScreeningResultList)){
-            planIds.forEach(planId->visionScreeningResultMap.put(planId,0));
-        }else {
-            Map<Integer, Long> collect = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getPlanId, Collectors.counting()));
-            planIds.forEach(planId->visionScreeningResultMap.put(planId,collect.getOrDefault(planId,0L).intValue()));
-        }
-        return visionScreeningResultMap;
+        return visionScreeningResultService.getCountByPlanIds(planIds);
     }
 
     /**
