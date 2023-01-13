@@ -157,6 +157,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
+    public VisionScreeningResult getByPlanIdsOrderByUpdateTimeDescLimit(Set<Integer> planIds) {
+        return baseMapper.getByPlanIdsOrderByUpdateTimeDescLimit(planIds);
+    }
+
     /**
      * 根据筛查计划ID集查询
      *
