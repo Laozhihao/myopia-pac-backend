@@ -123,6 +123,10 @@ public class StatService {
      * @return
      */
     public WarningInfo getWarningList(CurrentUser currentUser) {
+        // TODO：临时处理，避免内存溢出
+        if (currentUser.isPlatformAdminUser()) {
+            return WarningInfo.builder().build();
+        }
         List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
         StatConclusionQueryDTO lastOneQuery = new StatConclusionQueryDTO();
         lastOneQuery.setDistrictIds(districtIds);
