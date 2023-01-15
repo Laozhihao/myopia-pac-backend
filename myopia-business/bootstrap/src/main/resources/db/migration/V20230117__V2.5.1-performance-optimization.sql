@@ -15,3 +15,12 @@ ALTER TABLE `m_stat_conclusion`
 -- 表 m_student 加索引
 ALTER TABLE `m_student`
     ADD INDEX `m_student_school_id_status_index`(`school_id`, `status`) USING BTREE;
+
+-- 表 m_vision_screening_result 加索引
+ALTER TABLE `m_vision_screening_result`
+    ADD INDEX `m_vsr_student_id_school_id_index`(`student_id`, `school_id`);
+
+-- 表 m_screening_plan_school_student 加索引、移除多余索引
+ALTER TABLE `m_screening_plan_school_student`
+    DROP INDEX `m_screening_plan_school_student_screening_plan_id_index`,
+    ADD INDEX `m_spss_student_id_index`(`student_id`) USING BTREE;
