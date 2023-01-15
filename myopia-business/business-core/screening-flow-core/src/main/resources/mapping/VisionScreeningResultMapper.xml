@@ -287,11 +287,12 @@
             count(plan_id) AS count
         FROM
             m_vision_screening_result
-        GROUP BY plan_id
-        HAVING plan_id IN
+        WHERE plan_id IN
         <foreach collection="planIds" item="planId" index="index" open="(" close=")" separator=",">
             #{planId}
         </foreach>
+        GROUP BY plan_id
+
     </select>
 
 </mapper>
