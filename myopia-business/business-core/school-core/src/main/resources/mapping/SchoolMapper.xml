@@ -143,6 +143,12 @@
         <include refid="Base_Where_Clause" />
     </select>
 
+    <select id="getSimpleSchool" resultType="com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO">
+        select id, name
+        from m_school
+        <include refid="Base_Where_Clause" />
+    </select>
+
     <select id="getByPage" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

@@ -22,6 +22,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolMapper;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -247,6 +248,16 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      */
     public List<School> getBy(SchoolQueryDTO query) {
         return baseMapper.getByQuery(query);
+    }
+
+    /**
+     * 模糊查询所有学校名称
+     *
+     * @param query 查询条件
+     * @return List<SimpleSchoolDO>
+     */
+    public List<SimpleSchoolDO> getSimpleSchool(SchoolQueryDTO query) {
+        return baseMapper.getSimpleSchool(query);
     }
 
     /**

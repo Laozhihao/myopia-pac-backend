@@ -21,6 +21,7 @@ import com.wupol.myopia.business.common.utils.domain.model.ResultNoticeConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -279,7 +280,7 @@ public class SchoolController {
      * @return 学校列表
      */
     @GetMapping("/listByDistrict")
-    public List<SchoolResponseDTO> getSchoolListByDistctId(SchoolQueryDTO schoolQuery) {
+    public List<SimpleSchoolDO> getSchoolListByDistrictId(SchoolQueryDTO schoolQuery) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         if (user.isGovDeptUser()) {
             // 政府部门，无法新增计划

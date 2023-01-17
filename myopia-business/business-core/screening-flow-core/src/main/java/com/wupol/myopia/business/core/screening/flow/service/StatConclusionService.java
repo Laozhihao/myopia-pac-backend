@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.WarningLevelCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatConclusionMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -66,18 +67,6 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      */
     public StatConclusion getLastOne(StatConclusionQueryDTO statConclusionQueryDTO) {
         return baseMapper.selectLastOne(statConclusionQueryDTO);
-    }
-
-    /**
-     * 根据源通知ID获取筛查数据
-     *
-     * @param screeningNoticeId
-     * @return
-     */
-    public List<StatConclusion> listOfReleasePlanByScreeningNoticeId(Integer screeningNoticeId) {
-        StatConclusionQueryDTO queryDTO = new StatConclusionQueryDTO();
-        queryDTO.setSrcScreeningNoticeId(screeningNoticeId);
-        return listOfReleasePlanByQuery(queryDTO);
     }
 
     /**
@@ -328,10 +317,20 @@ public class StatConclusionService extends BaseService<StatConclusionMapper, Sta
      *
      * @param planId 计划Id
      * @param schoolIds 学校ID集合
-     * @return StatConclusion
+     * @return Map<Integer, Integer>
      */
     public Map<Integer, Integer> getReviewCountMap(Integer planId, List<Integer> schoolIds) {
         return baseMapper.getSchoolReviewCountByPlanIdAndSchoolIds(planId, schoolIds).stream().collect(Collectors.toMap(SchoolCountDO::getSchoolId, SchoolCountDO::getSchoolCount));
+    }
+
+    /**
+     * 统计各预警级别人数
+     *
+     * @param query 查询条件
+     * @return List<WarningLevelCountDO>
+     */
+    public List<WarningLevelCountDO> countWarningLevel(StatConclusionQueryDTO query) {
+        return baseMapper.countWarningLevel(query);
     }
 
     public List<StatConclusion> getByNoticeIdDistrictIds(Integer noticeId, List<Integer> districtIds) {

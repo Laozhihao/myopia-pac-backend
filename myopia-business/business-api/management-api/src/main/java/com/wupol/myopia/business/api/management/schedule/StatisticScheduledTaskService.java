@@ -79,7 +79,7 @@ public class StatisticScheduledTaskService {
      *
      * @return void
      **/
-    public void statistic() {
+    public void statisticScreeningData() {
         log.info("开始统计昨天筛查数据......");
         //1. 查询出需要统计的计划（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
@@ -87,7 +87,7 @@ public class StatisticScheduledTaskService {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
         }
-        log.info("昨天有新数据需要统计......");
+        log.info("昨天有新数据需要统计......【{}】", yesterdayScreeningPlanIds.toString());
         //2. 生成学校视力和监测情况统计数据（主要用于统计分析菜单）
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计数据
@@ -101,7 +101,7 @@ public class StatisticScheduledTaskService {
      */
     public void statistic(String date,Integer planId,Boolean isAll,String exclude, Integer noticeId) {
         List<Integer> excludePlanIds = Optional.ofNullable(exclude).map(x -> Stream.of(x.split(",")).map(Integer::parseInt).collect(Collectors.toList())).orElse(Collections.emptyList());
-        if(Objects.equals(isAll,Boolean.TRUE)){
+        if(Boolean.TRUE.equals(isAll)){
             // 仅统计已经发布的计划
             List<Integer> yesterdayScreeningPlanIds = screeningPlanService.list().stream().filter(x -> CommonConst.STATUS_RELEASE.equals(x.getReleaseStatus())).map(ScreeningPlan::getId).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(excludePlanIds)){
@@ -147,7 +147,7 @@ public class StatisticScheduledTaskService {
      * @param screeningPlanIds 筛查计划ID集合
      */
     private void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds, List<Integer> excludePlanIds){
-
+        log.info("生成按区域统计、按学校统计数据......");
         CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
             log.info("按区域统计开始");
             districtStatisticTask.districtStatistics(screeningPlanIds, excludePlanIds);
@@ -177,6 +177,7 @@ public class StatisticScheduledTaskService {
      * @param yesterdayScreeningPlanIds
      */
     private void statisticByPlanIds(List<Integer> yesterdayScreeningPlanIds) {
+        log.info("生成学校视力和监测情况统计数据（主要用于统计分析菜单）......");
         List<SchoolVisionStatistic> schoolVisionStatistics = new ArrayList<>();
         List<SchoolMonitorStatistic> schoolMonitorStatistics = new ArrayList<>();
         genSchoolStatistics(yesterdayScreeningPlanIds, schoolVisionStatistics, schoolMonitorStatistics);

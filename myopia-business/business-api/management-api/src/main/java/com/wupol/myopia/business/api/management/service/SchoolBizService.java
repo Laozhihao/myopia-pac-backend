@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
@@ -100,24 +101,20 @@ public class SchoolBizService {
      * @param schoolQueryDTO 条件
      * @return List<SchoolResponseDTO>
      */
-    public List<SchoolResponseDTO> getSchoolListByDistrictId(SchoolQueryDTO schoolQueryDTO) {
+    public List<SimpleSchoolDO> getSchoolListByDistrictId(SchoolQueryDTO schoolQueryDTO) {
         Assert.notNull(schoolQueryDTO.getDistrictId(), "层级id不能为空");
         schoolQueryDTO.setDistrictIds(districtService.getProvinceAllDistrictIds(schoolQueryDTO.getDistrictId())).setDistrictId(null);
         // 查询
-        List<School> schoolList = schoolService.getBy(schoolQueryDTO);
+        List<SimpleSchoolDO> simpleSchoolList = schoolService.getSimpleSchool(schoolQueryDTO);
         // 为空直接返回
-        if (CollectionUtils.isEmpty(schoolList)) {
+        if (CollectionUtils.isEmpty(simpleSchoolList)) {
             return Collections.emptyList();
         }
         // 获取已有计划的学校ID列表
         List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQueryDTO);
-        // 封装DTO
-        return schoolList.stream().map(school -> {
-            SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
-            BeanUtils.copyProperties(school, schoolResponseDTO);
-            schoolResponseDTO.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
-            return schoolResponseDTO;
-        }).collect(Collectors.toList());
+        // set alreadyHavePlan
+        simpleSchoolList.forEach(school -> school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId())));
+        return simpleSchoolList;
     }
 
     /**
@@ -194,7 +191,7 @@ public class SchoolBizService {
      * @return List<Integer>
      */
     private List<Integer> getHavePlanSchoolIds(SchoolQueryDTO query) {
-        if (Objects.nonNull(query.getNeedCheckHavePlan()) && Objects.equals(query.getNeedCheckHavePlan(),Boolean.TRUE)) {
+        if (Boolean.TRUE.equals(query.getNeedCheckHavePlan())) {
             return screeningPlanSchoolService.getHavePlanSchoolIds(query.getDistrictIds(), null, query.getScreeningOrgId(), query.getStartTime(), query.getEndTime(),query.getScreeningType());
         }
         return Collections.emptyList();

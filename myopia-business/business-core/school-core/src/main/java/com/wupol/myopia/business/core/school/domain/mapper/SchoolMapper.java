@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
+import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -27,6 +28,7 @@ public interface SchoolMapper extends BaseMapper<School> {
                                                       @Param("userIds") List<Integer> userIds);
 
     List<School> getByQuery(SchoolQueryDTO query);
+    List<SimpleSchoolDO> getSimpleSchool(SchoolQueryDTO query);
 
     IPage<School> getByPage(@Param("page") Page<?> page, @Param("schoolQueryDTO") SchoolQueryDTO schoolQueryDTO);
 
