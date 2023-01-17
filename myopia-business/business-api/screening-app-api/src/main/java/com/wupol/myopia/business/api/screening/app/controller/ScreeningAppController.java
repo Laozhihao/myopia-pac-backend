@@ -975,7 +975,7 @@ public class ScreeningAppController {
             return new PlanStudentInfoDTO();
         }
 
-        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDescLimit(currentPlanIds);
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getOneByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
         if (Objects.isNull(visionScreeningResult)) {
             List<ScreeningPlanSchool> schoolPlan = screeningPlanSchoolService.getSchoolListsByPlanId(Lists.newArrayList(currentPlanIds).get(0));
             if (Objects.nonNull(schoolPlan) && !schoolPlan.isEmpty()) {

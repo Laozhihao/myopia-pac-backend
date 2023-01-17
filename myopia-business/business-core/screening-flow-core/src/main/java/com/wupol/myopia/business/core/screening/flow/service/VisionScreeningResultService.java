@@ -159,8 +159,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
-    public VisionScreeningResult getByPlanIdsOrderByUpdateTimeDescLimit(Set<Integer> planIds) {
-        return baseMapper.getByPlanIdsOrderByUpdateTimeDescLimit(planIds);
+    public VisionScreeningResult getOneByPlanIdsOrderByUpdateTimeDesc(Set<Integer> planIds) {
+        return baseMapper.getOneByPlanIdsOrderByUpdateTimeDesc(planIds);
     }
 
     /**

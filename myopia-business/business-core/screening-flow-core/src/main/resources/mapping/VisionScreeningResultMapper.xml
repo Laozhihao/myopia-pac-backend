@@ -281,7 +281,7 @@
         group by mvsr.student_id
     </select>
 
-    <select id="getByPlanIdsOrderByUpdateTimeDescLimit" resultMap="BaseResultMap">
+    <select id="getOneByPlanIdsOrderByUpdateTimeDesc" resultMap="BaseResultMap">
         select *
         from m_vision_screening_result
         where plan_id in

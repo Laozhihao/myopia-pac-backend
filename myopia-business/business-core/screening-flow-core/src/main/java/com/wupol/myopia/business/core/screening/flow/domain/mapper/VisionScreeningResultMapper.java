@@ -66,5 +66,5 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId);
 
-    VisionScreeningResult getByPlanIdsOrderByUpdateTimeDescLimit(@Param("planId") Set<Integer> planId);
+    VisionScreeningResult getOneByPlanIdsOrderByUpdateTimeDesc(@Param("planId") Set<Integer> planId);
 }
