@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.WarningLevelCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import org.apache.ibatis.annotations.Param;
@@ -39,6 +40,14 @@ public interface StatConclusionMapper extends BaseMapper<StatConclusion> {
      * @return java.util.List<com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion>
      **/
     List<StatConclusion> listOfReleasePlanByQuery(StatConclusionQueryDTO query);
+
+    /**
+     * 预警人群数量统计
+     *
+     * @param query 查询条件
+     * @return
+     */
+    List<WarningLevelCountDO> countWarningLevel(StatConclusionQueryDTO query);
 
     List<StatConclusionExportDTO> selectExportVoByScreeningNoticeIdAndDistrictIds(@Param("screeningNoticeId") Integer screeningNoticeId, @Param("districtIds") List<Integer> districtIds, @Param("isKindergarten") Boolean isKindergarten);
 
