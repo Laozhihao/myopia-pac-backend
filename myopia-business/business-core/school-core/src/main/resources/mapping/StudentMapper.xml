@@ -95,7 +95,7 @@
                      left join
                      m_school_class msc
                              on ms.class_id = msc.id
-                where ms.status = 0
+                where ms.status != 2
                   and (ms.passport is not null or ms.id_card is not null or ms.passport != '' or ms.id_card != '')
         <if test="sno != null and sno != ''">
             and ms.sno like CONCAT('%', #{sno}, '%')
