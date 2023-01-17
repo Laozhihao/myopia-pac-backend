@@ -292,4 +292,19 @@
         order by update_time desc
         limit 1
     </select>
+
+    <select id="getCountByPlanId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningPlanCount">
+        SELECT
+            plan_id,
+            count(plan_id) AS count
+        FROM
+            m_vision_screening_result
+        WHERE plan_id IN
+        <foreach collection="planIds" item="planId" index="index" open="(" close=")" separator=",">
+            #{planId}
+        </foreach>
+        GROUP BY plan_id
+
+    </select>
+
 </mapper>

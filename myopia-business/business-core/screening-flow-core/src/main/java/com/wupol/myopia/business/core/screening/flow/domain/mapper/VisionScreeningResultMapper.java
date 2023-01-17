@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningSchoolCount;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningPlanCount;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -67,4 +68,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
     List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId);
 
     VisionScreeningResult getOneByPlanIdsOrderByUpdateTimeDesc(@Param("planId") Set<Integer> planId);
+
+    List<ScreeningPlanCount> getCountByPlanId(@Param("planIds")List<Integer> planIds);
+
 }

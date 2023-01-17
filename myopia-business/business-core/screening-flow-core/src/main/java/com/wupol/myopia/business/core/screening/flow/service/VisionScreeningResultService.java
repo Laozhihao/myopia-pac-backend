@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
@@ -170,6 +171,20 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds) {
         return getByPlanIds(planIds,null);
+    }
+
+    /**
+     * 获取各计划下筛查结果数
+     * @param planIds
+     * @return
+     */
+    public Map<Integer, Integer> getCountByPlanIds(List<Integer> planIds) {
+        Map<Integer,Integer> visionScreeningResultMap = Maps.newHashMap();
+        Map<Integer, Integer> collect = baseMapper.getCountByPlanId(planIds).stream()
+                .collect(Collectors.toMap(ScreeningPlanCount::getPlanId, ScreeningPlanCount::getCount));
+        // 没有planId相关记录时返回0
+        planIds.forEach(planId -> visionScreeningResultMap.put(planId, collect.getOrDefault(planId,0)));
+        return visionScreeningResultMap;
     }
 
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds,Boolean isDoubleScreen) {
