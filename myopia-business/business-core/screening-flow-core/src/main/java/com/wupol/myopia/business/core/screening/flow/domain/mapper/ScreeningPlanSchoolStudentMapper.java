@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.apache.ibatis.annotations.Param;
@@ -40,6 +41,8 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     Integer countByPlanId(Integer planId);
 
     Integer countBySchoolIdAndNoticeId(@Param("schoolId") Integer schoolId, @Param("noticeId") Integer noticeId);
+
+    List<SchoolCountDO> getSchoolCountByPlanId(Integer screeningPlanId);
 
     Integer deleteByPlanIdAndExcludeSchoolIds(@Param("screeningPlanId") Integer screeningPlanId, @Param("excludeSchoolIds") List<Integer> excludeSchoolIds);
 
@@ -80,4 +83,6 @@ public interface ScreeningPlanSchoolStudentMapper extends BaseMapper<ScreeningPl
     List<ScreeningPlanSchoolStudent> getLastByCredentialNoAndStudentName(@Param("credentialNo") String credentialNo,@Param("studentName") String studentName);
 
     ScreeningPlanSchoolStudent getLastByCredentialNoAndStudentIds(@Param("screeningType") Integer screeningType, @Param("planId") List<Integer> planId, @Param("studentIds") List<Integer> studentIds);
+
+    List<ScreeningPlanSchoolStudent> getInfoByPlanId(@Param("planId") Integer planId);
 }

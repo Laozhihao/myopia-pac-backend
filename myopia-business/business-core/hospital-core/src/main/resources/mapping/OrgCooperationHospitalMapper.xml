@@ -54,6 +54,16 @@
         where screening_org_id = #{screeningOrgId,jdbcType=INTEGER}
     </select>
 
+    <select id="countByScreeningOrgIdList" resultType="com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO">
+        select screening_org_id, count(*) as count
+        from m_org_cooperation_hospital
+        where screening_org_id in
+        <foreach collection="screeningOrgIds" open="(" close=")" separator="," item="orgId">
+            #{orgId}
+        </foreach>
+        group by screening_org_id
+    </select>
+
     <select id="countByOrgIdAndHospitalIds" resultType="java.lang.Integer">
         select count(1)
         from m_org_cooperation_hospital

@@ -205,8 +205,8 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      *
      * @return List<StudentCountDTO>
      */
-    public List<StudentCountDTO> countStudentBySchoolId() {
-        return baseMapper.countStudentBySchoolId();
+    public List<StudentCountDTO> countStudentBySchoolId(List<Integer> schoolIdList) {
+        return baseMapper.countStudentBySchoolId(schoolIdList);
     }
 
 

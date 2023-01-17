@@ -747,10 +747,9 @@ public class ScreeningTaskOrgBizService {
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(Lists.newArrayList(schoolIds)).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
 
         List<ScreeningPlanSchool> screeningPlanSchoolList = screeningPlanSchoolService.listByPlanIdsAndSchoolIds(Lists.newArrayList(screeningPlan.getId()), Lists.newArrayList(schoolIds));
-        Set<Integer> orgIds = screeningPlanSchoolList.stream().map(ScreeningPlanSchool::getScreeningOrgId).collect(Collectors.toSet());
         Map<String, String> screeningPlanSchoolMap = screeningPlanSchoolList.stream().collect(Collectors.toMap(screeningPlanSchool -> getKey(screeningPlanSchool.getScreeningPlanId(), screeningPlanSchool.getSchoolId()), ScreeningPlanSchool::getSchoolName));
 
-        Map<String, Long> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, schoolIds, orgIds);
+        Map<Integer, Integer> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, schoolIds);
 
         return screeningPlanSchools.stream().map(vo -> buildScreeningPlanSchoolDTO(vo,screeningPlan,schoolIdStudentCountMap,userGradeIdMap,schoolMap,gradeIdMap,screeningPlanSchoolMap,screeningResultCountMap)).collect(Collectors.toList());
     }
@@ -784,14 +783,14 @@ public class ScreeningTaskOrgBizService {
                                                                Map<Integer, List<UserQuestionRecord>> schoolMap,
                                                                Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
                                                                Map<String, String> screeningPlanSchoolMap,
-                                                               Map<String, Long>  screeningResultCountMap){
+                                                               Map<Integer, Integer>  screeningResultCountMap){
         ScreeningPlanSchoolDTO schoolDTO = new ScreeningPlanSchoolDTO();
         schoolDTO.setSchoolName(screeningPlanSchoolMap.getOrDefault(getKey(screeningPlan.getId(),screeningPlanSchool.getSchoolId()),StrUtil.EMPTY));
         schoolDTO.setStudentCount(schoolIdStudentCountMap.getOrDefault(screeningPlanSchool.getSchoolId(), (long) 0).intValue());
-        schoolDTO.setPracticalStudentCount(screeningResultCountMap.getOrDefault(getThreeKey(screeningPlanSchool.getScreeningPlanId(),screeningPlanSchool.getScreeningOrgId(),screeningPlanSchool.getSchoolId()),0L).intValue());
+        schoolDTO.setPracticalStudentCount(screeningResultCountMap.getOrDefault(screeningPlanSchool.getSchoolId(),CommonConst.ZERO));
         schoolDTO.setScreeningProportion(MathUtil.ratio(schoolDTO.getPracticalStudentCount(),schoolDTO.getStudentCount()));
         schoolDTO.setScreeningOrgType(screeningPlan.getScreeningOrgType());
-        schoolDTO.setScreeningSituation(ScreeningBizBuilder.getSituation(screeningResultCountMap.getOrDefault(getThreeKey(screeningPlanSchool.getScreeningPlanId(),screeningPlanSchool.getScreeningOrgId(),screeningPlanSchool.getSchoolId()),CommonConst.ZERO_L).intValue(),screeningPlan));
+        schoolDTO.setScreeningSituation(ScreeningBizBuilder.getSituation(screeningResultCountMap.getOrDefault(screeningPlanSchool.getSchoolId(),CommonConst.ZERO), screeningPlan));
         buildQuestionDto(schoolDTO, screeningPlanSchool, screeningPlan, userGradeIdMap, gradeIdMap, schoolMap);
         return schoolDTO;
     }

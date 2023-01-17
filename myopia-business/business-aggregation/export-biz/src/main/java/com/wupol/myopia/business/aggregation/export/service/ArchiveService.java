@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ArchiveExportTypeEnum;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
@@ -27,6 +28,7 @@ import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdServi
 import com.wupol.myopia.business.core.screening.flow.domain.dos.DiseasesHistoryDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaData;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SaprodontiaDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveExportCondition;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ArchiveRequestParam;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
@@ -422,8 +424,8 @@ public class ArchiveService {
         if (Objects.isNull(exportCondition.getPlanId())){
             throw new BusinessException("筛查计划ID不能为空");
         }
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(exportCondition.getPlanId(), Boolean.FALSE,exportCondition.getSchoolId());
-        exceptionInfo(CollUtil.isEmpty(visionScreeningResultList));
+        List<SchoolCountDO> schoolCountList = visionScreeningResultService.getSchoolCountByPlanIdAndSchoolIds(exportCondition.getPlanId(), CommonConst.ZERO, Collections.singleton(exportCondition.getSchoolId()));
+        exceptionInfo(CollUtil.isEmpty(schoolCountList));
     }
 
     /**

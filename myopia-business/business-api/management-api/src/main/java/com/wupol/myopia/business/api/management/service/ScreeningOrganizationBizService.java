@@ -46,7 +46,11 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -134,6 +138,9 @@ public class ScreeningOrganizationBizService {
     @Resource
     private DeviceService deviceService;
 
+    @Autowired
+    private VisionScreeningResultFacade visionScreeningResultFacade;
+
 
     /**
      * 保存筛查机构
@@ -202,17 +209,14 @@ public class ScreeningOrganizationBizService {
      * 组装复测数据
      *
      * @param detail
-     * @param planId
      * @param schoolId
-     * @param rescreenSchoolMap
+     * @param reviewCountMap
      * @return
      */
-    private RecordDetails buildReScreening(RecordDetails detail,
-                                           Integer planId,
-                                           Integer schoolId,
-                                           Map<Integer, List<StatConclusion>> rescreenSchoolMap){
-        detail.setHasRescreenReport(statRescreenService.hasRescreenReport(planId, schoolId));
-        detail.setRescreenNum(Objects.nonNull(rescreenSchoolMap.get(schoolId)) ? rescreenSchoolMap.get(schoolId).size() : 0);
+    private RecordDetails buildReScreening(RecordDetails detail, Integer schoolId,
+                                           Map<Integer, Integer> reviewCountMap, Map<Integer, Integer> reScreeningCountMap){
+        detail.setHasRescreenReport(reScreeningCountMap.getOrDefault(schoolId, CommonConst.ZERO) > 0);
+        detail.setRescreenNum(Optional.ofNullable(reviewCountMap).map(x -> x.getOrDefault(schoolId, CommonConst.ZERO)).orElse(CommonConst.ZERO));
         detail.setRescreenRatio(MathUtil.ratio(detail.getRescreenNum(),detail.getRealScreeningNumbers()));
         detail.setRealScreeningRatio(MathUtil.ratio(detail.getRealScreeningNumbers(),detail.getPlanScreeningNumbers()));
         return detail;
@@ -340,46 +344,32 @@ public class ScreeningOrganizationBizService {
             return orgLists;
         }
         // 获取筛查人员信息
-        Map<Integer, List<ScreeningOrganizationStaff>> staffMaps = screeningOrganizationStaffService
-                .getOrgStaffMapByIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()),currentUser.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
+        List<Integer> orgIdList = orgListsRecords.stream().map(ScreeningOrganization::getId).collect(Collectors.toList());
+        Map<Integer, Integer> staffCountMap = screeningOrganizationStaffService.countByOrgIds(orgIdList, currentUser.isPlatformAdminUser() ? null : ScreeningOrganizationStaff.GENERAL_SCREENING_PERSONNEL);
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
-
         // 筛查次数
-        List<ScreeningPlan> planLists = screeningPlanService
-                .getReleasePlanByOrgIds(orgListsRecords.stream().map(ScreeningOrganization::getId)
-                        .collect(Collectors.toList()), ScreeningOrgTypeEnum.ORG.getType());
-        Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors
-                .groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
+        List<ScreeningPlan> planLists = screeningPlanService.getReleasePlanByOrgIds(orgIdList, ScreeningOrgTypeEnum.ORG.getType());
+        Map<Integer, Long> orgPlanMaps = planLists.stream().collect(Collectors.groupingBy(ScreeningPlan::getScreeningOrgId, Collectors.counting()));
+        // 合作医院
+        Map<Integer, Integer> screeningOrgCooperationHospitalCountMap = orgCooperationHospitalService.countByScreeningOrgIdList(orgIdList);
+
         // 封装DTO
         orgListsRecords.forEach(orgResponseDTO -> {
             // 同一部门才能更新
             setCanUpdate(currentUser, orgResponseDTO);
             // 筛查人员
-            List<ScreeningOrganizationStaff> staffLists = staffMaps.get(orgResponseDTO.getId());
-            if (!CollectionUtils.isEmpty(staffLists)) {
-                orgResponseDTO.setStaffCount(staffLists.size());
-            } else {
-                orgResponseDTO.setStaffCount(0);
-            }
+            orgResponseDTO.setStaffCount(staffCountMap.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO));
             // 区域名字
             orgResponseDTO.setDistrictName(districtService.getDistrictName(orgResponseDTO.getDistrictDetail()));
-
             // 筛查次数
-            orgResponseDTO.setScreeningTime(orgPlanMaps.getOrDefault(orgResponseDTO.getId(), 0L));
+            orgResponseDTO.setScreeningTime(orgPlanMaps.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO_L));
             orgResponseDTO.setAlreadyHaveTask(haveTaskOrgIds.contains(orgResponseDTO.getId()));
-
             // 详细地址
             orgResponseDTO.setAddressDetail(districtService.getAddressDetails(
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
-            Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(orgResponseDTO.getId());
-            if (Objects.isNull(countCooperationHospital) || countCooperationHospital == 0) {
-                orgResponseDTO.setCountCooperationHospital(0);
-            } else {
-                orgResponseDTO.setCountCooperationHospital(countCooperationHospital);
-            }
-
+            // 合作医院
+            orgResponseDTO.setCountCooperationHospital(screeningOrgCooperationHospitalCountMap.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO));
         });
         return orgLists;
     }
@@ -609,8 +599,8 @@ public class ScreeningOrganizationBizService {
         // 设置学校总数
         screeningRecordItems.setSchoolCount(schoolIds.size());
 
-        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(screeningPlanId, screeningPlan.getScreeningOrgId());
-        // 员工信息
+        // 筛查人员名单
+        List<Integer> createUserIds = visionScreeningResultService.getCreateUserIdByPlanId(screeningPlanId);
         if (!CollectionUtils.isEmpty(createUserIds)) {
             List<User> userLists = oauthServiceClient.getUserBatchByIds(createUserIds);
             screeningRecordItems.setStaffCount(createUserIds.size());
@@ -622,8 +612,8 @@ public class ScreeningOrganizationBizService {
         // 学校名称
         List<School> schools = schoolService.getByIds(schoolIds);
         Map<Integer, School> schoolMaps = schools.stream().collect(Collectors.toMap(School::getId, Function.identity()));
-
-        Map<Integer, Integer> planStudentMaps = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
+        // 计划筛查学生数
+        Map<Integer, Integer> planStudentCountMap = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
 
         // 调查问卷数据
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType(), QuestionnaireStatusEnum.FINISH.getCode());
@@ -633,18 +623,17 @@ public class ScreeningOrganizationBizService {
         Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = CollectionUtils.isEmpty(planStudentIds) ? Maps.newHashMap() : screeningPlanSchoolStudentService.getByIds(Lists.newArrayList(planStudentIds)).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getGradeId));
 
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = schoolGradeService.getBySchoolIds(schoolIds).stream().collect(Collectors.groupingBy(SchoolGradeExportDTO::getSchoolId));
-
         Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchoolDTO::getSchoolId, Function.identity()));
 
         // 筛查数据
-        List<StatConclusion> results = statConclusionService.getReviewByPlanIdAndSchoolIds(screeningPlanId, schoolIds);
-        Map<Integer, List<StatConclusion>> reScreenSchoolMap = results.stream().collect(Collectors.groupingBy(StatConclusion::getSchoolId));
+        Map<Integer, Integer> reviewCountMap = statConclusionService.getReviewCountMap(screeningPlanId, schoolIds);
+        Map<Integer, Integer> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, new HashSet<>(schoolIds));
 
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.listByCondition(schoolIds, screeningPlanId, screeningPlan.getScreeningOrgId(), Boolean.FALSE);
-        Map<Integer, Long> schoolScreeningResultMap = visionScreeningResultList.stream().collect(Collectors.groupingBy(VisionScreeningResult::getSchoolId, Collectors.counting()));
+        // 复测
+        Map<Integer, Integer> reScreeningCountMap = statRescreenService.getScreeningResultCountMap(screeningPlanId, new HashSet<>(schoolIds));
 
-        schoolIds.forEach(schoolId -> buildRecordDetails(screeningPlanId, screeningPlan, details, schoolMaps, planStudentMaps, schoolMap, userGradeIdMap, gradeIdMap, schoolVoMaps, reScreenSchoolMap, schoolScreeningResultMap, schoolId));
-
+        // 封装detail
+        schoolIds.forEach(schoolId -> buildRecordDetails(screeningPlanId, screeningPlan, details, schoolMaps, planStudentCountMap, schoolMap, userGradeIdMap, gradeIdMap, schoolVoMaps, reviewCountMap, screeningResultCountMap, schoolId, reScreeningCountMap));
         screeningRecordItems.setDetails(details);
         return screeningRecordItems;
     }
@@ -653,15 +642,15 @@ public class ScreeningOrganizationBizService {
      * 构建记录详情
      */
     private void buildRecordDetails(Integer screeningPlanId, ScreeningPlan screeningPlan, List<RecordDetails> details,
-                                    Map<Integer, School> schoolMaps, Map<Integer, Integer> planStudentMaps,
+                                    Map<Integer, School> schoolMaps, Map<Integer, Integer> planStudentCountMap,
                                     Map<Integer, List<UserQuestionRecord>> schoolMap, Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                     Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap, Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps,
-                                    Map<Integer, List<StatConclusion>> reScreenSchoolMap, Map<Integer, Long> schoolScreeningResultMap, Integer schoolId) {
+                                    Map<Integer, Integer> reviewCountMap, Map<Integer, Integer> schoolScreeningResultMap, Integer schoolId, Map<Integer, Integer> reScreeningCountMap) {
         RecordDetails detail = new RecordDetails();
         detail.setSchoolId(schoolId);
         Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> detail.setSchoolName(school.getName()));
-        detail.setRealScreeningNumbers(schoolScreeningResultMap.getOrDefault(schoolId,0L).intValue());
-        detail.setPlanScreeningNumbers(planStudentMaps.get(schoolId));
+        detail.setRealScreeningNumbers(schoolScreeningResultMap.getOrDefault(schoolId, CommonConst.ZERO));
+        detail.setPlanScreeningNumbers(planStudentCountMap.get(schoolId));
         detail.setScreeningPlanId(screeningPlanId);
         detail.setStartTime(screeningPlan.getStartTime());
         detail.setEndTime(screeningPlan.getEndTime());
@@ -669,7 +658,7 @@ public class ScreeningOrganizationBizService {
         buildQuestion(detail, schoolMap, schoolId, userGradeIdMap, gradeIdMap);
         detail.setQualityControllerName(schoolVoMaps.get(schoolId).getQualityControllerName());
         detail.setQualityControllerCommander(schoolVoMaps.get(schoolId).getQualityControllerCommander());
-        buildReScreening(detail,screeningPlanId,schoolId,reScreenSchoolMap);
+        buildReScreening(detail, schoolId, reviewCountMap, reScreeningCountMap);
         details.add(detail);
     }
 

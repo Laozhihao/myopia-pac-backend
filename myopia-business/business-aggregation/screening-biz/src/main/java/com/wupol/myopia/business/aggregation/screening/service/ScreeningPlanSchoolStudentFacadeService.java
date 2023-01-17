@@ -18,7 +18,6 @@ import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.GradeClassesDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentQueryDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -131,13 +130,14 @@ public class ScreeningPlanSchoolStudentFacadeService {
             return studentDTOIPage;
         }
         List<VisionScreeningResult> resultList  = visionScreeningResultService.getByPlanStudentIds(screeningStudentDTOS.stream().map(ScreeningStudentDTO::getPlanStudentId).collect(Collectors.toList()));
-        Map<Integer,VisionScreeningResult> visionScreeningResultsGroup = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer,VisionScreeningResult> firstScreeningResultMap = resultList.stream().filter(visionScreeningResult -> Boolean.FALSE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
+        Map<Integer,VisionScreeningResult> reScreeningResultMap= resultList.stream().filter(visionScreeningResult -> Boolean.TRUE.equals(visionScreeningResult.getIsDoubleScreen())).collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId, Function.identity()));
 
         //作者：钓猫的小鱼。  描述：给学生扩展类赋值
         studentDTOIPage.getRecords().forEach(studentDTO -> {
             studentDTO.setNationDesc(NationEnum.getNameByCode(studentDTO.getNation()))
                         .setAddress(districtService.getAddressDetails(studentDTO.getProvinceCode(), studentDTO.getCityCode(), studentDTO.getAreaCode(), studentDTO.getTownCode(), studentDTO.getAddress()));
-            setStudentEyeInfo(studentDTO, visionScreeningResultsGroup);
+            setStudentEyeInfo(studentDTO, firstScreeningResultMap, reScreeningResultMap);
         });
         return studentDTOIPage;
     }
@@ -149,8 +149,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
     * @Author: 钓猫的小鱼
     * @Date: 2022/1/5
     */
-    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> visionScreeningResultsGroup) {
-        VisionScreeningResult visionScreeningResult = Optional.ofNullable(visionScreeningResultsGroup).map(x -> x.get(studentEyeInfo.getPlanStudentId())).orElse(null);
+    public void setStudentEyeInfo(ScreeningStudentDTO studentEyeInfo, Map<Integer, VisionScreeningResult> firstScreeningResultMap, Map<Integer, VisionScreeningResult> reScreeningResultMap) {
+        VisionScreeningResult visionScreeningResult = Optional.ofNullable(firstScreeningResultMap).map(x -> x.get(studentEyeInfo.getPlanStudentId())).orElse(null);
         studentEyeInfo.setHasScreening(Objects.nonNull(visionScreeningResult))
                 //是否戴镜情况
                 .setGlassesTypeDes(EyeDataUtil.glassesTypeString(visionScreeningResult))
@@ -172,8 +172,8 @@ public class ScreeningPlanSchoolStudentFacadeService {
             studentEyeInfo.setDataIntegrity(CommonConst.DATA_INTEGRITY_MISS);
             return;
         }
-        int reScreeningCount = visionScreeningResultService.count(new VisionScreeningResult().setScreeningPlanSchoolStudentId(visionScreeningResult.getScreeningPlanSchoolStudentId()).setIsDoubleScreen(true));
-        studentEyeInfo.setIsDoubleScreen(reScreeningCount > 0);
+        VisionScreeningResult reScreeningResult = Optional.ofNullable(reScreeningResultMap).map(x -> x.get(studentEyeInfo.getPlanStudentId())).orElse(null);
+        studentEyeInfo.setIsDoubleScreen(Objects.nonNull(reScreeningResult));
 
         //是否数据完整性
         boolean completedData = StatUtil.isCompletedData(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry());

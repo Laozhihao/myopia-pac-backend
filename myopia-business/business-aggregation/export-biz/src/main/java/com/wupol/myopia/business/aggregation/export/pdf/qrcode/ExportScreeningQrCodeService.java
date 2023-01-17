@@ -128,14 +128,14 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
      * @return
      */
     public List<ScreeningStudentDTO> getStudentData(ExportCondition exportCondition){
-        List<Integer> pladnStudentIds =null;
+        List<Integer> planStudentIds =null;
         if (StringUtil.isNotEmpty(exportCondition.getPlanStudentIds())&&!"null".equals(exportCondition.getPlanStudentIds())){
-            pladnStudentIds = Arrays.stream(exportCondition.getPlanStudentIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
+            planStudentIds = Arrays.stream(exportCondition.getPlanStudentIds().split(",")).map(Integer::valueOf).collect(Collectors.toList());
         }
         // 2. 处理参数
         List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.selectBySchoolGradeAndClass(
                 exportCondition.getPlanId(), exportCondition.getSchoolId(),
-                exportCondition.getGradeId(), exportCondition.getClassId(),pladnStudentIds);
+                exportCondition.getGradeId(), exportCondition.getClassId(),planStudentIds);
         QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(students, ScreeningStudentDTO::getGradeId);
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(students, ScreeningStudentDTO::getClassId);

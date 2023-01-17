@@ -27,6 +27,7 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.StatClassLabel;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.WarningLevelCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.domain.vo.ReScreeningCardVO;
@@ -123,41 +124,30 @@ public class StatService {
      * @return
      */
     public WarningInfo getWarningList(CurrentUser currentUser) {
+        // 获取统计时间区间
         List<Integer> districtIds = this.getCurrentUserDistrictIds(currentUser);
-        StatConclusionQueryDTO lastOneQuery = new StatConclusionQueryDTO();
-        lastOneQuery.setDistrictIds(districtIds);
-        lastOneQuery.setIsValid(true);
-        lastOneQuery.setIsRescreen(false);
-        lastOneQuery.setIsCooperative(0);
-        StatConclusion lastConclusion = statConclusionService.getLastOne(lastOneQuery);
+        StatConclusionQueryDTO query = new StatConclusionQueryDTO();
+        query.setDistrictIds(districtIds);
+        query.setIsValid(true);
+        query.setIsRescreen(false);
+        query.setIsCooperative(0);
+        StatConclusion lastConclusion = statConclusionService.getLastOne(query);
         if (lastConclusion == null) {
             return WarningInfo.builder().build();
         }
         ZoneId zoneId = ZoneId.of("UTC+8");
         LocalDate endDate = DateUtil.convertToLocalDate(lastConclusion.getCreateTime(), zoneId).plusDays(1);
         LocalDate startDate = endDate.plusYears(-1);
-        StatConclusionQueryDTO warningListQuery = new StatConclusionQueryDTO();
-        warningListQuery.setStartTime(startDate)
-                .setEndTime(endDate)
-                .setDistrictIds(districtIds)
-                .setIsValid(true)
-                .setIsRescreen(false)
-                .setIsCooperative(0);
-        List<StatConclusion> warningConclusions =
-                statConclusionService.listOfReleasePlanByQuery(warningListQuery);
-        int total = warningConclusions.size();
-        int warning0Num = (int)warningConclusions.stream()
-                .filter(x -> WarningLevel.ZERO.code.equals(x.getWarningLevel()))
-                .count();
-        int warning1Num = (int)warningConclusions.stream()
-                .filter(x -> WarningLevel.ONE.code.equals(x.getWarningLevel()))
-                .count();
-        int warning2Num = (int)warningConclusions.stream()
-                .filter(x -> WarningLevel.TWO.code.equals(x.getWarningLevel()))
-                .count();
-        int warning3Num = (int)warningConclusions.stream()
-                .filter(x -> WarningLevel.THREE.code.equals(x.getWarningLevel()))
-                .count();
+        query.setStartTime(startDate).setEndTime(endDate);
+        // 统计
+        List<WarningLevelCountDO> warningLevelCountList = statConclusionService.countWarningLevel(query);
+        int total = (int)warningLevelCountList.stream().map(WarningLevelCountDO::getCount).count();
+        Map<Integer, Integer> warningLevelCountMap = warningLevelCountList.stream().filter(x -> Objects.nonNull(x.getWarningLevel())).collect(Collectors.toMap(WarningLevelCountDO::getWarningLevel, WarningLevelCountDO::getCount));
+        // 构建返回值
+        int warning0Num = warningLevelCountMap.getOrDefault(WarningLevel.ZERO.code, CommonConst.ZERO);
+        int warning1Num = warningLevelCountMap.getOrDefault(WarningLevel.ONE.code, CommonConst.ZERO);
+        int warning2Num = warningLevelCountMap.getOrDefault(WarningLevel.TWO.code, CommonConst.ZERO);
+        int warning3Num = warningLevelCountMap.getOrDefault(WarningLevel.THREE.code, CommonConst.ZERO);
         int focusTargetsNum = warning0Num + warning1Num + warning2Num + warning3Num;
         ArrayList<WarningLevelInfo> warningLevelInfoArrayList = new ArrayList<>();
         warningLevelInfoArrayList.add(new WarningLevelInfo(0, warning0Num, MathUtil.ratio(warning0Num,total)));

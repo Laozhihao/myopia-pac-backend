@@ -13,6 +13,8 @@
     </resultMap>
     <resultMap id="CommonDiseasePlanStudent" type="com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent">
     </resultMap>
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -126,7 +128,7 @@
         left join m_screening_plan msp on msp.id = mspss.screening_plan_id
         <where>
             <trim prefixOverrides="and">
-                and (vsc.is_double_screen is null or vsc.is_double_screen != 1)
+                and vsc.is_double_screen = 0
                 <if test="param.screeningPlanId != null">
                     AND mspss.screening_plan_id = #{param.screeningPlanId}
                 </if>
@@ -181,7 +183,6 @@
                 <if test="param.screeningType != null">
                     and msp.screening_type = #{param.screeningType}
                 </if>
-                    and (ISNULL(vsc.is_double_screen) or vsc.is_double_screen = 0)
             </trim>
                 order by mspss.id desc
         </where>
@@ -329,6 +330,12 @@
         from m_screening_plan_school_student
         where school_id = #{schoolId}
           and src_screening_notice_id = #{noticeId}
+    </select>
+
+    <select id="getSchoolCountByPlanId" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId} GROUP BY school_id
     </select>
 
     <delete id="deleteByPlanIdAndExcludeSchoolIds">
@@ -581,5 +588,12 @@
             #{id}
         </foreach>
         ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
+    </select>
+
+    <select id="getInfoByPlanId" resultMap="BaseResultMap">
+        select
+        student_no, school_id, id_card, passport
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
     </select>
 </mapper>

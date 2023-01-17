@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -221,8 +222,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanId
      * @return
      */
-    public Map<Integer, Long> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
-        return getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+    public Map<Integer, Integer> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.getSchoolCountByPlanId(screeningPlanId).stream().collect(Collectors.toMap(SchoolCountDO::getSchoolId, SchoolCountDO::getSchoolCount));
     }
 
     /**
@@ -896,5 +897,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             gradePlanSchoolStudentMap.putAll(map);
         }
         return gradePlanSchoolStudentMap;
+    }
+
+    /**
+     * 根据计划ID获取所有筛查学生
+     *
+     * @param screeningPlanId
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getInfoByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.getInfoByPlanId(screeningPlanId);
     }
 }

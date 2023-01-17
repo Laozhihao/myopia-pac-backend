@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.core.screening.flow.facade;
 
 import cn.hutool.core.util.StrUtil;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +29,10 @@ public class VisionScreeningResultFacade {
      * 获取筛查结果数据
      * @param screeningPlan
      * @param schoolIds
-     * @param orgIds
      */
-    public Map<String, Long> getScreeningResultCountMap(ScreeningPlan screeningPlan, Set<Integer> schoolIds, Set<Integer> orgIds) {
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(screeningPlan.getId(), Boolean.FALSE, null);
-        return visionScreeningResultList.stream()
-                .filter(visionScreeningResult -> orgIds.contains(visionScreeningResult.getScreeningOrgId()))
-                .filter(visionScreeningResult -> schoolIds.contains(visionScreeningResult.getSchoolId()))
-                .collect(Collectors.groupingBy(visionScreeningResult -> getThreeKey(visionScreeningResult.getPlanId(), visionScreeningResult.getScreeningOrgId(), visionScreeningResult.getSchoolId()), Collectors.counting()));
+    public Map<Integer, Integer> getScreeningResultCountMap(ScreeningPlan screeningPlan, Set<Integer> schoolIds) {
+        List<SchoolCountDO> schoolCountList = visionScreeningResultService.getSchoolCountByPlanIdAndSchoolIds(screeningPlan.getId(), CommonConst.ZERO, schoolIds);
+        return schoolCountList.stream().collect(Collectors.toMap(SchoolCountDO::getSchoolId, SchoolCountDO::getSchoolCount));
     }
 
     /**

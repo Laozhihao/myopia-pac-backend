@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
@@ -26,6 +27,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
  * @Date 2021-01-20
  */
 @Service
+@Slf4j
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
 
     @Resource
@@ -82,11 +85,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * 获取筛查人员ID
      *
      * @param planId 计划od
-     * @param orgId  机构ID
      * @return UserId
      */
-    public List<Integer> getCreateUserIdByPlanId(Integer planId, Integer orgId) {
-        return baseMapper.getCreateUserIdByPlanIdAndOrgId(planId, orgId);
+    public List<Integer> getCreateUserIdByPlanId(Integer planId) {
+        return baseMapper.getCreateUserIdByPlanId(planId);
     }
 
     /**
@@ -158,6 +160,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
     }
 
+    public VisionScreeningResult getOneByPlanIdsOrderByUpdateTimeDesc(Set<Integer> planIds) {
+        return baseMapper.getOneByPlanIdsOrderByUpdateTimeDesc(planIds);
+    }
+
     /**
      * 根据筛查计划ID集查询
      *
@@ -165,6 +171,20 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds) {
         return getByPlanIds(planIds,null);
+    }
+
+    /**
+     * 获取各计划下筛查结果数
+     * @param planIds
+     * @return
+     */
+    public Map<Integer, Integer> getCountByPlanIds(List<Integer> planIds) {
+        Map<Integer,Integer> visionScreeningResultMap = Maps.newHashMap();
+        Map<Integer, Integer> collect = baseMapper.getCountByPlanId(planIds).stream()
+                .collect(Collectors.toMap(ScreeningPlanCount::getPlanId, ScreeningPlanCount::getCount));
+        // 没有planId相关记录时返回0
+        planIds.forEach(planId -> visionScreeningResultMap.put(planId, collect.getOrDefault(planId,0)));
+        return visionScreeningResultMap;
     }
 
     public List<VisionScreeningResult> getByPlanIds(List<Integer> planIds,Boolean isDoubleScreen) {
@@ -224,18 +244,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
             save(visionScreeningResult);
         }
         return visionScreeningResult;
-    }
-
-    /**
-     * 获取筛查结果
-     *
-     * @param schoolId 学校ID
-     * @param orgId    机构ID
-     * @param planId   计划ID
-     * @return List<VisionScreeningResult> 筛查结果
-     */
-    public List<VisionScreeningResult> getBySchoolIdAndOrgIdAndPlanId(Integer schoolId, Integer orgId, Integer planId) {
-        return baseMapper.getBySchoolIdAndOrgIdAndPlanId(schoolId, orgId, planId);
     }
 
     /**
@@ -320,11 +328,8 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
                 .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
     }
 
-    public List<VisionScreeningResult> getByPlanIdAndIsDoubleScreen(Integer planId,Boolean isDoubleScreen,Integer schoolId) {
-        return baseMapper.selectList(Wrappers.lambdaQuery(VisionScreeningResult.class)
-                .eq(VisionScreeningResult::getIsDoubleScreen,isDoubleScreen)
-                .eq(VisionScreeningResult::getPlanId,planId)
-                .eq(Objects.nonNull(schoolId),VisionScreeningResult::getSchoolId,schoolId));
+    public List<SchoolCountDO> getSchoolCountByPlanIdAndSchoolIds(Integer planId, Integer isDoubleScreen, Set<Integer> schoolIds) {
+        return baseMapper.getSchoolCountByPlanIdAndSchoolIds(planId, isDoubleScreen, schoolIds);
     }
 
     /**
@@ -357,16 +362,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         // 新增或更新筛查计划学生
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
-        Integer planId = plan.getId();
-        List<VisionScreeningResult> resultList = getByPlanId(planId);
+        List<VisionScreeningResult> resultList = getByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(resultList)) {
             return;
         }
 
         // 获取所有的筛查数据结论
-        StatConclusionQueryDTO statConclusionQueryDTO = new StatConclusionQueryDTO();
-        statConclusionQueryDTO.setPlanId(planId);
-        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(statConclusionQueryDTO);
+        List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(statConclusionList)) {
             return;
         }
@@ -516,24 +518,6 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      */
     public List<StudentScreeningCountDTO> getVisionScreeningCountBySchoolId(Integer schoolId) {
         return baseMapper.getVisionScreeningCountBySchoolId(schoolId);
-    }
-
-    /**
-     * 根据条件查询筛查结果
-     * @param schoolIds 学校ID集合
-     * @param screeningPlanId 筛查计划ID
-     * @param screeningOrgId 筛查jigouID
-     * @param isDoubleScreen 是否复查
-     */
-    public List<VisionScreeningResult> listByCondition(List<Integer> schoolIds, Integer screeningPlanId, Integer screeningOrgId, Boolean isDoubleScreen) {
-        LambdaQueryWrapper<VisionScreeningResult> queryWrapper = Wrappers.lambdaQuery(VisionScreeningResult.class)
-                .eq(VisionScreeningResult::getPlanId, screeningPlanId)
-                .eq(VisionScreeningResult::getScreeningOrgId, screeningOrgId)
-                .in(VisionScreeningResult::getSchoolId, schoolIds)
-                .eq(VisionScreeningResult::getIsDoubleScreen, isDoubleScreen)
-                .select(VisionScreeningResult::getId, VisionScreeningResult::getSchoolId);
-        return baseMapper.selectList(queryWrapper);
-
     }
 
     public List<VisionScreeningResult> getByPlanIdsAndSchoolId(List<Integer> screeningPlanIds, Integer schoolId, Boolean isDoubleScreen) {

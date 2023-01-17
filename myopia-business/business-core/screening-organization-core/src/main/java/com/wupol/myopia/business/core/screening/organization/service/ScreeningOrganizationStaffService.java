@@ -15,6 +15,7 @@ import com.wupol.myopia.business.common.utils.domain.dto.StatusRequest;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO;
 import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.*;
@@ -290,22 +291,10 @@ public class ScreeningOrganizationStaffService extends BaseService<ScreeningOrga
      * 批量通过组织Id获取员工
      *
      * @param orgIds 组织id
-     * @return List<ScreeningOrganizationStaff>
+     * @return List<ScreeningOrgCountDO>
      */
-    public List<ScreeningOrganizationStaff> getStaffListsByOrgIds(List<Integer> orgIds,Integer type) {
-        return baseMapper.getByOrgIds(orgIds,type);
-    }
-
-    /**
-     * 批量通过组织Id获取筛查人员信息
-     *
-     * @param orgIds orgIds
-     * @return Map<Integer, List < ScreeningOrganizationStaff>>
-     */
-    public Map<Integer, List<ScreeningOrganizationStaff>> getOrgStaffMapByIds(List<Integer> orgIds,Integer type) {
-        return getStaffListsByOrgIds(orgIds,type).stream()
-                .collect(Collectors.groupingBy(ScreeningOrganizationStaff::getScreeningOrgId));
-
+    public Map<Integer, Integer> countByOrgIds(List<Integer> orgIds, Integer type) {
+        return baseMapper.countByOrgIds(orgIds,type).stream().collect(Collectors.toMap(ScreeningOrgCountDO::getScreeningOrgId, ScreeningOrgCountDO::getCount));
     }
 
     /**

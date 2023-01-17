@@ -3,6 +3,7 @@ package com.wupol.myopia.business.core.screening.organization.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationStaff;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,7 +21,7 @@ public interface ScreeningOrganizationStaffMapper extends BaseMapper<ScreeningOr
 
     List<ScreeningOrganizationStaff> getByOrgId(@Param("orgId") Integer orgId);
 
-    List<ScreeningOrganizationStaff> getByOrgIds(@Param("orgIds") List<Integer> orgIds,@Param("type") Integer type);
+    List<ScreeningOrgCountDO> countByOrgIds(@Param("orgIds") List<Integer> orgIds, @Param("type") Integer type);
 
     List<ScreeningOrganizationStaff> getByUserIds(@Param("userIds") List<Integer> userIds);
 

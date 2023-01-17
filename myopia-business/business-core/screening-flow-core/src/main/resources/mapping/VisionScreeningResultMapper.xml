@@ -24,7 +24,8 @@
     </resultMap>
 
     <resultMap id="ResultWithPlanInfo" type="com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO" extends="BaseResultMap">
-
+    </resultMap>
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
     </resultMap>
 
 
@@ -65,12 +66,10 @@
         GROUP BY school_id
     </select>
 
-    <select id="getCreateUserIdByPlanIdAndOrgId" resultType="java.lang.Integer">
-        SELECT create_user_id
+    <select id="getCreateUserIdByPlanId" resultType="java.lang.Integer">
+        SELECT distinct create_user_id
         FROM m_vision_screening_result
         WHERE plan_id = #{planId}
-          and screening_org_id = #{orgId}
-        GROUP BY create_user_id
     </select>
 
     <select id="countScreeningTime"
@@ -103,14 +102,20 @@
         WHERE msp.release_status = 1 AND DATE(mvsr.update_time) BETWEEN DATE(#{startTime}) AND DATE(#{endTime})
     </select>
 
-    <select id="getBySchoolIdAndOrgIdAndPlanId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="getSchoolCountByPlanIdAndSchoolIds" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
         from m_vision_screening_result
-        where school_id = #{schoolId}
-          and screening_org_id = #{orgId}
-          and plan_id = #{planId}
-          and is_double_screen = 0
+        where plan_id = #{planId}
+          <if test="isDoubleScreen != null">
+              and is_double_screen = #{isDoubleScreen}
+          </if>
+          <if test="schoolIds != null and schoolIds.size() != 0">
+              and school_id in
+              <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+                  #{schoolId}
+              </foreach>
+          </if>
+        GROUP BY school_id
     </select>
 
     <select id="getReleasePlanResultByStudentId" resultMap="BaseResultMap">
@@ -275,4 +280,31 @@
           and msp.release_status = 1
         group by mvsr.student_id
     </select>
+
+    <select id="getOneByPlanIdsOrderByUpdateTimeDesc" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where plan_id in
+        <foreach collection="planId" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+        and is_double_screen = false
+        order by update_time desc
+        limit 1
+    </select>
+
+    <select id="getCountByPlanId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningPlanCount">
+        SELECT
+            plan_id,
+            count(plan_id) AS count
+        FROM
+            m_vision_screening_result
+        WHERE plan_id IN
+        <foreach collection="planIds" item="planId" index="index" open="(" close=")" separator=",">
+            #{planId}
+        </foreach>
+        GROUP BY plan_id
+
+    </select>
+
 </mapper>
