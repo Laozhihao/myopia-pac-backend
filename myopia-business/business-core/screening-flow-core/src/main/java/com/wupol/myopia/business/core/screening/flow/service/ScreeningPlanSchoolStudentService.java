@@ -898,4 +898,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return gradePlanSchoolStudentMap;
     }
+
+    /**
+     * 根据计划ID获取所有筛查学生
+     *
+     * @param screeningPlanId
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getInfoByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.getInfoByPlanId(screeningPlanId);
+    }
 }

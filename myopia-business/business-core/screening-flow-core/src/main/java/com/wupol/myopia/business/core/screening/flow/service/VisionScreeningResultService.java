@@ -26,6 +26,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * @Date 2021-01-20
  */
 @Service
+@Slf4j
 public class VisionScreeningResultService extends BaseService<VisionScreeningResultMapper, VisionScreeningResult> {
 
     @Resource
@@ -155,6 +157,10 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         LambdaQueryWrapper<VisionScreeningResult> visionScreeningResultLambdaQueryWrapper = new LambdaQueryWrapper<>();
         visionScreeningResultLambdaQueryWrapper.eq(VisionScreeningResult::getIsDoubleScreen, false).in(VisionScreeningResult::getPlanId, planIds).orderByDesc(VisionScreeningResult::getUpdateTime);
         return baseMapper.selectList(visionScreeningResultLambdaQueryWrapper);
+    }
+
+    public VisionScreeningResult getOneByPlanIdsOrderByUpdateTimeDesc(Set<Integer> planIds) {
+        return baseMapper.getOneByPlanIdsOrderByUpdateTimeDesc(planIds);
     }
 
     /**
@@ -341,16 +347,13 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         // 新增或更新筛查计划学生
         screeningPlanSchoolStudentService.saveOrUpdateBatch(planStudents);
         // 获取所有结果
-        Integer planId = plan.getId();
-        List<VisionScreeningResult> resultList = getByPlanId(planId);
+        List<VisionScreeningResult> resultList = getByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(resultList)) {
             return;
         }
 
         // 获取所有的筛查数据结论
-        StatConclusionQueryDTO statConclusionQueryDTO = new StatConclusionQueryDTO();
-        statConclusionQueryDTO.setPlanId(planId);
-        List<StatConclusion> statConclusionList = statConclusionService.listByQuery(statConclusionQueryDTO);
+        List<StatConclusion> statConclusionList = statConclusionService.getByResultIds(resultList.stream().map(VisionScreeningResult::getId).collect(Collectors.toList()));
         if (CollectionUtils.isEmpty(statConclusionList)) {
             return;
         }

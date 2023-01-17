@@ -975,8 +975,8 @@ public class ScreeningAppController {
             return new PlanStudentInfoDTO();
         }
 
-        List<VisionScreeningResult> visionScreeningResults = visionScreeningResultService.getByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
-        if (CollectionUtils.isEmpty(visionScreeningResults)) {
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.getOneByPlanIdsOrderByUpdateTimeDesc(currentPlanIds);
+        if (Objects.isNull(visionScreeningResult)) {
             List<ScreeningPlanSchool> schoolPlan = screeningPlanSchoolService.getSchoolListsByPlanId(Lists.newArrayList(currentPlanIds).get(0));
             if (Objects.nonNull(schoolPlan) && !schoolPlan.isEmpty()) {
                 ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getOneByPlanId(Lists.newArrayList(currentPlanIds).get(0));
@@ -1000,7 +1000,7 @@ public class ScreeningAppController {
                 return new PlanStudentInfoDTO();
             }
         }
-        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResults.get(0).getScreeningPlanSchoolStudentId());
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
         planStudent.setSchoolName(schoolService.getById(planStudent.getSchoolId()).getName())
                 .setGradeId(planStudent.getGradeId())
                 .setSchoolId(planStudent.getSchoolId())
