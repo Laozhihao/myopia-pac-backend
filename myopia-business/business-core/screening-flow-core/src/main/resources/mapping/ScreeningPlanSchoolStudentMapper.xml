@@ -589,4 +589,11 @@
         </foreach>
         ORDER BY sp.start_time DESC, spss.create_time DESC LIMIT 1
     </select>
+
+    <select id="getInfoByPlanId" resultMap="BaseResultMap">
+        select
+        student_no, school_id, id_card, passport
+        from m_screening_plan_school_student
+        where screening_plan_id = #{planId}
+    </select>
 </mapper>

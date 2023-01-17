@@ -281,6 +281,18 @@
         group by mvsr.student_id
     </select>
 
+    <select id="getOneByPlanIdsOrderByUpdateTimeDesc" resultMap="BaseResultMap">
+        select *
+        from m_vision_screening_result
+        where plan_id in
+        <foreach collection="planId" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
+        and is_double_screen = false
+        order by update_time desc
+        limit 1
+    </select>
+
     <select id="getCountByPlanId" resultType="com.wupol.myopia.business.core.screening.flow.domain.dos.ScreeningPlanCount">
         SELECT
             plan_id,

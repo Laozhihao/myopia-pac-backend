@@ -569,7 +569,7 @@ public class ScreeningPlanStudentBizService {
      * @param screeningPlanSchoolStudent 计划学生
      */
     public void checkStudentSno(ScreeningPlanSchoolStudent screeningPlanSchoolStudent) {
-        List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
+        List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList = screeningPlanSchoolStudentService.getInfoByScreeningPlanId(screeningPlanSchoolStudent.getScreeningPlanId());
         // 检查学号
         screeningPlanSchoolStudentService.checkSno(existPlanSchoolStudentList, screeningPlanSchoolStudent.getStudentNo(), screeningPlanSchoolStudent.getIdCard(), screeningPlanSchoolStudent.getPassport(), screeningPlanSchoolStudent.getSchoolId());
     }
