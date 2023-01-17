@@ -22,7 +22,7 @@ public class RestTemplateConfig {
     @Bean
     public ClientHttpRequestFactory simpleClientHttpRequestFactory(){
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(15000);
+        factory.setConnectTimeout(120000);
         factory.setReadTimeout(90000);
         return factory;
     }
