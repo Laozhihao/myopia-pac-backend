@@ -257,7 +257,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Map<Integer, Long>> getSchoolStudentCountByScreeningPlanIds(List<Integer> screeningPlanIds) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getByScreeningPlanIds(screeningPlanIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getSomeInfoByScreeningPlanIds(screeningPlanIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
         Map<Integer, Map<Integer, Long>> map = Maps.newHashMap();
         planSchoolStudentMap.forEach((screeningPlanId,planSchoolStudentList)->{
