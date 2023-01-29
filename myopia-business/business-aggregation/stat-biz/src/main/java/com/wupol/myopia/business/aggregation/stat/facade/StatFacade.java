@@ -278,9 +278,8 @@ public class StatFacade {
             return;
         }
         Map<Integer, ScreeningPlan> screeningPlanMap = screeningPlans.stream().collect(Collectors.toMap(ScreeningPlan::getId, Function.identity()));
-
-
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByScreeningPlanIds(Lists.newArrayList(screeningPlanIds));
+
         if (CollUtil.isEmpty(planSchoolStudents)){
             log.error("未找到参与筛查计划的学生，screeningPlanIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
