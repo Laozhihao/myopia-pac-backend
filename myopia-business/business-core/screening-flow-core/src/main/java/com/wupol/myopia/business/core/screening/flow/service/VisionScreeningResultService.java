@@ -28,6 +28,7 @@ import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.flow.util.ReScreenCardUtil;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -106,7 +107,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
      * @return 筛查计划Id
      */
     public List<Integer> getYesterdayScreeningPlanIds() {
-        Date yesterdayStartTime = DateUtil.getYesterdayStartTime();
+        Date yesterdayStartTime = cn.hutool.core.date.DateUtil.beginOfDay(DateUtils.addDays(new Date(), -1)).toJdkDate();
         Date yesterdayEndTime = DateUtil.getYesterdayEndTime();
         return baseMapper.getHaveSrcScreeningNoticePlanIdsByTime(yesterdayStartTime, yesterdayEndTime);
     }
