@@ -91,7 +91,7 @@ public class StatisticScheduledTaskService {
         //2. 生成学校视力和监测情况统计数据（主要用于统计分析菜单）
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计数据
-        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds, Collections.emptyList());
+        yesterdayScreeningPlanIds.forEach(s-> screeningResultStatisticByPlanIds(Lists.newArrayList(s), Collections.emptyList()));
         log.info("统计完成。");
     }
 
