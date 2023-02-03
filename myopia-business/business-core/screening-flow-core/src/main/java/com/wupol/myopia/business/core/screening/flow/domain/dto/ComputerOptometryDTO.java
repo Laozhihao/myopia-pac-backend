@@ -125,6 +125,8 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
             computerOptometryDTO.setLSph(leftEye.getSph());
             // 等效球镜= 球镜+（1/2）柱镜
             computerOptometryDTO.setLSe(leftEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(leftEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
+            computerOptometryDTO.setLK1(leftEye.getK1());
+            computerOptometryDTO.setLK2(leftEye.getK2());
         }
         ComputerOptometryDO.ComputerOptometry rightEye = computerOptometryDO.getRightEyeData();
         if (Objects.nonNull(rightEye)) {
@@ -132,6 +134,8 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
             computerOptometryDTO.setRCyl(rightEye.getCyl());
             computerOptometryDTO.setRSph(rightEye.getSph());
             computerOptometryDTO.setRSe(rightEye.getCyl().multiply(BigDecimal.valueOf(0.5)).add(rightEye.getSph()).setScale(2, BigDecimal.ROUND_UP));
+            computerOptometryDTO.setRK1(rightEye.getK1());
+            computerOptometryDTO.setRK2(rightEye.getK2());
         }
         computerOptometryDTO.setDiagnosis(computerOptometryDO.getDiagnosis());
         computerOptometryDTO.setIsCooperative(computerOptometryDO.getIsCooperative());
