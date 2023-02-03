@@ -27,6 +27,8 @@ public class ScreeningConfig implements Serializable {
     private List<String> visionDeviceNoList;
     /** 视筛仪型号 */
     private List<String> visionScreeningDeviceNoList;
+    /** 电脑验光仪型号 */
+    private List<String> computerDeviceNoList;
     /** 开通的检查项目列表 */
     private List<String> medicalProjectList;
     /** 已授权的设备列表 */
