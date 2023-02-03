@@ -66,11 +66,38 @@ public class ComputerOptometryDTO extends ScreeningResultBasicData {
     @JsonProperty("r_se")
     private BigDecimal rSe;
 
+    /**
+     * 左眼角膜曲率k1
+     */
+    @JsonProperty("l_k1")
+    private BigDecimal lK1;
+
+    /**
+     * 左眼角膜曲率k2
+     */
+    @JsonProperty("l_k2")
+    private BigDecimal lK2;
+
+    /**
+     * 右眼角膜曲率k1
+     */
+    @JsonProperty("r_k1")
+    private BigDecimal rK1;
+
+    /**
+     *
+     * 右眼角膜曲率k2
+     */
+    @JsonProperty("r_k2")
+    private BigDecimal rK2;
+
 
     @Override
     public VisionScreeningResult buildScreeningResultData(VisionScreeningResult visionScreeningResult) {
-        ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(lAxial).setCyl(lCyl).setSph(lSph).setLateriality(CommonConst.LEFT_EYE);
-        ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry().setAxial(rAxial).setCyl(rCyl).setSph(rSph).setLateriality(CommonConst.RIGHT_EYE);
+        ComputerOptometryDO.ComputerOptometry leftComputerOptometry = new ComputerOptometryDO.ComputerOptometry()
+                .setAxial(lAxial).setCyl(lCyl).setSph(lSph).setK1(lK1).setK2(lK2).setLateriality(CommonConst.LEFT_EYE);
+        ComputerOptometryDO.ComputerOptometry rightComputerOptometry = new ComputerOptometryDO.ComputerOptometry()
+                .setAxial(rAxial).setCyl(rCyl).setSph(rSph).setK1(rK1).setK2(rK2).setLateriality(CommonConst.RIGHT_EYE);
         ComputerOptometryDO computerOptometryDO = new ComputerOptometryDO().setRightEyeData(rightComputerOptometry).setLeftEyeData(leftComputerOptometry).setIsCooperative(getIsCooperative());
         computerOptometryDO.setDiagnosis(super.getDiagnosis());
         computerOptometryDO.setCreateUserId(getCreateUserId());
