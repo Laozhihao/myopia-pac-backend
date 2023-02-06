@@ -105,7 +105,11 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                 .setWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
                 .setOtherEyeDiseasesLeftEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_LEFT_EYE_DISEASES)))
                 .setOtherEyeDiseasesRightEyeDiseases(ListUtil.objectList2Str(JSONPath.eval(dto, ScreeningResultPahtConst.PATH_OED_RIGHT_EYE_DISEASES)))
-                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM));
+                .setOtherEyeDiseasesSystemicDiseaseSymptom((String) JSONPath.eval(dto, ScreeningResultPahtConst.PATH_SYSTEMIC_DISEASE_SYMPTOM))
+                .setLeftK1(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFT_EYE_K1)))
+                .setLeftK2(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.LEFT_EYE_K2)))
+                .setRightK1(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHT_EYE_K1)))
+                .setRightK2(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(dto, ScreeningResultPahtConst.RIGHT_EYE_K2)));
     }
 
     /**
@@ -130,7 +134,11 @@ public class CommonDiseaseDataServiceImpl implements IScreeningDataService {
                     .setLeftReScreenAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFTEYE_AXIAL)))
                     .setRightReScreenAxials(ScreeningDataFormatUtils.generateSingleEyeDegree(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHTEYE_AXIAL)))
                     .setIsRescreenDesc("是").setReHeight(ScreeningDataFormatUtils.getHeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_HEIGHT)))
-                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)));
+                    .setReWeight(ScreeningDataFormatUtils.getWeight(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.PATH_HW_WEIGHT)))
+                    .setLeftReScreenK1(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFT_EYE_K1)))
+                    .setLeftReScreenK2(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.LEFT_EYE_K2)))
+                    .setRightReScreenK1(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHT_EYE_K1)))
+                    .setRightReScreenK2(ScreeningDataFormatUtils.generateComputerOptometrySingleSuffixDStr(JSONPath.eval(rescreenVo, ScreeningResultPahtConst.RIGHT_EYE_K2)));
             DeviationDO deviationData = rescreenVo.getDeviationData();
             if (Objects.nonNull(deviationData)) {
                 String result = StringUtils.EMPTY;
