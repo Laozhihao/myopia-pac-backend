@@ -278,4 +278,12 @@ public class ScreeningDataFormatUtils {
         }
         return EMPTY_RESULT;
     }
+
+    public static String generateComputerOptometrySingleSuffixDStr(Object val) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        if (Objects.nonNull(val)) {
+            return decimalFormat.format(val);
+        }
+        return EMPTY_RESULT;
+    }
 }
