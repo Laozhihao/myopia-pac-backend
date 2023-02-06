@@ -98,12 +98,20 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String rightCyls;
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（右）"})
     private String rightAxials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "K1（右）"})
+    private String rightK1;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "K2（右）"})
+    private String rightK2;
     @ExcelProperty({TOP_HEADER, "电脑验光", "球镜（左）"})
     private String leftSphs;
     @ExcelProperty({TOP_HEADER, "电脑验光", "柱镜（左）"})
     private String leftCyls;
     @ExcelProperty({TOP_HEADER, "电脑验光", "轴位（左）"})
     private String leftAxials;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "K1（左）"})
+    private String leftK1;
+    @ExcelProperty({TOP_HEADER, "电脑验光", "K2（左）"})
+    private String leftK2;
 
     @ExcelProperty({TOP_HEADER, "体测检查", "身高"})
     private String height;
@@ -225,10 +233,18 @@ public class VisionScreeningResultExportDTO implements Serializable {
     private String leftReScreenSphs;
     @ExcelProperty({TOP_HEADER2, "电脑验光", "柱镜（右）"})
     private String rightReScreenCyls;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "K1（右）"})
+    private String rightReScreenK1;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "K2（右）"})
+    private String rightReScreenK2;
     @ExcelProperty({TOP_HEADER2, "电脑验光", "柱镜（左）"})
     private String leftReScreenCyls;
     @ExcelProperty({TOP_HEADER2, "电脑验光", "轴位（右）"})
     private String rightReScreenAxials;
     @ExcelProperty({TOP_HEADER2, "电脑验光", "轴位（左）"})
     private String leftReScreenAxials;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "K1（左）"})
+    private String leftReScreenK1;
+    @ExcelProperty({TOP_HEADER2, "电脑验光", "K2（左）"})
+    private String leftReScreenK2;
 }
