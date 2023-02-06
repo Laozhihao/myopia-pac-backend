@@ -2,12 +2,14 @@ package com.wupol.myopia.business.api.management.domain.builder;
 
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolMonitorStatistic;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,8 @@ public final class SchoolMonitorStatisticBuilder {
      */
     public static SchoolMonitorStatistic build(School school, ScreeningOrganization screeningOrg,
                                                Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
-                                               List<StatConclusion> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers) {
+                                               List<StatConclusion> statConclusions, Integer planScreeningNumbers, Integer realScreeningNumbers,
+                                               Integer screeningOrgType) {
         SchoolMonitorStatistic statistic = new SchoolMonitorStatistic();
         Map<Boolean, Long> isWearGlassNumMap = statConclusions.stream().collect(Collectors.groupingBy(statConclusion -> statConclusion.getGlassesType()>0, Collectors.counting()));
         Integer withoutGlassDsn = isWearGlassNumMap.getOrDefault(false, 0L).intValue();
@@ -43,7 +46,6 @@ public final class SchoolMonitorStatisticBuilder {
         Integer errorNumbers = statConclusions.stream().mapToInt(sc-> Optional.ofNullable(sc.getRescreenErrorNum()).orElse(0)).sum();
         int dsn = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
-                .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
                 .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId)
                 .setScreeningPlanId(screeningPlanId).setDistrictId(school.getDistrictId())
                 .setFinishRatio(MathUtil.divide(realScreeningNumbers, planScreeningNumbers))
@@ -54,6 +56,14 @@ public final class SchoolMonitorStatisticBuilder {
                 .setPlanScreeningNumbers(planScreeningNumbers).setRealScreeningNumbers(realScreeningNumbers);
         //TODO investigationNumbers暂时处理为0
         statistic.setInvestigationNumbers(0);
+        if (Objects.equals(ScreeningOrgTypeEnum.ORG.getType(), screeningOrgType)) {
+            statistic.setScreeningOrgId(screeningOrg.getId());
+            statistic.setScreeningOrgName(screeningOrg.getName());
+        }
+        if (Objects.equals(ScreeningOrgTypeEnum.SCHOOL.getType(), screeningOrgType)) {
+            statistic.setScreeningOrgId(school.getId());
+            statistic.setScreeningOrgName(school.getName());
+        }
         return statistic;
     }
 

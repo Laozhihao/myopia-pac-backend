@@ -5,6 +5,7 @@ import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.stat.domain.model.SchoolVisionStatistic;
@@ -26,10 +27,9 @@ import java.util.stream.Collectors;
 public class SchoolVisionStatisticBuilder {
 
     public static SchoolVisionStatistic build(School school, ScreeningOrganization screeningOrg, Integer screeningNoticeId, Integer screeningTaskId, Integer screeningPlanId,
-                                              List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers) {
+                                              List<StatConclusion> statConclusions, Integer realScreeningNumber, Integer planScreeningNumbers, Integer screeningOrgType) {
         SchoolVisionStatistic statistic = new SchoolVisionStatistic();
-        Integer wearingGlassNumber =
-                (int) statConclusions.stream().filter(x -> Objects.nonNull(x.getGlassesType()) && x.getGlassesType() > 0).count();
+        Integer wearingGlassNumber = (int) statConclusions.stream().filter(x -> Objects.nonNull(x.getGlassesType()) && x.getGlassesType() > 0).count();
         Integer myopiaNumber = (int) statConclusions.stream().map(StatConclusion::getIsMyopia).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer ametropiaNumber = (int) statConclusions.stream().map(StatConclusion::getIsRefractiveError).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
         Integer lowVisionNumber = (int) statConclusions.stream().map(StatConclusion::getIsLowVision).filter(Objects::nonNull).filter(Boolean::booleanValue).count();
@@ -55,7 +55,6 @@ public class SchoolVisionStatisticBuilder {
         double avgRightVision = statConclusions.stream().mapToDouble(sc->Optional.ofNullable(sc.getVisionR()).map(BigDecimal::doubleValue).orElse(new Double("0"))).average().orElse(0);
         int validScreeningNumbers = statConclusions.size();
         statistic.setSchoolId(school.getId()).setSchoolName(school.getName()).setSchoolType(school.getType())
-                .setScreeningOrgId(screeningOrg.getId()).setScreeningOrgName(screeningOrg.getName())
                 .setScreeningNoticeId(screeningNoticeId).setScreeningTaskId(screeningTaskId).setScreeningPlanId(screeningPlanId).setDistrictId(school.getDistrictId())
                 .setAvgLeftVision(BigDecimal.valueOf(avgLeftVision).setScale(2, RoundingMode.HALF_UP)).setAvgRightVision(BigDecimal.valueOf(avgRightVision).setScale(2, RoundingMode.HALF_UP))
                 .setWearingGlassesNumbers(wearingGlassNumber).setWearingGlassesRatio(MathUtil.divide(wearingGlassNumber, validScreeningNumbers))
@@ -77,6 +76,16 @@ public class SchoolVisionStatisticBuilder {
                 .setMyopiaLevelInsufficient(visionLabelZeroSPNumbers)
                 .setBindMpNumbers(bindMpNumber)
                 .setReviewNumbers(reviewNumber);
+
+        if (Objects.equals(ScreeningOrgTypeEnum.ORG.getType(), screeningOrgType)) {
+            statistic.setScreeningOrgId(screeningOrg.getId());
+            statistic.setScreeningOrgName(screeningOrg.getName());
+        }
+        if (Objects.equals(ScreeningOrgTypeEnum.SCHOOL.getType(), screeningOrgType)) {
+            statistic.setScreeningOrgId(school.getId());
+            statistic.setScreeningOrgName(school.getName());
+        }
+
         return statistic;
     }
 }

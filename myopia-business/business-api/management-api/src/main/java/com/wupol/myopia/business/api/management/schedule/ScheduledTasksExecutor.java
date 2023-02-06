@@ -48,7 +48,7 @@ public class ScheduledTasksExecutor {
     /**
      * 筛查数据统计
      */
-    @Scheduled(cron = "0 5 0 * * ?")
+    @Scheduled(cron = "0 5 1 * * ?")
     public void statisticScreeningDataDaily() {
         statisticScheduledTaskService.statisticScreeningData();
     }

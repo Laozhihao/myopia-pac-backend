@@ -91,7 +91,7 @@ public class StatisticScheduledTaskService {
         //2. 生成学校视力和监测情况统计数据（主要用于统计分析菜单）
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计数据
-        screeningResultStatisticByPlanIds(yesterdayScreeningPlanIds, Collections.emptyList());
+        yesterdayScreeningPlanIds.forEach(s-> screeningResultStatisticByPlanIds(Lists.newArrayList(s), Collections.emptyList()));
         log.info("统计完成。");
     }
 
@@ -253,8 +253,8 @@ public class StatisticScheduledTaskService {
                 Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
                 int planSchoolScreeningNumbers = planSchoolStudentNum.getOrDefault(schoolId, 0L).intValue();
                 int reslScreeningNumbers = isRescreenTotalMap.getOrDefault(false, Collections.emptyList()).size();
-                schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers));
-                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers));
+                schoolVisionStatistics.add(SchoolVisionStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(false, Collections.emptyList()), reslScreeningNumbers, planSchoolScreeningNumbers, screeningPlan.getScreeningOrgType()));
+                schoolMonitorStatistics.add(SchoolMonitorStatisticBuilder.build(schoolIdMap.get(schoolId), screeningOrg, screeningPlan.getSrcScreeningNoticeId(), screeningPlan.getScreeningTaskId(), screeningPlanId, isRescreenMap.getOrDefault(true, Collections.emptyList()), planSchoolScreeningNumbers, reslScreeningNumbers, screeningPlan.getScreeningOrgType()));
             });
         });
     }
