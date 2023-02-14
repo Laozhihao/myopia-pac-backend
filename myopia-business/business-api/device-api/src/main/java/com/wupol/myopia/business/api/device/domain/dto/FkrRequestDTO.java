@@ -51,4 +51,24 @@ public class FkrRequestDTO {
      * 右眼轴位
      */
     private String rightAxial;
+
+    /**
+     * 左眼-k1
+     */
+    private String leftK1;
+
+    /**
+     * 左眼-k2
+     */
+    private String leftK2;
+
+    /**
+     * 右眼-k1
+     */
+    private String rightK1;
+
+    /**
+     * 右眼-k2
+     */
+    private String rightK2;
 }

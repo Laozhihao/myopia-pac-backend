@@ -59,7 +59,10 @@ public class FkrDataService {
         computerOptometryDTO.setRSph(new BigDecimal(requestDTO.getRightSph()));
         computerOptometryDTO.setRCyl(new BigDecimal(requestDTO.getRightCyl()));
         computerOptometryDTO.setRAxial(new BigDecimal(requestDTO.getRightAxial()));
-//        computerOptometryDTO.setDiagnosis();
+        computerOptometryDTO.setLK1(new BigDecimal(requestDTO.getLeftK1()));
+        computerOptometryDTO.setLK2(new BigDecimal(requestDTO.getLeftK2()));
+        computerOptometryDTO.setRK1(new BigDecimal(requestDTO.getRightK1()));
+        computerOptometryDTO.setRK2(new BigDecimal(requestDTO.getRightK2()));
         computerOptometryDTO.setIsCooperative(0);
         computerOptometryDTO.setSchoolId(String.valueOf(screeningPlanSchoolStudent.getSchoolId()));
         computerOptometryDTO.setDeptId(screeningPlanSchoolStudent.getScreeningOrgId());
