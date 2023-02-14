@@ -8,10 +8,12 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
+import com.wupol.myopia.business.common.utils.constant.DeviceConfigTypes;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -82,6 +84,7 @@ public class DeviceBizService {
      * @return List<DeviceReportPrintResponseDTO>
      */
     public List<DeviceReportPrintResponseDTO> getPrintReportInfo(List<Integer> ids) {
+
         if (CollectionUtils.isEmpty(ids)) {
             throw new BusinessException("id不能为空");
         }
@@ -93,24 +96,88 @@ public class DeviceBizService {
         List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
+
+        Map<Integer, Integer>  configTypes = screeningOrganizationService.getByIds(orgIds).stream()
+                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
+
         responseDTOS.forEach(r -> {
             if (Objects.nonNull(r.getLeftAxsi())) {
+                //左眼轴位
                 r.setLeftAxsi(BigDecimal.valueOf(r.getLeftAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             if (Objects.nonNull(r.getRightAxsi())) {
+                //右眼轴位
                 r.setRightAxsi(BigDecimal.valueOf(r.getRightAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
+            //建议医院
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
+
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
+            //医生结论
             r.setDoctorConclusion(doctorAdvice.getFirst());
+            //医生建议
             r.setDoctorAdvice(doctorAdvice.getSecond());
+            //模板类型 1-VS666模板1
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
-            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
-            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
-            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
-            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+
+
+            extracted(configTypes, r);
+
         });
         return responseDTOS;
+    }
+
+    /**
+     * VS666和VS550计算方式
+     * @param configTypes 机构对应的配置
+     * @param r
+     */
+    private static void extracted(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
+        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS666.getCode())
+                || configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS666_SINGLE.getCode())){
+            /*
+             * 计算逻辑一（VS666计算逻辑）
+             */
+            //左眼柱镜-展示使用
+            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+            //右眼柱镜-展示使用
+            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+            //左眼球镜-展示使用
+            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+            //右眼球镜-展示使用
+            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+        }
+        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_01D.getCode())){
+            /*
+             * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
+             */
+            //左眼柱镜-展示使用
+            r.setLeftCylDisplay(r.getLeftCyl());
+            //右眼柱镜-展示使用
+            r.setRightCylDisplay(r.getRightCyl());
+            //左眼球镜-展示使用
+            r.setLeftSphDisplay(r.getLeftSph());
+            //右眼球镜-展示使用
+            r.setRightSphDisplay(r.getRightSph());
+        }
+        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_25D.getCode())){
+            /*
+             * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
+             * 用现有的数据计算：等效球镜=球镜+柱镜/2
+             */
+            //左眼柱镜-展示使用
+            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+            //右眼柱镜-展示使用
+            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+            //左眼球镜-展示使用
+            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+            //右眼球镜-展示使用
+            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+            //左眼等效球镜--展示使用
+            r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+            //右眼等效球镜--展示使用
+            r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+        }
     }
 
     /**
