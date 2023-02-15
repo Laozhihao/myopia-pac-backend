@@ -128,11 +128,11 @@ public class DeviceBizService {
     /**
      * VS666和VS550计算方式
      * @param configTypes 机构对应的配置
-     * @param r
+     * @param r 设备打印报告返回体
      */
     private static void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
-        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550.getCode())
-                || configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_SINGLE.getCode())){
+        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550.getCode())
+                || Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_SINGLE.getCode())){
             /*
              * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
              */
@@ -140,13 +140,13 @@ public class DeviceBizService {
                     VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
                     VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
         }
-        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_01D.getCode())){
+        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_01D.getCode())){
             /*
              * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
              */
             computationSphCyl(r, r.getLeftCyl(), r.getRightCyl(), r.getLeftSph(), r.getRightSph());
         }
-        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_25D.getCode())){
+        if ( Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_25D.getCode())){
             /*
              * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
              * 用现有的数据计算：等效球镜=球镜+柱镜/2
