@@ -15,8 +15,8 @@ import java.util.Optional;
 public enum DeviceConfigTypes {
     PROVINCIAL_LEVEL(0, "省级配置"),
     SINGLE_POINT(1, "单点配置"),
-    VS666(2, "VS666配置"),
-    VS666_SINGLE(3, "单点+VS666配置"),
+    VS550(2, "VS550配置"),
+    VS550_SINGLE(3, "单点+VS550配置"),
     VS550_25D(4, "VS550（0.25D）配置"),
     VS550_01D(5, "VS550（0.01D）配置");
 

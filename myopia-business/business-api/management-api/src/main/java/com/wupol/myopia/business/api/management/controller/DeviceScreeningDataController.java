@@ -9,7 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
@@ -52,10 +52,10 @@ public class DeviceScreeningDataController {
         if (Objects.nonNull(page) && !CollectionUtils.isEmpty(page.getRecords())) {
             List<DeviceScreeningDataAndOrgDTO> records = page.getRecords();
             records.forEach(r -> {
-                r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
-                r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
-                r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
-                r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+                r.setLeftCylDisplay(VS550Util.getDisplayValue(r.getLeftCyl()));
+                r.setRightCylDisplay(VS550Util.getDisplayValue(r.getRightCyl()));
+                r.setLeftSphDisplay(VS550Util.getDisplayValue(r.getLeftSph()));
+                r.setRightSphDisplay(VS550Util.getDisplayValue(r.getRightSph()));
             });
         }
         return page;

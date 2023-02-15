@@ -14,7 +14,6 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.common.utils.util.VS550Util;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
@@ -120,8 +119,7 @@ public class DeviceBizService {
             //模板类型 1-VS666模板1
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
 
-
-            extracted(configTypes, r);
+            computationalVS550(configTypes, r);
 
         });
         return responseDTOS;
@@ -132,20 +130,20 @@ public class DeviceBizService {
      * @param configTypes 机构对应的配置
      * @param r
      */
-    private static void extracted(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
-        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS666.getCode())
-                || configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS666_SINGLE.getCode())){
+    private static void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
+        if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550.getCode())
+                || configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_SINGLE.getCode())){
             /*
              * 计算逻辑一（VS666计算逻辑）
              */
             //左眼柱镜-展示使用
-            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+            r.setLeftCylDisplay(VS550Util.getDisplayValue(r.getLeftCyl()));
             //右眼柱镜-展示使用
-            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+            r.setRightCylDisplay(VS550Util.getDisplayValue(r.getRightCyl()));
             //左眼球镜-展示使用
-            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+            r.setLeftSphDisplay(VS550Util.getDisplayValue(r.getLeftSph()));
             //右眼球镜-展示使用
-            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+            r.setRightSphDisplay(VS550Util.getDisplayValue(r.getRightSph()));
         }
         if (configTypes.get(r.getScreeningOrgId()).equals(DeviceConfigTypes.VS550_01D.getCode())){
             /*
@@ -166,13 +164,13 @@ public class DeviceBizService {
              * 用现有的数据计算：等效球镜=球镜+柱镜/2
              */
             //左眼柱镜-展示使用
-            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
+            r.setLeftCylDisplay(VS550Util.getDisplayValue(r.getLeftCyl()));
             //右眼柱镜-展示使用
-            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
+            r.setRightCylDisplay(VS550Util.getDisplayValue(r.getRightCyl()));
             //左眼球镜-展示使用
-            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
+            r.setLeftSphDisplay(VS550Util.getDisplayValue(r.getLeftSph()));
             //右眼球镜-展示使用
-            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+            r.setRightSphDisplay(VS550Util.getDisplayValue(r.getRightSph()));
             //左眼等效球镜--展示使用
             r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
             //右眼等效球镜--展示使用

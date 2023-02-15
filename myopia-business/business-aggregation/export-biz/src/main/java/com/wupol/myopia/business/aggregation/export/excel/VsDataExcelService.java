@@ -7,7 +7,7 @@ import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.util.CheckModeEnum;
 import com.wupol.myopia.business.common.utils.util.CheckTypeEnum;
 import com.wupol.myopia.business.common.utils.util.PatientAgeUtil;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataExportDTO;
 import com.wupol.myopia.business.core.device.service.DeviceScreeningDataService;
@@ -100,7 +100,7 @@ public class VsDataExcelService extends BaseExportExcelFileService {
      * @return 值
      */
     private String formatDate(Double val) {
-        Double displayValue = VS666Util.getDisplayValue(val);
+        Double displayValue = VS550Util.getDisplayValue(val);
         if (Objects.isNull(displayValue)) {
             return "--";
         }
