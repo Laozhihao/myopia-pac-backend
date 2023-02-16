@@ -2,6 +2,7 @@ package com.wupol.myopia.business.core.screening.flow.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -571,7 +572,7 @@ public class EyeDataUtil {
     public static BigDecimal rightSE(VisionScreeningResult visionScreenResult) {
         BigDecimal sph = rightSph(visionScreenResult);
         BigDecimal cyl = rightCyl(visionScreenResult);
-        return StatUtil.getSphericalEquivalent(sph, cyl);
+        return SEUtil.getSphericalEquivalent(sph, cyl);
     }
 
     /**
@@ -582,7 +583,7 @@ public class EyeDataUtil {
     public static BigDecimal leftSE(VisionScreeningResult visionScreenResult) {
         BigDecimal sph = leftSph(visionScreenResult);
         BigDecimal cyl = leftCyl(visionScreenResult);
-        return StatUtil.getSphericalEquivalent(sph, cyl);
+        return SEUtil.getSphericalEquivalent(sph, cyl);
     }
 
     /**
