@@ -8,7 +8,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
-import com.wupol.myopia.business.common.utils.constant.DeviceConfigTypes;
 import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
@@ -31,6 +30,7 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,8 +131,8 @@ public class DeviceBizService {
      * @param r 设备打印报告返回体
      */
     private static void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550.getCode())
-                || Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_SINGLE.getCode())){
+        if (Objects.equals(configTypes.get(r.getScreeningOrgId()), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
             /*
              * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
              */
@@ -140,13 +140,13 @@ public class DeviceBizService {
                     VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
                     VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
         }
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_01D.getCode())){
+        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_5.getType())){
             /*
              * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
              */
             computationSphCyl(r, r.getLeftCyl(), r.getRightCyl(), r.getLeftSph(), r.getRightSph());
         }
-        if ( Objects.equals(configTypes.get(r.getScreeningOrgId()),DeviceConfigTypes.VS550_25D.getCode())){
+        if ( Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
             /*
              * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
              * 用现有的数据计算：等效球镜=球镜+柱镜/2
