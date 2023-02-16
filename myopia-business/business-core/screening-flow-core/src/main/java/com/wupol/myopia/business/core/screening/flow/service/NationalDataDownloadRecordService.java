@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Simple4H
@@ -28,8 +29,11 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
      *
      * @return IPage<DataSubmit>
      */
-    public IPage<NationalDataDownloadRecord> getList(PageRequest pageRequest, Integer schoolId) {
+    public IPage<NationalDataDownloadRecord> getList(PageRequest pageRequest, Integer schoolId,Integer screeningPlanId) {
         LambdaQueryWrapper<NationalDataDownloadRecord> queryWrapper = new LambdaQueryWrapper<NationalDataDownloadRecord>().eq(NationalDataDownloadRecord::getSchoolId, schoolId).orderByDesc(NationalDataDownloadRecord::getCreateTime);
+        if (Objects.nonNull(screeningPlanId)) {
+            queryWrapper.eq(NationalDataDownloadRecord::getScreeningPlanId, screeningPlanId);
+        }
         return baseMapper.selectPage(pageRequest.getPage(), queryWrapper);
     }
 
@@ -41,8 +45,9 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
      * @return id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer createNewDataSubmit(Integer schoolId) {
+    public Integer createNewDataSubmit(Integer schoolId,Integer screeningPlanId) {
         NationalDataDownloadRecord nationalDataDownloadRecord = new NationalDataDownloadRecord();
+        nationalDataDownloadRecord.setScreeningPlanId(screeningPlanId);
         nationalDataDownloadRecord.setSchoolId(schoolId);
         nationalDataDownloadRecord.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
         nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.CREATE.getType());
@@ -50,4 +55,21 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
         return nationalDataDownloadRecord.getId();
     }
 
+    /**
+     * 创建或者更新上报记录
+     * @param screeningPlanId 筛查计划id
+     * @param schoolId 学校id
+     * @return id
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Integer createOrUpdateDataSubmit(Integer screeningPlanId, Integer schoolId) {
+        NationalDataDownloadRecord nationalDataDownloadRecord = findOne(new NationalDataDownloadRecord().setScreeningPlanId(screeningPlanId).setSchoolId(schoolId));
+        if (Objects.isNull(nationalDataDownloadRecord)){
+            return createNewDataSubmit(schoolId,screeningPlanId);
+        }
+        nationalDataDownloadRecord.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
+        nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.CREATE.getType());
+        updateById(nationalDataDownloadRecord);
+        return nationalDataDownloadRecord.getId();
+    }
 }

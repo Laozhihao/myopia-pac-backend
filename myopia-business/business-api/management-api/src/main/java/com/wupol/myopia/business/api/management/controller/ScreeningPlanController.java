@@ -18,10 +18,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.GeneratorPdfDT
 import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCodeDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
+import com.wupol.myopia.business.aggregation.screening.service.*;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
@@ -30,17 +27,17 @@ import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,6 +108,12 @@ public class ScreeningPlanController {
     private ScreeningPlanApiService screeningPlanApiService;
     @Autowired
     private ScreeningPlanBizFacade screeningPlanBizFacade;
+    @Autowired
+    private NationalDataDownloadRecordService nationalDataDownloadRecordService;
+    @Autowired
+    private DataSubmitBizService dataSubmitBizService;
+    @Autowired
+    private ResourceFileService resourceFileService;
 
 
     /**
@@ -719,5 +722,43 @@ public class ScreeningPlanController {
     public void deletePlanSchool(@PathVariable("planId") @NotNull(message = "筛查计划ID不能为空") Integer planId,
                                  @PathVariable("schoolId") @NotNull(message = "学校ID不能为空") Integer schoolId) {
         screeningPlanApiService.deletePlanSchool(planId, schoolId);
+    }
+
+
+    /**
+     * 数据上报
+     *
+     * @param file 文件
+     */
+    @PostMapping("data/submit")
+    public void dataSubmit(MultipartFile file,Integer screeningPlanId,Integer schoolId) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
+        Integer dataSubmitId = nationalDataDownloadRecordService.createOrUpdateDataSubmit(screeningPlanId,schoolId);
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), schoolId, screeningPlanId);
+    }
+
+    /**
+     * 数据上报列表
+     *
+     * @param pageRequest 分页
+     *
+     * @return IPage<DataSubmit>
+     */
+    @GetMapping("/data/submit/list")
+    public IPage<NationalDataDownloadRecord> dataSubmitList(PageRequest pageRequest,Integer screeningPlanId,Integer schoolId) {
+        return nationalDataDownloadRecordService.getList(pageRequest, schoolId,screeningPlanId);
+    }
+
+    /**
+     * 获取文件
+     *
+     * @param id id
+     *
+     * @return ApiResult<String>
+     */
+    @GetMapping("data/submit/file/{id}")
+    public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
+        return ApiResult.success(resourceFileService.getResourcePath(id));
     }
 }
