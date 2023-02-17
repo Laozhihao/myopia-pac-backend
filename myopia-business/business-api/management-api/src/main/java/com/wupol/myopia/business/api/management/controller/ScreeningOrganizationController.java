@@ -101,6 +101,7 @@ public class ScreeningOrganizationController {
             } else if (user.isOverviewUser()) {
                 // 总览机构
                 CacheOverviewInfoDTO overview = overviewService.getSimpleOverviewInfo(user.getOrgId());
+
                 // 绑定医院已达上线或不在同一个省级行政区域下
                 if ((!overview.isCanAddScreeningOrganization()) || (!districtService.isSameProvince(screeningOrganization.getDistrictId(), overview.getDistrictId()))) {
                     throw new BusinessException("非法请求！");

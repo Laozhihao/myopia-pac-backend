@@ -170,9 +170,6 @@ public class ScreeningOrganizationBizService {
                 UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
         // 为筛查机构新增设备报告模板
         DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
-        System.out.println("-------------template---------------"+template.getId());
-        System.out.println("-------------screeningOrganization.getId---------------"+screeningOrganization.getId());
-        System.out.println("-------------screeningOrganization.getName---------------"+screeningOrganization.getName());
         screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
 
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);

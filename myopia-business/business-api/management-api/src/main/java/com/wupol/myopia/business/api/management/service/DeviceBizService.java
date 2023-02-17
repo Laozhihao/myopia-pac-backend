@@ -91,11 +91,11 @@ public class DeviceBizService {
         if (CollectionUtils.isEmpty(responseDTOS)) {
             return responseDTOS;
         }
-        // 获取模板
+        // 获取机构对应的模板）
         List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
-
+        // 获取机构对应的配置
         Map<Integer, Integer>  configTypes = screeningOrganizationService.getByIds(orgIds).stream()
                 .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
 
@@ -116,7 +116,7 @@ public class DeviceBizService {
             r.setDoctorConclusion(doctorAdvice.getFirst());
             //医生建议
             r.setDoctorAdvice(doctorAdvice.getSecond());
-            //模板类型 1-VS666模板1
+            //模板类型 1-VS666模板1（模板由前端渲染））
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
 
             computationalVS550(configTypes, r);
