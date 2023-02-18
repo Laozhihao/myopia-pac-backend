@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
@@ -130,7 +131,7 @@ public class DeviceBizService {
      * @param configTypes 机构对应的配置
      * @param r 设备打印报告返回体
      */
-    private static void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
+    public void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
         if (Objects.equals(configTypes.get(r.getScreeningOrgId()), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
                 || Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
             /*

@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.domain.ScreeningOrganizationDTO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
@@ -85,7 +86,7 @@ public class ScreeningOrganizationController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());

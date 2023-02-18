@@ -11,7 +11,13 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
-
+    /**
+     * 模板类型 1-VS550 标准模板 2-VS550（0.25D）分辨率 3-VS550（0.01D）分辨率
+     */
+    private Integer templateType;
+    /**
+     *
+     */
     private String screeningOrgName;
 
     /**
@@ -33,5 +39,12 @@ public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
      * 右眼柱镜-展示使用
      */
     private Double rightCylDisplay;
-
+    /**
+     * 左眼等效球镜
+     */
+    private Double leftSEDisplay;
+    /**
+     * 右眼等效球镜
+     */
+    private Double rightSEDisplay;
 }

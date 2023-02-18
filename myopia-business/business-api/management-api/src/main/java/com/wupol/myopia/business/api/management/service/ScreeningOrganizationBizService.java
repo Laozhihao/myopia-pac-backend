@@ -14,6 +14,7 @@ import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
+import com.wupol.myopia.business.api.management.domain.ScreeningOrganizationDTO;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -27,6 +28,7 @@ import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
+import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
@@ -149,7 +151,7 @@ public class ScreeningOrganizationBizService {
      * @return UsernameAndPasswordDTO 账号密码
      */
     @Transactional(rollbackFor = Exception.class)
-    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganization screeningOrganization, CurrentUser user) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganizationDTO screeningOrganization, CurrentUser user) {
 
         String name = screeningOrganization.getName();
         if (StringUtils.isBlank(name)) {
@@ -182,6 +184,14 @@ public class ScreeningOrganizationBizService {
         screeningOrganizationStaffQueryDTO.setRealName(ScreeningOrganizationStaff.AUTO_CREATE_STAFF_DEFAULT_NAME);
         screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
         screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
+
+        // 筛查机构绑定模板
+        if (screeningOrganization.getTemplateId()!=null){
+            ConfigurationReportRequestDTO configurationReportRequestDTO = new ConfigurationReportRequestDTO();
+            configurationReportRequestDTO.setScreeningOrgId(screeningOrganization.getId());
+            configurationReportRequestDTO.setTemplateId(screeningOrganization.getTemplateId());
+            screeningOrgBindDeviceReportService.configurationReport(configurationReportRequestDTO);
+        }
 
         return usernameAndPasswordDTO;
     }

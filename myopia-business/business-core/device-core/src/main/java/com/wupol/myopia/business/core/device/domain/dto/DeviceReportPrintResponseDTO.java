@@ -55,4 +55,13 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
      * 右眼柱镜-展示使用
      */
     private Double rightCylDisplay;
+    /**
+     * 左眼等效球镜
+     */
+    private Double leftSEDisplay;
+    /**
+     * 右眼等效球镜
+     */
+    private Double rightSEDisplay;
+
 }
