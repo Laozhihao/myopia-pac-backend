@@ -120,74 +120,59 @@ public class DeviceBizService {
             //模板类型 1-VS666模板1（模板由前端渲染））
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
 
-            computationalVS550(configTypes, r);
+            //右眼球镜-展示使用
+            r.setRightSphDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
+            //左眼球镜-展示使用
+            r.setLeftSphDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
+
+            //右眼柱镜-展示使用
+            r.setRightCylDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
+            //左眼柱镜-展示使用
+            r.setLeftCylDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
+
+            //右眼等效球镜-展示使用
+            r.setRightSEDisplay(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+            //左眼等效球镜-展示使用
+            r.setLeftSEDisplay(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+
+            //右眼等效球镜
+            r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+            //左眼等效球镜
+            r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+
 
         });
         return responseDTOS;
     }
 
     /**
-     * VS666和VS550计算方式
-     * @param configTypes 机构对应的配置
-     * @param r 设备打印报告返回体
+     * 计算分辨率
+     * @param configType vs550配置
+     * @param var 传入值
+     * @return VS550分辨率配置
      */
-    public void computationalVS550(Map<Integer, Integer> configTypes, DeviceReportPrintResponseDTO r) {
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
+    private static Double resolvingPower(Integer configType, Double var) {
+        if (Objects.equals(configType, ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
             /*
              * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
              */
-            computationSphCyl(r,
-                    VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
-                    VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
+            return VS550Util.getDisplayValue(var);
         }
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_5.getType())){
+        if (Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_5.getType())){
             /*
              * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
              */
-            computationSphCyl(r, r.getLeftCyl(), r.getRightCyl(), r.getLeftSph(), r.getRightSph());
+            return var;
         }
-        if ( Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
+        if ( Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
             /*
              * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
              * 用现有的数据计算：等效球镜=球镜+柱镜/2
              */
-            computationSphCyl(r,
-                    VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
-                    VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
-            //左眼等效球镜--展示使用
-            computationSE(r);
+            return VS550Util.getDisplayValue(var);
         }
-    }
-
-    /**
-     * 计算等效球镜（VS550）
-     * @param r 设备打印报告返回体
-     */
-    private static void computationSE(DeviceReportPrintResponseDTO r) {
-        // 左眼等效球镜--展示使用
-        r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-        // 右眼等效球镜--展示使用
-        r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
-    }
-
-    /**
-     * 计算球镜/柱镜（）
-     * @param r 设备打印报告返回体
-     * @param r1 左眼柱镜
-     * @param r2 右眼柱镜
-     * @param r3 左眼球镜
-     * @param r4 右眼球镜
-     */
-    private static void computationSphCyl(DeviceReportPrintResponseDTO r, Double r1, Double r2, Double r3, Double r4) {
-        //左眼柱镜-展示使用
-        r.setLeftCylDisplay(r1);
-        //右眼柱镜-展示使用
-        r.setRightCylDisplay(r2);
-        //左眼球镜-展示使用
-        r.setLeftSphDisplay(r3);
-        //右眼球镜-展示使用
-        r.setRightSphDisplay(r4);
+        return 0.00;
     }
 
     /**
