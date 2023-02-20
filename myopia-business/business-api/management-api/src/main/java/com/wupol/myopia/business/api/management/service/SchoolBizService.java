@@ -22,9 +22,10 @@ import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
-import com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
+import com.wupol.myopia.business.core.school.management.domain.dto.StudentCountDTO;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -94,6 +95,8 @@ public class SchoolBizService {
     private OverviewService overviewService;
     @Autowired
     private ScreeningTaskOrgService screeningTaskOrgService;
+    @Autowired
+    private SchoolStudentService schoolStudentService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -246,7 +249,7 @@ public class SchoolBizService {
         Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountDTO> studentCountDTOS = studentService.countStudentBySchoolId(schoolIdList);
+        List<StudentCountDTO> studentCountDTOS = schoolStudentService.countStudentBySchoolId(schoolIdList);
         Map<Integer, Integer> studentCountMaps = studentCountDTOS.stream()
                 .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
 
