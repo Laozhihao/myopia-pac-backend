@@ -130,16 +130,13 @@ public class DeviceBizService {
             //左眼柱镜-展示使用
             r.setLeftCylDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
 
-            //右眼等效球镜-展示使用
-            r.setRightSEDisplay(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
-            //左眼等效球镜-展示使用
-            r.setLeftSEDisplay(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+            if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
+                //右眼等效球镜
+                r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+                //左眼等效球镜
+                r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
 
-            //右眼等效球镜
-            r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
-            //左眼等效球镜
-            r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-
+            }
 
         });
         return responseDTOS;
@@ -151,7 +148,7 @@ public class DeviceBizService {
      * @param var 传入值
      * @return VS550分辨率配置
      */
-    private static Double resolvingPower(Integer configType, Double var) {
+    public Double resolvingPower(Integer configType, Double var) {
         if (Objects.equals(configType, ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
                 || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
             /*

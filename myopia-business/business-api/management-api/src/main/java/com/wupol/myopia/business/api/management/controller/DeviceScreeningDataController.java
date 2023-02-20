@@ -51,6 +51,8 @@ public class DeviceScreeningDataController {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+    @Autowired
+    private DeviceBizService deviceBizService;
 
 
 
@@ -80,84 +82,30 @@ public class DeviceScreeningDataController {
                     .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
 
             records.forEach(r -> {
-                r.setLeftCylDisplay(VS550Util.getDisplayValue(r.getLeftCyl()));
-                r.setRightCylDisplay(VS550Util.getDisplayValue(r.getRightCyl()));
-                r.setLeftSphDisplay(VS550Util.getDisplayValue(r.getLeftSph()));
-                r.setRightSphDisplay(VS550Util.getDisplayValue(r.getRightSph()));
                 r.setTemplateType(deviceReportTemplateVOS.get(r.getScreeningOrgId()));
 
-                computationalVS550(configTypes,r);
+                //右眼球镜-展示使用
+                r.setRightSphDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
+                //左眼球镜-展示使用
+                r.setLeftSphDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
+
+                //右眼柱镜-展示使用
+                r.setRightCylDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
+                //左眼柱镜-展示使用
+                r.setLeftCylDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
+
+                if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
+                    //右眼等效球镜
+                    r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+                    //左眼等效球镜
+                    r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+
+                }
+
             });
         }
         return page;
     }
-
-
-    /**
-     * VS666和VS550计算方式
-     * @param configTypes 机构对应的配置
-     * @param r 设备打印报告返回体
-     */
-    public void computationalVS550(Map<Integer, Integer> configTypes, DeviceScreeningDataAndOrgDTO r) {
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
-            /*
-             * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
-             */
-            computationSphCyl(r,
-                    VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
-                    VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
-        }
-        if (Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_5.getType())){
-            /*
-             * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
-             */
-            computationSphCyl(r, r.getLeftCyl(), r.getRightCyl(), r.getLeftSph(), r.getRightSph());
-        }
-        if ( Objects.equals(configTypes.get(r.getScreeningOrgId()),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
-            /*
-             * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
-             * 用现有的数据计算：等效球镜=球镜+柱镜/2
-             */
-            computationSphCyl(r,
-                    VS550Util.getDisplayValue(r.getLeftCyl()), VS550Util.getDisplayValue(r.getRightCyl()),
-                    VS550Util.getDisplayValue(r.getLeftSph()), VS550Util.getDisplayValue(r.getRightSph()));
-            //左眼等效球镜--展示使用
-            computationSE(r);
-        }
-    }
-
-    /**
-     * 计算等效球镜（VS550）
-     * @param r 设备打印报告返回体
-     */
-    private static void computationSE(DeviceScreeningDataAndOrgDTO r) {
-        // 左眼等效球镜--展示使用
-        r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-        // 右眼等效球镜--展示使用
-        r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
-    }
-
-    /**
-     * 计算球镜/柱镜（）
-     * @param r 设备打印报告返回体
-     * @param r1 左眼柱镜
-     * @param r2 右眼柱镜
-     * @param r3 左眼球镜
-     * @param r4 右眼球镜
-     */
-    private static void computationSphCyl(DeviceScreeningDataAndOrgDTO r, Double r1, Double r2, Double r3, Double r4) {
-        //左眼柱镜-展示使用
-        r.setLeftCylDisplay(r1);
-        //右眼柱镜-展示使用
-        r.setRightCylDisplay(r2);
-        //左眼球镜-展示使用
-        r.setLeftSphDisplay(r3);
-        //右眼球镜-展示使用
-        r.setRightSphDisplay(r4);
-    }
-
-
     private void checkAndHandleParam(DeviceScreeningDataQueryDTO query) {
         if (ObjectUtil.hasSomeNull(query.getCylStart(), query.getCylEnd()) || ObjectUtil.hasSomeNull(query.getSphStart(), query.getSphEnd())) {
             throw new BusinessException("参数异常");
