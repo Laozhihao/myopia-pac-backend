@@ -730,8 +730,8 @@ public class ScreeningPlanController {
      *
      * @param file 文件
      */
-    @PostMapping("data/submit")
-    public void dataSubmit(MultipartFile file,Integer screeningPlanId,Integer schoolId) {
+    @PostMapping("data/submit/{screeningPlanId}/{schoolId}")
+    public void dataSubmit(MultipartFile file,@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
         Integer dataSubmitId = nationalDataDownloadRecordService.createOrUpdateDataSubmit(screeningPlanId,schoolId);
@@ -746,8 +746,8 @@ public class ScreeningPlanController {
      * @return IPage<DataSubmit>
      */
     @GetMapping("/data/submit/list")
-    public IPage<NationalDataDownloadRecord> dataSubmitList(PageRequest pageRequest,Integer screeningPlanId,Integer schoolId) {
-        return nationalDataDownloadRecordService.getList(pageRequest, schoolId,screeningPlanId);
+    public IPage<NationalDataDownloadRecord> dataSubmitList(PageRequest pageRequest, ScreeningStudentQueryDTO query) {
+        return nationalDataDownloadRecordService.getList(pageRequest, query.getSchoolId(),query.getScreeningPlanId());
     }
 
     /**

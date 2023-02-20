@@ -1,0 +1,1 @@
+alter table m_national_data_download_record add screening_plan_id int(10) DEFAULT NULL COMMENT  '筛查计划id';

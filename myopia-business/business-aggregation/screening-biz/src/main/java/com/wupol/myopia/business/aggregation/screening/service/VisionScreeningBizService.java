@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -27,6 +28,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningRes
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
@@ -50,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -461,11 +464,20 @@ public class VisionScreeningBizService {
     private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId) {
         List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
         // 筛查计划中学生数据查询
-
-
+        List<PlanStudentInfoDTO> studentList = screeningPlanSchoolStudentService.findStudentBySchoolIdAndScreeningPlanIdAndSno(schoolId,screeningPlanId,snoList);
         // 根据学生id查询筛查信息
+        List<VisionScreeningResult> resultList = visionScreeningResultService.getFirstByPlanStudentIds(studentList.stream().map(PlanStudentInfoDTO::getId).collect(Collectors.toList()));
+        Map<Integer, VisionScreeningResult> resultMap = resultList.stream()
+                .filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .filter(s -> Objects.equals(s.getSchoolId(), schoolId))
+                .filter(s -> Objects.equals(s.getPlanId(), screeningPlanId))
+                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId,
+                        Function.identity(),
+                        (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
 
-        return null;
+        return studentList.stream().filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getSno))
+                .filter(s -> StringUtils.isNotBlank(s.getSno()))
+                .collect(Collectors.toMap(PlanStudentInfoDTO::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 
     /**

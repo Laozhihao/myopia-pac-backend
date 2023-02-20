@@ -69,6 +69,7 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
         }
         nationalDataDownloadRecord.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
         nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.CREATE.getType());
+        nationalDataDownloadRecord.setUpdateTime(new Date());
         updateById(nationalDataDownloadRecord);
         return nationalDataDownloadRecord.getId();
     }
