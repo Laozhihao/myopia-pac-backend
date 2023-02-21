@@ -505,10 +505,12 @@ public class VisionScreeningBizService {
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
+            BigDecimal rightAxial = EyeDataUtil.rightAxial(result);
+            exportDTO.setRightAxial(Objects.isNull(rightAxial) ? "" : rightAxial.toString());
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
+            BigDecimal leftAxial = EyeDataUtil.leftAxial(result);
+            exportDTO.setLeftAxial(Objects.isNull(leftAxial) ? "" : leftAxial.toString());
             exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
             success.incrementAndGet();
         } else {
