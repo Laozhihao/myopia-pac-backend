@@ -88,12 +88,7 @@ public class ScreeningOrganizationController {
      */
     @PostMapping()
     public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
-        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
-            &&screeningOrganization.getTemplateId()==null){
-
-            throw new BusinessException("请输入模板ID！");
-        }
+        checkTemplateId(screeningOrganization);
 
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
@@ -134,12 +129,8 @@ public class ScreeningOrganizationController {
      */
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
-        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
-                &&screeningOrganization.getTemplateId()==null){
+        checkTemplateId(screeningOrganization);
 
-            throw new BusinessException("请输入模板ID！");
-        }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), screeningOrganization.getId());
         if (user.isPlatformAdminUser()) {
@@ -163,6 +154,19 @@ public class ScreeningOrganizationController {
         Integer countCooperationHospital = orgCooperationHospitalService.countCooperationHospital(screeningOrganization.getId());
         screeningOrgResponseDTO.setCountCooperationHospital(Objects.isNull(countCooperationHospital) ? 0 : countCooperationHospital);
         return screeningOrgResponseDTO;
+    }
+
+    /**
+     * 验证模板ID
+     * @param screeningOrganization 机构扩展类
+     */
+    private void checkTemplateId(ScreeningOrganizationDTO screeningOrganization){
+        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
+                &&screeningOrganization.getTemplateId()==null){
+
+            throw new BusinessException("请输入模板ID！");
+        }
     }
 
     /**
