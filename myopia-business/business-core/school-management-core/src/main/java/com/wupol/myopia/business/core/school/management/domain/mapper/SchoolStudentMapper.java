@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import org.apache.ibatis.annotations.Param;
 
@@ -50,4 +51,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
     List<SchoolStudent> getByStudentIdsAndSchoolId(@Param("studentIds") List<Integer> studentIds, @Param("schoolId") Integer schoolId);
 
     List<SchoolStudent> getBySchoolIdAndVisionLabel(@Param("schoolId") Integer schoolId);
+
+    List<StudentCountDTO> countStudentBySchoolId(@Param("schoolIds") List<Integer> schoolIdList);
+
 }

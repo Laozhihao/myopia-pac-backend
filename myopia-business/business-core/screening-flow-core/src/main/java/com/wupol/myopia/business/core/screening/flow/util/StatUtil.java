@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.constant.SchoolEnum;
@@ -238,7 +239,7 @@ public class StatUtil {
      */
     public static Boolean isMyopia(BigDecimal sphere, BigDecimal cylinder, BigDecimal nakedVision) {
 
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se) || Objects.isNull(nakedVision)) {
             return null;
         }
@@ -307,7 +308,7 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(sphere,cyl,age)) {
             return null;
         }
-        BigDecimal se = getSphericalEquivalent(sphere, cyl);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cyl);
         if (age>5){
             age =5;
         }
@@ -339,7 +340,7 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(sphere,cyl,age)) {
             return null;
         }
-        BigDecimal se = getSphericalEquivalent(sphere, cyl);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cyl);
         if (age>5){
             age =5;
         }
@@ -729,7 +730,7 @@ public class StatUtil {
         if (Objects.isNull(age)) {
             return null;
         }
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)) {
             return null;
         }
@@ -803,7 +804,7 @@ public class StatUtil {
         if (ObjectsUtil.hasNull(sphere,cylinder,age)) {
             return null;
         }
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)) {
             return null;
         }
@@ -859,7 +860,7 @@ public class StatUtil {
      * @param cylinder    柱镜
      */
     public static MyopiaLevelEnum getMyopiaLevel(BigDecimal sphere, BigDecimal cylinder) {
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)) {
             return null;
         }
@@ -891,7 +892,7 @@ public class StatUtil {
         if (ObjectsUtil.allNotNull(age, nakedVision)
                 && ((age < 6 && BigDecimalUtil.lessThan(nakedVision, "4.9")) || (age >= 6 && BigDecimalUtil.lessThan(nakedVision, "5.0")))) {
 
-            BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+            BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
             if (Objects.isNull(se)) {
                 return null;
             }
@@ -902,36 +903,6 @@ public class StatUtil {
         }
         return null;
 
-    }
-
-
-
-
-    /**
-     * 计算等效球镜 （球镜度+1/2柱镜度）
-     *
-     * @param sphere   球镜
-     * @param cylinder 柱镜
-     */
-    public static BigDecimal getSphericalEquivalent(BigDecimal sphere, BigDecimal cylinder) {
-        if (ObjectsUtil.hasNull(sphere, cylinder)) {
-            return null;
-        }
-        return cylinder.divide(new BigDecimal(2)).add(sphere);
-    }
-
-
-    /**
-     * 计算等效球镜 （球镜度+1/2柱镜度）
-     *
-     * @param sphere   球镜
-     * @param cylinder 柱镜
-     */
-    public static BigDecimal getSphericalEquivalent(String sphere, String cylinder) {
-        if (ObjectsUtil.hasNull(sphere, cylinder)) {
-            return null;
-        }
-        return getSphericalEquivalent(new BigDecimal(sphere), new BigDecimal(cylinder));
     }
 
 
@@ -1049,7 +1020,7 @@ public class StatUtil {
      * @param type 类型 （近视-0、散光-1、远视-2）
      */
     public static WarningLevel warningLevel(BigDecimal sphere, BigDecimal cyl, Integer age, Integer type) {
-        BigDecimal se = getSphericalEquivalent(sphere, cyl);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cyl);
         switch (type) {
             case 0:
                 return refractiveDataMyopia(se);
@@ -1225,7 +1196,7 @@ public class StatUtil {
      * @param cylinder 柱镜
      */
     public static WarningLevel myopiaLevelInsufficient(BigDecimal sphere, BigDecimal cylinder) {
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)){
             return null;
         }
@@ -1345,10 +1316,10 @@ public class StatUtil {
         ComputerOptometryDO currentComputerOptometry = currentVisionScreeningResult.getComputerOptometry();
         ComputerOptometryDO anotherComputerOptometry = anotherVisionScreeningResult.getComputerOptometry();
         if (ObjectsUtil.allNotNull(currentComputerOptometry,anotherComputerOptometry)) {
-            BigDecimal currentLeftSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
-            BigDecimal currentRightSe = StatUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
-            BigDecimal anotherLeftSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
-            BigDecimal anotherRightSe = StatUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getRightEyeData().getCyl());
+            BigDecimal currentLeftSe = SEUtil.getSphericalEquivalent(currentComputerOptometry.getLeftEyeData().getSph(), currentComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal currentRightSe = SEUtil.getSphericalEquivalent(currentComputerOptometry.getRightEyeData().getSph(), currentComputerOptometry.getRightEyeData().getCyl());
+            BigDecimal anotherLeftSe = SEUtil.getSphericalEquivalent(anotherComputerOptometry.getLeftEyeData().getSph(), anotherComputerOptometry.getLeftEyeData().getCyl());
+            BigDecimal anotherRightSe = SEUtil.getSphericalEquivalent(anotherComputerOptometry.getRightEyeData().getSph(), anotherComputerOptometry.getRightEyeData().getCyl());
             errorNum += inRange(currentLeftSe,anotherLeftSe, seAndHeightRangeValue);
             errorNum += inRange(currentRightSe,anotherRightSe, seAndHeightRangeValue);
         }
@@ -1807,7 +1778,7 @@ public class StatUtil {
      * @param cylinder
      */
     public Boolean isNormal(BigDecimal sphere, BigDecimal cylinder) {
-        BigDecimal se = getSphericalEquivalent(sphere, cylinder);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sphere, cylinder);
         if (Objects.isNull(se)){
             return null;
         }

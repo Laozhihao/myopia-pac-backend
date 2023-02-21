@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -164,10 +165,33 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
 
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        return getByScreeningPlanIds(screeningPlanIds, null);
+    }
+
+    /**
+     * 仅查询部分字段(screeningPlanId,schoolId,gradeType)
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getSomeInfoByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        return getByScreeningPlanIds(screeningPlanIds, ScreeningPlanSchoolStudent::getScreeningPlanId, ScreeningPlanSchoolStudent::getSchoolId, ScreeningPlanSchoolStudent::getGradeType);
+    }
+
+    /**
+     * 查询筛查学校学生信息
+     * @param screeningPlanIds
+     * @param columns
+     * @return
+     */
+    private List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds, SFunction<ScreeningPlanSchoolStudent, ?>... columns) {
         if (CollectionUtils.isEmpty(screeningPlanIds)){
             return Lists.newArrayList();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        if (Objects.nonNull(columns)) {
+            // 仅查询部分字段
+            queryWrapper.select(columns);
+        }
         queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
@@ -233,7 +257,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Map<Integer, Long>> getSchoolStudentCountByScreeningPlanIds(List<Integer> screeningPlanIds) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getByScreeningPlanIds(screeningPlanIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getSomeInfoByScreeningPlanIds(screeningPlanIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
         Map<Integer, Map<Integer, Long>> map = Maps.newHashMap();
         planSchoolStudentMap.forEach((screeningPlanId,planSchoolStudentList)->{

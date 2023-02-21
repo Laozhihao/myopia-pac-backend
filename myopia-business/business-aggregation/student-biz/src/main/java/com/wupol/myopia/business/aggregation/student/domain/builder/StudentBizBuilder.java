@@ -8,6 +8,7 @@ import com.wupol.framework.domain.ThreeTuple;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.aggregation.student.constant.VisionScreeningConst;
 import com.wupol.myopia.business.aggregation.student.domain.vo.VisionInfoVO;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -275,14 +276,14 @@ public class StudentBizBuilder {
         // 左眼--电脑验光
         ComputerOptometryDO.ComputerOptometry leftEyeData = computerOptometry.getLeftEyeData();
         leftDetails.setAxial(leftEyeData.getAxial());
-        leftDetails.setSe(StatUtil.getSphericalEquivalent(leftEyeData.getSph(), leftEyeData.getCyl()));
+        leftDetails.setSe(SEUtil.getSphericalEquivalent(leftEyeData.getSph(), leftEyeData.getCyl()));
         leftDetails.setCyl(leftEyeData.getCyl());
         leftDetails.setSph(leftEyeData.getSph());
 
         // 左眼--电脑验光
         ComputerOptometryDO.ComputerOptometry rightEyeData = computerOptometry.getRightEyeData();
         rightDetails.setAxial(rightEyeData.getAxial());
-        rightDetails.setSe(StatUtil.getSphericalEquivalent(rightEyeData.getSph(), rightEyeData.getCyl()));
+        rightDetails.setSe(SEUtil.getSphericalEquivalent(rightEyeData.getSph(), rightEyeData.getCyl()));
         rightDetails.setCyl(rightEyeData.getCyl());
         rightDetails.setSph(rightEyeData.getSph());
     }
