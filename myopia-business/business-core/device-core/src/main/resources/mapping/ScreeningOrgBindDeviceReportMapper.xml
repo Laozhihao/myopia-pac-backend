@@ -61,4 +61,14 @@
             #{orgId}
         </foreach>
     </select>
+
+    <select id="getByOrgIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_org_bind_device_report where screening_org_id
+        <foreach collection="orgIds" item="orgId" index="index" open="(" close=")" separator=",">
+            #{orgId}
+        </foreach>
+    </select>
+
 </mapper>

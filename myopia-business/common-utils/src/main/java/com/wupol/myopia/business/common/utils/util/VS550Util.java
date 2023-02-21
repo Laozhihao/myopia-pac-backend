@@ -65,20 +65,4 @@ public class VS550Util {
         double decimalNum = valueDecimal.subtract(intBigDecimal).doubleValue();
         return new TwoTuple<>((double) intNum, decimalNum);
     }
-    /**
-     * 计算等效球镜
-     * 根据：MedicalRecordService中的 computerSE 改编
-     *
-     * @param ds 球镜
-     * @param dc 柱镜
-     * @return 等效球镜
-     */
-    public static Double computerSE(Double ds, Double dc) {
-        if (StringUtils.allHasLength(ds.toString(), dc.toString())) {
-            return new BigDecimal(ds).add(new BigDecimal(dc).multiply(new BigDecimal("0.5")))
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-        }
-        return 0.00;
-    }
-
 }

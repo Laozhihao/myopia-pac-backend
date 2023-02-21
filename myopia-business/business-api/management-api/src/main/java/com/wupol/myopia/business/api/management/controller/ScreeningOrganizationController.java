@@ -125,7 +125,7 @@ public class ScreeningOrganizationController {
      * @return 筛查机构实体
      */
     @PutMapping()
-    public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), screeningOrganization.getId());
         if (user.isPlatformAdminUser()) {

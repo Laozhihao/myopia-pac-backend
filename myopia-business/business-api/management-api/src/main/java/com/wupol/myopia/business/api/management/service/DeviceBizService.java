@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
@@ -96,7 +97,8 @@ public class DeviceBizService {
         List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
         Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
-        // 获取机构对应的配置
+
+        // 配置 0-省级配置 1-单点配置
         Map<Integer, Integer>  configTypes = screeningOrganizationService.getByIds(orgIds).stream()
                 .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
 
@@ -132,9 +134,9 @@ public class DeviceBizService {
 
             if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
                 //右眼等效球镜
-                r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+                r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
                 //左眼等效球镜
-                r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+                r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
 
             }
 
@@ -150,9 +152,11 @@ public class DeviceBizService {
      */
     public Double resolvingPower(Integer configType, Double var) {
         if (Objects.equals(configType, ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
+                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())
+                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
             /*
              * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
+             * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
              */
             return VS550Util.getDisplayValue(var);
         }
@@ -161,13 +165,6 @@ public class DeviceBizService {
              * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
              */
             return var;
-        }
-        if ( Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
-            /*
-             * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
-             * 用现有的数据计算：等效球镜=球镜+柱镜/2
-             */
-            return VS550Util.getDisplayValue(var);
         }
         return 0.00;
     }

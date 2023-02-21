@@ -70,4 +70,14 @@ public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOr
     public List<DeviceReportTemplateVO> getByOrgIds(List<Integer> orgIds) {
         return baseMapper.getByOrgIds(orgIds);
     }
+
+    /**
+     * 通过筛查机构Id获取左右模板
+     *
+     * @param orgIds 筛查机构Ids
+     * @return 模板列表
+     */
+    public List<ScreeningOrgBindDeviceReport> getAllByOrgIds(List<Integer> orgIds) {
+        return baseMapper.getAllByOrgIds(orgIds);
+    }
 }

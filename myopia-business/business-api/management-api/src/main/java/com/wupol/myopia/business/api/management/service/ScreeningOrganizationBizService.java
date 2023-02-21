@@ -31,6 +31,8 @@ import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
+import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
+import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
@@ -185,12 +187,13 @@ public class ScreeningOrganizationBizService {
         screeningOrganizationStaffQueryDTO.setUserName(usernameAndPasswordDTO.getUsername());
         screeningOrganizationStaffService.saveOrganizationStaff(screeningOrganizationStaffQueryDTO);
 
-        // 筛查机构绑定模板
+        // 筛查机构绑定模板(保存)
         if (screeningOrganization.getTemplateId()!=null){
-            ConfigurationReportRequestDTO configurationReportRequestDTO = new ConfigurationReportRequestDTO();
-            configurationReportRequestDTO.setScreeningOrgId(screeningOrganization.getId());
-            configurationReportRequestDTO.setTemplateId(screeningOrganization.getTemplateId());
-            screeningOrgBindDeviceReportService.configurationReport(configurationReportRequestDTO);
+            ScreeningOrgBindDeviceReport screeningOrgBindDeviceReport = new ScreeningOrgBindDeviceReport();
+            screeningOrgBindDeviceReport.setScreeningOrgId(screeningOrganization.getId());
+            screeningOrgBindDeviceReport.setTemplateId(screeningOrganization.getTemplateId());
+            screeningOrgBindDeviceReport.setScreeningOrgName(screeningOrganization.getName());
+            screeningOrgBindDeviceReportService.save(screeningOrgBindDeviceReport);
         }
 
         return usernameAndPasswordDTO;
@@ -270,7 +273,7 @@ public class ScreeningOrganizationBizService {
      * @return 筛查机构
      */
     @Transactional(rollbackFor = Exception.class)
-    public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganizationDTO screeningOrganization) {
 
         if (screeningOrganizationService.checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
@@ -316,6 +319,16 @@ public class ScreeningOrganizationBizService {
                 organization.getProvinceCode(), organization.getCityCode(), organization.getAreaCode(), organization.getTownCode(), organization.getAddress()));
         response.setScreeningTime(screeningOrganization.getScreeningTime())
                 .setStaffCount(screeningOrganization.getStaffCount());
+
+
+        // 筛查机构绑定模板(更新)
+        if (screeningOrganization.getTemplateId()!=null){
+            ConfigurationReportRequestDTO configurationReportRequestDTO = new ConfigurationReportRequestDTO();
+            configurationReportRequestDTO.setScreeningOrgId(screeningOrganization.getId());
+            configurationReportRequestDTO.setTemplateId(screeningOrganization.getTemplateId());
+            screeningOrgBindDeviceReportService.configurationReport(configurationReportRequestDTO);
+        }
+
         // 是否能更新
         setCanUpdate(currentUser, response);
         return response;
@@ -364,6 +377,11 @@ public class ScreeningOrganizationBizService {
         // 合作医院
         Map<Integer, Integer> screeningOrgCooperationHospitalCountMap = orgCooperationHospitalService.countByScreeningOrgIdList(orgIdList);
 
+
+        // 获取报告模板ID
+        Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getAllByOrgIds(orgIdList).stream()
+                .collect(Collectors.toMap(ScreeningOrgBindDeviceReport::getScreeningOrgId, ScreeningOrgBindDeviceReport::getTemplateId));
+
         // 封装DTO
         orgListsRecords.forEach(orgResponseDTO -> {
             // 同一部门才能更新
@@ -380,6 +398,9 @@ public class ScreeningOrganizationBizService {
                     orgResponseDTO.getProvinceCode(), orgResponseDTO.getCityCode(), orgResponseDTO.getAreaCode(), orgResponseDTO.getTownCode(), orgResponseDTO.getAddress()));
             // 合作医院
             orgResponseDTO.setCountCooperationHospital(screeningOrgCooperationHospitalCountMap.getOrDefault(orgResponseDTO.getId(), CommonConst.ZERO));
+            // 对应模板ID
+            orgResponseDTO.setTemplateId(templateMap.get(orgResponseDTO.getId()));
+
         });
         return orgLists;
     }

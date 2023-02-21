@@ -6,13 +6,12 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
-import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
@@ -94,11 +93,11 @@ public class DeviceScreeningDataController {
                 //左眼柱镜-展示使用
                 r.setLeftCylDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
 
-                if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
+                if (Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
                     //右眼等效球镜
-                    r.setRightPa(VS550Util.computerSE(r.getRightSphDisplay(), r.getRightCylDisplay()));
+                    r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(), r.getRightCylDisplay()));
                     //左眼等效球镜
-                    r.setLeftPa(VS550Util.computerSE(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+                    r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
 
                 }
 
