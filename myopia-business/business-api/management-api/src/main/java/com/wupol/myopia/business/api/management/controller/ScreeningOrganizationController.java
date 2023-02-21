@@ -29,6 +29,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -87,6 +88,13 @@ public class ScreeningOrganizationController {
      */
     @PostMapping()
     public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
+        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
+            &&screeningOrganization.getTemplateId()==null){
+
+            throw new BusinessException("请输入模板ID！");
+        }
+
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
@@ -126,6 +134,12 @@ public class ScreeningOrganizationController {
      */
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
+        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
+                &&screeningOrganization.getTemplateId()==null){
+
+            throw new BusinessException("请输入模板ID！");
+        }
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), screeningOrganization.getId());
         if (user.isPlatformAdminUser()) {

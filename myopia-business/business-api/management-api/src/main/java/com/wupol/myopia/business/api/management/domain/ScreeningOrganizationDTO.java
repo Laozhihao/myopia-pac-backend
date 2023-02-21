@@ -15,6 +15,5 @@ public class ScreeningOrganizationDTO extends ScreeningOrganization {
     /**
      * 模板ID
      */
-    @NotNull(message = "筛查机构对应模板不能为空")
     private Integer templateId;
 }
