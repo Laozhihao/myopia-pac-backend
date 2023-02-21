@@ -188,17 +188,6 @@
         </if>
     </select>
 
-    <select id="countStudentBySchoolId" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO">
-        select count(1) as count, school_id
-        from m_student
-        where status = 0
-        and school_id in
-        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
-            #{schoolId}
-        </foreach>
-        group by school_id
-    </select>
-
     <select id="getByIdCard" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
