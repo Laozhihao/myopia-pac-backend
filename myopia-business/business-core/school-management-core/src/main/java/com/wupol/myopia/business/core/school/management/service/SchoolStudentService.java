@@ -14,6 +14,7 @@ import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentListResponseDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentQueryBO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
+import com.wupol.myopia.business.core.school.management.domain.dto.StudentCountDTO;
 import com.wupol.myopia.business.core.school.management.domain.mapper.SchoolStudentMapper;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import lombok.extern.log4j.Log4j2;
@@ -344,5 +345,14 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
         return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
                 .in(SchoolStudent::getId,idList)
                 .eq(SchoolStudent::getStatus,CommonConst.STATUS_NOT_DELETED));
+    }
+
+    /**
+     * 统计学生人数
+     *
+     * @return List<StudentCountDTO>
+     */
+    public List<StudentCountDTO> countStudentBySchoolId(List<Integer> schoolIdList) {
+        return baseMapper.countStudentBySchoolId(schoolIdList);
     }
 }
