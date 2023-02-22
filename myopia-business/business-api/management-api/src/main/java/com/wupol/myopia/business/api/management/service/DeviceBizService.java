@@ -166,7 +166,7 @@ public class DeviceBizService {
              */
             return var;
         }
-        return 0.00;
+        return VS550Util.getDisplayValue(var);
     }
 
     /**
