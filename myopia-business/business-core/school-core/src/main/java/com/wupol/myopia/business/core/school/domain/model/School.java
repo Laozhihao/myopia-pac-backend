@@ -185,6 +185,11 @@ public class School extends AddressCooperation implements Serializable, HasName 
     private String screeningTypeConfig;
 
     /**
+     * 是否自主筛查
+     */
+    private Boolean isIndependentScreening;
+
+    /**
      * 转化成SchoolExportDTO
      *
      * @return SchoolExportDTO
