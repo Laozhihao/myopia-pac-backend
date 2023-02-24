@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.facade;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -83,13 +82,13 @@ public class SchoolScreeningBizFacade {
      */
     private List<ScreeningPlan> getEffectiveScreeningPlans(Integer schoolId) {
         //机构ID和机构类型查询筛查计划
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getNotReleaseAndReleasePlanByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
         if (CollUtil.isEmpty(screeningPlanList)){
             return Lists.newArrayList();
         }
         //获取有效期的筛查计划
         screeningPlanList = screeningPlanList.stream()
-                .filter(screeningPlan -> DateUtil.isIn(new Date(), screeningPlan.getStartTime(), screeningPlan.getEndTime()))
+                .filter(screeningPlan -> new Date().before(screeningPlan.getEndTime()))
                 .collect(Collectors.toList());
 
         if (CollUtil.isEmpty(screeningPlanList)){
