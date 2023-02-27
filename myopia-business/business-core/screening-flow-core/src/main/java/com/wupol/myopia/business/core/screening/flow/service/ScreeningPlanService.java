@@ -228,17 +228,17 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 通过筛查机构ID和机构类型获取计划
+     * 通过筛查机构ID和机构类型获取未发布和已发布计划
      *
      * @param orgId 机构ID
      * @param orgType 机构类型
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getByOrgIdAndOrgType(Integer orgId,Integer orgType) {
+    public List<ScreeningPlan> getNotReleaseAndReleasePlanByOrgIdAndOrgType(Integer orgId, Integer orgType) {
         return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
                 .eq(ScreeningPlan::getScreeningOrgId,orgId)
                 .eq(ScreeningPlan::getScreeningOrgType,orgType)
-                .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
+                .in(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE, CommonConst.STATUS_NOT_RELEASE));
     }
 
     public List<ScreeningPlan> getByTaskIdsAndOrgIdAndOrgType(List<Integer> taskIds,Integer orgId,Integer orgType) {
