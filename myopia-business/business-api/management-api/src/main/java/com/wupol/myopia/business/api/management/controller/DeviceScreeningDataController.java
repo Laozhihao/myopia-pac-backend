@@ -77,28 +77,27 @@ public class DeviceScreeningDataController {
                     .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
 
             // 获取报告类型
-            Map<Integer, Integer> deviceReportTemplateVOS = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
+            Map<Integer, Integer> deviceReportTemplateVOs = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                     .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
 
             records.forEach(r -> {
-                r.setTemplateType(deviceReportTemplateVOS.get(r.getScreeningOrgId()));
+                r.setTemplateType(deviceReportTemplateVOs.get(r.getScreeningOrgId()));
 
                 //右眼球镜-展示使用
-                r.setRightSphDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
+                r.setRightSphDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
                 //左眼球镜-展示使用
-                r.setLeftSphDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
+                r.setLeftSphDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
 
                 //右眼柱镜-展示使用
-                r.setRightCylDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
+                r.setRightCylDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
                 //左眼柱镜-展示使用
-                r.setLeftCylDisplay(deviceBizService.resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
+                r.setLeftCylDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
 
                 if (Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
                     //右眼等效球镜
                     r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(), r.getRightCylDisplay()));
                     //左眼等效球镜
                     r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-
                 }
 
             });

@@ -19,7 +19,6 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
-import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
@@ -119,18 +118,18 @@ public class DeviceBizService {
             r.setDoctorConclusion(doctorAdvice.getFirst());
             //医生建议
             r.setDoctorAdvice(doctorAdvice.getSecond());
+
             //模板类型 1-VS666模板1（模板由前端渲染））
             r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
-
             //右眼球镜-展示使用
-            r.setRightSphDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
+            r.setRightSphDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
             //左眼球镜-展示使用
-            r.setLeftSphDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
+            r.setLeftSphDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
 
             //右眼柱镜-展示使用
-            r.setRightCylDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
+            r.setRightCylDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
             //左眼柱镜-展示使用
-            r.setLeftCylDisplay(resolvingPower(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
+            r.setLeftCylDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
 
             if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
                 //右眼等效球镜
@@ -150,7 +149,7 @@ public class DeviceBizService {
      * @param var 传入值
      * @return VS550分辨率配置
      */
-    public Double resolvingPower(Integer configType, Double var) {
+    public Double calculateResolution(Integer configType, Double var) {
         if (Objects.equals(configType, ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
                 || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())
                 || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
@@ -166,7 +165,7 @@ public class DeviceBizService {
              */
             return var;
         }
-        return 0.00;
+        return VS550Util.getDisplayValue(var);
     }
 
     /**
