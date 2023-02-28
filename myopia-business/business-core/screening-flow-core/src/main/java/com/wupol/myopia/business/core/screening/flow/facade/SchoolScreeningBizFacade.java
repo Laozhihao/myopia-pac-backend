@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.facade;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -10,7 +9,6 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -82,14 +80,18 @@ public class SchoolScreeningBizFacade {
      * @param schoolId 学校ID
      */
     private List<ScreeningPlan> getEffectiveScreeningPlans(Integer schoolId) {
-        //机构ID和机构类型查询筛查计划
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
+        // 获取筛查计划（包括自主筛查和协助筛查）
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
+        if (CollUtil.isEmpty(planSchoolList)){
+            return Lists.newArrayList();
+        }
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getNotReleaseAndReleasePlanByPlanIdList(planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
         if (CollUtil.isEmpty(screeningPlanList)){
             return Lists.newArrayList();
         }
         //获取有效期的筛查计划
         screeningPlanList = screeningPlanList.stream()
-                .filter(screeningPlan -> DateUtil.isIn(new Date(), screeningPlan.getStartTime(), screeningPlan.getEndTime()))
+                .filter(screeningPlan -> new Date().before(screeningPlan.getEndTime()))
                 .collect(Collectors.toList());
 
         if (CollUtil.isEmpty(screeningPlanList)){
@@ -149,6 +151,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.isNull(screeningPlanSchool)) {
             return true;
         }
+        // 如果学生的年级没有在计划内，则不需要同步
         List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         if (!screeningGradeIds.contains(schoolStudent.getGradeId())) {
             return true;

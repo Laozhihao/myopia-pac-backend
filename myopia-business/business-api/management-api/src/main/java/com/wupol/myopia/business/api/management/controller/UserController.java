@@ -165,7 +165,7 @@ public class UserController {
         // 学校端
         if (SystemCode.SCHOOL_CLIENT.getCode().equals(user.getSystemCode())) {
             School school = schoolService.getById(user.getOrgId());
-            return userVO.setOrgName(school.getName());
+            return userVO.setOrgName(school.getName()).setIsIndependentScreening(school.getIsIndependentScreening());
         }
         throw new BusinessException("不支持查询该用户");
     }

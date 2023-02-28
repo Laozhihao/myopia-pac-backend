@@ -170,4 +170,9 @@ public class UserVO implements Serializable {
      */
     private Integer orgConfigType;
 
+    /**
+     * 是否自主筛查
+     */
+    private Boolean isIndependentScreening;
+
 }

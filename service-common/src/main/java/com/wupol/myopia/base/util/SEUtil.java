@@ -1,5 +1,6 @@
 package com.wupol.myopia.base.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -9,7 +10,9 @@ import java.util.Optional;
 
 /**
  * 等效球镜工具类
+ * @Author lzh
  */
+@UtilityClass
 public class SEUtil {
 
 
@@ -50,7 +53,7 @@ public class SEUtil {
         if (Objects.isNull(sphere) || Objects.isNull(cylinder)) {
             return null;
         }
-        return Optional.ofNullable(getSphericalEquivalent(new BigDecimal(sphere), new BigDecimal(cylinder))).map(BigDecimal::doubleValue).orElse(null);
+        return Optional.ofNullable(getSphericalEquivalent(BigDecimal.valueOf(sphere), BigDecimal.valueOf(cylinder))).map(BigDecimal::doubleValue).orElse(null);
     }
 
     /**
