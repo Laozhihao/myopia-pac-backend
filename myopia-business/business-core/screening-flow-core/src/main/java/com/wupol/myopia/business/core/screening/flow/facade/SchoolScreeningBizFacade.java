@@ -9,7 +9,6 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
@@ -81,8 +80,12 @@ public class SchoolScreeningBizFacade {
      * @param schoolId 学校ID
      */
     private List<ScreeningPlan> getEffectiveScreeningPlans(Integer schoolId) {
-        //机构ID和机构类型查询筛查计划
-        List<ScreeningPlan> screeningPlanList = screeningPlanService.getNotReleaseAndReleasePlanByOrgIdAndOrgType(schoolId, ScreeningOrgTypeEnum.SCHOOL.getType());
+        // 获取筛查计划（包括自主筛查和协助筛查）
+        List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolId(schoolId);
+        if (CollUtil.isEmpty(planSchoolList)){
+            return Lists.newArrayList();
+        }
+        List<ScreeningPlan> screeningPlanList = screeningPlanService.getNotReleaseAndReleasePlanByPlanIdList(planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
         if (CollUtil.isEmpty(screeningPlanList)){
             return Lists.newArrayList();
         }
@@ -148,6 +151,7 @@ public class SchoolScreeningBizFacade {
         if (Objects.isNull(screeningPlanSchool)) {
             return true;
         }
+        // 如果学生的年级没有在计划内，则不需要同步
         List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         if (!screeningGradeIds.contains(schoolStudent.getGradeId())) {
             return true;
