@@ -88,8 +88,6 @@ public class ScreeningOrganizationController {
      */
     @PostMapping()
     public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
-        checkTemplateId(screeningOrganization);
-
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
@@ -129,7 +127,6 @@ public class ScreeningOrganizationController {
      */
     @PutMapping()
     public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
-        checkTemplateId(screeningOrganization);
 
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), screeningOrganization.getId());
@@ -156,18 +153,7 @@ public class ScreeningOrganizationController {
         return screeningOrgResponseDTO;
     }
 
-    /**
-     * 验证模板ID
-     * @param screeningOrganization 机构扩展类
-     */
-    private void checkTemplateId(ScreeningOrganizationDTO screeningOrganization){
-        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
-                &&screeningOrganization.getTemplateId()==null){
 
-            throw new BusinessException("请输入模板ID！");
-        }
-    }
 
     /**
      * 通过ID获取筛查机构

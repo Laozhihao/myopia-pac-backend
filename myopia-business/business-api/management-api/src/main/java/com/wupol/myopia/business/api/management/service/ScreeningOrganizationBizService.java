@@ -56,6 +56,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
@@ -154,12 +155,11 @@ public class ScreeningOrganizationBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganizationDTO screeningOrganization, CurrentUser user) {
-
         String name = screeningOrganization.getName();
         if (StringUtils.isBlank(name)) {
             throw new BusinessException("名字不能为空");
         }
-
+        checkTemplateId(screeningOrganization);
         if (Boolean.TRUE.equals(screeningOrganizationService.checkScreeningOrgName(name, null))) {
             throw new BusinessException("筛查机构名称不能重复");
         }
@@ -264,6 +264,16 @@ public class ScreeningOrganizationBizService {
         return detail;
     }
 
+    /**
+     * 验证模板ID
+     * @param screeningOrganization 机构扩展类
+     */
+    private void checkTemplateId(ScreeningOrganizationDTO screeningOrganization){
+        if (Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
+            if(screeningOrganization.getTemplateId()==null) throw new BusinessException("请输入模板ID！");
+        }
+    }
 
     /**
      * 更新筛查机构
@@ -274,7 +284,7 @@ public class ScreeningOrganizationBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ScreeningOrgResponseDTO updateScreeningOrganization(CurrentUser currentUser, ScreeningOrganizationDTO screeningOrganization) {
-
+        checkTemplateId(screeningOrganization);
         if (screeningOrganizationService.checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
         }
