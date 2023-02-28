@@ -2,6 +2,7 @@ package com.wupol.myopia.business.common.utils.constant;
 
 import com.google.common.collect.ImmutableMap;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import lombok.experimental.UtilityClass;

@@ -1,13 +1,14 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dos;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

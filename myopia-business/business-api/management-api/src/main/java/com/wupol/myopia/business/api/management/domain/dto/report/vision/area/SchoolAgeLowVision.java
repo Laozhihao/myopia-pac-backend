@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.management.domain.dto.report.vision.area;
 
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HighLowProportion;
-import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.school.primary.CommonLowVisionTable;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.common.HorizontalChart;
 import lombok.Getter;
 import lombok.Setter;
 

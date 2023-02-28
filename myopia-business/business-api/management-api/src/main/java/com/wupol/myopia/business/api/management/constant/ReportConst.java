@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.management.constant;
 
-import lombok.experimental.UtilityClass;
-
 import java.math.BigDecimal;
+
+import lombok.experimental.UtilityClass;
 
 /**
  * 报告常量类型

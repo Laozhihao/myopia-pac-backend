@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 数据报送Mapper接口

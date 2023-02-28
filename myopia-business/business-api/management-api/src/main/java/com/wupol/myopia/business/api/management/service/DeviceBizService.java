@@ -19,6 +19,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
@@ -165,7 +166,7 @@ public class DeviceBizService {
              */
             return var;
         }
-        return VS550Util.getDisplayValue(var);
+        return 0.00;
     }
 
     /**

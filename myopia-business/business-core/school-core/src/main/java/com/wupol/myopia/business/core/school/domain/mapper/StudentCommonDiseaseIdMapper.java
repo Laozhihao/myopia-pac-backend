@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.school.domain.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wupol.myopia.business.core.school.domain.model.StudentCommonDiseaseId;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 学生常见病IDMapper接口

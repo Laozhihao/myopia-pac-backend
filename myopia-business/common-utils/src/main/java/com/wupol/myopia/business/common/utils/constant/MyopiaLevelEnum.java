@@ -1,8 +1,9 @@
 package com.wupol.myopia.business.common.utils.constant;
 
 import cn.hutool.core.util.StrUtil;
-import com.google.common.collect.Lists;
 import lombok.Getter;
+
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;

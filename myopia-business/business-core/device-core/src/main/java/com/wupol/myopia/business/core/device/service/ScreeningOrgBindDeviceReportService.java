@@ -72,7 +72,7 @@ public class ScreeningOrgBindDeviceReportService extends BaseService<ScreeningOr
     }
 
     /**
-     * 通过筛查机构Id获取导出模板
+     * 通过筛查机构Id获取左右模板
      *
      * @param orgIds 筛查机构Ids
      * @return 模板列表

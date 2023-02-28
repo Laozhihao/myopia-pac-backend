@@ -1,9 +1,11 @@
 package com.wupol.myopia.business.common.utils.util;
 
+import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**

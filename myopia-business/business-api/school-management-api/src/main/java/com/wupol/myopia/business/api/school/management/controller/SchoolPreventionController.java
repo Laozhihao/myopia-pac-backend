@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeItemsDTO;
 import com.wupol.myopia.business.core.school.management.domain.dto.SchoolStudentRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
 import com.wupol.myopia.business.core.screening.flow.service.NationalDataDownloadRecordService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
