@@ -1,10 +1,9 @@
 package com.wupol.myopia.business.common.utils.util;
 
-import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;

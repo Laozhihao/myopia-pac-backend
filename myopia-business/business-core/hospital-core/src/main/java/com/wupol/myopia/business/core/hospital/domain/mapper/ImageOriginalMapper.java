@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.hospital.domain.mapper;
 
-import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.hospital.domain.model.ImageOriginal;
 import org.apache.ibatis.annotations.Param;
 
 /**

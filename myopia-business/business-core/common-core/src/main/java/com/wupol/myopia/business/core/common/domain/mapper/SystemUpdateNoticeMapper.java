@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.common.domain.mapper;
 
-import com.wupol.myopia.business.core.common.domain.model.SystemUpdateNotice;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.common.domain.model.SystemUpdateNotice;
 import org.apache.ibatis.annotations.Param;
 
 /**

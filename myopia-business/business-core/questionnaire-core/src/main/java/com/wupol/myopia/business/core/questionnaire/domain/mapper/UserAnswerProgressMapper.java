@@ -1,7 +1,7 @@
 package com.wupol.myopia.business.core.questionnaire.domain.mapper;
 
-import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.business.core.questionnaire.domain.model.UserAnswerProgress;
 
 /**
  * 用户答案进度表Mapper接口

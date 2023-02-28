@@ -32,7 +32,6 @@ import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportReque
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
-import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
@@ -56,6 +55,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanS
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.core.screening.flow.facade.VisionScreeningResultFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationStaffQueryDTO;
@@ -154,7 +154,7 @@ public class ScreeningOrganizationBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveScreeningOrganization(ScreeningOrganizationDTO screeningOrganization, CurrentUser user) {
-
+        checkTemplateId(screeningOrganization);
         String name = screeningOrganization.getName();
         if (StringUtils.isBlank(name)) {
             throw new BusinessException("名字不能为空");
@@ -278,6 +278,8 @@ public class ScreeningOrganizationBizService {
         if (screeningOrganizationService.checkScreeningOrgName(screeningOrganization.getName(), screeningOrganization.getId())) {
             throw new BusinessException("筛查机构名称不能重复");
         }
+        checkTemplateId(screeningOrganization);
+
         ScreeningOrgResponseDTO response = new ScreeningOrgResponseDTO();
         ScreeningOrganization checkOrg = screeningOrganizationService.getById(screeningOrganization.getId());
 
@@ -333,7 +335,18 @@ public class ScreeningOrganizationBizService {
         setCanUpdate(currentUser, response);
         return response;
     }
+    /**
+     * 验证模板ID
+     * @param screeningOrganization 机构扩展类
+     */
+    private void checkTemplateId(ScreeningOrganizationDTO screeningOrganization){
+        if ((Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
+                || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType()))
+                &&screeningOrganization.getTemplateId()==null){
 
+            throw new BusinessException("请输入模板ID！");
+        }
+    }
     /**
      * 设置是否能更新
      *

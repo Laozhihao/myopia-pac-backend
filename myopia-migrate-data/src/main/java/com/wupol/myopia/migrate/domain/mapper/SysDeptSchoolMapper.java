@@ -1,8 +1,8 @@
 package com.wupol.myopia.migrate.domain.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.wupol.myopia.migrate.domain.model.SysDeptSchool;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.wupol.myopia.migrate.domain.model.SysDeptSchool;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
