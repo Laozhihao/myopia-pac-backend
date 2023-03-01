@@ -23,4 +23,6 @@ public interface ScreeningOrgBindDeviceReportMapper extends BaseMapper<Screening
     void orgBindReportTemplate(@Param("templateId") Integer templateId, @Param("orgId") Integer orgId, @Param("name") String name);
 
     List<DeviceReportTemplateVO> getByOrgIds(@Param("orgIds") List<Integer> orgIds);
+
+    List<ScreeningOrgBindDeviceReport> getAllByOrgIds(@Param("orgIds") List<Integer> orgIds);
 }

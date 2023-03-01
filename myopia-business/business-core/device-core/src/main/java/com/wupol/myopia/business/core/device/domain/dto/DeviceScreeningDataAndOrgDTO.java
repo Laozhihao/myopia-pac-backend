@@ -11,7 +11,13 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
-
+    /**
+     * 模板类型 1-VS666模板1
+     */
+    private Integer templateType;
+    /**
+     *
+     */
     private String screeningOrgName;
 
     /**
@@ -33,5 +39,4 @@ public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
      * 右眼柱镜-展示使用
      */
     private Double rightCylDisplay;
-
 }

@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.api.management.domain.ScreeningOrganizationDTO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningOrganizationBizService;
@@ -28,6 +29,7 @@ import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -85,7 +87,7 @@ public class ScreeningOrganizationController {
      * @return 账号密码 {@link UsernameAndPasswordDTO}
      */
     @PostMapping()
-    public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public UsernameAndPasswordDTO saveScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         screeningOrganization.setCreateUserId(user.getId());
         screeningOrganization.setGovDeptId(user.getOrgId());
@@ -101,6 +103,7 @@ public class ScreeningOrganizationController {
             } else if (user.isOverviewUser()) {
                 // 总览机构
                 CacheOverviewInfoDTO overview = overviewService.getSimpleOverviewInfo(user.getOrgId());
+
                 // 绑定医院已达上线或不在同一个省级行政区域下
                 if ((!overview.isCanAddScreeningOrganization()) || (!districtService.isSameProvince(screeningOrganization.getDistrictId(), overview.getDistrictId()))) {
                     throw new BusinessException("非法请求！");
@@ -123,7 +126,8 @@ public class ScreeningOrganizationController {
      * @return 筛查机构实体
      */
     @PutMapping()
-    public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganization screeningOrganization) {
+    public ScreeningOrgResponseDTO updateScreeningOrganization(@RequestBody @Valid ScreeningOrganizationDTO screeningOrganization) {
+
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), screeningOrganization.getId());
         if (user.isPlatformAdminUser()) {
@@ -148,6 +152,8 @@ public class ScreeningOrganizationController {
         screeningOrgResponseDTO.setCountCooperationHospital(Objects.isNull(countCooperationHospital) ? 0 : countCooperationHospital);
         return screeningOrgResponseDTO;
     }
+
+
 
     /**
      * 通过ID获取筛查机构
