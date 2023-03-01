@@ -415,7 +415,7 @@ public class VisionScreeningBizService {
     /**
      * 生成Excel文件
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void dealDataSubmit(List<Map<Integer, String>> listMap, NationalDataDownloadRecord nationalDataDownloadRecord, Integer userId, Integer schoolId,Integer screeningPlanId) throws IOException, UtilException {
 
         AtomicInteger success = new AtomicInteger(0);
