@@ -52,17 +52,17 @@
         and type != 1
     </select>
 
-    <select id="getByOrgIds" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="countByOrgIds" resultType="com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO">
+        select screening_org_id, count(*) as count
         from m_screening_organization_staff
-                where screening_org_id in
+        where screening_org_id in
         <foreach collection="orgIds" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
         <if test="type != null">
             and type = #{type}
         </if>
+        group by screening_org_id
     </select>
 
     <select id="getByUserIds" resultMap="BaseResultMap">

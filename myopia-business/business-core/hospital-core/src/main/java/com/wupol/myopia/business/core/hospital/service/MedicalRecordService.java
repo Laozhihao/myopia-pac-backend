@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.framework.core.util.StringUtils;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.hospital.domain.mapper.MedicalRecordMapper;
 import com.wupol.myopia.business.core.hospital.domain.model.*;
@@ -16,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -285,26 +284,11 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
      */
     private void setSE(DiopterMedicalRecord diopter) {
 
-        diopter.getMydriasis().setComputerLeftSE(computerSE(diopter.getMydriasis().getComputerLeftDS(), diopter.getMydriasis().getComputerLeftDC()));
-        diopter.getMydriasis().setComputerRightSE(computerSE(diopter.getMydriasis().getComputerRightDS(), diopter.getMydriasis().getComputerRightDC()));
+        diopter.getMydriasis().setComputerLeftSE(SEUtil.getSphericalEquivalentWithTwoDecimal(diopter.getMydriasis().getComputerLeftDS(), diopter.getMydriasis().getComputerLeftDC(), StringUtils.EMPTY));
+        diopter.getMydriasis().setComputerRightSE(SEUtil.getSphericalEquivalentWithTwoDecimal(diopter.getMydriasis().getComputerRightDS(), diopter.getMydriasis().getComputerRightDC(), StringUtils.EMPTY));
 
-        diopter.getNonMydriasis().setComputerLeftSE(computerSE(diopter.getNonMydriasis().getComputerLeftDS(), diopter.getNonMydriasis().getComputerLeftDC()));
-        diopter.getNonMydriasis().setComputerRightSE(computerSE(diopter.getNonMydriasis().getComputerRightDS(), diopter.getNonMydriasis().getComputerRightDC()));
-    }
-
-    /**
-     * 计算等效球镜
-     *
-     * @param ds 球镜
-     * @param dc 柱镜
-     * @return 等效球镜
-     */
-    public String computerSE(String ds, String dc) {
-        if (StringUtils.allHasLength(ds, dc)) {
-            return new BigDecimal(ds).add(new BigDecimal(dc).multiply(new BigDecimal("0.5")))
-                    .setScale(2, RoundingMode.HALF_UP).toString();
-        }
-        return StringUtils.EMPTY;
+        diopter.getNonMydriasis().setComputerLeftSE(SEUtil.getSphericalEquivalentWithTwoDecimal(diopter.getNonMydriasis().getComputerLeftDS(), diopter.getNonMydriasis().getComputerLeftDC(), StringUtils.EMPTY));
+        diopter.getNonMydriasis().setComputerRightSE(SEUtil.getSphericalEquivalentWithTwoDecimal(diopter.getNonMydriasis().getComputerRightDS(), diopter.getNonMydriasis().getComputerRightDC(), StringUtils.EMPTY));
     }
 
     /**

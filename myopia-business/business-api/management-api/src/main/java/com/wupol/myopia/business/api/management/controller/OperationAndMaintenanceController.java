@@ -98,7 +98,7 @@ public class OperationAndMaintenanceController {
     @GetMapping("/triggerAll")
     public void statTaskTrigger() {
         log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
-        CompletableFuture.runAsync(()-> statisticScheduledTaskService.statistic(),asyncServiceExecutor);
+        CompletableFuture.runAsync(()-> statisticScheduledTaskService.statisticScreeningData(),asyncServiceExecutor);
     }
 
     /**

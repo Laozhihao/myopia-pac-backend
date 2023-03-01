@@ -11,6 +11,7 @@ import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceTemplateListDTO;
+import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
@@ -46,6 +47,16 @@ public class DeviceReportTemplateController {
 
     @Resource
     private ExportStrategy exportStrategy;
+
+    /**
+     * 获取模板基本信息
+     *
+     * @return List<DeviceReportTemplate>
+     */
+    @GetMapping("/template/basic/list")
+    public List<DeviceReportTemplate> listBasic() {
+        return deviceReportTemplateService.list();
+    }
 
     /**
      * 获取设备报告模板列表

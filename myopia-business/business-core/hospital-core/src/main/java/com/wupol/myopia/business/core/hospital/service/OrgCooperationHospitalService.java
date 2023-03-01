@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.mapper.OrgCooperationHospitalMapper;
@@ -13,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 筛查机构合作医院Service
@@ -104,6 +107,16 @@ public class OrgCooperationHospitalService extends BaseService<OrgCooperationHos
      */
     public Integer countCooperationHospital(Integer screeningOrgId) {
         return baseMapper.countByScreeningOrgId(screeningOrgId);
+    }
+
+    /**
+     * 通过筛查机构统计合作医院
+     *
+     * @param screeningOrgIds 筛查机构Id集合
+     * @return 总数
+     */
+    public Map<Integer, Integer> countByScreeningOrgIdList(List<Integer> screeningOrgIds) {
+        return baseMapper.countByScreeningOrgIdList(screeningOrgIds).stream().collect(Collectors.toMap(ScreeningOrgCountDO::getScreeningOrgId, ScreeningOrgCountDO::getCount));
     }
 
     /**

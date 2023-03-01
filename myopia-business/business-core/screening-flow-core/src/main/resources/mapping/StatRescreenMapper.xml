@@ -2,10 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wupol.myopia.business.core.screening.flow.domain.mapper.StatRescreenMapper">
 
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
+    </resultMap>
+
     <select id="countByPlanAndSchool" resultType="int">
         SELECT COUNT(*) FROM m_stat_rescreen
         WHERE plan_id = #{planId} AND school_id = #{schoolId}
         and create_time <![CDATA[ <= ]]> #{createTime}
+    </select>
+
+    <select id="getSchoolCountByPlanIdAndSchoolIds" resultMap="SchoolCountDO">
+        SELECT school_id, COUNT(*) as school_count
+        FROM m_stat_rescreen
+        WHERE plan_id = #{planId}
+        <if test="schoolIds != null and schoolIds.size() != 0">
+            AND school_id in
+            <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+                #{schoolId}
+            </foreach>
+        </if>
+            AND create_time <![CDATA[ <= ]]> #{createTime}
+        group by school_id
     </select>
 
     <delete id="deleteByScreeningTime">

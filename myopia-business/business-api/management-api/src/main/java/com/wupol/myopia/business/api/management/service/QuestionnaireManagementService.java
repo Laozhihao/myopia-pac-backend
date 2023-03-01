@@ -21,6 +21,7 @@ import com.wupol.myopia.business.aggregation.export.service.ScreeningFacade;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionAreaDTO;
 import com.wupol.myopia.business.api.management.domain.dto.QuestionSearchDTO;
 import com.wupol.myopia.business.api.management.domain.vo.*;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireTypeEnum;
@@ -38,7 +39,11 @@ import com.wupol.myopia.business.core.questionnaire.service.QuestionnaireService
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -614,11 +619,11 @@ public class QuestionnaireManagementService {
         List<QuestionnaireDataSchoolVO> schoolDataList = Lists.newArrayList();
         Set<Integer> schoolIds= null;
         if (Objects.equals(dataType, ExportDataTypeEnum.ARCHIVE_REC.getCode())){
-            List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndIsDoubleScreen(screeningPlanId, Boolean.FALSE, null);
-            if (CollUtil.isEmpty(visionScreeningResultList)){
+            List<SchoolCountDO> schoolCountList = visionScreeningResultService.getSchoolCountByPlanIdAndSchoolIds(screeningPlanId, CommonConst.ZERO, null);
+            if (CollUtil.isEmpty(schoolCountList)){
                 return schoolDataList;
             }
-            schoolIds = visionScreeningResultList.stream().map(VisionScreeningResult::getSchoolId).collect(Collectors.toSet());
+            schoolIds = schoolCountList.stream().map(SchoolCountDO::getSchoolId).collect(Collectors.toSet());
         }
          else if (Objects.equals(dataType, ExportDataTypeEnum.QUESTIONNAIRE.getCode())){
             List<UserQuestionRecord> userQuestionRecordList = userQuestionRecordService.getListByPlanId(screeningPlanId,QuestionnaireStatusEnum.FINISH.getCode());

@@ -63,6 +63,16 @@ public class ComputerOptometryDO extends AbstractDiagnosisResult implements Scre
          */
         private BigDecimal cyl;
 
+        /**
+         * 角膜曲率k1
+         */
+        private BigDecimal k1;
+
+        /**
+         * 角膜曲率k2
+         */
+        private BigDecimal k2;
+
         @Override
         public boolean judgeValidData() {
             return sph != null;

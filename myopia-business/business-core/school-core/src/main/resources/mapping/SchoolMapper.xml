@@ -68,7 +68,7 @@
     <sql id="Base_Column_List">
         id, school_no, create_user_id, gov_dept_id, district_id, district_province_code, district_detail, name, kind, kind_desc, lodge_status, type, province_code, city_code, area_code, town_code, address,
         remark, status, cooperation_type, cooperation_time_type, cooperation_start_time, cooperation_end_time, create_time, update_time, district_area_code, area_type, monitor_type, notification_config, result_notice_config,
-        vision_team_count,screening_config,screening_type_config
+        vision_team_count,screening_config,screening_type_config,is_independent_screening
     </sql>
 
     <select id="getSchoolListByCondition" resultMap="BaseResultMapDto">
@@ -139,6 +139,12 @@
 
     <select id="getByQuery" resultMap="BaseResultMap">
         select *
+        from m_school
+        <include refid="Base_Where_Clause" />
+    </select>
+
+    <select id="getSimpleSchool" resultType="com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO">
+        select id, name
         from m_school
         <include refid="Base_Where_Clause" />
     </select>

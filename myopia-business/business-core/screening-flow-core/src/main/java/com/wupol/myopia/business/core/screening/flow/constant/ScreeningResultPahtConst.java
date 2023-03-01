@@ -113,5 +113,11 @@ public class ScreeningResultPahtConst {
     public final String PATH_BLOOD_PRESSURE_DBP = "$.blood_pressure_data.dbp";
     public final String PATH_BLOOD_PRESSURE_SBP = "$.blood_pressure_data.sbp";
 
+    public final String LEFT_EYE_K1 = "$.computerOptometry.leftEyeData.k1";
+    public final String LEFT_EYE_K2 = "$.computerOptometry.leftEyeData.k2";
+    public final String RIGHT_EYE_K1 = "$.computerOptometry.rightEyeData.k1";
+    public final String RIGHT_EYE_K2 = "$.computerOptometry.rightEyeData.k2";
+
+
 
 }

@@ -63,21 +63,17 @@ public class ScreeningPlanSchoolBizService {
      */
     public List<ScreeningPlanSchoolDTO> getSchoolVoListsByPlanId(Integer screeningPlanId, String schoolName) {
         List<ScreeningPlanSchoolDTO> screeningPlanSchools = screeningPlanSchoolService.getScreeningPlanSchools(screeningPlanId, schoolName);
-
         ScreeningPlan screeningPlan = screeningPlanService.findOne(new ScreeningPlan().setId(screeningPlanId));
 
         //学校ID对应的学生数集合
-        Map<Integer, Long> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
+        Map<Integer, Integer> schoolIdStudentCountMap = screeningPlanSchoolStudentService.getSchoolStudentCountByScreeningPlanId(screeningPlanId);
         List<UserQuestionRecord> userQuestionRecords = userQuestionRecordService.findRecordByPlanIdAndUserType(Lists.newArrayList(screeningPlanId), QuestionnaireUserType.STUDENT.getType(),QuestionnaireStatusEnum.FINISH.getCode());
         Map<Integer, List<UserQuestionRecord>> userQuestionRecordMap = getSchoolMap(userQuestionRecords);
         Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap = getGradeStudentMap(userQuestionRecords);
         Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap = getGradeMap(screeningPlanSchools);
 
         Set<Integer> schoolIds = screeningPlanSchools.stream().map(ScreeningPlanSchoolDTO::getSchoolId).collect(Collectors.toSet());
-        Set<Integer> orgIds = screeningPlanSchools.stream().map(ScreeningPlanSchoolDTO::getScreeningOrgId).collect(Collectors.toSet());
-
-        Map<String, Long> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, schoolIds, orgIds);
-
+        Map<Integer, Integer> screeningResultCountMap = visionScreeningResultFacade.getScreeningResultCountMap(screeningPlan, schoolIds);
         screeningPlanSchools.forEach(vo -> setScreeningData(screeningPlan, schoolIdStudentCountMap, userQuestionRecordMap, userGradeIdMap, gradeIdMap, screeningResultCountMap, vo));
         return screeningPlanSchools;
     }
@@ -92,15 +88,15 @@ public class ScreeningPlanSchoolBizService {
      * @param screeningResultCountMap
      * @param planSchoolDTO
      */
-    private void setScreeningData(ScreeningPlan screeningPlan, Map<Integer, Long> schoolIdStudentCountMap,
+    private void setScreeningData(ScreeningPlan screeningPlan, Map<Integer, Integer> schoolIdStudentCountMap,
                                   Map<Integer, List<UserQuestionRecord>> userQuestionRecordMap,
                                   Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                   Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap,
-                                  Map<String, Long> screeningResultCountMap, ScreeningPlanSchoolDTO planSchoolDTO) {
-        planSchoolDTO.setStudentCount(schoolIdStudentCountMap.getOrDefault(planSchoolDTO.getSchoolId(), CommonConst.ZERO_L).intValue());
-        planSchoolDTO.setPracticalStudentCount(screeningResultCountMap.getOrDefault(VisionScreeningResultFacade.getThreeKey(planSchoolDTO.getScreeningPlanId(),planSchoolDTO.getScreeningOrgId(),planSchoolDTO.getSchoolId()),CommonConst.ZERO_L).intValue());
+                                  Map<Integer, Integer> screeningResultCountMap, ScreeningPlanSchoolDTO planSchoolDTO) {
+        planSchoolDTO.setStudentCount(schoolIdStudentCountMap.getOrDefault(planSchoolDTO.getSchoolId(), CommonConst.ZERO));
+        planSchoolDTO.setPracticalStudentCount(screeningResultCountMap.getOrDefault(planSchoolDTO.getSchoolId(), CommonConst.ZERO));
         planSchoolDTO.setScreeningProportion(MathUtil.ratio(planSchoolDTO.getPracticalStudentCount(), planSchoolDTO.getStudentCount()));
-        planSchoolDTO.setScreeningSituation(ScreeningBizBuilder.getSituation(screeningResultCountMap.getOrDefault(VisionScreeningResultFacade.getThreeKey(planSchoolDTO.getScreeningPlanId(),planSchoolDTO.getScreeningOrgId(),planSchoolDTO.getSchoolId()),CommonConst.ZERO_L).intValue(),screeningPlan));
+        planSchoolDTO.setScreeningSituation(ScreeningBizBuilder.getSituation(screeningResultCountMap.getOrDefault(planSchoolDTO.getSchoolId(), CommonConst.ZERO),screeningPlan));
         planSchoolDTO.setQuestionnaireStudentCount(getQuestionnaireStudentCount(userQuestionRecordMap,planSchoolDTO));
         planSchoolDTO.setQuestionnaireProportion(MathUtil.ratio(planSchoolDTO.getQuestionnaireStudentCount(),planSchoolDTO.getStudentCount()));
         planSchoolDTO.setQuestionnaireSituation(ScreeningBizBuilder.getCountBySchool(screeningPlan, planSchoolDTO.getSchoolId(), userQuestionRecordMap));

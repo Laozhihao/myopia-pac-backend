@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,6 +20,8 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -163,10 +166,33 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
 
     public List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        return getByScreeningPlanIds(screeningPlanIds, null);
+    }
+
+    /**
+     * 仅查询部分字段(screeningPlanId,schoolId,gradeType)
+     * @param screeningPlanIds
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getSomeInfoByScreeningPlanIds(List<Integer> screeningPlanIds) {
+        return getByScreeningPlanIds(screeningPlanIds, ScreeningPlanSchoolStudent::getScreeningPlanId, ScreeningPlanSchoolStudent::getSchoolId, ScreeningPlanSchoolStudent::getGradeType);
+    }
+
+    /**
+     * 查询筛查学校学生信息
+     * @param screeningPlanIds
+     * @param columns
+     * @return
+     */
+    private List<ScreeningPlanSchoolStudent> getByScreeningPlanIds(List<Integer> screeningPlanIds, SFunction<ScreeningPlanSchoolStudent, ?>... columns) {
         if (CollectionUtils.isEmpty(screeningPlanIds)){
             return Lists.newArrayList();
         }
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        if (Objects.nonNull(columns)) {
+            // 仅查询部分字段
+            queryWrapper.select(columns);
+        }
         queryWrapper.in(ScreeningPlanSchoolStudent::getScreeningPlanId,screeningPlanIds);
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.selectList(queryWrapper);
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
@@ -221,8 +247,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param screeningPlanId
      * @return
      */
-    public Map<Integer, Long> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
-        return getByScreeningPlanId(screeningPlanId).stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSchoolId, Collectors.counting()));
+    public Map<Integer, Integer> getSchoolStudentCountByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.getSchoolCountByPlanId(screeningPlanId).stream().collect(Collectors.toMap(SchoolCountDO::getSchoolId, SchoolCountDO::getSchoolCount));
     }
 
     /**
@@ -232,7 +258,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @return
      */
     public Map<Integer, Map<Integer, Long>> getSchoolStudentCountByScreeningPlanIds(List<Integer> screeningPlanIds) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getByScreeningPlanIds(screeningPlanIds);
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getSomeInfoByScreeningPlanIds(screeningPlanIds);
         Map<Integer, List<ScreeningPlanSchoolStudent>> planSchoolStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getScreeningPlanId));
         Map<Integer, Map<Integer, Long>> map = Maps.newHashMap();
         planSchoolStudentMap.forEach((screeningPlanId,planSchoolStudentList)->{
@@ -866,6 +892,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
             return;
         }
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
             if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
                 screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
@@ -875,6 +902,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             }
             if (Objects.nonNull(screeningTaskId) && !Objects.equals(screeningTaskId,CommonConst.DEFAULT_ID)){
                 screeningPlanSchoolStudent.setScreeningTaskId(screeningTaskId);
+            }
+            // 如果是协助筛查，需要覆盖一下筛查机构ID，避免学校端新增筛查学生时筛查机构ID为学校ID，与实际不符
+            if (ScreeningBizTypeEnum.isAssistanceScreeningType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())) {
+                screeningPlanSchoolStudent.setScreeningOrgId(screeningPlan.getScreeningOrgId());
             }
         });
         saveOrUpdateBatch(screeningPlanSchoolStudentList);
@@ -896,5 +927,15 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             gradePlanSchoolStudentMap.putAll(map);
         }
         return gradePlanSchoolStudentMap;
+    }
+
+    /**
+     * 根据计划ID获取所有筛查学生
+     *
+     * @param screeningPlanId
+     * @return
+     */
+    public List<ScreeningPlanSchoolStudent> getInfoByScreeningPlanId(Integer screeningPlanId) {
+        return baseMapper.getInfoByPlanId(screeningPlanId);
     }
 }

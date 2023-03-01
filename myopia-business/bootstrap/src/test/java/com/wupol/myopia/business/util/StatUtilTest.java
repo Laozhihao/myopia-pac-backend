@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.util;
 
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import org.junit.Assert;
@@ -88,7 +89,7 @@ public class StatUtilTest {
 
     @Test
     public void getSphericalEquivalentTest(){
-        Assert.assertEquals(new BigDecimal("3.0"),StatUtil.getSphericalEquivalent("2.0","2.0"));
+        Assert.assertEquals(new BigDecimal("3.0"), SEUtil.getSphericalEquivalent("2.0","2.0"));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.StatRescreenMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatRescreen;
 import io.jsonwebtoken.lang.Assert;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -41,6 +45,11 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         Assert.notNull(planId);
         Assert.notNull(schoolId);
         return baseMapper.countByPlanAndSchool(planId, schoolId, DateUtil.getYesterdayEndTime());
+    }
+
+    public Map<Integer, Integer> getScreeningResultCountMap(Integer screeningPlanId, Set<Integer> schoolIds) {
+        List<SchoolCountDO> schoolCountList = baseMapper.getSchoolCountByPlanIdAndSchoolIds(screeningPlanId, schoolIds, DateUtil.getYesterdayEndTime());
+        return schoolCountList.stream().collect(Collectors.toMap(SchoolCountDO::getSchoolId, SchoolCountDO::getSchoolCount));
     }
 
     public List<StatRescreen> getByPlanIdAndSchoolId(List<Integer> planIds,List<Integer> schoolIds){

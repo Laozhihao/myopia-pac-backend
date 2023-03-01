@@ -149,7 +149,7 @@
         <if test="birthdayLike !=null and birthdayLike != ''">
             and ms.birthday like CONCAT(#{birthdayLike}, '%')
         </if>
-        order by ms.create_time desc
+        order by ms.id desc
     </select>
 
     <select id="getByQuery" resultMap="BaseResultMap">
@@ -186,13 +186,6 @@
         <if test="gradeId != null">
             and student.grade_id = #{gradeId}
         </if>
-    </select>
-
-    <select id="countStudentBySchoolId" resultType="com.wupol.myopia.business.core.school.domain.dto.StudentCountDTO">
-        select count(1) as count, school_id
-        from m_student
-        where status = 0
-        group by school_id
     </select>
 
     <select id="getByIdCard" resultMap="BaseResultMap">

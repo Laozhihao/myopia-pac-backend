@@ -4,6 +4,7 @@ package com.wupol.myopia.business.core.hospital.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wupol.myopia.business.core.common.domain.dos.ScreeningOrgCountDO;
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO;
 import com.wupol.myopia.business.core.hospital.domain.model.OrgCooperationHospital;
 import org.apache.ibatis.annotations.Param;
@@ -24,6 +25,7 @@ public interface OrgCooperationHospitalMapper extends BaseMapper<OrgCooperationH
     IPage<CooperationHospitalDTO> getByScreeningOrgId(@Param("page") Page<?> page, @Param("screeningOrgId") Integer screeningOrgId);
 
     Integer countByScreeningOrgId(@Param("screeningOrgId") Integer screeningOrgId);
+    List<ScreeningOrgCountDO> countByScreeningOrgIdList(@Param("screeningOrgIds") List<Integer> screeningOrgIds);
 
     Integer countByOrgIdAndHospitalIds(@Param("screeningOrgId") Integer screeningOrgId, @Param("hospitalIds") List<Integer> hospitalIds);
 

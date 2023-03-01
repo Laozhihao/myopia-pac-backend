@@ -323,4 +323,15 @@
           and vision_label in (0, 1, 2, 3)
           and last_screening_time is not null
     </select>
+
+    <select id="countStudentBySchoolId" resultType="com.wupol.myopia.business.core.school.management.domain.dto.StudentCountDTO">
+        select count(1) as count, school_id
+        from m_school_student
+        where status != 2
+        and school_id in
+        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+            #{schoolId}
+        </foreach>
+        group by school_id
+    </select>
 </mapper>

@@ -41,6 +41,9 @@
     <resultMap id="PlanAndSchoolMap" type="com.wupol.myopia.business.core.screening.flow.domain.dto.ScreenPlanSchoolDTO">
     </resultMap>
 
+    <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
+    </resultMap>
+
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
         <where>
@@ -197,6 +200,25 @@
                 #{id}
             </foreach>
         </if>
+    </select>
+
+    <select id="countWarningLevel" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT msc.warning_level, count(*) as count
+        FROM m_stat_conclusion msc
+        LEFT JOIN m_screening_plan msp ON msp.id = msc.plan_id
+        WHERE msp.release_status = 1
+        <if test="@Ognl@isNotEmpty(startTime)">and msc.`create_time` <![CDATA[>=]]> #{startTime}</if>
+        <if test="@Ognl@isNotEmpty(endTime)">and msc.`create_time` <![CDATA[<]]> #{endTime}</if>
+        <if test="@Ognl@isNotEmpty(isValid)">and msc.`is_valid` = #{isValid}</if>
+        <if test="@Ognl@isNotEmpty(isRescreen)">and msc.`is_rescreen` = #{isRescreen}</if>
+        <if test="@Ognl@isNotEmpty(isCooperative)">and msc.`is_cooperative` = #{isCooperative}</if>
+        <if test="districtIds != null and districtIds.size() != 0">
+            and msc.`district_id` in
+            <foreach collection="districtIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY msc.warning_level
     </select>
 
     <select id="selectExportVoByScreeningNoticeIdAndDistrictIds" resultMap="ExportVoResultMap" parameterType="java.util.Map">
@@ -428,15 +450,19 @@
         ORDER BY mspss.school_name, mspss.student_no
     </select>
 
-    <select id="getReviewByPlanIdAndSchoolIds" resultMap="BaseResultMap">
-        select *
-        from m_stat_conclusion where plan_id = #{planId}
-                                 and school_id in
-        <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
-            #{schoolId}
-        </foreach>
-        and is_review = 1
-        and is_rescreen = 0
+    <select id="getSchoolReviewCountByPlanIdAndSchoolIds" resultMap="SchoolCountDO">
+        select school_id, count(*) as school_count
+        from m_stat_conclusion
+        where plan_id = #{planId}
+        <if test="schoolIds != null and schoolIds.size() != 0">
+            and school_id in
+            <foreach collection="schoolIds" item="schoolId" index="index" open="(" close=")" separator=",">
+                #{schoolId}
+            </foreach>
+        </if>
+            and is_review = 1
+            and is_rescreen = 0
+        GROUP BY school_id
     </select>
 
     <select id="getByNoticeIdDistrictIds" resultMap="BaseResultMap">

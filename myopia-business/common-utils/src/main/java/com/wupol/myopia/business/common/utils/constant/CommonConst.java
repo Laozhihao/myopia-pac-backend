@@ -221,7 +221,7 @@ public class CommonConst {
     /**
      * 需要插入脊柱个人信息的序号
      */
-    public static final List<String> getVisionSpineNotice(){
+    public static List<String> getVisionSpineNotice(){
         return Lists.newArrayList(A01, A011, A02, A03, A04);
     }
 
@@ -241,6 +241,7 @@ public class CommonConst {
      * 零值
      */
     public static final Long ZERO_L = 0L;
+    public static final Integer ZERO = 0;
 
     /**
      * 海南

@@ -3,7 +3,10 @@ package com.wupol.myopia.business.core.school.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wupol.myopia.business.core.school.domain.dto.*;
+import com.wupol.myopia.business.core.school.domain.dto.ParentStudentDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentExtraDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentQueryDTO;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import org.apache.ibatis.annotations.Param;
 
@@ -35,8 +38,6 @@ public interface StudentMapper extends BaseMapper<Student> {
     StudentDTO getStudentById(@Param("id") Integer id);
 
     List<StudentDTO> getByOtherId(@Param("schoolId") Integer schoolId, @Param("classId") Integer classId, @Param("gradeId") Integer gradeId);
-
-    List<StudentCountDTO> countStudentBySchoolId();
 
     Student getByIdCard(@Param("idCard") String idCard);
 

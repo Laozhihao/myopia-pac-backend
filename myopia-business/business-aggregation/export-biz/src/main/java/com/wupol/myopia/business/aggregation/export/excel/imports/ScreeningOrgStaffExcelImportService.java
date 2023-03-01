@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.constant.SystemCode;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
@@ -78,7 +79,8 @@ public class ScreeningOrgStaffExcelImportService {
                     .setIsLeader(0)
                     .setPassword(PasswordAndUsernameGenerator.getScreeningUserPwd(item.get(StaffImportEnum.PHONE.getIndex()), item.get(StaffImportEnum.ID_CARD.getIndex())))
                     .setUsername(item.get(StaffImportEnum.PHONE.getIndex()))
-                    .setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode());
+                    .setOrgId(screeningOrgId).setSystemCode(SystemCode.SCREENING_CLIENT.getCode())
+                    .setUserType(UserType.SCREENING_STAFF_TYPE_ORG.getType());
             if (null != item.get(StaffImportEnum.REMARK.getIndex())) {
                 userDTO.setRemark(item.get(StaffImportEnum.REMARK.getIndex()));
             }

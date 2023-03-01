@@ -228,17 +228,15 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
     }
 
     /**
-     * 通过筛查机构ID和机构类型获取计划
+     * 通过筛查机构ID和机构类型获取未发布和已发布计划
      *
-     * @param orgId 机构ID
-     * @param orgType 机构类型
+     * @param planIds 筛查计划ID集
      * @return List<ScreeningPlan>
      */
-    public List<ScreeningPlan> getByOrgIdAndOrgType(Integer orgId,Integer orgType) {
+    public List<ScreeningPlan> getNotReleaseAndReleasePlanByPlanIdList(List<Integer> planIds) {
         return baseMapper.selectList(Wrappers.lambdaQuery(ScreeningPlan.class)
-                .eq(ScreeningPlan::getScreeningOrgId,orgId)
-                .eq(ScreeningPlan::getScreeningOrgType,orgType)
-                .eq(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE));
+                        .in(ScreeningPlan::getId, planIds)
+                        .in(ScreeningPlan::getReleaseStatus,CommonConst.STATUS_RELEASE, CommonConst.STATUS_NOT_RELEASE));
     }
 
     public List<ScreeningPlan> getByTaskIdsAndOrgIdAndOrgType(List<Integer> taskIds,Integer orgId,Integer orgType) {
@@ -460,14 +458,15 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      */
     @Transactional(rollbackFor = Exception.class)
     public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple) {
-        boolean saveOrUpdate = saveOrUpdate(screeningPlan);
-        if (Objects.equals(Boolean.TRUE,saveOrUpdate)){
-            if (Objects.nonNull(screeningPlanSchool)){
-                screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
-                screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
-            }
-            screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
+        // 筛查计划
+        saveOrUpdate(screeningPlan);
+        // 筛查学校
+        if (Objects.nonNull(screeningPlanSchool)){
+            screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
+            screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
         }
+        // 新增筛查学生
+        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**

@@ -313,7 +313,7 @@ public class SchoolStudentExcelImportService {
             Student student = new Student();
             BeanUtils.copyProperties(schoolStudent, student);
             studentService.saveStudent(student);
-            return student.getId();
+            return studentService.getByIdCardAndPassport(schoolStudent.getIdCard(), schoolStudent.getPassport(), null).getId();
         }
         managementStudent.setSchoolId(schoolStudent.getSchoolId());
         managementStudent.setSno(schoolStudent.getSno());

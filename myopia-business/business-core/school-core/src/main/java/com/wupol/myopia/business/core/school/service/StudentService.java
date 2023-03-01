@@ -201,16 +201,6 @@ public class StudentService extends BaseService<StudentMapper, Student> {
     }
 
     /**
-     * 统计学生人数
-     *
-     * @return List<StudentCountDTO>
-     */
-    public List<StudentCountDTO> countStudentBySchoolId() {
-        return baseMapper.countStudentBySchoolId();
-    }
-
-
-    /**
      * 检查学生身份证号码是否重复
      *
      * @param idCard 身份证号码

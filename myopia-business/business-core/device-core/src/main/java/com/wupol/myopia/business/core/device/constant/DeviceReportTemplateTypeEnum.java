@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.device.domain;
+package com.wupol.myopia.business.core.device.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +12,11 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum DeviceTypeEnum {
+public enum DeviceReportTemplateTypeEnum {
 
-    DEVICE_VS666("VS666",1 );
+    DEVICE_REPORT_STANDARD("VS550报告-标准模板",1 ),
+    DEVICE_REPORT_025D("VS550报告-0.25D分辨率",2 ),
+    DEVICE_REPORT_001D("VS550报告-0.01D分辨率",3 );
 
     /**
      * 设备名称
