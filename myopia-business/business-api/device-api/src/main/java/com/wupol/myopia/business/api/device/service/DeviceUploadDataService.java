@@ -13,7 +13,7 @@ import com.wupol.myopia.business.api.device.util.CheckResultUtil;
 import com.wupol.myopia.business.api.device.util.ParsePlanStudentUtils;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.common.domain.model.Cooperation;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreenDataDTO;
@@ -152,32 +152,32 @@ public class DeviceUploadDataService {
             computerOptometryDTO.setRAxial(BigDecimal.valueOf(deviceScreenDataDTO.getRightAxsi()));
         }
 
-        Double leftCyl = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftCyl());
+        Double leftCyl = VS550Util.getDisplayValue(deviceScreenDataDTO.getLeftCyl());
         if (leftCyl != null) {
             computerOptometryDTO.setLCyl(BigDecimal.valueOf(leftCyl));
         }
 
-        Double rightCyl = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightCyl());
+        Double rightCyl = VS550Util.getDisplayValue(deviceScreenDataDTO.getRightCyl());
         if (rightCyl != null) {
             computerOptometryDTO.setRCyl(BigDecimal.valueOf(rightCyl));
         }
 
-        Double rightSph = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightSph());
+        Double rightSph = VS550Util.getDisplayValue(deviceScreenDataDTO.getRightSph());
         if (rightSph != null) {
             computerOptometryDTO.setRSph(BigDecimal.valueOf(rightSph));
         }
 
-        Double leftSph = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftSph());
+        Double leftSph = VS550Util.getDisplayValue(deviceScreenDataDTO.getLeftSph());
         if (leftSph != null) {
             computerOptometryDTO.setLSph(BigDecimal.valueOf(leftSph));
         }
 
-        Double leftAxsi = VS666Util.getDisplayValue(deviceScreenDataDTO.getLeftAxsi());
+        Double leftAxsi = VS550Util.getDisplayValue(deviceScreenDataDTO.getLeftAxsi());
         if (leftAxsi != null) {
             computerOptometryDTO.setLAxial(BigDecimal.valueOf(Math.round(leftAxsi)));
         }
 
-        Double rightAxsi = VS666Util.getDisplayValue(deviceScreenDataDTO.getRightAxsi());
+        Double rightAxsi = VS550Util.getDisplayValue(deviceScreenDataDTO.getRightAxsi());
         if (rightAxsi != null) {
             computerOptometryDTO.setRAxial(BigDecimal.valueOf(Math.round(rightAxsi)));
         }

@@ -938,4 +938,18 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public List<ScreeningPlanSchoolStudent> getInfoByScreeningPlanId(Integer screeningPlanId) {
         return baseMapper.getInfoByPlanId(screeningPlanId);
     }
+
+    /**
+     * 根据计划id,学校id,学籍号获取筛查学生
+     * @param schoolId
+     * @param screeningPlanId
+     * @param snoList
+     * @return
+     */
+    public List<PlanStudentInfoDTO> findStudentBySchoolIdAndScreeningPlanIdAndSno(Integer schoolId, Integer screeningPlanId, List<String> snoList) {
+        if (org.springframework.util.CollectionUtils.isEmpty(snoList)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.findStudentBySchoolIdAndScreeningPlanIdAndSno(schoolId,screeningPlanId,snoList);
+    }
 }

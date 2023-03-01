@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.aggregation.hospital.service.OrgCooperationHospitalBizService;
 import com.wupol.myopia.business.api.management.domain.dto.DeviceDTO;
 import com.wupol.myopia.business.api.management.domain.vo.DeviceVO;
@@ -12,12 +13,14 @@ import com.wupol.myopia.business.common.utils.constant.DoctorConclusion;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
+import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
+import com.wupol.myopia.business.core.device.constant.DeviceReportTemplateTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
@@ -82,6 +85,7 @@ public class DeviceBizService {
      * @return List<DeviceReportPrintResponseDTO>
      */
     public List<DeviceReportPrintResponseDTO> getPrintReportInfo(List<Integer> ids) {
+
         if (CollectionUtils.isEmpty(ids)) {
             throw new BusinessException("id不能为空");
         }
@@ -89,28 +93,72 @@ public class DeviceBizService {
         if (CollectionUtils.isEmpty(responseDTOS)) {
             return responseDTOS;
         }
-        // 获取模板
+        // 获取机构对应的模板）
         List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
+
+        Map<Integer, Integer> deviceReportTemplateVOs = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                 .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
+
         responseDTOS.forEach(r -> {
             if (Objects.nonNull(r.getLeftAxsi())) {
+                //左眼轴位
                 r.setLeftAxsi(BigDecimal.valueOf(r.getLeftAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
             if (Objects.nonNull(r.getRightAxsi())) {
+                //右眼轴位
                 r.setRightAxsi(BigDecimal.valueOf(r.getRightAxsi()).setScale(0, RoundingMode.DOWN).doubleValue());
             }
+            //建议医院
             r.setSuggestHospitalDTO(orgCooperationHospitalBizService.packageSuggestHospital(r.getScreeningOrgId()));
+
             TwoTuple<String, String> doctorAdvice = getDoctorAdvice(r.getPatientAge(), r.getLeftPa(), r.getRightPa(), r.getLeftCyl(), r.getRightCyl());
+            //医生结论
             r.setDoctorConclusion(doctorAdvice.getFirst());
+            //医生建议
             r.setDoctorAdvice(doctorAdvice.getSecond());
-            r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
-            r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
-            r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
-            r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
-            r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+
+            setVisionDisplayDataAndTemplateType(r,deviceReportTemplateVOs.get(r.getScreeningOrgId()));
         });
         return responseDTOS;
+    }
+
+    /**
+     * 设置视力展示数据
+     * @param r 视力数据
+     * @param reportConfigType 设备报告模板配置类型
+     */
+    public void setVisionDisplayDataAndTemplateType(DeviceScreeningDataAndOrgDTO r, Integer reportConfigType) {
+        //模板类型 1-VS666模板1
+        r.setTemplateType(reportConfigType);
+        //右眼球镜-展示使用
+        r.setRightSphDisplay(calculateResolution(reportConfigType,r.getRightSph()));
+        //左眼球镜-展示使用
+        r.setLeftSphDisplay(calculateResolution(reportConfigType,r.getLeftSph()));
+
+        //右眼柱镜-展示使用
+        r.setRightCylDisplay(calculateResolution(reportConfigType,r.getRightCyl()));
+        //左眼柱镜-展示使用
+        r.setLeftCylDisplay(calculateResolution(reportConfigType,r.getLeftCyl()));
+
+        if ( Objects.equals(reportConfigType, DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getType())){
+            return;
+        }
+        //右眼等效球镜
+        r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
+        //左眼等效球镜
+        r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+    }
+    /**
+     * 计算分辨率
+     * @param configType vs550配置 0.01D好使用
+     * @param var 传入值
+     * @return VS550分辨率配置
+     */
+    public Double calculateResolution(Integer configType, Double var) {
+        if (Objects.equals(configType,DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getType())){
+            return var;
+        }
+        return VS550Util.getDisplayValue(var);
     }
 
     /**

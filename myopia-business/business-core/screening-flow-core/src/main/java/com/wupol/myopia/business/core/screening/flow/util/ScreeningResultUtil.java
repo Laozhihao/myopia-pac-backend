@@ -8,6 +8,7 @@ import com.wupol.myopia.base.domain.VisionItems;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
@@ -324,7 +325,7 @@ public class ScreeningResultUtil {
                                                                               Integer age, Integer maxType, BigDecimal nakedVision) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
-        sphItems.setVision(StatUtil.getSphericalEquivalent(spn, cyl));
+        sphItems.setVision(SEUtil.getSphericalEquivalent(spn, cyl));
         TwoTuple<String, Integer> leftSphType = getSphTypeName(spn, cyl, age, nakedVision);
         sphItems.setTypeName(leftSphType.getFirst());
         Integer type = leftSphType.getSecond();
@@ -611,10 +612,10 @@ public class ScreeningResultUtil {
             ComputerOptometryDO computerOptometry = result.getComputerOptometry();
             if (Objects.nonNull(computerOptometry)) {
                 // 左眼
-                left.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getLeftEyeData().getSph(),
+                left.setVision(SEUtil.getSphericalEquivalent(computerOptometry.getLeftEyeData().getSph(),
                         computerOptometry.getLeftEyeData().getCyl()));
                 // 右眼
-                right.setVision(StatUtil.getSphericalEquivalent(computerOptometry.getRightEyeData().getSph(),
+                right.setVision(SEUtil.getSphericalEquivalent(computerOptometry.getRightEyeData().getSph(),
                         computerOptometry.getRightEyeData().getCyl()));
             }
             details.setItem(Lists.newArrayList(left, right));
@@ -697,7 +698,7 @@ public class ScreeningResultUtil {
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age, BigDecimal nakedVision) {
-        BigDecimal se = StatUtil.getSphericalEquivalent(sph, cyl);
+        BigDecimal se = SEUtil.getSphericalEquivalent(sph, cyl);
         if (Objects.isNull(se)) {
             return new TwoTuple<>();
         }
@@ -942,8 +943,8 @@ public class ScreeningResultUtil {
         BigDecimal rightSph = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
         BigDecimal rightCyl = Optional.ofNullable(computerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
 
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
-        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph,rightCyl);
+        BigDecimal leftSe = SEUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe = SEUtil.getSphericalEquivalent(rightSph,rightCyl);
 
         if (Objects.isNull(nakedVisionResult.getFirst())) {
             return RecommendVisitEnum.EMPTY;
@@ -1153,8 +1154,8 @@ public class ScreeningResultUtil {
                                                                                        BigDecimal leftSph, BigDecimal rightSph,
                                                                                        BigDecimal leftCyl, BigDecimal rightCyl,
                                                                                        Integer age, String targetVision) {
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
-        BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
+        BigDecimal leftSe = SEUtil.getSphericalEquivalent(leftSph, leftCyl);
+        BigDecimal rightSe = SEUtil.getSphericalEquivalent(rightSph, rightCyl);
         BigDecimal anisometropia = getAnisometropia(leftSe, rightSe);
         Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
         if (Objects.isNull(anisometropia) || ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
@@ -1552,8 +1553,8 @@ public class ScreeningResultUtil {
      * @return TwoTuple<BigDecimal, BigDecimal>
      */
     private TwoTuple<BigDecimal, BigDecimal> getNormalSe(BigDecimal leftSph, BigDecimal rightSph, BigDecimal leftCyl, BigDecimal rightCyl) {
-        BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph,leftCyl);
-        BigDecimal rightSe= StatUtil.getSphericalEquivalent(rightSph,rightCyl);
+        BigDecimal leftSe = SEUtil.getSphericalEquivalent(leftSph,leftCyl);
+        BigDecimal rightSe= SEUtil.getSphericalEquivalent(rightSph,rightCyl);
         return new TwoTuple<>(leftSe, rightSe);
     }
 

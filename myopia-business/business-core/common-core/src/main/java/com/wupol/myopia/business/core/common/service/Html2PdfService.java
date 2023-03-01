@@ -109,6 +109,7 @@ public class Html2PdfService {
         log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
         HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
         log.info("【请求node-js服务】：{}", JSON.toJSONString(request));
+        log.info("【syncRequestUrl】：{}", syncRequestUrl);
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 

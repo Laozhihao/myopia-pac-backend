@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.api.school.management.service;
+package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownloadStatusEnum;
@@ -30,7 +30,7 @@ public class DataSubmitBizService {
     private NoticeService noticeService;
 
     @Resource
-    private VisionScreeningService visionScreeningService;
+    private VisionScreeningBizService visionScreeningBizService;
 
 
     /**
@@ -38,10 +38,10 @@ public class DataSubmitBizService {
      */
     @Async
     @Transactional(rollbackFor = Exception.class)
-    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId) {
+    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId,Integer screeningPlanId) {
         NationalDataDownloadRecord nationalDataDownloadRecord = nationalDataDownloadRecordService.getById(dataSubmitId);
         try {
-            visionScreeningService.dealDataSubmit(listMap, nationalDataDownloadRecord, userId, schoolId);
+            visionScreeningBizService.dealDataSubmit(listMap, nationalDataDownloadRecord, userId, schoolId,screeningPlanId);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);

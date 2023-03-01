@@ -15,6 +15,8 @@
     </resultMap>
     <resultMap id="SchoolCountDO" type="com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO">
     </resultMap>
+    <resultMap id="PlanStudentInfoDTO" type="com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO">
+    </resultMap>
 
     <!-- 通用查询条件 -->
     <sql id="Base_Where_Clause">
@@ -594,5 +596,17 @@
         student_no, school_id, id_card, passport
         from m_screening_plan_school_student
         where screening_plan_id = #{planId}
+    </select>
+    <select id="findStudentBySchoolIdAndScreeningPlanIdAndSno" resultMap="PlanStudentInfoDTO">
+        select
+            mspss.*,
+            ms.sno as sno
+        from m_screening_plan_school_student as mspss
+        left join m_student as ms on mspss.student_id = ms.id
+        where mspss.screening_plan_id = #{planId} and mspss.school_id = #{schoolId}
+        and ms.sno in
+        <foreach collection="snoList" item="sno" index="index" open="(" separator="," close=")">
+            #{sno}
+        </foreach>
     </select>
 </mapper>

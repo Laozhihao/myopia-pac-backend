@@ -12,6 +12,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.BeanCopyUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.hospital.service.MedicalReportBizService;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
@@ -46,7 +47,6 @@ import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFa
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -333,8 +333,8 @@ public class StudentBizService {
                 BigDecimal leftCyl = computerOptometry.getLeftEyeData().getCyl();
                 BigDecimal rightSph = computerOptometry.getRightEyeData().getSph();
                 BigDecimal rightCyl = computerOptometry.getRightEyeData().getCyl();
-                BigDecimal leftSe = StatUtil.getSphericalEquivalent(leftSph, leftCyl);
-                BigDecimal rightSe = StatUtil.getSphericalEquivalent(rightSph, rightCyl);
+                BigDecimal leftSe = SEUtil.getSphericalEquivalent(leftSph, leftCyl);
+                BigDecimal rightSe = SEUtil.getSphericalEquivalent(rightSph, rightCyl);
                 // 裸眼视力大于4.9
                 String noticeInfo = getSMSNoticeInfo(student.getName(),
                         leftNakedVision, rightNakedVision,

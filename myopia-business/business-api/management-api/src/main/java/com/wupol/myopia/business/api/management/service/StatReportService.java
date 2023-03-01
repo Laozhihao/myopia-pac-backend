@@ -5,8 +5,8 @@ import com.alibaba.fastjson.JSONPath;
 import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.api.management.domain.dto.*;
-import com.wupol.myopia.business.api.management.domain.dto.MyopiaDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
@@ -23,7 +23,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.StatUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -1623,12 +1622,12 @@ public class StatReportService {
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.RIGHTEYE_AXIAL),
                         (BigDecimal) JSONPath.eval(vo, ScreeningResultPahtConst.LEFTEYE_AXIAL), 0))
                 .setSphericalEquivalents(
-                        eyeDataFormat(StatUtil.getSphericalEquivalent(
+                        eyeDataFormat(SEUtil.getSphericalEquivalent(
                                               (BigDecimal) JSONPath.eval(
                                                       vo, ScreeningResultPahtConst.RIGHTEYE_SPH),
                                               (BigDecimal) JSONPath.eval(
                                                       vo, ScreeningResultPahtConst.RIGHTEYE_CYL)),
-                                StatUtil.getSphericalEquivalent(
+                                SEUtil.getSphericalEquivalent(
                                         (BigDecimal) JSONPath.eval(
                                                 vo, ScreeningResultPahtConst.LEFTEYE_SPH),
                                         (BigDecimal) JSONPath.eval(

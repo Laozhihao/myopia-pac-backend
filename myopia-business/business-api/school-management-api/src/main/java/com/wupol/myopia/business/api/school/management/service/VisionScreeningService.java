@@ -14,7 +14,9 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.base.util.*;
+import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.ExcelFacade;
 import com.wupol.myopia.business.aggregation.export.service.SysUtilService;
 import com.wupol.myopia.business.aggregation.screening.constant.SchoolConstant;
@@ -38,17 +40,14 @@ import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.model.NotificationConfig;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.interfaces.HasName;
-import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
-import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.hospital.domain.model.MedicalReport;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.facade.SchoolBizFacade;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
@@ -56,38 +55,29 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownloadStatusEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.business.core.stat.domain.model.CommonDiseaseScreeningResultStatistic;
 import com.wupol.myopia.business.core.stat.domain.model.VisionScreeningResultStatistic;
-import com.wupol.myopia.business.core.system.service.NoticeService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
-import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -151,12 +141,6 @@ public class VisionScreeningService {
     private SchoolClassService schoolClassService;
     @Resource
     private StudentService studentService;
-    @Resource
-    private S3Utils s3Utils;
-    @Resource
-    private NationalDataDownloadRecordService nationalDataDownloadRecordService;
-    @Resource
-    private NoticeService noticeService;
 
 
     /**
@@ -688,96 +672,7 @@ public class VisionScreeningService {
         redisUtil.set(key, 1, 86400L);
     }
 
-    /**
-     * 生成Excel文件
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void dealDataSubmit(List<Map<Integer, String>> listMap, NationalDataDownloadRecord nationalDataDownloadRecord, Integer userId, Integer schoolId) throws IOException, UtilException {
 
-        AtomicInteger success = new AtomicInteger(0);
-        AtomicInteger fail = new AtomicInteger(0);
 
-        Map<String, VisionScreeningResult> screeningData = getScreeningData(listMap, schoolId);
-
-        List<DataSubmitExportDTO> collect = listMap.stream().map(s -> {
-            DataSubmitExportDTO exportDTO = new DataSubmitExportDTO();
-            getOriginalInfo(s, exportDTO);
-            getScreeningInfo(success, fail, screeningData, s, exportDTO);
-            return exportDTO;
-        }).collect(Collectors.toList());
-        File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
-        Integer fileId = s3Utils.uploadFileToS3(excel);
-        nationalDataDownloadRecord.setSuccessMatch(success.get());
-        nationalDataDownloadRecord.setFailMatch(fail.get());
-        nationalDataDownloadRecord.setFileId(fileId);
-        nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.SUCCESS.getType());
-        nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
-        noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
-    }
-
-    /**
-     * 通过学号获取筛查信息
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
-        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
-        List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
-        return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(Student::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
-    }
-
-    /**
-     * 获取原始数据
-     */
-    private void getOriginalInfo(Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        exportDTO.setGradeCode(s.get(0));
-        exportDTO.setClassCode(s.get(1));
-        exportDTO.setClassName(s.get(2));
-        exportDTO.setStudentNo(s.get(3));
-        exportDTO.setNation(s.get(4));
-        exportDTO.setName(s.get(5));
-        exportDTO.setGender(s.get(6));
-        exportDTO.setBirthday(s.get(7));
-        exportDTO.setAddress(s.get(8));
-    }
-
-    /**
-     * 获取筛查信息
-     */
-    private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        VisionScreeningResult result = screeningResultMap.get(s.get(3));
-        if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
-            exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
-            exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
-            exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
-            exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setRightAxial(EyeDataUtil.rightAxial(result).toString());
-            exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
-            exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.leftAxial(result).toString());
-            exportDTO.setIsOk(Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.code) ? "是" : "否");
-            success.incrementAndGet();
-        } else {
-            fail.incrementAndGet();
-        }
-    }
-
-    /**
-     * 处理裸眼视力
-     *
-     * @param nakedVision 裸眼视力
-     *
-     * @return 裸眼视力
-     */
-    private String getNakedVision(BigDecimal nakedVision) {
-        if (Objects.isNull(nakedVision)) {
-            return StringUtils.EMPTY;
-        }
-        if (BigDecimalUtil.lessThan(nakedVision, "3.0")) {
-            return "9.0";
-        }
-        return nakedVision.setScale(1, RoundingMode.DOWN).toString();
-    }
 }
 
