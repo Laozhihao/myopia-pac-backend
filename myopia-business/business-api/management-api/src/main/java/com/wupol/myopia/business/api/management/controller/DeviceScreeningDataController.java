@@ -6,13 +6,17 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
+import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
-import com.wupol.myopia.business.common.utils.util.VS666Util;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQueryDTO;
+import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
+import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
+import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author wulizhou
@@ -37,6 +43,14 @@ public class DeviceScreeningDataController {
 
     @Autowired
     private DeviceScreeningDataBizService deviceScreeningDataBizService;
+    @Autowired
+    private ScreeningOrganizationService screeningOrganizationService;
+    @Autowired
+    private ScreeningOrgBindDeviceReportService screeningOrgBindDeviceReportService;
+    @Autowired
+    private DeviceBizService deviceBizService;
+
+
 
     @GetMapping("/list")
     public IPage<DeviceScreeningDataAndOrgDTO> queryDeptPage(DeviceScreeningDataQueryDTO query, @Validated PageRequest pageRequest) {
@@ -49,18 +63,21 @@ public class DeviceScreeningDataController {
             throw new BusinessException("无访问权限", ResultCode.USER_ACCESS_UNAUTHORIZED.getCode());
         }
         IPage<DeviceScreeningDataAndOrgDTO> page = deviceScreeningDataBizService.getPage(query, pageRequest);
+
         if (Objects.nonNull(page) && !CollectionUtils.isEmpty(page.getRecords())) {
             List<DeviceScreeningDataAndOrgDTO> records = page.getRecords();
+            // 获取机构对应的配置
+            List<Integer> orgIds = records.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
+            // 获取报告类型
+            Map<Integer, Integer> deviceReportTemplateVOs = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
+                    .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
+
             records.forEach(r -> {
-                r.setLeftCylDisplay(VS666Util.getDisplayValue(r.getLeftCyl()));
-                r.setRightCylDisplay(VS666Util.getDisplayValue(r.getRightCyl()));
-                r.setLeftSphDisplay(VS666Util.getDisplayValue(r.getLeftSph()));
-                r.setRightSphDisplay(VS666Util.getDisplayValue(r.getRightSph()));
+                deviceBizService.setVisionDisplayDataAndTemplateType(r,deviceReportTemplateVOs.get(r.getScreeningOrgId()));
             });
         }
         return page;
     }
-
     private void checkAndHandleParam(DeviceScreeningDataQueryDTO query) {
         if (ObjectUtil.hasSomeNull(query.getCylStart(), query.getCylEnd()) || ObjectUtil.hasSomeNull(query.getSphStart(), query.getSphEnd())) {
             throw new BusinessException("参数异常");

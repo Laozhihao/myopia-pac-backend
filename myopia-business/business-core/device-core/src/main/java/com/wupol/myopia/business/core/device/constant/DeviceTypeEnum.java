@@ -1,4 +1,4 @@
-package com.wupol.myopia.business.core.device.domain;
+package com.wupol.myopia.business.core.device.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

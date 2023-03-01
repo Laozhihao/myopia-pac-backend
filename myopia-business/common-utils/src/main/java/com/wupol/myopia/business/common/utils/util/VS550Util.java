@@ -11,7 +11,7 @@ import java.util.Objects;
  * @Date 2021/11/29
  **/
 @UtilityClass
-public class VS666Util {
+public class VS550Util {
 
     /**
      * VS666数据格式化
