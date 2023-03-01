@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.device.domain.dto;
 
 import com.wupol.myopia.business.core.common.domain.dto.SuggestHospitalDTO;
-import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
-
+public class DeviceReportPrintResponseDTO extends DeviceScreeningDataAndOrgDTO {
     /**
      * 医生建议
      */
@@ -30,29 +28,4 @@ public class DeviceReportPrintResponseDTO extends DeviceScreeningData {
      * 建议医院
      */
     private SuggestHospitalDTO suggestHospitalDTO;
-
-    /**
-     * 模板类型 1-VS666模板1
-     */
-    private Integer templateType;
-
-    /**
-     * 左眼球镜-展示使用
-     */
-    private Double leftSphDisplay;
-
-    /**
-     * 右眼球镜-展示使用
-     */
-    private Double rightSphDisplay;
-
-    /**
-     * 左眼柱镜-展示使用
-     */
-    private Double leftCylDisplay;
-
-    /**
-     * 右眼柱镜-展示使用
-     */
-    private Double rightCylDisplay;
 }

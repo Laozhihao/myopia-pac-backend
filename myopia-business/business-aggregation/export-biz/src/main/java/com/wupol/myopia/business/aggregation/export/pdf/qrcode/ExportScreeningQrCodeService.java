@@ -180,11 +180,8 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
      */
     private void downloadFile(ExportCondition exportCondition, String fileSavePath, String fileName, Integer type, Integer gradeId, Integer classId, List<ScreeningStudentDTO> classStudents) {
         ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
-
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition, type, gradeId, classId);
-
         TwoTuple<String, String> dirAndClassName = getDirAndClassName(exportCondition, fileSavePath, fileName, screeningStudentDTO);
-
         PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
         log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
         try {
