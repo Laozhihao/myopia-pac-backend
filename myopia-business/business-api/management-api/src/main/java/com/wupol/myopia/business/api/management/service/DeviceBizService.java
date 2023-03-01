@@ -17,8 +17,10 @@ import com.wupol.myopia.business.common.utils.util.VS550Util;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
+import com.wupol.myopia.business.core.device.constant.DeviceReportTemplateTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceOrgListResponseDTO;
 import com.wupol.myopia.business.core.device.domain.dto.DeviceReportPrintResponseDTO;
+import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataAndOrgDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.query.DeviceQuery;
@@ -31,7 +33,6 @@ import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
 import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,12 +95,9 @@ public class DeviceBizService {
         }
         // 获取机构对应的模板）
         List<Integer> orgIds = responseDTOS.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, Integer> templateMap = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
-                .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
 
-        // 配置 0-省级配置 1-单点配置
-        Map<Integer, Integer>  configTypes = screeningOrganizationService.getByIds(orgIds).stream()
-                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
+        Map<Integer, Integer> deviceReportTemplateVOs = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
+                .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
 
         responseDTOS.forEach(r -> {
             if (Objects.nonNull(r.getLeftAxsi())) {
@@ -119,50 +117,44 @@ public class DeviceBizService {
             //医生建议
             r.setDoctorAdvice(doctorAdvice.getSecond());
 
-            //模板类型 1-VS666模板1（模板由前端渲染））
-            r.setTemplateType(templateMap.get(r.getScreeningOrgId()));
-            //右眼球镜-展示使用
-            r.setRightSphDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
-            //左眼球镜-展示使用
-            r.setLeftSphDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
-
-            //右眼柱镜-展示使用
-            r.setRightCylDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
-            //左眼柱镜-展示使用
-            r.setLeftCylDisplay(calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
-
-            if ( Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
-                //右眼等效球镜
-                r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
-                //左眼等效球镜
-                r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-
-            }
-
+            setVisionDisplayDataAndTemplateType(r,deviceReportTemplateVOs.get(r.getScreeningOrgId()));
         });
         return responseDTOS;
     }
 
     /**
+     * 设置视力展示数据
+     * @param r 视力数据
+     * @param reportConfigType 设备报告模板配置类型
+     */
+    public void setVisionDisplayDataAndTemplateType(DeviceScreeningDataAndOrgDTO r, Integer reportConfigType) {
+        //模板类型 1-VS666模板1
+        r.setTemplateType(reportConfigType);
+        //右眼球镜-展示使用
+        r.setRightSphDisplay(calculateResolution(reportConfigType,r.getRightSph()));
+        //左眼球镜-展示使用
+        r.setLeftSphDisplay(calculateResolution(reportConfigType,r.getLeftSph()));
+
+        //右眼柱镜-展示使用
+        r.setRightCylDisplay(calculateResolution(reportConfigType,r.getRightCyl()));
+        //左眼柱镜-展示使用
+        r.setLeftCylDisplay(calculateResolution(reportConfigType,r.getLeftCyl()));
+
+        if ( Objects.equals(reportConfigType, DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getDeviceType())){
+            //右眼等效球镜
+            r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
+            //左眼等效球镜
+            r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+        }
+    }
+    /**
      * 计算分辨率
-     * @param configType vs550配置
+     * @param configType vs550配置 0.01D好使用
      * @param var 传入值
      * @return VS550分辨率配置
      */
     public Double calculateResolution(Integer configType, Double var) {
-        if (Objects.equals(configType, ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
-                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())
-                || Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
-            /*
-             * 计算逻辑一（VS550计算逻辑）：VS550配置(原始逻辑)
-             * 计算逻辑三（VS550计算逻辑）:VS550配置（0.25D分辨率）
-             */
-            return VS550Util.getDisplayValue(var);
-        }
-        if (Objects.equals(configType,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_5.getType())){
-            /*
-             * 计算逻辑二（VS550计算逻辑）:VS550配置（0.01D分辨率）
-             */
+        if (Objects.equals(configType,DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getDeviceType())){
             return var;
         }
         return VS550Util.getDisplayValue(var);

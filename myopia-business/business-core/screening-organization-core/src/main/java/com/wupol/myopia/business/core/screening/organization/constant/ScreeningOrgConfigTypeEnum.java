@@ -15,9 +15,7 @@ public enum ScreeningOrgConfigTypeEnum {
     CONFIG_TYPE_0(0, "省级配置"),
     CONFIG_TYPE_1(1, "单点配置"),
     CONFIG_TYPE_2(2, "VS550配置"),
-    CONFIG_TYPE_3(3, "单点配置+VS550"),
-    CONFIG_TYPE_4(4, "VS550（0.25D）配置"),
-    CONFIG_TYPE_5(5, "VS550（0.01D）配置");
+    CONFIG_TYPE_3(3, "单点配置+VS550");
 
     /**
      * 类型

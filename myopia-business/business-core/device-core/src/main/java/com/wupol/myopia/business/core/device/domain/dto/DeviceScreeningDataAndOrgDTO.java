@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class DeviceScreeningDataAndOrgDTO extends DeviceScreeningData {
     /**
-     * 模板类型 1-VS550 标准模板 2-VS550（0.25D）分辨率 3-VS550（0.01D）分辨率
+     * 模板类型 1-VS666模板1
      */
     private Integer templateType;
     /**

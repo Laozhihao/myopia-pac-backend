@@ -6,7 +6,6 @@ import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.api.management.service.DeviceBizService;
 import com.wupol.myopia.business.api.management.service.DeviceScreeningDataBizService;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -17,8 +16,6 @@ import com.wupol.myopia.business.core.device.domain.dto.DeviceScreeningDataQuery
 import com.wupol.myopia.business.core.device.domain.model.DeviceScreeningData;
 import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
-import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -67,39 +64,16 @@ public class DeviceScreeningDataController {
         }
         IPage<DeviceScreeningDataAndOrgDTO> page = deviceScreeningDataBizService.getPage(query, pageRequest);
 
-
         if (Objects.nonNull(page) && !CollectionUtils.isEmpty(page.getRecords())) {
             List<DeviceScreeningDataAndOrgDTO> records = page.getRecords();
-
             // 获取机构对应的配置
             List<Integer> orgIds = records.stream().map(DeviceScreeningData::getScreeningOrgId).collect(Collectors.toList());
-            Map<Integer, Integer> configTypes = screeningOrganizationService.getByIds(orgIds).stream()
-                    .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getConfigType));
-
             // 获取报告类型
             Map<Integer, Integer> deviceReportTemplateVOs = screeningOrgBindDeviceReportService.getByOrgIds(orgIds).stream()
                     .collect(Collectors.toMap(DeviceReportTemplateVO::getScreeningOrgId, DeviceReportTemplateVO::getTemplateType));
 
             records.forEach(r -> {
-                r.setTemplateType(deviceReportTemplateVOs.get(r.getScreeningOrgId()));
-
-                //右眼球镜-展示使用
-                r.setRightSphDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightSph()));
-                //左眼球镜-展示使用
-                r.setLeftSphDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftSph()));
-
-                //右眼柱镜-展示使用
-                r.setRightCylDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getRightCyl()));
-                //左眼柱镜-展示使用
-                r.setLeftCylDisplay(deviceBizService.calculateResolution(configTypes.get(r.getScreeningOrgId()),r.getLeftCyl()));
-
-                if (Objects.equals(configTypes,ScreeningOrgConfigTypeEnum.CONFIG_TYPE_4.getType())){
-                    //右眼等效球镜
-                    r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(), r.getRightCylDisplay()));
-                    //左眼等效球镜
-                    r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
-                }
-
+                deviceBizService.setVisionDisplayDataAndTemplateType(r,deviceReportTemplateVOs.get(r.getScreeningOrgId()));
             });
         }
         return page;
