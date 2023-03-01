@@ -330,10 +330,12 @@ public class VisionScreeningService {
         //筛查计划学校
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
 
-        //筛查学生
+        //获取筛查学生
         TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school);
+        //创建筛查计划
         screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
         screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
+        //更新筛查通知状态为已读
         if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
             List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
             if (CollUtil.isEmpty(screeningNoticeList)) {

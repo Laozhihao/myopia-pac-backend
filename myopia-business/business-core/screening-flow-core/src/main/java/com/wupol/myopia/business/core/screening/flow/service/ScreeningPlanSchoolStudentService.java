@@ -20,6 +20,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.SchoolCountDO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanSchoolStudentMapper;
@@ -891,6 +892,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
             return;
         }
+        ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
         screeningPlanSchoolStudentList.forEach(screeningPlanSchoolStudent -> {
             if (Objects.isNull(screeningPlanSchoolStudent.getScreeningPlanId())){
                 screeningPlanSchoolStudent.setScreeningPlanId(screeningPlanId);
@@ -900,6 +902,10 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
             }
             if (Objects.nonNull(screeningTaskId) && !Objects.equals(screeningTaskId,CommonConst.DEFAULT_ID)){
                 screeningPlanSchoolStudent.setScreeningTaskId(screeningTaskId);
+            }
+            // 如果是协助筛查，需要覆盖一下筛查机构ID，避免学校端新增筛查学生时筛查机构ID为学校ID，与实际不符
+            if (ScreeningBizTypeEnum.isAssistanceScreeningType(ScreeningBizTypeEnum.getInstanceByOrgType(screeningPlan.getScreeningOrgType()).getType())) {
+                screeningPlanSchoolStudent.setScreeningOrgId(screeningPlan.getScreeningOrgId());
             }
         });
         saveOrUpdateBatch(screeningPlanSchoolStudentList);
