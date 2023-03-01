@@ -27,4 +27,9 @@ public class PlanStudentInfoDTO extends ScreeningPlanSchoolStudent {
      */
     private String className;
 
+    /**
+     * 学号
+     */
+    private String sno;
+
 }

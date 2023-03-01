@@ -61,6 +61,11 @@ public class NationalDataDownloadRecord implements Serializable {
     private Integer status;
 
     /**
+     * 筛查计划id
+     */
+    private Integer screeningPlanId;
+
+    /**
      * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
