@@ -172,9 +172,6 @@ public class ScreeningOrganizationBizService {
         // 同步到oauth机构状态
         oauthServiceClient.addOrganization(new Organization(screeningOrganization.getId(), SystemCode.MANAGEMENT_CLIENT,
                 UserType.SCREENING_ORGANIZATION_ADMIN, screeningOrganization.getStatus()));
-        // 为筛查机构新增设备报告模板
-        DeviceReportTemplate template = deviceReportTemplateService.getSortFirstTemplate();
-        screeningOrgBindDeviceReportService.orgBindReportTemplate(template.getId(), screeningOrganization.getId(), screeningOrganization.getName());
 
         UsernameAndPasswordDTO usernameAndPasswordDTO = screeningOrganizationService.generateAccountAndPassword(screeningOrganization, ScreeningOrganizationService.PARENT_ACCOUNT, null);
 
@@ -189,11 +186,7 @@ public class ScreeningOrganizationBizService {
 
         // 筛查机构绑定模板(保存)
         if (screeningOrganization.getTemplateId()!=null){
-            ScreeningOrgBindDeviceReport screeningOrgBindDeviceReport = new ScreeningOrgBindDeviceReport();
-            screeningOrgBindDeviceReport.setScreeningOrgId(screeningOrganization.getId());
-            screeningOrgBindDeviceReport.setTemplateId(screeningOrganization.getTemplateId());
-            screeningOrgBindDeviceReport.setScreeningOrgName(screeningOrganization.getName());
-            screeningOrgBindDeviceReportService.save(screeningOrgBindDeviceReport);
+            screeningOrgBindDeviceReportService.orgBindReportTemplate(screeningOrganization.getTemplateId(), screeningOrganization.getId(), screeningOrganization.getName());
         }
 
         return usernameAndPasswordDTO;

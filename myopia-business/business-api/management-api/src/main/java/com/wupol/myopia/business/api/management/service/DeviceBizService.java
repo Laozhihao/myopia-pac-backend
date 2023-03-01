@@ -141,11 +141,12 @@ public class DeviceBizService {
         r.setLeftCylDisplay(calculateResolution(reportConfigType,r.getLeftCyl()));
 
         if ( Objects.equals(reportConfigType, DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getType())){
-            //右眼等效球镜
-            r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
-            //左眼等效球镜
-            r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
+            return;
         }
+        //右眼等效球镜
+        r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
+        //左眼等效球镜
+        r.setLeftPa(SEUtil.getSphericalEquivalent(r.getLeftSphDisplay(), r.getLeftCylDisplay()));
     }
     /**
      * 计算分辨率
