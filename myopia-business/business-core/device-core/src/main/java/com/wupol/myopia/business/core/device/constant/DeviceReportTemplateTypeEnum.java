@@ -5,7 +5,7 @@ import lombok.Getter;
 
 /**
  * @Classname DeviceTypeEnum
- * @Description VS550报告导出报告模板
+ * @Description VS550报告模板
  * @Date 2021/7/14 2:16 下午
  * @Author Jacob
  * @Version
