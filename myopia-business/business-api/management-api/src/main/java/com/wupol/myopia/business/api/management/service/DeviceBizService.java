@@ -140,7 +140,7 @@ public class DeviceBizService {
         //左眼柱镜-展示使用
         r.setLeftCylDisplay(calculateResolution(reportConfigType,r.getLeftCyl()));
 
-        if ( Objects.equals(reportConfigType, DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getDeviceType())){
+        if ( Objects.equals(reportConfigType, DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getType())){
             //右眼等效球镜
             r.setRightPa(SEUtil.getSphericalEquivalent(r.getRightSphDisplay(),r.getRightCylDisplay()));
             //左眼等效球镜
@@ -154,7 +154,7 @@ public class DeviceBizService {
      * @return VS550分辨率配置
      */
     public Double calculateResolution(Integer configType, Double var) {
-        if (Objects.equals(configType,DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getDeviceType())){
+        if (Objects.equals(configType,DeviceReportTemplateTypeEnum.DEVICE_REPORT_001D.getType())){
             return var;
         }
         return VS550Util.getDisplayValue(var);

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 /**
  * @Classname DeviceTypeEnum
- * @Description 管理设备类型
+ * @Description VS550报告导出报告模板
  * @Date 2021/7/14 2:16 下午
  * @Author Jacob
  * @Version
@@ -19,11 +19,11 @@ public enum DeviceReportTemplateTypeEnum {
     DEVICE_REPORT_001D("VS550报告-0.01D分辨率",3 );
 
     /**
-     * 设备名称
+     * 报告名称
      */
-    private String deviceName;
+    private String name;
     /**
-     * 设备类型
+     * 报告类型
      */
-    private int deviceType;
+    private int type;
 }

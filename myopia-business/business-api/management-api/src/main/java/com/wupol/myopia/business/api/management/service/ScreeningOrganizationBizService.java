@@ -271,7 +271,8 @@ public class ScreeningOrganizationBizService {
     private void checkTemplateId(ScreeningOrganizationDTO screeningOrganization){
         if (Objects.equals(screeningOrganization.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_2.getType())
                 || Objects.equals(screeningOrganization.getConfigType(),ScreeningOrgConfigTypeEnum.CONFIG_TYPE_3.getType())){
-            if(screeningOrganization.getTemplateId()==null) throw new BusinessException("请输入模板ID！");
+            if(screeningOrganization.getTemplateId()==null)
+                Assert.notNull(screeningOrganization.getTemplateId(), "请输入模板ID！");
         }
     }
 
