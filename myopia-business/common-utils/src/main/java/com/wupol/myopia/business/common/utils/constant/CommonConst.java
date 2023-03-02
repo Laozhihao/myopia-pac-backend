@@ -257,7 +257,7 @@ public class CommonConst {
 
     public static final String ERROR = "【导出失败】尊敬的用户，非常抱歉通知您，因为系统问题导致视力筛查数据表填写失败，请前往数据报送功能菜单重新创建任务。如果多次出现该情况，请联系管理员，为您带来不便，我们深表歉意。";
 
-    public final static String FILE_NAME = "视力筛查数据报送表";
+    public static final String FILE_NAME = "%s-视力筛查数据报送表";
 
     /**
      *  Excel格式
