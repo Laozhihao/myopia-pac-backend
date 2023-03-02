@@ -15,6 +15,7 @@ import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedExcep
 import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -22,6 +23,7 @@ import com.wupol.myopia.business.core.school.management.domain.model.SchoolStude
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownloadStatusEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
@@ -88,6 +90,8 @@ public class VisionScreeningBizService {
     private NationalDataDownloadRecordService nationalDataDownloadRecordService;
     @Resource
     private NoticeService noticeService;
+    @Autowired
+    private SchoolService schoolService;
 
     private static final String UNDONE_MSG = "该学生初筛项目未全部完成，无法进行复测！";
 
@@ -433,7 +437,8 @@ public class VisionScreeningBizService {
             getScreeningInfo(success, fail, finalScreeningData, s, exportDTO);
             return exportDTO;
         }).collect(Collectors.toList());
-        File excel = ExcelUtil.exportListToExcel(CommonConst.FILE_NAME, collect, DataSubmitExportDTO.class);
+        School school = schoolService.getById(schoolId);
+        File excel = ExcelUtil.exportListToExcel(String.format(CommonConst.FILE_NAME, school.getName()), collect, DataSubmitExportDTO.class);
         Integer fileId = s3Utils.uploadFileToS3(excel);
         nationalDataDownloadRecord.setSuccessMatch(success.get());
         nationalDataDownloadRecord.setFailMatch(fail.get());

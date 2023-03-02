@@ -43,7 +43,7 @@ public class SEUtil {
     }
 
     /**
-     * 等效球镜（保留2位小数位）
+     * 等效球镜
      *
      * @param sphere    球镜
      * @param cylinder  柱镜
