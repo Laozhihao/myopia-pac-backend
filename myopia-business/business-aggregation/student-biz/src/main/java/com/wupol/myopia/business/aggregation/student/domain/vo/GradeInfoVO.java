@@ -29,4 +29,8 @@ public class GradeInfoVO implements Serializable {
      * 未同步到计划学生数
      */
     private Integer unSyncStudentNum;
+    /**
+     * 是否选中
+     */
+    private Boolean isSelect;
 }

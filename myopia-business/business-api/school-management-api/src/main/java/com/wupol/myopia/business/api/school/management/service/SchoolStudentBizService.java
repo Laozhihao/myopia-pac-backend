@@ -179,17 +179,19 @@ public class SchoolStudentBizService {
             return gradeInfoVOList;
         }
 
-        // 设置未同步到筛查计划学生列表的学生数量
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId, schoolId);
         if (Objects.isNull(screeningPlanSchool)) {
             throw new BusinessException("此筛查计划下没有此筛查学校");
         }
         List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
         if (CollUtil.isEmpty(screeningGradeIds)) {
-            // 已选中的为空，未选中的就是等于全部的
-            gradeInfoVOList.forEach(x -> x.setUnSyncStudentNum(x.getStudentNum()));
+            // 全部年级未选中，则未选中的就是等于全部的
+            gradeInfoVOList.forEach(x -> x.setUnSyncStudentNum(x.getStudentNum()).setIsSelect(false));
             return gradeInfoVOList;
         }
+        // 设置是否选中
+        gradeInfoVOList.forEach(x -> x.setIsSelect(screeningGradeIds.contains(x.getGradeId())));
+        // 设置未同步到筛查计划学生列表的学生数量
         setUnSyncStudentNum(gradeInfoVOList, screeningPlanId, gradeInfoAndSchoolStudent.getSecond());
         return gradeInfoVOList;
     }
