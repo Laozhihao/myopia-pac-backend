@@ -111,9 +111,9 @@ public class SchoolScreeningBizFacade {
         if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
             return;
         }
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
-        screeningPlan.setStudentNumbers(screeningPlan.getStudentNumbers()+screeningPlanSchoolStudent.getFirst().size());
-        screeningPlanService.savePlanInfo(screeningPlan,null,screeningPlanSchoolStudent);
+        List<ScreeningPlanSchoolStudent> planSchoolList = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
+        screeningPlan.setStudentNumbers(screeningPlan.getStudentNumbers() + planSchoolList.size());
+        screeningPlanService.savePlanInfo(screeningPlan, null, planSchoolList);
         Object[] paramArr = new Object[]{screeningPlan.getId(),school.getId(),schoolStudent.getGradeId(),schoolStudent.getId()};
         log.info("自动新增筛查学生，planId={},schoolId={},gradeId={},schoolStudentId={}",paramArr);
     }
@@ -130,12 +130,11 @@ public class SchoolScreeningBizFacade {
         if (Objects.equals(validScreeningStudent(schoolStudent, planSchoolMap, screeningPlan),Boolean.TRUE)) {
             return;
         }
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> screeningPlanSchoolStudent = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = screeningPlanSchoolStudent.getFirst();
-        if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
+        List<ScreeningPlanSchoolStudent> planSchoolList = getScreeningPlanSchoolStudent(screeningPlan.getId(), Lists.newArrayList(schoolStudent), school);
+        if (CollUtil.isEmpty(planSchoolList)){
             return;
         }
-        screeningPlanSchoolStudentService.saveOrUpdateBatch(screeningPlanSchoolStudentList);
+        screeningPlanSchoolStudentService.saveOrUpdateBatch(planSchoolList);
         Object[] paramArr = new Object[]{screeningPlan.getId(),school.getId(),schoolStudent.getGradeId(),schoolStudent.getId()};
         log.info("更新筛查学生，planId={},schoolId={},gradeId={},schoolStudentId={}",paramArr);
     }
@@ -166,7 +165,7 @@ public class SchoolScreeningBizFacade {
      * @param schoolStudentList 学校学生集合
      * @param school            学校信息
      */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school){
+    public List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school){
         Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;

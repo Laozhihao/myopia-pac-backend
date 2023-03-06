@@ -91,9 +91,10 @@ public class SchoolStudentExcelImportService {
         List<String> birthdayList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.BIRTHDAY.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> gradeList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> classList = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.CLASS_NAME.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
+        //必填校验
         checkRequiredFields(listMap.size(), snos, names, genderList, birthdayList, gradeList, classList);
 
-        //处理护照异常
+        //护照长度校验
         List<String> errorList = listMap.stream()
                 .map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
                 .filter(Objects::nonNull)
@@ -103,13 +104,14 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException(String.format("护照异常:%s",errorList));
         }
 
-        //护照正常的
+        //获取护照
         List<String> passports = listMap.stream()
                 .map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
+        //学号长度校验
         CommonCheck.checkSnoLength(snos);
+        //检查身份证、学号、护照是否重复 TODO：检查身份证号码是否合法
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
@@ -166,6 +168,7 @@ public class SchoolStudentExcelImportService {
             // 更新管理端
             schoolStudent.checkStudentInfo();
             DateUtil.checkBirthday(schoolStudent.getBirthday());
+            // TODO：批量更新
             Integer managementStudentId = updateManagementStudent(schoolStudent);
             schoolStudent.setStudentId(managementStudentId);
             schoolStudents.add(schoolStudent);
@@ -173,11 +176,6 @@ public class SchoolStudentExcelImportService {
 
         //保存导入数据（新增学生和重新启用删除的学生）
         schoolStudentService.saveOrUpdateBatch(schoolStudents);
-
-        //新增学生和重新启用删除的学生 满足年级下都属于要自动新增到筛查计划的学生
-        if (CollUtil.isNotEmpty(schoolStudents)){
-            schoolStudents.forEach(schoolStudent -> schoolScreeningBizFacade.addScreeningStudent(schoolStudent,Boolean.TRUE));
-        }
     }
 
     /**
@@ -293,7 +291,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("学籍号" + sno + "性别为空");
         }
         if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
-            throw new BusinessException("学籍号" + sno + "手机号码异常");
+            throw new BusinessException("学籍号" + sno + "手机号码为空或格式错误");
         }
 
     }

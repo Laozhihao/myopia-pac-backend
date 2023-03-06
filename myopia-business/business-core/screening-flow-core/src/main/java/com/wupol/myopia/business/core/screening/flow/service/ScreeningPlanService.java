@@ -454,10 +454,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * 学校自主筛查创建/编辑筛查计划
      * @param screeningPlan 筛查计划
      * @param screeningPlanSchool 筛查计划学校
-     * @param twoTuple 筛查计划学校学生
+     * @param planSchoolStudentList 筛查计划学校学生
      */
     @Transactional(rollbackFor = Exception.class)
-    public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple) {
+    public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, List<ScreeningPlanSchoolStudent> planSchoolStudentList) {
         // 筛查计划
         saveOrUpdate(screeningPlan);
         // 筛查学校
@@ -466,7 +466,7 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
         }
         // 新增筛查学生
-        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
+        screeningPlanSchoolStudentService.addScreeningStudent(planSchoolStudentList,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**

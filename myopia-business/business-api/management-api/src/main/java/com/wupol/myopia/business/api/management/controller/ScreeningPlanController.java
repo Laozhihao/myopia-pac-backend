@@ -361,10 +361,9 @@ public class ScreeningPlanController {
      * @param file            学生文件
      * @param screeningPlanId 筛查计划ID
      * @param schoolId        学校ID
-     * @throws IOException IO异常
      */
     @PostMapping("/upload/{screeningPlanId}/{schoolId}")
-    public UploadScreeningStudentVO uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) throws IOException {
+    public UploadScreeningStudentVO uploadScreeningStudents(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         //1. 发布成功后才能导入
         screeningExportService.validateExistAndAuthorize(screeningPlanId, CommonConst.STATUS_NOT_RELEASE);

@@ -248,7 +248,7 @@ public class SchoolStudent extends AddressCode implements Serializable {
      */
     public void checkStudentInfo() {
         if (StringUtils.isAllBlank(idCard, passport) || (StringUtils.isNotBlank(idCard) && StringUtils.isNotBlank(passport))) {
-            throw new BusinessException("身份证、护照信息异常");
+            throw new BusinessException("身份证或护照不能为空，且二选一");
         }
     }
 

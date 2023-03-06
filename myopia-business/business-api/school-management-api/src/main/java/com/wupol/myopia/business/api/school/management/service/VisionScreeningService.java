@@ -331,10 +331,10 @@ public class VisionScreeningService {
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
 
         //获取筛查学生
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school);
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school);
         //创建筛查计划
-        screeningPlan.setStudentNumbers(twoTuple.getFirst().size());
-        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, twoTuple);
+        screeningPlan.setStudentNumbers(planSchoolStudentList.size());
+        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, planSchoolStudentList);
         //更新筛查通知状态为已读
         if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
             List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
@@ -388,7 +388,7 @@ public class VisionScreeningService {
      * @param gradeIds        年级ID集合
      * @param school          学校信息
      */
-    private TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId,List<Integer> gradeIds , School school){
+    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId, List<Integer> gradeIds, School school){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
         return schoolScreeningBizFacade.getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school);
     }
@@ -464,9 +464,8 @@ public class VisionScreeningService {
         IPage<ScreeningStudentListVO> studentListVoPage = processScreeningStudentList(schoolStudentPage, studentListDTO.getSchoolId());
 
         ScreeningStudentVO screeningStudentVO = new ScreeningStudentVO();
-        GradeInfoVO gradeInfo = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId());
-        List<GradeInfoVO.GradeInfo> noSelectList = gradeInfo.getNoSelectList();
-        screeningStudentVO.setHasScreeningStudent(CollUtil.isNotEmpty(noSelectList));
+        List<GradeInfoVO> gradeInfoList = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId());
+        screeningStudentVO.setHasScreeningStudent(gradeInfoList.stream().mapToInt(GradeInfoVO::getUnSyncStudentNum).sum() > 0);
         screeningStudentVO.setPageData(studentListVoPage);
         return screeningStudentVO;
     }
@@ -508,14 +507,14 @@ public class VisionScreeningService {
     @Transactional(rollbackFor = Exception.class)
     public void addScreeningStudent(AddScreeningStudentDTO addScreeningStudentDTO) {
         School school = schoolService.getById(addScreeningStudentDTO.getSchoolId());
-        TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school);
-        //新增学校年级
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = getScreeningPlanSchoolStudentInfo(addScreeningStudentDTO.getScreeningPlanId(), addScreeningStudentDTO.getGradeIds(), school);
+        // 保存已勾选年级信息
         ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(addScreeningStudentDTO.getScreeningPlanId(), school.getId());
         changeScreeningGradeIds(addScreeningStudentDTO, screeningPlanSchool);
         screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
-
+        // 新增学生
         ScreeningPlan screeningPlan = screeningPlanService.getById(addScreeningStudentDTO.getScreeningPlanId());
-        screeningPlanSchoolStudentService.addScreeningStudent(twoTuple,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
+        screeningPlanSchoolStudentService.addScreeningStudent(planSchoolStudentList,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**
