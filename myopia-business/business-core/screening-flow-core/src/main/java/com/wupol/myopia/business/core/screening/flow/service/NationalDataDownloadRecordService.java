@@ -45,11 +45,11 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
      * @return id
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer createNewDataSubmit(Integer schoolId,Integer screeningPlanId) {
+    public Integer createNewDataSubmit(Integer schoolId, Integer screeningPlanId) {
         NationalDataDownloadRecord nationalDataDownloadRecord = new NationalDataDownloadRecord();
         nationalDataDownloadRecord.setScreeningPlanId(screeningPlanId);
         nationalDataDownloadRecord.setSchoolId(schoolId);
-        nationalDataDownloadRecord.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
+        nationalDataDownloadRecord.setRemark(String.format(CommonConst.FILE_NAME, DatePattern.PURE_DATE_FORMAT.format(new Date())));
         nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.CREATE.getType());
         save(nationalDataDownloadRecord);
         return nationalDataDownloadRecord.getId();
