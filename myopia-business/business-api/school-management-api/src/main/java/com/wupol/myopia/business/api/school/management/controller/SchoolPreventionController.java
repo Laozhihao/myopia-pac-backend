@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 防控中心
@@ -108,12 +109,23 @@ public class SchoolPreventionController {
      * @param file 文件
      */
     @PostMapping("data/submit")
-    public void dataSubmit(MultipartFile file) {
+    public void dataSubmit(MultipartFile file, Integer type) {
+        if (Objects.isNull(type)) {
+            type = 0;
+        }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
-        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(),null);
-        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(),null);
+        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(), null);
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(), null, type);
     }
+//    public void dataSubmit(MultipartFile file, Integer type) {
+//        if (Objects.isNull(type)) {
+//            type = 0;
+//        }
+//        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
+//        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(589, null);
+//        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, 589, 589, null, type);
+//    }
 
     /**
      * 获取文件

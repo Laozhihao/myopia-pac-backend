@@ -38,10 +38,10 @@ public class DataSubmitBizService {
      */
     @Async
     @Transactional(rollbackFor = Exception.class)
-    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId,Integer screeningPlanId) {
+    public void dataSubmit(List<Map<Integer, String>> listMap, Integer dataSubmitId, Integer userId, Integer schoolId,Integer screeningPlanId, Integer type) {
         NationalDataDownloadRecord nationalDataDownloadRecord = nationalDataDownloadRecordService.getById(dataSubmitId);
         try {
-            visionScreeningBizService.dealDataSubmit(listMap, nationalDataDownloadRecord, userId, schoolId,screeningPlanId);
+            visionScreeningBizService.dealDataSubmit(listMap, nationalDataDownloadRecord, userId, schoolId,screeningPlanId, type);
         } catch (Exception e) {
             log.error("处理数据上报异常", e);
             noticeService.createExportNotice(userId, userId, CommonConst.ERROR, CommonConst.ERROR, null, CommonConst.NOTICE_STATION_LETTER);

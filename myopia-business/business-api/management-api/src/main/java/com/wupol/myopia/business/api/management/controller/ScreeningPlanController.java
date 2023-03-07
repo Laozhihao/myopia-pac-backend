@@ -730,11 +730,14 @@ public class ScreeningPlanController {
      * @param file 文件
      */
     @PostMapping("data/submit/{screeningPlanId}/{schoolId}")
-    public void dataSubmit(MultipartFile file,@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId) {
+    public void dataSubmit(MultipartFile file,@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer type) {
+        if (Objects.isNull(type)) {
+            type = 0;
+        }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
         Integer dataSubmitId = nationalDataDownloadRecordService.createOrUpdateDataSubmit(screeningPlanId,schoolId);
-        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), schoolId, screeningPlanId);
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), schoolId, screeningPlanId, type);
     }
 
     /**
