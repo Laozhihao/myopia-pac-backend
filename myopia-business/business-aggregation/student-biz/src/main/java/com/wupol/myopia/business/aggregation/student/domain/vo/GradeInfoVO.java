@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 年级信息
@@ -14,33 +13,24 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class GradeInfoVO implements Serializable {
-
     /**
-     * 学校所有年级信息
+     * 年级ID
      */
-    private List<GradeInfo> allList;
+    private Integer gradeId;
     /**
-     * 未选中的年级信息
+     * 年级名称
      */
-    private List<GradeInfo> noSelectList;
+    private String gradeName;
     /**
-     * 选中的年级信息
+     * 学生总数
      */
-    private List<GradeInfo> selectList;
-
-    @Data
-    public static class GradeInfo implements Serializable{
-        /**
-         * 年级ID
-         */
-        private Integer gradeId;
-        /**
-         * 年级名称
-         */
-        private String gradeName;
-        /**
-         * 学生数
-         */
-        private Integer studentNum;
-    }
+    private Integer studentNum;
+    /**
+     * 未同步到计划学生数
+     */
+    private Integer unSyncStudentNum;
+    /**
+     * 是否选中
+     */
+    private Boolean isSelect;
 }

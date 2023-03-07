@@ -163,7 +163,7 @@ public class HospitalAggService {
         // 优先使用studentId查询
         Student oldStudent = Objects.nonNull(studentVo.getStudentId()) ?
                 studentService.getStudentById(studentVo.getStudentId()) :
-                studentService.getByIdCardAndPassport(idCard, passport, null);
+                studentService.getByIdCardAndPassport(idCard, passport);
         // 新生儿修改信息不进行校验
         if (!(Objects.nonNull(oldStudent)
                 && Boolean.FALSE.equals(studentVo.getIsNewbornWithoutIdCard())
@@ -280,7 +280,7 @@ public class HospitalAggService {
     public ApiResult<Integer> saveStudentArchive(HospitalStudentVO studentVo, CurrentUser user) {
         Integer hospitalId = user.getOrgId();
         studentVo.setHospitalId(hospitalId);
-        Student student = studentService.getByIdCardAndPassport(studentVo.getIdCard(), studentVo.getPassport(), null);
+        Student student = studentService.getByIdCardAndPassport(studentVo.getIdCard(), studentVo.getPassport());
         if (Objects.nonNull(student) && hospitalStudentService.existHospitalAndStudentRelationship(hospitalId, student.getId())) {
             return ApiResult.failure("该学生已建档，请勿重复建档");
         }

@@ -43,7 +43,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometr
 import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
@@ -104,8 +103,6 @@ public class StudentBizService {
     private SchoolStudentFacade schoolStudentFacade;
     @Autowired
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
-    @Autowired
-    private SchoolScreeningBizFacade schoolScreeningBizFacade;
 
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
@@ -514,21 +511,20 @@ public class StudentBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SchoolStudent saveSchoolStudent(SchoolStudentDTO schoolStudentDTO) {
+        // 设置数据
         SchoolStudent schoolStudent = BeanCopyUtil.copyBeanPropertise(schoolStudentDTO, SchoolStudent.class);
         setRegionCode(schoolStudentDTO, schoolStudent);
         schoolStudent = schoolStudentFacade.validSchoolStudent(schoolStudent, schoolStudent.getSchoolId());
 
-        boolean isAdd = Objects.isNull(schoolStudent.getId());
-
         // 更新管理端的数据
         Integer managementStudentId = schoolStudentExcelImportService.updateManagementStudent(schoolStudent);
         schoolStudent.setStudentId(managementStudentId);
-        if (Objects.equals(isAdd, Boolean.TRUE)) {
+        // 设置是否为管理端新增的
+        if (Objects.isNull(schoolStudent.getId())) {
             schoolStudent.setSourceClient(SourceClientEnum.MANAGEMENT.getType());
         }
-
+        // 保存
         schoolStudentService.saveOrUpdate(schoolStudent);
-        schoolScreeningBizFacade.addScreeningStudent(schoolStudent, isAdd);
         return schoolStudent;
     }
 

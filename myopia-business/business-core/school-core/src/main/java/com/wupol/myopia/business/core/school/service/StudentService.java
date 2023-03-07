@@ -562,15 +562,14 @@ public class StudentService extends BaseService<StudentMapper, Student> {
      * 检查学生身份证号码、护照是否重复
      *
      * @param idCard   身份证号码
-     * @param id       学生ID
      * @param passport 护照
      * @return Student
      */
-    public Student getByIdCardAndPassport(String idCard, String passport, Integer id) {
+    public Student getByIdCardAndPassport(String idCard, String passport) {
         if (StringUtils.isAllBlank(idCard, passport)) {
             return null;
         }
-        List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, id);
+        List<Student> students = baseMapper.checkByIdCardAndPassport(idCard, passport, null);
         final int size = org.apache.commons.collections4.CollectionUtils.size(students);
         if (size == 0) {
             return null;

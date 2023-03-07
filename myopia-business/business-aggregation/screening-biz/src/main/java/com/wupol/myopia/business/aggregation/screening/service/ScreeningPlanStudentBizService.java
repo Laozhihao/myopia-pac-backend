@@ -472,7 +472,7 @@ public class ScreeningPlanStudentBizService {
         if (Objects.nonNull(result)) {
             throw new BusinessException("存在筛查记录，不能删除");
         }
-        Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport(), null);
+        Student student = studentService.getByIdCardAndPassport(planStudent.getIdCard(), planStudent.getPassport());
         if (Objects.nonNull(student)) {
             credentialModificationHandler.deletedStudent(student.getId(), student.getSchoolId(), planStudent.getScreeningPlanId());
         }

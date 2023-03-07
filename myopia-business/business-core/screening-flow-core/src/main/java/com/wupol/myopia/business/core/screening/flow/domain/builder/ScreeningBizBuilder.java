@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.util.SerializationUtil;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.constant.ArtificialStatusConstant;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
@@ -52,18 +51,16 @@ public class ScreeningBizBuilder {
      * @param schoolGradeMap                   年级集合
      * @param screeningPlanSchoolStudentDbList 数据库的筛查学生集合
      */
-    public TwoTuple<List<ScreeningPlanSchoolStudent>,List<Integer>> getScreeningPlanSchoolStudentList(Integer screeningPlanId, List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+    public List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentList(Integer screeningPlanId, List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
                                                                                                       List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList) {
         if (CollUtil.isEmpty(screeningPlanSchoolStudentDbList)){
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = getScreeningPlanSchoolStudents(screeningPlanId, schoolStudentList, school, schoolGradeMap);
-            return TwoTuple.of(screeningPlanSchoolStudentList, Lists.newArrayList());
+            return getScreeningPlanSchoolStudents(screeningPlanId, schoolStudentList, school, schoolGradeMap);
         }else {
             Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentDbList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
             List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
             List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
             processAddAndUpdate(screeningPlanId, schoolStudentList, school, schoolGradeMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
-            List<Integer> dbStudentIds=Lists.newArrayList();
-            return TwoTuple.of(screeningPlanSchoolStudentList,dbStudentIds) ;
+            return screeningPlanSchoolStudentList;
         }
     }
 

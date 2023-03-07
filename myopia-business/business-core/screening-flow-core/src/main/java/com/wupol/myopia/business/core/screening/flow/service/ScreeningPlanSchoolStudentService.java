@@ -882,13 +882,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 新增筛查学生
-     * @param twoTuple 筛查计划学校学生
+     * @param screeningPlanSchoolStudentList 筛查计划学校学生
      * @param screeningPlanId 筛查计划ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addScreeningStudent(TwoTuple<List<ScreeningPlanSchoolStudent>, List<Integer>> twoTuple,Integer screeningPlanId,Integer srcScreeningNoticeId,Integer screeningTaskId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = twoTuple.getFirst();
-        deleteByStudentIds(twoTuple.getSecond());
+    public void addScreeningStudent(List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList,Integer screeningPlanId,Integer srcScreeningNoticeId,Integer screeningTaskId) {
         if (CollUtil.isEmpty(screeningPlanSchoolStudentList)){
             return;
         }
@@ -908,6 +906,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 screeningPlanSchoolStudent.setScreeningOrgId(screeningPlan.getScreeningOrgId());
             }
         });
+        // TODO：验证saveOrUpdateBatch是否为真批量保存或更新
         saveOrUpdateBatch(screeningPlanSchoolStudentList);
     }
 

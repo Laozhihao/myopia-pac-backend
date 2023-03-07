@@ -175,7 +175,7 @@ public class SchoolStudentController {
      * @param screeningPlanId 筛查计划ID
      */
     @GetMapping("/screeningStudent")
-    public GradeInfoVO getGradeInfo(@RequestParam(required = false) Integer screeningPlanId){
+    public List<GradeInfoVO> getGradeInfo(@RequestParam(required = false) Integer screeningPlanId){
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return schoolStudentBizService.getGradeInfo(screeningPlanId,currentUser.getOrgId());
     }

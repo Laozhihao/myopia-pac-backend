@@ -173,7 +173,7 @@ public class CredentialModificationHandler {
         }
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudents = screeningPlanSchoolStudentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
         if (CollectionUtils.isEmpty(screeningPlanSchoolStudents) && Objects.nonNull(credentialTypeAndContent.getCredentialType())) {
-            Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport(), null);
+            Student student = studentService.getByIdCardAndPassport(credentialTypeAndContent.getIdCard(), credentialTypeAndContent.getPassport());
             if (Objects.nonNull(student)) {
                 deletedStudent(student.getId(), student.getSchoolId(), screeningPlanId);
             }
@@ -269,10 +269,10 @@ public class CredentialModificationHandler {
      */
     public Student getExistStudentByCredentialNO(CredentialTypeAndContent credentialTypeAndContent) {
         if (credentialTypeAndContent.getCredentialType() == CredentialType.ID_CARD) {
-            return studentService.getByIdCardAndPassport(credentialTypeAndContent.getCredentialContent(), null, null);
+            return studentService.getByIdCardAndPassport(credentialTypeAndContent.getCredentialContent(), null);
         }
         if (credentialTypeAndContent.getCredentialType() == CredentialType.PASSPORT) {
-            return studentService.getByIdCardAndPassport(null, credentialTypeAndContent.getCredentialContent(), null);
+            return studentService.getByIdCardAndPassport(null, credentialTypeAndContent.getCredentialContent());
         } else {
             throw new BusinessException("证件类型异常,type = " + credentialTypeAndContent.getCredentialType());
         }
