@@ -5,6 +5,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * 数据上报
@@ -18,4 +19,6 @@ public interface IDataSubmitService {
     List<?> getExportData(List<Map<Integer, String>> listMap, AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningData);
 
     Class<?> getExportClass();
+
+    Function<Map<Integer, String>, String> getSnoFunction();
 }

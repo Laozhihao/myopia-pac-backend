@@ -422,12 +422,13 @@ public class VisionScreeningBizService {
         AtomicInteger fail = new AtomicInteger(0);
         Map<String, VisionScreeningResult> screeningData;
         String schoolName = schoolService.getById(schoolId).getName();
-        if (Objects.isNull(screeningPlanId)) {
-            screeningData = getScreeningData(listMap, schoolId);
-        } else {
-            screeningData = getScreeningData(listMap, schoolId, screeningPlanId);
-        }
         IDataSubmitService dataSubmitService = dataSubmitFactory.getDataSubmitService(type);
+        Function<Map<Integer, String>, String> snoFunction = dataSubmitService.getSnoFunction();
+        if (Objects.isNull(screeningPlanId)) {
+            screeningData = getScreeningData(listMap, schoolId, snoFunction);
+        } else {
+            screeningData = getScreeningData(listMap, schoolId, screeningPlanId, snoFunction);
+        }
         List<?> exportData = dataSubmitService.getExportData(listMap, success, fail, screeningData);
 
         File excel = ExcelUtil.exportListToExcel(String.format(CommonConst.FILE_NAME, schoolName), exportData, dataSubmitService.getExportClass());
@@ -445,8 +446,8 @@ public class VisionScreeningBizService {
     /**
      * 通过学号获取筛查信息
      */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
-        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Function<Map<Integer, String>, String> mapStringFunction) {
+        List<String> snoList = listMap.stream().map(mapStringFunction).collect(Collectors.toList());
         List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
         return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
@@ -458,8 +459,8 @@ public class VisionScreeningBizService {
      *
      * 通过学号在筛查计划中获取筛查数据
      */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId) {
-        List<String> snoList = listMap.stream().map(s -> s.get(3)).collect(Collectors.toList());
+    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId,Function<Map<Integer, String>, String> mapStringFunction) {
+        List<String> snoList = listMap.stream().map(mapStringFunction).collect(Collectors.toList());
         // 筛查计划中学生数据查询
         List<PlanStudentInfoDTO> studentList = screeningPlanSchoolStudentService.findStudentBySchoolIdAndScreeningPlanIdAndSno(schoolId,screeningPlanId,snoList);
         // 根据学生id查询筛查信息

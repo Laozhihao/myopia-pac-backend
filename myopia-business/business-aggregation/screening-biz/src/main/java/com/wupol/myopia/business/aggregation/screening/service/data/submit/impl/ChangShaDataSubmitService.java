@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * 长沙
@@ -77,5 +78,10 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     @Override
     public Class<?> getExportClass() {
         return ChangShaDataSubmitExportDTO.class;
+    }
+
+    @Override
+    public Function<Map<Integer, String>, String> getSnoFunction() {
+        return s -> s.get(7);
     }
 }

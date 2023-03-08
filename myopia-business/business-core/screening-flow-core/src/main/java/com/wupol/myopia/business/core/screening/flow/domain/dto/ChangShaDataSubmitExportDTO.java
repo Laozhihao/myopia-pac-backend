@@ -45,7 +45,7 @@ public class ChangShaDataSubmitExportDTO {
     private String genderDesc;
     @ExcelProperty({HEADER_TITLE, "身份证号", "身份证号", "身份证号"})
     private String idCard;
-    @ExcelProperty({HEADER_TITLE, "年级编号", "年级编号", "年级编号"})
+    @ExcelProperty({HEADER_TITLE, "全国学籍号", "全国学籍号", "全国学籍号"})
     private String studentSno;
     @ExcelProperty({HEADER_TITLE, "联系电话", "联系电话", "联系电话"})
     private String phone;

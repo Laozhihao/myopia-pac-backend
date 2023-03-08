@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * 国家数据表
@@ -50,6 +51,11 @@ public class NationDataSubmitImpl implements IDataSubmitService {
     @Override
     public Class<?> getExportClass() {
         return DataSubmitExportDTO.class;
+    }
+
+    @Override
+    public Function<Map<Integer, String>, String> getSnoFunction() {
+        return s -> s.get(3);
     }
 
 
