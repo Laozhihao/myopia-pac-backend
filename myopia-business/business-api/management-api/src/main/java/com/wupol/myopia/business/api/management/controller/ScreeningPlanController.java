@@ -19,6 +19,8 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.*;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
@@ -114,6 +116,8 @@ public class ScreeningPlanController {
     private DataSubmitBizService dataSubmitBizService;
     @Autowired
     private ResourceFileService resourceFileService;
+    @Autowired
+    private DataSubmitFactory dataSubmitFactory;
 
 
     /**
@@ -730,13 +734,14 @@ public class ScreeningPlanController {
      * @param file 文件
      */
     @PostMapping("data/submit/{screeningPlanId}/{schoolId}")
-    public void dataSubmit(MultipartFile file,@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer type) {
+    public void dataSubmit(MultipartFile file, @PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer type) {
         if (Objects.isNull(type)) {
             type = 0;
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
-        Integer dataSubmitId = nationalDataDownloadRecordService.createOrUpdateDataSubmit(screeningPlanId,schoolId);
+        IDataSubmitService dataSubmitService = dataSubmitFactory.getDataSubmitService(type);
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file, dataSubmitService.getRemoveRows());
+        Integer dataSubmitId = nationalDataDownloadRecordService.createOrUpdateDataSubmit(screeningPlanId, schoolId);
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), schoolId, screeningPlanId, type);
     }
 

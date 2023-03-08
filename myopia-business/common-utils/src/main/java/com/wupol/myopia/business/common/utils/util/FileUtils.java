@@ -144,14 +144,20 @@ public final class FileUtils {
         }
     }
 
-    public static List<Map<Integer, String>> readExcelSheet(MultipartFile multipartFile) {
+    public static List<Map<Integer, String>> readExcelSheet(MultipartFile multipartFile, Integer removeRows) {
         if (Objects.isNull(multipartFile) || multipartFile.isEmpty()) {
             throw new BusinessException("文件为空！");
         }
         TwoTuple<String, File> fileInfo = getParseFile(multipartFile);
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
         try {
-            return EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
+            List<Map<Integer, String>> maps = EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
+            if (!CollectionUtils.isEmpty(maps)) {
+                if (Objects.nonNull(removeRows) && removeRows > 0) {
+                    maps.subList(0, removeRows).clear();
+                }
+            }
+            return maps;
         } catch (Exception e) {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");

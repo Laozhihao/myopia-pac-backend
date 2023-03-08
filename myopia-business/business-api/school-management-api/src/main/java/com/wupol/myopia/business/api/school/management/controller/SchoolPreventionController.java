@@ -8,6 +8,8 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.aggregation.screening.service.DataSubmitBizService;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
@@ -52,6 +54,9 @@ public class SchoolPreventionController {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private DataSubmitFactory dataSubmitFactory;
 
 
     /**
@@ -114,7 +119,8 @@ public class SchoolPreventionController {
             type = 0;
         }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
+        IDataSubmitService dataSubmitService = dataSubmitFactory.getDataSubmitService(type);
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file, dataSubmitService.getRemoveRows());
         Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(), null);
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(), null, type);
     }

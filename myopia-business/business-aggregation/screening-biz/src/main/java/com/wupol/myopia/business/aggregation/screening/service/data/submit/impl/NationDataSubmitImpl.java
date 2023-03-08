@@ -57,6 +57,11 @@ public class NationDataSubmitImpl implements IDataSubmitService {
         return s -> s.get(3);
     }
 
+    @Override
+    public Integer getRemoveRows() {
+        return 0;
+    }
+
 
     /**
      * 获取原始数据

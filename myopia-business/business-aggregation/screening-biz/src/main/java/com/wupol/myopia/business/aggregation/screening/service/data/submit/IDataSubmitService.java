@@ -21,4 +21,6 @@ public interface IDataSubmitService {
     Class<?> getExportClass();
 
     Function<Map<Integer, String>, String> getSnoFunction();
+
+    Integer getRemoveRows();
 }

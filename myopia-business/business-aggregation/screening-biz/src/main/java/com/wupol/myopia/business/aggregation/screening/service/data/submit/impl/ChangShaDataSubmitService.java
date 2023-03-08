@@ -83,6 +83,11 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         return s -> s.get(7);
     }
 
+    @Override
+    public Integer getRemoveRows() {
+        return 3;
+    }
+
     /**
      * 获取原始数据
      */
