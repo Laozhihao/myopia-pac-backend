@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl;
 
-import com.google.common.collect.Lists;
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
