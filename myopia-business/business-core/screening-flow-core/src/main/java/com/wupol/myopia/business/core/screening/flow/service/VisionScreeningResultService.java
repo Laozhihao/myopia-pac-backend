@@ -621,10 +621,11 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         List<VisionScreeningResult> resultList = getByStudentIds(studentIds);
         return resultList.stream()
                 .filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
-                .filter(s-> Objects.equals(s.getSchoolId(), schoolId))
+                .filter(s -> Objects.equals(s.getSchoolId(), schoolId))
+                .filter(s -> Objects.equals(s.getIsDoubleScreen(), Boolean.FALSE))
                 .collect(Collectors.toMap(VisionScreeningResult::getStudentId,
-                Function.identity(),
-                (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
+                        Function.identity(),
+                        (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
     }
 
     /**
