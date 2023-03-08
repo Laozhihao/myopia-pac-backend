@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl
 
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -26,9 +27,11 @@ import java.util.function.Function;
 @Service
 public class NationDataSubmitImpl implements IDataSubmitService {
 
+    private final static Integer SNO_INDEX = 3;
+
     @Override
     public Integer type() {
-        return 0;
+        return DataSubmitTypeEnum.NATION.getType();
     }
 
     @Override
@@ -54,12 +57,12 @@ public class NationDataSubmitImpl implements IDataSubmitService {
 
     @Override
     public Function<Map<Integer, String>, String> getSnoFunction() {
-        return s -> s.get(3);
+        return s -> s.get(SNO_INDEX);
     }
 
     @Override
     public Integer getRemoveRows() {
-        return 0;
+        return DataSubmitTypeEnum.NATION.getRemoveRows();
     }
 
 
@@ -82,7 +85,7 @@ public class NationDataSubmitImpl implements IDataSubmitService {
      * 获取筛查信息
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        VisionScreeningResult result = screeningResultMap.get(s.get(3));
+        VisionScreeningResult result = screeningResultMap.get(s.get(SNO_INDEX));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));

@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl;
 
+import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ChangShaDataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -20,9 +21,11 @@ import java.util.function.Function;
 @Service
 public class ChangShaDataSubmitService implements IDataSubmitService {
 
+    private final static Integer SNO_INDEX = 7;
+
     @Override
     public Integer type() {
-        return 1;
+        return DataSubmitTypeEnum.CHANG_SHA.getType();
     }
 
     @Override
@@ -46,12 +49,12 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
 
     @Override
     public Function<Map<Integer, String>, String> getSnoFunction() {
-        return s -> s.get(7);
+        return s -> s.get(SNO_INDEX);
     }
 
     @Override
     public Integer getRemoveRows() {
-        return 3;
+        return DataSubmitTypeEnum.CHANG_SHA.getRemoveRows();
     }
 
     /**
@@ -73,7 +76,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
      * 获取筛查信息
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ChangShaDataSubmitExportDTO exportDTO) {
-        VisionScreeningResult result = screeningResultMap.get(s.get(3));
+        VisionScreeningResult result = screeningResultMap.get(s.get(SNO_INDEX));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate("1");
             exportDTO.setEyeVisionDesc("1");
