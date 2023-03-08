@@ -112,7 +112,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setLeftBiometricK2Axis(EyeDataUtil.biometricLeftK2Axis(result));
             exportDTO.setRightBiometricAL(EyeDataUtil.biometricRightAl(result));
             exportDTO.setLeftBiometricAL(EyeDataUtil.biometricLeftAl(result));
-            exportDTO.setRightEyePressureDate(EyeDataUtil.leftEyePressure(result));
+            exportDTO.setRightEyePressureDate(EyeDataUtil.rightEyePressure(result));
             exportDTO.setLeftEyePressureDate(EyeDataUtil.leftEyePressure(result));
             success.incrementAndGet();
         } else {

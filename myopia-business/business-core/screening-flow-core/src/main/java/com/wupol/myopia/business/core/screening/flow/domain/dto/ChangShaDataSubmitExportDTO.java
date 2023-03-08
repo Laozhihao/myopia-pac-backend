@@ -31,27 +31,27 @@ public class ChangShaDataSubmitExportDTO {
     private static final String HEADER_2_1 = "戴镜视力";
 
 
-    @ExcelProperty({HEADER_TITLE, "序号", "序号", "序号"})
+    @ExcelProperty({HEADER_TITLE, "序号*", "序号*", "序号*"})
     private String sn;
-    @ExcelProperty({HEADER_TITLE, "学校", "学校", "学校"})
+    @ExcelProperty({HEADER_TITLE, "学校*", "学校*", "学校*"})
     private String schoolName;
-    @ExcelProperty({HEADER_TITLE, "年级", "年级", "年级"})
+    @ExcelProperty({HEADER_TITLE, "年级*", "年级*", "年级*"})
     private String gradeName;
-    @ExcelProperty({HEADER_TITLE, "班级", "班级", "班级"})
+    @ExcelProperty({HEADER_TITLE, "班级*", "班级*", "班级*"})
     private String className;
-    @ExcelProperty({HEADER_TITLE, "姓名", "姓名", "姓名"})
+    @ExcelProperty({HEADER_TITLE, "姓名*", "姓名*", "姓名*"})
     private String studentName;
-    @ExcelProperty({HEADER_TITLE, "性别", "性别", "性别"})
+    @ExcelProperty({HEADER_TITLE, "性别*", "性别*", "性别*"})
     private String genderDesc;
-    @ExcelProperty({HEADER_TITLE, "身份证号", "身份证号", "身份证号"})
+    @ExcelProperty({HEADER_TITLE, "身份证号*", "身份证号*", "身份证号*"})
     private String idCard;
     @ExcelProperty({HEADER_TITLE, "全国学籍号", "全国学籍号", "全国学籍号"})
     private String studentSno;
     @ExcelProperty({HEADER_TITLE, "联系电话", "联系电话", "联系电话"})
     private String phone;
-    @ExcelProperty({HEADER_TITLE, "检查日期", "检查日期", "检查日期"})
+    @ExcelProperty({HEADER_TITLE, "检查日期*", "检查日期*", "检查日期*"})
     private String checkDate;
-    @ExcelProperty({HEADER_TITLE, "双眼视力", "双眼视力", "双眼视力"})
+    @ExcelProperty({HEADER_TITLE, "双眼视力*", "双眼视力*", "双眼视力*"})
     private String eyeVisionDesc;
 
     @ExcelProperty({HEADER_TITLE, HEADER_TWO, HEADER_TWO, "右眼"})

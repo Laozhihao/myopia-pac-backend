@@ -482,10 +482,19 @@ public class EyeDataUtil {
     }
 
     public static String leftEyePressure(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getRightEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(new BigDecimal("0")).toString();
+        BigDecimal bigDecimal = Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getRightEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(null);
+        if (Objects.isNull(bigDecimal)) {
+            return EMPTY_DATA;
+        }
+        return bigDecimal.toString();
     }
+
     public static String rightEyePressure(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getLeftEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(new BigDecimal("0")).toString();
+        BigDecimal bigDecimal = Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getLeftEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(null);
+        if (Objects.isNull(bigDecimal)) {
+            return EMPTY_DATA;
+        }
+        return bigDecimal.toString();
     }
 
 
