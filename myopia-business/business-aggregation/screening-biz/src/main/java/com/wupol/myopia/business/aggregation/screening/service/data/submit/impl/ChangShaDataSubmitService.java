@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -31,42 +32,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         listMap.forEach(s -> {
             ChangShaDataSubmitExportDTO exportDTO = new ChangShaDataSubmitExportDTO();
             getOriginalInfo(s, exportDTO);
-
-            exportDTO.setCheckDate("1");
-            exportDTO.setEyeVisionDesc("1");
-            exportDTO.setRightNakedVisions("1");
-            exportDTO.setLeftNakedVisions("1");
-            exportDTO.setRightSph("1");
-            exportDTO.setRightCyl("1");
-            exportDTO.setRightAxial("1");
-            exportDTO.setLeftSph("1");
-            exportDTO.setLeftCyl("1");
-            exportDTO.setLeftAxial("1");
-            exportDTO.setGlassesTypeDesc("1");
-            exportDTO.setRightCorrectedVisions("1");
-            exportDTO.setLeftCorrectedVisions("1");
-            exportDTO.setCheckType("1");
-            exportDTO.setLeftCj("1");
-            exportDTO.setRightCj("1");
-            exportDTO.setRightSphMydriasis("1");
-            exportDTO.setRightCylMydriasis("1");
-            exportDTO.setRightAxialMydriasis("1");
-            exportDTO.setLeftSphMydriasis("1");
-            exportDTO.setLeftCylMydriasis("1");
-            exportDTO.setLeftAxialMydriasis("1");
-            exportDTO.setRightBiometricK1("1");
-            exportDTO.setRightBiometricK1Axis("1");
-            exportDTO.setRightBiometricK2("1");
-            exportDTO.setRightBiometricK2Axis("1");
-            exportDTO.setLeftBiometricK1("1");
-            exportDTO.setLeftBiometricK1Axis("1");
-            exportDTO.setLeftBiometricK2("1");
-            exportDTO.setLeftBiometricK2Axis("1");
-            exportDTO.setRightBiometricAL("1");
-            exportDTO.setLeftBiometricAL("1");
-            exportDTO.setRightEyePressureDate("1");
-            exportDTO.setLeftEyePressureDate("1");
-
+            getScreeningInfo(success, fail, screeningData, s, exportDTO);
             exportData.add(exportDTO);
         });
 
@@ -101,5 +67,51 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         exportDTO.setIdCard(s.get(6));
         exportDTO.setStudentSno(s.get(7));
         exportDTO.setPhone(s.get(8));
+    }
+
+    /**
+     * 获取筛查信息
+     */
+    private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ChangShaDataSubmitExportDTO exportDTO) {
+        VisionScreeningResult result = screeningResultMap.get(s.get(3));
+        if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
+            exportDTO.setCheckDate("1");
+            exportDTO.setEyeVisionDesc("1");
+            exportDTO.setRightNakedVisions("1");
+            exportDTO.setLeftNakedVisions("1");
+            exportDTO.setRightSph("1");
+            exportDTO.setRightCyl("1");
+            exportDTO.setRightAxial("1");
+            exportDTO.setLeftSph("1");
+            exportDTO.setLeftCyl("1");
+            exportDTO.setLeftAxial("1");
+            exportDTO.setGlassesTypeDesc("1");
+            exportDTO.setRightCorrectedVisions("1");
+            exportDTO.setLeftCorrectedVisions("1");
+            exportDTO.setCheckType("1");
+            exportDTO.setLeftCj("1");
+            exportDTO.setRightCj("1");
+            exportDTO.setRightSphMydriasis("1");
+            exportDTO.setRightCylMydriasis("1");
+            exportDTO.setRightAxialMydriasis("1");
+            exportDTO.setLeftSphMydriasis("1");
+            exportDTO.setLeftCylMydriasis("1");
+            exportDTO.setLeftAxialMydriasis("1");
+            exportDTO.setRightBiometricK1("1");
+            exportDTO.setRightBiometricK1Axis("1");
+            exportDTO.setRightBiometricK2("1");
+            exportDTO.setRightBiometricK2Axis("1");
+            exportDTO.setLeftBiometricK1("1");
+            exportDTO.setLeftBiometricK1Axis("1");
+            exportDTO.setLeftBiometricK2("1");
+            exportDTO.setLeftBiometricK2Axis("1");
+            exportDTO.setRightBiometricAL("1");
+            exportDTO.setLeftBiometricAL("1");
+            exportDTO.setRightEyePressureDate("1");
+            exportDTO.setLeftEyePressureDate("1");
+            success.incrementAndGet();
+        } else {
+            fail.incrementAndGet();
+        }
     }
 }
