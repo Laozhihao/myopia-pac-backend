@@ -8,6 +8,8 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
+import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.aggregation.screening.service.DataSubmitBizService;
 import com.wupol.myopia.business.api.school.management.service.SchoolStudentBizService;
@@ -25,6 +27,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 防控中心
@@ -51,6 +54,9 @@ public class SchoolPreventionController {
 
     @Resource
     private ResourceFileService resourceFileService;
+
+    @Resource
+    private DataSubmitFactory dataSubmitFactory;
 
 
     /**
@@ -108,11 +114,15 @@ public class SchoolPreventionController {
      * @param file 文件
      */
     @PostMapping("data/submit")
-    public void dataSubmit(MultipartFile file) {
+    public void dataSubmit(MultipartFile file, Integer type) {
+        if (Objects.isNull(type)) {
+            type = 0;
+        }
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
-        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(),null);
-        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(),null);
+        IDataSubmitService dataSubmitService = dataSubmitFactory.getDataSubmitService(type);
+        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file, dataSubmitService.getRemoveRows());
+        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(), null);
+        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(), null, type);
     }
 
     /**
