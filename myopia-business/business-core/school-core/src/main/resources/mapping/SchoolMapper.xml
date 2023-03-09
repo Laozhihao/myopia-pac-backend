@@ -274,4 +274,13 @@
         where name like concat('%', #{name}, '%')
           and json_extract(cast(district_detail as json), '$[0].code') = #{provinceDistrictCode}
     </select>
+
+    <select id="getBySchoolIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM m_school
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

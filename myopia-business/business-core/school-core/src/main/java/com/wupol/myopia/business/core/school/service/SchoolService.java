@@ -237,7 +237,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
         if (CollectionUtils.isEmpty(schoolIds)) {
             return new ArrayList<>();
         }
-        return baseMapper.selectBatchIds(schoolIds);
+        return baseMapper.getBySchoolIds(schoolIds);
     }
 
     /**

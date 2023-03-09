@@ -645,7 +645,7 @@ public class ScreeningOrganizationBizService {
         }
 
         // 学校名称
-        List<School> schools = schoolService.getByIds(schoolIds);
+        List<School> schools = schoolService.getSchoolByIds(schoolIds);
         Map<Integer, School> schoolMaps = schools.stream().collect(Collectors.toMap(School::getId, Function.identity()));
         // 计划筛查学生数
         Map<Integer, Integer> planStudentCountMap = schoolVos.stream().collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, ScreeningPlanSchoolDTO::getStudentCount));
