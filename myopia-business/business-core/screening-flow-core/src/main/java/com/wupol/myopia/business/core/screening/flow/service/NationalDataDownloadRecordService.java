@@ -67,7 +67,7 @@ public class NationalDataDownloadRecordService extends BaseService<NationalDataD
         if (Objects.isNull(nationalDataDownloadRecord)){
             return createNewDataSubmit(schoolId,screeningPlanId);
         }
-        nationalDataDownloadRecord.setRemark(DatePattern.PURE_DATE_FORMAT.format(new Date()) + CommonConst.FILE_NAME);
+        nationalDataDownloadRecord.setRemark(String.format(CommonConst.FILE_NAME, DatePattern.PURE_DATE_FORMAT.format(new Date())));
         nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.CREATE.getType());
         nationalDataDownloadRecord.setUpdateTime(new Date());
         updateById(nationalDataDownloadRecord);
