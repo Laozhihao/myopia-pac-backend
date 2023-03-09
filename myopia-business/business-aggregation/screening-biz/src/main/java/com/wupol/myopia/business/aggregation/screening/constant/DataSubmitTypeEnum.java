@@ -2,6 +2,9 @@ package com.wupol.myopia.business.aggregation.screening.constant;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 数据上报类型
  *
@@ -23,5 +26,16 @@ public enum DataSubmitTypeEnum {
         this.type = type;
         this.desc = desc;
         this.removeRows = removeRows;
+    }
+
+    public static List<DataSubmitType> getDataSubmitTypeList() {
+        List<DataSubmitType> dataSubmitTypes = new ArrayList<>();
+        for (DataSubmitTypeEnum value : values()) {
+            DataSubmitType dataSubmitType = new DataSubmitType();
+            dataSubmitType.setDesc(value.getDesc());
+            dataSubmitType.setType(value.getType());
+            dataSubmitTypes.add(dataSubmitType);
+        }
+        return dataSubmitTypes;
     }
 }

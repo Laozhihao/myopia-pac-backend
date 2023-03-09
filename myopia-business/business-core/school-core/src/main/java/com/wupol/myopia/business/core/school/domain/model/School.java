@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -188,6 +189,12 @@ public class School extends AddressCooperation implements Serializable, HasName 
      * 是否自主筛查
      */
     private Boolean isIndependentScreening;
+
+    /**
+     * 数据上报模版配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Integer> dataSubmitConfig;
 
     /**
      * 转化成SchoolExportDTO
