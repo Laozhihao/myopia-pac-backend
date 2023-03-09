@@ -683,7 +683,10 @@ public class ScreeningOrganizationBizService {
                                     Map<Integer, Integer> reviewCountMap, Map<Integer, Integer> schoolScreeningResultMap, Integer schoolId, Map<Integer, Integer> reScreeningCountMap) {
         RecordDetails detail = new RecordDetails();
         detail.setSchoolId(schoolId);
-        Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> detail.setSchoolName(school.getName()));
+        Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> {
+            detail.setSchoolName(school.getName());
+            detail.setDataSubmitConfig(school.getDataSubmitConfig());
+        });
         detail.setRealScreeningNumbers(schoolScreeningResultMap.getOrDefault(schoolId, CommonConst.ZERO));
         detail.setPlanScreeningNumbers(planStudentCountMap.get(schoolId));
         detail.setScreeningPlanId(screeningPlanId);
