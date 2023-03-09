@@ -9,8 +9,8 @@ import lombok.Getter;
  */
 public enum DataSubmitTypeEnum {
 
-    NATION(0, "国家", 0),
-    CHANG_SHA(1, "长沙", 3);
+    NATION(0, "国家表格", 0),
+    CHANG_SHA(1, "长沙市数据报送（教育版）", 3);
 
     @Getter
     private final Integer type;
