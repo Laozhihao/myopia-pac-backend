@@ -124,14 +124,6 @@ public class SchoolPreventionController {
         Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(currentUser.getOrgId(), null);
         dataSubmitBizService.dataSubmit(listMap, dataSubmitId, currentUser.getId(), currentUser.getOrgId(), null, type);
     }
-//    public void dataSubmit(MultipartFile file, Integer type) {
-//        if (Objects.isNull(type)) {
-//            type = 0;
-//        }
-//        List<Map<Integer, String>> listMap = FileUtils.readExcelSheet(file);
-//        Integer dataSubmitId = nationalDataDownloadRecordService.createNewDataSubmit(589, null);
-//        dataSubmitBizService.dataSubmit(listMap, dataSubmitId, 589, 589, null, type);
-//    }
 
     /**
      * 获取文件
