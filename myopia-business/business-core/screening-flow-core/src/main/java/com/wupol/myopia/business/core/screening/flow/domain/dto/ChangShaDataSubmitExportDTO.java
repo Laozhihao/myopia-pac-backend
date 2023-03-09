@@ -24,7 +24,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 public class ChangShaDataSubmitExportDTO {
 
     private static final String HEADER_TITLE = "长沙市儿童青少年眼健康电子档案";
-    private static final String HEADER_TWO = "裸眼远视力";
+    private static final String HEADER_TWO = "裸眼远视力*";
     private static final String HEADER_1 = "非睫状肌麻痹屈光度（D）";
     private static final String HEADER_1_1 = "自动电脑验光";
 
@@ -128,6 +128,9 @@ public class ChangShaDataSubmitExportDTO {
     private String rightEyePressureDate;
     @ExcelProperty({HEADER_TITLE, "眼压（mmHg）", "眼压（mmHg）", "左眼"})
     private String leftEyePressureDate;
+
+    @ExcelProperty({HEADER_TITLE, "备注", "备注", "备注"})
+    private String remark;
 
 
 }
