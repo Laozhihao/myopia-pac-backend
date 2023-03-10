@@ -505,4 +505,8 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
         return listByIds(list.stream().map(function).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
     }
 
+    public ScreeningOrgResponseDTO getOrgById(Integer id) {
+        return baseMapper.getOrgById(id);
+    }
+
 }

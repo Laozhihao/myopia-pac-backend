@@ -618,6 +618,7 @@ public class ScreeningOrganizationBizService {
      */
     public ScreeningRecordItems getRecordSchoolInfo(Integer screeningPlanId) {
         ScreeningPlan screeningPlan = screeningPlanService.getById(screeningPlanId);
+        List<Integer> dataSubmitConfig = Optional.ofNullable(screeningOrganizationService.getOrgById(screeningPlan.getScreeningOrgId())).map(ScreeningOrganization::getDataSubmitConfig).orElse(new ArrayList<>());
 
         ScreeningRecordItems screeningRecordItems = new ScreeningRecordItems();
         List<RecordDetails> details = Lists.newArrayList();
@@ -668,7 +669,7 @@ public class ScreeningOrganizationBizService {
         Map<Integer, Integer> reScreeningCountMap = statRescreenService.getScreeningResultCountMap(screeningPlanId, new HashSet<>(schoolIds));
 
         // 封装detail
-        schoolIds.forEach(schoolId -> buildRecordDetails(screeningPlanId, screeningPlan, details, schoolMaps, planStudentCountMap, schoolMap, userGradeIdMap, gradeIdMap, schoolVoMaps, reviewCountMap, screeningResultCountMap, schoolId, reScreeningCountMap));
+        schoolIds.forEach(schoolId -> buildRecordDetails(screeningPlanId, screeningPlan, details, schoolMaps, planStudentCountMap, schoolMap, userGradeIdMap, gradeIdMap, schoolVoMaps, reviewCountMap, screeningResultCountMap, schoolId, reScreeningCountMap, dataSubmitConfig));
         screeningRecordItems.setDetails(details);
         return screeningRecordItems;
     }
@@ -680,13 +681,12 @@ public class ScreeningOrganizationBizService {
                                     Map<Integer, School> schoolMaps, Map<Integer, Integer> planStudentCountMap,
                                     Map<Integer, List<UserQuestionRecord>> schoolMap, Map<Integer, List<ScreeningPlanSchoolStudent>> userGradeIdMap,
                                     Map<Integer, List<SchoolGradeExportDTO>> gradeIdMap, Map<Integer, ScreeningPlanSchoolDTO> schoolVoMaps,
-                                    Map<Integer, Integer> reviewCountMap, Map<Integer, Integer> schoolScreeningResultMap, Integer schoolId, Map<Integer, Integer> reScreeningCountMap) {
+                                    Map<Integer, Integer> reviewCountMap, Map<Integer, Integer> schoolScreeningResultMap, Integer schoolId, Map<Integer, Integer> reScreeningCountMap,
+                                    List<Integer> dataSubmitConfig) {
         RecordDetails detail = new RecordDetails();
         detail.setSchoolId(schoolId);
-        Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> {
-            detail.setSchoolName(school.getName());
-            detail.setDataSubmitConfig(school.getDataSubmitConfig());
-        });
+        Optional.ofNullable(schoolMaps.get(schoolId)).ifPresent(school -> detail.setSchoolName(school.getName()));
+        detail.setDataSubmitConfig(dataSubmitConfig);
         detail.setRealScreeningNumbers(schoolScreeningResultMap.getOrDefault(schoolId, CommonConst.ZERO));
         detail.setPlanScreeningNumbers(planStudentCountMap.get(schoolId));
         detail.setScreeningPlanId(screeningPlanId);
