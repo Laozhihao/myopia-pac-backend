@@ -153,7 +153,7 @@ public final class FileUtils {
         try {
             List<Map<Integer, String>> maps = EasyExcelFactory.read(fileInfo.getFirst()).sheet().doReadSync();
             if (!CollectionUtils.isEmpty(maps)) {
-                if (Objects.nonNull(removeRows) && removeRows > 0) {
+                if (Objects.nonNull(removeRows) && removeRows > 0 && maps.size() >= removeRows) {
                     maps.subList(0, removeRows).clear();
                 }
             }
@@ -161,7 +161,7 @@ public final class FileUtils {
         } catch (Exception e) {
             log.error("导入数据异常:", e);
             throw new BusinessException("Excel解析异常");
-        }finally {
+        } finally {
             FileUtil.del(fileInfo.getSecond());
         }
     }
