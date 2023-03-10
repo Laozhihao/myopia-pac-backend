@@ -110,11 +110,11 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setEyeVisionDesc("--");
             exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
             exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
-            exportDTO.setRightSph(EyeDataUtil.computerRightSphNULL(result));
-            exportDTO.setRightCyl(EyeDataUtil.computerRightCyl(result));
+            exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
+            exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
             exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
-            exportDTO.setLeftSph(EyeDataUtil.computerLeftSph(result));
-            exportDTO.setLeftCyl(EyeDataUtil.computerLeftCyl(result));
+            exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
+            exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
             exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
             exportDTO.setGlassesTypeDesc(EyeDataUtil.glassesTypeString(result));
             exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
