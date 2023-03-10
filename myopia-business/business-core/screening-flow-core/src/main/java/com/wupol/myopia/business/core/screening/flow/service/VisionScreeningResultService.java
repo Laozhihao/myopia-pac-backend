@@ -19,10 +19,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ReScreenDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.SaprodontiaStat;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.StudentScreeningCountDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionScreeningResultDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.VisionScreeningResultMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
@@ -649,6 +646,23 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
         }
         List<VisionScreeningResult> visionScreeningResults = baseMapper.selectBatchIds(resultId);
         return visionScreeningResults.stream().collect(Collectors.toMap(VisionScreeningResult::getId, Function.identity()));
+    }
+
+    /**
+     * 通过筛查学生查询初筛筛查结果
+     *
+     * @param planStudentIds 筛查学生
+     * @return 筛查结果
+     */
+    public Map<Integer, VisionScreeningResult> getFirstMap(List<Integer> planStudentIds, Integer schoolId, Integer screeningPlanId) {
+        List<VisionScreeningResult> resultList = getFirstByPlanStudentIds(planStudentIds);
+        return resultList.stream()
+                .filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
+                .filter(s -> Objects.equals(s.getSchoolId(), schoolId))
+                .filter(s -> Objects.equals(s.getPlanId(), screeningPlanId))
+                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId,
+                        Function.identity(),
+                        (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
     }
 
 }

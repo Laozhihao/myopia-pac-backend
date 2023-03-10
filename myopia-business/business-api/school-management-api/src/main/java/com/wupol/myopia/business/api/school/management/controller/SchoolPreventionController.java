@@ -8,6 +8,8 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitType;
+import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
@@ -135,5 +137,15 @@ public class SchoolPreventionController {
     @GetMapping("data/submit/file/{id}")
     public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
         return ApiResult.success(resourceFileService.getResourcePath(id));
+    }
+
+    /**
+     * 获取数据上报模版
+     *
+     * @return 模版
+     */
+    @GetMapping("/data/submit/template")
+    public List<DataSubmitType> getDataSubmitTemplate() {
+        return DataSubmitTypeEnum.getDataSubmitTypeList();
     }
 }

@@ -420,17 +420,12 @@ public class VisionScreeningBizService {
 
         AtomicInteger success = new AtomicInteger(0);
         AtomicInteger fail = new AtomicInteger(0);
-        Map<String, VisionScreeningResult> screeningData;
         String schoolName = schoolService.getById(schoolId).getName();
         IDataSubmitService dataSubmitService = dataSubmitFactory.getDataSubmitService(type);
-        Function<Map<Integer, String>, String> snoFunction = dataSubmitService.getSnoFunction();
-        if (Objects.isNull(screeningPlanId)) {
-            screeningData = getScreeningData(listMap, schoolId, snoFunction);
-        } else {
-            screeningData = getScreeningData(listMap, schoolId, screeningPlanId, snoFunction);
-        }
-        List<?> exportData = dataSubmitService.getExportData(listMap, success, fail, screeningData);
-
+        // 获取筛查数据
+        Map<String, VisionScreeningResult> visionScreeningData = dataSubmitService.getVisionScreeningData(listMap, schoolId, screeningPlanId);
+        // 生成Excel表格
+        List<?> exportData = dataSubmitService.getExportData(listMap, success, fail, visionScreeningData);
         File excel = ExcelUtil.exportListToExcel(String.format(CommonConst.FILE_NAME, schoolName), exportData, dataSubmitService.getExportClass());
         Integer fileId = s3Utils.uploadFileToS3(excel);
         nationalDataDownloadRecord.setSuccessMatch(success.get());
@@ -439,42 +434,5 @@ public class VisionScreeningBizService {
         nationalDataDownloadRecord.setStatus(NationalDataDownloadStatusEnum.SUCCESS.getType());
         nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
-    }
-
-
-
-    /**
-     * 通过学号获取筛查信息
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Function<Map<Integer, String>, String> mapStringFunction) {
-        List<String> snoList = listMap.stream().map(mapStringFunction).collect(Collectors.toList());
-        List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
-        return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(Student::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
-    }
-
-    /**
-     *
-     * 通过学号在筛查计划中获取筛查数据
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId,Function<Map<Integer, String>, String> mapStringFunction) {
-        List<String> snoList = listMap.stream().map(mapStringFunction).collect(Collectors.toList());
-        // 筛查计划中学生数据查询
-        List<PlanStudentInfoDTO> studentList = screeningPlanSchoolStudentService.findStudentBySchoolIdAndScreeningPlanIdAndSno(schoolId,screeningPlanId,snoList);
-        // 根据学生id查询筛查信息
-        List<VisionScreeningResult> resultList = visionScreeningResultService.getFirstByPlanStudentIds(studentList.stream().map(PlanStudentInfoDTO::getId).collect(Collectors.toList()));
-        Map<Integer, VisionScreeningResult> resultMap = resultList.stream()
-                .filter(s -> Objects.equals(s.getScreeningType(), ScreeningTypeEnum.VISION.getType()))
-                .filter(s -> Objects.equals(s.getSchoolId(), schoolId))
-                .filter(s -> Objects.equals(s.getPlanId(), screeningPlanId))
-                .collect(Collectors.toMap(VisionScreeningResult::getScreeningPlanSchoolStudentId,
-                        Function.identity(),
-                        (v1, v2) -> v1.getCreateTime().after(v2.getCreateTime()) ? v1 : v2));
-
-        return studentList.stream().filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getSno))
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(PlanStudentInfoDTO::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 }

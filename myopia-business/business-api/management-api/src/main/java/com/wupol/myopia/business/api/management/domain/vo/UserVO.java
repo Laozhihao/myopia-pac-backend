@@ -175,4 +175,9 @@ public class UserVO implements Serializable {
      */
     private Boolean isIndependentScreening;
 
+    /**
+     * 数据上报配置
+     */
+    private List<Integer> dataSubmitConfig;
+
 }

@@ -95,4 +95,9 @@ public class RecordDetails {
      * 年级详情
      */
     private List<GradeQuestionnaireInfo> gradeQuestionnaireInfos;
+
+    /**
+     * 数据上报模版配置
+     */
+    private List<Integer> dataSubmitConfig;
 }

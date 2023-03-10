@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -169,6 +170,12 @@ public class ScreeningOrganization extends AddressCooperation implements Seriali
      */
     @Pattern(regexp = "[0-1](,[0-1])?", message = "screeningTypeConfig不合法")
     private String screeningTypeConfig;
+
+    /**
+     * 数据上报模版配置
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Integer> dataSubmitConfig;
 
     /**
      * 转化成ScreeningOrganizationExportDTO

@@ -60,4 +60,6 @@ public interface SchoolMapper extends BaseMapper<School> {
 
     List<School> getListByProvinceCodeAndNameLike(@Param("name") String name, @Param("provinceDistrictCode") Long provinceDistrictCode);
 
+    List<School> getBySchoolIds(@Param("ids") List<Integer> ids);
+
 }
