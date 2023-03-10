@@ -50,13 +50,13 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     }
 
     @Override
-    public Function<Map<Integer, String>, String> getSnoFunction() {
-        return s -> s.get(SNO_INDEX);
+    public Integer getRemoveRows() {
+        return DataSubmitTypeEnum.CHANG_SHA.getRemoveRows();
     }
 
     @Override
-    public Integer getRemoveRows() {
-        return DataSubmitTypeEnum.CHANG_SHA.getRemoveRows();
+    public Map<String, VisionScreeningResult> getVisionScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId) {
+        return null;
     }
 
     /**

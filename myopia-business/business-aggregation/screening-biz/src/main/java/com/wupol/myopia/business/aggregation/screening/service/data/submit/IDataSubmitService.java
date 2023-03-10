@@ -20,7 +20,7 @@ public interface IDataSubmitService {
 
     Class<?> getExportClass();
 
-    Function<Map<Integer, String>, String> getSnoFunction();
-
     Integer getRemoveRows();
+
+    Map<String, VisionScreeningResult> getVisionScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId);
 }
