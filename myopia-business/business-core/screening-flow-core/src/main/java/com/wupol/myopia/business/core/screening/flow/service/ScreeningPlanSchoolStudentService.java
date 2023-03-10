@@ -951,4 +951,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return baseMapper.findStudentBySchoolIdAndScreeningPlanIdAndSno(schoolId,screeningPlanId,snoList);
     }
+
+
+    public List<PlanStudentInfoDTO> getByCredentials(Integer schoolId, Integer screeningPlanId, List<String> idCards, List<String> passwords) {
+        if (org.springframework.util.CollectionUtils.isEmpty(idCards) && org.springframework.util.CollectionUtils.isEmpty(passwords)) {
+            return new ArrayList<>();
+        }
+        return baseMapper.getByCredentials(schoolId, screeningPlanId, idCards, passwords);
+    }
 }
