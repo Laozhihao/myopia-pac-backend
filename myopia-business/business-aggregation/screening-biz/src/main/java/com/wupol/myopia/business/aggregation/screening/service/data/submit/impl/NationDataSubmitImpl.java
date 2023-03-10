@@ -5,8 +5,8 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.common.utils.util.ListUtil;
-import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.DataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -44,7 +44,7 @@ public class NationDataSubmitImpl implements IDataSubmitService {
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
-    private StudentService studentService;
+    private SchoolStudentService schoolStudentService;
 
     @Override
     public Integer type() {
@@ -150,11 +150,11 @@ public class NationDataSubmitImpl implements IDataSubmitService {
      */
     private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Function<Map<Integer, String>, String> mapStringFunction) {
         List<String> snoList = listMap.stream().map(mapStringFunction).collect(Collectors.toList());
-        List<Student> studentList = studentService.getLastBySno(snoList, schoolId);
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
-        return studentList.stream().filter(ListUtil.distinctByKey(Student::getSno))
+        List<SchoolStudent> schoolStudentList = schoolStudentService.getBySnoList(snoList, schoolId);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(schoolStudentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()), schoolId);
+        return schoolStudentList.stream().filter(ListUtil.distinctByKey(SchoolStudent::getSno))
                 .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(Student::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(SchoolStudent::getSno, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
     }
 
     /**
@@ -167,9 +167,17 @@ public class NationDataSubmitImpl implements IDataSubmitService {
         // 根据学生id查询筛查信息
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getFirstMap(studentList.stream().map(PlanStudentInfoDTO::getId).collect(Collectors.toList()), schoolId, screeningPlanId);
 
-        return studentList.stream().filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getSno))
-                .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(PlanStudentInfoDTO::getSno, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+        List<PlanStudentInfoDTO> planStudentInfoDTOS = removeDuplicates(studentList, PlanStudentInfoDTO::getStudentNo);
+        return planStudentInfoDTOS.stream().filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getStudentNo))
+                .filter(s -> StringUtils.isNotBlank(s.getStudentNo()))
+                .collect(Collectors.toMap(PlanStudentInfoDTO::getStudentNo, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
+
+    private List<PlanStudentInfoDTO> removeDuplicates(List<PlanStudentInfoDTO> list, Function<PlanStudentInfoDTO, ?> keyExtractor) {
+        return new ArrayList<>(list.stream()
+                .collect(Collectors.toMap(keyExtractor, Function.identity(), (a, b) -> a.getCreateTime().after(b.getCreateTime()) ? a : b))
+                .values());
+    }
+
 
 }

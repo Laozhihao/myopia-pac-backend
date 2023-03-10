@@ -91,27 +91,27 @@ public class SchoolStudentExcelImportService {
         // 获取已经存在的学校学生（判断是否重复）
         List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
         Map<String, SchoolStudent> snoMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getSno())).collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
-        Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
+        Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
 
         // 获取已经删除的学生（重新启用删除的学生）
         List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
-        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getIdCard())).collect(Collectors.toMap(SchoolStudent::getIdCard, Function.identity()));
-        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getPassport())).collect(Collectors.toMap(SchoolStudent::getPassport, Function.identity()));
+        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
+        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
 
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMap = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
-        Map<String, Student> studentMap = studentService.getByIdCardsOrPassports(idCards, passports).stream().collect(Collectors.toMap(x -> x.getIdCard() + x.getPassport(), Function.identity()));
+        Map<String, Student> studentMap = studentService.getByIdCardsOrPassports(idCards, passports).stream().collect(Collectors.toMap(x -> StringUtils.upperCase(x.getIdCard()) + x.getPassport(), Function.identity()));
         List<SchoolStudent> schoolStudents = new ArrayList<>();
         List<Student> students = new ArrayList<>();
         for (Map<Integer, String> item : listMap) {
             String sno = item.get(SchoolStudentImportEnum.SNO.getIndex());
             String name = item.get(SchoolStudentImportEnum.NAME.getIndex());
-            String idCard = item.get(SchoolStudentImportEnum.ID_CARD.getIndex());
+            String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
             String gender = item.get(SchoolStudentImportEnum.GENDER.getIndex());
             String birthday = item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex());
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
             String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
-            String passport = item.get(SchoolStudentImportEnum.PASSPORT.getIndex());
+            String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
             String phone = item.get(SchoolStudentImportEnum.PHONE.getIndex());
             // 数据校验
             validateData(snoMap, idCardMap, passPortMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone);
@@ -144,13 +144,13 @@ public class SchoolStudentExcelImportService {
                 .setNation(NationEnum.getCodeByName(item.get(SchoolStudentImportEnum.NATION.getIndex())))
                 .setGradeType(GradeCodeEnum.getByName(item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex())).getType())
                 .setSno((item.get(SchoolStudentImportEnum.SNO.getIndex())))
-                .setIdCard(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()))
+                .setIdCard(StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex())))
                 .setPassport(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()))
                 .setParentPhone(item.get(SchoolStudentImportEnum.PHONE.getIndex()))
                 .setCreateUserId(createUserId)
                 .setSchoolId(schoolId)
                 .setStatus(CommonConst.STATUS_NOT_DELETED);
-        schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex()),null));
+        schoolStudent.setProvinceCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.PROVINCE_NAME.getIndex()), null));
         schoolStudent.setCityCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.CITY_NAME.getIndex()), schoolStudent.getProvinceCode()));
         schoolStudent.setAreaCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.AREA_NAME.getIndex()), schoolStudent.getCityCode()));
         schoolStudent.setTownCode(districtService.getCodeByName(item.get(SchoolStudentImportEnum.TOWN_NAME.getIndex()), schoolStudent.getAreaCode()));
@@ -162,7 +162,7 @@ public class SchoolStudentExcelImportService {
         if (Objects.nonNull(schoolStudent.getIdCard())) {
             schoolStudent.setBirthday(IdCardUtil.getBirthDay(schoolStudent.getIdCard()));
             schoolStudent.setGender(IdCardUtil.getGender(schoolStudent.getIdCard()));
-        } else  {
+        } else {
             // 出生日期
             schoolStudent.setBirthday(DateUtil.parse(item.get(SchoolStudentImportEnum.BIRTHDAY.getIndex()), DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2));
             // 性别
@@ -195,8 +195,8 @@ public class SchoolStudentExcelImportService {
 
         // 获取年级内的班级信息
         List<SchoolClassExportDTO> schoolClassExportList = schoolGradeExportDTO.getChild();
-        if (CollUtil.isEmpty(schoolClassExportList)){
-            throw new BusinessException(gradeName+"不存在班级");
+        if (CollUtil.isEmpty(schoolClassExportList)) {
+            throw new BusinessException(gradeName + "不存在班级");
         }
         // 转换成班级Maps 把班级名称作为key
         Map<String, Integer> classExportMaps = schoolClassExportList.stream().collect(Collectors.toMap(SchoolClassExportDTO::getName, SchoolClassExportDTO::getId));
@@ -313,6 +313,7 @@ public class SchoolStudentExcelImportService {
 
     /**
      * 构建管理端学生
+     *
      * @param student       管理端学生
      * @param schoolStudent 学校学生
      * @return 管理端学生

@@ -3,9 +3,8 @@ package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
-import com.wupol.myopia.business.common.utils.util.ListUtil;
-import com.wupol.myopia.business.core.school.domain.model.Student;
-import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
+import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ChangShaDataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -41,7 +40,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     private VisionScreeningResultService visionScreeningResultService;
 
     @Resource
-    private StudentService studentService;
+    private SchoolStudentService schoolStudentService;
 
     @Override
     public Integer type() {
@@ -151,15 +150,13 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
      */
     private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
         List<String> credentialsLists = listMap.stream().map(getIdCardFunction()).collect(Collectors.toList());
-        List<Student> studentList = studentService.getByIdCardsOrPassports(credentialsLists, credentialsLists).stream().filter(s -> Objects.equals(s.getSchoolId(), schoolId)).collect(Collectors.toList());
+        List<SchoolStudent> studentList = schoolStudentService.getByIdCardsOrPassports(credentialsLists, credentialsLists, schoolId).stream().filter(s -> Objects.equals(s.getSchoolId(), schoolId)).collect(Collectors.toList());
 
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(Student::getId).collect(Collectors.toList()), schoolId);
+        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()), schoolId);
 
         return studentList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
-                .filter(ListUtil.distinctByKey(Student::getIdCard))
-                .filter(ListUtil.distinctByKey(Student::getPassport))
-                .collect(Collectors.toMap(s -> StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport(), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(s -> StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport(), s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
     }
 
     /**
@@ -174,8 +171,6 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getFirstMap(planStudentList.stream().map(PlanStudentInfoDTO::getId).collect(Collectors.toList()), schoolId, screeningPlanId);
 
         return planStudentList.stream()
-                .filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getIdCard))
-                .filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getPassport))
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
                 .collect(Collectors.toMap(s -> StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport(), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }

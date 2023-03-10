@@ -93,10 +93,10 @@ public class StudentExcelImportService {
         Map<String, Integer> schoolMap = schools.stream().collect(Collectors.toMap(School::getSchoolNo, School::getId));
 
         // 收集身份证号码
-        List<String> idCards = listMap.stream().map(s -> s.get(8 - offset)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> idCards = listMap.stream().map(s -> StringUtils.upperCase(s.get(8 - offset))).filter(Objects::nonNull).collect(Collectors.toList());
 
         List<String> errorList = listMap.stream()
-                .map(s -> s.get(9 - offset))
+                .map(s -> StringUtils.upperCase(s.get(9 - offset)))
                 .filter(Objects::nonNull)
                 .filter(passport -> passport.length() < PASSPORT_LENGTH)
                 .collect(Collectors.toList());
@@ -107,7 +107,7 @@ public class StudentExcelImportService {
 
         // 收集护照
         List<String> passports = listMap.stream()
-                .map(s -> s.get(9 - offset))
+                .map(s -> StringUtils.upperCase(s.get(9 - offset)))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -130,18 +130,18 @@ public class StudentExcelImportService {
         Map<String, Integer> deletedPassportMap = new HashMap<>();
 
         if (!CollectionUtils.isEmpty(idCards)) {
-            studentMap = studentService.getByIdCardsAndStatus(idCards).stream().collect(Collectors.toMap(Student::getIdCard, Function.identity()));
+            studentMap = studentService.getByIdCardsAndStatus(idCards).stream().collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
 
             // 通过身份证获取已经删除的学生
             List<Student> deleteIdCardStudent = studentService.getDeleteStudentByIdCard(idCards);
-            deletedIdCardMap = deleteIdCardStudent.stream().collect(Collectors.toMap(Student::getIdCard, Student::getId));
+            deletedIdCardMap = deleteIdCardStudent.stream().collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Student::getId));
         }
         if (!CollectionUtils.isEmpty(passports)) {
-            passportMap = studentService.getByPassportAndStatus(passports).stream().collect(Collectors.toMap(Student::getPassport, Function.identity()));
+            passportMap = studentService.getByPassportAndStatus(passports).stream().collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
 
             // 通过护照获取已经删除的学生
             List<Student> deletePassportStudent = studentService.getDeletedByPassportAndStatus(passports);
-            deletedPassportMap = deletePassportStudent.stream().collect(Collectors.toMap(Student::getPassport, Student::getId));
+            deletedPassportMap = deletePassportStudent.stream().collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Student::getId));
         }
 
         List<Student> importList = new ArrayList<>();
@@ -153,8 +153,8 @@ public class StudentExcelImportService {
             checkStudentInfo(item, offset);
             // Excel 格式： 姓名	性别	出生日期	民族   学校编号(同个学校时没有该列，后面的左移一列)   年级	班级	学号	身份证号	手机号码	省	市	县区	镇/街道	详细
             // 民族取值：1-汉族  2-蒙古族  3-藏族  4-壮族  5-回族  6-其他
-            String idCard = item.get(8 - offset);
-            String passport = item.get(9 - offset);
+            String idCard = StringUtils.upperCase(item.get(8 - offset));
+            String passport = StringUtils.upperCase(item.get(9 - offset));
             if (Objects.nonNull(idCard) && Objects.nonNull(studentMap.get(idCard))) {
                 throw new BusinessException("身份证" + idCard + "在系统中重复");
             }

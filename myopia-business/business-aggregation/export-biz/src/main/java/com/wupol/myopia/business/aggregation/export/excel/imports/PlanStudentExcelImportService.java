@@ -31,12 +31,9 @@ import com.wupol.myopia.business.core.parent.service.ParentStudentService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
-import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
-import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -104,8 +101,6 @@ public class PlanStudentExcelImportService {
     private SchoolStudentService schoolStudentService;
 
     @Resource
-    private SchoolClassService schoolClassService;
-    @Resource
     private ExportExcelService exportExcelService;
 
     /**
@@ -132,7 +127,7 @@ public class PlanStudentExcelImportService {
         screeningPlanService.updateStudentNumbers(userId, screeningPlan.getId(), screeningPlanSchoolStudentService.getCountByScreeningPlanId(screeningPlan.getId()));
 
         uploadScreeningStudentVO = tuple.getFirst();
-        if (CollUtil.isNotEmpty(tuple.getSecond())){
+        if (CollUtil.isNotEmpty(tuple.getSecond())) {
             ExportScreeningSchoolStudentCondition condition = new ExportScreeningSchoolStudentCondition()
                     .setScreeningPlanId(screeningPlan.getId())
                     .setSchoolId(schoolId)
@@ -148,10 +143,10 @@ public class PlanStudentExcelImportService {
      * 前置检查
      *
      * @param screeningPlan 筛查计划对象
-     * @param schoolId 学校ID
-     * @param listMap 数据集合
+     * @param schoolId      学校ID
+     * @param listMap       数据集合
      */
-    private TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> preCheck(ScreeningPlan screeningPlan, Integer schoolId,List<Map<Integer, String>> listMap){
+    private TwoTuple<UploadScreeningStudentVO, List<ImportScreeningSchoolStudentFailDTO>> preCheck(ScreeningPlan screeningPlan, Integer schoolId, List<Map<Integer, String>> listMap) {
         School school = schoolService.getById(schoolId);
         if (Objects.isNull(school)) {
             throw new BusinessException("不存在该学校");
@@ -166,10 +161,10 @@ public class PlanStudentExcelImportService {
      *
      * @param multipartFile 上传文档对象
      */
-    private String getFileName(MultipartFile multipartFile){
+    private String getFileName(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        originalFilename = originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY):StrUtil.EMPTY;
-        return "(修)"+originalFilename;
+        originalFilename = originalFilename != null ? originalFilename.replace(".xlsx", StrUtil.EMPTY) : StrUtil.EMPTY;
+        return "(修)" + originalFilename;
     }
 
 
@@ -211,9 +206,9 @@ public class PlanStudentExcelImportService {
             String screeningCode = item.get(ImportExcelEnum.SCREENING_CODE.getIndex());
             String gradeName = item.get(ImportExcelEnum.GRADE.getIndex());
             String className = item.get(ImportExcelEnum.CLASS.getIndex());
-            String idCard = item.get(ImportExcelEnum.ID_CARD.getIndex());
+            String idCard = StringUtils.upperCase(item.get(ImportExcelEnum.ID_CARD.getIndex()));
             // 如果身份证不为空，优先取身份证，passport置空
-            String passport = StringUtils.isBlank(idCard) ? item.get(ImportExcelEnum.PASSPORT.getIndex()) : null;
+            String passport = StringUtils.upperCase(StringUtils.isBlank(idCard) ? item.get(ImportExcelEnum.PASSPORT.getIndex()) : null);
             String phone = item.get(ImportExcelEnum.PHONE.getIndex());
             String sno = item.get(ImportExcelEnum.STUDENT_NO.getIndex());
             Integer gender = StringUtils.isNotBlank(item.get(ImportExcelEnum.ID_CARD.getIndex())) ? IdCardUtil.getGender(item.get(ImportExcelEnum.ID_CARD.getIndex())) : GenderEnum.getType(item.get(ImportExcelEnum.GENDER.getIndex()));
@@ -427,8 +422,8 @@ public class PlanStudentExcelImportService {
      * @return first-身份证 second-护照
      */
     private TwoTuple<Map<String, Student>, Map<String, Student>> groupingByIdCardAndPassport(List<Student> managementStudentList) {
-        Map<String, Student> idCardMap = managementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(Student::getIdCard, Function.identity()));
-        Map<String, Student> passportMap = managementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(Student::getPassport, Function.identity()));
+        Map<String, Student> idCardMap = managementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
+        Map<String, Student> passportMap = managementStudentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
         return new TwoTuple<>(idCardMap, passportMap);
     }
 
@@ -443,8 +438,6 @@ public class PlanStudentExcelImportService {
      */
     private void saveOrUpdateStudentAndPlanStudent(List<Student> managementStudentList, Map<String, ScreeningPlanSchoolStudent> existPlanStudentIdCardMap, Map<String, ScreeningPlanSchoolStudent> existPlanStudentPassportMap, ScreeningPlan plan, School school) {
 
-        Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(managementStudentList.stream().map(Student::getGradeId).collect(Collectors.toList()));
-        Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(managementStudentList.stream().map(Student::getClassId).collect(Collectors.toList()));
 
         List<ScreeningPlanSchoolStudent> list = new ArrayList<>();
         // 1. 新增或更新多端学生
@@ -548,7 +541,7 @@ public class PlanStudentExcelImportService {
         listMap.forEach(item -> {
             String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
             if (StringUtils.isNotBlank(idCard)) {
-                idCardList.add(idCard);
+                idCardList.add(StringUtils.upperCase(idCard));
             }
 
             String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
@@ -556,7 +549,7 @@ public class PlanStudentExcelImportService {
                 if (passport.length() < 7) {
                     throw new BusinessException("护照" + passport + "格式异常");
                 }
-                passportList.add(passport);
+                passportList.add(StringUtils.upperCase(passport));
             }
 
             String sno = item.getOrDefault(ImportExcelEnum.STUDENT_NO.getIndex(), null);
@@ -770,10 +763,10 @@ public class PlanStudentExcelImportService {
     /**
      * 获取出生日期
      *
-     * @param birthdayStr       出生日期字符串
-     * @param idCard            身份证号
-     * @param passport          护照
-     * @param screeningCode     筛查编码
+     * @param birthdayStr   出生日期字符串
+     * @param idCard        身份证号
+     * @param passport      护照
+     * @param screeningCode 筛查编码
      * @return java.util.Date
      **/
     private Date getBirthDay(String birthdayStr, String idCard, String passport, String screeningCode) {
@@ -785,18 +778,18 @@ public class PlanStudentExcelImportService {
             throw new BusinessException(getErrorMsgDate(idCard, passport, screeningCode) + "，出生日期格式错误");
         }
     }
+
     /**
      * 校验数据
      *
-     * @param idCard                        身份证号码
-     * @param phone                         手机号码
-     * @param sno                           学号
-     * @param passport                      护照
-     * @param schoolId                      学校ID
-     * @param screeningCode                 筛查编码
-     * @param existScreeningCodeList        系统存在的筛查编码集合
-     * @param existPlanSchoolStudentList    系统存在的筛查学生集合
-     * @return void
+     * @param idCard                     身份证号码
+     * @param phone                      手机号码
+     * @param sno                        学号
+     * @param passport                   护照
+     * @param schoolId                   学校ID
+     * @param screeningCode              筛查编码
+     * @param existScreeningCodeList     系统存在的筛查编码集合
+     * @param existPlanSchoolStudentList 系统存在的筛查学生集合
      **/
     private void validateBeforeSave(String idCard, String phone, String sno, String passport, Integer schoolId, String screeningCode, List<Long> existScreeningCodeList, List<ScreeningPlanSchoolStudent> existPlanSchoolStudentList) {
         // 唯一标志

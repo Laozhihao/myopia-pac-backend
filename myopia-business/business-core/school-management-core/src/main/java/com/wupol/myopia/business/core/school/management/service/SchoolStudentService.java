@@ -355,4 +355,17 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public List<StudentCountDTO> countStudentBySchoolId(List<Integer> schoolIdList) {
         return baseMapper.countStudentBySchoolId(schoolIdList);
     }
+
+    public List<SchoolStudent> getByIdCardsOrPassports(List<String> idCards, List<String> passports, Integer schoolId) {
+        return baseMapper.getByIdCardsOrPassports(idCards, passports, schoolId);
+
+    }
+
+    public List<SchoolStudent> getBySnoList(List<String> snoList, Integer schoolId) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getSno, snoList)
+                .eq(SchoolStudent::getSchoolId, schoolId)
+                .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
+    }
+
 }

@@ -599,12 +599,10 @@
     </select>
     <select id="findStudentBySchoolIdAndScreeningPlanIdAndSno" resultMap="PlanStudentInfoDTO">
         select
-            mspss.*,
-            ms.sno as sno
+            mspss.*
         from m_screening_plan_school_student as mspss
-        left join m_student as ms on mspss.student_id = ms.id
         where mspss.screening_plan_id = #{planId} and mspss.school_id = #{schoolId}
-        and ms.sno in
+        and mspss.student_no in
         <foreach collection="snoList" item="sno" index="index" open="(" separator="," close=")">
             #{sno}
         </foreach>
