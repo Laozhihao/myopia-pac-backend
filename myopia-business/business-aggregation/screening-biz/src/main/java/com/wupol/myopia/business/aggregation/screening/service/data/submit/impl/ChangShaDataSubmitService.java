@@ -103,7 +103,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
      * 获取筛查信息
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ChangShaDataSubmitExportDTO exportDTO) {
-        VisionScreeningResult result = screeningResultMap.get(s.get(CREDENTIALS_INDEX));
+        VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             exportDTO.setEyeVisionDesc("--");

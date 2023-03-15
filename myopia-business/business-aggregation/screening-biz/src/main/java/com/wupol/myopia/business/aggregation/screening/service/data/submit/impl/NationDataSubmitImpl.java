@@ -110,7 +110,7 @@ public class NationDataSubmitImpl implements IDataSubmitService {
      * 获取筛查信息
      */
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, DataSubmitExportDTO exportDTO) {
-        VisionScreeningResult result = screeningResultMap.get(s.get(SNO_INDEX));
+        VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(SNO_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setRightNakedVision(getNakedVision(EyeDataUtil.rightNakedVision(result)));
             exportDTO.setLeftNakedVision(getNakedVision(EyeDataUtil.leftNakedVision(result)));
