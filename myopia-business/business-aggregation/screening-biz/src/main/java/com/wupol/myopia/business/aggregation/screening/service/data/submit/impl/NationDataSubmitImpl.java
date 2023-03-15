@@ -154,7 +154,7 @@ public class NationDataSubmitImpl implements IDataSubmitService {
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(schoolStudentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()), schoolId);
         return schoolStudentList.stream().filter(ListUtil.distinctByKey(SchoolStudent::getSno))
                 .filter(s -> StringUtils.isNotBlank(s.getSno()))
-                .collect(Collectors.toMap(SchoolStudent::getSno, s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(s -> StringUtils.upperCase(s.getSno()), s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
     }
 
     /**
@@ -170,7 +170,7 @@ public class NationDataSubmitImpl implements IDataSubmitService {
         List<PlanStudentInfoDTO> planStudentInfoDTOS = removeDuplicates(studentList, PlanStudentInfoDTO::getStudentNo);
         return planStudentInfoDTOS.stream().filter(ListUtil.distinctByKey(PlanStudentInfoDTO::getStudentNo))
                 .filter(s -> StringUtils.isNotBlank(s.getStudentNo()))
-                .collect(Collectors.toMap(PlanStudentInfoDTO::getStudentNo, s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(s -> StringUtils.upperCase(s.getStudentNo()), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 
     private List<PlanStudentInfoDTO> removeDuplicates(List<PlanStudentInfoDTO> list, Function<PlanStudentInfoDTO, ?> keyExtractor) {

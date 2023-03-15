@@ -118,27 +118,6 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setGlassesTypeDesc(EyeDataUtil.glassesTypeString(result));
             exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
             exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
-            exportDTO.setCheckType("--");
-            exportDTO.setLeftCj("--");
-            exportDTO.setRightCj("--");
-            exportDTO.setRightSphMydriasis("--");
-            exportDTO.setRightCylMydriasis("--");
-            exportDTO.setRightAxialMydriasis("--");
-            exportDTO.setLeftSphMydriasis("--");
-            exportDTO.setLeftCylMydriasis("--");
-            exportDTO.setLeftAxialMydriasis("--");
-            exportDTO.setRightBiometricK1(EyeDataUtil.biometricRightK1(result));
-            exportDTO.setRightBiometricK1Axis(EyeDataUtil.biometricRightK1Axis(result));
-            exportDTO.setRightBiometricK2(EyeDataUtil.biometricRightK2(result));
-            exportDTO.setRightBiometricK2Axis(EyeDataUtil.biometricRightK2Axis(result));
-            exportDTO.setLeftBiometricK1(EyeDataUtil.biometricLeftK1(result));
-            exportDTO.setLeftBiometricK1Axis(EyeDataUtil.biometricLeftK1Axis(result));
-            exportDTO.setLeftBiometricK2(EyeDataUtil.biometricLeftK2(result));
-            exportDTO.setLeftBiometricK2Axis(EyeDataUtil.biometricLeftK2Axis(result));
-            exportDTO.setRightBiometricAL(EyeDataUtil.biometricRightAl(result));
-            exportDTO.setLeftBiometricAL(EyeDataUtil.biometricLeftAl(result));
-            exportDTO.setRightEyePressureDate(EyeDataUtil.rightEyePressure(result));
-            exportDTO.setLeftEyePressureDate(EyeDataUtil.leftEyePressure(result));
             success.incrementAndGet();
         } else {
             fail.incrementAndGet();
@@ -156,7 +135,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
 
         return studentList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
-                .collect(Collectors.toMap(s -> StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport(), s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
     }
 
     /**
@@ -172,6 +151,6 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
 
         return planStudentList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
-                .collect(Collectors.toMap(s -> StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport(), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+                .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 }
