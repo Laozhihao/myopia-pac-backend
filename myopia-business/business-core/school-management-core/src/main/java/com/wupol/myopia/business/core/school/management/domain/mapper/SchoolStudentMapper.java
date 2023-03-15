@@ -54,4 +54,6 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     List<StudentCountDTO> countStudentBySchoolId(@Param("schoolIds") List<Integer> schoolIdList);
 
+    List<SchoolStudent> getByIdCardsOrPassports(@Param("idCards") List<String> idCards, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
+
 }

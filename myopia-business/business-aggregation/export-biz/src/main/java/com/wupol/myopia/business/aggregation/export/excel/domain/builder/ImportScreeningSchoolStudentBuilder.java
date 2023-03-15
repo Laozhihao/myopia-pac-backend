@@ -129,8 +129,8 @@ public class ImportScreeningSchoolStudentBuilder {
         List<String> errorItemList = checkProcessBO.getErrorItemList();
         Map<Integer, String> item = checkProcessBO.getItem();
         String screeningCode = item.getOrDefault(ImportExcelEnum.SCREENING_CODE.getIndex(), null);
-        String idCard = item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null);
-        String passport = item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null);
+        String idCard = StringUtils.upperCase(item.getOrDefault(ImportExcelEnum.ID_CARD.getIndex(), null));
+        String passport = StringUtils.upperCase(item.getOrDefault(ImportExcelEnum.PASSPORT.getIndex(), null));
         String name = item.getOrDefault(ImportExcelEnum.NAME.getIndex(), null);
         String gender = item.getOrDefault(ImportExcelEnum.GENDER.getIndex(), null);
         String birthdayStr = item.getOrDefault(ImportExcelEnum.BIRTHDAY.getIndex(), null);
@@ -335,10 +335,10 @@ public class ImportScreeningSchoolStudentBuilder {
         if (org.springframework.util.CollectionUtils.isEmpty(existPlanSchoolStudentList) || StringUtils.isBlank(sno)) {
             return Boolean.FALSE;
         }
-        Predicate<ScreeningPlanSchoolStudent>  predicate = s -> Objects.equals(sno, s.getStudentNo())
+        Predicate<ScreeningPlanSchoolStudent> predicate = s -> Objects.equals(sno, s.getStudentNo())
                 && Objects.equals(schoolId, s.getSchoolId())
-                && ((StringUtils.isNotBlank(idCard) && !Objects.equals(idCard, s.getIdCard()))
-                || (StringUtils.isNotBlank(passport) && !Objects.equals(passport, s.getPassport())));
+                && ((StringUtils.isNotBlank(idCard) && !StringUtils.equalsIgnoreCase(idCard, s.getIdCard()))
+                || (StringUtils.isNotBlank(passport) && !StringUtils.equalsIgnoreCase(idCard, s.getPassport())));
         // 学号是否被使用
         List<ScreeningPlanSchoolStudent> collect = existPlanSchoolStudentList.stream().filter(predicate).collect(Collectors.toList());
         return CollUtil.isNotEmpty(collect);
