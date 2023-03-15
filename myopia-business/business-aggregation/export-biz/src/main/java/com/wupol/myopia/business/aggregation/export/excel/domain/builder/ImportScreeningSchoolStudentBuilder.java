@@ -338,7 +338,7 @@ public class ImportScreeningSchoolStudentBuilder {
         Predicate<ScreeningPlanSchoolStudent> predicate = s -> Objects.equals(sno, s.getStudentNo())
                 && Objects.equals(schoolId, s.getSchoolId())
                 && ((StringUtils.isNotBlank(idCard) && !StringUtils.equalsIgnoreCase(idCard, s.getIdCard()))
-                || (StringUtils.isNotBlank(passport) && !StringUtils.equalsIgnoreCase(idCard, s.getPassport())));
+                || (StringUtils.isNotBlank(passport) && !StringUtils.equalsIgnoreCase(passport, s.getPassport())));
         // 学号是否被使用
         List<ScreeningPlanSchoolStudent> collect = existPlanSchoolStudentList.stream().filter(predicate).collect(Collectors.toList());
         return CollUtil.isNotEmpty(collect);
