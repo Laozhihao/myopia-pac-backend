@@ -21,8 +21,8 @@ public class ParsePlanStudentUtils {
             String strUid = parseUid2PlanStudentId(uid);
             return Objects.nonNull(strUid) ? Integer.valueOf(strUid) : Integer.valueOf(uid);
         } catch (Exception e) {
-            log.error("用户UID:{}", uid, e);
-            throw new BusinessException("二维码解析异常");
+            log.error("解析用户UID异常：{}", uid, e);
+            throw new BusinessException("解析用户UID异常：" + uid);
         }
     }
 

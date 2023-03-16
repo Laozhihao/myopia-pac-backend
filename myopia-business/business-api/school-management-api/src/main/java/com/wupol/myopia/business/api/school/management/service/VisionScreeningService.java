@@ -54,12 +54,10 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.facade.SchoolScreeningBizFacade;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
@@ -123,8 +121,6 @@ public class VisionScreeningService {
     private StatFacade statFacade;
     @Resource
     private SchoolStudentBizService schoolStudentBizService;
-    @Resource
-    private SchoolScreeningBizFacade schoolScreeningBizFacade;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
@@ -139,8 +135,6 @@ public class VisionScreeningService {
     private SysUtilService sysUtilService;
     @Resource
     private SchoolClassService schoolClassService;
-    @Resource
-    private StudentService studentService;
 
 
     /**
@@ -329,12 +323,8 @@ public class VisionScreeningService {
 
         //筛查计划学校
         ScreeningPlanSchool screeningPlanSchool = getScreeningPlanSchool(schoolScreeningPlanDTO, school);
-
-        //获取筛查学生
-        List<ScreeningPlanSchoolStudent> planSchoolStudentList = getScreeningPlanSchoolStudentInfo(schoolScreeningPlanDTO.getId(), schoolScreeningPlanDTO.getGradeIds(),school);
-        //创建筛查计划
-        screeningPlan.setStudentNumbers(planSchoolStudentList.size());
-        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool, planSchoolStudentList);
+        //创建计划
+        screeningPlanService.savePlanInfo(screeningPlan, screeningPlanSchool);
         //更新筛查通知状态为已读
         if (Objects.equals(isAdd,Boolean.TRUE) && !Objects.equals(screeningPlan.getScreeningTaskId(),CommonConst.DEFAULT_ID)){
             List<ScreeningNotice> screeningNoticeList = screeningNoticeService.getByScreeningTaskId(schoolScreeningPlanDTO.getScreeningTaskId(), Lists.newArrayList(ScreeningNotice.TYPE_SCHOOL));
@@ -390,7 +380,25 @@ public class VisionScreeningService {
      */
     private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudentInfo(Integer screeningPlanId, List<Integer> gradeIds, School school){
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolIdAndGradeIds(school.getId(), gradeIds);
-        return schoolScreeningBizFacade.getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school);
+        return getScreeningPlanSchoolStudent(screeningPlanId,schoolStudentList,school);
+    }
+
+    /**
+     * 获取筛查计划学校学生
+     *
+     * @param screeningPlanId   筛查计划ID
+     * @param schoolStudentList 学校学生集合
+     * @param school            学校信息
+     */
+    private List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudent(Integer screeningPlanId,List<SchoolStudent> schoolStudentList , School school){
+        Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
+        TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
+        // 刚创建计划的时候ID会为空
+        if (Objects.nonNull(screeningPlanId)){
+            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(screeningPlanId, school.getId());
+        }
+        return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(screeningPlanId, schoolStudentList, school, schoolGradeAndClassMap.getFirst(), screeningPlanSchoolStudentDbList);
     }
 
 
@@ -409,8 +417,8 @@ public class VisionScreeningService {
      * 发布筛查计划
      * @param screeningPlanId 筛查计划ID
      */
-    public void releaseScreeningPlan(Integer screeningPlanId) {
-        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+    @Transactional(rollbackFor = Exception.class)
+    public void releaseScreeningPlan(Integer screeningPlanId, CurrentUser currentUser) {
         //校验是否存在和权限
         ScreeningPlan screeningPlan = validateExistAndAuthorize(screeningPlanId,currentUser);
         // 开始时间只能在今天或以后
@@ -425,6 +433,14 @@ public class VisionScreeningService {
         if (Objects.equals(screeningPlanService.checkTitleExist(screeningPlan),Boolean.TRUE)){
             throw new BusinessException("学校已存在相同标题筛查计划");
         }
+        //新增计划学生
+        School school = schoolService.getById(currentUser.getOrgId());
+        ScreeningPlanSchool screeningPlanSchool = screeningPlanSchoolService.getOneByPlanIdAndSchoolId(screeningPlanId,school.getId());
+        List<Integer> screeningGradeIds = ScreeningBizBuilder.getScreeningGradeIds(screeningPlanSchool.getScreeningGradeIds());
+        List<ScreeningPlanSchoolStudent> planSchoolStudentList = getScreeningPlanSchoolStudentInfo(screeningPlanId, screeningGradeIds, school);
+        screeningPlanSchoolStudentService.addScreeningStudent(planSchoolStudentList, screeningPlanId, screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
+        //更新计划状态为发布
+        screeningPlan.setStudentNumbers(planSchoolStudentList.size());
         screeningPlanService.release(screeningPlan, currentUser);
     }
 

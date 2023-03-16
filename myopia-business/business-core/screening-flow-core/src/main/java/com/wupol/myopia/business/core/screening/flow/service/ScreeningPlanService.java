@@ -15,14 +15,12 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.mapper.ScreeningPlanMapper;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -454,10 +452,9 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * 学校自主筛查创建/编辑筛查计划
      * @param screeningPlan 筛查计划
      * @param screeningPlanSchool 筛查计划学校
-     * @param planSchoolStudentList 筛查计划学校学生
      */
     @Transactional(rollbackFor = Exception.class)
-    public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool, List<ScreeningPlanSchoolStudent> planSchoolStudentList) {
+    public void savePlanInfo(ScreeningPlan screeningPlan, ScreeningPlanSchool screeningPlanSchool) {
         // 筛查计划
         saveOrUpdate(screeningPlan);
         // 筛查学校
@@ -465,8 +462,6 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
             screeningPlanSchool.setScreeningPlanId(screeningPlan.getId());
             screeningPlanSchoolService.saveOrUpdate(screeningPlanSchool);
         }
-        // 新增筛查学生
-        screeningPlanSchoolStudentService.addScreeningStudent(planSchoolStudentList,screeningPlan.getId(),screeningPlan.getSrcScreeningNoticeId(),screeningPlan.getScreeningTaskId());
     }
 
     /**
