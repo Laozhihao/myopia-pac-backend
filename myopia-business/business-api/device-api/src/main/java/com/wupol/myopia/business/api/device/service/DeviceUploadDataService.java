@@ -200,14 +200,11 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            throw new BusinessException("无法找到设备");
+            throw new BusinessException("无法找到设备：" + deviceUploadDto.getImei());
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();
-        Integer orgId = getOrganizationId(device);
-        if (Objects.isNull(orgId)) {
-            throw new BusinessException("无法找到筛查机构或该筛查机构已过期");
-        }
+        Integer orgId = getOrganizationIdThrowException(device);
         //设置检查结果
         this.setCheckResult(deviceUploadDto.getData());
         //判断id是否是特殊设备扫描出来的(如vs666)
@@ -286,10 +283,7 @@ public class DeviceUploadDataService {
         if (Objects.isNull(device)) {
             return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
         }
-        Integer orgId = getOrganizationId(device);
-        if (Objects.isNull(orgId)) {
-            return new ScalesResponseDTO("0", "无法找到筛查机构或该筛查机构已过期");
-        }
+        Integer orgId = getOrganizationIdThrowException(device);
         List<ScalesData> datas = requestDTO.getDatas();
         if (CollectionUtils.isEmpty(datas)) {
             return new ScalesResponseDTO("0", "数据为空");
@@ -369,10 +363,9 @@ public class DeviceUploadDataService {
      * @return orgId
      */
     public Integer getOrganizationIdThrowException(Device device) {
-
         Integer orgId = getOrganizationId(device);
         if (Objects.isNull(orgId)) {
-            throw new BusinessException("设备数据异常！", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
+            throw new BusinessException("无法找到设备绑定的筛查机构", ResultCode.DATA_UPLOAD_SCREENING_ORG_ERROR.getCode());
         }
         return orgId;
     }
@@ -398,7 +391,7 @@ public class DeviceUploadDataService {
             checkOrgStatus(school);
             return school.getId();
         }
-        return null;
+        throw new BusinessException("设备的机构类型无效：" + device.getOrgType());
     }
 
     /**
@@ -423,7 +416,7 @@ public class DeviceUploadDataService {
      */
     public ScreeningPlanSchoolStudent getScreeningPlanSchoolStudent(Integer orgId, Integer planStudentId) {
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(planStudentId);
-        checkPlanStudentInfo(orgId, planStudent);
+        checkPlanStudentInfo(orgId, planStudent, planStudentId);
         return planStudent;
     }
 
@@ -432,16 +425,16 @@ public class DeviceUploadDataService {
      */
     public List<ScreeningPlanSchoolStudent> getScreeningPlanSchoolStudent(Integer orgId, Set<String> planStudentIdSet) {
         List<ScreeningPlanSchoolStudent> planSchoolStudents = screeningPlanSchoolStudentService.getByIds(planStudentIdSet);
-        planSchoolStudents.forEach(s -> checkPlanStudentInfo(orgId, s));
+        planSchoolStudents.forEach(s -> checkPlanStudentInfo(orgId, s, null));
         return planSchoolStudents;
     }
 
     /**
      * 检查筛查学生
      */
-    private static void checkPlanStudentInfo(Integer orgId, ScreeningPlanSchoolStudent planStudent) {
+    private static void checkPlanStudentInfo(Integer orgId, ScreeningPlanSchoolStudent planStudent, Integer planStudentId) {
         if (Objects.isNull(planStudent)) {
-            throw new BusinessException("不能通过该uid找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
+            throw new BusinessException("不能通过该uid[" + planStudentId + "]找到学生信息，请确认！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_ERROR.getCode());
         }
         if (!planStudent.getScreeningOrgId().equals(orgId)) {
             throw new BusinessException("筛查学生与筛查机构不匹配！", ResultCode.DATA_UPLOAD_PLAN_STUDENT_MATCH_ERROR.getCode());

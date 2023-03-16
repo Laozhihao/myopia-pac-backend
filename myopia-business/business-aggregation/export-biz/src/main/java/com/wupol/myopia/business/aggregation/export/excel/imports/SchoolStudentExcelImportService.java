@@ -226,7 +226,7 @@ public class SchoolStudentExcelImportService {
                               String sno, String name, String idCard, String gender, String birthday, String gradeName, String className, String passport, String phone) {
         // 学籍号
         if (StringUtils.isBlank(sno) || sno.length() > SNO_LENGTH) {
-            throw new BusinessException("学籍号为空或超过长度限制");
+            throw new BusinessException(name + "学籍号为空或超过长度限制");
         }
         Assert.isNull(snoMap.get(sno), "学籍号" + sno + ERROR_MSG);
         // 姓名

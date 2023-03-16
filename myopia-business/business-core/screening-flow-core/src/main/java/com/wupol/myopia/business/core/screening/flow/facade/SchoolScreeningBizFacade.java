@@ -169,8 +169,9 @@ public class SchoolScreeningBizFacade {
         Set<Integer> gradeIds = schoolStudentList.stream().map(SchoolStudent::getGradeId).collect(Collectors.toSet());
         TwoTuple<Map<Integer, SchoolGrade>, Map<Integer, SchoolClass>> schoolGradeAndClassMap = schoolBizFacade.getSchoolGradeAndClass(Lists.newArrayList(gradeIds));
         List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentDbList=null;
+        // 刚创建计划的时候ID会为空
         if (Objects.nonNull(screeningPlanId)){
-            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByScreeningPlanId(screeningPlanId,Boolean.FALSE);
+            screeningPlanSchoolStudentDbList = screeningPlanSchoolStudentService.getByPlanIdAndSchoolId(screeningPlanId, school.getId());
         }
         return ScreeningBizBuilder.getScreeningPlanSchoolStudentList(screeningPlanId, schoolStudentList, school, schoolGradeAndClassMap.getFirst(), screeningPlanSchoolStudentDbList);
     }
