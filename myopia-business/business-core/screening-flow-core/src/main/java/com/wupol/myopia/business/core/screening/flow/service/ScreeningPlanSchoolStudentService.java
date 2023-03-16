@@ -908,8 +908,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 screeningPlanSchoolStudent.setScreeningOrgId(screeningPlan.getScreeningOrgId());
             }
         });
-        // TODO：saveOrUpdateBatch是否为假批量操作
-        saveOrUpdateBatch(screeningPlanSchoolStudentList);
+        Map<Boolean, List<ScreeningPlanSchoolStudent>> planStudentMap = screeningPlanSchoolStudentList.stream().collect(Collectors.partitioningBy(planSchoolStudent -> Objects.isNull(planSchoolStudent.getId())));
+        saveBatch(planStudentMap.getOrDefault(Boolean.TRUE, Collections.emptyList()));
+        updateBatchById(planStudentMap.getOrDefault(Boolean.FALSE, Collections.emptyList()));
     }
 
     /**
