@@ -2,6 +2,7 @@ package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl
 
 import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.common.utils.util.ObjectUtil;
@@ -121,8 +122,14 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             } else {
                 exportDTO.setEyeVisionDesc("未检测");
             }
-            exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
-            exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+            // 如果是OK镜，则填充矫正视力未裸眼视力
+            if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
+                exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStr(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            } else {
+                exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+            }
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
             exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
