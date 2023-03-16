@@ -5,7 +5,6 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
-import com.wupol.myopia.business.common.utils.util.ObjectUtil;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ChangShaDataSubmitExportDTO;
@@ -122,14 +121,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             } else {
                 exportDTO.setEyeVisionDesc("未检测");
             }
-            // 如果是OK镜，则填充矫正视力未裸眼视力
-            if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
-                exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStr(result));
-                exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStr(result));
-            } else {
-                exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
-                exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
-            }
+            setNakedVisions(exportDTO, result);
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
             exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
@@ -142,6 +134,28 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             success.incrementAndGet();
         } else {
             fail.incrementAndGet();
+        }
+    }
+
+    /**
+     * 设置裸眼视力
+     *
+     * @param exportDTO 导出
+     * @param result    筛查结果
+     */
+    private void setNakedVisions(ChangShaDataSubmitExportDTO exportDTO, VisionScreeningResult result) {
+        // 如果是OK镜，优先取裸眼，如果裸眼为空，则填充矫正视力为裸眼视力
+        if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
+            if (ObjectUtils.allNotNull(EyeDataUtil.leftNakedVision(result), EyeDataUtil.rightNakedVision(result))) {
+                exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+            } else {
+                exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStr(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            }
+        } else {
+            exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
+            exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
         }
     }
 
