@@ -53,7 +53,7 @@ public class DeviceUploadDataController {
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (BusinessException e) {
-            log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
+            log.error("设备上传数据失败：【{}】,数据 = {}", e.getMessage(), JSON.toJSONString(deviceUploadDto), e);
             return DeviceUploadResult.error(e.getMessage());
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
@@ -102,8 +102,11 @@ public class DeviceUploadDataController {
     public ApiResult<UserInfoResponseDTO> getInfo(@Valid UserInfoRequestDTO request) {
         try {
             return ApiResult.success(deviceUploadDataService.getUserInfo(request));
+        } catch (BusinessException e) {
+            log.error("获取学生信息异常：【{}】，原始数据：{}", e.getMessage(), JSON.toJSONString(request));
+            throw e;
         } catch (Exception e) {
-            log.error("获取学生信息，原始数据:{}", JSON.toJSONString(request), e);
+            log.error("获取学生信息异常：【{}】，原始数据:{}", e.getMessage(), JSON.toJSONString(request), e);
             throw new BusinessException("获取学生信息异常");
         }
     }

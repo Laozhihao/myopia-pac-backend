@@ -57,10 +57,7 @@ public class ScreeningBizBuilder {
             return getScreeningPlanSchoolStudents(screeningPlanId, schoolStudentList, school, schoolGradeMap);
         }else {
             Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap = screeningPlanSchoolStudentDbList.stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity()));
-            List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList =Lists.newArrayList();
-            List<Integer> addOrUpdateStudentIds=Lists.newArrayList();
-            processAddAndUpdate(screeningPlanId, schoolStudentList, school, schoolGradeMap, planSchoolStudentMap, screeningPlanSchoolStudentList, addOrUpdateStudentIds);
-            return screeningPlanSchoolStudentList;
+            return processAddAndUpdate(screeningPlanId, schoolStudentList, school, schoolGradeMap, planSchoolStudentMap);
         }
     }
 
@@ -72,27 +69,22 @@ public class ScreeningBizBuilder {
      * @param school                         学校信息
      * @param schoolGradeMap                 年级集合
      * @param planSchoolStudentMap           筛查计划学校学生集合
-     * @param screeningPlanSchoolStudentList 新增和更新筛查计划学校学生集合
-     * @param addOrUpdateStudentIds          新增和更新学生ID集合
      */
-    public void processAddAndUpdate(Integer screeningPlanId,List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
-                                     Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap,
-                                     List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList, List<Integer> addOrUpdateStudentIds) {
+    public List<ScreeningPlanSchoolStudent> processAddAndUpdate(Integer screeningPlanId,List<SchoolStudent> schoolStudentList, School school, Map<Integer, SchoolGrade> schoolGradeMap,
+                                     Map<Integer, ScreeningPlanSchoolStudent> planSchoolStudentMap) {
         if (CollUtil.isEmpty(schoolStudentList)){
-            return;
+            return Lists.newArrayList();
         }
         //新增或更新
-        schoolStudentList.forEach(schoolStudent -> {
-            addOrUpdateStudentIds.add(schoolStudent.getStudentId());
+        return schoolStudentList.stream().map(schoolStudent -> {
             SchoolGrade schoolGrade = schoolGradeMap.get(schoolStudent.getGradeId());
             ScreeningPlanSchoolStudent screeningPlanSchoolStudent = planSchoolStudentMap.get(schoolStudent.getStudentId());
-            if (Objects.isNull(screeningPlanSchoolStudent)){
-                screeningPlanSchoolStudentList.add(buildScreeningPlanSchoolStudent(screeningPlanId, schoolStudent, school, schoolGrade));
-            }else {
-                updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent,school,schoolStudent,schoolGrade);
-                screeningPlanSchoolStudentList.add(screeningPlanSchoolStudent);
+            if (Objects.isNull(screeningPlanSchoolStudent)) {
+                return buildScreeningPlanSchoolStudent(screeningPlanId, schoolStudent, school, schoolGrade);
             }
-        });
+            updateScreeningPlanSchoolStudent(screeningPlanSchoolStudent, school, schoolStudent, schoolGrade);
+            return screeningPlanSchoolStudent;
+        }).collect(Collectors.toList());
     }
 
     /**

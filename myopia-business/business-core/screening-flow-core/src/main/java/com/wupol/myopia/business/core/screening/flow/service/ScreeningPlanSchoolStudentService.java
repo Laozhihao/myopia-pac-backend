@@ -908,7 +908,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
                 screeningPlanSchoolStudent.setScreeningOrgId(screeningPlan.getScreeningOrgId());
             }
         });
-        // TODO：验证saveOrUpdateBatch是否为真批量保存或更新
+        // TODO：saveOrUpdateBatch是否为假批量操作
         saveOrUpdateBatch(screeningPlanSchoolStudentList);
     }
 
