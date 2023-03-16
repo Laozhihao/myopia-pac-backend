@@ -113,11 +113,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
             BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
             if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
-                if (BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0")) {
-                    exportDTO.setEyeVisionDesc("正常");
-                } else {
-                    exportDTO.setEyeVisionDesc("异常");
-                }
+                exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
             } else {
                 exportDTO.setEyeVisionDesc("未检测");
             }
