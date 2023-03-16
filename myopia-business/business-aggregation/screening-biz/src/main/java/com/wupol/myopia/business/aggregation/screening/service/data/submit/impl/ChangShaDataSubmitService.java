@@ -110,13 +110,6 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
-            BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
-            BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
-            if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
-                exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
-            } else {
-                exportDTO.setEyeVisionDesc("未检测");
-            }
             setNakedVisions(exportDTO, result);
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
@@ -140,16 +133,33 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
      * @param result    筛查结果
      */
     private void setNakedVisions(ChangShaDataSubmitExportDTO exportDTO, VisionScreeningResult result) {
+        BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
+        BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
+        BigDecimal leftCorrectedVision = EyeDataUtil.leftCorrectedVision(result);
+        BigDecimal rightCorrectedVision = EyeDataUtil.rightCorrectedVision(result);
+
+
         // 如果是OK镜，优先取裸眼，如果裸眼为空，则填充矫正视力为裸眼视力
         if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
-            if (ObjectUtils.allNotNull(EyeDataUtil.leftNakedVision(result), EyeDataUtil.rightNakedVision(result))) {
+            if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
                 exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
                 exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+                exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
             } else {
                 exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStr(result));
                 exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+                if (ObjectUtils.allNotNull(leftCorrectedVision, rightCorrectedVision)) {
+                    exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftCorrectedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightCorrectedVision, "5.0") ? "正常" : "异常");
+                } else {
+                    exportDTO.setEyeVisionDesc("未检测");
+                }
             }
         } else {
+            if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
+                exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
+            } else {
+                exportDTO.setEyeVisionDesc("未检测");
+            }
             exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
             exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
         }
