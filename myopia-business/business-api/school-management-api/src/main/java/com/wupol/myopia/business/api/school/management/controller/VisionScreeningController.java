@@ -321,7 +321,8 @@ public class VisionScreeningController {
      */
     @PutMapping("/release/{screeningPlanId}")
     public void releaseScreeningPlan(@PathVariable("screeningPlanId") Integer screeningPlanId){
-        visionScreeningService.releaseScreeningPlan(screeningPlanId);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        visionScreeningService.releaseScreeningPlan(screeningPlanId, currentUser);
     }
 
     /**
