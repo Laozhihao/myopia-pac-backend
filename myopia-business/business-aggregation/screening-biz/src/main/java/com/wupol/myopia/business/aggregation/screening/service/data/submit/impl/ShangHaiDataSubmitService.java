@@ -3,7 +3,6 @@ package com.wupol.myopia.business.aggregation.screening.service.data.submit.impl
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ChangShaDataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ShangHaiDataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
@@ -51,7 +50,7 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
 
     @Override
     public Class<?> getExportClass() {
-        return ChangShaDataSubmitExportDTO.class;
+        return ShangHaiDataSubmitExportDTO.class;
     }
 
     @Override
