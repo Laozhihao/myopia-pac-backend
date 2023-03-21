@@ -55,7 +55,7 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
 
     @Override
     public Integer getRemoveRows() {
-        return DataSubmitTypeEnum.CHANG_SHA.getRemoveRows();
+        return DataSubmitTypeEnum.SHANG_HAI.getRemoveRows();
     }
 
     @Override
