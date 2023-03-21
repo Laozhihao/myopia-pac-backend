@@ -5,13 +5,8 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
-import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
-import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ChangShaDataSubmitExportDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
-import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 长沙
@@ -38,13 +32,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     private final static Integer CREDENTIALS_INDEX = 6;
 
     @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
-    @Resource
-    private VisionScreeningResultService visionScreeningResultService;
-
-    @Resource
-    private SchoolStudentService schoolStudentService;
+    private CommonDataSubmitService commonDataSubmitService;
 
     @Override
     public Integer type() {
@@ -78,9 +66,9 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     @Override
     public Map<String, VisionScreeningResult> getVisionScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId) {
         if (Objects.isNull(screeningPlanId)) {
-            return getScreeningData(listMap, schoolId);
+            return commonDataSubmitService.getScreeningData(listMap, schoolId, getIdCardFunction());
         } else {
-            return getScreeningData(listMap, schoolId, screeningPlanId);
+            return commonDataSubmitService.getScreeningData(listMap, schoolId, screeningPlanId, getIdCardFunction());
         }
     }
 
@@ -163,35 +151,5 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
             exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
         }
-    }
-
-    /**
-     * 通过证件号获取筛查信息
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId) {
-        List<String> credentialsLists = listMap.stream().map(getIdCardFunction()).collect(Collectors.toList());
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardsOrPassports(credentialsLists, credentialsLists, schoolId).stream().filter(s -> Objects.equals(s.getSchoolId(), schoolId)).collect(Collectors.toList());
-
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getLastByStudentIds(studentList.stream().map(SchoolStudent::getStudentId).collect(Collectors.toList()), schoolId);
-
-        return studentList.stream()
-                .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
-                .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getStudentId(), new VisionScreeningResult())));
-    }
-
-    /**
-     * 通过证件号在筛查计划中获取筛查数据
-     */
-    private Map<String, VisionScreeningResult> getScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId) {
-
-        List<String> credentialsList = listMap.stream().map(getIdCardFunction()).collect(Collectors.toList());
-        // 筛查计划中学生数据查询
-        List<PlanStudentInfoDTO> planStudentList = screeningPlanSchoolStudentService.getByCredentials(schoolId, screeningPlanId, credentialsList, credentialsList);
-        // 根据学生id查询筛查信息
-        Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getFirstMap(planStudentList.stream().map(PlanStudentInfoDTO::getId).collect(Collectors.toList()), schoolId, screeningPlanId);
-
-        return planStudentList.stream()
-                .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
-                .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
     }
 }
