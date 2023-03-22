@@ -426,7 +426,7 @@ public class VisionScreeningBizService {
         Map<String, VisionScreeningResult> visionScreeningData = dataSubmitService.getVisionScreeningData(listMap, schoolId, screeningPlanId);
         // 生成Excel表格
         List<?> exportData = dataSubmitService.getExportData(listMap, success, fail, visionScreeningData);
-        File excel = ExcelUtil.exportListToExcel(String.format(CommonConst.FILE_NAME, schoolName), exportData, dataSubmitService.getExportClass());
+        File excel = ExcelUtil.exportListToExcel(String.format(CommonConst.FILE_NAME, schoolName), exportData, dataSubmitService.getExportClass(), dataSubmitService.isXlsx());
         Integer fileId = s3Utils.uploadFileToS3(excel);
         nationalDataDownloadRecord.setSuccessMatch(success.get());
         nationalDataDownloadRecord.setFailMatch(fail.get());

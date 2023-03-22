@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service.data.submit;
 
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 
 import java.util.List;
@@ -23,4 +24,8 @@ public interface IDataSubmitService {
     Integer getRemoveRows();
 
     Map<String, VisionScreeningResult> getVisionScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId);
+
+    default Boolean isXlsx() {
+        return Boolean.TRUE;
+    }
 }

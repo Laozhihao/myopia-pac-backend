@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystemException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Excel工具
@@ -33,6 +34,8 @@ public class ExcelUtil {
     /** Excel文件名，占位符：前缀、时间戳 */
     private static final String EXCEL_FILE_NAME = "%s-%s.xlsx";
     private static final String ZIP_FILE_NAME = "%s-%s.zip";
+
+    private static final String EXCEL_FILE_NAME_XLS = "%s-%s.xls";
 
     /**
      * 导数据到Excel，返回Excel对应的File
@@ -248,5 +251,41 @@ public class ExcelUtil {
         headWriteCellStyle.setWriteFont(contentWriteFont);
         return new HorizontalCellStyleStrategy(headWriteCellStyle, Lists.newArrayList(contentWriteCellStyle));
     }
+
+    /**
+     * 导数据到Excel，返回Excel对应的File
+     * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
+     *
+     * @param fileNamePrefix    文件名前缀
+     * @param data              填充的数据
+     * @param head              Excel表头定义类
+     * @return java.io.File
+     **/
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, Class<?> head, boolean isXlsx) throws IOException {
+        File outputFile = getOutputFileXls(fileNamePrefix, isXlsx);
+        EasyExcelFactory.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
+        return outputFile;
+    }
+
+    /**
+     * 获取输出文件
+     *
+     * @param fileNamePrefix 文件名前缀
+     * @return java.io.File
+     **/
+    private static File getOutputFileXls(String fileNamePrefix, boolean isXlsx) throws IOException {
+        String tempSubPath = IOUtils.getTempSubPath("export/excel");
+        String format = Objects.equals(isXlsx, Boolean.TRUE) ? EXCEL_FILE_NAME : EXCEL_FILE_NAME_XLS;
+        String fileName = String.format(format, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
+                .replaceAll("[\\s\\\\/:*?\"<>|]", "");
+        File outputFile = new File(FilenameUtils.concat(tempSubPath, fileName));
+        if (outputFile.exists()) {
+            // same file name existed, generate new file name
+            return getOutputFile(fileNamePrefix);
+        }
+        createNewFile(outputFile);
+        return outputFile;
+    }
+
 
 }

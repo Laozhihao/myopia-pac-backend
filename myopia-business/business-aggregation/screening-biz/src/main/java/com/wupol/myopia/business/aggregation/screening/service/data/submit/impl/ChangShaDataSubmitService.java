@@ -117,9 +117,11 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
             exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
-            exportDTO.setGlassesTypeDesc(EyeDataUtil.glassesTypeString(result));
-            exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
-            exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setGlassesTypeDesc(GlassesTypeEnum.FRAME_GLASSES.getDesc());
+                exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
+                exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            }
             success.incrementAndGet();
         } else {
             fail.incrementAndGet();
@@ -193,5 +195,10 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         return planStudentList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
                 .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+    }
+
+    @Override
+    public Boolean isXlsx() {
+        return Boolean.FALSE;
     }
 }
