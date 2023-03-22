@@ -15,7 +15,6 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -644,10 +643,11 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * 获取筛查学生列表
      *
      * @param planId 计划Id
+     * @param studentIds 学生Id集
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId) {
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByNePlanId(planId);
+    public List<ScreeningPlanSchoolStudent> getByNePlanId(Integer planId, List<Integer> studentIds) {
+        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudentList = baseMapper.getByNePlanId(planId, studentIds);
         return setSchoolDistrictId(screeningPlanSchoolStudentList);
     }
 

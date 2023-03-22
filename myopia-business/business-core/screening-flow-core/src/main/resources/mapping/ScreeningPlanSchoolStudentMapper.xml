@@ -491,6 +491,10 @@
         select *
         from m_screening_plan_school_student
         where screening_plan_id != #{planId}
+        and student_id in
+        <foreach collection="studentIds" item="studentId" index="index" open="(" close=")" separator=",">
+            #{studentId}
+        </foreach>
     </select>
 
     <select id="getOneByPlanId" resultMap="BaseResultMap">

@@ -124,8 +124,8 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
      * @param schoolId 学校Id
      * @return List<SchoolStudent>
      */
-    public List<SchoolStudent> getByIdCardAndSnoAndPassports(List<String> idCards, List<String> snos, List<String> passports, Integer schoolId) {
-        return baseMapper.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
+    public List<SchoolStudent> getAllStatusStudentByIdCardAndSnoAndPassport(List<String> idCards, List<String> snos, List<String> passports, Integer schoolId) {
+        return baseMapper.getAllStatusStudentByIdCardAndSnoAndPassport(idCards, snos, passports, schoolId);
     }
 
     /**

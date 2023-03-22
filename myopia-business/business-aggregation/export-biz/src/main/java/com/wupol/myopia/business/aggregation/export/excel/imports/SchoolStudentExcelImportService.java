@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -85,19 +86,14 @@ public class SchoolStudentExcelImportService {
         List<String> idCards = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.ID_CARD.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
         List<String> passports = listMap.stream().map(s -> s.get(SchoolStudentImportEnum.PASSPORT.getIndex())).filter(Objects::nonNull).collect(Collectors.toList());
 
-        //检查身份证、学号、护照是否重复
+        // 检查身份证、学号、护照是否重复
         CommonCheck.checkHaveDuplicate(idCards, snos, passports, true);
 
         // 获取已经存在的学校学生（判断是否重复）
-        List<SchoolStudent> studentList = schoolStudentService.getByIdCardAndSnoAndPassports(idCards, snos, passports, schoolId);
+        List<SchoolStudent> studentList = schoolStudentService.getAllStatusStudentByIdCardAndSnoAndPassport(idCards, snos, passports, schoolId);
         Map<String, SchoolStudent> snoMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getSno())).collect(Collectors.toMap(SchoolStudent::getSno, Function.identity()));
         Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
         Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
-
-        // 获取已经删除的学生（重新启用删除的学生）
-        List<SchoolStudent> deletedSchoolStudents = schoolStudentService.getDeletedByIdCard(idCards, passports, schoolId);
-        Map<String, SchoolStudent> deletedIdCardStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
-        Map<String, SchoolStudent> deletedPassportStudentMap = deletedSchoolStudents.stream().filter(schoolStudent -> Objects.nonNull(schoolStudent.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
 
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMap = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
         Map<String, Student> studentMap = studentService.getByIdCardsOrPassports(idCards, passports).stream().collect(Collectors.toMap(x -> StringUtils.upperCase(x.getIdCard()) + x.getPassport(), Function.identity()));
@@ -114,9 +110,9 @@ public class SchoolStudentExcelImportService {
             String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
             String phone = item.get(SchoolStudentImportEnum.PHONE.getIndex());
             // 数据校验
-            validateData(snoMap, idCardMap, passPortMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone);
-            // 查看是否已经删除，优先取身份证，再取护照号
-            SchoolStudent schoolStudent = deletedIdCardStudentMap.getOrDefault(idCard, deletedPassportStudentMap.getOrDefault(passport, new SchoolStudent()));
+            validateData(snoMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone);
+            // 获取已经存在的学生（含删除的），优先取身份证，再取护照号
+            SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.getOrDefault(passport, new SchoolStudent()));
             // 设置参数
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent, schoolGradeMap, gradeName, className);
             schoolStudents.add(schoolStudent);
@@ -175,6 +171,9 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setClassName(className);
         GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(gradeName);
         schoolStudent.setParticularYear(SchoolUtil.getParticularYear(gradeCodeEnum.getCode()));
+        if (Objects.isNull(schoolStudent.getId())) {
+            schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
+        }
     }
 
     /**
@@ -210,8 +209,6 @@ public class SchoolStudentExcelImportService {
      * 校验数据
      *
      * @param snoMap      学号Map
-     * @param idCardMap   身份证Map
-     * @param passportMap 护照Map
      * @param sno         学号
      * @param name        姓名
      * @param idCard      身份证
@@ -222,13 +219,12 @@ public class SchoolStudentExcelImportService {
      * @param passport    护照信息
      * @param phone       手机号码
      */
-    private void validateData(Map<String, SchoolStudent> snoMap, Map<String, SchoolStudent> idCardMap, Map<String, SchoolStudent> passportMap,
+    private void validateData(Map<String, SchoolStudent> snoMap,
                               String sno, String name, String idCard, String gender, String birthday, String gradeName, String className, String passport, String phone) {
         // 学籍号
         if (StringUtils.isBlank(sno) || sno.length() > SNO_LENGTH) {
             throw new BusinessException(name + "学籍号为空或超过长度限制");
         }
-        Assert.isNull(snoMap.get(sno), "学籍号" + sno + ERROR_MSG);
         // 姓名
         Assert.hasText(name, "学籍号为" + sno + "学生，姓名为空");
         // 身份证号码
@@ -237,9 +233,6 @@ public class SchoolStudentExcelImportService {
         }
         if (StringUtils.isNotBlank(idCard) && !RegularUtils.isIdCard(idCard)) {
             throw new BusinessException("身份证号码错误：" + idCard);
-        }
-        if (StringUtils.isNotBlank(idCard) && Objects.nonNull(idCardMap.get(idCard))) {
-            throw new BusinessException("身份证" + idCard + ERROR_MSG);
         }
         if (StringUtils.isBlank(idCard)) {
             // 性别
@@ -258,9 +251,6 @@ public class SchoolStudentExcelImportService {
         // 班级
         Assert.hasText(className, "学籍号为" + sno + "学生，班级为空");
         // 护照
-        if (StringUtils.isNotBlank(passport) && Objects.nonNull(passportMap.get(passport))) {
-            throw new BusinessException("护照" + passport + ERROR_MSG);
-        }
         if (StringUtils.isNotBlank(passport) && passport.length() < PASSPORT_LENGTH) {
             throw new BusinessException("护照" + passport + "长度错误，需要" + PASSPORT_LENGTH + "个以上字符");
         }
@@ -268,7 +258,25 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isNotBlank(phone) && !PhoneUtil.isPhone(phone)) {
             throw new BusinessException("学籍号为" + sno + "学生，手机号码为空或格式错误");
         }
+        // 校验学籍号是否被占用（得放在身份证和护照号校验后面）
+        validateSno(snoMap, sno, passport, idCard);
+    }
 
+    /**
+     * 校验学籍号是否被占用
+     *
+     * @param snoMap        系统学籍号Map
+     * @param sno           当前学生学籍号
+     * @param passport      当前学生护照号
+     * @param idCard        当前学生身份证号
+     */
+    private void validateSno(Map<String, SchoolStudent> snoMap, String sno, String passport, String idCard) {
+        SchoolStudent schoolStudent = snoMap.get(sno);
+        if (Objects.isNull(schoolStudent)) {
+            return;
+        }
+        Assert.isTrue((StringUtils.isNotBlank(idCard) && idCard.equals(schoolStudent.getIdCard())) ||
+                (StringUtils.isNotBlank(passport) && passport.equals(schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
     }
 
     /**
@@ -306,7 +314,7 @@ public class SchoolStudentExcelImportService {
         if (Objects.isNull(student)) {
             student = new Student();
             BeanUtils.copyProperties(schoolStudent, student);
-            return student;
+            return student.setId(null).setSourceClient(SourceClientEnum.SCHOOL.getType());
         }
         return buildStudent(student, schoolStudent);
     }

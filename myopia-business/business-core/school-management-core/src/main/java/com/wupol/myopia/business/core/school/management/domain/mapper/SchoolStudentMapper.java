@@ -30,7 +30,7 @@ public interface SchoolStudentMapper extends BaseMapper<SchoolStudent> {
 
     List<SchoolStudent> getBySchoolIdAndGradeId(@Param("schoolId") Integer schoolId, @Param("gradeId") Integer gradeId);
 
-    List<SchoolStudent> getByIdCardAndSnoAndPassports(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
+    List<SchoolStudent> getAllStatusStudentByIdCardAndSnoAndPassport(@Param("idCards") List<String> idCards, @Param("snos") List<String> snos, @Param("passports") List<String> passports, @Param("schoolId") Integer schoolId);
 
     List<SchoolStudent> getByIdCards(@Param("idCards") List<String> idCards, @Param("schoolId") Integer schoolId);
 
