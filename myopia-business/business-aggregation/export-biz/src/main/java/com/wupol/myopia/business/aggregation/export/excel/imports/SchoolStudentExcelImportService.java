@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -170,6 +171,9 @@ public class SchoolStudentExcelImportService {
         schoolStudent.setClassName(className);
         GradeCodeEnum gradeCodeEnum = GradeCodeEnum.getByName(gradeName);
         schoolStudent.setParticularYear(SchoolUtil.getParticularYear(gradeCodeEnum.getCode()));
+        if (Objects.isNull(schoolStudent.getId())) {
+            schoolStudent.setSourceClient(SourceClientEnum.SCHOOL.type);
+        }
     }
 
     /**
@@ -271,7 +275,8 @@ public class SchoolStudentExcelImportService {
         if (Objects.isNull(schoolStudent)) {
             return;
         }
-        Assert.isTrue(StringUtils.equals(idCard, schoolStudent.getIdCard()) || StringUtils.equals(passport, schoolStudent.getPassport()), "学籍号" + sno + ERROR_MSG);
+        Assert.isTrue((StringUtils.isNotBlank(idCard) && idCard.equals(schoolStudent.getIdCard())) ||
+                (StringUtils.isNotBlank(passport) && passport.equals(schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
     }
 
     /**
@@ -309,7 +314,7 @@ public class SchoolStudentExcelImportService {
         if (Objects.isNull(student)) {
             student = new Student();
             BeanUtils.copyProperties(schoolStudent, student);
-            return student.setId(null);
+            return student.setId(null).setSourceClient(SourceClientEnum.SCHOOL.getType());
         }
         return buildStudent(student, schoolStudent);
     }

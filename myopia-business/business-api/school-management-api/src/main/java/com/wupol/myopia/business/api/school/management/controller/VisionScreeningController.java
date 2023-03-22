@@ -367,4 +367,14 @@ public class VisionScreeningController {
         visionScreeningService.updateScreeningEndTime(screeningEndTimeDTO);
     }
 
+    /**
+     * 删除学生
+     *
+     * @param planStudentId 筛查学生Id
+     */
+    @DeleteMapping("/delete/planStudent/{planStudentId}")
+    public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
+        screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
+    }
+
 }
