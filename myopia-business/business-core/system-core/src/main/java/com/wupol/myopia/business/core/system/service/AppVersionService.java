@@ -48,6 +48,13 @@ public class AppVersionService extends BaseService<AppVersionMapper, AppVersion>
         return appVersion.setApkUrl(apkUrl);
     }
 
+    /**
+     * 设置apk文件信息
+     *
+     * @param appVersion    APP版本学校
+     * @param apkFile       apk文件
+     * @throws UtilException
+     */
     public void setApkFileInfo(AppVersion appVersion, MultipartFile apkFile) throws UtilException {
         ResourceFile resourceFile = resourceFileService.uploadFileAndSave(apkFile, "apk");
         appVersion.setApkFileResourceId(resourceFile.getId())
