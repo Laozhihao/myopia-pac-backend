@@ -106,7 +106,7 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ChangShaDataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
-            exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
+            exportDTO.setCheckDate(DateFormatUtil.format(result.getUpdateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             setNakedVisions(exportDTO, result);
             exportDTO.setRightAxial(Optional.ofNullable(EyeDataUtil.leftAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
             exportDTO.setLeftAxial(Optional.ofNullable(EyeDataUtil.rightAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
