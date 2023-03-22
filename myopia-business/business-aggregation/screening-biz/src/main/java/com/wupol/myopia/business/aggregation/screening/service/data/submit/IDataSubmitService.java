@@ -1,12 +1,10 @@
 package com.wupol.myopia.business.aggregation.screening.service.data.submit;
 
-import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 /**
  * 数据上报
