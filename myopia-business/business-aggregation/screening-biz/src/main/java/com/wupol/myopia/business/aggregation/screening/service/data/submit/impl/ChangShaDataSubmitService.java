@@ -111,12 +111,14 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             setNakedVisions(exportDTO, result);
+            BigDecimal rightAxial = EyeDataUtil.rightAxial(result);
+            BigDecimal leftAxial = EyeDataUtil.leftAxial(result);
+            exportDTO.setRightAxial(Objects.isNull(rightAxial) ? "" : rightAxial.toString());
+            exportDTO.setLeftAxial(Objects.isNull(leftAxial) ? "" : leftAxial.toString());
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
             if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(), EyeDataUtil.glassesType(result))) {
                 exportDTO.setGlassesTypeDesc(GlassesTypeEnum.FRAME_GLASSES.getDesc());
                 exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
