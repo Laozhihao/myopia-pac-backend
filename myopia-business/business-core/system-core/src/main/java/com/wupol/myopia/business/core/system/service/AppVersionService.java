@@ -1,6 +1,8 @@
 package com.wupol.myopia.business.core.system.service;
 
+import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.service.BaseService;
+import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.domain.mapper.AppVersionMapper;
 import com.wupol.myopia.business.core.system.domain.model.AppChannel;
@@ -8,6 +10,7 @@ import com.wupol.myopia.business.core.system.domain.model.AppVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -43,5 +46,12 @@ public class AppVersionService extends BaseService<AppVersionMapper, AppVersion>
         }
         String apkUrl = resourceFileService.getResourcePath(appVersion.getApkFileResourceId());
         return appVersion.setApkUrl(apkUrl);
+    }
+
+    public void setApkFileInfo(AppVersion appVersion, MultipartFile apkFile) throws UtilException {
+        ResourceFile resourceFile = resourceFileService.uploadFileAndSave(apkFile, "apk");
+        appVersion.setApkFileResourceId(resourceFile.getId())
+                .setApkFileName(apkFile.getOriginalFilename())
+                .setApkFileSize(apkFile.getSize());
     }
 }
