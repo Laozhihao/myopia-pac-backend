@@ -251,7 +251,6 @@ public class SchoolStudentBizService {
             throw new BusinessException("该学生不存在");
         }
         schoolStudentService.deletedStudent(id);
-        studentService.deletedStudent(studentId);
     }
 
     /**
