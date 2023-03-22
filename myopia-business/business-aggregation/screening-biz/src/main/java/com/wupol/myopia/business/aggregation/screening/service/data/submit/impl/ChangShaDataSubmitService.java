@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -111,10 +108,8 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             setNakedVisions(exportDTO, result);
-            BigDecimal rightAxial = EyeDataUtil.rightAxial(result);
-            BigDecimal leftAxial = EyeDataUtil.leftAxial(result);
-            exportDTO.setRightAxial(Objects.isNull(rightAxial) ? "" : rightAxial.toString());
-            exportDTO.setLeftAxial(Objects.isNull(leftAxial) ? "" : leftAxial.toString());
+            exportDTO.setRightAxial(Optional.ofNullable(EyeDataUtil.leftAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            exportDTO.setLeftAxial(Optional.ofNullable(EyeDataUtil.rightAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
