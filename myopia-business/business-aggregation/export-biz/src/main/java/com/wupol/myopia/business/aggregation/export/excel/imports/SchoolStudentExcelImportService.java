@@ -309,7 +309,7 @@ public class SchoolStudentExcelImportService {
         if (Objects.isNull(student)) {
             student = new Student();
             BeanUtils.copyProperties(schoolStudent, student);
-            return student;
+            return student.setId(null);
         }
         return buildStudent(student, schoolStudent);
     }
