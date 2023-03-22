@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystemException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Excel工具
@@ -34,6 +35,8 @@ public class ExcelUtil {
     private static final String EXCEL_FILE_NAME = "%s-%s.xlsx";
     private static final String ZIP_FILE_NAME = "%s-%s.zip";
 
+    private static final String EXCEL_FILE_NAME_XLS = "%s-%s.xls";
+
     /**
      * 导数据到Excel，返回Excel对应的File
      * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
@@ -44,7 +47,20 @@ public class ExcelUtil {
      * @return java.io.File
      **/
     public static File exportListToExcel(String fileNamePrefix, List<?> data, Class<?> head) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix);
+       return exportListToExcel(fileNamePrefix, data, head, Boolean.TRUE);
+    }
+
+    /**
+     * 导数据到Excel，返回Excel对应的File
+     * （EasyExcel官方文档：https://www.yuque.com/easyexcel/doc/easyexcel）
+     *
+     * @param fileNamePrefix    文件名前缀
+     * @param data              填充的数据
+     * @param head              Excel表头定义类
+     * @return java.io.File
+     **/
+    public static File exportListToExcel(String fileNamePrefix, List<?> data, Class<?> head, Boolean isXlsx) throws IOException {
+        File outputFile = getOutputFile(fileNamePrefix, isXlsx);
         EasyExcelFactory.write(outputFile.getAbsolutePath(), head).sheet().doWrite(data);
         return outputFile;
     }
@@ -58,7 +74,7 @@ public class ExcelUtil {
      * @param data 数据集合
      */
     public static File exportListToExcel(String fileNamePrefix, InputStream templateInputStream, List<?> data) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix);
+        File outputFile = getOutputFile(fileNamePrefix, Boolean.TRUE);
         EasyExcelFactory.write(outputFile.getAbsolutePath()).withTemplate(templateInputStream).sheet().doFill(data);
         return outputFile;
     }
@@ -74,7 +90,7 @@ public class ExcelUtil {
      * @return java.io.File
      **/
     public static File exportListToExcel(String fileNamePrefix, List<?> data, SheetWriteHandler sheetWriteHandler,  Class<?> head) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix);
+        File outputFile = getOutputFile(fileNamePrefix, Boolean.TRUE);
         EasyExcelFactory.write(outputFile.getAbsolutePath(), head).registerWriteHandler(sheetWriteHandler).sheet().doWrite(data);
         return outputFile;
     }
@@ -100,13 +116,14 @@ public class ExcelUtil {
      * 获取输出文件
      *
      * @param fileNamePrefix 文件名前缀
+     * @param isXlsx
      * @return java.io.File
      **/
-    private static File getOutputFile(String fileNamePrefix) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix, "export/excel");
+    private static File getOutputFile(String fileNamePrefix, Boolean isXlsx) throws IOException {
+        File outputFile = getOutputFile(fileNamePrefix, "export/excel", isXlsx);
         if (outputFile.exists()) {
             // same file name existed, generate new file name
-            return getOutputFile(fileNamePrefix);
+            return getOutputFile(fileNamePrefix, isXlsx);
         }
         createNewFile(outputFile);
         return outputFile;
@@ -129,7 +146,7 @@ public class ExcelUtil {
      * @return java.io.File
      **/
     private static File getOutputFileWithFolder(String folder, String fileNamePrefix) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix, String.format("export/%s", folder));
+        File outputFile = getOutputFile(fileNamePrefix, String.format("export/%s", folder), Boolean.TRUE);
         if (outputFile.exists()) {
             // same file name existed, generate new file name
             return getOutputFileWithFolder(folder, fileNamePrefix);
@@ -153,13 +170,16 @@ public class ExcelUtil {
 
     /**
      * 获取外输文件
+     *
      * @param fileNamePrefix
      * @param folderString
+     * @param isXlsx
      * @return
      */
-    private static File getOutputFile(String fileNamePrefix, String folderString) {
+    private static File getOutputFile(String fileNamePrefix, String folderString, Boolean isXlsx) {
         String tempSubPath = IOUtils.getTempSubPath(folderString);
-        String fileName = String.format(EXCEL_FILE_NAME, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
+        String format = Objects.equals(isXlsx, Boolean.TRUE) ? EXCEL_FILE_NAME : EXCEL_FILE_NAME_XLS;
+        String fileName = String.format(format, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
                 .replaceAll("[\\s\\\\/:\\*\\?\\\"<>\\|]", "");
         return new File(FilenameUtils.concat(tempSubPath, fileName));
     }
@@ -192,7 +212,7 @@ public class ExcelUtil {
      */
     public static File exportHorizonListToExcel(
             String fileNamePrefix, List<?> data, InputStream template) throws IOException {
-        File outputFile = getOutputFile(fileNamePrefix);
+        File outputFile = getOutputFile(fileNamePrefix, Boolean.TRUE);
         ExcelWriter excelWriter = EasyExcelFactory.write(outputFile).withTemplate(template).build();
         WriteSheet writeSheet = EasyExcelFactory.writerSheet().build();
         FillConfig fillConfig =

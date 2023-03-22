@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -111,15 +108,17 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             setNakedVisions(exportDTO, result);
+            exportDTO.setRightAxial(Optional.ofNullable(EyeDataUtil.leftAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            exportDTO.setLeftAxial(Optional.ofNullable(EyeDataUtil.rightAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
-            exportDTO.setGlassesTypeDesc(EyeDataUtil.glassesTypeString(result));
-            exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
-            exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setGlassesTypeDesc(GlassesTypeEnum.FRAME_GLASSES.getDesc());
+                exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
+                exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            }
             success.incrementAndGet();
         } else {
             fail.incrementAndGet();
@@ -193,5 +192,10 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         return planStudentList.stream()
                 .filter(s -> StringUtils.isNotBlank(s.getIdCard()) || StringUtils.isNotBlank(s.getPassport()))
                 .collect(Collectors.toMap(s -> StringUtils.upperCase(StringUtils.isNotBlank(s.getIdCard()) ? s.getIdCard() : s.getPassport()), s -> resultMap.getOrDefault(s.getId(), new VisionScreeningResult())));
+    }
+
+    @Override
+    public Boolean isXlsx() {
+        return Boolean.FALSE;
     }
 }
