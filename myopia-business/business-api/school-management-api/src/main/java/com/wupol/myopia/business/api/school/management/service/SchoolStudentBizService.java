@@ -247,8 +247,8 @@ public class SchoolStudentBizService {
     public void deletedStudent(Integer id) {
         SchoolStudent schoolStudent = schoolStudentService.getById(id);
         Integer studentId = schoolStudent.getStudentId();
-        if (screeningPlanSchoolStudentService.checkStudentHavePlan(studentId)) {
-            throw new BusinessException("该学生有对应的筛查计划，无法进行删除");
+        if (Objects.isNull(studentId)) {
+            throw new BusinessException("该学生不存在");
         }
         schoolStudentService.deletedStudent(id);
         studentService.deletedStudent(studentId);
