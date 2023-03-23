@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.schedule;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
@@ -83,16 +84,16 @@ public class StatisticScheduledTaskService {
         log.info("开始统计昨天筛查数据......");
         //1. 查询出需要统计的计划（根据筛查数据vision_screening_result的更新时间判断）
         List<Integer> yesterdayScreeningPlanIds = visionScreeningResultService.getYesterdayScreeningPlanIds();
-        if (CollectionUtil.isEmpty(yesterdayScreeningPlanIds)) {
+        if (CollUtil.isEmpty(yesterdayScreeningPlanIds)) {
             log.info("筛查数据统计：前一天无筛查数据，无需统计");
             return;
         }
-        log.info("昨天有新数据需要统计......【{}】", yesterdayScreeningPlanIds.toString());
+        log.info("昨天有新数据需要统计......【planId：{}】", yesterdayScreeningPlanIds.toString());
         //2. 生成学校视力和监测情况统计数据（主要用于统计分析菜单）
         statisticByPlanIds(yesterdayScreeningPlanIds);
         //3. 生成按区域统计、按学校统计、预警人群数据
         yesterdayScreeningPlanIds.forEach(s-> screeningResultStatisticByPlanIds(Lists.newArrayList(s), Collections.emptyList()));
-        log.info("统计完成。");
+        log.info("统计完成。【planId：{}】", yesterdayScreeningPlanIds.toString());
     }
 
     /**
@@ -147,28 +148,32 @@ public class StatisticScheduledTaskService {
      * @param screeningPlanIds 筛查计划ID集合
      */
     private void screeningResultStatisticByPlanIds(List<Integer> screeningPlanIds, List<Integer> excludePlanIds){
-        log.info("生成按区域统计、按学校统计数据......");
-        CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
-            log.info("按区域统计开始");
-            districtStatisticTask.districtStatistics(screeningPlanIds, excludePlanIds);
-            log.info("按区域统计结束");
-        }, asyncServiceExecutor);
+        try {
+            log.info("生成按区域统计、按学校统计数据，planId = {}，......", screeningPlanIds.toString());
+            CompletableFuture<Void> districtFuture = CompletableFuture.runAsync(() -> {
+                log.info("按区域统计开始，planId = {}", screeningPlanIds.toString());
+                districtStatisticTask.districtStatistics(screeningPlanIds, excludePlanIds);
+                log.info("按区域统计结束，planId = {}", screeningPlanIds.toString());
+            }, asyncServiceExecutor);
 
-        CompletableFuture<Void> schoolFuture = CompletableFuture.runAsync(() -> {
-            log.info("按学校统计开始");
-            schoolStatisticTask.schoolStatistics(screeningPlanIds);
-            log.info("按学校统计结束");
-        }, asyncServiceExecutor);
+            CompletableFuture<Void> schoolFuture = CompletableFuture.runAsync(() -> {
+                log.info("按学校统计开始，planId = {}", screeningPlanIds.toString());
+                schoolStatisticTask.schoolStatistics(screeningPlanIds);
+                log.info("按学校统计结束，planId = {}", screeningPlanIds.toString());
+            }, asyncServiceExecutor);
 
-        CompletableFuture<Void> statisticFuture = CompletableFuture.runAsync(() -> {
-            log.info("预警人群统计开始");
-            List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
-            genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
-            districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
-            log.info("预警人群统计结束");
-        },asyncServiceExecutor);
+            CompletableFuture<Void> statisticFuture = CompletableFuture.runAsync(() -> {
+                log.info("预警人群统计开始，planId = {}", screeningPlanIds.toString());
+                List<DistrictAttentiveObjectsStatistic> districtAttentiveObjectsStatistics = new ArrayList<>();
+                genAttentiveObjectsStatistics(screeningPlanIds, districtAttentiveObjectsStatistics);
+                districtAttentiveObjectsStatisticService.batchSaveOrUpdate(districtAttentiveObjectsStatistics);
+                log.info("预警人群统计结束，planId = {}", screeningPlanIds.toString());
+            },asyncServiceExecutor);
 
-        CompletableFuture.allOf(districtFuture,schoolFuture,statisticFuture).join();
+            CompletableFuture.allOf(districtFuture,schoolFuture,statisticFuture).join();
+        } catch (Exception e) {
+            log.error("统计失败，planId = {}", screeningPlanIds.toString());
+        }
     }
 
     /**

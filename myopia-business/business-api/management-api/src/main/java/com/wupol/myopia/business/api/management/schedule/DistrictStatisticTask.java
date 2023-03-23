@@ -45,12 +45,12 @@ public class DistrictStatisticTask {
         //筛查计划ID 查找筛查通知ID
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsOfReleasePlanByPlanIds(screeningPlanIds);
         if(CollUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
+            log.error("按地区-未找到关联筛查通知，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
         if(CollUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
+            log.error("按地区-未找到关联筛查通知，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         districtStatisticsByNoticeIds(screeningNoticeIds, excludePlanIds);
