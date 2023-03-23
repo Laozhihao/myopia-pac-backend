@@ -10,7 +10,6 @@ import com.wupol.myopia.business.api.management.validator.AddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UpdateStatusValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UpdateValidatorGroup;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.domain.model.ResourceFile;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.domain.model.AppVersion;
 import com.wupol.myopia.business.core.system.service.AppVersionService;
@@ -23,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -61,17 +62,11 @@ public class AppVersionController {
     @PostMapping
     public Boolean addAppVersion(@NotNull(message = "apkFile不能为空") MultipartFile apkFile,
                                  @Validated(value = {AddValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) throws UtilException {
-        // 上传
-        ResourceFile resourceFile = resourceFileService.uploadFileAndSave(apkFile, "apk");
-        // 保存
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
-        appVersion.setApkFileResourceId(resourceFile.getId())
-                .setApkFileName(apkFile.getOriginalFilename())
-                .setApkFileSize(apkFile.getSize())
-                .setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
+        appVersionService.setApkFileInfo(appVersion, apkFile);
         try {
-            return appVersionService.save(appVersion);
+            return appVersionService.save(appVersion.setCreateUserId(CurrentUserUtil.getCurrentUser().getId()));
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已存在该版本，请填写新版本号", e);
         }
@@ -84,11 +79,15 @@ public class AppVersionController {
      * @return void
      **/
     @PutMapping
-    public Boolean updateAppVersion(@RequestBody @Validated(value = {UpdateValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) {
+    public Boolean updateAppVersion(MultipartFile apkFile, @RequestBody @Validated(value = {UpdateValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) throws UtilException {
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
+        // 上传文件
+        if (Objects.nonNull(apkFile) && apkFile.getSize() != 0) {
+            appVersionService.setApkFileInfo(appVersion, apkFile);
+        }
         try {
-            return appVersionService.updateById(appVersion);
+            return appVersionService.updateById(appVersion.setUpdateTime(new Date()));
         } catch (DuplicateKeyException e) {
             throw new BusinessException("已存在该版本，请填写新版本号", e);
         }

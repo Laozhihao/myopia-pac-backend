@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -97,17 +94,29 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ChangShaDataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
-            exportDTO.setCheckDate(DateFormatUtil.format(result.getCreateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
+            exportDTO.setCheckDate(DateFormatUtil.format(result.getUpdateTime(), DateFormatUtil.FORMAT_ONLY_DATE));
             setNakedVisions(exportDTO, result);
+            exportDTO.setRightAxial(Optional.ofNullable(EyeDataUtil.leftAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            exportDTO.setLeftAxial(Optional.ofNullable(EyeDataUtil.rightAxial(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
-            exportDTO.setGlassesTypeDesc(EyeDataUtil.glassesTypeString(result));
-            exportDTO.setRightCorrectedVisions(EyeDataUtil.correctedRightDataToStr(result));
-            exportDTO.setLeftCorrectedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+            if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setGlassesTypeDesc(GlassesTypeEnum.FRAME_GLASSES.getDesc());
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            }
+            if (Objects.equals(GlassesTypeEnum.CONTACT_LENS.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setGlassesTypeDesc(GlassesTypeEnum.CONTACT_LENS.getDesc());
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            }
+            if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setGlassesTypeDesc("角膜塑形镜");
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+            }
             success.incrementAndGet();
         } else {
             fail.incrementAndGet();
@@ -139,14 +148,14 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
                 if (ObjectUtils.allNotNull(leftCorrectedVision, rightCorrectedVision)) {
                     exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftCorrectedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightCorrectedVision, "5.0") ? "正常" : "异常");
                 } else {
-                    exportDTO.setEyeVisionDesc("未检测");
+                    exportDTO.setEyeVisionDesc(StringUtils.EMPTY);
                 }
             }
         } else {
             if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
                 exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
             } else {
-                exportDTO.setEyeVisionDesc("未检测");
+                exportDTO.setEyeVisionDesc(StringUtils.EMPTY);
             }
             exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
             exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));

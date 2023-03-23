@@ -294,8 +294,7 @@ public class CredentialModificationHandler {
      */
     public void deletedStudent(Integer studentId, Integer schoolId, Integer planId) {
         List<Integer> studentIds = Lists.newArrayList(studentId);
-        // TODO: 很危险的操作！！！基本上查出了整个表的筛查学生
-        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByNePlanId(planId).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
+        Map<Integer, ScreeningPlanSchoolStudent> planStudentMap = screeningPlanSchoolStudentService.getByNePlanId(planId, studentIds).stream().collect(Collectors.toMap(ScreeningPlanSchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, SchoolStudent> schoolStudentMap = schoolStudentService.getByStudentIdsAndSchoolId(studentIds, schoolId).stream().collect(Collectors.toMap(SchoolStudent::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, VisionScreeningResult> resultMap = visionScreeningResultService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(VisionScreeningResult::getStudentId, Function.identity(), (s1, s2) -> s1));
         Map<Integer, ParentStudent> parentStudentMap = parentStudentService.getByStudentIds(studentIds).stream().collect(Collectors.toMap(ParentStudent::getStudentId, Function.identity(), (s1, s2) -> s1));

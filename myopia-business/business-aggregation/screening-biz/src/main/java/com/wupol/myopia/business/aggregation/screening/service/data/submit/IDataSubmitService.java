@@ -5,7 +5,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreenin
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 /**
  * 数据上报
@@ -23,4 +22,8 @@ public interface IDataSubmitService {
     Integer getRemoveRows();
 
     Map<String, VisionScreeningResult> getVisionScreeningData(List<Map<Integer, String>> listMap, Integer schoolId, Integer screeningPlanId);
+
+    default Boolean isXlsx() {
+        return Boolean.TRUE;
+    }
 }
