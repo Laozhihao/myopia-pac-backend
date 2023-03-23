@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -92,10 +92,8 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ShangHaiDataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
-
-
-            exportDTO.setLeftNakedVisions(Optional.ofNullable(EyeDataUtil.leftNakedVision(result)).map(BigDecimal::toString).orElse(DEFAULT_VALUE));
-            exportDTO.setRightNakedVisions(Optional.ofNullable(EyeDataUtil.rightNakedVision(result)).map(BigDecimal::toString).orElse(DEFAULT_VALUE));
+            exportDTO.setLeftNakedVisions(Optional.ofNullable(EyeDataUtil.leftNakedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
+            exportDTO.setRightNakedVisions(Optional.ofNullable(EyeDataUtil.rightNakedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
