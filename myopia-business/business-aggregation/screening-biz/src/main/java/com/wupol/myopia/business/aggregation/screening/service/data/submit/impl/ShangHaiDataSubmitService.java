@@ -10,10 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -25,6 +23,8 @@ import java.util.function.Function;
 @Service
 public class ShangHaiDataSubmitService implements IDataSubmitService {
     private final static Integer CREDENTIALS_INDEX = 9;
+
+    private final static String DEFAULT_VALUE = "9";
 
     @Resource
     private CommonDataSubmitService commonDataSubmitService;
@@ -44,7 +44,6 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
             getScreeningInfo(success, fail, screeningData, s, exportDTO);
             exportData.add(exportDTO);
         });
-
         return exportData;
     }
 
@@ -93,8 +92,10 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
     private void getScreeningInfo(AtomicInteger success, AtomicInteger fail, Map<String, VisionScreeningResult> screeningResultMap, Map<Integer, String> s, ShangHaiDataSubmitExportDTO exportDTO) {
         VisionScreeningResult result = screeningResultMap.get(StringUtils.upperCase(s.get(CREDENTIALS_INDEX)));
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
-            exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
-            exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
+
+
+            exportDTO.setLeftNakedVisions(Optional.ofNullable(EyeDataUtil.leftNakedVision(result)).map(BigDecimal::toString).orElse(DEFAULT_VALUE));
+            exportDTO.setRightNakedVisions(Optional.ofNullable(EyeDataUtil.rightNakedVision(result)).map(BigDecimal::toString).orElse(DEFAULT_VALUE));
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
@@ -104,10 +105,12 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
             if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
                 exportDTO.setIsOkGlasses("0");
             } else {
-                exportDTO.setIsOkGlasses("9");
+                exportDTO.setIsOkGlasses(DEFAULT_VALUE);
             }
             success.incrementAndGet();
         } else {
+            exportDTO.setLeftNakedVisions(DEFAULT_VALUE);
+            exportDTO.setRightNakedVisions(DEFAULT_VALUE);
             fail.incrementAndGet();
         }
     }
