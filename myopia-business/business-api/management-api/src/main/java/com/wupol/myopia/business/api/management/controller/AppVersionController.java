@@ -10,9 +10,9 @@ import com.wupol.myopia.business.api.management.validator.AddValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UpdateStatusValidatorGroup;
 import com.wupol.myopia.business.api.management.validator.UpdateValidatorGroup;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
-import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.system.domain.model.AppVersion;
 import com.wupol.myopia.business.core.system.service.AppVersionService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,6 +29,7 @@ import java.util.Objects;
  * @Author HaoHao
  * @Date 2021-11-23
  */
+@Log4j2
 @Validated
 @ResponseResultBody
 @RestController
@@ -37,8 +38,6 @@ public class AppVersionController {
 
     @Autowired
     private AppVersionService appVersionService;
-    @Autowired
-    private ResourceFileService resourceFileService;
 
     /**
      * 获取app版本列表（分页）
@@ -79,7 +78,7 @@ public class AppVersionController {
      * @return void
      **/
     @PutMapping
-    public Boolean updateAppVersion(MultipartFile apkFile, @RequestBody @Validated(value = {UpdateValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) throws UtilException {
+    public Boolean updateAppVersion(MultipartFile apkFile, @Validated(value = {UpdateValidatorGroup.class, Default.class}) AppVersionDTO appVersionDTO) throws UtilException {
         AppVersion appVersion = new AppVersion();
         BeanUtils.copyProperties(appVersionDTO, appVersion);
         // 上传文件
