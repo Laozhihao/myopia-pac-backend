@@ -83,7 +83,6 @@ public class AppVersionController {
         BeanUtils.copyProperties(appVersionDTO, appVersion);
         // 上传文件
         if (Objects.nonNull(apkFile) && apkFile.getSize() != 0) {
-            log.info("文件不为空，开始上传......");
             appVersionService.setApkFileInfo(appVersion, apkFile);
         }
         try {
