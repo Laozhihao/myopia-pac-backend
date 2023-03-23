@@ -111,4 +111,9 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
             fail.incrementAndGet();
         }
     }
+
+    @Override
+    public Boolean isXlsx() {
+        return Boolean.FALSE;
+    }
 }
