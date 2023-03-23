@@ -94,6 +94,10 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
         if (Objects.nonNull(result) && Objects.nonNull(result.getId())) {
             exportDTO.setLeftNakedVisions(Optional.ofNullable(EyeDataUtil.leftNakedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
             exportDTO.setRightNakedVisions(Optional.ofNullable(EyeDataUtil.rightNakedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
+            if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.getCode(), EyeDataUtil.glassesType(result))) {
+                exportDTO.setLeftNakedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
+                exportDTO.setRightNakedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(DEFAULT_VALUE));
+            }
             exportDTO.setLeftSph(EyeDataUtil.spliceSymbol(EyeDataUtil.leftSph(result)));
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
