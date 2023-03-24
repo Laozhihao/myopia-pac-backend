@@ -15,6 +15,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
+import com.wupol.myopia.business.core.stat.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class ScreeningPlanBizFacade {
     private final StatConclusionService statConclusionService;
     private final VisionScreeningResultService visionScreeningResultService;
     private final StatRescreenService statRescreenService;
+    private final SchoolMonitorStatisticService schoolMonitorStatisticService;
+    private final SchoolVisionStatisticService schoolVisionStatisticService;
+    private final ScreeningResultStatisticService screeningResultStatisticService;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -202,6 +206,10 @@ public class ScreeningPlanBizFacade {
         });
         statRescreenService.updateBatchById(statRescreens);
 
+        // 删除统计数据
+        schoolMonitorStatisticService.deleteByPlanId(planId);
+        schoolVisionStatisticService.deleteByPlanId(planId);
+        screeningResultStatisticService.deleteByPlanId(planId);
         return screeningNoticeId;
 
     }
