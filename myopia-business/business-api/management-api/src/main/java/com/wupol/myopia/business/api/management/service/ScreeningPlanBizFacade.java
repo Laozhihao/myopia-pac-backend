@@ -198,6 +198,7 @@ public class ScreeningPlanBizFacade {
                     .setTaskId(screeningTaskId)
                     .setDistrictId(districtId);
         });
+        statConclusionService.updateBatchById(statConclusions);
 
         // 复测统计表
         List<StatRescreen> statRescreens = statRescreenService.getByPlanId(planId);
