@@ -107,7 +107,7 @@ public class StatConclusionBizService {
 
         List<CompletableFuture<Void>> completableFutureList = new ArrayList<>();
         mapList.forEach(list->{
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMap(list), asyncServiceExecutor);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumerMapCatchException(list), asyncServiceExecutor);
             completableFutureList.add(future);
         });
         CompletableFuture.allOf(completableFutureList.toArray(new CompletableFuture[mapList.size()])).join();
@@ -115,8 +115,19 @@ public class StatConclusionBizService {
         log.info("筛查数据结论,数据处理完成");
     }
 
+    /**
+     * 消费筛查结果统计数据，吃掉异常
+     * @param visionScreeningResultMap 筛查结果统计数据
+     */
+    private void consumerMapCatchException(Map<Integer, List<VisionScreeningResult>> visionScreeningResultMap) {
+        try {
+            consumerMap(visionScreeningResultMap);
+        } catch (Exception e) {
+            log.error("更新statConclusion数据异常：{}", visionScreeningResultMap.keySet(), e);
+        }
+    }
 
-    @Data
+        @Data
     static class DataProcessBO{
         private Map<Integer, ScreeningPlanSchoolStudent> screeningPlanSchoolStudentMap;
         private Map<Integer, SchoolGrade> schoolGradeMap;
