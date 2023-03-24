@@ -118,6 +118,8 @@ public class ScreeningPlanController {
     private ResourceFileService resourceFileService;
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
 
 
     /**
@@ -767,5 +769,25 @@ public class ScreeningPlanController {
     @GetMapping("data/submit/file/{id}")
     public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
         return ApiResult.success(resourceFileService.getResourcePath(id));
+    }
+
+    /**
+     * 获取关联的通知
+     *
+     * @return List<ScreeningNoticeDTO>
+     */
+    @GetMapping("planLinkNotice/list")
+    public List<ScreeningNoticeDTO> getPlanLinkNoticeList() {
+//        if (Objects.equals(CurrentUserUtil.getCurrentUser().isScreeningUser(), Boolean.FALSE)) {
+//            throw new BusinessException("非筛查机构不能查询");
+//        }
+//        Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
+        Integer screeningOrgId = 19;
+        return screeningNoticeDeptOrgService.getCanLinkNotice(screeningOrgId);
+    }
+
+    @PostMapping("linkNotice/link")
+    public void linkNotice(@RequestBody PlanLinkNoticeRequestDTO requestDTO) {
+        return;
     }
 }
