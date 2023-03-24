@@ -121,7 +121,7 @@ public class ScreeningPlanController {
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
     @Autowired
-    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    private ScreeningNoticeDeptOrgBizService screeningNoticeDeptOrgBizService;
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
 
@@ -786,7 +786,7 @@ public class ScreeningPlanController {
             throw new BusinessException("非筛查机构不能查询");
         }
         Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
-        return screeningNoticeDeptOrgService.getCanLinkNotice(screeningOrgId);
+        return screeningNoticeDeptOrgBizService.getCanLinkNotice(screeningOrgId);
     }
 
     /**
