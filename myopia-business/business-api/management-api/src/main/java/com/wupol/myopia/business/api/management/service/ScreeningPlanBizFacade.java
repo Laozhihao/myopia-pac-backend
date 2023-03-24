@@ -4,16 +4,15 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.validation.ValidationException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,6 +39,11 @@ public class ScreeningPlanBizFacade {
     private final ScreeningTaskOrgService screeningTaskOrgService;
     private final ScreeningTaskService screeningTaskService;
     private final SchoolService schoolService;
+    private final ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    private final ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
+    private final StatConclusionService statConclusionService;
+    private final VisionScreeningResultService visionScreeningResultService;
+    private final StatRescreenService statRescreenService;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -128,5 +133,76 @@ public class ScreeningPlanBizFacade {
                 screeningPlanDTO.setDistrictId(organization.getDistrictId());
             }
         }
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
+        Integer planId = requestDTO.getPlanId();
+        Integer screeningNoticeDeptOrgId = requestDTO.getScreeningNoticeDeptOrgId();
+        Integer screeningTaskId = requestDTO.getScreeningTaskId();
+
+
+        ScreeningPlan plan = screeningPlanService.getById(planId);
+        if (Objects.isNull(plan)) {
+            throw new BusinessException("通过计划Id查询不到计划" + planId);
+        }
+
+        ScreeningNoticeDeptOrg deptOrg = screeningNoticeDeptOrgService.getById(screeningNoticeDeptOrgId);
+        if (Objects.isNull(deptOrg)) {
+            throw new BusinessException("通知机构信息异常" + screeningNoticeDeptOrgId);
+        }
+
+        ScreeningTask task = screeningTaskService.getById(screeningTaskId);
+        if (Objects.isNull(task)) {
+            throw new BusinessException("任务信息异常" + screeningNoticeDeptOrgId);
+        }
+
+        Integer districtId = task.getDistrictId();
+
+        Integer screeningNoticeId = task.getScreeningNoticeId();
+        plan.setSrcScreeningNoticeId(screeningNoticeId)
+                .setScreeningTaskId(screeningTaskId)
+                .setDistrictId(districtId);
+        screeningPlanService.updateById(plan);
+
+
+        deptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_CREATED).setScreeningTaskPlanId(planId);
+        screeningNoticeDeptOrgService.updateById(deptOrg);
+
+        // 计划学生
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
+        planStudents.forEach(planStudent->{
+            planStudent.setPlanDistrictId(districtId)
+                    .setScreeningTaskId(screeningTaskId)
+                    .setSrcScreeningNoticeId(screeningNoticeId);
+        });
+        screeningPlanSchoolStudentService.updateBatchById(planStudents);
+
+        // 筛查结果
+        List<VisionScreeningResult> visionResults = visionScreeningResultService.getByPlanId(planId);
+        visionResults.forEach(result->{
+            result.setTaskId(screeningTaskId)
+                    .setDistrictId(districtId);
+        });
+        visionScreeningResultService.updateBatchById(visionResults);
+
+        // 统计结果
+        List<StatConclusion> statConclusions = statConclusionService.getByPlanId(planId);
+        statConclusions.forEach(statConclusion -> {
+            statConclusion.setSrcScreeningNoticeId(screeningNoticeId)
+                    .setTaskId(screeningTaskId)
+                    .setDistrictId(districtId);
+        });
+
+        // 复测统计表
+        List<StatRescreen> statRescreens = statRescreenService.getByPlanId(planId);
+        statRescreens.forEach(statRescreen -> {
+            statRescreen.setSrcScreeningNoticeId(screeningNoticeId).setTaskId(screeningTaskId);
+        });
+        statRescreenService.updateBatchById(statRescreens);
+
+        return screeningNoticeId;
+
     }
 }

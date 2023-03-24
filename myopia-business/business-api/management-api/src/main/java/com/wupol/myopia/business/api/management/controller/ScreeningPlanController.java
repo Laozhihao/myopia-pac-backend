@@ -25,6 +25,7 @@ import com.wupol.myopia.business.aggregation.screening.service.data.submit.IData
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
+import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -121,6 +122,8 @@ public class ScreeningPlanController {
     private DataSubmitFactory dataSubmitFactory;
     @Autowired
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private StatisticScheduledTaskService statisticScheduledTaskService;
 
 
     /**
@@ -786,8 +789,14 @@ public class ScreeningPlanController {
         return screeningNoticeDeptOrgService.getCanLinkNotice(screeningOrgId);
     }
 
+    /**
+     * 关联通知
+     *
+     * @param requestDTO requestDTO
+     */
     @PostMapping("linkNotice/link")
-    public void linkNotice(@RequestBody PlanLinkNoticeRequestDTO requestDTO) {
-        return;
+    public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
+        Integer noticeId = screeningPlanBizFacade.linkNotice(requestDTO);
+        statisticScheduledTaskService.statistic(null, null, false, null, noticeId);
     }
 }

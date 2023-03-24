@@ -83,4 +83,10 @@ public class StatRescreenService extends BaseService<StatRescreenMapper, StatRes
         return baseMapper.getByPlanAndSchool(planId, schoolId, screeningTime);
     }
 
+    public List<StatRescreen> getByPlanId(Integer planId) {
+        LambdaQueryWrapper<StatRescreen> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StatRescreen::getPlanId, planId);
+        return baseMapper.selectList(queryWrapper);
+    }
+
 }
