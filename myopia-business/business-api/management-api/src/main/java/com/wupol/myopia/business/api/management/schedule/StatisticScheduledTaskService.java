@@ -172,7 +172,7 @@ public class StatisticScheduledTaskService {
 
             CompletableFuture.allOf(districtFuture,schoolFuture,statisticFuture).join();
         } catch (Exception e) {
-            log.error("统计失败，planId = {}", screeningPlanIds.toString());
+            log.error("统计失败，planId = {}", screeningPlanIds.toString(), e);
         }
     }
 

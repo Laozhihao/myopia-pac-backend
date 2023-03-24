@@ -141,9 +141,6 @@ public class ScreeningResultStatisticBuilder {
                               VisionScreeningResultStatistic statistic) {
         Integer planScreeningNum = totalStatistic.getPlanStudentCount();
         int schoolNum = (int)statConclusions.stream().map(StatConclusion::getSchoolId).filter(Objects::nonNull).distinct().count();
-        if (Objects.isNull(statistic.getId())){
-            statistic.setCreateTime(new Date());
-        }
         statistic.setScreeningNoticeId(totalStatistic.getScreeningNoticeId())
                 .setScreeningTaskId(totalStatistic.getScreeningTaskId())
                 .setScreeningPlanId(totalStatistic.getScreeningPlanId())
