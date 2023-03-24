@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -778,11 +779,10 @@ public class ScreeningPlanController {
      */
     @GetMapping("planLinkNotice/list")
     public List<ScreeningNoticeDTO> getPlanLinkNoticeList() {
-//        if (Objects.equals(CurrentUserUtil.getCurrentUser().isScreeningUser(), Boolean.FALSE)) {
-//            throw new BusinessException("非筛查机构不能查询");
-//        }
-//        Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
-        Integer screeningOrgId = 19;
+        if (Objects.equals(CurrentUserUtil.getCurrentUser().isScreeningUser(), Boolean.FALSE)) {
+            throw new BusinessException("非筛查机构不能查询");
+        }
+        Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
         return screeningNoticeDeptOrgService.getCanLinkNotice(screeningOrgId);
     }
 
