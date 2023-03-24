@@ -200,7 +200,7 @@ public class DeviceUploadDataService {
         Device device = deviceService.getDeviceByDeviceSn(deviceUploadDto.getImei());
         //如果不存在报错
         if (device == null) {
-            throw new BusinessException("无法找到设备：" + deviceUploadDto.getImei());
+            throw new BusinessException("无法找到设备：" + deviceUploadDto.getImei(), ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode());
         }
         Integer bindingScreeningOrgId = device.getBindingScreeningOrgId();
         String deviceSn = device.getDeviceSn();
@@ -277,30 +277,30 @@ public class DeviceUploadDataService {
     @Transactional(rollbackFor = Exception.class)
     public ScalesResponseDTO bodyFatScaleUpload(ScalesRequestDTO requestDTO) {
         if (!StringUtils.equals("webResults", requestDTO.getAction())) {
-            return new ScalesResponseDTO("0", "事件类型异常，请确认");
+            return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "事件类型异常，请确认");
         }
         Device device = deviceService.getDeviceByDeviceSn(requestDTO.getDeviceID());
         if (Objects.isNull(device)) {
-            return new ScalesResponseDTO("0", "无法找到设备:" + requestDTO.getDeviceID());
+            return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "无法找到设备:" + requestDTO.getDeviceID());
         }
         Integer orgId = getOrganizationIdThrowException(device);
         List<ScalesData> datas = requestDTO.getDatas();
         if (CollectionUtils.isEmpty(datas)) {
-            return new ScalesResponseDTO("0", "数据为空");
+            return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "数据为空");
         }
         for (ScalesData data : datas) {
             String uid = data.getUid();
             if (StringUtils.isBlank(uid)) {
-                return new ScalesResponseDTO("0", "uid数据为空");
+                return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "uid数据为空");
             }
             Integer parsePlanStudentId = ParsePlanStudentUtils.parsePlanStudentId(uid);
             ScreeningPlanSchoolStudent planStudent = getScreeningPlanSchoolStudent(orgId, parsePlanStudentId);
             if (Objects.isNull(planStudent)) {
-                return new ScalesResponseDTO("0", "uid找不到学生数据");
+                return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "uid找不到学生数据");
             }
             BmiData bmiData = data.getBmi();
             if (Objects.isNull(bmiData)) {
-                return new ScalesResponseDTO("0", "身体质量指数值为空");
+                return new ScalesResponseDTO(ScalesResponseDTO.FAILED, "身体质量指数值为空");
             }
             // 保存原始数据
             saveDeviceData(device, JSON.toJSONString(data), parsePlanStudentId, orgId, System.currentTimeMillis());
@@ -314,7 +314,7 @@ public class DeviceUploadDataService {
             heightAndWeightDataDTO.setSchoolId(String.valueOf(planStudent.getSchoolId()));
             visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
         }
-        return new ScalesResponseDTO("1", "success");
+        return new ScalesResponseDTO(ScalesResponseDTO.SUCCESS, "success");
     }
 
     /**
@@ -461,6 +461,21 @@ public class DeviceUploadDataService {
         data.setScreeningOrgId(orgId);
         data.setScreeningTime(Objects.nonNull(screeningTime) ? DateUtil.date(screeningTime) : new Date());
         deviceSourceDataService.save(data);
+    }
+
+    /**
+     * 打印异常日志
+     *
+     * @param deviceName    设备名称
+     * @param e             异常
+     * @param uploadData    原始数据
+     */
+    public void printErrorLog(String deviceName, BusinessException e, Object uploadData) {
+        if (ResultCode.DATA_UPLOAD_DEVICE_ERROR.getCode().equals(e.getCode())) {
+            log.warn("{}上传数据失败：【{}】,数据 = {}", deviceName, e.getMessage(), JSON.toJSONString(uploadData));
+        } else {
+            log.error("{}上传数据失败：【{}】,数据 = {}", deviceName, e.getMessage(), JSON.toJSONString(uploadData), e);
+        }
     }
 
 }

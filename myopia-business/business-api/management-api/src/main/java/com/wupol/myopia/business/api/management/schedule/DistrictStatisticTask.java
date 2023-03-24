@@ -45,12 +45,12 @@ public class DistrictStatisticTask {
         //筛查计划ID 查找筛查通知ID
         List<Integer> screeningNoticeIds = screeningPlanService.getSrcScreeningNoticeIdsOfReleasePlanByPlanIds(screeningPlanIds);
         if(CollUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
+            log.warn("按地区-未找到关联筛查通知，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         screeningNoticeIds = screeningNoticeIds.stream().filter(id-> !CommonConst.DEFAULT_ID.equals(id)).collect(Collectors.toList());
         if(CollUtil.isEmpty(screeningNoticeIds)){
-            log.error("按地区-未找到筛查通知数据，planIds:{}",CollUtil.join(screeningPlanIds,","));
+            log.warn("按地区-未找到关联筛查通知，planIds:{}",CollUtil.join(screeningPlanIds,","));
             return;
         }
         districtStatisticsByNoticeIds(screeningNoticeIds, excludePlanIds);
@@ -68,7 +68,7 @@ public class DistrictStatisticTask {
         //筛查通知ID 查出筛查数据结论
         List<StatConclusion> statConclusionList = statConclusionService.listOfReleasePlanByScreeningNoticeIds(screeningNoticeIds, excludePlanIds);
         if (CollUtil.isEmpty(statConclusionList)){
-            log.error("未找到筛查数据结论，screeningNoticeIds:{}",CollUtil.join(screeningNoticeIds,","));
+            log.warn("未找到筛查数据结论，screeningNoticeIds:{}",CollUtil.join(screeningNoticeIds,","));
             return;
         }
 

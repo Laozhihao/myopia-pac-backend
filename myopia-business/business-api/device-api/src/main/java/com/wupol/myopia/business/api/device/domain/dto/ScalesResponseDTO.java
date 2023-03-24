@@ -13,6 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ScalesResponseDTO {
+    /** 失败 */
+    public static final String FAILED = "0";
+    /** 成功 */
+    public static final String SUCCESS = "1";
 
     /**
      * 状态: 1=成功，-1、0=失败(如返回为 1 即成功，设备将不再上传。否则设备将缓存，下次将继续上传)

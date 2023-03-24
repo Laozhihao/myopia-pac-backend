@@ -108,6 +108,8 @@ public class ScreeningResultStatisticService extends BaseService<ScreeningResult
     public void saveScreeningResultStatistic(VisionScreeningResultStatistic visionScreeningResultStatistic){
         ScreeningResultStatistic screeningResultStatistic = BeanCopyUtil.copyBeanPropertise(visionScreeningResultStatistic, ScreeningResultStatistic.class);
         LambdaQueryWrapper<ScreeningResultStatistic> queryWrapper =new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningNoticeId,screeningResultStatistic.getScreeningNoticeId());
+        queryWrapper.eq(ScreeningResultStatistic::getScreeningTaskId,screeningResultStatistic.getScreeningTaskId());
         queryWrapper.eq(ScreeningResultStatistic::getScreeningPlanId,screeningResultStatistic.getScreeningPlanId());
         queryWrapper.eq(ScreeningResultStatistic::getScreeningType,screeningResultStatistic.getScreeningType());
         queryWrapper.eq(ScreeningResultStatistic::getScreeningOrgId,screeningResultStatistic.getScreeningOrgId());
