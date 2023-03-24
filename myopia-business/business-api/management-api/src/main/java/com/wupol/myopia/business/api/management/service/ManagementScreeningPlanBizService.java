@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.facade.ManagementScreeningPlanFacade;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -88,7 +91,7 @@ public class ManagementScreeningPlanBizService {
         List<Integer> userIds = screeningPlanPage.getRecords().stream().map(ScreeningPlan::getCreateUserId).distinct().collect(Collectors.toList());
         Map<Integer, String> userIdNameMap = oauthServiceClient.getUserBatchByIds(userIds).stream().collect(Collectors.toMap(User::getId, User::getRealName));
         List<Integer> screeningOrgIds = screeningPlanPage.getRecords().stream().map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
-        Map<Integer, ScreeningOrganization> orgMap = CollectionUtils.isEmpty(screeningOrgIds) ? new HashMap<>() : screeningOrganizationService.getByIds(screeningOrgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, x -> x));
+        Map<Integer, ScreeningOrganization> orgMap = CollectionUtils.isEmpty(screeningOrgIds) ? new HashMap<>() : screeningOrganizationService.getByIds(screeningOrgIds).stream().collect(Collectors.toMap(ScreeningOrganization::getId, Function.identity()));
 
         List<ScreeningPlanPageDTO> records = screeningPlanPage.getRecords();
         if (CollUtil.isEmpty(records)){
@@ -106,19 +109,23 @@ public class ManagementScreeningPlanBizService {
         }
 
         records.forEach(vo -> {
-            ScreeningOrganization org = orgMap.get(vo.getScreeningOrgId());
+            ScreeningOrganization org = orgMap.getOrDefault(vo.getScreeningOrgId(), new ScreeningOrganization());
+            vo.setIsCanLink(Objects.equals(org.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_0.getType())
+                    && Objects.equals(vo.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())
+                    && Objects.equals(vo.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                    && Objects.equals(vo.getScreeningTaskId(), 0));
+
             String orgName;
             if (Objects.equals(vo.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
                 orgName = schoolNameMap.getOrDefault(vo.getScreeningOrgId(), StrUtil.EMPTY);
-            }else {
-                orgName = Optional.ofNullable(org).map(ScreeningOrganization::getName).orElse(StrUtil.EMPTY);
+            } else {
+                orgName = Optional.of(org).map(ScreeningOrganization::getName).orElse(StrUtil.EMPTY);
             }
             vo.setCreatorName(userIdNameMap.getOrDefault(vo.getCreateUserId(), StrUtil.EMPTY))
                     .setDistrictName(districtService.getDistrictNameByDistrictId(vo.getDistrictId()))
                     .setGovDeptName(govDeptIdNameMap.getOrDefault(vo.getGovDeptId(), StrUtil.EMPTY))
                     .setScreeningOrgName(orgName)
-                    .setQrCodeConfig(Optional.ofNullable(org).map(ScreeningOrganization::getQrCodeConfig).orElse(StrUtil.EMPTY));
-
+                    .setQrCodeConfig(Optional.of(org).map(ScreeningOrganization::getQrCodeConfig).orElse(StrUtil.EMPTY));
         });
         return screeningPlanPage;
     }
