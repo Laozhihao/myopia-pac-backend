@@ -13,7 +13,8 @@ import java.util.List;
 public enum DataSubmitTypeEnum {
 
     NATION(0, "国家表格", 0),
-    CHANG_SHA(1, "长沙市数据报送（教育版）", 3);
+    CHANG_SHA(1, "长沙市数据报送（教育版）", 3),
+    SHANG_HAI(2,"上海市数据报送（静安区教育版）", 1);
 
     @Getter
     private final Integer type;
