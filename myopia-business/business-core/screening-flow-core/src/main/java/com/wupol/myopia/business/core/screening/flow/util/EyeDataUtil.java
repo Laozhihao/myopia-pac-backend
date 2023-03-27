@@ -137,12 +137,28 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(EMPTY_DATA);
     }
 
+    public static String correctedRightDataToStrNull(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getCorrectedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(null);
+    }
+
+    public static String correctedLeftDataToStrNull(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getCorrectedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(null);
+    }
+
     public static String visionRightDataToStr(VisionScreeningResult visionScreeningResult) {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(EMPTY_DATA);
     }
 
     public static String visionLeftDataToStr(VisionScreeningResult visionScreeningResult) {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getNakedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(EMPTY_DATA);
+    }
+
+    public static String visionRightDataToStrNull(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData).map(VisionDataDO.VisionData::getNakedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(null);
+    }
+
+    public static String visionLeftDataToStrNull(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getNakedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(null);
     }
 
     private static String setSphCyl(BigDecimal bigDecimal){
@@ -448,55 +464,5 @@ public class EyeDataUtil {
         }
         return bigDecimal.toString();
     }
-
-    public static String biometricRightK1(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getRightEyeData).map(BiometricDataDO.BiometricData::getK1).orElse(EMPTY_DATA);
-    }
-    public static String biometricRightK2(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getRightEyeData).map(BiometricDataDO.BiometricData::getK2).orElse(EMPTY_DATA);
-    }
-    public static String biometricRightK1Axis(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getRightEyeData).map(BiometricDataDO.BiometricData::getK1Axis).orElse(EMPTY_DATA);
-    }
-    public static String biometricRightK2Axis(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getRightEyeData).map(BiometricDataDO.BiometricData::getK2Axis).orElse(EMPTY_DATA);
-    }
-    public static String biometricLeftK1(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getLeftEyeData).map(BiometricDataDO.BiometricData::getK1).orElse(EMPTY_DATA);
-    }
-    public static String biometricLeftK2(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getLeftEyeData).map(BiometricDataDO.BiometricData::getK2).orElse(EMPTY_DATA);
-    }
-    public static String biometricLeftK1Axis(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getLeftEyeData).map(BiometricDataDO.BiometricData::getK1Axis).orElse(EMPTY_DATA);
-    }
-    public static String biometricLeftK2Axis(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getLeftEyeData).map(BiometricDataDO.BiometricData::getK2Axis).orElse(EMPTY_DATA);
-    }
-
-    public static String biometricRightAl(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getRightEyeData).map(BiometricDataDO.BiometricData::getAl).orElse(EMPTY_DATA);
-    }
-    public static String biometricLeftAl(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getBiometricData).map(BiometricDataDO::getLeftEyeData).map(BiometricDataDO.BiometricData::getAl).orElse(EMPTY_DATA);
-    }
-
-    public static String leftEyePressure(VisionScreeningResult visionScreeningResult) {
-        BigDecimal bigDecimal = Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getLeftEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(null);
-        if (Objects.isNull(bigDecimal)) {
-            return EMPTY_DATA;
-        }
-        return bigDecimal.toString();
-    }
-
-    public static String rightEyePressure(VisionScreeningResult visionScreeningResult) {
-        BigDecimal bigDecimal = Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getEyePressureData).map(EyePressureDataDO::getRightEyeData).map(EyePressureDataDO.EyePressureData::getPressure).orElse(null);
-        if (Objects.isNull(bigDecimal)) {
-            return EMPTY_DATA;
-        }
-        return bigDecimal.toString();
-    }
-
-
 
 }
