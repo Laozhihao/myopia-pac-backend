@@ -161,4 +161,9 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
         }
     }
+
+    @Override
+    public Boolean isXlsx() {
+        return Boolean.FALSE;
+    }
 }
