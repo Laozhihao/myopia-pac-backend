@@ -1,10 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.domain.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.annotation.write.style.ColumnWidth;
-import com.alibaba.excel.annotation.write.style.HeadFontStyle;
-import com.alibaba.excel.annotation.write.style.HeadRowHeight;
-import com.alibaba.excel.annotation.write.style.HeadStyle;
+import com.alibaba.excel.annotation.write.style.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -12,9 +9,11 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 
 /**
  * 长沙数据上传导出
+ * - @ContentStyle(dataFormat = 49)设置所有单元格为文本格式
  *
  * @author Simple4H
  */
+@ContentStyle(dataFormat = 49)
 @HeadRowHeight(25)
 @HeadStyle(fillPatternType = FillPatternType.NO_FILL, borderBottom = BorderStyle.NONE, borderLeft = BorderStyle.NONE, borderRight = BorderStyle.NONE)
 @HeadFontStyle(fontHeightInPoints = 11)
