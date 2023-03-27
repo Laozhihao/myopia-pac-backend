@@ -104,18 +104,18 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
             if (Objects.equals(GlassesTypeEnum.FRAME_GLASSES.getCode(), EyeDataUtil.glassesType(result))) {
                 exportDTO.setGlassesTypeDesc(GlassesTypeEnum.FRAME_GLASSES.getDesc());
-                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
-                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedRightDataToStrNull(result)).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedLeftDataToStrNull(result)).orElse(StringUtils.EMPTY));
             }
             if (Objects.equals(GlassesTypeEnum.CONTACT_LENS.getCode(), EyeDataUtil.glassesType(result))) {
                 exportDTO.setGlassesTypeDesc(GlassesTypeEnum.CONTACT_LENS.getDesc());
-                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
-                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedRightDataToStrNull(result)).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedLeftDataToStrNull(result)).orElse(StringUtils.EMPTY));
             }
             if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.getCode(), EyeDataUtil.glassesType(result))) {
                 exportDTO.setGlassesTypeDesc("角膜塑形镜");
-                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.rightCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
-                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.leftCorrectedVision(result)).map(BigDecimal::toString).orElse(StringUtils.EMPTY));
+                exportDTO.setRightCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedRightDataToStrNull(result)).orElse(StringUtils.EMPTY));
+                exportDTO.setLeftCorrectedVisions(Optional.ofNullable(EyeDataUtil.correctedLeftDataToStrNull(result)).orElse(StringUtils.EMPTY));
             }
             success.incrementAndGet();
         } else {
@@ -139,12 +139,12 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
         // 如果是OK镜，优先取裸眼，如果裸眼为空，则填充矫正视力为裸眼视力
         if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
             if (ObjectUtils.allNotNull(leftNakedVision, rightNakedVision)) {
-                exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
-                exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+                exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStrNull(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStrNull(result));
                 exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftNakedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightNakedVision, "5.0") ? "正常" : "异常");
             } else {
-                exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStr(result));
-                exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStr(result));
+                exportDTO.setRightNakedVisions(EyeDataUtil.correctedRightDataToStrNull(result));
+                exportDTO.setLeftNakedVisions(EyeDataUtil.correctedLeftDataToStrNull(result));
                 if (ObjectUtils.allNotNull(leftCorrectedVision, rightCorrectedVision)) {
                     exportDTO.setEyeVisionDesc(BigDecimalUtil.moreThanAndEqual(leftCorrectedVision, "5.0") && BigDecimalUtil.moreThanAndEqual(rightCorrectedVision, "5.0") ? "正常" : "异常");
                 } else {
@@ -157,8 +157,8 @@ public class ChangShaDataSubmitService implements IDataSubmitService {
             } else {
                 exportDTO.setEyeVisionDesc(StringUtils.EMPTY);
             }
-            exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStr(result));
-            exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStr(result));
+            exportDTO.setRightNakedVisions(EyeDataUtil.visionRightDataToStrNull(result));
+            exportDTO.setLeftNakedVisions(EyeDataUtil.visionLeftDataToStrNull(result));
         }
     }
 
