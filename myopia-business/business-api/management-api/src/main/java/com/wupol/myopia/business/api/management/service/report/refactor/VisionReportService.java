@@ -56,7 +56,7 @@ public class VisionReportService {
      * @param isPrimary 是否小学
      * @return
      */
-    public ReportBaseSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum, boolean isPrimary) {
+    public ReportBaseSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
 
         ScreeningPlan sp = screeningPlanService.getById(planId);
         School school = schoolService.getById(schoolId);
@@ -67,10 +67,6 @@ public class VisionReportService {
 
         // 视力不良/低常人数
         int lowVisionNum = (int)statBase.getValid().stream().filter(s-> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
-        if (isPrimary) {
-            // 若为小学，视力不良人数需加上夜戴人数
-            lowVisionNum += (int)statBase.getValid().stream().filter(stat -> GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).count();
-        }
 
         // 组装报告的通用概述
         return ReportBaseSummaryDTO.builder()

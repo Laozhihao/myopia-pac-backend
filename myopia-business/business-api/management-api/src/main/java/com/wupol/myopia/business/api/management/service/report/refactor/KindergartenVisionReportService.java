@@ -150,7 +150,7 @@ public class KindergartenVisionReportService {
 
         KindergartenScreeningSummaryDTO summary = new KindergartenScreeningSummaryDTO();
         // 获取通用概述
-        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(planId, schoolId, statBase, statGender, planScreeningNum, gradeNum, classNum, false);
+        ReportBaseSummaryDTO baseSummary = visionReportService.getScreeningSummary(planId, schoolId, statBase, statGender, planScreeningNum, gradeNum, classNum);
         BeanUtils.copyProperties(baseSummary, summary);
 
         // 按预警等级分类，计算预警人数

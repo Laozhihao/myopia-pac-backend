@@ -118,21 +118,23 @@ public class LowVisionLevelDTO {
         setValidScreeningNum(validScreeningNum);
         setLowVisionNum(lowVisionNum);
         setLowVisionRatio(MathUtil.divideFloat(lowVisionNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
-        setLightLowVisionNum(lightMyopiaNum);
-        setLightLowVisionRatio(MathUtil.divideFloat(lightMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
+
         setMiddleLowVisionNum(middleMyopiaNum);
         setMiddleLowVisionRatio(MathUtil.divideFloat(middleMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
         setHighLowVisionNum(highMyopiaNum);
         setHighLowVisionRatio(MathUtil.divideFloat(highMyopiaNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
         setNightWearingNum(nightWearingNum);
+        setNightWearingRatio(MathUtil.divideFloat(nightWearingNum, isGlobalRatio ? validScreeningNum : lowVisionNum));
+
+        setLightLowVisionNum(lightMyopiaNum);
         if (isGlobalRatio) {
-            setNightWearingRatio(MathUtil.divideFloat(nightWearingNum, validScreeningNum));
+            setLightLowVisionRatio(MathUtil.divideFloat(lightMyopiaNum, validScreeningNum));
         } else {
-            // 若是计算占总视力不良数占比，用100-轻度占比-中度占比-高度占比，得到夜戴的%比，避免四者加起来不为1
-            setNightWearingRatio(new BigDecimal(100)
-                    .subtract(new BigDecimal(getLightLowVisionRatio()))
+            // 若是计算占总视力不良数占比，用100-中度占比-高度占比-夜戴占比，得到轻度的%比，避免四者加起来不为1
+            setLightLowVisionRatio(new BigDecimal(100)
                     .subtract(new BigDecimal(getMiddleLowVisionRatio()))
                     .subtract(new BigDecimal(getHighLowVisionRatio()))
+                    .subtract(new BigDecimal(getNightWearingRatio()))
                     .setScale(NumberCommonConst.TWO_INT, BigDecimal.ROUND_HALF_UP).floatValue());
         }
     }
