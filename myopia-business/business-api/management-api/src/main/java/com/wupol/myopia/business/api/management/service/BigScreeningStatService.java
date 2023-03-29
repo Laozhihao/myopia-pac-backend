@@ -125,7 +125,11 @@ public class BigScreeningStatService {
     public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
             log.info("【统计大屏数据】noticeId = {}，通知：{}", screeningNotice.getId(), screeningNotice.getTitle());
-            generateResultAndSave(provinceDistrictId, screeningNotice);
+            try {
+                generateResultAndSave(provinceDistrictId, screeningNotice);
+            } catch (Exception e) {
+                log.error("【统计大屏数据】失败！noticeId = {}，通知：{}", screeningNotice.getId(), screeningNotice.getTitle(), e);
+            }
         }
     }
 
