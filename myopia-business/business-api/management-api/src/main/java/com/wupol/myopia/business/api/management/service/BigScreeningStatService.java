@@ -18,6 +18,7 @@ import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatist
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
 import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * @Author HaoHao
  * @Date 2021/4/27
  **/
+@Log4j2
 @Service
 public class BigScreeningStatService {
 
@@ -96,6 +98,7 @@ public class BigScreeningStatService {
      *
      */
     public void statisticBigScreen() {
+        log.info("开始统计大屏数据（仅统计省级部门所发的筛查通知）......");
         //找到所有省级部门
         List<GovDept> proviceGovDepts = govDeptService.getProvinceGovDept();
         Set<Integer> govDeptIds = proviceGovDepts.stream().map(GovDept::getId).collect(Collectors.toSet());
@@ -110,7 +113,7 @@ public class BigScreeningStatService {
             //生成数据
             batchGenerateResultAndSave(provinceDistrictId, screeningNoticeList);
         }
-
+        log.info("统计大屏数据完成。");
     }
 
     /**
@@ -121,6 +124,7 @@ public class BigScreeningStatService {
      */
     public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
+            log.info("【统计大屏数据】noticeId = {}，通知：{}", screeningNotice.getId(), screeningNotice.getTitle());
             generateResultAndSave(provinceDistrictId, screeningNotice);
         }
     }

@@ -25,7 +25,8 @@ public class BigScreenScheduledTasksExecutor {
     /**
      * 筛查数据统计 测试环境暂时关闭
      */
-    @Scheduled(cron = "0 0 23 * * ?")
+    // @Scheduled(cron = "0 0 23 * * ?")
+    @Scheduled(cron = "0 5 18 * * ?")
     public void statisticBigScreen() {
         bigScreeningStatService.statisticBigScreen();
     }
