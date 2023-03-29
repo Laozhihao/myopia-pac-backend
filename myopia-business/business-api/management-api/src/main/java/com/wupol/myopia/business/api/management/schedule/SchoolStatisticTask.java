@@ -39,7 +39,7 @@ public class SchoolStatisticTask {
         //根据筛查计划ID 获取筛查数据结论
         List<StatConclusion> statConclusions = statConclusionService.getByScreeningPlanIds(yesterdayScreeningPlanIds);
         if(CollUtil.isEmpty(statConclusions)){
-            log.error("按学校-未找到筛查数据结论，planIds:{}",CollUtil.join(yesterdayScreeningPlanIds,","));
+            log.error("按学校-未找到筛查数据的结论数据，planIds:{}",CollUtil.join(yesterdayScreeningPlanIds,","));
             return;
         }
 

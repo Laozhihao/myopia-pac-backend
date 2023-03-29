@@ -53,7 +53,7 @@ public class DeviceUploadDataController {
         try {
             deviceUploadDataService.uploadDeviceData(deviceUploadDto);
         } catch (BusinessException e) {
-            log.error("设备上传数据失败：【{}】,数据 = {}", e.getMessage(), JSON.toJSONString(deviceUploadDto), e);
+            deviceUploadDataService.printErrorLog("VS550/VS666", e, deviceUploadDto);
             return DeviceUploadResult.error(e.getMessage());
         } catch (Exception e) {
             log.error("设备上传数据失败,数据 = {}", JSON.toJSONString(deviceUploadDto), e);
@@ -74,9 +74,12 @@ public class DeviceUploadDataController {
         try {
             deviceDataService.uploadDate(requestDTO);
             return ApiResult.success();
+        } catch (BusinessException e) {
+            deviceUploadDataService.printErrorLog("益视优灯箱", e, requestDTO);
+            throw e;
         } catch (Exception e) {
-            log.error("灯箱上传数据异常，原始数据:{}", JSON.toJSONString(requestDTO), e);
-            throw new BusinessException("灯箱上传数据异常");
+            log.error("益视优灯箱上传数据异常，原始数据:{}", JSON.toJSONString(requestDTO), e);
+            throw new BusinessException("上传数据失败，请联系管理员");
         }
     }
 
@@ -88,8 +91,19 @@ public class DeviceUploadDataController {
      */
     @PostMapping("/device/bmi")
     public Object uploadBMI(@RequestBody @Valid ScalesRequestDTO requestDTO) {
-        log.info("Data:{}", JSON.toJSONString(requestDTO));
-        return deviceUploadDataService.bodyFatScaleUpload(requestDTO);
+        try {
+            ScalesResponseDTO scalesResponse = deviceUploadDataService.bodyFatScaleUpload(requestDTO);
+            if (ScalesResponseDTO.FAILED.equals(scalesResponse.getRetCode())) {
+                log.warn(scalesResponse.getMsg() + "：{}", JSON.toJSONString(requestDTO));
+            }
+            return scalesResponse;
+        } catch (BusinessException e) {
+            deviceUploadDataService.printErrorLog("体脂秤", e, requestDTO);
+            throw e;
+        } catch (Exception e) {
+            log.error("体脂秤数据上传数据异常，原始数据:{}", JSON.toJSONString(requestDTO), e);
+            throw new BusinessException("上传数据失败，请联系管理员");
+        }
     }
 
     /**
@@ -103,7 +117,7 @@ public class DeviceUploadDataController {
         try {
             return ApiResult.success(deviceUploadDataService.getUserInfo(request));
         } catch (BusinessException e) {
-            log.error("获取学生信息异常：【{}】，原始数据：{}", e.getMessage(), JSON.toJSONString(request));
+            deviceUploadDataService.printErrorLog("获取学生信息-", e, request);
             throw e;
         } catch (Exception e) {
             log.error("获取学生信息异常：【{}】，原始数据:{}", e.getMessage(), JSON.toJSONString(request), e);

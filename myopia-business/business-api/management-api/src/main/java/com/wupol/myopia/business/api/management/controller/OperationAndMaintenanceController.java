@@ -59,14 +59,18 @@ public class OperationAndMaintenanceController {
      * @param noticeId 筛查通知ID, 不必填
      * @param isAll 是否全部 (true-全部,false-不是全部) 必填
      * @param exclude 排查的计划ID，多个用逗号隔开，不必填
+     * @param skipConclusion 是否跳过更新conclusion表,默认为:false,不跳过
      */
     @GetMapping("screeningToConclusion")
     @Async
     public void afreshConclusionAndStatistic(@RequestParam(required = false) Integer planId,
                                              @RequestParam(required = false) Integer noticeId,
                                              @RequestParam Boolean isAll,
-                                             @RequestParam(required = false) String exclude) {
-        statConclusionBizService.screeningToConclusion(planId, isAll, exclude);
+                                             @RequestParam(required = false) String exclude,
+                                             @RequestParam(required = false) boolean skipConclusion) {
+        if (!skipConclusion) {
+            statConclusionBizService.screeningToConclusion(planId, isAll, exclude);
+        }
         statisticScheduledTaskService.statistic(null, planId, isAll, exclude, noticeId);
     }
 
