@@ -420,9 +420,9 @@ public class PrimarySchoolVisionReportService {
         conclusion2MyopiaLevel(valid, lowVision, false);
         // 视力不良总结
         VisionInfoDTO.LowVisionSummary lowVisionSummary = new VisionInfoDTO.LowVisionSummary();
-        BeanUtils.copyProperties(getLowVisionSummary(general), lowVisionSummary);
-        lowVisionSummary.setLowVisionRatio(Math.max(Math.max(lowVision.getLightLowVisionRatio(), lowVision.getMiddleLowVisionRatio()), lowVision.getHighLowVisionRatio()));
-        return new ThreeTuple(general, lowVision, lowVisionSummary);
+        BeanUtils.copyProperties(getLowVisionSummary(general, true), lowVisionSummary);
+        lowVisionSummary.setLowVisionRatio(getHighRadio(lowVision));
+        return new ThreeTuple<>(general, lowVision, lowVisionSummary);
     }
 
     /**
@@ -437,7 +437,7 @@ public class PrimarySchoolVisionReportService {
         VisionInfoDTO.GenderLowVisionLevel female = VisionInfoDTO.GenderLowVisionLevel.getInstance("女");
         conclusion2MyopiaLevel(statGender.getFemale(), female,true);
         // 视力情况及总结
-        return TwoTuple.of(Arrays.asList(male, female),  Arrays.asList(getLowVisionSummary(male), getLowVisionSummary(female)));
+        return TwoTuple.of(Arrays.asList(male, female),  Arrays.asList(getLowVisionSummary(male, false), getLowVisionSummary(female, false)));
     }
 
     /**
@@ -487,26 +487,39 @@ public class PrimarySchoolVisionReportService {
     /**
      * 生成视力不良情况总结
      * @param general
+     * @param isOverview 是否为总览总结，为true时，返回比例，为false，返回率
      * @return
      */
-    public SummaryDTO getLowVisionSummary(LowVisionLevelDTO general) {
+    public SummaryDTO getLowVisionSummary(LowVisionLevelDTO general, boolean isOverview) {
         SummaryDTO summary = new SummaryDTO();
         // 设置最高占比
-        summary.setHighRadio(Math.max(Math.max(general.getLightLowVisionRatio(), general.getMiddleLowVisionRatio()), general.getHighLowVisionRatio()));
+        summary.setHighRadio(getHighRadio(general));
         // 设置最高占比说明
         List<String> highLowVisionLevel = new ArrayList<>();
         if (summary.getHighRadio().equals(general.getLightLowVisionRatio())) {
-            highLowVisionLevel.add("轻度视力不良率");
+            highLowVisionLevel.add(isOverview ? "轻度视力不良比例" : "轻度视力不良率");
         }
         if (summary.getHighRadio().equals(general.getMiddleLowVisionRatio())) {
-            highLowVisionLevel.add("中度视力不良率");
+            highLowVisionLevel.add(isOverview ? "中度视力不良比例" : "中度视力不良率");
         }
         if (summary.getHighRadio().equals(general.getHighLowVisionRatio())) {
-            highLowVisionLevel.add("高度视力不良率");
-
+            highLowVisionLevel.add(isOverview ? "高度视力不良比例" : "高度视力不良率");
+        }
+        if (summary.getHighRadio().equals(general.getNightWearingRatio())) {
+            highLowVisionLevel.add(isOverview ? "夜戴角膜塑形镜比例" : "夜戴角膜塑形镜戴镜率");
         }
         summary.setHighName(highLowVisionLevel);
         return summary;
+    }
+
+    /**
+     * 获取不良率最高比率
+     * @param vision
+     * @return
+     */
+    private float getHighRadio(LowVisionLevelDTO vision) {
+        return Math.max(Math.max(vision.getLightLowVisionRatio(), vision.getMiddleLowVisionRatio()),
+                Math.max(vision.getHighLowVisionRatio(), vision.getNightWearingRatio()));
     }
 
     /**
@@ -521,14 +534,22 @@ public class PrimarySchoolVisionReportService {
             myopiaLevel.empty();
             return ;
         }
+
         // 统计视力不良各级情况
         Map<Integer, Long> lowVisionLevelMap = stats.stream().filter(stat -> Objects.nonNull(stat.getLowVisionLevel())).collect(Collectors.groupingBy(StatConclusion::getLowVisionLevel, Collectors.counting()));
         int validScreeningNum = stats.size();
+
+        // 视力不良：视力不良人数
         int lowVisionNum = (int)stats.stream().filter(s->Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
+
         int lightMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_LIGHT.code, 0L).intValue();
         int middleMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_MIDDLE.code, 0L).intValue();
         int highMyopiaNum = lowVisionLevelMap.getOrDefault(LowVisionLevelEnum.LOW_VISION_LEVEL_HIGH.code, 0L).intValue();
-        myopiaLevel.generateData(validScreeningNum, lowVisionNum, lightMyopiaNum, middleMyopiaNum, highMyopiaNum, isGlobalRatio);
+
+        // 夜戴人数
+        int nightWearingNum = (int)stats.stream().filter(stat -> GlassesTypeEnum.ORTHOKERATOLOGY.code.equals(stat.getGlassesType())).count();
+
+        myopiaLevel.generateData(validScreeningNum, lowVisionNum, lightMyopiaNum, middleMyopiaNum, highMyopiaNum, nightWearingNum, isGlobalRatio);
     }
 
 }

@@ -53,6 +53,7 @@ public class VisionReportService {
      * @param planScreeningNum
      * @param gradeNum
      * @param classNum
+     * @param isPrimary 是否小学
      * @return
      */
     public ReportBaseSummaryDTO getScreeningSummary(Integer planId, Integer schoolId, StatBaseDTO statBase, StatGenderDTO statGender, int planScreeningNum, int gradeNum, int classNum) {
