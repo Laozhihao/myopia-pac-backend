@@ -167,8 +167,10 @@ public class DistributionDTO implements Serializable {
                     schoolAgeDTO.high = ratio;
                 } else if (SchoolAge.VOCATIONAL_HIGH.code.equals(schoolAgeType)) {
                     schoolAgeDTO.vocationalHigh = ratio;
+                } else if (SchoolAge.UNIVERSITY.code.equals(schoolAgeType)) {
+                    schoolAgeDTO.university = ratio;
                 } else {
-                    throw new BusinessException("数据异常，schoolAgeType = " + schoolAgeType);
+                    throw new BusinessException("无效学龄段，schoolAgeType = " + schoolAgeType);
                 }
             });
             this.schoolAge = schoolAgeDTO;
