@@ -116,7 +116,7 @@
         LEFT JOIN m_screening_notice msn ON msndo.screening_notice_id = msn.id
         <where>
             <trim prefixOverrides="and">
-                msn.`type` = 1
+                msn.`type` = #{type}
                 and msndo.`accept_org_id` = #{orgId}
                 and msn.screening_type = 0
                 and msndo.operation_status = 0

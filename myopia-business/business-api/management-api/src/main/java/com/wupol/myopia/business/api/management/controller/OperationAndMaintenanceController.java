@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
-import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
@@ -39,8 +38,6 @@ public class OperationAndMaintenanceController {
     private ThreadPoolTaskExecutor asyncServiceExecutor;
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
-    @Autowired
-    private StudentFacade studentFacade;
 
     /**
      * 触发大屏统计
