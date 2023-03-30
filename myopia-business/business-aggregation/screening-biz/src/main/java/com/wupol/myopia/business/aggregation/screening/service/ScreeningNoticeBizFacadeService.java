@@ -1,17 +1,24 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
+import com.wupol.myopia.business.common.utils.domain.dto.LinkNoticeQueue;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.*;
-import com.wupol.myopia.business.core.stat.service.SchoolMonitorStatisticService;
-import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
-import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -38,28 +45,18 @@ public class ScreeningNoticeBizFacadeService {
     private ScreeningNoticeService screeningNoticeService;
     @Resource
     private GovDeptService govDeptService;
-
     @Resource
     private ScreeningPlanService screeningPlanService;
+    @Resource
+    private RedisUtil redisUtil;
 
-    @Resource
-    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Resource
-    private VisionScreeningResultService visionScreeningResultService;
-    @Resource
-    private StatConclusionService statConclusionService;
-    @Resource
-    private StatRescreenService statRescreenService;
-
-    @Resource
-    private SchoolMonitorStatisticService schoolMonitorStatisticService;
-
-    @Resource
-    private SchoolVisionStatisticService schoolVisionStatisticService;
-
-    @Resource
-    private ScreeningResultStatisticService screeningResultStatisticService;
-
+    /**
+     * 获取可关联的通知
+     *
+     * @param orgId 机构/学校Id
+     * @param type  类型
+     * @return List<ScreeningNoticeDTO>
+     */
     public List<ScreeningNoticeDTO> getCanLinkNotice(Integer orgId, Integer type) {
         List<ScreeningNoticeDTO> notices = screeningNoticeDeptOrgService.getCanLinkNotice(orgId, type);
         if (CollectionUtils.isEmpty(notices)) {
@@ -87,11 +84,10 @@ public class ScreeningNoticeBizFacadeService {
      * @param requestDTO requestDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
+    public void linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
         Integer planId = requestDTO.getPlanId();
         Integer screeningNoticeDeptOrgId = requestDTO.getScreeningNoticeDeptOrgId();
         Integer screeningTaskId = requestDTO.getScreeningTaskId();
-
 
         ScreeningPlan plan = screeningPlanService.getById(planId);
         if (Objects.isNull(plan)) {
@@ -120,43 +116,22 @@ public class ScreeningNoticeBizFacadeService {
         deptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_CREATED).setScreeningTaskPlanId(planId);
         screeningNoticeDeptOrgService.updateById(deptOrg);
 
-        // 计划学生
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
-        planStudents.forEach(planStudent -> {
-            planStudent.setPlanDistrictId(districtId)
-                    .setScreeningTaskId(screeningTaskId)
-                    .setSrcScreeningNoticeId(screeningNoticeId);
-        });
-        screeningPlanSchoolStudentService.updateBatchById(planStudents);
+        // 处理学生逻辑放在Redis中
+        String uniqueId = String.format(CommonConst.NOTICE_LINK_UNIQUE, screeningNoticeId, screeningTaskId, planId, districtId);
+        List<Object> queueList = redisUtil.lGetAll(RedisConstant.NOTICE_LINK_LIST);
 
-        // 筛查结果
-        List<VisionScreeningResult> visionResults = visionScreeningResultService.getByPlanId(planId);
-        visionResults.forEach(result -> {
-            result.setTaskId(screeningTaskId)
-                    .setDistrictId(districtId);
-        });
-        visionScreeningResultService.updateBatchById(visionResults);
+        // 判断是否重复请求
+        if (!CollectionUtils.isEmpty(queueList)) {
+            if (queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> StringUtils.equals(s.getUniqueId(), uniqueId))) {
+                throw new BusinessException("重复点击");
+            }
+        }
 
-        // 统计结果
-        List<StatConclusion> statConclusions = statConclusionService.getByPlanId(planId);
-        statConclusions.forEach(statConclusion -> {
-            statConclusion.setSrcScreeningNoticeId(screeningNoticeId)
-                    .setTaskId(screeningTaskId)
-                    .setDistrictId(districtId);
-        });
-        statConclusionService.updateBatchById(statConclusions);
-
-        // 复测统计表
-        List<StatRescreen> statRescreens = statRescreenService.getByPlanId(planId);
-        statRescreens.forEach(statRescreen -> {
-            statRescreen.setSrcScreeningNoticeId(screeningNoticeId).setTaskId(screeningTaskId);
-        });
-        statRescreenService.updateBatchById(statRescreens);
-
-        // 删除统计数据
-        schoolMonitorStatisticService.deleteByPlanId(planId);
-        schoolVisionStatisticService.deleteByPlanId(planId);
-        screeningResultStatisticService.deleteByPlanId(planId);
-        return screeningNoticeId;
+        redisUtil.lSet(RedisConstant.NOTICE_LINK_LIST, new LinkNoticeQueue()
+                .setUniqueId(uniqueId)
+                .setScreeningNoticeId(screeningNoticeId)
+                .setScreeningTaskId(screeningTaskId)
+                .setPlanId(planId)
+                .setDistrictId(districtId));
     }
 }
