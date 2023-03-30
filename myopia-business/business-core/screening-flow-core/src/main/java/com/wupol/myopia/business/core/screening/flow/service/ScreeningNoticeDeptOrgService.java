@@ -142,7 +142,7 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      *
      * @return List<ScreeningNoticeDTO>
      */
-    public List<ScreeningNoticeDTO> getCanLinkNotice(Integer orgId) {
-        return baseMapper.getCanLinkNotice(orgId);
+    public List<ScreeningNoticeDTO> getCanLinkNotice(Integer orgId, Integer type) {
+        return baseMapper.getCanLinkNotice(orgId, type);
     }
 }
