@@ -112,7 +112,6 @@ public class ScreeningNoticeBizFacadeService {
                 .setDistrictId(districtId);
         screeningPlanService.updateById(plan);
 
-
         deptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_CREATED).setScreeningTaskPlanId(planId);
         screeningNoticeDeptOrgService.updateById(deptOrg);
 
@@ -122,6 +121,9 @@ public class ScreeningNoticeBizFacadeService {
 
         // 判断是否重复请求
         if (!CollectionUtils.isEmpty(queueList)) {
+            if (queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> Objects.equals(s.getPlanId(), planId))) {
+                throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
+            }
             if (queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> StringUtils.equals(s.getUniqueId(), uniqueId))) {
                 throw new BusinessException("重复点击");
             }

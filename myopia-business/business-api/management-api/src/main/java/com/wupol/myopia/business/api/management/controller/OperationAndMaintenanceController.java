@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
+import com.wupol.myopia.business.api.management.service.NoticeLinkService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class OperationAndMaintenanceController {
     private ThreadPoolTaskExecutor asyncServiceExecutor;
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Autowired
+    private NoticeLinkService noticeLinkService;
 
     /**
      * 触发大屏统计
@@ -99,5 +102,13 @@ public class OperationAndMaintenanceController {
     public void statTaskTrigger() {
         log.info("手动触发统计定时任务(仅统计昨天的筛查数据)");
         CompletableFuture.runAsync(()-> statisticScheduledTaskService.statisticScreeningData(),asyncServiceExecutor);
+    }
+
+    /**
+     * 手动调用触发关联通知
+     */
+    @GetMapping("/triggerNoticeLink")
+    public void triggerNoticeLink() {
+        noticeLinkService.migratingStudentData();
     }
 }
