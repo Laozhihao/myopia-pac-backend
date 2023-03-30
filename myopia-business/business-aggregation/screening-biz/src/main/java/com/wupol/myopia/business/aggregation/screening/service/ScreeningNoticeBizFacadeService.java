@@ -6,27 +6,24 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.dto.LinkNoticeQueue;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
-import org.apache.commons.lang3.StringUtils;
+import com.wupol.myopia.business.core.screening.flow.service.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +46,12 @@ public class ScreeningNoticeBizFacadeService {
     private ScreeningPlanService screeningPlanService;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private DistrictService districtService;
+    @Resource
+    private ScreeningPlanSchoolService screeningPlanSchoolService;
+    @Resource
+    private SchoolService schoolService;
 
     /**
      * 获取可关联的通知
@@ -84,10 +87,18 @@ public class ScreeningNoticeBizFacadeService {
      * @param requestDTO requestDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
+    public synchronized void linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
         Integer planId = requestDTO.getPlanId();
         Integer screeningNoticeDeptOrgId = requestDTO.getScreeningNoticeDeptOrgId();
         Integer screeningTaskId = requestDTO.getScreeningTaskId();
+
+        List<Object> queueList = redisUtil.lGetAll(RedisConstant.NOTICE_LINK_LIST);
+
+        // 判断是否重复请求
+        if (!CollectionUtils.isEmpty(queueList) && queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> Objects.equals(s.getPlanId(), planId))) {
+            throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
+        }
+
 
         ScreeningPlan plan = screeningPlanService.getById(planId);
         if (Objects.isNull(plan)) {
@@ -105,8 +116,10 @@ public class ScreeningNoticeBizFacadeService {
         }
 
         Integer districtId = task.getDistrictId();
-
         Integer screeningNoticeId = task.getScreeningNoticeId();
+
+        checkSchoolDistrict(planId, screeningNoticeId);
+
         plan.setSrcScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
                 .setDistrictId(districtId);
@@ -117,17 +130,6 @@ public class ScreeningNoticeBizFacadeService {
 
         // 处理学生逻辑放在Redis中
         String uniqueId = String.format(CommonConst.NOTICE_LINK_UNIQUE, screeningNoticeId, screeningTaskId, planId, districtId);
-        List<Object> queueList = redisUtil.lGetAll(RedisConstant.NOTICE_LINK_LIST);
-
-        // 判断是否重复请求
-        if (!CollectionUtils.isEmpty(queueList)) {
-            if (queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> Objects.equals(s.getPlanId(), planId))) {
-                throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
-            }
-            if (queueList.stream().map(s -> (LinkNoticeQueue) s).anyMatch(s -> StringUtils.equals(s.getUniqueId(), uniqueId))) {
-                throw new BusinessException("重复点击");
-            }
-        }
 
         redisUtil.lSet(RedisConstant.NOTICE_LINK_LIST, new LinkNoticeQueue()
                 .setUniqueId(uniqueId)
@@ -135,5 +137,24 @@ public class ScreeningNoticeBizFacadeService {
                 .setScreeningTaskId(screeningTaskId)
                 .setPlanId(planId)
                 .setDistrictId(districtId));
+    }
+
+    /**
+     * 判断筛查学校行政区域是否属于通知的行政区域
+     *
+     * @param planId           计划Id
+     * @param noticeDistrictId 通知Id
+     */
+    public void checkSchoolDistrict(Integer planId, Integer noticeDistrictId) {
+        Set<Integer> schoolIds = screeningPlanSchoolService.getSchoolIdsByPlanIds(Lists.newArrayList(planId));
+        if (CollectionUtils.isEmpty(schoolIds)) {
+            return;
+        }
+        List<Integer> districtIds = schoolService.getByIds(schoolIds).stream().map(School::getDistrictId).collect(Collectors.toList());
+        List<Integer> provinceAllDistrictIds = districtService.getProvinceAllDistrictIds(noticeDistrictId);
+        if (new HashSet<>(provinceAllDistrictIds).containsAll(districtIds)) {
+            return;
+        }
+        throw new BusinessException("学校行政区域异常");
     }
 }
