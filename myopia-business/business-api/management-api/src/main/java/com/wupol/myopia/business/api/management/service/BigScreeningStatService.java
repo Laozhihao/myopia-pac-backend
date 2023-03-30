@@ -111,6 +111,10 @@ public class BigScreeningStatService {
      */
     public void batchGenerateResultAndSave(Integer provinceDistrictId, List<ScreeningNotice> districtIdNotices) {
         for (ScreeningNotice screeningNotice : districtIdNotices) {
+            // TODO：临时，上线前删掉
+            if (screeningNotice.getId() == 1178) {
+                continue;
+            }
             log.info("【统计大屏数据】noticeId = {}，通知：{}", screeningNotice.getId(), screeningNotice.getTitle());
             try {
                 bigScreenService.generateResultAndSave(provinceDistrictId, screeningNotice);
