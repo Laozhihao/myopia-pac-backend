@@ -208,6 +208,9 @@
                 #{id}
             </foreach>
         </if>
+        <if test="param.screeningTaskId != null">
+            and msp.screening_task_id = #{param.screeningTaskId}
+        </if>
         order by msps.create_time desc
     </select>
 
