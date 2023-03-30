@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -94,14 +95,16 @@ public class NoticeLinkService {
         // 筛查结果
         List<VisionScreeningResult> visionResults = visionScreeningResultService.getByPlanId(planId);
         visionResults.forEach(result -> result.setTaskId(screeningTaskId)
-                .setDistrictId(districtId));
+                .setDistrictId(districtId)
+                .setUpdateTime(new Date()));
         visionScreeningResultService.updateBatchById(visionResults);
 
         // 统计结果
         List<StatConclusion> statConclusions = statConclusionService.getByPlanId(planId);
         statConclusions.forEach(statConclusion -> statConclusion.setSrcScreeningNoticeId(screeningNoticeId)
                 .setTaskId(screeningTaskId)
-                .setDistrictId(districtId));
+                .setDistrictId(districtId)
+                .setUpdateTime(new Date()));
         statConclusionService.updateBatchById(statConclusions);
 
         // 复测统计表
