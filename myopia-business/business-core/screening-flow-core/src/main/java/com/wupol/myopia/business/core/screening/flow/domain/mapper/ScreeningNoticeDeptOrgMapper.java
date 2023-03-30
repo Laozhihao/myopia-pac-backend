@@ -28,5 +28,5 @@ public interface ScreeningNoticeDeptOrgMapper extends BaseMapper<ScreeningNotice
 
     List<ScreeningNoticeDeptOrg> getByNoticeId(@Param("noticeId") Integer noticeId);
 
-    List<ScreeningNoticeDTO> getCanLinkNotice(@Param("orgId") Integer orgId);
+    List<ScreeningNoticeDTO> getCanLinkNotice(@Param("orgId") Integer orgId, @Param("type") Integer type);
 }

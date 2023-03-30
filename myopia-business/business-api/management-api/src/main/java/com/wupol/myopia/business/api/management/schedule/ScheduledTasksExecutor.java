@@ -44,6 +44,8 @@ public class ScheduledTasksExecutor {
     private PreSchoolNoticeService preSchoolNoticeService;
     @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Autowired
+    private NoticeLinkService noticeLinkService;
 
     /**
      * 筛查数据统计
@@ -118,6 +120,15 @@ public class ScheduledTasksExecutor {
     public void preschoolCheckNotice() {
         // 提前7天通知
         preSchoolNoticeService.timedTaskSendMsg();
+    }
+
+    /**
+     * 关联通知
+     */
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void abc() {
+        log.info("开始关联任务");
+        noticeLinkService.migratingStudentData();
     }
 
 }

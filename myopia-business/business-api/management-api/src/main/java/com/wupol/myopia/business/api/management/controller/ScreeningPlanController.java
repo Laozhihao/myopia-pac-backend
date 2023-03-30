@@ -20,6 +20,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.*;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
@@ -37,10 +38,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
@@ -121,9 +119,9 @@ public class ScreeningPlanController {
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
     @Autowired
-    private ScreeningNoticeDeptOrgBizService screeningNoticeDeptOrgBizService;
-    @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Autowired
+    private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
 
     /**
@@ -786,7 +784,7 @@ public class ScreeningPlanController {
             throw new BusinessException("非筛查机构不能查询");
         }
         Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
-        return screeningNoticeDeptOrgBizService.getCanLinkNotice(screeningOrgId);
+        return screeningNoticeBizFacadeService.getCanLinkNotice(screeningOrgId, ScreeningNotice.TYPE_ORG);
     }
 
     /**
@@ -796,7 +794,6 @@ public class ScreeningPlanController {
      */
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
-        Integer noticeId = screeningPlanBizFacade.linkNotice(requestDTO);
-        statisticScheduledTaskService.statistic(null, null, false, null, noticeId);
+        screeningNoticeBizFacadeService.linkNotice(requestDTO);
     }
 }

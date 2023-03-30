@@ -54,6 +54,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
@@ -211,8 +212,10 @@ public class VisionScreeningService {
             SchoolScreeningBizBuilder.setOrgInfo(schoolPlan,orgMap);
             SchoolScreeningBizBuilder.setNotificationInfo(schoolPlan,notificationInfo);
             schoolPlan.setHasScreeningResults(hasScreeningResults);
+            schoolPlan.setIsCanLink(Objects.equals(schoolPlan.getScreeningBizType(), ScreeningBizTypeEnum.INDEPENDENT.getType())
+                    && Objects.equals(schoolPlan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                    && Objects.equals(schoolPlan.getSrcScreeningNoticeId(), 0));
         });
-
         responseDTO.setRecords(schoolPlanList);
         return responseDTO;
     }
