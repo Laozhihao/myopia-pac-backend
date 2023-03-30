@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
@@ -55,7 +54,5 @@ public class SchoolScreeningNoticeController {
     public List<ScreeningNoticeDTO> getPlanLinkNoticeList() {
         Integer schoolId = CurrentUserUtil.getCurrentUser().getOrgId();
         return screeningNoticeBizFacadeService.getCanLinkNotice(schoolId, ScreeningNotice.TYPE_SCHOOL);
-
-
     }
 }

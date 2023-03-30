@@ -119,8 +119,6 @@ public class ScreeningPlanController {
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
     @Autowired
-    private ScreeningNoticeDeptOrgBizService screeningNoticeDeptOrgBizService;
-    @Autowired
     private StatisticScheduledTaskService statisticScheduledTaskService;
     @Autowired
     private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
@@ -796,7 +794,7 @@ public class ScreeningPlanController {
      */
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
-        Integer noticeId = screeningPlanBizFacade.linkNotice(requestDTO);
+        Integer noticeId = screeningNoticeBizFacadeService.linkNotice(requestDTO);
         statisticScheduledTaskService.statistic(null, null, false, null, noticeId);
     }
 }

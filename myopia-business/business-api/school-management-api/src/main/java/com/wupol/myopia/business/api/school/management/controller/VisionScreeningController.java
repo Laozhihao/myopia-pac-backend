@@ -18,6 +18,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningPlanVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningExportService;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanStudentBizService;
 import com.wupol.myopia.business.api.school.management.domain.dto.AddScreeningStudentDTO;
@@ -76,6 +77,8 @@ public class VisionScreeningController {
     private VisionScreeningResultService visionScreeningResultService;
     @Resource
     private SchoolScreeningStatisticFacade schoolScreeningStatisticFacade;
+    @Autowired
+    private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
     /**
      * 获取学校计划
@@ -375,6 +378,17 @@ public class VisionScreeningController {
     @DeleteMapping("/delete/planStudent/{planStudentId}")
     public void deletedPlanStudentById(@PathVariable @NotNull(message = "筛查学生Id不能为空") Integer planStudentId) {
         screeningPlanStudentBizService.deletedPlanStudentById(planStudentId);
+    }
+
+    /**
+     * 关联通知
+     *
+     * @param requestDTO requestDTO
+     */
+    @PostMapping("linkNotice/link")
+    public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
+        Integer noticeId = screeningNoticeBizFacadeService.linkNotice(requestDTO);
+//        statisticScheduledTaskService.statistic(null, null, false, null, noticeId);
     }
 
 }
