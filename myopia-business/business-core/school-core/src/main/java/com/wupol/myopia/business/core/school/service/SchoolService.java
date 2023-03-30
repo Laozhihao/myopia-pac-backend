@@ -329,7 +329,7 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param ids 学校id
      * @return List<School>
      */
-    public List<School> getByIds(List<Integer> ids) {
+    public List<School> getByIds(Collection<Integer> ids) {
         return baseMapper.selectBatchIds(ids);
     }
 
