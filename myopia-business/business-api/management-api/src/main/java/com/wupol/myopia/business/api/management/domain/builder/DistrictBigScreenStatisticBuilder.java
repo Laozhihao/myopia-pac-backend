@@ -113,8 +113,8 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     private TwoTuple<Double, Double> getAvgNakedVision() {
-        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().mapToDouble(bs->bs.getVisionL().doubleValue()).average();
-        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().mapToDouble(bs->bs.getVisionL().doubleValue()).average();
+        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().filter(Objects::nonNull).mapToDouble(bs->bs.getVisionL().doubleValue()).average();
+        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().filter(Objects::nonNull).mapToDouble(bs->bs.getVisionL().doubleValue()).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
         leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
         leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
