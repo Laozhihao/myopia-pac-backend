@@ -99,7 +99,6 @@ public class ScreeningNoticeBizFacadeService {
             throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
         }
 
-
         ScreeningPlan plan = screeningPlanService.getById(planId);
         if (Objects.isNull(plan)) {
             throw new BusinessException("通过计划Id查询不到计划" + planId);
@@ -117,8 +116,9 @@ public class ScreeningNoticeBizFacadeService {
 
         Integer districtId = task.getDistrictId();
         Integer screeningNoticeId = task.getScreeningNoticeId();
+        ScreeningNotice notice = screeningNoticeService.getById(screeningNoticeId);
 
-        checkSchoolDistrict(planId, screeningNoticeId);
+        checkSchoolDistrict(planId, notice.getDistrictId());
 
         plan.setSrcScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
