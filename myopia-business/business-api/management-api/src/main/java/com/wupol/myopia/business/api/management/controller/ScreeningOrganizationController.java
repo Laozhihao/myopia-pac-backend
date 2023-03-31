@@ -28,8 +28,11 @@ import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalDTO
 import com.wupol.myopia.business.core.hospital.domain.dto.CooperationHospitalRequestDTO;
 import com.wupol.myopia.business.core.hospital.domain.dto.HospitalResponseDTO;
 import com.wupol.myopia.business.core.hospital.service.OrgCooperationHospitalService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
@@ -504,6 +507,26 @@ public class ScreeningOrganizationController {
     @GetMapping("getPermission/{configType}")
     public List<String> getPermissionByConfigType(@PathVariable @NotNull(message = "配置不能为空") Integer configType) {
         return screeningOrganizationBizService.getPermissionByConfigType(configType);
+    }
+
+    /**
+     * 获取关联的通知
+     *
+     * @return List<ScreeningNoticeDTO>
+     */
+    @GetMapping("planLinkNotice/list")
+    public List<ScreeningNoticeDTO> getPlanLinkNoticeList(@NotNull(message = "机构Id不能为空") Integer orgId) {
+        return screeningNoticeBizFacadeService.getCanLinkNotice(orgId, ScreeningNotice.TYPE_ORG);
+    }
+
+    /**
+     * 关联通知
+     *
+     * @param requestDTO requestDTO
+     */
+    @PostMapping("linkNotice/link")
+    public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
+        screeningNoticeBizFacadeService.linkNotice(requestDTO);
     }
 
 }
