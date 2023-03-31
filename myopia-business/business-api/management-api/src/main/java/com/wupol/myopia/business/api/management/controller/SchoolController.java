@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
@@ -28,7 +29,10 @@ import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewSchoolService;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
@@ -78,6 +82,9 @@ public class SchoolController {
 
     @Resource
     private OverviewSchoolService overviewSchoolService;
+
+    @Resource
+    private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
     /**
      * 新增学校
@@ -372,5 +379,25 @@ public class SchoolController {
         School school = schoolService.getBySchoolId(id);
         school.setResultNoticeConfig(resultNoticeConfig);
         schoolService.updateById(school);
+    }
+
+    /**
+     * 获取关联的通知
+     *
+     * @return List<ScreeningNoticeDTO>
+     */
+    @GetMapping("planLinkNotice/list")
+    public List<ScreeningNoticeDTO> getPlanLinkNoticeList(@NotNull(message = "学校Id不能为空") Integer orgId) {
+        return screeningNoticeBizFacadeService.getCanLinkNotice(orgId, ScreeningNotice.TYPE_ORG);
+    }
+
+    /**
+     * 关联通知
+     *
+     * @param requestDTO requestDTO
+     */
+    @PostMapping("linkNotice/link")
+    public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
+        screeningNoticeBizFacadeService.linkNotice(requestDTO);
     }
 }

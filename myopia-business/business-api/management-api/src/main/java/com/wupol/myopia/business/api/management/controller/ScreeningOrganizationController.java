@@ -9,6 +9,7 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.export.ExportStrategy;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.api.management.domain.ScreeningOrganizationDTO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
@@ -79,6 +80,9 @@ public class ScreeningOrganizationController {
     private DistrictService districtService;
     @Resource
     private SchoolBizService schoolBizService;
+
+    @Resource
+    private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
     /**
      * 新增筛查机构
