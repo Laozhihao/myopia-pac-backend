@@ -11,6 +11,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -29,6 +30,7 @@ import com.wupol.myopia.business.core.school.management.service.SchoolStudentSer
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
+import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolVisionStatisticItem;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
@@ -182,6 +184,8 @@ public class SchoolBizService {
                     item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
                     plan.setItems(Lists.newArrayList(item));
                 }
+                plan.setIsCanLink(Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                        && Objects.equals(plan.getSrcScreeningNoticeId(), 0));
             });
         }
         return planPages;
