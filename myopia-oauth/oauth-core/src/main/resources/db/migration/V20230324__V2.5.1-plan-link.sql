@@ -7,5 +7,5 @@ VALUES (1114, '获取可关联的通知', 'planLinkNoticeList', 'get:/management
        (1119, '关联通知', 'schoolLinkNotice', 'post:/management/school/linkNotice/link', 0, 0, 0, 9, 1),
        (1120, '获取关联的通知', 'screeningOrganizationPlanLinkNotice', 'get:/management/screeningOrganization/planLinkNotice/list', 0, 0, 0, 3, 1),
        (1121, '关联通知', 'screeningOrganizationLinkNotice', 'post:/management/screeningOrganization/linkNotice/link', 0, 0, 0, 3, 1),
-       (1122, '学校关联通知按钮', 'schoolLinkNoticeBtn', null, 0, 1, 0, 9, 1),
-       (1123, '筛查机构关联通知按钮', 'orgLinkNoticeBtn', null, 0, 1, 0, 3, 1);
+       (1122, '学校关联通知按钮', 'schoolLinkNoticeBtn', null, 0, 0, 0, 9, 1),
+       (1123, '筛查机构关联通知按钮', 'orgLinkNoticeBtn', null, 0, 0, 0, 3, 1);
