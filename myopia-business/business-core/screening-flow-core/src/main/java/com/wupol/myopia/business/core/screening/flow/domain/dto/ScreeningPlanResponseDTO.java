@@ -27,4 +27,9 @@ public class ScreeningPlanResponseDTO extends ScreeningPlan {
      */
     private List<SchoolVisionStatisticItem> items;
 
+    /**
+     * 是否能关联通知
+     */
+    private Boolean isCanLink;
+
 }
