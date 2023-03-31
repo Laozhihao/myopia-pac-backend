@@ -388,7 +388,7 @@ public class SchoolController {
      */
     @GetMapping("planLinkNotice/list")
     public List<ScreeningNoticeDTO> getPlanLinkNoticeList(@NotNull(message = "学校Id不能为空") Integer orgId) {
-        return screeningNoticeBizFacadeService.getCanLinkNotice(orgId, ScreeningNotice.TYPE_ORG);
+        return screeningNoticeBizFacadeService.getCanLinkNotice(orgId, ScreeningNotice.TYPE_SCHOOL);
     }
 
     /**
