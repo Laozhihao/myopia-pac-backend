@@ -10,7 +10,10 @@ import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.dto.ScreeningTaskOrgInfoDTO;
+import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
+import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningTaskOrgBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
@@ -22,8 +25,12 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskOrgDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,6 +66,12 @@ public class ScreeningTaskController {
     private ScreeningTaskBizService screeningTaskBizService;
     @Autowired
     private ScreeningTaskOrgBizService screeningTaskOrgBizService;
+    @Autowired
+    protected ScreeningNoticeService screeningNoticeService;
+    @Autowired
+    private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
+    @Autowired
+    private ScreeningNoticeBizService screeningNoticeBizService;
 
     /**
      * 新增
@@ -312,6 +326,79 @@ public class ScreeningTaskController {
             throw new ValidationException("无筛查机构");
         }
         screeningTaskBizService.release(id, CurrentUserUtil.getCurrentUser());
+    }
+
+    private void task(ScreeningTaskDTO screeningTaskDTO) {
+
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
+        }
+        // 已创建校验
+        if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
+            throw new ValidationException("该部门任务已创建");
+        }
+
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningTaskDTO.getDistrictId(), "请选择行政区域");
+            Assert.notNull(screeningTaskDTO.getGovDeptId(), "请选择所处部门");
+        }
+
+        if (user.isScreeningUser() || user.isHospitalUser()) {
+            throw new ValidationException("无权限");
+        }
+
+        ScreeningNotice screeningNotice = new ScreeningNotice();
+
+        if (user.isGovDeptUser()) {
+            // 政府部门，设置为用户自身所在的部门层级
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            screeningTaskDTO.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+            screeningNotice.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+        }
+
+        screeningNotice.setTitle(screeningTaskDTO.getTitle());
+        screeningNotice.setContent(screeningTaskDTO.getContent());
+        screeningNotice.setStartTime(screeningTaskDTO.getStartTime());
+        screeningNotice.setEndTime(screeningTaskDTO.getStartTime());
+        screeningNotice.setType(ScreeningNotice.TYPE_GOV_DEPT);
+        screeningNotice.setGovDeptId(screeningTaskDTO.getGovDeptId());
+        screeningNotice.setScreeningTaskId(0);
+        screeningNotice.setReleaseStatus(0);
+        screeningNotice.setReleaseTime(new Date());
+//        screeningNotice.setCreateUserId();
+        screeningNotice.setCreateTime(new Date());
+//        screeningNotice.setOperatorId();
+//        screeningNotice.setOperateTime();
+        screeningNotice.setScreeningType(screeningTaskDTO.getScreeningType());
+
+        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        if (!screeningNoticeService.save(screeningNotice)) {
+            throw new BusinessException("创建失败");
+        }
+
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs())
+                || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+            throw new ValidationException("无筛查机构或筛查机构重复");
+        }
+        // 常见病版本，“发布筛查通知”和“筛查通知”菜单合并，则创建通知时也给自己发一个通知
+        Integer noticeId = screeningNotice.getId();
+        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().setScreeningNoticeId(noticeId).setDistrictId(screeningNotice.getDistrictId()).setAcceptOrgId(screeningNotice.getGovDeptId()).setOperatorId(screeningNotice.getCreateUserId()));
+
+        // 已发布，直接返回
+        validateExistWithReleaseStatus(noticeId, CommonConst.STATUS_RELEASE);
+        screeningNoticeService.createOrReleaseValidate(screeningNotice);
+        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {
+            // TODO: 需要修改发布通知
+            screeningNoticeBizService.release(noticeId, user);
+        } else {
+            throw new ValidationException("无权限");
+        }
+
+        screeningTaskDTO.setCreateUserId(user.getId());
+        screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
 }

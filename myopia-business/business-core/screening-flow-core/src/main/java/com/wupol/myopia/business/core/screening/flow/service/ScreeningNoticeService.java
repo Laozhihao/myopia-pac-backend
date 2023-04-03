@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.ValidationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -249,6 +250,29 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
                 .in(ScreeningNotice::getDistrictId, districtIds)
                 .orderByDesc(ScreeningNotice::getStartTime);
         return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+    }
+
+    /**
+     * 创建筛查通知或发布时校验
+     * 1. 开始时间只能在今天或以后
+     * 2. 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+     * 3. 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
+     *
+     * @param screeningNotice
+     */
+    public void createOrReleaseValidate(ScreeningNotice screeningNotice) {
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningNotice.getStartTime())) {
+            throw new ValidationException("筛查开始时间不能早于今天");
+        }
+        // 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
+        if (checkTimeLegal(screeningNotice)) {
+            throw new ValidationException("该部门该时间段已存在筛查通知");
+        }
+        // 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
+        if (checkTitleExist(screeningNotice.getId(), screeningNotice.getGovDeptId(), screeningNotice.getTitle())) {
+            throw new ValidationException("该部门已存在相同标题通知");
+        }
     }
 
 }
