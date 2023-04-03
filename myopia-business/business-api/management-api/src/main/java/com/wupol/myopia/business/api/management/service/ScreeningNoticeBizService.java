@@ -14,6 +14,7 @@ import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.validation.ValidationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -126,6 +128,44 @@ public class ScreeningNoticeBizService {
             return screeningNoticeService.getNoticeBySreeningUser(user.getScreeningOrgId());
         }
         return Collections.emptyList();
+    }
+
+    public ScreeningNotice saveNotice(ScreeningTaskDTO screeningTaskDTO, Integer userId) {
+
+        ScreeningNotice screeningNotice = new ScreeningNotice();
+        screeningNotice.setTitle(screeningTaskDTO.getTitle())
+                .setContent(screeningTaskDTO.getContent())
+                .setStartTime(screeningTaskDTO.getStartTime())
+                .setEndTime(screeningTaskDTO.getEndTime())
+                .setReleaseTime(new Date())
+                .setCreateUserId(userId)
+                .setCreateTime(new Date())
+                .setOperatorId(userId)
+                .setOperateTime(new Date())
+                .setDistrictId(screeningTaskDTO.getDistrictId())
+                .setGovDeptId(screeningTaskDTO.getGovDeptId())
+                .setScreeningType(screeningTaskDTO.getScreeningType())
+                .setCreateUserId(userId)
+                .setOperatorId(userId);
+
+        if (!screeningNoticeService.save(screeningNotice)) {
+            throw new BusinessException("创建失败");
+        }
+        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().
+                setScreeningNoticeId(screeningNotice.getId())
+                .setDistrictId(screeningNotice.getDistrictId())
+                .setAcceptOrgId(screeningNotice.getGovDeptId())
+                .setOperatorId(screeningNotice.getCreateUserId()));
+        return screeningNotice;
+    }
+
+    public void publishNotice(ScreeningNotice screeningNotice, CurrentUser user) {
+        screeningNoticeService.createOrReleaseValidate(screeningNotice);
+        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {
+            release(screeningNotice.getId(), user);
+        } else {
+            throw new ValidationException("无权限");
+        }
     }
 
 

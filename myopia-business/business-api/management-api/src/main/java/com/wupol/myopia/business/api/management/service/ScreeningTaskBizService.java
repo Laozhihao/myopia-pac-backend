@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -16,18 +17,22 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.ValidationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,13 +63,15 @@ public class ScreeningTaskBizService {
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ScreeningTaskBizFacade screeningTaskBizFacade;
+    @Autowired
+    private ScreeningTaskOrgService screeningTaskOrgService;
 
     /**
      * 新增或更新
      *
      * @param screeningTaskDTO
      */
-    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, boolean needUpdateNoticeStatus) {
+    public ScreeningTaskDTO saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
         screeningTaskDTO.setOperatorId(user.getId());
         if (!screeningTaskService.saveOrUpdate(screeningTaskDTO)) {
@@ -76,6 +83,7 @@ public class ScreeningTaskBizService {
             //更新通知状态＆更新ID
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), screeningTaskDTO.getId(), user.getId());
         }
+        return screeningTaskDTO;
     }
 
     /**
@@ -161,6 +169,78 @@ public class ScreeningTaskBizService {
         }
         screeningTaskLambdaQueryWrapper.in(ScreeningTask::getScreeningNoticeId, noticeIds).eq(ScreeningTask::getReleaseStatus, CommonConst.STATUS_RELEASE);
         return screeningTaskService.list(screeningTaskLambdaQueryWrapper);
+    }
+
+    public ScreeningTaskDTO createTask(ScreeningNotice screeningNotice, ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
+        // 已创建校验
+        if (screeningTaskService.checkIsCreated(screeningNotice.getId(), screeningTaskDTO.getGovDeptId())) {
+            throw new ValidationException("该部门任务已创建");
+        }
+        screeningTaskDTO.setCreateUserId(user.getId());
+        return saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
+    }
+
+    public void publishTask(ScreeningTaskDTO taskDTO) {
+        // 没有筛查机构，直接报错
+        if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(taskDTO.getId()))){
+            throw new ValidationException("无筛查机构");
+        }
+        release(taskDTO.getId(), CurrentUserUtil.getCurrentUser());
+    }
+
+    /**
+     * 校验任务是否存在与发布状态
+     * 同时校验权限
+     *
+     * @param screeningTaskId 筛查通知ID
+     * @return
+     * 筛查通知
+     */
+    public ScreeningTask validateExistAndAuthorize(Integer screeningTaskId) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // 校验用户机构
+        if (user.isScreeningUser() || user.isHospitalUser()) {
+            // 筛查机构，无权限处理
+            throw new ValidationException("无权限");
+        }
+        ScreeningTask screeningTask = validateExistWithReleaseStatus(screeningTaskId, CommonConst.STATUS_RELEASE);
+        if (user.isGovDeptUser()) {
+            // 政府部门人员，需校验是否同部门
+            Assert.isTrue(user.getOrgId().equals(screeningTask.getGovDeptId()), "无该部门权限");
+        }
+        return screeningTask;
+    }
+
+    /**
+     * 校验筛查任务是否存在且校验发布状态
+     *
+     * @param id 筛查通知id
+     * @return 筛查通知
+     */
+    public ScreeningTask validateExistWithReleaseStatus(Integer id, Integer releaseStatus) {
+        ScreeningTask screeningTask = validateExist(id);
+        Integer taskStatus = screeningTask.getReleaseStatus();
+        if (releaseStatus.equals(taskStatus)) {
+            throw new BusinessException(String.format("该任务%s", CommonConst.STATUS_RELEASE.equals(taskStatus) ? "已发布" : "未发布"));
+        }
+        return screeningTask;
+    }
+
+    /**
+     * 校验筛查通知是否存在
+     *
+     * @param id 筛查通知ID
+     * @return 筛查通知
+     */
+    public ScreeningTask validateExist(Integer id) {
+        if (Objects.isNull(id)) {
+            throw new BusinessException("参数ID不存在");
+        }
+        ScreeningTask screeningTask = screeningTaskService.getById(id);
+        if (Objects.isNull(screeningTask)) {
+            throw new BusinessException("查无该任务");
+        }
+        return screeningTask;
     }
 
 }
