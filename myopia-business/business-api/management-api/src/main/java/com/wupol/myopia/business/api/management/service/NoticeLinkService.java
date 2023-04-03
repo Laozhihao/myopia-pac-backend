@@ -82,20 +82,17 @@ public class NoticeLinkService {
     private void noticeLinkStudentMigrating(LinkNoticeQueue linkNoticeQueue) {
         Integer planId = linkNoticeQueue.getPlanId();
         Integer screeningTaskId = linkNoticeQueue.getScreeningTaskId();
-        Integer districtId = linkNoticeQueue.getDistrictId();
         Integer screeningNoticeId = linkNoticeQueue.getScreeningNoticeId();
 
         // 计划学生
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
-        planStudents.forEach(planStudent -> planStudent.setPlanDistrictId(districtId)
-                .setScreeningTaskId(screeningTaskId)
+        planStudents.forEach(planStudent -> planStudent.setScreeningTaskId(screeningTaskId)
                 .setSrcScreeningNoticeId(screeningNoticeId));
         screeningPlanSchoolStudentService.updateBatchById(planStudents);
 
         // 筛查结果
         List<VisionScreeningResult> visionResults = visionScreeningResultService.getByPlanId(planId);
         visionResults.forEach(result -> result.setTaskId(screeningTaskId)
-                .setDistrictId(districtId)
                 .setUpdateTime(new Date()));
         visionScreeningResultService.updateBatchById(visionResults);
 
@@ -103,7 +100,6 @@ public class NoticeLinkService {
         List<StatConclusion> statConclusions = statConclusionService.getByPlanId(planId);
         statConclusions.forEach(statConclusion -> statConclusion.setSrcScreeningNoticeId(screeningNoticeId)
                 .setTaskId(screeningTaskId)
-                .setDistrictId(districtId)
                 .setUpdateTime(new Date()));
         statConclusionService.updateBatchById(statConclusions);
 
