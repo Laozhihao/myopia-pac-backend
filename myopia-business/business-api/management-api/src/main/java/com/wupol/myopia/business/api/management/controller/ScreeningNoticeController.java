@@ -9,18 +9,22 @@ import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
+import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQueryDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -262,5 +266,72 @@ public class ScreeningNoticeController {
         if (user.isPlatformAdminUser() || user.getOrgId().equals(noticeDeptOrg.getAcceptOrgId())) {
             screeningNoticeDeptOrgService.read(noticeDeptOrgId, user);
         }
+    }
+
+    public void abc(@RequestBody @Valid ScreeningNotice screeningNotice) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        // TODO 2021.02.01 与肖肖确认，发布时确认即可 createOrReleaseValidate(screeningNotice);
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningNotice.getDistrictId(), "请选择行政区域");
+            Assert.notNull(screeningNotice.getGovDeptId(), "请选择所处部门");
+        }
+        if (user.isScreeningUser() || user.isHospitalUser()) {
+            throw new ValidationException("无权限");
+        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，设置为用户自身所在的部门层级
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            screeningNotice.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+        }
+        screeningNotice.setCreateUserId(user.getId()).setOperatorId(user.getId());
+        if (!screeningNoticeService.save(screeningNotice)) {
+            throw new BusinessException("创建失败");
+        }
+        // 常见病版本，“发布筛查通知”和“筛查通知”菜单合并，则创建通知时也给自己发一个通知
+        Integer noticeId = screeningNotice.getId();
+        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().setScreeningNoticeId(noticeId).setDistrictId(screeningNotice.getDistrictId()).setAcceptOrgId(screeningNotice.getGovDeptId()).setOperatorId(screeningNotice.getCreateUserId()));
+
+        // 已发布，直接返回
+        validateExistWithReleaseStatus(noticeId, CommonConst.STATUS_RELEASE);
+        ScreeningNotice notice = screeningNoticeService.getById(noticeId);
+        createOrReleaseValidate(notice);
+        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
+
+            // TODO: 需要修改发布通知
+            screeningNoticeBizService.release(noticeId, user);
+        } else {
+            throw new ValidationException("无权限");
+        }
+    }
+
+    private void task(@RequestBody @Valid ScreeningTaskDTO screeningTaskDTO) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        //校验部门
+        if (user.isPlatformAdminUser()) {
+            Assert.notNull(screeningTaskDTO.getDistrictId(), "请选择行政区域");
+            Assert.notNull(screeningTaskDTO.getGovDeptId(), "请选择所处部门");
+        }
+        if (user.isScreeningUser() || user.isHospitalUser()) {
+            throw new ValidationException("无权限");
+        }
+        if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs())
+                || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
+            throw new ValidationException("无筛查机构或筛查机构重复");
+        }
+        if (user.isGovDeptUser()) {
+            // 政府部门，设置为用户自身所在的部门层级
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            screeningTaskDTO.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
+        }
+        // 开始时间只能在今天或以后
+        if (DateUtil.isDateBeforeToday(screeningTaskDTO.getStartTime())) {
+            throw new ValidationException(BizMsgConstant.VALIDATION_START_TIME_ERROR);
+        }
+        // 已创建校验
+        if (screeningTaskService.checkIsCreated(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId())) {
+            throw new ValidationException("该部门任务已创建");
+        }
+        screeningTaskDTO.setCreateUserId(user.getId());
+        screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 }
