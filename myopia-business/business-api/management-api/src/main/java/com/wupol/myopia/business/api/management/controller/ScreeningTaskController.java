@@ -26,7 +26,6 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeServ
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -262,9 +261,13 @@ public class ScreeningTaskController {
         screeningTaskBizService.release(id, CurrentUserUtil.getCurrentUser());
     }
 
-    @PostMapping("/d")
-    @Transactional(rollbackFor = Exception.class)
-    public void d(@RequestBody ScreeningTaskDTO screeningTaskDTO) {
+    /**
+     * 创建任务
+     *
+     * @param screeningTaskDTO 请求入参
+     */
+    @PostMapping("/urbanArea/createTask")
+    public void urbanAreaCreateTask(@RequestBody ScreeningTaskDTO screeningTaskDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
 
         if (user.isPlatformAdminUser()) {
@@ -286,7 +289,7 @@ public class ScreeningTaskController {
             GovDept govDept = govDeptService.getById(user.getOrgId());
             screeningTaskDTO.setDistrictId(govDept.getDistrictId()).setGovDeptId(user.getOrgId());
         }
-        urbanAreaTaskService.abc(screeningTaskDTO, user);
+        urbanAreaTaskService.createTask(screeningTaskDTO, user);
     }
 
 }

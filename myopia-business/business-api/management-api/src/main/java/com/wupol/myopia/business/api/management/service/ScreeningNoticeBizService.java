@@ -130,6 +130,12 @@ public class ScreeningNoticeBizService {
         return Collections.emptyList();
     }
 
+    /**
+     * 新增通知
+     * @param screeningTaskDTO 入参
+     * @param userId 用户Id
+     * @return 通知
+     */
     public ScreeningNotice saveNotice(ScreeningTaskDTO screeningTaskDTO, Integer userId) {
 
         ScreeningNotice screeningNotice = new ScreeningNotice();
@@ -159,6 +165,13 @@ public class ScreeningNoticeBizService {
         return screeningNotice;
     }
 
+    /**
+     * 推送通知
+     *
+     * @param screeningNotice 通知
+     * @param user            用户
+     */
+    @Transactional(rollbackFor = Exception.class)
     public void publishNotice(ScreeningNotice screeningNotice, CurrentUser user) {
         screeningNoticeService.createOrReleaseValidate(screeningNotice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {

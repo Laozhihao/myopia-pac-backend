@@ -22,8 +22,14 @@ public class UrbanAreaTaskService {
     @Resource
     private ScreeningTaskBizService screeningTaskBizService;
 
+    /**
+     * 创建任务
+     *
+     * @param screeningTaskDTO 请求入参
+     * @param user             登陆用户
+     */
     @Transactional(rollbackFor = Exception.class)
-    public void abc(ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
+    public void createTask(ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
         ScreeningNotice screeningNotice = screeningNoticeBizService.saveNotice(screeningTaskDTO, user.getId());
         screeningNoticeBizService.publishNotice(screeningNotice, user);
         ScreeningTaskDTO taskDTO = screeningTaskBizService.createTask(screeningNotice, screeningTaskDTO, user);

@@ -171,6 +171,13 @@ public class ScreeningTaskBizService {
         return screeningTaskService.list(screeningTaskLambdaQueryWrapper);
     }
 
+    /**
+     * 创建任务
+     * @param screeningNotice 通知
+     * @param screeningTaskDTO 任务入参
+     * @param user 用户
+     * @return 任务
+     */
     public ScreeningTaskDTO createTask(ScreeningNotice screeningNotice, ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
         // 已创建校验
         if (screeningTaskService.checkIsCreated(screeningNotice.getId(), screeningTaskDTO.getGovDeptId())) {
@@ -180,9 +187,14 @@ public class ScreeningTaskBizService {
         return saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
+    /**
+     * 推送任务
+     *
+     * @param taskDTO 任务
+     */
     public void publishTask(ScreeningTaskDTO taskDTO) {
         // 没有筛查机构，直接报错
-        if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(taskDTO.getId()))){
+        if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(taskDTO.getId()))) {
             throw new ValidationException("无筛查机构");
         }
         release(taskDTO.getId(), CurrentUserUtil.getCurrentUser());
