@@ -121,8 +121,8 @@ public class ScreeningNoticeBizFacadeService {
         checkSchoolDistrict(planId, notice.getDistrictId());
 
         plan.setSrcScreeningNoticeId(screeningNoticeId)
-                .setScreeningTaskId(screeningTaskId)
-                .setDistrictId(districtId);
+                .setScreeningTaskId(screeningTaskId);
+//                .setDistrictId(districtId);
         screeningPlanService.updateById(plan);
 
         deptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_CREATED).setScreeningTaskPlanId(planId);
@@ -135,8 +135,8 @@ public class ScreeningNoticeBizFacadeService {
                 .setUniqueId(uniqueId)
                 .setScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
-                .setPlanId(planId)
-                .setDistrictId(districtId));
+                .setPlanId(planId));
+//                .setDistrictId(districtId));
     }
 
     /**
