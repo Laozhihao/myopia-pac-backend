@@ -334,7 +334,6 @@ public class ScreeningTaskController {
     public void d(@RequestBody ScreeningTaskDTO screeningTaskDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
 
-
         if (user.isPlatformAdminUser()) {
             Assert.notNull(screeningTaskDTO.getDistrictId(), "请选择行政区域");
             Assert.notNull(screeningTaskDTO.getGovDeptId(), "请选择所处部门");
@@ -356,29 +355,12 @@ public class ScreeningTaskController {
         }
 
         ScreeningNotice screeningNotice = screeningTaskBizService.saveNotice(screeningTaskDTO, user.getId());
-
-        screeningNoticeService.createOrReleaseValidate(screeningNotice);
-        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {
-            screeningNoticeBizService.release(screeningNotice.getId(), user);
-        } else {
-            throw new ValidationException("无权限");
-        }
-
-        // 已创建校验
-        if (screeningTaskService.checkIsCreated(screeningNotice.getId(), screeningTaskDTO.getGovDeptId())) {
-            throw new ValidationException("该部门任务已创建");
-        }
-        screeningTaskDTO.setCreateUserId(user.getId());
-        ScreeningTaskDTO taskDTO = screeningTaskBizService.saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
+        screeningTaskBizService.publishNotice(screeningNotice, user);
+        ScreeningTaskDTO taskDTO = screeningTaskBizService.createTask(screeningNotice, screeningTaskDTO, user);
 
         // 校验任务是否存在与发布状态
         validateExistAndAuthorize(taskDTO.getId());
-
-        // 没有筛查机构，直接报错
-        if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(taskDTO.getId()))){
-            throw new ValidationException("无筛查机构");
-        }
-        screeningTaskBizService.release(taskDTO.getId(), CurrentUserUtil.getCurrentUser());
+        screeningTaskBizService.publishTask(taskDTO);
     }
 
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
+import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.business.aggregation.screening.facade.ScreeningTaskBizFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningTaskAndDistrictVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -21,6 +22,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -29,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.ValidationException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,8 @@ public class ScreeningTaskBizService {
     private ScreeningNoticeBizService screeningNoticeBizService;
     @Autowired
     private ScreeningTaskBizFacade screeningTaskBizFacade;
+    @Autowired
+    private ScreeningTaskOrgService screeningTaskOrgService;
 
     /**
      * 新增或更新
@@ -186,7 +191,38 @@ public class ScreeningTaskBizService {
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
-        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningNotice.getDistrictId()).setAcceptOrgId(screeningNotice.getGovDeptId()).setOperatorId(screeningNotice.getCreateUserId()));
+        screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().
+                setScreeningNoticeId(screeningNotice.getId())
+                .setDistrictId(screeningNotice.getDistrictId())
+                .setAcceptOrgId(screeningNotice.getGovDeptId())
+                .setOperatorId(screeningNotice.getCreateUserId()));
+        return screeningNotice;
+    }
+
+    public void publishNotice(ScreeningNotice screeningNotice, CurrentUser user) {
+        screeningNoticeService.createOrReleaseValidate(screeningNotice);
+        if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {
+            screeningNoticeBizService.release(screeningNotice.getId(), user);
+        } else {
+            throw new ValidationException("无权限");
+        }
+    }
+
+    public ScreeningTaskDTO createTask(ScreeningNotice screeningNotice, ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
+        // 已创建校验
+        if (screeningTaskService.checkIsCreated(screeningNotice.getId(), screeningTaskDTO.getGovDeptId())) {
+            throw new ValidationException("该部门任务已创建");
+        }
+        screeningTaskDTO.setCreateUserId(user.getId());
+        return saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
+    }
+
+    public void publishTask(ScreeningTaskDTO taskDTO) {
+        // 没有筛查机构，直接报错
+        if (CollectionUtils.isEmpty(screeningTaskOrgService.getOrgListsByTaskId(taskDTO.getId()))){
+            throw new ValidationException("无筛查机构");
+        }
+        release(taskDTO.getId(), CurrentUserUtil.getCurrentUser());
     }
 
 }
