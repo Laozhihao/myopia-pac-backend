@@ -37,4 +37,8 @@ public class SchoolMonitorStatisticService extends BaseService<SchoolMonitorStat
     public List<SchoolMonitorStatistic> getBySchoolId(Integer schoolId) {
         return baseMapper.getBySchoolId(schoolId);
     }
+
+    public void deleteByPlanId(Integer planId) {
+        remove(new SchoolMonitorStatistic().setScreeningPlanId(planId));
+    }
 }

@@ -38,4 +38,8 @@ public class SchoolVisionStatisticService extends BaseService<SchoolVisionStatis
         }
         Lists.partition(schoolVisionStatistics, 20).forEach(statistics -> baseMapper.batchSaveOrUpdate(statistics));
     }
+
+    public void deleteByPlanId(Integer planId) {
+        remove(new SchoolVisionStatistic().setScreeningPlanId(planId));
+    }
 }

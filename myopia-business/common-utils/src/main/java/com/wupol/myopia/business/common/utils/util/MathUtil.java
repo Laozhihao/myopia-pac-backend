@@ -51,7 +51,7 @@ public class MathUtil {
      * @param denominator
      */
     public String ratio(Integer numerator, Integer denominator) {
-        if (ObjectsUtil.allNull(numerator,denominator)){
+        if (ObjectsUtil.hasNull(numerator,denominator)){
             return NumberCommonConst.ZERO_RATIO;
         }
         DecimalFormat df = new DecimalFormat(NumberCommonConst.ZERO_RATIO);

@@ -136,4 +136,9 @@ public class ScreeningListResponseDTO {
      * 筛查任务id
      */
     private Integer screeningTaskId;
+
+    /**
+     * 是否能关联通知
+     */
+    private Boolean isCanLink;
 }

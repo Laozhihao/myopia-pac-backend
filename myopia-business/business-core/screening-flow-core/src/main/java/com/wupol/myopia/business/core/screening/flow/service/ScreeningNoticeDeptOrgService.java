@@ -136,4 +136,13 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
           batchUpdateOrSave(orgList);
         }
     }
+
+    /**
+     * 获取关联的通知
+     *
+     * @return List<ScreeningNoticeDTO>
+     */
+    public List<ScreeningNoticeDTO> getCanLinkNotice(Integer orgId, Integer type) {
+        return baseMapper.getCanLinkNotice(orgId, type);
+    }
 }

@@ -283,4 +283,9 @@ public class CommonConst {
      * 总体情况
      */
     public static final String TOTAL_DESC = "总体情况";
+
+    /**
+     * 通知关联
+     */
+    public static final String NOTICE_LINK_UNIQUE = "notice-link-%s-%s-%s";
 }

@@ -19,6 +19,7 @@ import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBu
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
+import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.DeviceGrantedDTO;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.model.ScreeningConfig;
@@ -203,11 +204,18 @@ public class ScreeningOrganizationBizService {
     public IPage<ScreeningOrgPlanResponseDTO> getRecordLists(PageRequest request, Integer orgId, CurrentUser currentUser) {
         // 获取筛查计划
         IPage<ScreeningOrgPlanResponseDTO> planPages = screeningPlanService.getPageByOrgId(request, orgId, !currentUser.isPlatformAdminUser(), ScreeningOrgTypeEnum.ORG.getType());
-        List<ScreeningOrgPlanResponseDTO> tasks = planPages.getRecords();
-        if (CollectionUtils.isEmpty(tasks)) {
+        List<ScreeningOrgPlanResponseDTO> planRecords = planPages.getRecords();
+        if (CollectionUtils.isEmpty(planRecords)) {
             return planPages;
         }
-        tasks.forEach(taskResponse -> taskResponse.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(taskResponse.getStartTime(), taskResponse.getEndTime(), taskResponse.getReleaseStatus())));
+        ScreeningOrganization org = screeningOrganizationService.getById(orgId);
+        planRecords.forEach(plan -> {
+            plan.setScreeningStatus(ScreeningOrganizationService.getScreeningStatus(plan.getStartTime(), plan.getEndTime(), plan.getReleaseStatus()));
+            plan.setIsCanLink(Objects.equals(org.getConfigType(), ScreeningOrgConfigTypeEnum.CONFIG_TYPE_0.getType())
+                    && Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())
+                    && Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                    && Objects.equals(plan.getScreeningTaskId(), 0));
+        });
         return planPages;
     }
 

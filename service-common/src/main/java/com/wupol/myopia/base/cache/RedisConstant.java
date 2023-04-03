@@ -221,4 +221,14 @@ public interface RedisConstant {
      */
     String IMPORT_SCHOOL_SCREENING_DATA = "import:school:screening:data:%s%s";
 
+    /**
+     * 通知关联Key
+     */
+    String NOTICE_LINK_LIST = "notice:link:list";
+
+    /**
+     * 通知关联异常Key
+     */
+    String NOTICE_LINK_ERROR_LIST = "notice:link:error:list";
+
 }

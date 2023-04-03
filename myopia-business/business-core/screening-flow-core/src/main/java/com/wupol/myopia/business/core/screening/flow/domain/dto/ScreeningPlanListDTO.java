@@ -45,4 +45,9 @@ public class ScreeningPlanListDTO extends PageRequest implements Serializable {
      * 筛查机构ID集合
      */
     private List<Integer> screeningOrgIds;
+
+    /**
+     * 任务Id
+     */
+    private Integer screeningTaskId;
 }

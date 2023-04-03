@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
 import com.wupol.myopia.base.util.DateUtil;
@@ -19,11 +20,13 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.*;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
+import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -35,10 +38,7 @@ import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
-import com.wupol.myopia.business.core.screening.flow.domain.model.NationalDataDownloadRecord;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
@@ -118,6 +118,10 @@ public class ScreeningPlanController {
     private ResourceFileService resourceFileService;
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
+    @Autowired
+    private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Autowired
+    private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
 
     /**
@@ -767,5 +771,29 @@ public class ScreeningPlanController {
     @GetMapping("data/submit/file/{id}")
     public ApiResult<String> dataSubmitFile(@PathVariable("id") Integer id) {
         return ApiResult.success(resourceFileService.getResourcePath(id));
+    }
+
+    /**
+     * 获取关联的通知
+     *
+     * @return List<ScreeningNoticeDTO>
+     */
+    @GetMapping("planLinkNotice/list")
+    public List<ScreeningNoticeDTO> getPlanLinkNoticeList() {
+        if (Objects.equals(CurrentUserUtil.getCurrentUser().isScreeningUser(), Boolean.FALSE)) {
+            throw new BusinessException("非筛查机构不能查询");
+        }
+        Integer screeningOrgId = CurrentUserUtil.getCurrentUser().getScreeningOrgId();
+        return screeningNoticeBizFacadeService.getCanLinkNotice(screeningOrgId, ScreeningNotice.TYPE_ORG);
+    }
+
+    /**
+     * 关联通知
+     *
+     * @param requestDTO requestDTO
+     */
+    @PostMapping("linkNotice/link")
+    public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
+        screeningNoticeBizFacadeService.linkNotice(requestDTO);
     }
 }
