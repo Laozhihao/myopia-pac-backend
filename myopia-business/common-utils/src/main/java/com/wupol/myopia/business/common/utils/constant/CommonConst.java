@@ -287,5 +287,5 @@ public class CommonConst {
     /**
      * 通知关联
      */
-    public static final String NOTICE_LINK_UNIQUE = "notice-link-%s-%s-%s-%s";
+    public static final String NOTICE_LINK_UNIQUE = "notice-link-%s-%s-%s";
 }

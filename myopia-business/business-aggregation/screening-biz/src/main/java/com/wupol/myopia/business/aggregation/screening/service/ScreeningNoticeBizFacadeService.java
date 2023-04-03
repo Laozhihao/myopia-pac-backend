@@ -80,7 +80,6 @@ public class ScreeningNoticeBizFacadeService {
         return notices;
     }
 
-
     /**
      * 关联通知
      *
@@ -114,29 +113,26 @@ public class ScreeningNoticeBizFacadeService {
             throw new BusinessException("任务信息异常" + screeningNoticeDeptOrgId);
         }
 
-        Integer districtId = task.getDistrictId();
         Integer screeningNoticeId = task.getScreeningNoticeId();
         ScreeningNotice notice = screeningNoticeService.getById(screeningNoticeId);
 
         checkSchoolDistrict(planId, notice.getDistrictId());
 
         plan.setSrcScreeningNoticeId(screeningNoticeId)
-                .setScreeningTaskId(screeningTaskId)
-                .setDistrictId(districtId);
+                .setScreeningTaskId(screeningTaskId);
         screeningPlanService.updateById(plan);
 
         deptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_CREATED).setScreeningTaskPlanId(planId);
         screeningNoticeDeptOrgService.updateById(deptOrg);
 
         // 处理学生逻辑放在Redis中
-        String uniqueId = String.format(CommonConst.NOTICE_LINK_UNIQUE, screeningNoticeId, screeningTaskId, planId, districtId);
+        String uniqueId = String.format(CommonConst.NOTICE_LINK_UNIQUE, screeningNoticeId, screeningTaskId, planId);
 
         redisUtil.lSet(RedisConstant.NOTICE_LINK_LIST, new LinkNoticeQueue()
                 .setUniqueId(uniqueId)
                 .setScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
-                .setPlanId(planId)
-                .setDistrictId(districtId));
+                .setPlanId(planId));
     }
 
     /**
