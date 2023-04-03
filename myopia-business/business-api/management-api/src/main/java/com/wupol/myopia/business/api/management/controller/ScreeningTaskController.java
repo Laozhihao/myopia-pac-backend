@@ -378,6 +378,7 @@ public class ScreeningTaskController {
         if (!screeningNoticeService.save(screeningNotice)) {
             throw new BusinessException("创建失败");
         }
+        screeningTaskDTO.setScreeningNoticeId(screeningNotice.getId());
 
         if (CollectionUtils.isEmpty(screeningTaskDTO.getScreeningOrgs())
                 || screeningTaskDTO.getScreeningOrgs().stream().map(ScreeningTaskOrg::getScreeningOrgId).distinct().count() != screeningTaskDTO.getScreeningOrgs().size()) {
