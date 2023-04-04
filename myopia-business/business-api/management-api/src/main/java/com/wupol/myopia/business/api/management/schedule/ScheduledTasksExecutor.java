@@ -58,7 +58,7 @@ public class ScheduledTasksExecutor {
     /**
      * 每天9点执行，发送短信
      */
-    @Scheduled(cron = "0 0 9 * * ?")
+    // @Scheduled(cron = "0 0 9 * * ?")
     @Transactional(rollbackFor = Exception.class)
     public void sendSMSNotice() {
         List<VisionScreeningResult> studentResult = visionScreeningResultService.getStudentResults();
