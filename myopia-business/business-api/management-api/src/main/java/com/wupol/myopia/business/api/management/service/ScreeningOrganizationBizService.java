@@ -1,8 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,9 +29,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.device.constant.OrgTypeEnum;
 import com.wupol.myopia.business.core.device.domain.dto.ConfigurationReportRequestDTO;
 import com.wupol.myopia.business.core.device.domain.model.Device;
-import com.wupol.myopia.business.core.device.domain.model.DeviceReportTemplate;
 import com.wupol.myopia.business.core.device.domain.model.ScreeningOrgBindDeviceReport;
-import com.wupol.myopia.business.core.device.domain.vo.DeviceReportTemplateVO;
 import com.wupol.myopia.business.core.device.service.DeviceReportTemplateService;
 import com.wupol.myopia.business.core.device.service.DeviceService;
 import com.wupol.myopia.business.core.device.service.ScreeningOrgBindDeviceReportService;
@@ -129,23 +125,20 @@ public class ScreeningOrganizationBizService {
     private OverviewScreeningOrganizationService overviewScreeningOrganizationService;
     @Autowired
     private OverviewService overviewService;
-
     @Autowired
     private StatConclusionService statConclusionService;
-
     @Autowired
     private UserQuestionRecordService userQuestionRecordService;
-
     @Autowired
     private SchoolGradeService schoolGradeService;
     @Autowired
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-
     @Resource
     private DeviceService deviceService;
-
     @Autowired
     private VisionScreeningResultFacade visionScreeningResultFacade;
+    @Autowired
+    private SchoolBizService schoolBizService;
 
 
     /**
@@ -428,7 +421,7 @@ public class ScreeningOrganizationBizService {
                                                ScreeningOrganizationQueryDTO query){
 
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
-        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query);
+        TwoTuple<Date, Date> startAndEndTime = schoolBizService.getStartAndEndTime(query.getStartTime(), query.getEndTime());
 
         // 查询
         IPage<ScreeningOrganization> orgPage = screeningOrganizationService.listByCondition(pageRequest, query, districtIds,startAndEndTime.getFirst(),startAndEndTime.getSecond());
@@ -447,17 +440,6 @@ public class ScreeningOrganizationBizService {
                 .collect(Collectors.toList());
         screeningOrgResponsePage.setRecords(orgResponseDTOList);
         return screeningOrgResponsePage;
-    }
-
-    private TwoTuple<Date,Date> getStartAndEndTime(ScreeningOrganizationQueryDTO query){
-        TwoTuple<Date,Date> tuple = TwoTuple.of(null, null);
-        if (Objects.nonNull(query.getStartTime()) && Objects.nonNull(query.getEndTime())){
-            Date startTime = DateUtil.parse(query.getStartTime().toString()+" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
-            Date endTime = DateUtil.parse(query.getStartTime().toString()+" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
-            tuple.setFirst(startTime);
-            tuple.setSecond(endTime);
-        }
-        return tuple;
     }
 
     /**

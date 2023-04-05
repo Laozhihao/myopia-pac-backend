@@ -29,8 +29,6 @@ import com.wupol.myopia.business.core.school.management.domain.dto.StudentCountD
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.school.service.StudentService;
-import com.wupol.myopia.business.core.screening.flow.constant.ScreeningBizTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolVisionStatisticItem;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanResponseDTO;
@@ -58,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -85,8 +84,6 @@ public class SchoolBizService {
     private ScreeningOrganizationService screeningOrganizationService;
     @Autowired
     private GovDeptService govDeptService;
-    @Autowired
-    private StudentService studentService;
     @Resource
     private OauthServiceClient oauthServiceClient;
     @Autowired
@@ -493,7 +490,6 @@ public class SchoolBizService {
      */
     public IPage<ScreeningSchoolOrgVO> getScreeningOrganizationList(PageRequest pageRequest, ScreeningSchoolOrgDTO query, CurrentUser user) {
         if (user.isOverviewUser()) {
-//            query.setIds(overviewService.getBindScreeningOrganization(user.getOrgId()));
             if (CollectionUtils.isEmpty(query.getIds())) {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
@@ -510,7 +506,7 @@ public class SchoolBizService {
     public IPage<ScreeningSchoolOrgVO> getSchoolList(PageRequest pageRequest, ScreeningSchoolOrgDTO query){
         //当前区域及下级以下区域
         List<Integer> districtIds = districtService.getSpecificDistrictTreeAllDistrictIds(query.getDistrictId());
-        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query);
+        TwoTuple<Date, Date> startAndEndTime = getStartAndEndTime(query.getStartTime(), query.getEndTime());
         IPage<School> schoolPage = schoolService.listByCondition(pageRequest, query, districtIds,startAndEndTime.getFirst(),startAndEndTime.getSecond());
 
         IPage<ScreeningSchoolOrgVO> screeningSchoolOrgVoPage = new Page<>(schoolPage.getCurrent(),schoolPage.getSize(),schoolPage.getTotal());
@@ -528,13 +524,13 @@ public class SchoolBizService {
         return screeningSchoolOrgVoPage;
     }
 
-    private TwoTuple<Date, Date> getStartAndEndTime(ScreeningSchoolOrgDTO query) {
+    public TwoTuple<Date, Date> getStartAndEndTime(LocalDate startTime, LocalDate endTime) {
         TwoTuple<Date,Date> tuple = TwoTuple.of(null, null);
-        if (Objects.nonNull(query.getStartTime()) && Objects.nonNull(query.getEndTime())){
-            Date startTime = DateUtil.parse(query.getStartTime().toString()+" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
-            Date endTime = DateUtil.parse(query.getStartTime().toString()+" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
-            tuple.setFirst(startTime);
-            tuple.setSecond(endTime);
+        if (Objects.nonNull(startTime) && Objects.nonNull(endTime)){
+            Date start = DateUtil.parse(startTime +" 00:00:00", DatePattern.NORM_DATETIME_PATTERN);
+            Date end = DateUtil.parse(endTime +" 23:59:59", DatePattern.NORM_DATETIME_PATTERN);
+            tuple.setFirst(start);
+            tuple.setSecond(end);
         }
         return tuple;
     }
