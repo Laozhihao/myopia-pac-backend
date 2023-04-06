@@ -1,12 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.excel.imports;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.PhoneUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
-import com.wupol.myopia.base.util.RegularUtils;
 import com.wupol.myopia.business.aggregation.export.excel.constant.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -231,20 +231,16 @@ public class SchoolStudentExcelImportService {
         if (StringUtils.isAllBlank(idCard, passport) || StringUtils.isNoneBlank(idCard, passport)) {
             throw new BusinessException("学籍号为" + sno + "学生，身份证或护照不能为空，且二选一");
         }
-        if (StringUtils.isNotBlank(idCard) && !RegularUtils.isIdCard(idCard)) {
+        if (StringUtils.isNotBlank(idCard) && !IdcardUtil.isValidCard(idCard)) {
             throw new BusinessException("身份证号码错误：" + idCard);
         }
         if (StringUtils.isBlank(idCard)) {
             // 性别
-            if (StringUtils.isBlank(gender)) {
-                throw new BusinessException("学籍号为" + sno + "学生，性别为空");
-            }
+            Assert.hasText(gender, "学籍号为" + sno + "的学生，性别为空");
+            Assert.isTrue(GenderEnum.isGenderDesc(gender), "学籍号为" + sno + "的学生，性别描述错误");
             // 出生日期
-            if (StringUtils.isBlank(birthday)) {
-                throw new BusinessException("学籍号为" + sno + "学生，出生日期为空");
-            } else {
-                DateUtil.checkBirthday(DateUtil.parse(birthday, DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2));
-            }
+            Assert.hasText(birthday, "学籍号为" + sno + "的学生，出生日期为空");
+            DateUtil.checkBirthday(DateUtil.parse(birthday, DateFormatUtil.FORMAT_ONLY_DATE, DateFormatUtil.FORMAT_ONLY_DATE2));
         }
         // 年级
         Assert.hasText(gradeName, "学籍号为" + sno + "学生，年级为空");
