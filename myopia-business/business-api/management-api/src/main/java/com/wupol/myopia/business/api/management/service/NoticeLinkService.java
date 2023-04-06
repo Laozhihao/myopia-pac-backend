@@ -41,7 +41,7 @@ public class NoticeLinkService {
             try {
                 noticeLinkBizService.noticeLinkStudentMigrating(linkNoticeQueue);
             } catch (Exception e) {
-                log.info("关联通知-迁移学生存在异常:{},关联通知数据:{}", e, JSON.toJSONString(linkNoticeQueue));
+                log.error("关联通知-迁移学生存在异常,关联通知数据:{}", JSON.toJSONString(linkNoticeQueue), e);
                 redisUtil.lSet(RedisConstant.NOTICE_LINK_ERROR_LIST, JSON.toJSONString(linkNoticeQueue));
             }
         }

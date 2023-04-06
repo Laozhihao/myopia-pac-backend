@@ -15,7 +15,7 @@ import com.wupol.myopia.business.core.stat.service.SchoolVisionStatisticService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -46,6 +46,8 @@ public class NoticeLinkBizService {
     private ScreeningResultStatisticService screeningResultStatisticService;
     @Resource
     private StatisticScheduledTaskService statisticScheduledTaskService;
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
 
     /**
@@ -53,12 +55,27 @@ public class NoticeLinkBizService {
      *
      * @param linkNoticeQueue 关联通知
      */
-    @Transactional(rollbackFor = Exception.class)
     public void noticeLinkStudentMigrating(LinkNoticeQueue linkNoticeQueue) {
+
         Integer planId = linkNoticeQueue.getPlanId();
         Integer screeningTaskId = linkNoticeQueue.getScreeningTaskId();
         Integer screeningNoticeId = linkNoticeQueue.getScreeningNoticeId();
 
+        transactionTemplate.execute(transactionStatus -> {
+            try {
+                handleStudentList(planId, screeningTaskId, screeningNoticeId);
+            } catch (Exception e) {
+                transactionStatus.setRollbackOnly();
+            }
+            return null;
+        });
+        statisticScheduledTaskService.statistic(null, null, false, null, screeningNoticeId);
+    }
+
+    /**
+     * 处理学生信息
+     */
+    private void handleStudentList(Integer planId, Integer screeningTaskId, Integer screeningNoticeId) {
         // 计划学生
         List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getByScreeningPlanId(planId);
         planStudents.forEach(planStudent -> planStudent.setScreeningTaskId(screeningTaskId)
@@ -87,7 +104,5 @@ public class NoticeLinkBizService {
         schoolMonitorStatisticService.deleteByPlanId(planId);
         schoolVisionStatisticService.deleteByPlanId(planId);
         screeningResultStatisticService.deleteByPlanId(planId);
-
-        statisticScheduledTaskService.statistic(null, null, false, null, screeningNoticeId);
     }
 }
