@@ -111,4 +111,14 @@ public class OperationAndMaintenanceController {
     public void triggerNoticeLink() {
         CompletableFuture.runAsync(() -> noticeLinkService.migratingStudentData(), asyncServiceExecutor);
     }
+
+    /**
+     * 手动调用触发异常关联的通知
+     */
+    @GetMapping("/triggerErrorNoticeLink")
+    public void triggerErrorNoticeLink() {
+        CompletableFuture.runAsync(() -> noticeLinkService.handleErrorLinkList(), asyncServiceExecutor);
+    }
+
+
 }

@@ -125,8 +125,8 @@ public class ScheduledTasksExecutor {
     /**
      * 关联通知
      */
-    @Scheduled(cron = "0 0 1 * * ?")
-    public void abc() {
+    @Scheduled(cron = "0 30 1 * * ?")
+    public void linkNoticeTask() {
         log.info("开始关联任务");
         noticeLinkService.migratingStudentData();
     }

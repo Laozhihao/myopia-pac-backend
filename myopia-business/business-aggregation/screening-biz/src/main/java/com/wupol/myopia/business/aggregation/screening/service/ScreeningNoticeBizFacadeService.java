@@ -115,7 +115,9 @@ public class ScreeningNoticeBizFacadeService {
 
         Integer screeningNoticeId = task.getScreeningNoticeId();
         ScreeningNotice notice = screeningNoticeService.getById(screeningNoticeId);
-
+        if (Objects.isNull(notice)) {
+            throw new BusinessException("通知信息异常" + screeningNoticeId);
+        }
         checkSchoolDistrict(planId, notice.getDistrictId());
 
         plan.setSrcScreeningNoticeId(screeningNoticeId)
