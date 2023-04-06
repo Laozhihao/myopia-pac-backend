@@ -88,6 +88,6 @@ public class NoticeLinkBizService {
         schoolVisionStatisticService.deleteByPlanId(planId);
         screeningResultStatisticService.deleteByPlanId(planId);
 
-        statisticScheduledTaskService.statistic(null, planId, false, null, null);
+        statisticScheduledTaskService.statistic(null, null, false, null, screeningNoticeId);
     }
 }
