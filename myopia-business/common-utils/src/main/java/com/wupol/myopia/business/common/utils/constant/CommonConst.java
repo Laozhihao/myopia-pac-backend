@@ -288,4 +288,14 @@ public class CommonConst {
      * 通知关联
      */
     public static final String NOTICE_LINK_UNIQUE = "notice-link-%s-%s-%s";
+
+    /**
+     * 通知关联-成功
+     */
+    public static final String NOTICE_LINK_SUCCESS = "%s关联至%s的数据迁移已完成，请查看核对。";
+
+    /**
+     * 通知关联-失败
+     */
+    public static final String NOTICE_LINK_FAIL = "%s关联至%s的数据迁移失败，请联系管理员。";
 }

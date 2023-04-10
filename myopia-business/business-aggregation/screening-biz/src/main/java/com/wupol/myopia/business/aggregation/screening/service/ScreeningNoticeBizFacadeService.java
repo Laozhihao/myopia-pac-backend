@@ -82,9 +82,10 @@ public class ScreeningNoticeBizFacadeService {
      * 关联通知
      *
      * @param requestDTO requestDTO
+     * @param userId     用户Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
+    public synchronized void linkNotice(PlanLinkNoticeRequestDTO requestDTO, Integer userId) {
         Integer planId = requestDTO.getPlanId();
         Integer screeningNoticeDeptOrgId = requestDTO.getScreeningNoticeDeptOrgId();
         Integer screeningTaskId = requestDTO.getScreeningTaskId();
@@ -132,7 +133,8 @@ public class ScreeningNoticeBizFacadeService {
                 .setUniqueId(uniqueId)
                 .setScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
-                .setPlanId(planId));
+                .setPlanId(planId)
+                .setCreateUserId(userId));
     }
 
     /**

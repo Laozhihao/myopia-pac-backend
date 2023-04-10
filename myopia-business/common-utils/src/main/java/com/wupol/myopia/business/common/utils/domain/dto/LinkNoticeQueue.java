@@ -42,4 +42,9 @@ public class LinkNoticeQueue {
      * 计划Id
      */
     private Integer planId;
+
+    /**
+     * 创建人Id
+     */
+    private Integer createUserId;
 }
