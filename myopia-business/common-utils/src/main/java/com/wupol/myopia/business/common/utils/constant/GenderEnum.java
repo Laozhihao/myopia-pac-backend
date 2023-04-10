@@ -81,4 +81,14 @@ public enum GenderEnum {
         }
         return UNKNOWN.cnDesc;
     }
+
+    /**
+     * 判断是否为：“男”、“女”
+     *
+     * @param genderDesc 性别描述
+     * @return boolean
+     */
+    public static boolean isGenderDesc(String genderDesc) {
+        return Lists.newArrayList(MALE.desc, FEMALE.desc).stream().anyMatch(x -> x.equals(genderDesc));
+    }
 }
