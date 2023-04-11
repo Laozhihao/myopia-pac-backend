@@ -17,7 +17,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskPageDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskQueryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
@@ -71,7 +70,7 @@ public class ScreeningTaskBizService {
      *
      * @param screeningTaskDTO
      */
-    public void saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, boolean needUpdateNoticeStatus) {
+    public ScreeningTaskDTO saveOrUpdateWithScreeningOrgs(CurrentUser user, ScreeningTaskDTO screeningTaskDTO, boolean needUpdateNoticeStatus) {
         // 新增或更新筛查任务信息
         screeningTaskDTO.setOperatorId(user.getId());
         if (!screeningTaskService.saveOrUpdate(screeningTaskDTO)) {
@@ -83,6 +82,7 @@ public class ScreeningTaskBizService {
             //更新通知状态＆更新ID
             screeningNoticeDeptOrgService.statusReadAndCreate(screeningTaskDTO.getScreeningNoticeId(), screeningTaskDTO.getGovDeptId(), screeningTaskDTO.getId(), user.getId());
         }
+        return screeningTaskDTO;
     }
 
     /**
@@ -177,13 +177,13 @@ public class ScreeningTaskBizService {
      * @param user 用户
      * @return 任务
      */
-    public void createTask(ScreeningNotice screeningNotice, ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
+    public ScreeningTaskDTO createTask(ScreeningNotice screeningNotice, ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
         // 已创建校验
         if (screeningTaskService.checkIsCreated(screeningNotice.getId(), screeningTaskDTO.getGovDeptId())) {
             throw new ValidationException("该部门任务已创建");
         }
         screeningTaskDTO.setCreateUserId(user.getId());
-        saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
+        return saveOrUpdateWithScreeningOrgs(user, screeningTaskDTO, true);
     }
 
     /**

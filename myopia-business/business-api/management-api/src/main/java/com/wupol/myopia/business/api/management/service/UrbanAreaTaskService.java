@@ -32,7 +32,9 @@ public class UrbanAreaTaskService {
     public void createTask(ScreeningTaskDTO screeningTaskDTO, CurrentUser user) {
         ScreeningNotice screeningNotice = screeningNoticeBizService.saveNotice(screeningTaskDTO, user.getId());
         screeningNoticeBizService.publishNotice(screeningNotice, user);
-        screeningTaskBizService.createTask(screeningNotice, screeningTaskDTO, user);
+        ScreeningTaskDTO taskDTO = screeningTaskBizService.createTask(screeningNotice, screeningTaskDTO, user);
+        screeningTaskBizService.validateExistAndAuthorize(taskDTO.getId());
+        screeningTaskBizService.publishTask(taskDTO);
     }
 
 }
