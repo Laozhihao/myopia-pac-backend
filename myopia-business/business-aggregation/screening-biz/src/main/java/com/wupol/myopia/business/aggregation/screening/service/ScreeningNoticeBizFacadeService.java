@@ -174,7 +174,7 @@ public class ScreeningNoticeBizFacadeService {
                 .collect(Collectors.toList());
 
         if (new HashSet<>(planSchoolIds).size() != planSchoolIds.size()) {
-            throw new BusinessException("筛查计划中学校重复！请确认");
+            throw new BusinessException("筛查任务中学校重复，请确认！");
         }
     }
 
