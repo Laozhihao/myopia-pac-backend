@@ -13,10 +13,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,6 +93,7 @@ public class ScreeningNoticeBizFacadeService {
             throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
         }
 
+        checkPlanSchoolDuplicate(screeningTaskId, planId);
         ScreeningPlan plan = screeningPlanService.getById(planId);
         if (Objects.isNull(plan)) {
             throw new BusinessException("通过计划Id查询不到计划" + planId);
@@ -154,4 +152,27 @@ public class ScreeningNoticeBizFacadeService {
         }
         throw new BusinessException("学校行政区域异常");
     }
+
+    /**
+     * 检查任务学校是否重复
+     *
+     * @param screeningTaskId 筛查任务
+     * @param planId          计划
+     */
+    private void checkPlanSchoolDuplicate(Integer screeningTaskId, Integer planId) {
+
+        // 查询任务已经筛查的学校
+        List<ScreeningPlan> plans = screeningPlanService.getByTaskId(screeningTaskId);
+        List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        planIds.add(planId);
+
+        List<Integer> planSchoolIds = screeningPlanSchoolService.getByPlanIds(planIds).stream()
+                .map(ScreeningPlanSchool::getSchoolId)
+                .collect(Collectors.toList());
+
+        if (new HashSet<>(planSchoolIds).size() != planSchoolIds.size()) {
+            throw new BusinessException("学校重复！请确认");
+        }
+    }
+
 }
