@@ -209,7 +209,7 @@ public class ScreeningNoticeController {
         ScreeningNotice notice = screeningNoticeService.getById(id);
         screeningNoticeService.createOrReleaseValidate(notice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
-            screeningNoticeBizService.release(id, user);
+            screeningNoticeBizService.release(id, user, false);
         } else {
             throw new ValidationException("无权限");
         }

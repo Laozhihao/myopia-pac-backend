@@ -82,12 +82,16 @@ public class ScreeningNoticeBizService {
      * @return
      */
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public void release(Integer id, CurrentUser user) {
+    public void release(Integer id, CurrentUser user, Boolean isTaskCreate) {
         //1. 更新状态&发布时间
         ScreeningNotice notice = screeningNoticeService.getById(id);
         notice.setId(id).setReleaseStatus(CommonConst.STATUS_RELEASE).setReleaseTime(new Date());
         if (!screeningNoticeService.updateById(notice, user.getId())) {
             throw new BusinessException("发布失败");
+        }
+        // 任务创建任务，不需要向下发布任务
+        if (Objects.equals(isTaskCreate, Boolean.TRUE)) {
+            return;
         }
         List<GovDept> govDepts = govDeptService.getAllSubordinateWithDistrictId(notice.getGovDeptId());
         List<ScreeningNoticeDeptOrg> screeningNoticeDeptOrgs = govDepts.stream().map(govDept -> new ScreeningNoticeDeptOrg().setScreeningNoticeId(id).setDistrictId(govDept.getDistrictId()).setAcceptOrgId(govDept.getId()).setOperatorId(user.getId())).collect(Collectors.toList());
@@ -175,7 +179,7 @@ public class ScreeningNoticeBizService {
     public void publishNotice(ScreeningNotice screeningNotice, CurrentUser user) {
         screeningNoticeService.createOrReleaseValidate(screeningNotice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(screeningNotice.getGovDeptId())) {
-            release(screeningNotice.getId(), user);
+            release(screeningNotice.getId(), user, true);
         } else {
             throw new ValidationException("无权限");
         }
