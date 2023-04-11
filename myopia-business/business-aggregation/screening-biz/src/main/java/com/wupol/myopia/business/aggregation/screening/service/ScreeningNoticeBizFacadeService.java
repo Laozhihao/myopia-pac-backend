@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -166,13 +167,29 @@ public class ScreeningNoticeBizFacadeService {
         List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
         planIds.add(planId);
 
-        List<Integer> planSchoolIds = screeningPlanSchoolService.getByPlanIds(planIds).stream()
-                .map(ScreeningPlanSchool::getSchoolId)
-                .collect(Collectors.toList());
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(planIds);
+//        List<Integer> planSchoolIds = planSchools.stream()
+//                .map(ScreeningPlanSchool::getSchoolId)
+//                .collect(Collectors.toList());
+//
+//        if (new HashSet<>(planSchoolIds).size() != planSchoolIds.size()) {
+//            throw new BusinessException("学校重复！请确认");
+//        }
 
-        if (new HashSet<>(planSchoolIds).size() != planSchoolIds.size()) {
-            throw new BusinessException("学校重复！请确认");
+        List<ScreeningPlanSchool> duplicateSchool = planSchools.stream()
+                .collect(Collectors.toMap(ScreeningPlanSchool::getSchoolId, Function.identity(), (p1, p2) -> p1))
+                .values().stream()
+                .collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId))
+                .values().stream()
+                .filter(list -> list.size() > 1)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(duplicateSchool)) {
+            return;
         }
+
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(duplicateSchool, ScreeningPlanSchool::getSchoolId);
+        throw new BusinessException(duplicateSchool.stream().map(s->schoolMap.get(s.getSchoolId())).collect(Collectors.joining(",")));
     }
 
 }
