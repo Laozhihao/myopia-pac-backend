@@ -189,7 +189,7 @@ public class ScreeningNoticeBizFacadeService {
         }
 
         Map<Integer, String> schoolMap = schoolService.getSchoolMap(duplicateSchool, ScreeningPlanSchool::getSchoolId);
-        throw new BusinessException(duplicateSchool.stream().map(s->schoolMap.get(s.getSchoolId())).collect(Collectors.joining(",")));
+        throw new BusinessException(duplicateSchool.stream().map(s -> schoolMap.get(s.getSchoolId())).collect(Collectors.joining(",")) + "重复！请确认");
     }
 
 }
