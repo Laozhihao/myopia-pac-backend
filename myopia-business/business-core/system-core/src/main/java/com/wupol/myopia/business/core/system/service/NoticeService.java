@@ -204,7 +204,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
             return;
         }
         log.info("发送异步导出任务通知:{}", JSON.toJSONString(pdfGeneratorVO));
-        sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + pdfGeneratorVO.getZipFileName() + "请稍后重试");
+        sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), pdfGeneratorVO.getZipFileName());
         // 默认给一天内处理
         redisUtil.set(noticeKey, new AsyncExportNoticeDO(), 86400);
     }
