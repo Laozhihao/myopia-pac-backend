@@ -68,13 +68,12 @@ public class ScreeningNoticeBizFacadeService {
 
         // 通过TaskId查询最原始的通知
         List<ScreeningTask> tasks = screeningTaskService.listByIds(notices.stream().map(ScreeningNotice::getScreeningTaskId).collect(Collectors.toList()));
-        Map<Integer, Integer> taskMap = tasks.stream().collect(Collectors.toMap(ScreeningTask::getId, ScreeningTask::getScreeningNoticeId));
         Map<Integer, Integer> taskGovMap = tasks.stream().collect(Collectors.toMap(ScreeningTask::getId, ScreeningTask::getGovDeptId));
 
         // 获取行政部门
         List<GovDept> govDeptList = govDeptService.getByIds(Lists.newArrayList(tasks.stream().map(ScreeningTask::getGovDeptId).collect(Collectors.toList())));
         Map<Integer, String> govDeptMap = govDeptList.stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
-        notices.forEach(notice -> notice.setGovDeptName(govDeptMap.get(taskGovMap.get(taskMap.get(notice.getScreeningTaskId())))));
+        notices.forEach(notice -> notice.setGovDeptName(govDeptMap.get(taskGovMap.get(notice.getScreeningTaskId()))));
         return notices;
     }
 
