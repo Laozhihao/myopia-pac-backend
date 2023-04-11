@@ -20,6 +20,7 @@
         <module>myopia-business</module>
         <module>myopia-migrate-data</module>
         <module>myopia-rec</module>
+        <module>myopia-third-party</module>
     </modules>
 
     <properties>
