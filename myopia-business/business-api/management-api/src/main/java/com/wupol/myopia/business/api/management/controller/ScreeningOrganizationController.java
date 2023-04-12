@@ -33,7 +33,6 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeD
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningOrgPlanResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningRecordItems;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.organization.constant.ScreeningOrgConfigTypeEnum;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.CacheOverviewInfoDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrgResponseDTO;
 import com.wupol.myopia.business.core.screening.organization.domain.dto.ScreeningOrganizationQueryDTO;
@@ -526,7 +525,7 @@ public class ScreeningOrganizationController {
      */
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
-        screeningNoticeBizFacadeService.linkNotice(requestDTO);
+        screeningNoticeBizFacadeService.linkNotice(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
 
 }

@@ -5,7 +5,6 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
-import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningNoticeVO;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeBizService;
 import com.wupol.myopia.business.api.management.service.ScreeningNoticeDeptOrgBizService;
@@ -77,29 +76,6 @@ public class ScreeningNoticeController {
         }
         // 常见病版本，“发布筛查通知”和“筛查通知”菜单合并，则创建通知时也给自己发一个通知
         screeningNoticeDeptOrgService.save(new ScreeningNoticeDeptOrg().setScreeningNoticeId(screeningNotice.getId()).setDistrictId(screeningNotice.getDistrictId()).setAcceptOrgId(screeningNotice.getGovDeptId()).setOperatorId(screeningNotice.getCreateUserId()));
-    }
-
-    /**
-     * 创建筛查通知或发布时校验
-     * 1. 开始时间只能在今天或以后
-     * 2. 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
-     * 3. 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
-     *
-     * @param screeningNotice
-     */
-    private void createOrReleaseValidate(ScreeningNotice screeningNotice) {
-        // 开始时间只能在今天或以后
-        if (DateUtil.isDateBeforeToday(screeningNotice.getStartTime())) {
-            throw new ValidationException("筛查开始时间不能早于今天");
-        }
-        // 一个部门在一个时间段内只能发布一个筛查通知【即时间不允许重叠，且只能创建今天之后的时间段】
-        if (screeningNoticeService.checkTimeLegal(screeningNotice)) {
-            throw new ValidationException("该部门该时间段已存在筛查通知");
-        }
-        // 同一个部门下，筛查标题唯一性，要进行校验，标题不能相同。
-        if (screeningNoticeService.checkTitleExist(screeningNotice.getId(), screeningNotice.getGovDeptId(), screeningNotice.getTitle())) {
-            throw new ValidationException("该部门已存在相同标题通知");
-        }
     }
 
     /**
@@ -231,9 +207,9 @@ public class ScreeningNoticeController {
         // 已发布，直接返回
         validateExistWithReleaseStatus(id, CommonConst.STATUS_RELEASE);
         ScreeningNotice notice = screeningNoticeService.getById(id);
-        createOrReleaseValidate(notice);
+        screeningNoticeService.createOrReleaseValidate(notice);
         if (user.isPlatformAdminUser() || user.isGovDeptUser() && user.getOrgId().equals(notice.getGovDeptId())) {
-            screeningNoticeBizService.release(id, user);
+            screeningNoticeBizService.release(id, user, false);
         } else {
             throw new ValidationException("无权限");
         }

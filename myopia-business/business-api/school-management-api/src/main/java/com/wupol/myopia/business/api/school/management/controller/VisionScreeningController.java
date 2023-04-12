@@ -387,7 +387,7 @@ public class VisionScreeningController {
      */
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
-        screeningNoticeBizFacadeService.linkNotice(requestDTO);
+        screeningNoticeBizFacadeService.linkNotice(requestDTO, CurrentUserUtil.getCurrentUser().getId());
     }
 
 }
