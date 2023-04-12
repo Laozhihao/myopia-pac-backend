@@ -119,7 +119,9 @@ public class SchoolBizService {
         // set alreadyHavePlan
         simpleSchoolList.forEach(school -> {
             school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
-            school.setIsAlreadyExistsTask(taskOrgIds.contains(school.getId()));
+            if (Objects.nonNull(schoolQueryDTO.getTaskId())) {
+                school.setIsAlreadyExistsTask(taskOrgIds.contains(school.getId()));
+            }
         });
         return simpleSchoolList;
     }
