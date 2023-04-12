@@ -127,27 +127,6 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
     }
 
     /**
-     * 导出Excel-通知
-     *
-     * @param createUserId 创建人
-     * @param noticeUserId 通知人
-     * @param title        标题
-     * @param content      内容
-     * @param fileId       资源文件ID
-     * @param type         类型
-     */
-    public void createExportNotice(Integer createUserId, Integer noticeUserId, String title, String content, Integer fileId, Byte type) {
-        Notice notice = new Notice();
-        notice.setCreateUserId(createUserId);
-        notice.setNoticeUserId(noticeUserId);
-        notice.setType(type);
-        notice.setTitle(title);
-        notice.setContent(content);
-        notice.setFileId(fileId);
-        baseMapper.insert(notice);
-    }
-
-    /**
      * 批量创建筛查通知
      *
      * @param createUserId 创建人
@@ -194,6 +173,7 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
 
     /**
      * 发送信息给所有平台管理员（不发送给自己）
+     *
      * @param createUserId
      * @param title
      * @param content
@@ -224,9 +204,54 @@ public class NoticeService extends BaseService<NoticeMapper, Notice> {
             return;
         }
         log.info("发送异步导出任务通知:{}", JSON.toJSONString(pdfGeneratorVO));
-        sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), "【导出失败】，" + pdfGeneratorVO.getZipFileName() + "请稍后重试");
+        sendExportFailNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), pdfGeneratorVO.getZipFileName());
         // 默认给一天内处理
         redisUtil.set(noticeKey, new AsyncExportNoticeDO(), 86400);
+    }
+
+    /**
+     * 导出Excel-通知
+     *
+     * @param createUserId 创建人
+     * @param noticeUserId 通知人
+     * @param title        标题
+     * @param content      内容
+     * @param fileId       资源文件ID
+     * @param type         类型
+     */
+    public void createExportNotice(Integer createUserId, Integer noticeUserId, String title, String content, Integer fileId, Byte type) {
+        createNotice(createUserId, noticeUserId, title, content, fileId, type);
+    }
+
+    /**
+     * 关联通知
+     *
+     * @param createUserId 创建人
+     * @param content      内容
+     */
+    public void createNoticeLinkResult(Integer createUserId, String content) {
+        createNotice(createUserId, createUserId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
+    }
+
+    /**
+     * 新建通知
+     *
+     * @param createUserId 创建人
+     * @param noticeUserId 通知人
+     * @param title        标题
+     * @param content      内容
+     * @param fileId       资源文件ID
+     * @param type         类型
+     */
+    public void createNotice(Integer createUserId, Integer noticeUserId, String title, String content, Integer fileId, Byte type) {
+        Notice notice = new Notice();
+        notice.setCreateUserId(createUserId);
+        notice.setNoticeUserId(noticeUserId);
+        notice.setType(type);
+        notice.setTitle(title);
+        notice.setContent(content);
+        notice.setFileId(fileId);
+        baseMapper.insert(notice);
     }
 
 }

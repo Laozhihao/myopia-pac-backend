@@ -262,6 +262,9 @@ public class ScreeningAreaReportService {
     private AreaGeneralVision generateAreaGeneralVision(List<StatConclusion> statConclusions, Integer noticeId, Integer districtId) {
         AreaGeneralVision areaGeneralVision = new AreaGeneralVision();
         List<StatConclusion> validList = statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(validList)) {
+            return areaGeneralVision;
+        }
         long total = validList.size();
         areaGeneralVision.setAreaLowVision(generateAreaLowVision(validList, total, noticeId, commonReportService.getHistoryData(districtId, null)));
         areaGeneralVision.setAreaRefraction(generateAreaRefraction(validList, noticeId, districtId));

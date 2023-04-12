@@ -13,10 +13,7 @@ import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanLinkNoticeRequestDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
-import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,15 +65,12 @@ public class ScreeningNoticeBizFacadeService {
 
         // 通过TaskId查询最原始的通知
         List<ScreeningTask> tasks = screeningTaskService.listByIds(notices.stream().map(ScreeningNotice::getScreeningTaskId).collect(Collectors.toList()));
-        Map<Integer, Integer> taskMap = tasks.stream().collect(Collectors.toMap(ScreeningTask::getId, ScreeningTask::getScreeningNoticeId));
-
-        List<ScreeningNotice> sourceNotices = screeningNoticeService.getByIds(tasks.stream().map(ScreeningTask::getScreeningNoticeId).collect(Collectors.toList()));
-        Map<Integer, Integer> sourceNoticeMap = sourceNotices.stream().collect(Collectors.toMap(ScreeningNotice::getId, ScreeningNotice::getGovDeptId));
+        Map<Integer, Integer> taskGovMap = tasks.stream().collect(Collectors.toMap(ScreeningTask::getId, ScreeningTask::getGovDeptId));
 
         // 获取行政部门
-        List<GovDept> govDeptList = govDeptService.getByIds(Lists.newArrayList(sourceNotices.stream().map(ScreeningNotice::getGovDeptId).collect(Collectors.toList())));
+        List<GovDept> govDeptList = govDeptService.getByIds(Lists.newArrayList(tasks.stream().map(ScreeningTask::getGovDeptId).collect(Collectors.toList())));
         Map<Integer, String> govDeptMap = govDeptList.stream().collect(Collectors.toMap(GovDept::getId, GovDept::getName));
-        notices.forEach(notice -> notice.setGovDeptName(govDeptMap.get(sourceNoticeMap.get(taskMap.get(notice.getScreeningTaskId())))));
+        notices.forEach(notice -> notice.setGovDeptName(govDeptMap.get(taskGovMap.get(notice.getScreeningTaskId()))));
         return notices;
     }
 
@@ -84,9 +78,10 @@ public class ScreeningNoticeBizFacadeService {
      * 关联通知
      *
      * @param requestDTO requestDTO
+     * @param userId     用户Id
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized void linkNotice(PlanLinkNoticeRequestDTO requestDTO) {
+    public synchronized void linkNotice(PlanLinkNoticeRequestDTO requestDTO, Integer userId) {
         Integer planId = requestDTO.getPlanId();
         Integer screeningNoticeDeptOrgId = requestDTO.getScreeningNoticeDeptOrgId();
         Integer screeningTaskId = requestDTO.getScreeningTaskId();
@@ -98,6 +93,7 @@ public class ScreeningNoticeBizFacadeService {
             throw new BusinessException("计划已经被选中，请执行完毕后，再操作");
         }
 
+        checkPlanSchoolDuplicate(screeningTaskId, planId);
         ScreeningPlan plan = screeningPlanService.getById(planId);
         if (Objects.isNull(plan)) {
             throw new BusinessException("通过计划Id查询不到计划" + planId);
@@ -134,7 +130,8 @@ public class ScreeningNoticeBizFacadeService {
                 .setUniqueId(uniqueId)
                 .setScreeningNoticeId(screeningNoticeId)
                 .setScreeningTaskId(screeningTaskId)
-                .setPlanId(planId));
+                .setPlanId(planId)
+                .setCreateUserId(userId));
     }
 
     /**
@@ -155,4 +152,29 @@ public class ScreeningNoticeBizFacadeService {
         }
         throw new BusinessException("学校行政区域异常");
     }
+
+    /**
+     * 检查任务学校是否重复
+     *
+     * @param screeningTaskId 筛查任务
+     * @param planId          计划
+     */
+    private void checkPlanSchoolDuplicate(Integer screeningTaskId, Integer planId) {
+
+        // 查询任务已经筛查的学校
+        List<ScreeningPlan> plans = screeningPlanService.getByTaskId(screeningTaskId);
+        List<Integer> planIds = plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList());
+        planIds.add(planId);
+
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(planIds);
+
+        List<Integer> planSchoolIds = planSchools.stream()
+                .map(ScreeningPlanSchool::getSchoolId)
+                .collect(Collectors.toList());
+
+        if (new HashSet<>(planSchoolIds).size() != planSchoolIds.size()) {
+            throw new BusinessException("筛查任务中学校重复，请确认！");
+        }
+    }
+
 }
