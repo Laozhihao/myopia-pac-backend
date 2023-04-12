@@ -98,4 +98,9 @@ public class SchoolQueryDTO extends School {
      * 是否总览账号
      */
     private Boolean isOverviewUser;
+
+    /**
+     * 任务Id
+     */
+    private Integer taskId;
 }
