@@ -517,8 +517,16 @@ public class SchoolBizService {
         }
 
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+        List<Integer> taskOrgIds = getOrgList(query.getTaskId());
+
         List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
-                .map(school -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(),school.getName(),null))
+                .map(school -> {
+                    ScreeningSchoolOrgVO screeningSchoolOrgVO = ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(), school.getName(), null);
+                    if (Objects.nonNull(query.getTaskId())) {
+                        screeningSchoolOrgVO.setIsAlreadyExistsTask(taskOrgIds.contains(screeningSchoolOrgVO.getId()));
+                    }
+                    return screeningSchoolOrgVO;
+                })
                 .collect(Collectors.toList());
         screeningSchoolOrgVoPage.setRecords(screeningSchoolOrgVOList);
         return screeningSchoolOrgVoPage;
@@ -550,5 +558,27 @@ public class SchoolBizService {
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 获取机构Id
+     *
+     * @param taskId 任务Id
+     * @return 机构Id
+     */
+    private List<Integer> getOrgList(Integer taskId) {
+        if (Objects.isNull(taskId)) {
+            return new ArrayList<>();
+        }
+        List<Integer> schoolIds = screeningTaskOrgService.getOrgIdByTaskIdAndType(taskId, ScreeningOrgTypeEnum.SCHOOL.getType());
+
+        // 获取计划下机构已经创建的学校（计划学校表）
+        List<ScreeningPlan> plans = screeningPlanService.getByTaskId(taskId);
+        if (CollectionUtils.isEmpty(plans)) {
+            return schoolIds;
+        }
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        schoolIds.addAll(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
+        return schoolIds;
     }
 }

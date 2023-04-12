@@ -55,4 +55,9 @@ public class ScreeningSchoolOrgDTO implements Serializable {
      * 名字模糊查询
      */
     private String name;
+
+    /**
+     * 筛查任务Id
+     */
+    private Integer taskId;
 }

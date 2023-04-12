@@ -67,4 +67,12 @@
         where screening_task_id = #{taskId}
     </select>
 
+    <select id="getByTaskIdAndType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from m_screening_task_org
+        where screening_task_id = #{taskId}
+          and screening_org_type = #{orgType}
+    </select>
+
 </mapper>
