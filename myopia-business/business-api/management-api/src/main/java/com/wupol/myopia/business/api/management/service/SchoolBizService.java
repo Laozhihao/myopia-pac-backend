@@ -7,6 +7,7 @@ import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
@@ -222,9 +223,10 @@ public class SchoolBizService {
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
+        List<Integer> bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
         if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
                 && currentUser.isOverviewUser()
-                && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {
+                && CollectionUtils.isEmpty(bindSchool)) {
             return new Page<>();
         }
 
@@ -265,8 +267,16 @@ public class SchoolBizService {
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIdList);
         Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
 
+        // 筛查机构获取筛查机构的所有账号
+        List<Integer> orgUserIds = new ArrayList<>();
+        if (currentUser.isScreeningUser()) {
+            UserDTO user = new UserDTO();
+            user.setOrgId(currentUser.getOrgId()).setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+            orgUserIds = oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps, bindSchool, orgUserIds));
         return schoolDtoIPage;
     }
 
@@ -343,7 +353,8 @@ public class SchoolBizService {
      * @return Consumer<SchoolDto>
      */
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, User> userMap,
-                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
+                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps,
+                                                             List<Integer> bindSchool, List<Integer> orgUserIds) {
         return school -> {
             // 创建人
             school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
@@ -352,8 +363,9 @@ public class SchoolBizService {
             if (currentUser.isHospitalUser()) {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getScreeningOrgId()));
             } else if (currentUser.isOverviewUser()) {
-                List<Integer> bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
                 school.setCanUpdate(bindSchool.contains(school.getId()));
+            } else if (currentUser.isScreeningUser()) {
+                school.setCanUpdate(orgUserIds.contains(school.getCreateUserId()));
             } else {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
             }
