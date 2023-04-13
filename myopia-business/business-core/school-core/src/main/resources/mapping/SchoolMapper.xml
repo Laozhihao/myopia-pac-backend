@@ -127,7 +127,10 @@
             </when>
             <otherwise>
                 <if test="query.createByUserId != null and query.createByUserId.size() != 0">
-                    and ms.create_user_id = #{query.createByUserId}
+                    and ms.create_user_id in
+                    <foreach collection="query.createByUserId" item="id" index="index" open="(" close=")" separator=",">
+                        #{id}
+                    </foreach>
                 </if>
             </otherwise>
         </choose>
