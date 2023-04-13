@@ -223,10 +223,9 @@ public class SchoolBizService {
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
-        List<Integer> bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
         if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
                 && currentUser.isOverviewUser()
-                && CollectionUtils.isEmpty(bindSchool)) {
+                && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {
             return new Page<>();
         }
 
@@ -276,6 +275,10 @@ public class SchoolBizService {
         }
 
         // 封装DTO
+        List<Integer> bindSchool = new ArrayList<>();
+        if (currentUser.isOverviewUser()) {
+            bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
+        }
         schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps, bindSchool, orgUserIds));
         return schoolDtoIPage;
     }
