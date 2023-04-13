@@ -351,6 +351,9 @@ public class SchoolBizService {
             // 判断是否能更新
             if (currentUser.isHospitalUser()) {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getScreeningOrgId()));
+            } else if (currentUser.isOverviewUser()) {
+                List<Integer> bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
+                school.setCanUpdate(bindSchool.contains(school.getId()));
             } else {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
             }
