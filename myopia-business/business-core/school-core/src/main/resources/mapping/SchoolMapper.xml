@@ -114,8 +114,11 @@
             </foreach>
         </if>
         <choose>
-            <when test="query.createByUserId != null and query.createByUserId != '' and query.schoolIds != null and query.schoolIds.size() != 0">
-                and (ms.create_user_id = #{query.createByUserId}
+            <when test="query.createByUserId != null and query.createByUserId.size() != 0 and query.schoolIds != null and query.schoolIds.size() != 0">
+                and (ms.create_user_id in
+                <foreach collection="query.createByUserId" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
                     or ms.id in
                 <foreach collection="query.schoolIds" item="id" index="index" open="(" close=")" separator=",">
                     #{id}
@@ -123,7 +126,7 @@
                 )
             </when>
             <otherwise>
-                <if test="query.createByUserId != null and query.createByUserId != ''">
+                <if test="query.createByUserId != null and query.createByUserId.size() != 0">
                     and ms.create_user_id = #{query.createByUserId}
                 </if>
             </otherwise>

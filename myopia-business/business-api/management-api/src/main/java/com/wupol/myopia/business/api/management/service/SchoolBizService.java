@@ -239,7 +239,10 @@ public class SchoolBizService {
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId(), schoolQueryDTO.getAllProvince());
-        setSchoolQueryDTO(currentUser, schoolQueryDTO);
+
+        // 机构获取机构的所有账号
+        List<Integer> orgUserIds = getOrgCreateUserIds(currentUser);
+        setSchoolQueryDTO(currentUser, schoolQueryDTO, orgUserIds);
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
@@ -265,14 +268,6 @@ public class SchoolBizService {
         // 学校筛查次数
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIdList);
         Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
-
-        // 筛查机构获取筛查机构的所有账号
-        List<Integer> orgUserIds = new ArrayList<>();
-        if (currentUser.isScreeningUser()) {
-            UserDTO user = new UserDTO();
-            user.setOrgId(currentUser.getOrgId()).setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
-            orgUserIds = oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
-        }
 
         // 封装DTO
         List<Integer> bindSchool = new ArrayList<>();
@@ -458,7 +453,7 @@ public class SchoolBizService {
      * @param currentUser    当前登录用户
      * @param schoolQueryDTO 条件
      */
-    private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
+    private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO, List<Integer> orgUserIds) {
 
         if (currentUser.isOverviewUser()) {
             if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
@@ -480,7 +475,7 @@ public class SchoolBizService {
         }
 
         // 自己创建的学校
-        schoolQueryDTO.setCreateByUserId(currentUser.getId());
+        schoolQueryDTO.setCreateByUserId(orgUserIds);
 
         // 自己筛查的学校
         List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByOrgId(currentUser.getScreeningOrgId());
@@ -605,5 +600,28 @@ public class SchoolBizService {
         List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
         schoolIds.addAll(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
         return schoolIds;
+    }
+
+    /**
+     * 获取机构的所有子账号
+     *
+     * @param currentUser 登录用户
+     * @return List<Integer>
+     */
+    private List<Integer> getOrgCreateUserIds(CurrentUser currentUser) {
+        UserDTO user = new UserDTO();
+        user.setOrgId(currentUser.getOrgId());
+
+        if (currentUser.isHospitalUser()) {
+            user.setUserType(UserType.HOSPITAL_ADMIN.getType());
+            return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
+        if (currentUser.isScreeningUser()) {
+            user.setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+            return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
     }
 }
