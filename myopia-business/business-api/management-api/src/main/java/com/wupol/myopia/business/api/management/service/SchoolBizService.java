@@ -141,9 +141,18 @@ public class SchoolBizService {
             return new Page<>();
         }
 
+        // 总览账号只显示绑定的机构
+        List<Integer> bindOrgIds = new ArrayList<>();
+        if (currentUser.isOverviewUser()) {
+            bindOrgIds = overviewService.getBindScreeningOrganization(currentUser.getOrgId());
+        }
+
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
-                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
+                pageRequest,
+                planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
+                !currentUser.isPlatformAdminUser(),
+                bindOrgIds);
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
