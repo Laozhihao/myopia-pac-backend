@@ -642,9 +642,9 @@ public class SchoolBizService {
     private List<Integer> getBindOrgIds(CurrentUser currentUser) {
 
         // 总览账号只显示绑定的机构
-        if (currentUser.isOverviewUser()) {
-            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
-        }
+//        if (currentUser.isOverviewUser()) {
+//            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
+//        }
 
         return new ArrayList<>();
     }
