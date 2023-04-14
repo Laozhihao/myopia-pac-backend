@@ -146,8 +146,11 @@ public class SchoolBizService {
         }
 
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
-                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
+                pageRequest,
+                planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
+                !currentUser.isPlatformAdminUser(),
+                getBindOrgIds(currentUser));
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
@@ -627,6 +630,22 @@ public class SchoolBizService {
         if (currentUser.isScreeningUser()) {
             user.setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
             return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    /**
+     * 获取机构Id
+     *
+     * @param currentUser 登录用户
+     * @return 机构Id
+     */
+    private List<Integer> getBindOrgIds(CurrentUser currentUser) {
+
+        // 总览账号只显示绑定的机构
+        if (currentUser.isOverviewUser()) {
+            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
         }
 
         return new ArrayList<>();
