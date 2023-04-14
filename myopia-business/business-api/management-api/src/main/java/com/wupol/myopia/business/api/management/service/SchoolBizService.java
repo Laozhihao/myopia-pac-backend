@@ -7,6 +7,7 @@ import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
@@ -19,6 +20,8 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -96,6 +99,8 @@ public class SchoolBizService {
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
     private SchoolStudentService schoolStudentService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -114,8 +119,15 @@ public class SchoolBizService {
         }
         // 获取已有计划的学校ID列表
         List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQueryDTO);
+
+        List<Integer> taskOrgIds = getOrgList(schoolQueryDTO.getTaskId());
         // set alreadyHavePlan
-        simpleSchoolList.forEach(school -> school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId())));
+        simpleSchoolList.forEach(school -> {
+            school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
+            if (Objects.nonNull(schoolQueryDTO.getTaskId())) {
+                school.setIsAlreadyExistsTask(taskOrgIds.contains(school.getId()));
+            }
+        });
         return simpleSchoolList;
     }
 
@@ -134,57 +146,58 @@ public class SchoolBizService {
         }
 
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
-                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(pageRequest, !currentUser.isPlatformAdminUser(), getBindOrgIds(currentUser), schoolId);
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
-        if (!CollectionUtils.isEmpty(plans)) {
-            Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
-            // 学校统计信息
-            List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds),schoolId);
-            Map<Integer, List<ScreeningResultStatistic>> statisticMaps = screeningResultStatisticList
-                    .stream()
-                    .collect(Collectors.groupingBy(ScreeningResultStatistic::getScreeningPlanId));
-
-            // 获取筛查机构
-            List<Integer> orgIds = plans.stream()
-                    .map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
-            // 机构
-            List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
-            Map<Integer, String> orgMaps = orgLists.stream()
-                    .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
-            // 学校
-            List<School> schoolList = schoolService.getByIds(orgIds);
-            Map<Integer, String> schoolNameList = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
-
-            // 获取计划对应的学校信息
-            Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
-
-            // 封装DTO
-            plans.forEach(plan -> {
-                if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
-                    plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
-                } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
-                    plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
-                }
-                List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
-                if (CollUtil.isEmpty(screeningResultStatistics)) {
-                    plan.setItems(new ArrayList<>());
-                } else {
-                    SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
-                    ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
-                    ScreeningResultStatistic screeningResultStatistic = screeningResultStatistics.get(0);
-                    BeanUtils.copyProperties(screeningResultStatistic, item);
-                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
-                    item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
-                    item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
-                    plan.setItems(Lists.newArrayList(item));
-                }
-                plan.setIsCanLink(Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
-                        && Objects.equals(plan.getSrcScreeningNoticeId(), 0));
-            });
+        if (CollectionUtils.isEmpty(plans)) {
+            return planPages;
         }
+
+        Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
+        // 学校统计信息
+        List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds), schoolId);
+        Map<Integer, List<ScreeningResultStatistic>> statisticMaps = screeningResultStatisticList
+                .stream()
+                .collect(Collectors.groupingBy(ScreeningResultStatistic::getScreeningPlanId));
+
+        // 获取筛查机构
+        List<Integer> orgIds = plans.stream()
+                .map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+        // 机构
+        List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
+        Map<Integer, String> orgMaps = orgLists.stream()
+                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+        // 学校
+        List<School> schoolList = schoolService.getByIds(orgIds);
+        Map<Integer, String> schoolNameList = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+
+        // 获取计划对应的学校信息
+        Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
+
+        // 封装DTO
+        plans.forEach(plan -> {
+            if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
+            } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
+            }
+            List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
+            if (CollUtil.isEmpty(screeningResultStatistics)) {
+                plan.setItems(new ArrayList<>());
+            } else {
+                SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
+                ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
+                ScreeningResultStatistic screeningResultStatistic = screeningResultStatistics.get(0);
+                BeanUtils.copyProperties(screeningResultStatistic, item);
+                item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
+                item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
+                item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
+                plan.setItems(Lists.newArrayList(item));
+            }
+            plan.setIsCanLink(Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                    && Objects.equals(plan.getSrcScreeningNoticeId(), 0));
+        });
         return planPages;
     }
 
@@ -231,7 +244,10 @@ public class SchoolBizService {
             }
         }
         TwoTuple<Integer, Integer> resultDistrictId = packageSearchList(currentUser, schoolQueryDTO.getDistrictId(), schoolQueryDTO.getAllProvince());
-        setSchoolQueryDTO(currentUser, schoolQueryDTO);
+
+        // 机构获取机构的所有账号
+        List<Integer> orgUserIds = getOrgCreateUserIds(currentUser);
+        setSchoolQueryDTO(currentUser, schoolQueryDTO, orgUserIds);
 
         // 查询
         IPage<SchoolResponseDTO> schoolDtoIPage = schoolService.getSchoolListByCondition(pageRequest,
@@ -259,7 +275,11 @@ public class SchoolBizService {
         Map<Integer, Long> planSchoolMaps = planSchoolList.stream().collect(Collectors.groupingBy(ScreeningPlanSchool::getSchoolId, Collectors.counting()));
 
         // 封装DTO
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps));
+        List<Integer> bindSchool = new ArrayList<>();
+        if (currentUser.isOverviewUser()) {
+            bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
+        }
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps, bindSchool, orgUserIds));
         return schoolDtoIPage;
     }
 
@@ -336,7 +356,8 @@ public class SchoolBizService {
      * @return Consumer<SchoolDto>
      */
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, User> userMap,
-                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps) {
+                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps,
+                                                             List<Integer> bindSchool, List<Integer> orgUserIds) {
         return school -> {
             // 创建人
             school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
@@ -344,6 +365,10 @@ public class SchoolBizService {
             // 判断是否能更新
             if (currentUser.isHospitalUser()) {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getScreeningOrgId()));
+            } else if (currentUser.isOverviewUser()) {
+                school.setCanUpdate(bindSchool.contains(school.getId()));
+            } else if (currentUser.isScreeningUser()) {
+                school.setCanUpdate(orgUserIds.contains(school.getCreateUserId()));
             } else {
                 school.setCanUpdate(school.getGovDeptId().equals(currentUser.getOrgId()));
             }
@@ -433,7 +458,7 @@ public class SchoolBizService {
      * @param currentUser    当前登录用户
      * @param schoolQueryDTO 条件
      */
-    private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO) {
+    private void setSchoolQueryDTO(CurrentUser currentUser, SchoolQueryDTO schoolQueryDTO, List<Integer> orgUserIds) {
 
         if (currentUser.isOverviewUser()) {
             if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)) {
@@ -455,7 +480,7 @@ public class SchoolBizService {
         }
 
         // 自己创建的学校
-        schoolQueryDTO.setCreateByUserId(currentUser.getId());
+        schoolQueryDTO.setCreateByUserId(orgUserIds);
 
         // 自己筛查的学校
         List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByOrgId(currentUser.getScreeningOrgId());
@@ -517,8 +542,16 @@ public class SchoolBizService {
         }
 
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+        List<Integer> taskOrgIds = getOrgList(query.getTaskId());
+
         List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
-                .map(school -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(),school.getName(),null))
+                .map(school -> {
+                    ScreeningSchoolOrgVO screeningSchoolOrgVO = ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(), school.getName(), null);
+                    if (Objects.nonNull(query.getTaskId())) {
+                        screeningSchoolOrgVO.setIsAlreadyExistsTask(taskOrgIds.contains(screeningSchoolOrgVO.getId()));
+                    }
+                    return screeningSchoolOrgVO;
+                })
                 .collect(Collectors.toList());
         screeningSchoolOrgVoPage.setRecords(screeningSchoolOrgVOList);
         return screeningSchoolOrgVoPage;
@@ -550,5 +583,69 @@ public class SchoolBizService {
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 获取机构Id
+     *
+     * @param taskId 任务Id
+     * @return 机构Id
+     */
+    private List<Integer> getOrgList(Integer taskId) {
+        if (Objects.isNull(taskId)) {
+            return new ArrayList<>();
+        }
+        List<Integer> schoolIds = screeningTaskOrgService.getOrgIdByTaskIdAndType(taskId, ScreeningOrgTypeEnum.SCHOOL.getType());
+
+        // 获取计划下机构已经创建的学校（计划学校表）
+        List<ScreeningPlan> plans = screeningPlanService.getByTaskId(taskId);
+        if (CollectionUtils.isEmpty(plans)) {
+            return schoolIds;
+        }
+        List<ScreeningPlanSchool> planSchools = screeningPlanSchoolService.getByPlanIds(plans.stream().map(ScreeningPlan::getId).collect(Collectors.toList()));
+        schoolIds.addAll(planSchools.stream().map(ScreeningPlanSchool::getSchoolId).collect(Collectors.toList()));
+        return schoolIds;
+    }
+
+    /**
+     * 获取机构的所有子账号
+     *
+     * @param currentUser 登录用户
+     * @return List<Integer>
+     */
+    private List<Integer> getOrgCreateUserIds(CurrentUser currentUser) {
+        UserDTO user = new UserDTO();
+        user.setOrgId(currentUser.getOrgId());
+
+        if (currentUser.isHospitalUser()) {
+            // 医院账号，需要使用关联筛查机构去获取
+            Hospital hospital = hospitalService.getById(currentUser.getOrgId());
+            user.setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+            user.setOrgId(hospital.getAssociateScreeningOrgId());
+            return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
+        if (currentUser.isScreeningUser()) {
+            user.setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+            return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    /**
+     * 获取机构Id
+     *
+     * @param currentUser 登录用户
+     * @return 机构Id
+     */
+    private List<Integer> getBindOrgIds(CurrentUser currentUser) {
+
+        // 总览账号只显示绑定的机构
+//        if (currentUser.isOverviewUser()) {
+//            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
+//        }
+
+        return new ArrayList<>();
     }
 }

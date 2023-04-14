@@ -14,10 +14,7 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskO
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -157,5 +154,31 @@ public class ScreeningTaskOrgService extends BaseService<ScreeningTaskOrgMapper,
         taskQuery.setGovDeptId(govDeptId);
         taskQuery.setStartCreateTime(startTime).setEndCreateTime(endTime);
         return baseMapper.selectHasTaskInPeriod(null,null, taskQuery);
+    }
+
+    /**
+     * 获取机构Id
+     *
+     * @param screeningTaskId 筛查任务
+     * @param orgType         机构类型
+     * @return 机构Id
+     */
+    public List<Integer> getOrgIdByTaskIdAndType(Integer screeningTaskId, Integer orgType) {
+        if (Objects.isNull(screeningTaskId)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningTaskOrg> taskOrgs = getByTaskIdAndType(screeningTaskId, ScreeningOrgTypeEnum.SCHOOL.getType());
+        return taskOrgs.stream().map(ScreeningTaskOrg::getScreeningOrgId).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取机构
+     *
+     * @param screeningTaskId 筛查任务
+     * @param orgType         机构类型
+     * @return 机构
+     */
+    public List<ScreeningTaskOrg> getByTaskIdAndType(Integer screeningTaskId, Integer orgType) {
+        return baseMapper.getByTaskIdAndType(screeningTaskId, orgType);
     }
 }

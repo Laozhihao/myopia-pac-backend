@@ -59,17 +59,23 @@
     </select>
 
     <select id="getPlanLists" resultMap="BaseResultDTOMap">
-        select
-        <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        select msp.*
+        from m_screening_plan msp
+                 left join m_screening_plan_school msps on msp.id = msps.screening_plan_id where
+                msps.school_id = #{schoolId}
         <if test="needFilterAbolishPlan">
             and msp.release_status = 1
         </if>
         <if test="!needFilterAbolishPlan">
             and msp.release_status in (1, 2)
+        </if>
+        <if test="bindOrgIds != null and bindOrgIds.size() != 0">
+            and (msp.screening_org_type = 1
+               or (msp.screening_org_type = 0 and msp.screening_org_id in
+            <foreach collection="bindOrgIds" open="(" close=")" separator="," item="item">
+                #{item}
+            </foreach>
+            ))
         </if>
         order by msp.create_time desc
     </select>

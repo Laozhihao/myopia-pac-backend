@@ -298,4 +298,9 @@ public class CommonConst {
      * 通知关联-失败
      */
     public static final String NOTICE_LINK_FAIL = "%s关联至%s的数据迁移失败，请联系管理员。";
+
+    /**
+     * 学校学生模版导出文件名
+     */
+    public static final String EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_NAME = "%s-导入学生筛查数据";
 }

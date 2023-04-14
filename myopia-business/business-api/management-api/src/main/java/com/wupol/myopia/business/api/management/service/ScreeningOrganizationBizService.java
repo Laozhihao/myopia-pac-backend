@@ -434,9 +434,16 @@ public class ScreeningOrganizationBizService {
         }
         // 获取已有任务的机构ID列表
         List<Integer> haveTaskOrgIds = getHaveTaskOrgIds(query);
+        List<Integer> taskOrgIds = screeningTaskOrgService.getOrgIdByTaskIdAndType(query.getTaskId(), ScreeningOrgTypeEnum.ORG.getType());
 
         List<ScreeningSchoolOrgVO> orgResponseDTOList = records.stream()
-                .map(screeningOrganization -> ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds,screeningOrganization.getId(),screeningOrganization.getName(),screeningOrganization.getPhone()))
+                .map(screeningOrganization -> {
+                    ScreeningSchoolOrgVO screeningSchoolOrgVO = ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, screeningOrganization.getId(), screeningOrganization.getName(), screeningOrganization.getPhone());
+                    if (Objects.nonNull(query.getTaskId())) {
+                        screeningSchoolOrgVO.setIsAlreadyExistsTask(taskOrgIds.contains(screeningSchoolOrgVO.getId()));
+                    }
+                    return screeningSchoolOrgVO;
+                })
                 .collect(Collectors.toList());
         screeningOrgResponsePage.setRecords(orgResponseDTOList);
         return screeningOrgResponsePage;

@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public interface ScreeningPlanMapper extends BaseMapper<ScreeningPlan> {
 
-    IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("ids") List<Integer> ids, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan);
+    IPage<ScreeningPlanResponseDTO> getPlanLists(@Param("page") Page<?> page, @Param("needFilterAbolishPlan") boolean needFilterAbolishPlan, @Param("bindOrgIds") List<Integer> bindOrgIds, @Param("schoolId") Integer schoolId);
 
     IPage<ScreeningPlanPageDTO> selectPageByQuery(@Param("page") Page<?> page, @Param("param") ScreeningPlanQueryDTO query);
 
