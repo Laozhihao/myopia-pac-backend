@@ -204,23 +204,28 @@ public class SchoolBizService {
     }
 
 
+    /**
+     * 获取机构Id
+     *
+     * @param currentUser 登录用户
+     * @return 机构Id
+     */
     private List<Integer> getBindOrgIds(CurrentUser currentUser) {
-
-        List<Integer> bindOrgIds = new ArrayList<>();
 
         // 总览账号只显示绑定的机构
         if (currentUser.isOverviewUser()) {
-            bindOrgIds = overviewService.getBindScreeningOrganization(currentUser.getOrgId());
+            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
         }
 
         if (currentUser.isHospitalUser()) {
-
+            Hospital hospital = hospitalService.getById(currentUser.getOrgId());
+            return Lists.newArrayList(hospital.getAssociateScreeningOrgId());
         }
 
         if (currentUser.isScreeningUser()) {
-            bindOrgIds = Lists.newArrayList(currentUser.getOrgId());
+            return Lists.newArrayList(currentUser.getOrgId());
         }
-        return bindOrgIds;
+        return new ArrayList<>();
     }
 
     /**
