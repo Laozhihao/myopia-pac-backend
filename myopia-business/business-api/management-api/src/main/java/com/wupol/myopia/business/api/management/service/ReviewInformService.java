@@ -104,7 +104,7 @@ public class ReviewInformService {
      * @return List<ScreeningPlanSchoolStudent>
      */
     public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName, Integer schoolId) {
-        List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
+        List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, schoolId, null, null);
 
         if (CollectionUtils.isEmpty(matchRescreenResults)) {
             return new ArrayList<>();
