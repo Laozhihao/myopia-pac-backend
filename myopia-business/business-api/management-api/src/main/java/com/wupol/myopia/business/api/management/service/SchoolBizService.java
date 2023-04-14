@@ -147,6 +147,10 @@ public class SchoolBizService {
             bindOrgIds = overviewService.getBindScreeningOrganization(currentUser.getOrgId());
         }
 
+        if (currentUser.isScreeningUser()) {
+            bindOrgIds = Lists.newArrayList(currentUser.getOrgId());
+        }
+
         // 通过planIds查询计划
         IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
                 pageRequest,
