@@ -32,4 +32,9 @@ public class ScreeningSchoolOrgVO implements Serializable {
      * 手机号
      */
     private String phone;
+
+    /**
+     * 是否存在任务中
+     */
+    private Boolean isAlreadyExistsTask;
 }

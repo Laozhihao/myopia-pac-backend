@@ -103,9 +103,12 @@ public class ReviewInformService {
      * @param schoolName 学校名称
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName) {
-        List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
+    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName, Integer schoolId) {
+        List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, schoolId, null, null);
 
+        if (CollectionUtils.isEmpty(matchRescreenResults)) {
+            return new ArrayList<>();
+        }
         Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         return matchRescreenResults.stream()
                 .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))

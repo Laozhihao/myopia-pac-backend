@@ -66,7 +66,8 @@ public class ExportSchoolResultTemplateExcelService extends BaseExportExcelFileS
      **/
     @Override
     public String getFileName(ExportCondition exportCondition) {
-        return "导入学生筛查数据";
+        School school = schoolService.getById(exportCondition.getSchoolId());
+        return String.format(CommonConst.EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_NAME, school.getName());
     }
 
     /**

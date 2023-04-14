@@ -87,7 +87,7 @@ public class SchoolQueryDTO extends School {
     /**
      * 创建人
      */
-    private Integer createByUserId;
+    private List<Integer> createByUserId;
 
     /**
      * 学校id集合
@@ -98,4 +98,9 @@ public class SchoolQueryDTO extends School {
      * 是否总览账号
      */
     private Boolean isOverviewUser;
+
+    /**
+     * 任务Id
+     */
+    private Integer taskId;
 }

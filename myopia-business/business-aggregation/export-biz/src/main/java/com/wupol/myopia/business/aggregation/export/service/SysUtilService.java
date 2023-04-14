@@ -56,6 +56,9 @@ public class SysUtilService {
         if (Objects.equals(currentUser.getClientId(), SystemCode.SCHOOL_CLIENT.getCode().toString())) {
             return;
         }
+        if (currentUser.isOverviewUser()) {
+            return;
+        }
         isExport(key, lockKey);
     }
 

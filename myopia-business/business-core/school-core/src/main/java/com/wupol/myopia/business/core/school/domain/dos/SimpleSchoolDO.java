@@ -24,4 +24,9 @@ public class SimpleSchoolDO {
      */
     @TableField(exist = false)
     private Boolean alreadyHavePlan;
+
+    /**
+     * 是否存在任务中
+     */
+    private Boolean isAlreadyExistsTask;
 }

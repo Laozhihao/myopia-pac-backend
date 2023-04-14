@@ -61,4 +61,9 @@ public class ScreeningOrganizationQueryDTO extends ScreeningOrganization {
      */
     private List<Integer> ids;
 
+    /**
+     * 筛查任务Id
+     */
+    private Integer taskId;
+
 }
