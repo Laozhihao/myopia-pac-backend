@@ -150,9 +150,14 @@ public class SchoolBizService {
                 pageRequest,
                 planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
                 !currentUser.isPlatformAdminUser(),
-                getBindOrgIds(currentUser));
+                getBindOrgIds(currentUser),
+                schoolId);
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
+
+        if (CollectionUtils.isEmpty(plans)) {
+            return planPages;
+        }
 
         if (!CollectionUtils.isEmpty(plans)) {
             Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());

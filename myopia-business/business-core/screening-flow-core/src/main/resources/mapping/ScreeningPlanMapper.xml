@@ -61,7 +61,7 @@
     <select id="getPlanLists" resultMap="BaseResultDTOMap">
         select
         <include refid="Base_Column_List"/>
-        from m_screening_plan msp where msp.id in
+        from m_screening_plan msp left join m_screening_plan_school msps on msp.id = msps.screening_plan_id where msp.id in
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -79,6 +79,7 @@
             </foreach>
             )
         </if>
+        and msps.school_id = #{schoolId}
         order by msp.create_time desc
     </select>
 
