@@ -65,8 +65,8 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * @param ids         ids
      * @return IPage<ScreeningPlanResponseDTO>
      */
-    public IPage<ScreeningPlanResponseDTO> getListByIds(PageRequest pageRequest, List<Integer> ids, boolean needFilterAbolishPlan, List<Integer> bindOrgIds) {
-        return baseMapper.getPlanLists(pageRequest.toPage(), ids, needFilterAbolishPlan, bindOrgIds);
+    public IPage<ScreeningPlanResponseDTO> getListByIds(PageRequest pageRequest, List<Integer> ids, boolean needFilterAbolishPlan) {
+        return baseMapper.getPlanLists(pageRequest.toPage(), ids, needFilterAbolishPlan);
     }
 
     /**

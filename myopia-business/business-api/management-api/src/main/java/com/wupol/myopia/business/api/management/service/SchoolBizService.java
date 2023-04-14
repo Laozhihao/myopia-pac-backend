@@ -146,11 +146,8 @@ public class SchoolBizService {
         }
 
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
-                pageRequest,
-                planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
-                !currentUser.isPlatformAdminUser(),
-                getBindOrgIds(currentUser));
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService
+                .getListByIds(pageRequest, planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()), !currentUser.isPlatformAdminUser());
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
@@ -201,31 +198,6 @@ public class SchoolBizService {
             });
         }
         return planPages;
-    }
-
-
-    /**
-     * 获取机构Id
-     *
-     * @param currentUser 登录用户
-     * @return 机构Id
-     */
-    private List<Integer> getBindOrgIds(CurrentUser currentUser) {
-
-        // 总览账号只显示绑定的机构
-        if (currentUser.isOverviewUser()) {
-            return overviewService.getBindScreeningOrganization(currentUser.getOrgId());
-        }
-
-        if (currentUser.isHospitalUser()) {
-            Hospital hospital = hospitalService.getById(currentUser.getOrgId());
-            return Lists.newArrayList(hospital.getAssociateScreeningOrgId());
-        }
-
-        if (currentUser.isScreeningUser()) {
-            return Lists.newArrayList(currentUser.getOrgId());
-        }
-        return new ArrayList<>();
     }
 
     /**

@@ -71,14 +71,6 @@
         <if test="!needFilterAbolishPlan">
             and msp.release_status in (1, 2)
         </if>
-        <if test="bindOrgIds != null and bindOrgIds.size() != 0">
-            and msp.screening_org_type = 1
-               or (msp.screening_org_type = 0 and msp.screening_org_id in
-            <foreach collection="bindOrgIds" open="(" close=")" separator="," item="item">
-                #{item}
-            </foreach>
-            )
-        </if>
         order by msp.create_time desc
     </select>
 
