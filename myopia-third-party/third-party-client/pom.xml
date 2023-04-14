@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>myopia-third-party</artifactId>
+        <groupId>com.wupol.myopia</groupId>
+        <version>MP-2.5.3</version>
+    </parent>
+    <artifactId>third-party-client</artifactId>
+    <name>third-party-client</name>
+    <description>第三方对接服务SDK</description>
+
+</project>

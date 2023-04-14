@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wupol.myopia.third.party.domain.mapper.StudentVisionScreeningResultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wupol.myopia.third.party.domain.model.StudentVisionScreeningResult">
+    </resultMap>
+
+    <!-- 通用查询条件 -->
+    <sql id="Base_Where_Clause">
+        <where>
+            <trim prefixOverrides="and">
+                <if test="@Ognl@isNotEmpty(uuid)">and `uuid` = #{uuid}</if>
+                <if test="@Ognl@isNotEmpty(schoolName)">and `school_name` = #{schoolName}</if>
+                <if test="@Ognl@isNotEmpty(yearTest)">and `year_test` = #{yearTest}</if>
+                <if test="@Ognl@isNotEmpty(second)">and `second` = #{second}</if>
+                <if test="@Ognl@isNotEmpty(studentName)">and `student_name` = #{studentName}</if>
+                <if test="@Ognl@isNotEmpty(studentIdCard)">and `student_id_card` = #{studentIdCard}</if>
+                <if test="@Ognl@isNotEmpty(studentNum)">and `student_num` = #{studentNum}</if>
+                <if test="@Ognl@isNotEmpty(createTime)">and `create_time` = #{createTime}</if>
+                <if test="@Ognl@isNotEmpty(updateTime)">and `update_time` = #{updateTime}</if>
+                <if test="@Ognl@isNotEmpty(createBy)">and `create_by` = #{createBy}</if>
+                <if test="@Ognl@isNotEmpty(updateBy)">and `update_by` = #{updateBy}</if>
+                <if test="@Ognl@isNotEmpty(leftNakedVision)">and `left_naked_vision` = #{leftNakedVision}</if>
+                <if test="@Ognl@isNotEmpty(rightNakedVision)">and `right_naked_vision` = #{rightNakedVision}</if>
+                <if test="@Ognl@isNotEmpty(isWear)">and `is_wear` = #{isWear}</if>
+                <if test="@Ognl@isNotEmpty(wearGlassType)">and `wear_glass_type` = #{wearGlassType}</if>
+                <if test="@Ognl@isNotEmpty(leftGlassedVision)">and `left_glassed_vision` = #{leftGlassedVision}</if>
+                <if test="@Ognl@isNotEmpty(rightGlassedVision)">and `right_glassed_vision` = #{rightGlassedVision}</if>
+                <if test="@Ognl@isNotEmpty(leftCorrectedVision)">and `left_corrected_vision` = #{leftCorrectedVision}</if>
+                <if test="@Ognl@isNotEmpty(rightCorrectedVision)">and `right_corrected_vision` = #{rightCorrectedVision}</if>
+                <if test="@Ognl@isNotEmpty(leftGlassesDegree)">and `left_glasses_degree` = #{leftGlassesDegree}</if>
+                <if test="@Ognl@isNotEmpty(rightGlassesDegree)">and `right_glasses_degree` = #{rightGlassesDegree}</if>
+                <if test="@Ognl@isNotEmpty(leftMirrorCheck)">and `left_mirror_check` = #{leftMirrorCheck}</if>
+                <if test="@Ognl@isNotEmpty(rightMirrorCheck)">and `right_mirror_check` = #{rightMirrorCheck}</if>
+                <if test="@Ognl@isNotEmpty(leftAmetropia)">and `left_ametropia` = #{leftAmetropia}</if>
+                <if test="@Ognl@isNotEmpty(rightAmetropia)">and `right_ametropia` = #{rightAmetropia}</if>
+                <if test="@Ognl@isNotEmpty(leftCloseVision)">and `left_close_vision` = #{leftCloseVision}</if>
+                <if test="@Ognl@isNotEmpty(rightCloseVision)">and `right_close_vision` = #{rightCloseVision}</if>
+                <if test="@Ognl@isNotEmpty(leftConjunctivitis)">and `left_conjunctivitis` = #{leftConjunctivitis}</if>
+                <if test="@Ognl@isNotEmpty(rightConjunctivitis)">and `right_conjunctivitis` = #{rightConjunctivitis}</if>
+                <if test="@Ognl@isNotEmpty(leftTrachoma)">and `left_trachoma` = #{leftTrachoma}</if>
+                <if test="@Ognl@isNotEmpty(rightTrachoma)">and `right_trachoma` = #{rightTrachoma}</if>
+                <if test="@Ognl@isNotEmpty(leftSphericalMirror)">and `left_spherical_mirror` = #{leftSphericalMirror}</if>
+                <if test="@Ognl@isNotEmpty(rightSphericalMirror)">and `right_spherical_mirror` = #{rightSphericalMirror}</if>
+                <if test="@Ognl@isNotEmpty(leftCylindricalMirror)">and `left_cylindrical_mirror` = #{leftCylindricalMirror}</if>
+                <if test="@Ognl@isNotEmpty(rightCylindricalMirror)">and `right_cylindrical_mirror` = #{rightCylindricalMirror}</if>
+                <if test="@Ognl@isNotEmpty(leftAxialPosition)">and `left_axial_position` = #{leftAxialPosition}</if>
+                <if test="@Ognl@isNotEmpty(rightAxialPosition)">and `right_axial_position` = #{rightAxialPosition}</if>
+                <if test="@Ognl@isNotEmpty(leftCornealCurvature)">and `left_corneal_curvature` = #{leftCornealCurvature}</if>
+                <if test="@Ognl@isNotEmpty(rightCornealCurvature)">and `right_corneal_curvature` = #{rightCornealCurvature}</if>
+                <if test="@Ognl@isNotEmpty(pupillaryDistance)">and `pupillary_distance` = #{pupillaryDistance}</if>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        uuid, school_name, year_test, second, student_name, student_id_card, student_num, create_time, update_time, create_by, update_by, left_naked_vision, right_naked_vision, is_wear, wear_glass_type, left_glassed_vision, right_glassed_vision, left_corrected_vision, right_corrected_vision, left_glasses_degree, right_glasses_degree, left_mirror_check, right_mirror_check, left_ametropia, right_ametropia, left_close_vision, right_close_vision, left_conjunctivitis, right_conjunctivitis, left_trachoma, right_trachoma, left_spherical_mirror, right_spherical_mirror, left_cylindrical_mirror, right_cylindrical_mirror, left_axial_position, right_axial_position, left_corneal_curvature, right_corneal_curvature, pupillary_distance
+    </sql>
+
+</mapper>
