@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
+import com.wupol.myopia.business.api.management.service.HospitalBizService;
 import com.wupol.myopia.business.api.management.service.SchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.domain.dto.ResetPasswordRequest;
@@ -86,6 +87,9 @@ public class SchoolController {
     @Resource
     private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
+    @Resource
+    private HospitalBizService hospitalBizService;
+
     /**
      * 新增学校
      *
@@ -105,6 +109,7 @@ public class SchoolController {
         }
         if (user.isHospitalUser()) {
             requestDTO.setGovDeptId(user.getScreeningOrgId());
+            requestDTO.setCreateUserId(hospitalBizService.getAssociateScreeningUserId(user.getOrgId()));
         }
         if (user.isOverviewUser()) {
             // 总览机构

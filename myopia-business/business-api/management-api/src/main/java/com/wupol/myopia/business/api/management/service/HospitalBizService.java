@@ -23,8 +23,10 @@ import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.hospital.service.MedicalReportService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.OverviewHospital;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
+import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganizationAdmin;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewHospitalService;
 import com.wupol.myopia.business.core.screening.organization.service.OverviewService;
+import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationAdminService;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
@@ -71,6 +73,8 @@ public class HospitalBizService {
     private OverviewHospitalService overviewHospitalService;
     @Autowired
     private OverviewService overviewService;
+    @Autowired
+    private ScreeningOrganizationAdminService screeningOrganizationAdminService;
 
     @Transactional(rollbackFor = Exception.class)
     public UsernameAndPasswordDTO saveHospital(Hospital hospital, CurrentUser user) {
@@ -282,5 +286,21 @@ public class HospitalBizService {
         }
         studentBizService.packageReportInfo(records);
         return pageReport;
+    }
+
+    /**
+     * 获取医院绑定机构管理员的UserId
+     *
+     * @param id 医院Id
+     * @return 机构管理员的UserId
+     */
+    public Integer getAssociateScreeningUserId(Integer id) {
+        Hospital hospital = hospitalService.getById(id);
+        Integer associateScreeningOrgId = hospital.getAssociateScreeningOrgId();
+        if (Objects.isNull(associateScreeningOrgId)) {
+            throw new BusinessException("医院没有绑定机构，不能创建学校!");
+        }
+        ScreeningOrganizationAdmin orgAdmin = screeningOrganizationAdminService.getByOrgId(associateScreeningOrgId);
+        return orgAdmin.getUserId();
     }
 }

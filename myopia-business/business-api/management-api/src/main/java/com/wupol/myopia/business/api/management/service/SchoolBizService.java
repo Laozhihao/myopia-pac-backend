@@ -20,6 +20,8 @@ import com.wupol.myopia.business.core.common.domain.dto.OrgAccountListDTO;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.model.GovDept;
 import com.wupol.myopia.business.core.government.service.GovDeptService;
+import com.wupol.myopia.business.core.hospital.domain.model.Hospital;
+import com.wupol.myopia.business.core.hospital.service.HospitalService;
 import com.wupol.myopia.business.core.school.domain.dos.SimpleSchoolDO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolQueryDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
@@ -97,6 +99,8 @@ public class SchoolBizService {
     private ScreeningTaskOrgService screeningTaskOrgService;
     @Autowired
     private SchoolStudentService schoolStudentService;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * 根据层级Id获取学校列表（带是否有计划字段）
@@ -141,22 +145,12 @@ public class SchoolBizService {
             return new Page<>();
         }
 
-        // 总览账号只显示绑定的机构
-        List<Integer> bindOrgIds = new ArrayList<>();
-        if (currentUser.isOverviewUser()) {
-            bindOrgIds = overviewService.getBindScreeningOrganization(currentUser.getOrgId());
-        }
-
-        if (currentUser.isScreeningUser()) {
-            bindOrgIds = Lists.newArrayList(currentUser.getOrgId());
-        }
-
         // 通过planIds查询计划
         IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
                 pageRequest,
                 planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
                 !currentUser.isPlatformAdminUser(),
-                bindOrgIds);
+                getBindOrgIds(currentUser));
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
@@ -207,6 +201,26 @@ public class SchoolBizService {
             });
         }
         return planPages;
+    }
+
+
+    private List<Integer> getBindOrgIds(CurrentUser currentUser) {
+
+        List<Integer> bindOrgIds = new ArrayList<>();
+
+        // 总览账号只显示绑定的机构
+        if (currentUser.isOverviewUser()) {
+            bindOrgIds = overviewService.getBindScreeningOrganization(currentUser.getOrgId());
+        }
+
+        if (currentUser.isHospitalUser()) {
+
+        }
+
+        if (currentUser.isScreeningUser()) {
+            bindOrgIds = Lists.newArrayList(currentUser.getOrgId());
+        }
+        return bindOrgIds;
     }
 
     /**
@@ -626,7 +640,10 @@ public class SchoolBizService {
         user.setOrgId(currentUser.getOrgId());
 
         if (currentUser.isHospitalUser()) {
-            user.setUserType(UserType.HOSPITAL_ADMIN.getType());
+            // 医院账号，需要使用关联筛查机构去获取
+            Hospital hospital = hospitalService.getById(currentUser.getOrgId());
+            user.setUserType(UserType.SCREENING_ORGANIZATION_ADMIN.getType());
+            user.setOrgId(hospital.getAssociateScreeningOrgId());
             return oauthServiceClient.getUserList(user).stream().map(User::getId).collect(Collectors.toList());
         }
 
