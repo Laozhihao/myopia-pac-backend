@@ -62,11 +62,10 @@ public class ScreeningPlanService extends BaseService<ScreeningPlanMapper, Scree
      * 通过ids获取
      *
      * @param pageRequest 分页入参
-     * @param ids         ids
      * @return IPage<ScreeningPlanResponseDTO>
      */
-    public IPage<ScreeningPlanResponseDTO> getListByIds(PageRequest pageRequest, List<Integer> ids, boolean needFilterAbolishPlan, List<Integer> bindOrgIds, Integer schoolId) {
-        return baseMapper.getPlanLists(pageRequest.toPage(), ids, needFilterAbolishPlan, bindOrgIds, schoolId);
+    public IPage<ScreeningPlanResponseDTO> getListByIds(PageRequest pageRequest, boolean needFilterAbolishPlan, List<Integer> bindOrgIds, Integer schoolId) {
+        return baseMapper.getPlanLists(pageRequest.toPage(), needFilterAbolishPlan, bindOrgIds, schoolId);
     }
 
     /**

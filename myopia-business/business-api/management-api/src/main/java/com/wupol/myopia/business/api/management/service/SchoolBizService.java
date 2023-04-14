@@ -146,12 +146,7 @@ public class SchoolBizService {
         }
 
         // 通过planIds查询计划
-        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(
-                pageRequest,
-                planSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()),
-                !currentUser.isPlatformAdminUser(),
-                getBindOrgIds(currentUser),
-                schoolId);
+        IPage<ScreeningPlanResponseDTO> planPages = screeningPlanService.getListByIds(pageRequest, !currentUser.isPlatformAdminUser(), getBindOrgIds(currentUser), schoolId);
 
         List<ScreeningPlanResponseDTO> plans = planPages.getRecords();
 
@@ -159,52 +154,50 @@ public class SchoolBizService {
             return planPages;
         }
 
-        if (!CollectionUtils.isEmpty(plans)) {
-            Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
-            // 学校统计信息
-            List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds),schoolId);
-            Map<Integer, List<ScreeningResultStatistic>> statisticMaps = screeningResultStatisticList
-                    .stream()
-                    .collect(Collectors.groupingBy(ScreeningResultStatistic::getScreeningPlanId));
+        Set<Integer> planIds = plans.stream().map(ScreeningPlanResponseDTO::getId).collect(Collectors.toSet());
+        // 学校统计信息
+        List<ScreeningResultStatistic> screeningResultStatisticList = screeningResultStatisticService.getByPlanIdsAndSchoolId(Lists.newArrayList(planIds), schoolId);
+        Map<Integer, List<ScreeningResultStatistic>> statisticMaps = screeningResultStatisticList
+                .stream()
+                .collect(Collectors.groupingBy(ScreeningResultStatistic::getScreeningPlanId));
 
-            // 获取筛查机构
-            List<Integer> orgIds = plans.stream()
-                    .map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
-            // 机构
-            List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
-            Map<Integer, String> orgMaps = orgLists.stream()
-                    .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
-            // 学校
-            List<School> schoolList = schoolService.getByIds(orgIds);
-            Map<Integer, String> schoolNameList = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
+        // 获取筛查机构
+        List<Integer> orgIds = plans.stream()
+                .map(ScreeningPlan::getScreeningOrgId).collect(Collectors.toList());
+        // 机构
+        List<ScreeningOrganization> orgLists = screeningOrganizationService.getByIds(orgIds);
+        Map<Integer, String> orgMaps = orgLists.stream()
+                .collect(Collectors.toMap(ScreeningOrganization::getId, ScreeningOrganization::getName));
+        // 学校
+        List<School> schoolList = schoolService.getByIds(orgIds);
+        Map<Integer, String> schoolNameList = schoolList.stream().collect(Collectors.toMap(School::getId, School::getName));
 
-            // 获取计划对应的学校信息
-            Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
+        // 获取计划对应的学校信息
+        Map<Integer, ScreeningPlanSchool> planSchoolMap = planSchoolList.stream().collect(Collectors.toMap(ScreeningPlanSchool::getScreeningPlanId, Function.identity()));
 
-            // 封装DTO
-            plans.forEach(plan -> {
-                if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
-                    plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
-                } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
-                    plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
-                }
-                List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
-                if (CollUtil.isEmpty(screeningResultStatistics)) {
-                    plan.setItems(new ArrayList<>());
-                } else {
-                    SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
-                    ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
-                    ScreeningResultStatistic screeningResultStatistic = screeningResultStatistics.get(0);
-                    BeanUtils.copyProperties(screeningResultStatistic, item);
-                    item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
-                    item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
-                    item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
-                    plan.setItems(Lists.newArrayList(item));
-                }
-                plan.setIsCanLink(Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
-                        && Objects.equals(plan.getSrcScreeningNoticeId(), 0));
-            });
-        }
+        // 封装DTO
+        plans.forEach(plan -> {
+            if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.ORG.getType())) {
+                plan.setOrgName(orgMaps.get(plan.getScreeningOrgId()));
+            } else if (Objects.equals(plan.getScreeningOrgType(), ScreeningOrgTypeEnum.SCHOOL.getType())) {
+                plan.setOrgName(schoolNameList.get(plan.getScreeningOrgId()));
+            }
+            List<ScreeningResultStatistic> screeningResultStatistics = statisticMaps.get(plan.getId());
+            if (CollUtil.isEmpty(screeningResultStatistics)) {
+                plan.setItems(new ArrayList<>());
+            } else {
+                SchoolVisionStatisticItem item = new SchoolVisionStatisticItem();
+                ScreeningPlanSchool screeningPlanSchool = planSchoolMap.get(plan.getId());
+                ScreeningResultStatistic screeningResultStatistic = screeningResultStatistics.get(0);
+                BeanUtils.copyProperties(screeningResultStatistic, item);
+                item.setHasRescreenReport(statRescreenService.hasRescreenReport(plan.getId(), screeningResultStatistic.getSchoolId()));
+                item.setQualityControllerName(screeningPlanSchool.getQualityControllerName());
+                item.setQualityControllerCommander(screeningPlanSchool.getQualityControllerCommander());
+                plan.setItems(Lists.newArrayList(item));
+            }
+            plan.setIsCanLink(Objects.equals(plan.getScreeningType(), ScreeningTypeEnum.VISION.getType())
+                    && Objects.equals(plan.getSrcScreeningNoticeId(), 0));
+        });
         return planPages;
     }
 
