@@ -103,7 +103,7 @@ public class ReviewInformService {
      * @param schoolName 学校名称
      * @return List<ScreeningPlanSchoolStudent>
      */
-    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName) {
+    public List<ScreeningPlanSchoolStudent> getReviewSchools(Integer planId, Integer orgId, String schoolName, Integer schoolId) {
         List<ScreeningPlanSchoolStudent> matchRescreenResults = getMatchRescreenResults(planId, orgId, null, null, null);
 
         if (CollectionUtils.isEmpty(matchRescreenResults)) {
