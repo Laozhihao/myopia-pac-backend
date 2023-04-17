@@ -175,10 +175,6 @@ public class ScreeningOrganizationController {
             return schoolBizService.school2ScreeningOrgResponseDTO(id);
         }
 
-        overviewService.checkScreeningOrganization(CurrentUserUtil.getCurrentUser(), id);
-        if (Objects.nonNull(user.getScreeningOrgId())) {
-            id = user.getScreeningOrgId();
-        }
         return screeningOrganizationBizService.getScreeningOrgDetails(id);
     }
 
