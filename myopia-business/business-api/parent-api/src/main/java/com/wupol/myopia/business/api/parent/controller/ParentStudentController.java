@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdcardUtil;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.HuYangRequestDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -376,5 +377,10 @@ public class ParentStudentController {
     public List<WorkOrder> workOrderList(){
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         return workOrderService.findByCreateUserId(user.getId());
+    }
+
+    @PostMapping("push")
+    public HuYangRequestDTO push(@RequestBody HuYangRequestDTO requestDTO) {
+        return requestDTO;
     }
 }
