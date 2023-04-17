@@ -381,6 +381,7 @@ public class ParentStudentController {
 
     @PostMapping("push")
     public HuYangRequestDTO push(@RequestBody HuYangRequestDTO requestDTO) {
+        requestDTO.setAccessToken(CurrentUserUtil.getUserToken());
         return requestDTO;
     }
 }
