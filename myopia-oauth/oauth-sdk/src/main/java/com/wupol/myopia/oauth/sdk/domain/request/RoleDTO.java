@@ -32,4 +32,9 @@ public class RoleDTO extends Role {
      * 角色类型集合
      */
     private List<Integer> roleTypes;
+
+    /**
+     * 系统编号
+     */
+    private List<Integer> systemCodes;
 }

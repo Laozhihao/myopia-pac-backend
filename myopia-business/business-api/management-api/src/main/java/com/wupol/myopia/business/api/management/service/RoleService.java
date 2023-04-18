@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.constant.PermissionTemplateType;
 import com.wupol.myopia.base.constant.RoleType;
 import com.wupol.myopia.base.constant.SystemCode;
@@ -70,22 +71,28 @@ public class RoleService {
      * @return com.baomidou.mybatisplus.core.metadata.IPage<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
     public IPage<RoleVO> getRoleListByPage(RoleQueryDTO param, Integer current, Integer size, CurrentUser currentUser) {
-        if (!currentUser.isPlatformAdminUser()) {
+        param.setCurrent(current).setSize(size);
+
+        List<Integer> roleTypes = Lists.newArrayList(RoleType.GOVERNMENT_DEPARTMENT.getType(), RoleType.PLATFORM_ADMIN.getType(), RoleType.SUPER_ADMIN.getType());
+        if (currentUser.isPlatformAdminUser()) {
+            param.setSystemCodes(Lists.newArrayList(SystemCode.MANAGEMENT_CLIENT.getCode(), SystemCode.THIRD_PARTY_PLATFORM.getCode()));
+            roleTypes.add(RoleType.THIRD_PARTY_PLATFORM.getType());
+        } else if (!currentUser.isPlatformAdminUser()) {
             // 非平台管理员只能查看自己部门下的角色
             param.setOrgId(CurrentUserUtil.getCurrentUser().getOrgId());
-        } else if (Objects.nonNull(param.getDistrictId()) || !StringUtils.isEmpty(param.getOrgName())) {
+            param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
+        }else if (Objects.nonNull(param.getDistrictId()) || !StringUtils.isEmpty(param.getOrgName())) {
             // 平台管理员才支持根据行政区域、部门名称、角色类型搜索
             List<GovDept> govDeptList = govDeptService.getGovDeptList(new GovDept().setDistrictId(param.getDistrictId()).setName(param.getOrgName()));
             if (CollectionUtils.isEmpty(govDeptList)) {
                 return new Page<>(current, size);
             }
             param.setOrgIds(govDeptList.stream().map(GovDept::getId).collect(Collectors.toList()));
+            param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode());
         }
-        param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
         RoleDTO roleDTO = param.convertToOauthRoleDTO();
-        roleDTO.setRoleTypes(Arrays.asList(RoleType.GOVERNMENT_DEPARTMENT.getType(),
-                RoleType.PLATFORM_ADMIN.getType(), RoleType.SUPER_ADMIN.getType(), RoleType.THIRD_PARTY_PLATFORM.getType()));
+        roleDTO.setRoleTypes(roleTypes);
         Page<Role> rolePage = oauthServiceClient.getRoleListByPage(roleDTO);
         List<Role> roleList = JSON.parseArray(JSON.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {

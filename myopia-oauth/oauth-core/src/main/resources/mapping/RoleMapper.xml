@@ -51,6 +51,9 @@
                 <if test="param.roleTypes != null">
                     and r.`role_type` IN <foreach collection="param.roleTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
+                <if test="param.systemCodes != null and param.systemCodes.size() != 0">
+                    and r.system_code IN <foreach collection="param.systemCodes" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
         ORDER BY r.create_time DESC

@@ -118,6 +118,11 @@ public class RoleQueryDTO implements Serializable {
      **/
     private Integer size;
 
+    /**
+     * 系统编号
+     */
+    private List<Integer> systemCodes;
+
     public RoleDTO convertToOauthRoleDTO() {
         RoleDTO roleDTO = new RoleDTO();
         BeanUtils.copyProperties(this, roleDTO);
