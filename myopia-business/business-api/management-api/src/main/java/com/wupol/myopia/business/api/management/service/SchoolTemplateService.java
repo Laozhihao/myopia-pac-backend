@@ -168,11 +168,14 @@ public class SchoolTemplateService {
 
         templateExcels.forEach(s -> {
             if (!StringUtils.isAllBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
-                if (StringUtils.isAnyBlank(s.getGlassesType(), s.getRightNakedVision(), s.getLeftNakedVision())) {
-                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "视力数据异常"));
-                }
                 if (WearingGlassesSituation.checkKeyByDesc(s.getGlassesType())) {
-                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "戴镜数据异常"));
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "戴镜类型数据为空或无效"));
+                }
+                if (!WearingGlassesSituation.WEARING_OVERNIGHT_ORTHOKERATOLOGY_TYPE.equals(s.getGlassesType()) && StringUtils.isAnyBlank(s.getRightNakedVision(), s.getLeftNakedVision())) {
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "裸眼视力数据不能为空"));
+                }
+                if (!WearingGlassesSituation.NOT_WEARING_GLASSES_TYPE.equals(s.getGlassesType()) && StringUtils.isAnyBlank(s.getRightCorrection(), s.getLeftCorrection())) {
+                    result.add(String.format(ERROR_MSG, s.getPlanStudentId(), "矫正视力数据不能为空"));
                 }
             }
             if (!StringUtils.isAllBlank(s.getLeftSph(), s.getLeftCyl(), s.getLeftAxial(), s.getRightSph(), s.getRightCyl(), s.getRightAxial())) {
