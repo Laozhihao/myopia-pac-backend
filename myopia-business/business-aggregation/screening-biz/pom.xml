@@ -69,6 +69,12 @@
             <artifactId>stat-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- third-party 服务 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>third-party-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

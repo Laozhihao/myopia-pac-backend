@@ -143,10 +143,13 @@ public class MybatisPlusGenerator {
         DataSourceConfig dsc = new DataSourceConfig();
         // Mysql
         dsc.setDbType(DbType.MYSQL)
-                .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+                // .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+                .setUrl("jdbc:mysql://120.70.98.35:13306/sunny_myopia?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
-                .setUsername("root")
-                .setPassword("123456");
+                // .setUsername("root")
+                // .setPassword("123456");
+                .setUsername("Batman")
+                .setPassword("avufZ9kb1oT2%B%SA");
         return dsc;
     }
 
@@ -287,7 +290,7 @@ public class MybatisPlusGenerator {
     private static void getBasePackagePath() {
         String serviceAndModuleName;
         String parentPackageSuffix;
-        int serviceType = Integer.parseInt(scanner("请选择", "微服务模块，输入对应编号（1：myopia-business，2：myopia-oauth，3：myopia-migrate-data）"));
+        int serviceType = Integer.parseInt(scanner("请选择", "微服务模块，输入对应编号（1：myopia-business，2：myopia-oauth，3：myopia-migrate-data，4：myopia-third-party）"));
         if (serviceType == 1) {
             String coreModuleListStr = CORE_MAP.entrySet().stream().map(x -> x.getKey() + "：" + x.getValue().getModuleName()).collect(Collectors.joining("，", "（", "）"));
             int moduleType = Integer.parseInt(scanner("请选择","core模块，输入对应编号" + coreModuleListStr ));
@@ -301,6 +304,9 @@ public class MybatisPlusGenerator {
         } else if (serviceType == 3) {
             serviceAndModuleName = "myopia-migrate-data";
             parentPackageSuffix = "migrate";
+        } else if (serviceType == 4) {
+            serviceAndModuleName = "myopia-third-party";
+            parentPackageSuffix = "third.party";
         } else {
             throw new MybatisPlusException("请选择正确的微服务模块！");
         }

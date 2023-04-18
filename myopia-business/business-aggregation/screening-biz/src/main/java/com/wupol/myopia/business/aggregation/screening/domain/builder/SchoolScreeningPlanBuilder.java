@@ -49,10 +49,8 @@ public class SchoolScreeningPlanBuilder {
                     .setGovDeptId(CommonConst.DEFAULT_ID)
                     .setScreeningOrgId(currentUser.getOrgId())
                     .setScreeningOrgType(ScreeningOrgTypeEnum.SCHOOL.getType());
-            setScreeningPlanInfo(schoolScreeningPlanDTO, currentUser, districtId, screeningPlan);
-        }else {
-            setScreeningPlanInfo(schoolScreeningPlanDTO, currentUser, districtId, screeningPlan);
         }
+        setScreeningPlanInfo(schoolScreeningPlanDTO, currentUser, districtId, screeningPlan);
         return screeningPlan;
     }
 
@@ -72,7 +70,9 @@ public class SchoolScreeningPlanBuilder {
                 .setReleaseStatus(CommonConst.STATUS_NOT_RELEASE)
                 .setCreateUserId(currentUser.getId())
                 .setOperatorId(currentUser.getId())
-                .setScreeningType(schoolScreeningPlanDTO.getScreeningType());
+                .setScreeningType(schoolScreeningPlanDTO.getScreeningType())
+                .setYear(schoolScreeningPlanDTO.getYear())
+                .setTime(schoolScreeningPlanDTO.getTime());
     }
 
     /**

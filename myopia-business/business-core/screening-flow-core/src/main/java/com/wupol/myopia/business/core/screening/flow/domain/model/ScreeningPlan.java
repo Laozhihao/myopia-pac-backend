@@ -143,4 +143,14 @@ public class ScreeningPlan implements Serializable {
      * 修改筛查结束时间状态（0：未修改，1；已修改）
      */
     private Integer updateScreeningEndTimeStatus;
+
+    /**
+     * 筛查年份
+     */
+    private Integer year;
+
+    /**
+     * 筛查次数
+     */
+    private Integer time;
 }

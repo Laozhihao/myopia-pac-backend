@@ -4,6 +4,7 @@ import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import com.wupol.myopia.third.party.service.XinJiangService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,7 +23,7 @@ public class XinJiangController {
     private XinJiangService xinJiangService;
 
     @PostMapping("/screening/result/push")
-    public void receiveScreeningResultData(@RequestBody VisionScreeningResultDTO visionScreeningResultDTO){
+    public void receiveScreeningResultData(@RequestBody @Validated VisionScreeningResultDTO visionScreeningResultDTO) {
         xinJiangService.handleScreeningResultData(visionScreeningResultDTO);
     }
 }

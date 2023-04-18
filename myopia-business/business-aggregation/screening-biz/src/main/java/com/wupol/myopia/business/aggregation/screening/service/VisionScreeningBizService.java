@@ -11,9 +11,7 @@ import com.wupol.myopia.business.aggregation.screening.service.data.submit.IData
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -29,11 +27,12 @@ import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownlo
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import com.wupol.myopia.third.party.client.ThirdPartyServiceClient;
+import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +44,11 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -87,6 +87,8 @@ public class VisionScreeningBizService {
     private SchoolService schoolService;
     @Resource
     private DataSubmitFactory dataSubmitFactory;
+    @Autowired
+    private ThirdPartyServiceClient thirdPartyServiceClient;
 
     private static final String UNDONE_MSG = "该学生初筛项目未全部完成，无法进行复测！";
 
@@ -126,22 +128,32 @@ public class VisionScreeningBizService {
         if (Objects.isNull(currentVisionScreeningResult.getCreateUserId())) {
             currentVisionScreeningResult.setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
         }
-        //更新statConclusion表
+        // 更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
-        //更新statConclusion表（获取的初筛或复测的数据）
+        // 更新statConclusion表（获取的初筛或复测的数据）
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
-        //更新学生表的数据（复测覆盖了初筛的结论）
+        // 更新学生表的数据（复测覆盖了初筛的结论）
         this.updateStudentVisionData(currentVisionScreeningResult, statConclusion);
         updateSchoolStudent(statConclusion, currentVisionScreeningResult.getUpdateTime());
-        //返回最近一次的statConclusion
+        // 推送数据给新疆近视防控系统
+        pushScreeningDataToXinJiang(screeningPlan);
+        // 返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
         visionScreeningResultStatConclusionTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
         return visionScreeningResultStatConclusionTwoTuple;
     }
 
+    private void pushScreeningDataToXinJiang(ScreeningPlan screeningPlan) {
+        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime())) {
+            return;
+        }
+        // TODO: 判空，仅推视力和屈光数据
+        thirdPartyServiceClient.pushScreeningResult(new VisionScreeningResultDTO().setYear(screeningPlan.getYear()).setSecond(screeningPlan.getTime()));
+
+    }
 
     /**
      * 验证复测规则

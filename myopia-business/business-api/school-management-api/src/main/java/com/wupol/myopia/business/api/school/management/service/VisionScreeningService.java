@@ -26,6 +26,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.SchoolScreenin
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolStatisticVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.ScreeningStudentListVO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.StudentScreeningDetailVO;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.aggregation.stat.facade.StatFacade;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
 import com.wupol.myopia.business.api.school.management.domain.builder.SchoolStatisticBuilder;
@@ -136,6 +137,9 @@ public class VisionScreeningService {
     private SysUtilService sysUtilService;
     @Resource
     private SchoolClassService schoolClassService;
+    @Autowired
+    private ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
+
 
 
     /**
@@ -314,10 +318,10 @@ public class VisionScreeningService {
     public void saveScreeningPlan(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser) {
         //创建和编辑标志
         Boolean isAdd = Objects.isNull(schoolScreeningPlanDTO.getId());
-        validParam(schoolScreeningPlanDTO,currentUser,isAdd);
+        School school = schoolService.getById(currentUser.getOrgId());
+        validParam(schoolScreeningPlanDTO,currentUser,isAdd,school);
 
         //筛查计划
-        School school = schoolService.getById(currentUser.getOrgId());
         ScreeningPlan screeningPlan = null;
         if (Objects.equals(isAdd,Boolean.FALSE)){
             screeningPlan = screeningPlanService.getById(schoolScreeningPlanDTO.getId());
@@ -344,7 +348,7 @@ public class VisionScreeningService {
      * @param schoolScreeningPlanDTO
      * @param currentUser
      */
-    private void validParam(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser,Boolean isAdd) {
+    private void validParam(SchoolScreeningPlanDTO schoolScreeningPlanDTO, CurrentUser currentUser, Boolean isAdd, School school) {
         // 校验用户机构，政府部门，无法新增计划
         if (currentUser.isGovDeptUser()) {
             throw new ValidationException("无权限");
@@ -358,6 +362,8 @@ public class VisionScreeningService {
         if (Objects.equals(checkIsCreated,Boolean.TRUE) && Objects.equals(isAdd,Boolean.TRUE)){
             throw new BusinessException("筛查计划已创建");
         }
+        screeningPlanSchoolBizService.checkYearAndTime(school.getDistrictId(), schoolScreeningPlanDTO.getYear(), schoolScreeningPlanDTO.getTime());
+
     }
 
     /**
