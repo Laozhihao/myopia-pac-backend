@@ -67,7 +67,9 @@ public class UserService extends BaseService<UserMapper, User> {
             throw new BusinessException("页码或页数为空");
         }
         // 防止跨系统查询
-        Assert.notNull(queryParam.getSystemCode(), "systemCode不能为空");
+        if (Objects.isNull(queryParam.getSystemCode()) && CollectionUtils.isEmpty(queryParam.getSystemCodes())) {
+            throw new BusinessException("systemCode不能为空");
+        }
         Page<UserWithRole> page = new Page<>(queryParam.getCurrent(), queryParam.getSize());
         if (!StringUtils.isEmpty(queryParam.getRoleName())) {
             List<Integer> userIds = roleService.getUserIdList(new Role().setChName(queryParam.getRoleName()).setOrgId(queryParam.getOrgId()).setSystemCode(queryParam.getSystemCode()));

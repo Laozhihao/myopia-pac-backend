@@ -35,6 +35,11 @@ public class UserQueryDTO extends UserVO {
     /** 角色名 */
     private String roleName;
 
+    /**
+     * 是否第三方
+     */
+    private Boolean isThirdPartyPlatform;
+
     public UserDTO convertToOauthUserDTO() {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(this, userDTO);

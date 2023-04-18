@@ -87,7 +87,7 @@ public class RoleService extends BaseService<RoleMapper, Role> {
     public List<Permission> getRolePermissionTree(Integer roleId, Integer templateType) {
         Role role = getById(roleId);
         Assert.notNull(role, "不存在该角色");
-        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType()) || RoleType.THIRD_PARTY_PLATFORM.getType().equals(role.getRoleType())) {
             return permissionService.getAdminRolePermissionTree(0, roleId);
         }
         return permissionService.selectRoleAllTree(0, roleId, templateType);

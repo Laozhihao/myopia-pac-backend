@@ -3,11 +3,17 @@ package com.wupol.myopia.business.api.management.service;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.RoleType;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.PasswordAndUsernameGenerator;
 import com.wupol.myopia.business.api.management.domain.dto.UserQueryDTO;
+import com.wupol.myopia.business.api.management.domain.vo.RoleVO;
 import com.wupol.myopia.business.api.management.domain.vo.UserVO;
+import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.government.domain.dto.GovDeptDTO;
@@ -55,12 +61,18 @@ public class UserService {
      * @return java.util.ArrayList<com.wupol.myopia.business.management.domain.dto.User>
      **/
     public IPage<UserVO> getUserListPage(UserQueryDTO param, Integer current, Integer size, CurrentUser currentUser) {
-        // 非平台管理员，只能看到自己部门下的用户
-        if (!currentUser.isPlatformAdminUser()) {
+        List<Integer> userTypes;
+        if (currentUser.isPlatformAdminUser()) {
+            userTypes = Arrays.asList(UserType.GOVERNMENT_ADMIN.getType(), UserType.PLATFORM_ADMIN.getType(), UserType.OTHER.getType());
+            param.setSystemCodes(Lists.newArrayList(currentUser.getSystemCode(), SystemCode.THIRD_PARTY_PLATFORM.getCode()));
+        } else {
+            // 非平台管理员，只能看到自己部门下的用户
+            userTypes = Arrays.asList(UserType.GOVERNMENT_ADMIN.getType(), UserType.PLATFORM_ADMIN.getType());
             param.setOrgId(currentUser.getOrgId());
+            param.setSystemCode(currentUser.getSystemCode());
         }
         // 默认获取自己所属部门及其下面所有部门的用户，如果搜索条件中部门ID不为空，则优先获取指定部门的用户
-        param.setCurrent(current).setSize(size).setSystemCode(currentUser.getSystemCode());
+        param.setCurrent(current).setSize(size);
         // 根据部门名称模糊查询
         if (!StringUtils.isEmpty(param.getOrgName())) {
             List<GovDept> govDeptList = govDeptService.getGovDeptList(new GovDept().setName(param.getOrgName()));
@@ -72,7 +84,7 @@ public class UserService {
         // 调用远程服务获取用户数据
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(param, userDTO);
-        userDTO.setUserTypes(Arrays.asList(UserType.GOVERNMENT_ADMIN.getType(), UserType.PLATFORM_ADMIN.getType()));
+        userDTO.setUserTypes(userTypes);
         Page<User> userPage = oauthServiceClient.getUserListPage(userDTO);
         List<UserVO> users = JSON.parseArray(JSON.toJSONString(userPage.getRecords()), UserVO.class);
         if (CollectionUtils.isEmpty(users)) {
@@ -103,11 +115,20 @@ public class UserService {
     public User addUser(UserQueryDTO user, CurrentUser currentUser) {
         // 参数校验
         validateAndInitUserData(user, currentUser);
+        String userName = user.getPhone();
+        // 设置第三方账号的SystemCode
+        if (Objects.equals(user.getIsThirdPartyPlatform(), Boolean.TRUE)) {
+            user.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode())
+                    .setUserType(UserType.OTHER.getType())
+                    .setOrgId(-1);
+            userName = getThirdPartyPlatformUserName();
+        } else {
+            user.setSystemCode(currentUser.getSystemCode());
+        }
         // 新增用户并绑定角色
         user.setPassword(PasswordAndUsernameGenerator.getManagementUserPwd())
-                .setUsername(user.getPhone())
-                .setCreateUserId(currentUser.getId())
-                .setSystemCode(currentUser.getSystemCode());
+                .setUsername(userName)
+                .setCreateUserId(currentUser.getId());
         return oauthServiceClient.addUser(user.convertToOauthUserDTO());
     }
 
@@ -128,6 +149,11 @@ public class UserService {
         // 该接口不允许更新密码
         User oldUser = oauthServiceClient.getUserDetailByUserId(user.getId());
         user.setSystemCode(currentUser.getSystemCode()).setUserType(oldUser.getUserType()).setPassword(null);
+        // 设置第三方账号的SystemCode
+        if (Objects.equals(user.getIsThirdPartyPlatform(), Boolean.TRUE)) {
+            user.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode())
+                    .setUserType(UserType.OTHER.getType());
+        }
         User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
@@ -143,6 +169,15 @@ public class UserService {
      * @return void
      **/
     private void validateAndInitUserData(UserQueryDTO user, CurrentUser currentUser) {
+        // 设置第三方账号的SystemCode
+        if (Objects.equals(user.getIsThirdPartyPlatform(), Boolean.TRUE)) {
+            List<Integer> roleType = user.getRoles().stream().map(RoleVO::getRoleType).collect(Collectors.toList());
+            if (roleType.stream().anyMatch(s -> !Objects.equals(s, RoleType.THIRD_PARTY_PLATFORM.getType()))) {
+                throw new BusinessException("只能设置第三方平台的角色");
+            }
+        } else {
+            Assert.notNull(user.getPhone(), "手机号码不能为空");
+        }
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(user.getUserType(), "用户类型不能为空");
             if (UserType.GOVERNMENT_ADMIN.getType().equals(user.getUserType())) {
@@ -212,6 +247,17 @@ public class UserService {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(userId).setStatus(status);
         return oauthServiceClient.updateUser(userDTO);
+    }
+
+
+    private String getThirdPartyPlatformUserName() {
+        UserDTO user = new UserDTO();
+        user.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode()).setUserType(UserType.OTHER.getType());
+        List<User> userList = oauthServiceClient.getUserList(user);
+        if (CollectionUtils.isEmpty(userList)) {
+            return CommonConst.THIRD_PARTY_PLATFORM_USERNAME_PREFIX + "0";
+        }
+        return CommonConst.THIRD_PARTY_PLATFORM_USERNAME_PREFIX + userList.size();
     }
 
 }

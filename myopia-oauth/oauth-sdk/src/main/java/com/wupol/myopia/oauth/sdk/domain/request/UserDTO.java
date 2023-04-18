@@ -103,4 +103,9 @@ public class UserDTO extends User {
      * 用户类型集合
      */
     private List<Integer> userTypes;
+
+    /**
+     * 系统类型集合
+     */
+    private List<Integer> systemCodes;
 }

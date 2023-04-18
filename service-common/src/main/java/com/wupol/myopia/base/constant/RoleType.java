@@ -28,6 +28,7 @@ public enum RoleType {
     OVERVIEW_ADMIN(7, "总览机构管理员类型角色"),
     QUESTIONNAIRE_STUDENT(8, "问卷系统学生端"),
     QUESTIONNAIRE_SCHOOL(9, "问卷系统学校端"),
+    THIRD_PARTY_PLATFORM(10, "第三方平台"),
 
     ;
 

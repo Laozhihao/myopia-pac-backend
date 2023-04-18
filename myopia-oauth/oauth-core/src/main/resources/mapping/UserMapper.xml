@@ -83,6 +83,9 @@
                 <if test="param.userTypes != null">
                     and u.`user_type` IN <foreach collection="param.userTypes" open="(" close=")" separator="," item="item">#{item}</foreach>
                 </if>
+                <if test="param.systemCodes != null and param.systemCodes.size() != 0">
+                    and u.`system_code` IN <foreach collection="param.systemCodes" open="(" close=")" separator="," item="item">#{item}</foreach>
+                </if>
             </trim>
         </where>
     </sql>

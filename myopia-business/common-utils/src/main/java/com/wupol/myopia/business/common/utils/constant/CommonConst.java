@@ -303,4 +303,9 @@ public class CommonConst {
      * 学校学生模版导出文件名
      */
     public static final String EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_NAME = "%s-导入学生筛查数据";
+
+    /**
+     * 第三方账号前缀
+     */
+    public static final String THIRD_PARTY_PLATFORM_USERNAME_PREFIX = "jsfktpp";
 }

@@ -27,6 +27,7 @@ public enum SystemCode {
     PRESCHOOL_CLIENT(7, "0-6岁客户端"),
     /** 问卷系统 */
     QUESTIONNAIRE(8, "问卷系统端"),
+    THIRD_PARTY_PLATFORM(9, "第三方平台"),
 
 
     ;

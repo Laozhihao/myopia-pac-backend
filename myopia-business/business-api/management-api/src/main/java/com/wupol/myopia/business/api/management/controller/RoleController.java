@@ -54,9 +54,9 @@ public class RoleController {
      * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
     @GetMapping("/{govDeptId}")
-    public List<Role> getGovDeptRole(@PathVariable("govDeptId") Integer govDeptId) {
+    public List<Role> getGovDeptRole(@PathVariable("govDeptId") Integer govDeptId, Boolean isThirdPartyPlatform) {
         Assert.notNull(govDeptId, "部门ID不能为空");
-        return roleService.getGovDeptRole(govDeptId, CurrentUserUtil.getCurrentUser());
+        return roleService.getGovDeptRole(govDeptId, CurrentUserUtil.getCurrentUser(), isThirdPartyPlatform);
     }
 
     /**

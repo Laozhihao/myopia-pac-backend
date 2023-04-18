@@ -53,7 +53,6 @@ public class UserVO implements Serializable {
     /**
      * 手机号码
      */
-    @NotBlank(message = "手机号码不能为空", groups = {UserAddValidatorGroup.class, UserUpdateValidatorGroup.class})
     private String phone;
 
     /**
@@ -179,5 +178,10 @@ public class UserVO implements Serializable {
      * 数据上报配置
      */
     private List<Integer> dataSubmitConfig;
+
+    /**
+     * 系统类型集合
+     */
+    private List<Integer> systemCodes;
 
 }

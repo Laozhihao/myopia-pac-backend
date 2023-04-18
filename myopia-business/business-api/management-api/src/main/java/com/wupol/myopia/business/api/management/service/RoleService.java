@@ -84,7 +84,8 @@ public class RoleService {
         param.setSystemCode(SystemCode.MANAGEMENT_CLIENT.getCode()).setCurrent(current).setSize(size);
         // 调oauth服务，获取角色列表
         RoleDTO roleDTO = param.convertToOauthRoleDTO();
-        roleDTO.setRoleTypes(Arrays.asList(RoleType.GOVERNMENT_DEPARTMENT.getType(), RoleType.PLATFORM_ADMIN.getType(), RoleType.SUPER_ADMIN.getType()));
+        roleDTO.setRoleTypes(Arrays.asList(RoleType.GOVERNMENT_DEPARTMENT.getType(),
+                RoleType.PLATFORM_ADMIN.getType(), RoleType.SUPER_ADMIN.getType(), RoleType.THIRD_PARTY_PLATFORM.getType()));
         Page<Role> rolePage = oauthServiceClient.getRoleListByPage(roleDTO);
         List<Role> roleList = JSON.parseArray(JSON.toJSONString(rolePage.getRecords()), Role.class);
         if (CollectionUtils.isEmpty(roleList)) {
@@ -115,13 +116,17 @@ public class RoleService {
      * @param currentUser 当前登录用户
      * @return java.util.List<com.wupol.myopia.business.management.domain.dto.RoleDTO>
      **/
-    public List<Role> getGovDeptRole(Integer govDeptId, CurrentUser currentUser) {
+    public List<Role> getGovDeptRole(Integer govDeptId, CurrentUser currentUser, Boolean isThirdPartyPlatform) {
         Assert.isTrue(currentUser.isPlatformAdminUser() || govDeptId.equals(currentUser.getOrgId()), "没有权限访问该部门角色");
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setOrgId(govDeptId);
-        roleDTO.setSystemCode(currentUser.getSystemCode());
-            roleDTO.setRoleTypes(Arrays.asList(RoleType.SUPER_ADMIN.getType(), RoleType.PLATFORM_ADMIN.getType(),
-                    RoleType.GOVERNMENT_DEPARTMENT.getType()));
+        if (Objects.equals(isThirdPartyPlatform, Boolean.TRUE)) {
+            roleDTO.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode());
+        } else {
+            roleDTO.setSystemCode(currentUser.getSystemCode());
+        }
+        roleDTO.setRoleTypes(Arrays.asList(RoleType.SUPER_ADMIN.getType(), RoleType.PLATFORM_ADMIN.getType(),
+                RoleType.GOVERNMENT_DEPARTMENT.getType(), RoleType.THIRD_PARTY_PLATFORM.getType()));
         return oauthServiceClient.getRoleList(roleDTO);
     }
 
@@ -133,6 +138,7 @@ public class RoleService {
      * @return com.wupol.myopia.business.management.domain.dto.RoleDTO
      **/
     public Role addRole(RoleQueryDTO param, CurrentUser currentUser) {
+        param.setSystemCode(currentUser.getSystemCode()).setCreateUserId(currentUser.getId());
         if (currentUser.isPlatformAdminUser()) {
             Assert.notNull(param.getRoleType(), "角色类型为空");
             if (RoleType.GOVERNMENT_DEPARTMENT.getType().equals(param.getRoleType()) || RoleType.SCREENING_ORGANIZATION.getType().equals(param.getRoleType())) {
@@ -140,6 +146,8 @@ public class RoleService {
                 Assert.notNull(param.getOrgId(), "所属部门ID为空");
                 // 非平台角色的部门不能为运营中心部门
                 Assert.isTrue(!param.getOrgId().equals(currentUser.getOrgId()), "无效部门ID");
+            } else if (Objects.equals(param.getRoleType(), RoleType.THIRD_PARTY_PLATFORM.getType())) {
+                param.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode());
             } else {
                 // 创建平台角色
                 param.setOrgId(currentUser.getOrgId());
@@ -148,8 +156,10 @@ public class RoleService {
             param.setOrgId(currentUser.getOrgId());
             param.setRoleType(RoleType.GOVERNMENT_DEPARTMENT.getType());
         }
-        param.setSystemCode(currentUser.getSystemCode()).setCreateUserId(currentUser.getId());
         Role role = oauthServiceClient.addRole(param.convertToOauthRoleDTO());
+        if (Objects.equals(param.getRoleType(), RoleType.THIRD_PARTY_PLATFORM.getType())) {
+            return role;
+        }
         initRolePermission(role);
         return role;
     }
@@ -242,6 +252,10 @@ public class RoleService {
         if (RoleType.PLATFORM_ADMIN.getType().equals(role.getRoleType())) {
             return oauthServiceClient.getRolePermissionTree(roleId, PermissionTemplateType.PLATFORM_ADMIN.getType());
         }
+        // 第三方
+        if (RoleType.THIRD_PARTY_PLATFORM.getType().equals(role.getRoleType())) {
+            return oauthServiceClient.getRolePermissionTree(roleId, PermissionTemplateType.ALL.getType());
+        }
         // 非平台角色
         return oauthServiceClient.getRolePermissionTree(roleId, getPermissionTemplateTypeByGovDeptId(role.getOrgId()));
     }
@@ -270,7 +284,7 @@ public class RoleService {
         Assert.notNull(roleId, "角色ID不能为空");
         Role role = oauthServiceClient.getRoleById(roleId);
         Assert.notNull(role, "角色不存在");
-        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType())) {
+        if (RoleType.SUPER_ADMIN.getType().equals(role.getRoleType()) || RoleType.THIRD_PARTY_PLATFORM.getType().equals(role.getRoleType())) {
             return PermissionTemplateType.ALL.getType();
         }
         if (RoleType.PLATFORM_ADMIN.getType().equals(role.getRoleType())) {
