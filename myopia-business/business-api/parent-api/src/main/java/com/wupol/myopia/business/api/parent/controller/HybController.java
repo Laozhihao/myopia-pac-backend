@@ -20,6 +20,7 @@ public class HybController {
     @PostMapping("bind/callback")
     public void bindCallBack(@RequestBody HybCallbackRequestDTO requestDTO) {
 
+
     }
 
 
