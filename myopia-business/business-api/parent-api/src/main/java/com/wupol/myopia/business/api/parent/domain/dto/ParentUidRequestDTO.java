@@ -25,7 +25,7 @@ public class ParentUidRequestDTO {
     /**
      * timestamp
      */
-    private Integer timestamp;
+    private Long timestamp;
 
     /**
      * url
