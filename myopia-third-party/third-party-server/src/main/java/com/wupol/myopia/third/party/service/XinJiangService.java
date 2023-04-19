@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 新疆业务处理类
@@ -32,9 +33,7 @@ public class XinJiangService {
         StudentVisionScreeningResult newData = buildStudentVisionScreeningResult(originalData);
         // 获取旧数据
         StudentVisionScreeningResult oldData = studentVisionScreeningResultService.findOne(new StudentVisionScreeningResult().setSchoolName(originalData.getSchoolName()).setYearTest(originalData.getYear()).setSecond(originalData.getTime()).setStudentIdCard(originalData.getStudentIdCard()));
-        if (Objects.nonNull(oldData)) {
-            newData.setUuid(oldData.getUuid()).setUpdateTime(new Date());
-        }
+        newData.setUuid(Objects.isNull(oldData) ? UUID.randomUUID().toString().replaceAll("-", "") : oldData.getUuid());
         // 新增或更新
         studentVisionScreeningResultService.saveOrUpdate(newData);
     }
@@ -48,20 +47,21 @@ public class XinJiangService {
                 .setStudentName(originalData.getStudentName())
                 .setStudentIdCard(originalData.getStudentIdCard())
                 .setStudentNum(originalData.getStudentNo())
+                .setUpdateTime(new Date())
                 // 视力数据
-                .setLeftNakedVision(bigDecimalToStr(originalData.getLeftNakedVision()))
-                .setRightNakedVision(bigDecimalToStr(originalData.getRightNakedVision()))
+                .setLeftNakedVision(getNakedVision(originalData.getLeftNakedVision()))
+                .setRightNakedVision(getNakedVision(originalData.getRightNakedVision()))
                 .setIsWear(getIsWear(originalData.getGlassesType()))
                 .setWearGlassType(WearGlassTypeEnum.getCodeByVistelGlassType(originalData.getGlassesType()))
                 .setLeftGlassesDegree(bigDecimalToStr(originalData.getLeftGlassesDegree()))
                 .setRightGlassesDegree(bigDecimalToStr(originalData.getRightGlassesDegree()));
         // 矫正视力数据
-        if (WearGlassTypeEnum.CONTACT_LENS.code.equals(newData.getWearGlassType()) || WearGlassTypeEnum.FRAME_GLASSES.code.equals(newData.getWearGlassType())) {
-            newData.setLeftGlassedVision(bigDecimalToStr(originalData.getLeftCorrectedVision()))
-                    .setRightGlassedVision(bigDecimalToStr(originalData.getRightCorrectedVision()));
-        } else if (WearGlassTypeEnum.OK.code.equals(newData.getWearGlassType())) {
+        if (WearGlassTypeEnum.OK.code.equals(newData.getWearGlassType())) {
             newData.setLeftCorrectedVision(bigDecimalToStr(originalData.getLeftCorrectedVision()))
                     .setRightCorrectedVision(bigDecimalToStr(originalData.getRightCorrectedVision()));
+        } else {
+            newData.setLeftGlassedVision(bigDecimalToStr(originalData.getLeftCorrectedVision()))
+                    .setRightGlassedVision(bigDecimalToStr(originalData.getRightCorrectedVision()));
         }
         // 屈光数据
         newData.setLeftSphericalMirror(getSphOrCyl(originalData.getLeftSphericalMirror())).setRightSphericalMirror(getSphOrCyl(originalData.getRightSphericalMirror()))
@@ -70,6 +70,10 @@ public class XinJiangService {
         // 缺省数据
         return newData.setLeftMirrorCheck(9).setRightMirrorCheck(9).setLeftAmetropia(9).setRightAmetropia(9);
 
+    }
+
+    private String getNakedVision(BigDecimal nakedVision) {
+        return Optional.ofNullable(nakedVision).map(x -> x.compareTo(BigDecimal.valueOf(5.3)) > 0 || x.compareTo(BigDecimal.valueOf(3)) < 0 ? "9" : x.toString()).orElse("9");
     }
 
     private Integer getIsWear(Integer glassesType) {
