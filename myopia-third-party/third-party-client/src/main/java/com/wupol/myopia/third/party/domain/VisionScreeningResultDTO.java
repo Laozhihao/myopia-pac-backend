@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -40,13 +41,13 @@ public class VisionScreeningResultDTO {
     /**
      * 检测年度
      */
-    @NotBlank(message = "检测年度[year]不能为空")
+    @NotNull(message = "检测年度[year]不能为空")
     private Integer year;
 
     /**
      * 检测次数
      */
-    @NotBlank(message = "检测次数[time]不能为空")
+    @NotNull(message = "检测次数[time]不能为空")
     private Integer time;
 
     /**
