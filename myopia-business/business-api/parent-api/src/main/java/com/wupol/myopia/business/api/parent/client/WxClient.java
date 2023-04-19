@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface WxClient {
 
     @GetMapping("/sns/oauth2/access_token")
-    String getAccessToken(@RequestParam("appid") String appId, @RequestParam("secret") String secret, @RequestParam("code") String code, @RequestParam("grant_type") String grantType);
+    String getWxAccessToken(@RequestParam("appid") String appId, @RequestParam("secret") String secret, @RequestParam("code") String code, @RequestParam("grant_type") String grantType);
 
     @GetMapping("/sns/userinfo")
     String getUserInfo(@RequestParam("access_token") String accessToken, @RequestParam("openid") String openId, @RequestParam("lang") String lang);
@@ -28,7 +28,7 @@ public interface WxClient {
      * @return String
      */
     @GetMapping("/cgi-bin/token")
-    String getAccessToken(@RequestParam("client_credential") String clientCredential, @RequestParam("appid") String appid, @RequestParam("secret") String secret);
+    String getWxAccessToken(@RequestParam("client_credential") String clientCredential, @RequestParam("appid") String appid, @RequestParam("secret") String secret);
 
 
     /**
@@ -38,6 +38,7 @@ public interface WxClient {
      * @param type        填写 jsapi
      * @return JsapiTicket
      */
+    @GetMapping("/cgi-bin/ticket/getticket")
     String getJsapiTicket(@RequestParam("access_token") String accessToken, @RequestParam("type") String type);
 
 }

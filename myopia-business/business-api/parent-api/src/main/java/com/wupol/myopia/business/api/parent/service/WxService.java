@@ -64,7 +64,7 @@ public class WxService {
     public String getOpenId(String code) {
         Assert.hasLength(code, "【获取OpenId失败】code为空");
         try {
-            String data = wxClient.getAccessToken(appId, appSecret, code, "authorization_code");
+            String data = wxClient.getWxAccessToken(appId, appSecret, code, "authorization_code");
             logger.debug("获取openId返回值: {}", data);
             return JSON.parseObject(data).getString("openid");
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class WxService {
      **/
     public WxAuthorizationInfo getAccessTokenAndOpenId(String code) {
         Assert.hasLength(code, "微信code不能为空");
-        String data = wxClient.getAccessToken(appId, appSecret, code, "authorization_code");
+        String data = wxClient.getWxAccessToken(appId, appSecret, code, "authorization_code");
         logger.debug("获取wx access token返回值: {}", data);
         JSONObject dataJson = JSON.parseObject(data);
         String accessToken = dataJson.getString(WxConstant.ACCESS_TOKEN);
@@ -210,7 +210,7 @@ public class WxService {
             return String.valueOf(accessToken);
         }
 
-        String data = wxClient.getAccessToken("client_credential", appId, appSecret);
+        String data = wxClient.getWxAccessToken("client_credential", appId, appSecret);
         WxAccessTokenResponseDTO responseDTO = JSON.parseObject(data, WxAccessTokenResponseDTO.class);
         if (Objects.isNull(responseDTO) || !Objects.equals(responseDTO.getErrcode(), 0)) {
             logger.error("获取AccessToken异常,异常信息:{}", data);
