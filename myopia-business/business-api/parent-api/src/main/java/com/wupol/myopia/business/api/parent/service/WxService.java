@@ -190,7 +190,7 @@ public class WxService {
         String accessToken = getAccessToken();
         String data = wxClient.getJsapiTicket(accessToken, "jsapi");
         WxJsapiTicketResponseDTO responseDTO = JSON.parseObject(data, WxJsapiTicketResponseDTO.class);
-        if (Objects.isNull(responseDTO) || !Objects.equals(responseDTO.getErrcode(), 0)) {
+        if (Objects.isNull(responseDTO) || (Objects.nonNull(responseDTO.getErrcode()) && !Objects.equals(responseDTO.getErrcode(), 0))) {
             logger.error("获取JsapiTicket异常,异常信息:{}", data);
             throw new BusinessException("获取JsapiTicket异常！");
         }
@@ -212,7 +212,7 @@ public class WxService {
 
         String data = wxClient.getWxAccessToken("client_credential", appId, appSecret);
         WxAccessTokenResponseDTO responseDTO = JSON.parseObject(data, WxAccessTokenResponseDTO.class);
-        if (Objects.isNull(responseDTO) || !Objects.equals(responseDTO.getErrcode(), 0)) {
+        if (Objects.isNull(responseDTO) || (Objects.nonNull(responseDTO.getErrcode()) && !Objects.equals(responseDTO.getErrcode(), 0))) {
             logger.error("获取AccessToken异常,异常信息:{}", data);
             throw new BusinessException("获取AccessToken异常！");
         }
