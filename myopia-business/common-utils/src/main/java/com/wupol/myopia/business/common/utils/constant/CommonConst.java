@@ -308,4 +308,9 @@ public class CommonConst {
      * 第三方账号前缀
      */
     public static final String THIRD_PARTY_PLATFORM_USERNAME_PREFIX = "jsfktpp";
+
+    /**
+     * 微信签名
+     */
+    public static final String WX_SIGNATURE = "jsapi_ticket=%s&noncestr=%s&timestamp=%s&url=%s";
 }

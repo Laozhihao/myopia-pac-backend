@@ -22,7 +22,7 @@ public class ParentUidResponseDTO {
     private String uid;
 
     /**
-     * jsapiTicket
+     * signature
      */
-    private String jsapiTicket;
+    private String signature;
 }
