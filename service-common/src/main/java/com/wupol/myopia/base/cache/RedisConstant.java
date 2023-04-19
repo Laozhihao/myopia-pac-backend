@@ -231,4 +231,14 @@ public interface RedisConstant {
      */
     String NOTICE_LINK_ERROR_LIST = "notice:link:error:list";
 
+    /**
+     * AccessToken key
+     */
+    String WX_ACCESS_TOKEN = "wx:access:token";
+
+    /**
+     * jsapiTicket key
+     */
+    String WX_JSAPI_TICKET = "wx:jsapi:ticket";
+
 }

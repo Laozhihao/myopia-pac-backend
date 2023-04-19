@@ -7,13 +7,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.parent.client.WxClient;
 import com.wupol.myopia.business.api.parent.constant.WxConstant;
-import com.wupol.myopia.business.api.parent.domain.dto.WxAuthorizationInfo;
-import com.wupol.myopia.business.api.parent.domain.dto.WxLoginInfo;
-import com.wupol.myopia.business.api.parent.domain.dto.WxUserInfo;
+import com.wupol.myopia.business.api.parent.domain.dto.*;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
@@ -51,6 +51,9 @@ public class WxService {
     private OauthServiceClient oauthServiceClient;
     @Resource
     private WxClient wxClient;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 根据微信回调的code获取openId
@@ -160,7 +163,7 @@ public class WxService {
             // TODO: 临时还原异常现场，排查是否为系统bug
             String message = e.getMessage();
             if ("已经存在该手机号码".equals(message)) {
-                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()),SystemCode.PARENT_CLIENT.getCode());
+                List<User> userList = oauthServiceClient.getUserBatchByPhones(Lists.newArrayList(wxLoginInfo.getPhone()), SystemCode.PARENT_CLIENT.getCode());
                 User existUser = userList.get(0);
                 Parent existParent = parentService.findOne(new Parent().setUserId(existUser.getId()));
                 if (Objects.isNull(existParent)) {
@@ -173,4 +176,49 @@ public class WxService {
             throw new BusinessException(e.getMessage());
         }
     }
+
+    /**
+     * 获取JsapiTicket
+     *
+     * @return JsapiTicket
+     */
+    public String getJsapiTicket() {
+        Object jsapiTicket = redisUtil.get(RedisConstant.WX_JSAPI_TICKET);
+        if (Objects.nonNull(jsapiTicket)) {
+            return String.valueOf(jsapiTicket);
+        }
+        String accessToken = getAccessToken();
+        String data = wxClient.getJsapiTicket(accessToken, "jsapi");
+        WxJsapiTicketResponseDTO responseDTO = JSON.parseObject(data, WxJsapiTicketResponseDTO.class);
+        if (Objects.isNull(responseDTO) || !Objects.equals(responseDTO.getErrcode(), 0)) {
+            logger.error("获取JsapiTicket异常,异常信息:{}", data);
+            throw new BusinessException("获取JsapiTicket异常！");
+        }
+        redisUtil.set(RedisConstant.WX_JSAPI_TICKET, responseDTO.getTicket(), responseDTO.getExpiresIn());
+        return responseDTO.getTicket();
+    }
+
+    /**
+     * 获取AccessToken
+     *
+     * @return AccessToken
+     */
+    private String getAccessToken() {
+
+        Object accessToken = redisUtil.get(RedisConstant.WX_ACCESS_TOKEN);
+        if (Objects.nonNull(accessToken)) {
+            return String.valueOf(accessToken);
+        }
+
+        String data = wxClient.getAccessToken("client_credential", appId, appSecret);
+        WxAccessTokenResponseDTO responseDTO = JSON.parseObject(data, WxAccessTokenResponseDTO.class);
+        if (Objects.isNull(responseDTO) || !Objects.equals(responseDTO.getErrcode(), 0)) {
+            logger.error("获取AccessToken异常,异常信息:{}", data);
+            throw new BusinessException("获取AccessToken异常！");
+        }
+
+        redisUtil.set(RedisConstant.WX_ACCESS_TOKEN, responseDTO.getAccessToken(), responseDTO.getExpiresIn());
+        return responseDTO.getAccessToken();
+    }
+
 }

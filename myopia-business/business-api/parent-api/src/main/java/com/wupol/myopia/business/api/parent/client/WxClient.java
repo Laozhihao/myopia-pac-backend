@@ -17,4 +17,27 @@ public interface WxClient {
     @GetMapping("/sns/userinfo")
     String getUserInfo(@RequestParam("access_token") String accessToken, @RequestParam("openid") String openId, @RequestParam("lang") String lang);
 
+
+    /**
+     * 获取AccessToken
+     *
+     * @param clientCredential 获取access_token填写client_credential
+     * @param appid            第三方用户唯一凭证
+     * @param secret           第三方用户唯一凭证密钥，即appsecret
+     *                         <p>接口更多说明<a href="https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html#value">微信文档</a></p>
+     * @return String
+     */
+    @GetMapping("/cgi-bin/token")
+    String getAccessToken(@RequestParam("client_credential") String clientCredential, @RequestParam("appid") String appid, @RequestParam("secret") String secret);
+
+
+    /**
+     * 获取JsapiTicket
+     *
+     * @param accessToken accessToken
+     * @param type        填写 jsapi
+     * @return JsapiTicket
+     */
+    String getJsapiTicket(@RequestParam("access_token") String accessToken, @RequestParam("type") String type);
+
 }
