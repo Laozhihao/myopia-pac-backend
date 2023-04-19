@@ -20,7 +20,7 @@ import java.util.Optional;
 @Slf4j
 public class KafkaConsumer {
 
-    @KafkaListener(topics = {"myopia-xinjiang-error-data"})
+    // @KafkaListener(topics = {"myopia-xinjiang-error-data"})
     public void errorConsumer(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
         Optional<ConsumerRecord<String, String>> kafkaMessage = Optional.ofNullable(record);
         log.info("kafkaMessage：{}", kafkaMessage.toString());

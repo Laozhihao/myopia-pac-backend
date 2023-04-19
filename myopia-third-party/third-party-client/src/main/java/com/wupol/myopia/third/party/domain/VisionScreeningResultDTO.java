@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 /**
  * 视力筛查结果数据
@@ -33,31 +34,31 @@ public class VisionScreeningResultDTO {
     /**
      * 学校名称
      */
-    @NotBlank(message = "学校名称schoolName不能为空")
+    @NotBlank(message = "学校名称[schoolName]不能为空")
     private String schoolName;
 
     /**
      * 检测年度
      */
-    @NotBlank(message = "检测年度year不能为空")
+    @NotBlank(message = "检测年度[year]不能为空")
     private Integer year;
 
     /**
      * 检测次数
      */
-    @NotBlank(message = "检测次数second不能为空")
-    private Integer second;
+    @NotBlank(message = "检测次数[time]不能为空")
+    private Integer time;
 
     /**
      * 学生姓名
      */
-    @NotBlank(message = "学生姓名studentName不能为空")
+    @NotBlank(message = "学生姓名[studentName]不能为空")
     private String studentName;
 
     /**
      * 身份证号
      */
-    @NotBlank(message = "身份证号studentIdCard不能为空")
+    @NotBlank(message = "身份证号[studentIdCard]不能为空")
     private String studentIdCard;
 
     /**
@@ -68,47 +69,42 @@ public class VisionScreeningResultDTO {
     /**
      * 左眼裸眼视力
      */
-    private String leftNakedVision;
+    private BigDecimal leftNakedVision;
 
     /**
      * 右眼裸眼视力
      */
-    private String rightNakedVision;
+    private BigDecimal rightNakedVision;
 
     /**
-     * 是否戴镜
+     * 戴镜类型：0-无、1-框架、2-隐形、3-角膜塑形
      */
-    private Integer isWear;
-
-    /**
-     * 戴镜类型
-     */
-    private Integer wearGlassType;
-
-    /**
-     * 左眼戴镜视力
-     */
-    private String leftGlassedVision;
-
-    /**
-     * 右眼戴镜视力
-     */
-    private String rightGlassedVision;
+    private Integer glassesType;
 
     /**
      * 左眼矫正视力
      */
-    private String leftCorrectedVision;
+    private BigDecimal leftCorrectedVision;
 
     /**
      * 右眼矫正视力
      */
-    private String rightCorrectedVision;
+    private BigDecimal rightCorrectedVision;
+
+    /**
+     * 左眼眼镜度数（是否戴镜值等于1时需填写）
+     */
+    private BigDecimal leftGlassesDegree;
+
+    /**
+     * 右眼眼镜度数（是否戴镜值等于1时需填写）
+     */
+    private BigDecimal rightGlassesDegree;
 
     /**
      * 左眼屈光不正
      */
-    private Integer leftAmetropia;
+    private BigDecimal leftAmetropia;
 
     /**
      * 右眼屈光不正
@@ -118,41 +114,31 @@ public class VisionScreeningResultDTO {
     /**
      * 左眼球镜
      */
-    private String leftSphericalMirror;
+    private BigDecimal leftSphericalMirror;
 
     /**
      * 右眼球镜
      */
-    private String rightSphericalMirror;
+    private BigDecimal rightSphericalMirror;
 
     /**
      * 左眼柱镜
      */
-    private String leftCylindricalMirror;
+    private BigDecimal leftCylindricalMirror;
 
     /**
      * 右眼柱镜
      */
-    private String rightCylindricalMirror;
+    private BigDecimal rightCylindricalMirror;
 
     /**
      * 左眼轴位
      */
-    private String leftAxialPosition;
+    private BigDecimal leftAxialPosition;
 
     /**
      * 右眼轴位
      */
-    private String rightAxialPosition;
-
-    /**
-     * 左眼角膜曲率
-     */
-    private String leftCornealCurvature;
-
-    /**
-     * 右眼角膜曲率
-     */
-    private String rightCornealCurvature;
+    private BigDecimal rightAxialPosition;
 
 }

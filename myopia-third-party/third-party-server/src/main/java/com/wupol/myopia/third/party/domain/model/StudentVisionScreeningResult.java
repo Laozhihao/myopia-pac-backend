@@ -83,27 +83,27 @@ public class StudentVisionScreeningResult implements Serializable {
     private String updateBy;
 
     /**
-     * 左眼裸眼视力
+     * 左眼裸眼视力（数字格式范围在3.0~5.3之间，3.0以下填 9）
      */
     private String leftNakedVision;
 
     /**
-     * 右眼裸眼视力
+     * 右眼裸眼视力（数字格式范围在3.0~5.3之间，3.0以下填 9）
      */
     private String rightNakedVision;
 
     /**
-     * 是否戴镜
+     * 是否戴镜（否：0、是：1）
      */
     private Integer isWear;
 
     /**
-     * 戴镜类型
+     * 戴镜类型（隐形眼镜：0	框架眼镜：1	角膜塑形镜：2）
      */
     private Integer wearGlassType;
 
     /**
-     * 左眼戴镜视力
+     * 左眼戴镜视力（是否戴镜值等于1且戴镜类型等于0或1时需填写，即填戴隐形和框架眼镜的矫正视力）
      */
     private String leftGlassedVision;
 
@@ -113,7 +113,7 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightGlassedVision;
 
     /**
-     * 左眼矫正视力
+     * 左眼矫正视力（是否戴镜值等于1且戴镜类型等于2时需填写，即填戴OK镜的矫正视力）
      */
     private String leftCorrectedVision;
 
@@ -123,67 +123,67 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightCorrectedVision;
 
     /**
-     * 左眼眼镜度数
+     * 左眼眼镜度数（是否戴镜值等于1时需填写）
      */
     private String leftGlassesDegree;
 
     /**
-     * 右眼眼镜度数
+     * 右眼眼镜度数（是否戴镜值等于1时需填写）
      */
     private String rightGlassesDegree;
 
     /**
-     * 左眼串镜检测
+     * 左眼串镜检测（0:近视，1:远视，2:其他，9:未测）
      */
     private Integer leftMirrorCheck;
 
     /**
-     * 右眼串镜检测
+     * 右眼串镜检测（0:近视，1:远视，2:其他，9:未测）
      */
     private Integer rightMirrorCheck;
 
     /**
-     * 左眼屈光不正
+     * 左眼屈光不正（0:正常，1:近视，2:远视，3:其他，9:未测）
      */
     private Integer leftAmetropia;
 
     /**
-     * 右眼屈光不正
+     * 右眼屈光不正（0:正常，1:近视，2:远视，3:其他，9:未测）
      */
     private Integer rightAmetropia;
 
     /**
-     * 左眼近视力(3米)
+     * 左眼近视力(3米)（只能输入0到4.9之间的数值）
      */
     private String leftCloseVision;
 
     /**
-     * 右眼近视力(3米)
+     * 右眼近视力(3米)（只能输入0到4.9之间的数值）
      */
     private String rightCloseVision;
 
     /**
-     * 左眼结膜炎
+     * 左眼结膜炎（0:无,1:有）
      */
     private Integer leftConjunctivitis;
 
     /**
-     * 右眼结膜炎
+     * 右眼结膜炎（0:无,1:有）
      */
     private Integer rightConjunctivitis;
 
     /**
-     * 左眼沙眼
+     * 左眼沙眼（0:无,1:可疑,2:有沙）
      */
     private Integer leftTrachoma;
 
     /**
-     * 右眼沙眼
+     * 右眼沙眼（0:无,1:可疑,2:有沙）
      */
     private Integer rightTrachoma;
 
     /**
-     * 左眼球镜
+     * 左眼球镜（最多输入两位小数，必须包含+/-；缺失值（无法检测）请填999）
      */
     private String leftSphericalMirror;
 
@@ -193,7 +193,7 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightSphericalMirror;
 
     /**
-     * 左眼柱镜
+     * 左眼柱镜（最多输入两位小数，必须包含+/-；缺失值（无法检测）请填999）
      */
     private String leftCylindricalMirror;
 
@@ -203,7 +203,7 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightCylindricalMirror;
 
     /**
-     * 左眼轴位
+     * 左眼轴位（只能输入0到180之间的数值，缺失值（无法检测）请填999）
      */
     private String leftAxialPosition;
 
@@ -213,7 +213,7 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightAxialPosition;
 
     /**
-     * 左眼角膜曲率
+     * 左眼角膜曲率（最多输入两位小数）
      */
     private String leftCornealCurvature;
 
@@ -223,7 +223,7 @@ public class StudentVisionScreeningResult implements Serializable {
     private String rightCornealCurvature;
 
     /**
-     * 瞳距
+     * 瞳距（最多输入两位小数）
      */
     private String pupillaryDistance;
 

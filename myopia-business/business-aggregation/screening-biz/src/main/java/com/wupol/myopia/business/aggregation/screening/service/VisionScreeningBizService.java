@@ -14,6 +14,7 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -30,10 +31,12 @@ import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.third.party.client.ThirdPartyServiceClient;
 import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,10 +47,7 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -138,21 +138,12 @@ public class VisionScreeningBizService {
         this.updateStudentVisionData(currentVisionScreeningResult, statConclusion);
         updateSchoolStudent(statConclusion, currentVisionScreeningResult.getUpdateTime());
         // 推送数据给新疆近视防控系统
-        pushScreeningDataToXinJiang(screeningPlan);
+        pushScreeningDataToXinJiang(screeningPlan, currentVisionScreeningResult);
         // 返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
         visionScreeningResultStatConclusionTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
         return visionScreeningResultStatConclusionTwoTuple;
-    }
-
-    private void pushScreeningDataToXinJiang(ScreeningPlan screeningPlan) {
-        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime())) {
-            return;
-        }
-        // TODO: 判空，仅推视力和屈光数据
-        thirdPartyServiceClient.pushScreeningResult(new VisionScreeningResultDTO().setYear(screeningPlan.getYear()).setSecond(screeningPlan.getTime()));
-
     }
 
     /**
@@ -447,4 +438,43 @@ public class VisionScreeningBizService {
         nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
     }
+
+
+    /**
+     * 推送数据给新疆近视防控系统
+     *
+     * @param screeningPlan         筛查计划
+     * @param visionScreeningResult 筛查数据
+     */
+    private void pushScreeningDataToXinJiang(ScreeningPlan screeningPlan, VisionScreeningResult visionScreeningResult) {
+        // 通过year和time来判断是否为新疆地区的计划，只同步视力检查和屈光检查数据过去
+        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime()) || !ObjectUtils.anyNotNull(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry())) {
+            return;
+        }
+        log.info("推送新疆数据给third-party服务");
+        // 基本信息
+        VisionScreeningResultDTO originalData = new VisionScreeningResultDTO();
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        School school = schoolService.getById(visionScreeningResult.getSchoolId());
+        originalData.setPlanId(screeningPlan.getId())
+                .setSchoolId(school.getId())
+                .setSchoolName(school.getName())
+                .setYear(screeningPlan.getYear())
+                .setTime(screeningPlan.getTime())
+                .setStudentName(planStudent.getStudentName())
+                .setStudentIdCard(Optional.ofNullable(planStudent.getIdCard()).orElse(planStudent.getPassport()))
+                .setStudentNo(planStudent.getStudentNo())
+                .setPlanStudentId(planStudent.getId());
+        // 视力检查数据
+        originalData.setLeftNakedVision(EyeDataUtil.leftNakedVision(visionScreeningResult)).setRightNakedVision(EyeDataUtil.rightNakedVision(visionScreeningResult))
+                .setGlassesType(EyeDataUtil.glassesType(visionScreeningResult))
+                .setLeftCorrectedVision(EyeDataUtil.leftCorrectedVision(visionScreeningResult)).setRightCorrectedVision(EyeDataUtil.rightCorrectedVision(visionScreeningResult))
+                .setLeftGlassesDegree(EyeDataUtil.leftOkDegree(visionScreeningResult)).setRightGlassesDegree(EyeDataUtil.rightOkDegree(visionScreeningResult));
+        // 屈光检查数据
+        originalData.setLeftSphericalMirror(EyeDataUtil.leftSph(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
+                .setLeftCylindricalMirror(EyeDataUtil.leftCyl(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
+                .setLeftAxialPosition(EyeDataUtil.leftAxial(visionScreeningResult)).setRightAxialPosition(EyeDataUtil.rightAxial(visionScreeningResult));
+        thirdPartyServiceClient.pushScreeningResult(originalData);
+    }
+
 }

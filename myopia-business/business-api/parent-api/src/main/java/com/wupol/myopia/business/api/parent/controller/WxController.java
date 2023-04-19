@@ -65,9 +65,22 @@ public class WxController {
 
     /**
      * 家长端入口，访问微信api获取授权code
+     * 访问流程：
+     *      1. Index?state=1访问入口
+     *      2. 重定向到微信获取code
+     *      3. 微信回调到“/callback/login”接口
+     *      4. 根据code从微信获取openId
+     *      5. 重定向到前端“用户协议”页面（或重定向到步骤11；或自动登录重定向到前端中间页，前端最终根据state跳转到对应页面）
+     *      6. 点击按钮重定向到“/authorize”接口
+     *      7. 服务器重定向到微信获取code
+     *      8. 微信回调到“/callback/userInfo”接口
+     *      9. 根据code调微信获取accessToken和OpenId
+     *      10.根据accessToken和OpenId调微信获取userInfo(昵称、头像)
+     *      11.重定向“绑定手机”页面
+     *      12.绑定手机成功后，前端根据state跳转到对应页面
      * state取值范围
-     *      1(默认值)-公众号入口进来，会跳到“报告查看”页面
-     *      2-扫码进来，会跳到“我的孩子”页面
+     *      1 - 默认值，会跳到“报告查看”页面
+     *      2 - 扫码进来，会跳到“我的孩子”页面
      **/
     @GetMapping("/index")
     public String getCode(String state) {
