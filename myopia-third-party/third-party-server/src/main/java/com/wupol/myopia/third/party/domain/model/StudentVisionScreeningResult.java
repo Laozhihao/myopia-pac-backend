@@ -1,14 +1,14 @@
 package com.wupol.myopia.third.party.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class StudentVisionScreeningResult implements Serializable {
     /**
      * 字符串主键
      */
-    @TableId(value = "uuid", type = IdType.AUTO)
+    @TableId(value = "uuid")
     private String uuid;
 
     /**
