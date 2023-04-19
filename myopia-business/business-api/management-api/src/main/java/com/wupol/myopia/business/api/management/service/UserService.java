@@ -152,9 +152,13 @@ public class UserService {
         // 设置第三方账号的SystemCode
         if (Objects.equals(user.getIsThirdPartyPlatform(), Boolean.TRUE)) {
             user.setSystemCode(SystemCode.THIRD_PARTY_PLATFORM.getCode())
-                    .setUserType(UserType.OTHER.getType());
+                    .setUserType(UserType.OTHER.getType())
+                    .setOrgId(-1);
         }
         User newUser = oauthServiceClient.updateUser(user.convertToOauthUserDTO());
+        if (Objects.equals(user.getIsThirdPartyPlatform(), Boolean.TRUE)) {
+            return JSON.parseObject(JSON.toJSONString(user), UserVO.class);
+        }
         GovDept govDept = govDeptService.getById(newUser.getOrgId());
         District district = districtService.getById(govDept.getDistrictId());
         UserVO userVO = JSON.parseObject(JSON.toJSONString(user), UserVO.class);
