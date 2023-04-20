@@ -8,6 +8,7 @@ import com.wupol.myopia.business.aggregation.screening.domain.builder.ScreeningB
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.QuestionnaireStatusEnum;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.questionnaire.domain.model.UserQuestionRecord;
 import com.wupol.myopia.business.core.questionnaire.service.UserQuestionRecordService;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
@@ -25,6 +26,7 @@ import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResu
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -53,6 +55,8 @@ public class ScreeningPlanSchoolBizService {
     private SchoolGradeService schoolGradeService;
     @Autowired
     private VisionScreeningResultFacade visionScreeningResultFacade;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 通过筛查计划ID获取所有关联的学校vo信息
@@ -204,5 +208,20 @@ public class ScreeningPlanSchoolBizService {
             return new ArrayList<>();
         }
         return schoolList.stream().filter(s -> schoolIds.contains(s.getSchoolId())).collect(Collectors.toList());
+    }
+
+    /**
+     * 检查筛查年份和筛查次数
+     *
+     * @param districtId    行政区域ID
+     * @param year          筛查年份
+     * @param time          筛查次数
+     */
+    public void checkYearAndTime(Integer districtId, Integer year, Integer time) {
+        if (!districtService.isXinJiangDistrict(districtId)) {
+            return;
+        }
+        Assert.notNull(year, "year不能为空");
+        Assert.notNull(time, "time不能为空");
     }
 }

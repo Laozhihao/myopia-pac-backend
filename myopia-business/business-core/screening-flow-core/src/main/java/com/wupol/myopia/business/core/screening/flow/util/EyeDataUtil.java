@@ -213,6 +213,26 @@ public class EyeDataUtil {
     }
 
     /**
+     * 获取右眼夜戴角膜塑形镜的度数
+     * @param visionScreeningResult 筛查结果
+     * @return 右眼戴镜视力
+     */
+    public static BigDecimal rightOkDegree(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getOkDegree) .orElse(null);
+    }
+
+    /**
+     * 获取左眼夜戴角膜塑形镜的度数
+     * @param visionScreenResult 筛查结果
+     * @return 左眼戴镜视力
+     */
+    public static BigDecimal leftOkDegree(VisionScreeningResult visionScreenResult) {
+        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getLeftEyeData)
+                .map(VisionDataDO.VisionData::getOkDegree) .orElse(null);
+    }
+
+    /**
      * 获取右眼球镜
      * @param visionScreenResult 筛查结果
      * @return 右眼球镜

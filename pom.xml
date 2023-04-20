@@ -10,7 +10,7 @@
     <groupId>com.wupol.myopia</groupId>
     <artifactId>myopia-pac-backend</artifactId>
     <packaging>pom</packaging>
-    <version>MP-2.5.2</version>
+    <version>MP-2.5.3</version>
     <description>近视防控系统</description>
 
     <modules>
@@ -20,6 +20,7 @@
         <module>myopia-business</module>
         <module>myopia-migrate-data</module>
         <module>myopia-rec</module>
+        <module>myopia-third-party</module>
     </modules>
 
     <properties>

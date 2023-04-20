@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <parent>
+        <artifactId>myopia-pac-backend</artifactId>
+        <groupId>com.wupol.myopia</groupId>
+        <version>MP-2.5.3</version>
+    </parent>
+    <artifactId>myopia-third-party</artifactId>
+    <name>myopia-third-party</name>
+    <description>第三方对接服务</description>
+
+    <modules>
+        <module>third-party-client</module>
+        <module>third-party-server</module>
+    </modules>
+
+    <dependencies>
+        <!-- 基础依赖 -->
+        <dependency>
+            <groupId>com.wupol.myopia</groupId>
+            <artifactId>service-common</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+</project>

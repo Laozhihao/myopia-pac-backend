@@ -40,6 +40,10 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 最小行政区域代码编号
      */
     private static final long SMALLEST_PROVINCE_CODE = 110000000L;
+    /**
+     * 新疆行政区域code前缀
+     */
+    public static final String XIN_JIANG_DISTRICT_CODE_PREFIX = "65";
 
     @Autowired
     private RedisUtil redisUtil;
@@ -1144,6 +1148,17 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
                         .collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
                                 new TreeSet<>(Comparator.comparing(District::getId))), ArrayList::new)),
                 PROVINCE_PARENT_CODE);
+    }
+
+    /**
+     * 是否为新疆地区
+     *
+     * @param districtId 行政区域ID
+     * @return boolean
+     */
+    public boolean isXinJiangDistrict(Integer districtId) {
+        District district = getById(districtId);
+        return XIN_JIANG_DISTRICT_CODE_PREFIX.equals(String.valueOf(district.getCode()).substring(0, 2));
     }
 
 }
