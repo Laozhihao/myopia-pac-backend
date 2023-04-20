@@ -472,7 +472,7 @@ public class VisionScreeningBizService {
                 .setLeftGlassesDegree(EyeDataUtil.leftOkDegree(visionScreeningResult)).setRightGlassesDegree(EyeDataUtil.rightOkDegree(visionScreeningResult));
         // 屈光检查数据
         originalData.setLeftSphericalMirror(EyeDataUtil.leftSph(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
-                .setLeftCylindricalMirror(EyeDataUtil.leftCyl(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
+                .setLeftCylindricalMirror(EyeDataUtil.leftCyl(visionScreeningResult)).setRightCylindricalMirror(EyeDataUtil.rightCyl(visionScreeningResult))
                 .setLeftAxialPosition(EyeDataUtil.leftAxial(visionScreeningResult)).setRightAxialPosition(EyeDataUtil.rightAxial(visionScreeningResult));
         thirdPartyServiceClient.pushScreeningResult(originalData);
     }
