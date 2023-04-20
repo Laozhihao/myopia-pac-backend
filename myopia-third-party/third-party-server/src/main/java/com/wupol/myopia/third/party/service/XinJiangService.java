@@ -27,8 +27,12 @@ public class XinJiangService {
     @Autowired
     private StudentVisionScreeningResultService studentVisionScreeningResultService;
 
+    /**
+     * 处理原始数据入库
+     *
+     * @param originalData 原始数据
+     */
     public void handleScreeningResultData(VisionScreeningResultDTO originalData) {
-        log.info("handleScreeningResultData：" + originalData.toString());
         // 构建数据
         StudentVisionScreeningResult newData = buildStudentVisionScreeningResult(originalData);
         // 获取旧数据
@@ -38,6 +42,12 @@ public class XinJiangService {
         studentVisionScreeningResultService.saveOrUpdate(newData);
     }
 
+    /**
+     * 构建新疆中间库数据实体
+     *
+     * @param originalData  原始数据
+     * @return StudentVisionScreeningResult
+     */
     private StudentVisionScreeningResult buildStudentVisionScreeningResult(VisionScreeningResultDTO originalData) {
         StudentVisionScreeningResult newData = new StudentVisionScreeningResult()
                 // 基本信息
@@ -49,8 +59,8 @@ public class XinJiangService {
                 .setStudentNum(originalData.getStudentNo())
                 .setUpdateTime(new Date())
                 // 视力数据
-                .setLeftNakedVision(getNakedVision(originalData.getLeftNakedVision()))
-                .setRightNakedVision(getNakedVision(originalData.getRightNakedVision()))
+                .setLeftNakedVision(parseNakedVision(originalData.getLeftNakedVision()))
+                .setRightNakedVision(parseNakedVision(originalData.getRightNakedVision()))
                 .setIsWear(getIsWear(originalData.getGlassesType()))
                 .setWearGlassType(WearGlassTypeEnum.getCodeByVistelGlassType(originalData.getGlassesType()))
                 .setLeftGlassesDegree(bigDecimalToStr(originalData.getLeftGlassesDegree()))
@@ -64,18 +74,30 @@ public class XinJiangService {
                     .setRightGlassedVision(bigDecimalToStr(originalData.getRightCorrectedVision()));
         }
         // 屈光数据
-        newData.setLeftSphericalMirror(getSphOrCyl(originalData.getLeftSphericalMirror())).setRightSphericalMirror(getSphOrCyl(originalData.getRightSphericalMirror()))
-                .setLeftCylindricalMirror(getSphOrCyl(originalData.getLeftCylindricalMirror())).setRightCylindricalMirror(getSphOrCyl(originalData.getRightCylindricalMirror()))
-                .setLeftAxialPosition(getAxial(originalData.getLeftAxialPosition())).setRightAxialPosition(getAxial(originalData.getRightAxialPosition()));
+        newData.setLeftSphericalMirror(parseSphOrCyl(originalData.getLeftSphericalMirror())).setRightSphericalMirror(parseSphOrCyl(originalData.getRightSphericalMirror()))
+                .setLeftCylindricalMirror(parseSphOrCyl(originalData.getLeftCylindricalMirror())).setRightCylindricalMirror(parseSphOrCyl(originalData.getRightCylindricalMirror()))
+                .setLeftAxialPosition(parseAxial(originalData.getLeftAxialPosition())).setRightAxialPosition(parseAxial(originalData.getRightAxialPosition()));
         // 缺省数据
         return newData.setLeftMirrorCheck(9).setRightMirrorCheck(9).setLeftAmetropia(9).setRightAmetropia(9);
 
     }
 
-    private String getNakedVision(BigDecimal nakedVision) {
+    /**
+     * 解析转换裸眼视力
+     *
+     * @param nakedVision 裸眼视力
+     * @return String
+     */
+    private String parseNakedVision(BigDecimal nakedVision) {
         return Optional.ofNullable(nakedVision).map(x -> x.compareTo(BigDecimal.valueOf(3)) < 0 ? "9" : x.toString()).orElse(null);
     }
 
+    /**
+     * 获取是否带镜
+     *
+     * @param glassesType 戴镜类型
+     * @return Integer
+     */
     private Integer getIsWear(Integer glassesType) {
         if (Objects.isNull(glassesType)) {
             return null;
@@ -83,14 +105,32 @@ public class XinJiangService {
         return GlassesTypeEnum.NOT_WEARING.getCode().equals(glassesType) ? 0 : 1;
     }
 
-    private String getSphOrCyl(BigDecimal sphOrCyl) {
+    /**
+     * 解析转换sph或cyl
+     *
+     * @param sphOrCyl sph或cyl
+     * @return String
+     */
+    private String parseSphOrCyl(BigDecimal sphOrCyl) {
         return Optional.ofNullable(sphOrCyl).map(x -> x.compareTo(BigDecimal.valueOf(0)) >= 0 ? "+" + x : x.toString()).orElse("999");
     }
 
-    private String getAxial(BigDecimal axial) {
+    /**
+     * 解析转换
+     *
+     * @param axial 轴位
+     * @return String
+     */
+    private String parseAxial(BigDecimal axial) {
         return Optional.ofNullable(axial).map(x -> x.compareTo(BigDecimal.valueOf(180)) > 0 || x.compareTo(BigDecimal.valueOf(0)) < 0 ? "999" : x.toString()).orElse("999");
     }
 
+    /**
+     * BigDecimal转String
+     *
+     * @param bigDecimal 数值类型
+     * @return String
+     */
     private String bigDecimalToStr(BigDecimal bigDecimal) {
         return Optional.ofNullable(bigDecimal).map(BigDecimal::toString).orElse(null);
     }

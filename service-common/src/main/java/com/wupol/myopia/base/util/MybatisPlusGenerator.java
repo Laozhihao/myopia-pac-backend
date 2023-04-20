@@ -143,13 +143,10 @@ public class MybatisPlusGenerator {
         DataSourceConfig dsc = new DataSourceConfig();
         // Mysql
         dsc.setDbType(DbType.MYSQL)
-                // .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
-                .setUrl("jdbc:mysql://120.70.98.35:13306/sunny_myopia?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
+                .setUrl("jdbc:mysql://localhost:3306/myopia_business?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8")
                 .setDriverName("com.mysql.cj.jdbc.Driver")
-                // .setUsername("root")
-                // .setPassword("123456");
-                .setUsername("Batman")
-                .setPassword("avufZ9kb1oT2%B%SA");
+                .setUsername("root")
+                .setPassword("123456");
         return dsc;
     }
 

@@ -451,7 +451,6 @@ public class VisionScreeningBizService {
         if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime()) || !ObjectUtils.anyNotNull(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry())) {
             return;
         }
-        log.info("推送新疆数据给third-party服务");
         // 基本信息
         VisionScreeningResultDTO originalData = new VisionScreeningResultDTO();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
