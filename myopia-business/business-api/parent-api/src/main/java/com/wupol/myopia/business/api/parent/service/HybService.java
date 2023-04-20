@@ -89,11 +89,11 @@ public class HybService {
         // 检查是否重复请求
         String redisKey = String.format(RedisConstant.HYB_PUSH_DATA, generateSign);
         if (Objects.nonNull(redisUtil.get(redisKey))) {
+            // 重新登录产生的Key不会重复
             throw new BusinessException("重复请求，请确认！");
         }
         // 设置1小时缓存
-        redisUtil.set(redisKey, Boolean.TRUE, 60 * 60);
-
+        redisUtil.set(redisKey, requestDTO.getTimestamp(), 60 * 60);
     }
 
 }
