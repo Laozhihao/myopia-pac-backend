@@ -449,12 +449,17 @@ public class VisionScreeningBizService {
      */
     private void pushScreeningDataToXinJiang(ScreeningPlan screeningPlan, VisionScreeningResult visionScreeningResult) {
         // 通过year和time来判断是否为新疆地区的计划，只同步视力检查和屈光检查数据过去
-        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime()) || !ObjectUtils.anyNotNull(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry())) {
+        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime())
+                || !ObjectUtils.anyNotNull(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry())) {
             return;
         }
         // 基本信息
         VisionScreeningResultDTO originalData = new VisionScreeningResultDTO();
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        // 身份证号码和护照号都为空，则不同步
+        if (StringUtils.isAllBlank(planStudent.getIdCard(), planStudent.getPassport())) {
+            return;
+        }
         School school = schoolService.getById(visionScreeningResult.getSchoolId());
         originalData.setPlanId(screeningPlan.getId())
                 .setSchoolId(school.getId())

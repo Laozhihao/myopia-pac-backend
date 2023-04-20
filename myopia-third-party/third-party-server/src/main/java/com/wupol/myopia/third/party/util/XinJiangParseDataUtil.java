@@ -49,7 +49,7 @@ public class XinJiangParseDataUtil {
     }
 
     /**
-     * 解析转换sph或cyl
+     * 解析转换sph或cyl，正数加上“+”
      *
      * @param sphOrCyl sph或cyl
      * @return String
