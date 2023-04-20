@@ -241,4 +241,9 @@ public interface RedisConstant {
      */
     String WX_JSAPI_TICKET = "wx:jsapi:ticket";
 
+    /**
+     * 护眼宝
+     */
+    String HYB_PUSH_DATA = "hyb:push:data:%s";
+
 }

@@ -26,7 +26,6 @@ public class HybController {
     @Resource
     private HybService hybService;
 
-
     /**
      * 获取家长UID
      *
@@ -44,14 +43,19 @@ public class HybController {
      * @param requestDTO 请求
      */
     @PostMapping("bind/callback")
-    public void bindCallBack(@Valid @RequestBody HybCallbackRequestDTO requestDTO) {
+    public void bindCallBack(@RequestBody @Valid HybCallbackRequestDTO requestDTO) {
         hybService.bindCallBack(requestDTO);
     }
 
 
+    /**
+     * 接受推送护眼宝数据
+     *
+     * @param requestDTO 请求入参
+     */
     @PostMapping("push")
-    public HuYangRequestDTO push(@RequestBody HuYangRequestDTO requestDTO) {
+    public void processHybData(@RequestBody @Valid HuYangRequestDTO requestDTO) {
         requestDTO.setAccessToken(CurrentUserUtil.getUserToken());
-        return requestDTO;
+        hybService.processHybData(requestDTO);
     }
 }

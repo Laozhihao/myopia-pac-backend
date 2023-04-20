@@ -7,6 +7,8 @@ import com.wupol.myopia.base.util.MD5Util;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class HuYangRequestDTO implements Serializable {
     /**
      * 数据
      */
+    @NotNull(message = "数据不能为空")
     private List<ParentStudentData> data;
 
     /**
@@ -32,11 +35,13 @@ public class HuYangRequestDTO implements Serializable {
     /**
      * 时间戳
      */
+    @NotNull(message = "时间戳不能为空")
     private Long timestamp;
 
     /**
      * 签名 access_token+timestamp md5
      */
+    @NotBlank(message = "签名不能为空")
     private String sign;
 
     @Getter
