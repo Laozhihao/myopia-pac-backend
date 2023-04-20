@@ -10,6 +10,7 @@ import com.wupol.myopia.business.api.parent.service.HybService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * 护眼宝
@@ -37,10 +38,14 @@ public class HybController {
         return hybService.getParentUid(requestDTO);
     }
 
+    /**
+     * 护眼宝回调
+     *
+     * @param requestDTO 请求
+     */
     @PostMapping("bind/callback")
-    public void bindCallBack(@RequestBody HybCallbackRequestDTO requestDTO) {
-
-
+    public void bindCallBack(@Valid @RequestBody HybCallbackRequestDTO requestDTO) {
+        hybService.bindCallBack(requestDTO);
     }
 
 

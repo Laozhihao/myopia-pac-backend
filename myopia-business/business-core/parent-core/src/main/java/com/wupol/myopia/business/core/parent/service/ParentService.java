@@ -51,4 +51,17 @@ public class ParentService extends BaseService<ParentMapper, Parent> {
         return Objects.isNull(user) ? parent : parent.setPhone(user.getPhone());
     }
 
+    /**
+     * 根据openId获取家长
+     *
+     * @param hashKey hashKey
+     * @return com.wupol.myopia.business.parent.domain.model.Parent
+     **/
+    public Parent getParentByHashKey(String hashKey) {
+        if (StringUtils.isEmpty(hashKey)) {
+            return null;
+        }
+        return findOne(new Parent().setHashKey(hashKey));
+    }
+
 }

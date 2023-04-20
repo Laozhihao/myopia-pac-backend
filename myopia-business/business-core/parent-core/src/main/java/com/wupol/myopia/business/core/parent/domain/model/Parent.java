@@ -71,4 +71,9 @@ public class Parent implements Serializable {
 
     @TableField(exist = false)
     private String phone;
+
+    /**
+     * 护眼宝绑定状态 0-未绑定 1-已绑定 2-解除绑定
+     */
+    private Integer hybBindStatus;
 }
