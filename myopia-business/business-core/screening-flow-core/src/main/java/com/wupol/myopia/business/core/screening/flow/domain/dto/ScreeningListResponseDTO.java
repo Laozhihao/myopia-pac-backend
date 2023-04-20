@@ -141,4 +141,14 @@ public class ScreeningListResponseDTO {
      * 是否能关联通知
      */
     private Boolean isCanLink;
+
+    /**
+     * 筛查年份
+     */
+    private Integer year;
+
+    /**
+     * 筛查次数
+     */
+    private Integer time;
 }

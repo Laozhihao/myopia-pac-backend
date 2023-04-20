@@ -189,7 +189,8 @@
                msps.school_id         as schoolId,
                msp.screening_org_id   as screeningOrgId,
                msp.screening_org_type  as screeningOrgType,
-               msp.screening_type as screeningType
+               msp.screening_type as screeningType,
+               msp.year, msp.time
         from (select * from m_screening_plan_school where school_id = #{param.schoolId} ) msps
         left join m_screening_plan msp on msps.screening_plan_id = msp.id
         where msp.release_status != 2

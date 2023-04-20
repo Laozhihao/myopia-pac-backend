@@ -73,7 +73,7 @@ public class XinJiangService {
     }
 
     private String getNakedVision(BigDecimal nakedVision) {
-        return Optional.ofNullable(nakedVision).map(x -> x.compareTo(BigDecimal.valueOf(5.3)) > 0 || x.compareTo(BigDecimal.valueOf(3)) < 0 ? "9" : x.toString()).orElse("9");
+        return Optional.ofNullable(nakedVision).map(x -> x.compareTo(BigDecimal.valueOf(3)) < 0 ? "9" : x.toString()).orElse(null);
     }
 
     private Integer getIsWear(Integer glassesType) {

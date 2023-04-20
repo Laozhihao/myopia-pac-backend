@@ -88,7 +88,7 @@
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, mst.gov_dept_id, mst.create_user_id,
         mst.create_time,mst.screening_type,mst.update_screening_end_time_status,
-        mst.screening_org_type
+        mst.screening_org_type, mst.year, mst.time
         FROM
         m_screening_plan mst
         <where>
