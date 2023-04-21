@@ -37,10 +37,4 @@ public class AESUtil {
         byte[] decryptedBytes = cipher.doFinal(decodedBytes);
         return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
-
-    public static void main(String[] args) throws Exception {
-        String encrypt = encrypt("abc");
-        System.out.println(encrypt);
-        System.out.println(decrypt(encrypt));
-    }
 }

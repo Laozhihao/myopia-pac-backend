@@ -17,9 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 护眼宝
@@ -94,6 +98,25 @@ public class HybService {
         }
         // 设置1小时缓存
         redisUtil.set(redisKey, requestDTO.getTimestamp(), 60 * 60);
+
+        // 检查家长HashKey是否存在
+        List<HuYangRequestDTO.ParentStudentData> parentStudentData = requestDTO.getData();
+        if (CollectionUtils.isEmpty(parentStudentData)) {
+            throw new BusinessException("数据为空，请确认!");
+        }
+
+        Set<String> parentHashKey = parentStudentData.stream().map(HuYangRequestDTO.ParentStudentData::getParentUid).collect(Collectors.toSet());
+        List<Parent> parents = parentService.getParentByHashKeys(parentHashKey);
+        if (CollectionUtils.isEmpty(parents)) {
+            throw new BusinessException("根据家长HashKey查询不到信息");
+        }
+
+        List<String> hashKeys = parentHashKey.stream()
+                .filter(e -> !parents.stream().map(Parent::getHashKey).collect(Collectors.toSet()).contains(e))
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(hashKeys)) {
+            throw new BusinessException("存在错误的HashKey:" + String.join("、", hashKeys));
+        }
     }
 
 }

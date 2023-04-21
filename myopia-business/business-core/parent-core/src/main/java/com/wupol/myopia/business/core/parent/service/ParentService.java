@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.parent.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.core.parent.domain.mapper.ParentMapper;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
@@ -10,6 +11,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -62,6 +65,18 @@ public class ParentService extends BaseService<ParentMapper, Parent> {
             return null;
         }
         return findOne(new Parent().setHashKey(hashKey));
+    }
+
+    /**
+     * 根据openId获取家长
+     *
+     * @param hashKeys hashKey
+     * @return com.wupol.myopia.business.parent.domain.model.Parent
+     **/
+    public List<Parent> getParentByHashKeys(Collection<String> hashKeys) {
+        LambdaQueryWrapper<Parent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Parent::getHashKey, hashKeys);
+        return baseMapper.selectList(queryWrapper);
     }
 
 }

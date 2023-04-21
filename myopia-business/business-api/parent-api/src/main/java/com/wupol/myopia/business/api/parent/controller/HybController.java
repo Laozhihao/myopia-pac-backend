@@ -55,7 +55,7 @@ public class HybController {
      */
     @PostMapping("push")
     public void processHybData(@RequestBody @Valid HuYangRequestDTO requestDTO) {
-        requestDTO.setAccessToken(CurrentUserUtil.getUserToken());
+        requestDTO.setAccessToken("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mbyI6eyJpZCI6MTU2NCwib3JnSWQiOi0xLCJxdWVzdGlvbm5haXJlVXNlcklkIjpudWxsLCJzY3JlZW5pbmdPcmdJZCI6bnVsbCwicmVhbE5hbWUiOm51bGwsInN5c3RlbUNvZGUiOjUsInJvbGVUeXBlcyI6W10sInVzZXJUeXBlIjotMSwiY2xpZW50SWQiOiI1IiwidG9rZW4iOm51bGwsInBsYXRmb3JtQWRtaW5Vc2VyIjpmYWxzZX0sImV4cCI6MTY4MjA2NjQ4MSwidXNlcl9uYW1lIjoiMTg1NzgyMzA0NjEiLCJqdGkiOiI5YjEyY2Q5Ni0wYTAwLTQyOWQtOTBhZC1mZWYwZTVjOWNjZDciLCJjbGllbnRfaWQiOiI1Iiwic2NvcGUiOlsiYWxsIl19.puaZy4po9TUmhY4vLDOCTJNyDVXSWnP2vwE9qNrx02ND7k1Y-bUPxdv8KQVPWs-NAgjYrH0m4oVDsgEU4DEW64fcvGGmD76QES1i_7K2bLo4ASF4NTk-OFa5ofvkyjeVwjBc_rgEOj7VFP1taMvBH1ug-k5JXSAc9cGkARf7Z73YcKfXJF9saB2h9hu6GJcfOO3Dav_NV9Hq0opLHMFyiSXQcfMljLcXytjf07KpNrmiIvOHExu7L_yWApbpPxFLsB-WrB1W-cnGcgiyvhAXNAoKMOJ_X04MTya4QCI-iwDyWW2Z_9YQWDrsqUq-OLnGQeOAueMyspYNA-ejg8_znw");
         hybService.processHybData(requestDTO);
     }
 }
