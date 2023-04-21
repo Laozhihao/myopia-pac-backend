@@ -108,14 +108,14 @@ public class HybService {
         Set<String> parentHashKey = parentStudentData.stream().map(HuYangRequestDTO.ParentStudentData::getParentUid).collect(Collectors.toSet());
         List<Parent> parents = parentService.getParentByHashKeys(parentHashKey);
         if (CollectionUtils.isEmpty(parents)) {
-            throw new BusinessException("根据家长HashKey查询不到信息");
+            throw new BusinessException("根据家长parentUid查询不到信息");
         }
 
         List<String> hashKeys = parentHashKey.stream()
                 .filter(e -> !parents.stream().map(Parent::getHashKey).collect(Collectors.toSet()).contains(e))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(hashKeys)) {
-            throw new BusinessException("存在错误的HashKey:" + String.join("、", hashKeys));
+            throw new BusinessException("存在错误的parentUid:" + String.join("、", hashKeys));
         }
     }
 
