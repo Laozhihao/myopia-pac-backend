@@ -73,7 +73,7 @@ public class WearingGlassesSituation {
         return glassesTypeKey;
     }
 
-    public Boolean checkKeyByDesc(String type) {
+    public boolean checkKeyByDesc(String type) {
         Integer glassesTypeKey = descriptionMapType.get(type);
         return Objects.isNull(glassesTypeKey);
     }

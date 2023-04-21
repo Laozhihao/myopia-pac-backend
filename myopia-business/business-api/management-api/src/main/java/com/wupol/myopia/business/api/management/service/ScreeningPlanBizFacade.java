@@ -3,14 +3,19 @@ package com.wupol.myopia.business.api.management.service;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
+import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolBizService;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningOrgTypeEnum;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningPlanDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.model.*;
-import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTask;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningTaskOrg;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskOrgService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningTaskService;
 import com.wupol.myopia.business.core.screening.organization.domain.model.ScreeningOrganization;
 import com.wupol.myopia.business.core.screening.organization.service.ScreeningOrganizationService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,8 @@ public class ScreeningPlanBizFacade {
     private final ScreeningTaskOrgService screeningTaskOrgService;
     private final ScreeningTaskService screeningTaskService;
     private final SchoolService schoolService;
+    private final DistrictService districtService;
+    private final ScreeningPlanSchoolBizService screeningPlanSchoolBizService;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -102,6 +109,7 @@ public class ScreeningPlanBizFacade {
                 // 用户自己新建的筛查计划需设置districtId
                 screeningPlanDTO.setDistrictId(school.getDistrictId());
             }
+            screeningPlanSchoolBizService.checkYearAndTime(screeningPlanDTO.getDistrictId(), screeningPlanDTO.getYear(), screeningPlanDTO.getTime());
         }
     }
 
@@ -124,6 +132,35 @@ public class ScreeningPlanBizFacade {
                 // 用户自己新建的筛查计划需设置districtId
                 screeningPlanDTO.setDistrictId(organization.getDistrictId());
             }
+            screeningPlanSchoolBizService.checkYearAndTime(screeningPlanDTO.getDistrictId(), screeningPlanDTO.getYear(), screeningPlanDTO.getTime());
         }
+    }
+
+    /**
+     * 是否为新疆地区
+     *
+     * @param screeningOrgId    筛查机构ID
+     * @param screeningOrgType  筛查机构类型
+     * @return boolean
+     */
+    public boolean isXinJiangDistrict(CurrentUser currentUser, Integer screeningOrgId, Integer screeningOrgType) {
+        if (currentUser.isPlatformAdminUser()) {
+            Assert.notNull(screeningOrgId, "screeningOrgId不能为空");
+            Assert.notNull(screeningOrgType, "screeningOrgType不能为空");
+        } else if (currentUser.isScreeningUser() || (currentUser.isHospitalUser() && Objects.nonNull(currentUser.getScreeningOrgId()))) {
+            screeningOrgId = currentUser.getScreeningOrgId();
+            screeningOrgType = ScreeningOrgTypeEnum.ORG.getType();
+        } else {
+            throw new BusinessException("无访问权限");
+        }
+        Integer districtId;
+        if (Objects.equals(screeningOrgType, ScreeningOrgTypeEnum.ORG.getType())) {
+            ScreeningOrganization organization = screeningOrganizationService.getById(screeningOrgId);
+            districtId = organization.getDistrictId();
+        } else {
+            School school = schoolService.getById(screeningOrgId);
+            districtId = school.getDistrictId();
+        }
+        return districtService.isXinJiangDistrict(districtId);
     }
 }

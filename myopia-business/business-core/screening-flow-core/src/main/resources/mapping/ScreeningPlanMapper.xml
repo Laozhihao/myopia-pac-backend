@@ -37,13 +37,15 @@
                 <if test="@Ognl@isNotEmpty(operatorId)">and `operator_id` = #{operatorId}</if>
                 <if test="@Ognl@isNotEmpty(operateTime)">and `operate_time` = #{operateTime}</if>
                 <if test="@Ognl@isNotEmpty(updateScreeningEndTimeStatus)">and `update_screening_end_time_status` = #{updateScreeningEndTimeStatus}</if>
+                <if test="@Ognl@isNotEmpty(year)">and `year` = #{year}</if>
+                <if test="@Ognl@isNotEmpty(time)">and `time` = #{time}</if>
             </trim>
         </where>
     </sql>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, screening_org_type,student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time, screening_type ,update_screening_end_time_status
+        id, src_screening_notice_id, screening_task_id, title, content, start_time, end_time, gov_dept_id, district_id, screening_org_id, screening_org_type,student_numbers, release_status, release_time, create_user_id, create_time, operator_id, operate_time, screening_type ,update_screening_end_time_status, year, time
     </sql>
 
     <select id="selectScreeningPlanDetailByOrgIdAndSchoolId" resultMap="BaseResultMap">
@@ -86,7 +88,7 @@
         mst.end_time, mst.content, mst.release_time, mst.release_status,
         mst.district_id, mst.gov_dept_id, mst.create_user_id,
         mst.create_time,mst.screening_type,mst.update_screening_end_time_status,
-        mst.screening_org_type
+        mst.screening_org_type, mst.year, mst.time
         FROM
         m_screening_plan mst
         <where>

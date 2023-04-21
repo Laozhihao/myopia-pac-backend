@@ -65,5 +65,14 @@ public class SchoolScreeningPlanDTO implements Serializable {
      */
     private Integer screeningTaskId;
 
+    /**
+     * 筛查年份
+     */
+    private Integer year;
+
+    /**
+     * 筛查次数
+     */
+    private Integer time;
 
 }

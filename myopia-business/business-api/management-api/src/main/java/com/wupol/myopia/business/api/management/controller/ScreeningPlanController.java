@@ -20,13 +20,11 @@ import com.wupol.myopia.business.aggregation.screening.domain.dto.ScreeningQrCod
 import com.wupol.myopia.business.aggregation.screening.domain.dto.UpdatePlanStudentRequestDTO;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.*;
-import com.wupol.myopia.business.aggregation.screening.service.ScreeningNoticeBizFacadeService;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.DataSubmitFactory;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
 import com.wupol.myopia.business.api.management.domain.dto.MockStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.PlanStudentRequestDTO;
 import com.wupol.myopia.business.api.management.domain.dto.ReviewInformExportDataDTO;
-import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.*;
 import com.wupol.myopia.business.common.utils.constant.BizMsgConstant;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
@@ -118,8 +116,6 @@ public class ScreeningPlanController {
     private ResourceFileService resourceFileService;
     @Autowired
     private DataSubmitFactory dataSubmitFactory;
-    @Autowired
-    private StatisticScheduledTaskService statisticScheduledTaskService;
     @Autowired
     private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
 
@@ -796,5 +792,18 @@ public class ScreeningPlanController {
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
         screeningNoticeBizFacadeService.linkNotice(requestDTO, CurrentUserUtil.getCurrentUser().getId());
+    }
+
+    /**
+     * 判断当前创建的计划是否属于新疆地区的
+     *
+     * @param screeningOrgId    筛查机构ID
+     * @param screeningOrgType  筛查机构类型
+     * @return
+     */
+    @GetMapping("/isXinJiangDistrict")
+    public boolean isXinJiangDistrict(Integer screeningOrgId, Integer screeningOrgType) {
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        return screeningPlanBizFacade.isXinJiangDistrict(currentUser, screeningOrgId, screeningOrgType);
     }
 }

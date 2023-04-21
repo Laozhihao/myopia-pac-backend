@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.wupol.myopia.base.domain.ResultCode;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -11,11 +12,10 @@ import com.wupol.myopia.business.aggregation.screening.service.data.submit.IData
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.builder.StudentInfoBuilder;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
-import com.wupol.myopia.business.common.utils.util.ListUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.util.S3Utils;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
 import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
@@ -29,12 +29,15 @@ import com.wupol.myopia.business.core.screening.flow.constant.NationalDataDownlo
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningResultBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.StatConclusionBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.PlanStudentInfoDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.*;
+import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
 import com.wupol.myopia.business.core.system.service.NoticeService;
+import com.wupol.myopia.third.party.client.ThirdPartyServiceClient;
+import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,8 +50,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Classname VisionScreeningBizService2
@@ -87,6 +88,8 @@ public class VisionScreeningBizService {
     private SchoolService schoolService;
     @Resource
     private DataSubmitFactory dataSubmitFactory;
+    @Autowired
+    private ThirdPartyServiceClient thirdPartyServiceClient;
 
     private static final String UNDONE_MSG = "该学生初筛项目未全部完成，无法进行复测！";
 
@@ -126,22 +129,23 @@ public class VisionScreeningBizService {
         if (Objects.isNull(currentVisionScreeningResult.getCreateUserId())) {
             currentVisionScreeningResult.setCreateUserId(CurrentUserUtil.getCurrentUser().getId());
         }
-        //更新statConclusion表
+        // 更新statConclusion表
         visionScreeningResultService.saveOrUpdateStudentScreenData(currentVisionScreeningResult);
-        //更新statConclusion表（获取的初筛或复测的数据）
+        // 更新statConclusion表（获取的初筛或复测的数据）
         StatConclusion statConclusion = statConclusionService.saveOrUpdateStudentScreenData(getScreeningConclusionResult(currentAndOtherResult));
         // 更新是否绑定手机号码
         setIsBindMq(statConclusion);
-        //更新学生表的数据（复测覆盖了初筛的结论）
+        // 更新学生表的数据（复测覆盖了初筛的结论）
         this.updateStudentVisionData(currentVisionScreeningResult, statConclusion);
         updateSchoolStudent(statConclusion, currentVisionScreeningResult.getUpdateTime());
-        //返回最近一次的statConclusion
+        // 推送数据给新疆近视防控系统
+        pushScreeningDataToXinJiang(screeningPlan, currentVisionScreeningResult);
+        // 返回最近一次的statConclusion
         TwoTuple<VisionScreeningResult, StatConclusion> visionScreeningResultStatConclusionTwoTuple = new TwoTuple<>();
         visionScreeningResultStatConclusionTwoTuple.setFirst(currentVisionScreeningResult);
         visionScreeningResultStatConclusionTwoTuple.setSecond(statConclusion);
         return visionScreeningResultStatConclusionTwoTuple;
     }
-
 
     /**
      * 验证复测规则
@@ -435,4 +439,48 @@ public class VisionScreeningBizService {
         nationalDataDownloadRecordService.updateById(nationalDataDownloadRecord);
         noticeService.createExportNotice(userId, userId, CommonConst.SUCCESS, CommonConst.SUCCESS, fileId, CommonConst.NOTICE_STATION_LETTER);
     }
+
+
+    /**
+     * 推送数据给新疆近视防控系统
+     *
+     * @param screeningPlan         筛查计划
+     * @param visionScreeningResult 筛查数据
+     */
+    private void pushScreeningDataToXinJiang(ScreeningPlan screeningPlan, VisionScreeningResult visionScreeningResult) {
+        // 通过year和time来判断是否为新疆地区的计划，只同步视力检查和屈光检查数据过去
+        if (Objects.isNull(screeningPlan.getYear()) || Objects.isNull(screeningPlan.getTime())
+                || !ObjectUtils.anyNotNull(visionScreeningResult.getVisionData(), visionScreeningResult.getComputerOptometry())) {
+            return;
+        }
+        // 基本信息
+        VisionScreeningResultDTO originalData = new VisionScreeningResultDTO();
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getById(visionScreeningResult.getScreeningPlanSchoolStudentId());
+        // 身份证号码和护照号都为空，则不同步
+        if (StringUtils.isAllBlank(planStudent.getIdCard(), planStudent.getPassport())) {
+            return;
+        }
+        School school = schoolService.getById(visionScreeningResult.getSchoolId());
+        originalData.setPlanId(screeningPlan.getId())
+                .setSchoolId(school.getId())
+                .setSchoolName(school.getName())
+                .setYear(screeningPlan.getYear())
+                .setTime(screeningPlan.getTime())
+                .setStudentName(planStudent.getStudentName())
+                .setStudentIdCard(Optional.ofNullable(planStudent.getIdCard()).orElse(planStudent.getPassport()))
+                .setStudentNo(planStudent.getStudentNo())
+                .setPlanStudentId(planStudent.getId());
+        // 视力检查数据
+        originalData.setLeftNakedVision(EyeDataUtil.leftNakedVision(visionScreeningResult)).setRightNakedVision(EyeDataUtil.rightNakedVision(visionScreeningResult))
+                .setGlassesType(EyeDataUtil.glassesType(visionScreeningResult))
+                .setLeftCorrectedVision(EyeDataUtil.leftCorrectedVision(visionScreeningResult)).setRightCorrectedVision(EyeDataUtil.rightCorrectedVision(visionScreeningResult))
+                .setLeftGlassesDegree(EyeDataUtil.leftOkDegree(visionScreeningResult)).setRightGlassesDegree(EyeDataUtil.rightOkDegree(visionScreeningResult));
+        // 屈光检查数据
+        originalData.setLeftSphericalMirror(EyeDataUtil.leftSph(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
+                .setLeftCylindricalMirror(EyeDataUtil.leftCyl(visionScreeningResult)).setRightCylindricalMirror(EyeDataUtil.rightCyl(visionScreeningResult))
+                .setLeftAxialPosition(EyeDataUtil.leftAxial(visionScreeningResult)).setRightAxialPosition(EyeDataUtil.rightAxial(visionScreeningResult));
+        log.info("推送数据：" + JSON.toJSONString(originalData));
+        thirdPartyServiceClient.pushScreeningResult(originalData);
+    }
+
 }
