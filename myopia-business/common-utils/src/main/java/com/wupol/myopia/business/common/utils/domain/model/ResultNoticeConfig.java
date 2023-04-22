@@ -38,4 +38,9 @@ public class ResultNoticeConfig implements Serializable {
      * 正文内容
      */
     private String content;
+
+    /**
+     * 关注公众号流程指引
+     */
+    private String processGuidance;
 }

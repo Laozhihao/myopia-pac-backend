@@ -48,4 +48,9 @@ public class NotificationConfig implements Serializable {
      */
     private String content;
 
+    /**
+     * 关注公众号流程指引
+     */
+    private String processGuidance;
+
 }
