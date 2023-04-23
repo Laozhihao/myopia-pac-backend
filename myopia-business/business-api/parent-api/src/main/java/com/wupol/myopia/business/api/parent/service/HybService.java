@@ -10,7 +10,7 @@ import com.wupol.myopia.business.api.parent.domain.dto.HybCallbackRequestDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ParentUidRequestDTO;
 import com.wupol.myopia.business.api.parent.domain.dto.ParentUidResponseDTO;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.HybBindStatusEnum;
+import com.wupol.myopia.business.common.utils.constant.BindStatusEnum;
 import com.wupol.myopia.business.core.parent.domain.model.Parent;
 import com.wupol.myopia.business.core.parent.service.ParentService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +43,14 @@ public class HybService {
     @Resource
     private RedisUtil redisUtil;
 
+    @Transactional(rollbackFor = Exception.class)
     public ParentUidResponseDTO getParentUid(ParentUidRequestDTO requestDTO) {
         Parent parent = parentService.getById(requestDTO.getId());
         if (Objects.isNull(parent)) {
             throw new BusinessException("家长数据异常");
         }
+        parent.setBindStatus(BindStatusEnum.WAIT_BIND.type);
+        parentService.updateById(parent);
         String data = String.format(CommonConst.WX_SIGNATURE, wxService.getJsapiTicket(), requestDTO.getNoncestr(), requestDTO.getTimestamp(), requestDTO.getUrl());
         return new ParentUidResponseDTO(parent.getHashKey(), DigestUtil.sha1Hex(data));
     }
@@ -65,7 +68,7 @@ public class HybService {
             log.error("");
             throw new BusinessException("家长UID异常！");
         }
-        parent.setHybBindStatus(HybBindStatusEnum.BIND.type);
+        parent.setBindStatus(BindStatusEnum.BIND.type);
         parentService.updateById(parent);
     }
 

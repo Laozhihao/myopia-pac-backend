@@ -152,7 +152,7 @@ public class WxController {
             // 获取用户个人信息
             WxUserInfo wxUserInfo = wxService.getWxUserInfo(accessTokenAndOpenId);
             // 创建家长和用户
-            Parent parent = wxService.addParentAndUser(wxUserInfo);
+            Parent parent = wxService.addParentAndUser(wxUserInfo, state);
             // 跳到“绑定手机”页面
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_OPENID, h5ClientUrlHost, WxBusinessExceptionCodeEnum.FORBIDDEN.getCode(), URLEncoder.encode(parent.getHashKey(), StandardCharsets.UTF_8.toString()), state);
         } catch (Exception e) {

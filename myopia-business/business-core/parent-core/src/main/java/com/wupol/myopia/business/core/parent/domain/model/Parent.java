@@ -73,7 +73,12 @@ public class Parent implements Serializable {
     private String phone;
 
     /**
-     * 护眼宝绑定状态 0-未绑定 1-已绑定 2-解除绑定
+     * 绑定状态 0-未绑定 1-已绑定 2-解除绑定
      */
-    private Integer hybBindStatus;
+    private Integer bindStatus;
+
+    /**
+     * 家长来源
+     */
+    private Integer status;
 }

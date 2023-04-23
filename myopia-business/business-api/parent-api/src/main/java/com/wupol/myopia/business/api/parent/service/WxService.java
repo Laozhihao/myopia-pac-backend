@@ -117,7 +117,7 @@ public class WxService {
      * @return com.wupol.myopia.business.parent.domain.model.Parent
      **/
     @Transactional(rollbackFor = Exception.class)
-    public Parent addParentAndUser(WxUserInfo wxUserInfo) {
+    public Parent addParentAndUser(WxUserInfo wxUserInfo, String state) {
         Assert.notNull(wxUserInfo, "微信用户信息不能为空");
         // 已经存在，则直接更新
         Parent parent = parentService.getParentByOpenId(wxUserInfo.getOpenId());
@@ -127,6 +127,9 @@ public class WxService {
         }
         // 创建家长
         parent = new Parent().setOpenId(wxUserInfo.getOpenId()).setHashKey(EncryptUtils.md5Base64(wxUserInfo.getOpenId())).setWxNickname(wxUserInfo.getNickname()).setWxHeaderImgUrl(wxUserInfo.getHeadImgUrl());
+        if (StringUtils.isNotBlank(state)) {
+            parent.setStatus(Integer.valueOf(state));
+        }
         parentService.save(parent);
         // 新增用户
         UserDTO userDTO = new UserDTO();
