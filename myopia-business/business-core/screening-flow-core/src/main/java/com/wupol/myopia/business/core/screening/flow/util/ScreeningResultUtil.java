@@ -1,5 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
+import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
@@ -299,13 +301,13 @@ public class ScreeningResultUtil {
         if (ObjectsUtil.allNotNull(leftNakedVision, rightNakedVision)) {
             // 左眼等效球镜SE
             if (Objects.nonNull(leftSph) && Objects.nonNull(leftCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(leftSph, leftCyl, age, maxType, leftNakedVision);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(leftSph, leftCyl, age, maxType);
                 maxType = result.getFirst();
                 seItems.setOs(result.getSecond());
             }
             // 右眼等效球镜SE
             if (Objects.nonNull(rightSph) && Objects.nonNull(rightCyl)) {
-                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(rightSph, rightCyl, age, maxType, rightNakedVision);
+                TwoTuple<Integer, RefractoryResultItems.Item> result = packageSeItem(rightSph, rightCyl, age, maxType);
                 maxType = result.getFirst();
                 seItems.setOd(result.getSecond());
             }
@@ -324,7 +326,7 @@ public class ScreeningResultUtil {
      * @return TwoTuple<Integer, RefractoryResultItems.Item>
      */
     public static TwoTuple<Integer, RefractoryResultItems.Item> packageSeItem(BigDecimal spn, BigDecimal cyl,
-                                                                              Integer age, Integer maxType, BigDecimal nakedVision) {
+                                                                              Integer age, Integer maxType) {
         RefractoryResultItems.Item sphItems = new RefractoryResultItems.Item();
         // 等效球镜SE
         sphItems.setVision(SEUtil.getSphericalEquivalent(spn, cyl));
@@ -1578,12 +1580,120 @@ public class ScreeningResultUtil {
      * @return TwoTuple<Boolean, String> left-是否建议就诊 right-内容
      */
     public TwoTuple<Boolean, String> getScreeningDoctorAdvice(VisionScreeningResult result, Student student) {
-
         if (Objects.equals(student.getGradeType(), SchoolAge.KINDERGARTEN.code)) {
-
+            return getKindergartenAdvice(result, student);
         }
+        return getPrimarySchoolAndAboveAdvice(result, student);
+    }
+
+    /**
+     * 幼儿园建议
+     */
+    private TwoTuple<Boolean, String> getKindergartenAdvice(VisionScreeningResult result, Student student) {
+        BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
+        BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
+
+        // 裸眼有空的，直接返回
+        if (ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
+            return new TwoTuple<>(ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getIsRecommendDoctor(), ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getSuggestContent());
+        }
+        int age = Objects.nonNull(student.getBirthday()) ? DateUtil.ageOfNow(student.getBirthday()) : 6;
+
+        // 获取裸眼视力低的进行判断
+        BigDecimal nakedVision = BigDecimalUtil.lessThanAndEqual(leftNakedVision, rightNakedVision) ? leftNakedVision : rightNakedVision;
+
+        // 是否标准视力相差2行及以上
+        Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
+
+        if ((age == 4 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.8"))
+                || ((age == 5 || age == 7) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9"))
+                || differenceTwoLines) {
+            return getKindergartenEyeScreeningDoctorAdvice(result, age, differenceTwoLines);
+        }
+        return new TwoTuple<>(ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getIsRecommendDoctor(), ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getSuggestContent());
+    }
+
+    /**
+     * 幼儿园建议
+     */
+    private TwoTuple<Boolean, String> getKindergartenEyeScreeningDoctorAdvice(VisionScreeningResult result, Integer age, Boolean differenceTwoLines) {
+
+        BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
+        BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
+        BigDecimal leftCorrectedVision = EyeDataUtil.leftCorrectedVision(result);
+        BigDecimal rightCorrectedVision = EyeDataUtil.rightCorrectedVision(result);
+        BigDecimal leftCyl = EyeDataUtil.leftCyl(result);
+        BigDecimal leftSpn = EyeDataUtil.leftSph(result);
+        BigDecimal rightCyl = EyeDataUtil.rightCyl(result);
+        BigDecimal rightSpn = EyeDataUtil.rightSph(result);
+
+        // 是否屈光参差
+        Boolean anisometropia = isAnisometropia(leftSpn, rightSpn, leftCyl, rightCyl);
+
+        // 矫正情况
+        Integer kindergartenCorrection = StatUtil.getKindergartenCorrection(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, Boolean.TRUE);
+
+        ScreeningDoctorAdviceEnum left = getEyeKindergartenAdvice(leftCorrectedVision, leftCyl, leftSpn, EyeDataUtil.glassesType(result), kindergartenCorrection, age, differenceTwoLines, anisometropia);
+        ScreeningDoctorAdviceEnum right = getEyeKindergartenAdvice(rightCorrectedVision, rightCyl, rightSpn, EyeDataUtil.glassesType(result), kindergartenCorrection, age, differenceTwoLines, anisometropia);
+        return getHighPriority(left, right);
+    }
+
+    /**
+     * 获取单眼的就诊建议
+     *
+     * @return ScreeningDoctorAdviceEnum
+     */
+    private ScreeningDoctorAdviceEnum getEyeKindergartenAdvice(BigDecimal correctedVision, BigDecimal cyl, BigDecimal spn,
+                                                               Integer glassesType, Integer kindergartenCorrection,
+                                                               Integer age, Boolean differenceTwoLines, Boolean anisometropia) {
+        if (Objects.equals(glassesType, GlassesTypeEnum.NOT_WEARING.code)) {
+            BigDecimal se = SEUtil.getSphericalEquivalent(spn, cyl);
+            if (Objects.isNull(se)) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0;
+            }
+            if (BigDecimalUtil.isBetweenLeft(se, "0.0", "2.0") && BigDecimalUtil.lessThanAndEqual(cyl.abs(), "1.5")) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_9;
+            }
+            if (BigDecimalUtil.lessThan(se, "0.0")) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_10;
+            }
+            if (BigDecimalUtil.moreThan(se, "2.0")
+                    || BigDecimalUtil.moreThan(cyl.abs(), "1.5")
+                    || Objects.equals(anisometropia, Boolean.TRUE)
+                    || Objects.equals(differenceTwoLines, Boolean.TRUE)) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_11;
+            }
+            return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0;
+        }
+        // 已佩戴眼镜
+        if (Objects.equals(kindergartenCorrection, VisionCorrection.UNDER_CORRECTED.code)) {
+            if ((age == 4 && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.8"))
+                    || ((age == 5 || age == 6) && BigDecimalUtil.lessThanAndEqual(correctedVision, "4.9"))) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_7;
+            }
+        }
+        if (Objects.equals(kindergartenCorrection, VisionCorrection.ENOUGH_CORRECTED.code)) {
+            if ((age == 4 && BigDecimalUtil.moreThan(correctedVision, "4.8"))
+                    || ((age == 5 || age == 6) && BigDecimalUtil.moreThan(correctedVision, "4.9"))) {
+                return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_8;
+            }
+        }
+        return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0;
+    }
+
+    /**
+     * 小学以以上获取建议
+     */
+    private static TwoTuple<Boolean, String> getPrimarySchoolAndAboveAdvice(VisionScreeningResult result, Student student) {
         ScreeningDoctorAdviceEnum left = getEyeScreeningDoctorAdvice(EyeDataUtil.leftNakedVision(result), EyeDataUtil.leftCorrectedVision(result), EyeDataUtil.leftCyl(result), EyeDataUtil.leftSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
         ScreeningDoctorAdviceEnum right = getEyeScreeningDoctorAdvice(EyeDataUtil.rightNakedVision(result), EyeDataUtil.rightCorrectedVision(result), EyeDataUtil.rightCyl(result), EyeDataUtil.rightSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
+        return getHighPriority(left, right);
+    }
+
+    /**
+     * 获取优先级高的
+     */
+    private static TwoTuple<Boolean, String> getHighPriority(ScreeningDoctorAdviceEnum left, ScreeningDoctorAdviceEnum right) {
         ScreeningDoctorAdviceEnum doctorAdviceResult = left.getPriority() > right.getPriority() ? left : right;
         return new TwoTuple<>(doctorAdviceResult.getIsRecommendDoctor(), doctorAdviceResult.getSuggestContent());
     }
@@ -1658,4 +1768,16 @@ public class ScreeningResultUtil {
         }
         return ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0;
     }
+
+    /**
+     * 是否屈光参差
+     */
+    private Boolean isAnisometropia(BigDecimal leftSpn, BigDecimal rightSpn, BigDecimal leftCyl, BigDecimal rightCyl) {
+        if (ObjectsUtil.hasNull(leftSpn, rightSpn, leftCyl, rightCyl)) {
+            return false;
+        }
+        return BigDecimalUtil.moreThan(leftSpn.subtract(rightSpn).abs(), "1.5") ||
+                BigDecimalUtil.moreThan(leftCyl.subtract(rightCyl).abs(), "1.5");
+    }
+
 }
