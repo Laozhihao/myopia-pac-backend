@@ -75,7 +75,7 @@ public class SchoolTemplateService {
         } catch (Exception e) {
             String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_ERROR, plan.getTitle(), school.getName());
             noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
-            log.error("导入筛查数据异常", e);
+            log.error("导入筛查数据异常，plan=[{}], school=[{}]", plan.getTitle(), school.getName(), e);
         } finally {
             unLock(plan.getId(), school.getId());
         }
@@ -186,8 +186,8 @@ public class SchoolTemplateService {
 
         if (Objects.isNull(school) || Objects.isNull(plan)) {
             unLock(screeningPlanId, schoolId);
-            log.error("导入筛查数据异常，userId:{}, screeningPlanId:{}, schoolId:{}", userId, screeningPlanId, schoolId);
-            throw new BusinessException("导入筛查数据异常");
+            log.error("【导入筛查数据异常】找不到对应学校或计划，userId:{}, screeningPlanId:{}, schoolId:{}", userId, screeningPlanId, schoolId);
+            throw new BusinessException("【导入筛查数据异常】找不到对应学校或计划");
         }
         return TwoTuple.of(school, plan);
     }
