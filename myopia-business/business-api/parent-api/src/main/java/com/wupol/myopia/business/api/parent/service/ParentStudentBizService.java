@@ -465,6 +465,9 @@ public class ParentStudentBizService {
 
         // 医生建议二
         responseDTO.setDoctorAdvice2(ScreeningResultUtil.getDoctorAdviceDetail(result, student.getGradeType(), age));
+        TwoTuple<Boolean, String> screeningDoctorAdvice = ScreeningResultUtil.getScreeningDoctorAdvice(result, student);
+        responseDTO.setScreeningDoctorAdvice(screeningDoctorAdvice.getFirst());
+        responseDTO.setScreeningDoctorAdviceContent(screeningDoctorAdvice.getSecond());
         if (null != visionData) {
             // 戴镜类型
             responseDTO.setGlassesType(visionData.getLeftEyeData().getGlassesType());
@@ -615,10 +618,9 @@ public class ParentStudentBizService {
     /**
      * 检查是否存在该学生
      *
-     * @param studentInfo   学生信息
-     * @param condition     学生唯一标志
-     * @param name          姓名
-     * @return void
+     * @param studentInfo 学生信息
+     * @param condition   学生唯一标志
+     * @param name        姓名
      **/
     private void checkStudent(Object studentInfo, String condition, String name) {
         if (Objects.isNull(studentInfo)) {
