@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.core.screening.flow.util;
 
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.framework.domain.ThreeTuple;
@@ -695,9 +694,9 @@ public class ScreeningResultUtil {
     /**
      * 获取球镜typeName
      *
-     * @param sph         球镜
-     * @param cyl         柱镜
-     * @param age         年龄
+     * @param sph 球镜
+     * @param cyl 柱镜
+     * @param age 年龄
      * @return TwoTuple<> left-球镜中文 right-预警级别(重新封装的一层)
      */
     public static TwoTuple<String, Integer> getSphTypeName(BigDecimal sph, BigDecimal cyl, Integer age) {
