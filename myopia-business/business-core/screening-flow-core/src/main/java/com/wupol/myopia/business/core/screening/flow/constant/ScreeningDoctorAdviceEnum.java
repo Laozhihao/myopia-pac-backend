@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 public enum ScreeningDoctorAdviceEnum {
 
     SUGGEST_CONTENT_0(null, StringUtils.EMPTY, -1),
-    SUGGEST_CONTENT_1(Boolean.TRUE, "戴镜视力下降，非非弱视者建议及时到医疗机构复查，确定是否需要更换眼镜", 2),
+    SUGGEST_CONTENT_1(Boolean.TRUE, "戴镜视力下降，非弱视者建议及时到医疗机构复查，确定是否需要更换眼镜", 2),
     SUGGEST_CONTENT_2(Boolean.FALSE, "戴镜视力正常。建议：3个月或半年1次检查裸眼视力和戴镜视力", 0),
     SUGGEST_CONTENT_3(Boolean.TRUE, "裸眼远视力下降，视功能可能异常。建议:到医疗机构接受检查，明确诊断并及时采取措施", 2),
     SUGGEST_CONTENT_4(Boolean.TRUE, "裸眼远视力下降，屈光不正筛查阳性。建议：到医疗结构接受检查，明确诊断并及时采取措施", 2),
