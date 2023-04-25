@@ -4,16 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
-import com.wupol.myopia.business.aggregation.screening.service.VisionScreeningBizService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.WearingGlassesSituation;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDTO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateExcel;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateImportEnum;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -21,14 +18,12 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +39,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SchoolTemplateService {
 
-    @Resource
-    private VisionScreeningBizService visionScreeningBizService;
+    private static final String ERROR_MSG = "筛查学生Id为%s，数据错误：%s";
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
@@ -62,42 +56,28 @@ public class SchoolTemplateService {
     @Resource
     private SchoolService schoolService;
 
-    private final static String ERROR_MSG = "筛查学生Id为%s，数据错误：%s";
+    @Autowired
+    private ImportScreeningDataHandler importScreeningDataHandler;
+
 
     /**
      * 导入筛查数据
      *
      * @param templateExcels 筛查数据
+     * @param userId 当前用户ID
+     * @param school 学校
+     * @param plan 筛查计划
      */
-    @Transactional(rollbackFor = Exception.class)
     @Async
-    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId, Integer screeningPlanId, Integer schoolId) {
-
-
-        School school = schoolService.getById(schoolId);
-        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
-
-        if (Objects.isNull(school) || Objects.isNull(plan)) {
-            unLock(screeningPlanId, schoolId);
-            log.error("导入筛查数据异常，userId:{}, screeningPlanId:{}, schoolId:{}", userId, screeningPlanId, schoolId);
-            throw new BusinessException("导入筛查数据异常");
-        }
-
+    public void importSchoolScreeningData(List<SchoolResultTemplateExcel> templateExcels, Integer userId, School school, ScreeningPlan plan) {
         try {
-            templateExcels.forEach(templateExcel -> {
-                generateHeightAndWeight(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
-                generateVisionData(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
-                generateComputerOptometry(templateExcel, plan.getScreeningOrgId(), schoolId, userId);
-            });
-            String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_SUCCESS, plan.getTitle(), school.getName());
-            noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
+            importScreeningDataHandler.action(templateExcels, userId, plan, school);
         } catch (Exception e) {
             String content = String.format(CommonConst.SCHOOL_TEMPLATE_EXCEL_IMPORT_ERROR, plan.getTitle(), school.getName());
             noticeService.createExportNotice(userId, userId, content, content, null, CommonConst.NOTICE_STATION_LETTER);
-            log.error("导入筛查数据异常", e);
-            throw new BusinessException("导入筛查数据异常");
+            log.error("导入筛查数据异常，plan=[{}], school=[{}]", plan.getTitle(), school.getName(), e);
         } finally {
-            unLock(screeningPlanId, schoolId);
+            unLock(plan.getId(), school.getId());
         }
     }
 
@@ -193,91 +173,23 @@ public class SchoolTemplateService {
     }
 
     /**
-     * 生成身高体重信息
+     * 校验计划和学校
      *
-     * @param data     数据
-     * @param orgId    机构Id
-     * @param schoolId 学校Id
-     * @param userId   用户Id
+     * @param userId            用户ID
+     * @param screeningPlanId   计划ID
+     * @param schoolId          学校ID
+     * @return  TwoTuple<School, ScreeningPlan>
      */
-    private void generateHeightAndWeight(SchoolResultTemplateExcel data, Integer orgId, Integer schoolId, Integer userId) {
-        if (StringUtils.isBlank(data.getHeight())) {
-            return;
-        }
-        HeightAndWeightDataDTO heightAndWeightDataDTO = new HeightAndWeightDataDTO();
-        heightAndWeightDataDTO.setHeight(new BigDecimal(data.getHeight()).setScale(1, RoundingMode.DOWN));
-        heightAndWeightDataDTO.setWeight(new BigDecimal(data.getWeight()).setScale(1, RoundingMode.DOWN));
-        heightAndWeightDataDTO.setBmi(heightAndWeightDataDTO.getWeight().divide(heightAndWeightDataDTO.getHeight().multiply(heightAndWeightDataDTO.getHeight()), 1, RoundingMode.DOWN));
-        heightAndWeightDataDTO.setDeptId(orgId);
-        heightAndWeightDataDTO.setCreateUserId(userId);
-        heightAndWeightDataDTO.setPlanStudentId(data.getPlanStudentId());
-        heightAndWeightDataDTO.setSchoolId(String.valueOf(schoolId));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(heightAndWeightDataDTO);
-    }
+    public TwoTuple<School, ScreeningPlan> checkPlanAndSchool(Integer userId, Integer screeningPlanId, Integer schoolId) {
+        School school = schoolService.getById(schoolId);
+        ScreeningPlan plan = screeningPlanService.getById(screeningPlanId);
 
-    /**
-     * 生成视力信息
-     *
-     * @param data     数据
-     * @param orgId    机构Id
-     * @param schoolId 学校Id
-     * @param userId   用户Id
-     */
-    private void generateVisionData(SchoolResultTemplateExcel data, Integer orgId, Integer schoolId, Integer userId) {
-        if (StringUtils.isBlank(data.getGlassesType())) {
-            return;
+        if (Objects.isNull(school) || Objects.isNull(plan)) {
+            unLock(screeningPlanId, schoolId);
+            log.error("【导入筛查数据异常】找不到对应学校或计划，userId:{}, screeningPlanId:{}, schoolId:{}", userId, screeningPlanId, schoolId);
+            throw new BusinessException("【导入筛查数据异常】找不到对应学校或计划");
         }
-        VisionDataDTO visionDataDTO = new VisionDataDTO();
-        visionDataDTO.setRightNakedVision(new BigDecimal(data.getRightNakedVision()));
-        visionDataDTO.setLeftNakedVision(new BigDecimal(data.getLeftNakedVision()));
-        visionDataDTO.setRightCorrectedVision(Objects.isNull(data.getRightCorrection()) ? null : new BigDecimal(data.getRightCorrection()));
-        visionDataDTO.setLeftCorrectedVision(Objects.isNull(data.getLeftCorrection()) ? null : new BigDecimal(data.getLeftCorrection()));
-        visionDataDTO.setIsCooperative(0);
-        visionDataDTO.setDeptId(orgId);
-        visionDataDTO.setCreateUserId(userId);
-        visionDataDTO.setPlanStudentId(data.getPlanStudentId());
-        visionDataDTO.setSchoolId(String.valueOf(schoolId));
-        visionDataDTO.setGlassesType(data.getGlassesType());
-        visionScreeningBizService.saveOrUpdateStudentScreenData(visionDataDTO);
-    }
-
-    /**
-     * 生成电脑验光信息
-     *
-     * @param data     数据
-     * @param orgId    机构Id
-     * @param schoolId 学校Id
-     * @param userId   用户Id
-     */
-    private void generateComputerOptometry(SchoolResultTemplateExcel data, Integer orgId, Integer schoolId, Integer userId) {
-        if (StringUtils.isBlank(data.getRightSph())) {
-            return;
-        }
-        ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-        computerOptometryDTO.setLSph(new BigDecimal(replacePlusChar(data.getLeftSph())));
-        computerOptometryDTO.setLCyl(new BigDecimal(replacePlusChar(data.getLeftCyl())));
-        computerOptometryDTO.setLAxial(new BigDecimal(data.getLeftAxial()));
-        computerOptometryDTO.setRSph(new BigDecimal(replacePlusChar(data.getRightSph())));
-        computerOptometryDTO.setRCyl(new BigDecimal(replacePlusChar(data.getRightCyl())));
-        computerOptometryDTO.setRAxial(new BigDecimal(data.getRightAxial()));
-        computerOptometryDTO.setIsCooperative(0);
-        computerOptometryDTO.setSchoolId(String.valueOf(schoolId));
-        computerOptometryDTO.setDeptId(orgId);
-        computerOptometryDTO.setCreateUserId(userId);
-        computerOptometryDTO.setPlanStudentId(data.getPlanStudentId());
-        computerOptometryDTO.setIsState(0);
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
-    }
-
-    /**
-     * 除去+号
-     *
-     * @param val 值
-     *
-     * @return String
-     */
-    private String replacePlusChar(String val) {
-        return StringUtils.replace(val, "+", "");
+        return TwoTuple.of(school, plan);
     }
 
     /**

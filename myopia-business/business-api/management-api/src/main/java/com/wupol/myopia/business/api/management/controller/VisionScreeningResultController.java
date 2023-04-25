@@ -14,6 +14,8 @@ import com.wupol.myopia.business.aggregation.student.service.StudentFacade;
 import com.wupol.myopia.business.api.management.service.SchoolTemplateService;
 import com.wupol.myopia.business.common.utils.constant.ExportTypeConst;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
+import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.AppStudentCardResponseDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.SchoolResultTemplateExcel;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
@@ -172,7 +174,8 @@ public class VisionScreeningResultController extends BaseController<VisionScreen
             throw new BusinessException("数据为空");
         }
         List<SchoolResultTemplateExcel> schoolResultTemplateExcels = schoolTemplateService.parseExcelData(listMap, screeningPlanId, schoolId);
-        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId(), screeningPlanId, schoolId);
+        TwoTuple<School, ScreeningPlan> schoolAndPlan = schoolTemplateService.checkPlanAndSchool(currentUser.getId(), screeningPlanId, schoolId);
+        schoolTemplateService.importSchoolScreeningData(schoolResultTemplateExcels, currentUser.getId(), schoolAndPlan.getFirst(), schoolAndPlan.getSecond());
     }
 
 }
