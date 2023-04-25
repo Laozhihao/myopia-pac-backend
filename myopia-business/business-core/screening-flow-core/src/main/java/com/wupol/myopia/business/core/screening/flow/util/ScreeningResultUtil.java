@@ -1591,6 +1591,19 @@ public class ScreeningResultUtil {
     private TwoTuple<Boolean, String> getKindergartenAdvice(VisionScreeningResult result, Student student) {
         BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
         BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
+        BigDecimal leftCorrectedVision = EyeDataUtil.leftCorrectedVision(result);
+        BigDecimal rightCorrectedVision = EyeDataUtil.rightCorrectedVision(result);
+        BigDecimal leftCyl = EyeDataUtil.leftCyl(result);
+        BigDecimal leftSpn = EyeDataUtil.leftSph(result);
+        BigDecimal rightCyl = EyeDataUtil.rightCyl(result);
+        BigDecimal rightSpn = EyeDataUtil.rightSph(result);
+        Integer glassesType = EyeDataUtil.glassesType(result);
+
+        if (Objects.equals(glassesType, GlassesTypeEnum.ORTHOKERATOLOGY.code)) {
+            leftNakedVision = leftCorrectedVision;
+            rightNakedVision = rightCorrectedVision;
+        }
+
 
         // 裸眼有空的，直接返回
         if (ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
@@ -1607,7 +1620,7 @@ public class ScreeningResultUtil {
         if ((age == 4 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.8"))
                 || ((age == 5 || age == 7) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9"))
                 || differenceTwoLines) {
-            return getKindergartenEyeScreeningDoctorAdvice(result, age, differenceTwoLines);
+            return getKindergartenEyeScreeningDoctorAdvice(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, leftCyl, leftSpn, rightCyl, rightSpn, glassesType, age, differenceTwoLines);
         }
         return new TwoTuple<>(ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getIsRecommendDoctor(), ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getSuggestContent());
     }
@@ -1615,16 +1628,10 @@ public class ScreeningResultUtil {
     /**
      * 幼儿园建议
      */
-    private TwoTuple<Boolean, String> getKindergartenEyeScreeningDoctorAdvice(VisionScreeningResult result, Integer age, Boolean differenceTwoLines) {
-
-        BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
-        BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
-        BigDecimal leftCorrectedVision = EyeDataUtil.leftCorrectedVision(result);
-        BigDecimal rightCorrectedVision = EyeDataUtil.rightCorrectedVision(result);
-        BigDecimal leftCyl = EyeDataUtil.leftCyl(result);
-        BigDecimal leftSpn = EyeDataUtil.leftSph(result);
-        BigDecimal rightCyl = EyeDataUtil.rightCyl(result);
-        BigDecimal rightSpn = EyeDataUtil.rightSph(result);
+    private TwoTuple<Boolean, String> getKindergartenEyeScreeningDoctorAdvice(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                                                              BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
+                                                                              BigDecimal leftCyl, BigDecimal leftSpn, BigDecimal rightCyl, BigDecimal rightSpn,
+                                                                              Integer glassesType, Integer age, Boolean differenceTwoLines) {
 
         // 是否屈光参差
         Boolean anisometropia = isAnisometropia(leftSpn, rightSpn, leftCyl, rightCyl);
@@ -1632,8 +1639,8 @@ public class ScreeningResultUtil {
         // 矫正情况
         Integer kindergartenCorrection = StatUtil.getKindergartenCorrection(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, Boolean.TRUE);
 
-        ScreeningDoctorAdviceEnum left = getEyeKindergartenAdvice(leftCorrectedVision, leftCyl, leftSpn, EyeDataUtil.glassesType(result), kindergartenCorrection, age, differenceTwoLines, anisometropia);
-        ScreeningDoctorAdviceEnum right = getEyeKindergartenAdvice(rightCorrectedVision, rightCyl, rightSpn, EyeDataUtil.glassesType(result), kindergartenCorrection, age, differenceTwoLines, anisometropia);
+        ScreeningDoctorAdviceEnum left = getEyeKindergartenAdvice(leftCorrectedVision, leftCyl, leftSpn, glassesType, kindergartenCorrection, age, differenceTwoLines, anisometropia);
+        ScreeningDoctorAdviceEnum right = getEyeKindergartenAdvice(rightCorrectedVision, rightCyl, rightSpn, glassesType, kindergartenCorrection, age, differenceTwoLines, anisometropia);
         return getHighPriority(left, right);
     }
 
@@ -1684,8 +1691,16 @@ public class ScreeningResultUtil {
      * 小学以以上获取建议
      */
     private static TwoTuple<Boolean, String> getPrimarySchoolAndAboveAdvice(VisionScreeningResult result, Student student) {
-        ScreeningDoctorAdviceEnum left = getEyeScreeningDoctorAdvice(EyeDataUtil.leftNakedVision(result), EyeDataUtil.leftCorrectedVision(result), EyeDataUtil.leftCyl(result), EyeDataUtil.leftSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
-        ScreeningDoctorAdviceEnum right = getEyeScreeningDoctorAdvice(EyeDataUtil.rightNakedVision(result), EyeDataUtil.rightCorrectedVision(result), EyeDataUtil.rightCyl(result), EyeDataUtil.rightSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
+        BigDecimal leftNakedVision = EyeDataUtil.leftNakedVision(result);
+        BigDecimal leftCorrectedVision = EyeDataUtil.leftCorrectedVision(result);
+        BigDecimal rightNakedVision = EyeDataUtil.rightNakedVision(result);
+        BigDecimal rightCorrectedVision = EyeDataUtil.rightCorrectedVision(result);
+        if (Objects.equals(GlassesTypeEnum.ORTHOKERATOLOGY.code, EyeDataUtil.glassesType(result))) {
+            leftNakedVision = leftCorrectedVision;
+            rightNakedVision = rightCorrectedVision;
+        }
+        ScreeningDoctorAdviceEnum left = getEyeScreeningDoctorAdvice(leftNakedVision, leftCorrectedVision, EyeDataUtil.leftCyl(result), EyeDataUtil.leftSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
+        ScreeningDoctorAdviceEnum right = getEyeScreeningDoctorAdvice(rightNakedVision, rightCorrectedVision, EyeDataUtil.rightCyl(result), EyeDataUtil.rightSph(result), EyeDataUtil.glassesType(result), student.getGradeType());
         return getHighPriority(left, right);
     }
 
