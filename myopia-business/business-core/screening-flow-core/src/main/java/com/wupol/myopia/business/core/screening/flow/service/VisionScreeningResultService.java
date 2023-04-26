@@ -584,7 +584,7 @@ public class VisionScreeningResultService extends BaseService<VisionScreeningRes
     private Student updateManagementStudent(ScreeningPlanSchoolStudent planStudent, Student student) {
         student.setName(planStudent.getStudentName());
         student.setGender(planStudent.getGender());
-        student.setGradeType(planStudent.getStudentAge());
+        student.setGradeType(planStudent.getGradeType());
         student.setBirthday(planStudent.getBirthday());
         student.setSchoolId(planStudent.getSchoolId());
         student.setClassId(planStudent.getClassId());
