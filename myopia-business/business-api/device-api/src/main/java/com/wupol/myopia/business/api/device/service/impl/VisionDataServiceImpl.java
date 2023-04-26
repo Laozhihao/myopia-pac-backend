@@ -65,7 +65,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
         visionDataVOS.forEach(visionDataVO -> {
             ValidatorUtils.validate(visionDataVO);
             Integer planStudentId = Objects.nonNull(visionDataVO.getPlanStudentId()) ? visionDataVO.getPlanStudentId() : ParsePlanStudentUtils.parsePlanStudentId(visionDataVO.getUid());
-            log.info("planStudentId:{}", planStudentId);
             ScreeningPlanSchoolStudent planStudent = deviceUploadDataService.getScreeningPlanSchoolStudent(orgId, planStudentId);
             Long screeningTime = visionDataVO.getScreeningTime();
             // 保存原始数据
