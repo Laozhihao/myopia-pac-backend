@@ -1643,7 +1643,7 @@ public class ScreeningResultUtil {
         Boolean anisometropia = isAnisometropia(leftSpn, rightSpn, leftCyl, rightCyl);
 
         // 矫正情况
-        Integer kindergartenCorrection = StatUtil.getKindergartenCorrection(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, Boolean.TRUE);
+        Integer kindergartenCorrection = StatUtil.getKindergartenCorrection(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, age, !Objects.equals(glassesType, GlassesTypeEnum.NOT_WEARING.code));
 
         ScreeningDoctorAdviceEnum left = getEyeKindergartenAdvice(leftCorrectedVision, leftCyl, leftSpn, glassesType, kindergartenCorrection, age, differenceTwoLines, anisometropia);
         ScreeningDoctorAdviceEnum right = getEyeKindergartenAdvice(rightCorrectedVision, rightCyl, rightSpn, glassesType, kindergartenCorrection, age, differenceTwoLines, anisometropia);
