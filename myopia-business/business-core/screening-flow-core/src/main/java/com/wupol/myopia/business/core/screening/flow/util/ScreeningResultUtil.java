@@ -1580,6 +1580,7 @@ public class ScreeningResultUtil {
      * @param result  筛查结果
      * @param student 学生
      * @return TwoTuple<Boolean, String> left-是否建议就诊 right-内容
+     * @see <a href="https://bovk55z03h.feishu.cn/wiki/wikcn7OeAQSQP72wPYwyDQVVN3e">需求文档</a>
      */
     public TwoTuple<Boolean, String> getScreeningDoctorAdvice(VisionScreeningResult result, Student student) {
         if (Objects.equals(student.getGradeType(), SchoolAge.KINDERGARTEN.code)) {
@@ -1612,7 +1613,6 @@ public class ScreeningResultUtil {
             leftNakedVision = leftCorrectedVision;
             rightNakedVision = rightCorrectedVision;
         }
-
 
         // 裸眼有空的，直接返回
         if (ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
