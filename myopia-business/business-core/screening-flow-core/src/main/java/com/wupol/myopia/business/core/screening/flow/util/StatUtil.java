@@ -453,7 +453,7 @@ public class StatUtil {
                 return kindergartenCorrection(leftNakedVision,rightNakedVision,leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
             }
 
-            if (age >= 5 && age < 7){
+            if (age < 7){
                 String nakedVision = "4.9";
                 return kindergartenCorrection(leftNakedVision,rightNakedVision,leftCorrectVision,rightCorrectVision,isWearGlasses,nakedVision);
             }
@@ -1783,6 +1783,15 @@ public class StatUtil {
             return null;
         }
         return BigDecimalUtil.isBetweenAll(se,MINUS_NEGATIVE_0_5,MINUS_0_5);
+    }
+
+    /**
+     * 获取幼儿园矫正情况
+     */
+    public Integer getKindergartenCorrection(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
+                                             BigDecimal leftCorrectVision, BigDecimal rightCorrectVision,
+                                             Integer age, Boolean isWearGlasses) {
+        return correction(leftNakedVision, rightNakedVision, leftCorrectVision, rightCorrectVision, SchoolEnum.TYPE_KINDERGARTEN.getType(), age, isWearGlasses);
     }
 
 }

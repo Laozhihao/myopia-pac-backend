@@ -50,6 +50,16 @@ public class ScreeningReportDetailDO {
     private String doctorAdvice2;
 
     /**
+     * 筛查报告医生是否建议就诊
+     */
+    private Boolean screeningDoctorAdvice;
+
+    /**
+     * 筛查报告医生建议内容
+     */
+    private String screeningDoctorAdviceContent;
+
+    /**
      * 验光仪检查结果
      */
     private List<RefractoryResultItems> refractoryResultItems;

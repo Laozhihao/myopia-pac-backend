@@ -138,8 +138,7 @@ public class CredentialModificationHandler {
         screeningPlanSchoolStudent.setIdCard(updateStudent.getIdCard());
         screeningPlanSchoolStudent.setPassport(updateStudent.getPassport());
         screeningPlanSchoolStudent.setStudentId(updateStudent.getId());
-        SchoolGrade schoolGrade = schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId());
-        screeningPlanSchoolStudent.setGradeType(GradeCodeEnum.getByName(schoolGrade.getName()).getType());
+        screeningPlanSchoolStudent.setGradeType(updateStudent.getGradeType());
         // 更新筛查结果
         visionScreeningResultService.updatePlanStudentAndVisionResult(screeningPlanService.getById(screeningPlanSchoolStudent.getScreeningPlanId()), Lists.newArrayList(screeningPlanSchoolStudent));
         discardStudent(processResult.getDiscardCredential(), screeningPlanSchoolStudent.getScreeningPlanId());
@@ -232,6 +231,8 @@ public class CredentialModificationHandler {
         if (StringUtils.isNotBlank(updatePlanStudentRequestDTO.getSno())) {
             student.setSno(updatePlanStudentRequestDTO.getSno());
         }
+        SchoolGrade schoolGrade = schoolGradeService.getById(updatePlanStudentRequestDTO.getGradeId());
+        student.setGradeType(GradeCodeEnum.getByName(schoolGrade.getName()).getType());
         studentService.updateStudent(student);
         return student;
     }
