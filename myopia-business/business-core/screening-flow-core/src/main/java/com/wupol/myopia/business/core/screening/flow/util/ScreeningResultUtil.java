@@ -1068,6 +1068,9 @@ public class ScreeningResultUtil {
     private BigDecimal kindergartenHaveGlassesResult(BigDecimal leftNakedVision, BigDecimal rightNakedVision,
                                                      BigDecimal leftCorrectedVision, BigDecimal rightCorrectedVision,
                                                      Integer age, String targetVision) {
+        if (ObjectsUtil.hasNull(leftNakedVision, rightNakedVision)) {
+            return null;
+        }
         Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
         if (ObjectsUtil.allNotNull(leftCorrectedVision, rightCorrectedVision) && BigDecimalUtil.isAllLessThanAndEqual(leftNakedVision, rightNakedVision, targetVision)) {
             if (BigDecimalUtil.lessThanAndEqual(leftCorrectedVision, rightCorrectedVision)) {
