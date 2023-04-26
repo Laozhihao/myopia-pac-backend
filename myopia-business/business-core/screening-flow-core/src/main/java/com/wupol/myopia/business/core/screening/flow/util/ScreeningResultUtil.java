@@ -1586,7 +1586,7 @@ public class ScreeningResultUtil {
                 || Objects.equals(student.getGradeType(), SchoolAge.JUNIOR.code)
                 || Objects.equals(student.getGradeType(), SchoolAge.HIGH.code)
                 || Objects.equals(student.getGradeType(), SchoolAge.VOCATIONAL_HIGH.code)) {
-            return getKindergartenAdvice(result, student);
+            return getPrimarySchoolAndAboveAdvice(result, student);
         }
         return new TwoTuple<>(ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getIsRecommendDoctor(), ScreeningDoctorAdviceEnum.SUGGEST_CONTENT_0.getSuggestContent());
     }
