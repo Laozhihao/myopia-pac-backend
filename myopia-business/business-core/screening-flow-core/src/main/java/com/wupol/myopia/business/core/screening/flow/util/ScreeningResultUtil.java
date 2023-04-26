@@ -1627,7 +1627,7 @@ public class ScreeningResultUtil {
         Boolean differenceTwoLines = isDifferenceTwoLines(leftNakedVision, rightNakedVision);
 
         if ((age == 4 && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.8"))
-                || ((age == 5 || age == 7) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9"))
+                || ((age == 5 || age == 6) && BigDecimalUtil.lessThanAndEqual(nakedVision, "4.9"))
                 || differenceTwoLines) {
             return getKindergartenEyeScreeningDoctorAdvice(leftNakedVision, rightNakedVision, leftCorrectedVision, rightCorrectedVision, leftCyl, leftSpn, rightCyl, rightSpn, glassesType, age, differenceTwoLines);
         }
