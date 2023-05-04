@@ -549,7 +549,7 @@ public class SchoolBizService {
         List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
                 .map(school -> {
                     ScreeningSchoolOrgVO screeningSchoolOrgVO = ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(), school.getName(), null);
-                    if (Objects.nonNull(query.getTaskId())) {
+                    if (Objects.nonNull(query.getTaskId()) && !Objects.equals(query.getTaskId(), 0)) {
                         screeningSchoolOrgVO.setIsAlreadyExistsTask(taskOrgIds.contains(screeningSchoolOrgVO.getId()));
                     }
                     return screeningSchoolOrgVO;
@@ -594,7 +594,7 @@ public class SchoolBizService {
      * @return 机构Id
      */
     private List<Integer> getOrgList(Integer taskId) {
-        if (Objects.isNull(taskId)) {
+        if (Objects.isNull(taskId) || Objects.equals(taskId, 0)) {
             return new ArrayList<>();
         }
         List<Integer> schoolIds = screeningTaskOrgService.getOrgIdByTaskIdAndType(taskId, ScreeningOrgTypeEnum.SCHOOL.getType());
