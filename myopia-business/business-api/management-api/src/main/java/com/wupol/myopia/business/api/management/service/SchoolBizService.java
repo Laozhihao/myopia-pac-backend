@@ -120,11 +120,13 @@ public class SchoolBizService {
         // 获取已有计划的学校ID列表
         List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQueryDTO);
 
-        List<Integer> taskOrgIds = getOrgList(schoolQueryDTO.getTaskId());
+        Integer taskId = schoolQueryDTO.getTaskId();
+        List<Integer> taskOrgIds = getOrgList(taskId);
         // set alreadyHavePlan
         simpleSchoolList.forEach(school -> {
             school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
-            if (Objects.nonNull(schoolQueryDTO.getTaskId())) {
+            // 排除单点的
+            if (Objects.nonNull(taskId) && !Objects.equals(taskId, 0)) {
                 school.setIsAlreadyExistsTask(taskOrgIds.contains(school.getId()));
             }
         });
