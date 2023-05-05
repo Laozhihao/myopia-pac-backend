@@ -56,6 +56,16 @@ public class EyeDataUtil {
     }
 
     /**
+     * 左眼轴位
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return 左眼轴位
+     */
+    public static String computerLeftAxialEmpty(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getLeftEyeData).map(ComputerOptometryDO.ComputerOptometry::getAxial).map(x -> x.setScale(0, RoundingMode.DOWN).toString()).orElse(StringUtils.EMPTY);
+    }
+
+    /**
      * 右眼轴位
      *
      * @param visionScreeningResult 筛查数据
@@ -63,6 +73,16 @@ public class EyeDataUtil {
      */
     public static String computerRightAxial(VisionScreeningResult visionScreeningResult) {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getAxial).map(x -> x.setScale(0, RoundingMode.DOWN).toString()).orElse(EMPTY_DATA);
+    }
+
+    /**
+     * 右眼轴位
+     *
+     * @param visionScreeningResult 筛查数据
+     * @return 右眼轴位
+     */
+    public static String computerRightAxialEmpty(VisionScreeningResult visionScreeningResult) {
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getAxial).map(x -> x.setScale(0, RoundingMode.DOWN).toString()).orElse(StringUtils.EMPTY);
     }
 
     /**
