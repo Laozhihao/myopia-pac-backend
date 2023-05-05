@@ -102,8 +102,8 @@ public class ShangHaiDataSubmitService implements IDataSubmitService {
             exportDTO.setRightSph(EyeDataUtil.spliceSymbol(EyeDataUtil.rightSph(result)));
             exportDTO.setLeftCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.leftCyl(result)));
             exportDTO.setRightCyl(EyeDataUtil.spliceSymbol(EyeDataUtil.rightCyl(result)));
-            exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxial(result));
-            exportDTO.setRightAxial(EyeDataUtil.computerRightAxial(result));
+            exportDTO.setLeftAxial(EyeDataUtil.computerLeftAxialEmpty(result));
+            exportDTO.setRightAxial(EyeDataUtil.computerRightAxialEmpty(result));
             if (Objects.equals(EyeDataUtil.glassesType(result), GlassesTypeEnum.ORTHOKERATOLOGY.getCode())) {
                 exportDTO.setIsOkGlasses("0");
             } else {
