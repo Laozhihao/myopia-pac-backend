@@ -6,7 +6,6 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.ScreeningDataFormatUtils;
 import com.wupol.myopia.business.aggregation.screening.constant.DataSubmitTypeEnum;
 import com.wupol.myopia.business.aggregation.screening.service.data.submit.IDataSubmitService;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ShangHaiDataSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ShangHaiHealthCommissionSubmitExportDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.util.EyeDataUtil;
@@ -28,7 +27,7 @@ import java.util.function.Function;
 public class ShangHaiHealthCommissionDataSubmitService implements IDataSubmitService {
     private final static Integer CREDENTIALS_INDEX = 6;
 
-    private final static String DEFAULT_VALUE = "9";
+    private final static String DEFAULT_VALUE = StringUtils.EMPTY;
 
     @Resource
     private CommonDataSubmitService commonDataSubmitService;
@@ -53,7 +52,7 @@ public class ShangHaiHealthCommissionDataSubmitService implements IDataSubmitSer
 
     @Override
     public Class<?> getExportClass() {
-        return ShangHaiDataSubmitExportDTO.class;
+        return ShangHaiHealthCommissionSubmitExportDTO.class;
     }
 
     @Override
