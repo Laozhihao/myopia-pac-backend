@@ -217,11 +217,11 @@ public class ScreeningAreaReportService {
         kindergarten.setInsufficientFarsightednessReserve(new CountAndProportion(insufficientCount, BigDecimalUtil.divide(insufficientCount, validCount)));
 
         // 是否屈光参差
-        long anisometropiaCount = statConclusions.stream().filter(StatConclusion::getIsAnisometropia).count();
+        long anisometropiaCount = statConclusions.stream().filter(s -> Objects.equals(s.getIsAnisometropia(), Boolean.TRUE)).count();
         kindergarten.setAnisometropia(new CountAndProportion(anisometropiaCount, BigDecimalUtil.divide(anisometropiaCount, validCount)));
 
         // 屈光不正
-        long refractiveErrorCount = statConclusions.stream().filter(StatConclusion::getIsRefractiveError).count();
+        long refractiveErrorCount = statConclusions.stream().filter(s -> Objects.equals(s.getIsRefractiveError(), Boolean.TRUE)).count();
         kindergarten.setRefractiveError(new CountAndProportion(refractiveErrorCount, BigDecimalUtil.divide(refractiveErrorCount, validCount)));
         return kindergarten;
     }
