@@ -183,6 +183,20 @@ public class ScreeningDataFormatUtils {
     }
 
     /**
+     * 生成单眼度数String，后缀为°
+     *
+     * @param val 值
+     * @return String
+     */
+    public static String generateSingleEyeDegreeEmpty(Object val) {
+        String s = generateSingleEyeDegree(val);
+        if (StringUtils.equals(s, EMPTY_RESULT)) {
+            return StringUtils.EMPTY;
+        }
+        return s;
+    }
+
+    /**
      * 单眼后缀为D
      *
      * @param val 值
@@ -198,6 +212,20 @@ public class ScreeningDataFormatUtils {
             return formatVal + "D";
         }
         return EMPTY_RESULT;
+    }
+
+    /**
+     * 单眼后缀为D
+     *
+     * @param val 值
+     * @return String
+     */
+    public static String generateSingleSuffixDStrEmpty(Object val) {
+        String s = generateSingleSuffixDStr(val);
+        if (StringUtils.equals(s,EMPTY_RESULT)) {
+            return StringUtils.EMPTY;
+        }
+        return s;
     }
 
     /**
