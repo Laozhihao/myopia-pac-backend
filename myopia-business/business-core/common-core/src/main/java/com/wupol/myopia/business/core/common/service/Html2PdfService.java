@@ -169,7 +169,7 @@ public class Html2PdfService {
             config.setDisplayHeaderFooter(true);
             config.setFooterTemplate("<div style='font-size: 8px; text-align: right; width: 95%;'><span>致远青眸-儿童青少年近视防控平台</span> <span class='pageNumber' style='display: inline-block; margin-left: 5px'></span> - <span class='totalPages'></span></div>");
             config.setSelector(".layout");
-            config.setTimeout(300000);
+            config.setTimeout(180000);
         }else {
             config.setDisplayHeaderFooter(false);
             config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
