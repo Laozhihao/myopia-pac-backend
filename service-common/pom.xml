@@ -108,6 +108,12 @@
             <artifactId>sentry-log4j2</artifactId>
             <version>${sentry.version}</version>
         </dependency>
+        <!-- MinIO -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.2</version>
+        </dependency>
 
         <!-- HuTool -->
         <dependency>

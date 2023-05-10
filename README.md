@@ -15,7 +15,7 @@
 - 服务远程调用：Openfeign
 - 服务负载均衡：Ribbon
 - 依赖：spring-cloud Hoxton.SR12、spring-cloud-alibaba 2.2.7.RELEASE
-- 对象存储服务：AWS S3
+- 对象存储服务：AWS S3、MinIO
 
 ## 系统架构
 
