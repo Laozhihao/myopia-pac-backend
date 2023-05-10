@@ -20,4 +20,24 @@ public class UploadConfig {
     private String staticPrefix;
     private String staticHost;
     private Integer expiredHours;
+
+    /**
+     * 端点
+     */
+    private String endpoint;
+
+    /**
+     * 访问key
+     */
+    private String accesskey;
+
+    /**
+     * 密码key
+     */
+    private String secretKey;
+
+    /**
+     * 地区
+     */
+    private String region;
 }
