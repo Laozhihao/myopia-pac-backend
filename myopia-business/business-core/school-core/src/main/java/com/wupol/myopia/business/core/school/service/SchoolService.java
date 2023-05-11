@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.wupol.myopia.base.constant.CooperationTypeEnum;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -598,13 +599,14 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
      * @param districtIds
      */
     public IPage<School> listByCondition(PageRequest pageRequest, ScreeningSchoolOrgDTO query, List<Integer> districtIds,Date startTime,Date endTime){
-        Page page = pageRequest.toPage();
+        Page<School> page = pageRequest.getPage();
         LambdaQueryWrapper<School> queryWrapper = Wrappers.lambdaQuery(School.class)
                 .in(School::getDistrictId, districtIds)
                 .like(StrUtil.isNotBlank(query.getName()),School::getName,query.getName())
                 .in(CollUtil.isNotEmpty(query.getIds()), School::getId, query.getIds())
                 .ge(Objects.nonNull(startTime),School::getCooperationEndTime,startTime)
-                .lt(Objects.nonNull(endTime),School::getCooperationStartTime,endTime);
+                .lt(Objects.nonNull(endTime),School::getCooperationStartTime,endTime)
+                .ne(School::getCooperationType, CooperationTypeEnum.COOPERATION_TYPE_TEST.getType());
         return baseMapper.selectPage(page,queryWrapper);
     }
 }

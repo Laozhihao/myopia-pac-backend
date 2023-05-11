@@ -206,6 +206,9 @@ public class ScreeningOrganizationController {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
         }
+        if (user.isGovDeptUser()) {
+            query.setNotShowTestData(Boolean.TRUE);
+        }
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 

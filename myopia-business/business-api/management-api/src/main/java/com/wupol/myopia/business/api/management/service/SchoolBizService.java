@@ -230,6 +230,11 @@ public class SchoolBizService {
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
 
+
+        if (currentUser.isGovDeptUser()) {
+            schoolQueryDTO.setNotShowTestData(Boolean.TRUE);
+        }
+
         if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
                 && currentUser.isOverviewUser()
                 && CollectionUtils.isEmpty(overviewService.getBindSchool(currentUser.getOrgId()))) {

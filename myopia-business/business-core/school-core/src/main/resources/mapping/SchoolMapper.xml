@@ -142,6 +142,9 @@
                 </foreach>
             </if>
         </if>
+        <if test="query.notShowTestData != null and query.notShowTestData == true">
+            and ms.cooperation_type != 2
+        </if>
         order by ms.create_time desc
     </select>
 
