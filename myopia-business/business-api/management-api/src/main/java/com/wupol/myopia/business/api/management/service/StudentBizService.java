@@ -49,7 +49,6 @@ import com.wupol.myopia.business.core.screening.flow.util.ScreeningResultUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -85,26 +84,28 @@ public class StudentBizService {
     @Resource
     private VistelToolsService vistelToolsService;
 
-    @Autowired
+    @Resource
     private HospitalDoctorService hospitalDoctorService;
 
-    @Autowired
+    @Resource
     private ResourceFileService resourceFileService;
 
-    @Autowired
+    @Resource
     private MedicalReportBizService medicalReportBizService;
 
-    @Autowired
+    @Resource
     private StudentFacade studentFacade;
 
-    @Autowired
+    @Resource
     private SchoolStudentService schoolStudentService;
-    @Autowired
+
+    @Resource
     private SchoolStudentFacade schoolStudentFacade;
-    @Autowired
+
+    @Resource
     private SchoolStudentExcelImportService schoolStudentExcelImportService;
 
-    @Autowired
+    @Resource
     private UserQuestionRecordService userQuestionRecordService;
 
     /**
@@ -240,7 +241,7 @@ public class StudentBizService {
      * @return List<MedicalReportDO>
      */
     public IPage<ReportAndRecordDO> getReportList(PageRequest pageRequest, Integer studentId, CurrentUser currentUser, Integer hospitalId) {
-        if (!currentUser.isPlatformAdminUser()) {
+        if (currentUser.isHospitalUser()) {
             hospitalId = currentUser.getOrgId();
         }
         IPage<ReportAndRecordDO> pageReport = medicalReportService.getByStudentIdWithPage(pageRequest, studentId, hospitalId);
