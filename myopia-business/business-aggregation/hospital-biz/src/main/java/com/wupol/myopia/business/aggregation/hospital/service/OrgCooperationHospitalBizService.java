@@ -65,7 +65,7 @@ public class OrgCooperationHospitalBizService {
         String address = districtService.getAddressByCode(hospital.getProvinceCode(), hospital.getCityCode(),
                 hospital.getAreaCode(), hospital.getTownCode());
         if (StringUtils.isNotBlank(address)) {
-            suggestHospitalDTO.setAddress(address);
+            suggestHospitalDTO.setAddress(address + hospital.getAddress());
         } else {
             suggestHospitalDTO.setAddress(districtService.getDistrictName(hospital.getDistrictDetail()));
         }
