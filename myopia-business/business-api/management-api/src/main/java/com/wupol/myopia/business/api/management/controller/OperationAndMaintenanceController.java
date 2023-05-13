@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.controller;
 
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.business.aggregation.screening.service.StatConclusionBizService;
+import com.wupol.myopia.business.aggregation.screening.service.XinJiangService;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.api.management.service.NoticeLinkService;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
@@ -41,6 +43,8 @@ public class OperationAndMaintenanceController {
     private StatisticScheduledTaskService statisticScheduledTaskService;
     @Autowired
     private NoticeLinkService noticeLinkService;
+    @Autowired
+    private XinJiangService xinJiangService;
 
     /**
      * 触发大屏统计
@@ -120,5 +124,16 @@ public class OperationAndMaintenanceController {
         CompletableFuture.runAsync(() -> noticeLinkService.handleErrorLinkList(), asyncServiceExecutor);
     }
 
+    /**
+     * 同步数据到新疆
+     *
+     * @param planId    筛查计划ID
+     * @param schoolId  学校ID
+     * @return void
+     **/
+    @GetMapping("/syncDataToXinJiang")
+    public void syncDataToXinJiang(@NotNull(message = "planId不能为空") Integer planId, Integer schoolId) {
+        xinJiangService.syncDataToXinJiang(planId, schoolId);
+    }
 
 }
