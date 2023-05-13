@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author hang.yuan 2022/6/21 19:03
  */
+@Validated
 @Log4j2
 @ResponseResultBody
 @CrossOrigin

@@ -96,10 +96,8 @@ public class XinJiangService {
     public void syncDataToXinJiang(Integer planId, Integer schoolId) {
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "不存在该计划");
-        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdAndSchoolId(planId, schoolId);
-        if (visionScreeningResultList.isEmpty()) {
-            return;
-        }
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.findByList(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId).setIsDoubleScreen(false));
+        Assert.isTrue(!visionScreeningResultList.isEmpty(), "没有需要同步的数据");
         // TODO：临时处理
         plan.setYear(2023).setTime(4);
         for (VisionScreeningResult visionScreeningResult : visionScreeningResultList) {
