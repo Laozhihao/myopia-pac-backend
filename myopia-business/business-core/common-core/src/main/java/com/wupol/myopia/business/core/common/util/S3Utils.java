@@ -31,6 +31,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 public final class S3Utils {
+
     @Autowired
     private S3Client s3Client;
     @Autowired
@@ -40,20 +41,6 @@ public final class S3Utils {
     @Autowired
     private ResourceFileService resourceFileService;
 
-    public static final String CACHE_IMAGE_PREFIX = "cache_image_";
-    public static final String CACHE_FILE_PREFIX = "cache_file_";
-    /**
-     * 默认是1个小时
-     */
-    public static final Long URL_DEFAULT_SECONDS =  60 * 60L;
-    /**
-     * 6个小时
-     */
-    public static final Long URL_SIX_HOURS_EXPIRATION = 6 * 60 * 60L;
-    /**
-     * 1天
-     */
-    public static final Long URL_ONE_DAY_HOURS_EXPIRATION = 24 * 60 * 60L;
     /**
      * 已发布的pdf报告路径
      */
@@ -84,13 +71,12 @@ public final class S3Utils {
         }
         File file = new File(fileTempPath);
         s3Client.uploadFile(bucket, key, file);
-        String host = uploadConfig.getStaticHost();
         try {
             FileUtils.forceDelete(file);
         } catch (Exception e) {
             log.error("UploadS3上传完成，删除缓存文件失败", e);
         }
-        return String.format(S3_STATIC_KEY_FORMAT, host, key);
+        return s3Client.generatePublicUrl(bucket, key);
     }
 
     /**
@@ -203,7 +189,7 @@ public final class S3Utils {
         Date expire = DateUtil.getRecentDate(expiredHours);
         try {
             String resourceS3Url = s3Client.getResourceS3Url(bucketName, s3Key, responseHeaderOverrides, expire);
-            redisUtil.set(key, resourceS3Url, expiredHours * 60l * 60);
+            redisUtil.set(key, resourceS3Url, expiredHours * 60L * 60);
             return resourceS3Url;
         } catch (UtilException e) {
             log.error(String.format("获取文件链接失败, bucket: %s, key: %s", bucketName, key));

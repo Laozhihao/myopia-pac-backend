@@ -135,10 +135,11 @@ upload:
   prefix: vistel-appdata-myopia/upload
   # 静态文件上传S3的prefix，该目录的链接要求不会过期
   staticPrefix: vistel-appdata-myopia/public
-  # 静态文件访问的host
-  staticHost: https://vistel-development.s3.cn-northwest-1.amazonaws.com.cn
+  # 地址（用S3服务的时候为空，用minio则必填）
+  endpoint: http://127.0.0.1:9000
   # S3链接失效时间（小时）
   expiredHours: 2
+  # 地区
   region: cn-northwest-1
 
 ### 微信相关

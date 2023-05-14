@@ -1,7 +1,11 @@
 package com.wupol.myopia.business.core.common.service;
 
 import com.alibaba.fastjson.JSON;
-import com.wupol.myopia.base.domain.PdfRequestDTO;
+import com.vistel.framework.nodejs.pdf.client.NodeJSPdfGeneratorBusinessClient;
+import com.vistel.framework.nodejs.pdf.domain.dto.config.PageConfig;
+import com.vistel.framework.nodejs.pdf.domain.dto.config.PageMargin;
+import com.vistel.framework.nodejs.pdf.domain.dto.request.PdfHttpCallbackRequestDto;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import lombok.extern.log4j.Log4j2;
@@ -14,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -49,6 +54,9 @@ public class Html2PdfService {
     @Value("${report.pdf.callbackUrl}")
     private String callbackUrl;
 
+    @Resource
+    private NodeJSPdfGeneratorBusinessClient nodeJSPdfGeneratorBusinessClient;
+
     /**
      * 异步导出PDF
      *
@@ -56,9 +64,9 @@ public class Html2PdfService {
      * @param fileName 文件名
      * @param uuid     uuid
      */
-    public PdfResponseDTO asyncGeneratorPDF(String url, String fileName, String uuid) {
-        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid, Boolean.TRUE);
-        return restTemplate.postForObject(asyncRequestUrl, request, PdfResponseDTO.class);
+    public PdfGenerateResponse asyncGeneratorPDF(String url, String fileName, String uuid) {
+        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, Boolean.TRUE);
+        return nodeJSPdfGeneratorBusinessClient.asyncGeneratePdfWithPresignedUrl(pdfHttpCallbackRequestDto);
     }
 
     /**
@@ -107,9 +115,9 @@ public class Html2PdfService {
      */
     public PdfResponseDTO syncGeneratorPDF(String url, String fileName, String uuid) {
         log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
-        HttpEntity<String> request = getStringHttpEntity(url, fileName, uuid);
-        log.info("【请求node-js服务】：{}", JSON.toJSONString(request));
-        log.info("【syncRequestUrl】：{}", syncRequestUrl);
+        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid);
+        log.info("【请求node-js服务】：{}", JSON.toJSONString(pdfHttpCallbackRequestDto));
+        nodeJSPdfGeneratorBusinessClient.syncGeneratePdf()
         return restTemplate.postForObject(syncRequestUrl, request, PdfResponseDTO.class);
     }
 
@@ -140,6 +148,47 @@ public class Html2PdfService {
         return getStringHttpEntity(url,fileName,uuid,Boolean.FALSE);
     }
 
+    private PdfHttpCallbackRequestDto getPdfHttpCallbackRequestDto(String url, String fileName, String uuid) {
+        return getPdfHttpCallbackRequestDto(url,fileName,uuid,Boolean.FALSE);
+    }
+
+        /**
+         * 生成请求参数
+         *
+         * @param url      文件URL
+         * @param fileName 文件名
+         * @param uuid     uuid
+         * @param isReport   是否是视力分析或者常见病5份大报告
+         * @return PdfHttpCallbackRequestDto
+         */
+    private PdfHttpCallbackRequestDto getPdfHttpCallbackRequestDto(String url, String fileName, String uuid, Boolean isReport) {
+        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = new PdfHttpCallbackRequestDto();
+        pdfHttpCallbackRequestDto.setUrl(url);
+        pdfHttpCallbackRequestDto.setOutput(fileName);
+        pdfHttpCallbackRequestDto.setBucket(bucket);
+        pdfHttpCallbackRequestDto.setRegion(region);
+        pdfHttpCallbackRequestDto.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + uuid + "/");
+        pdfHttpCallbackRequestDto.setUuid(uuid);
+        // 90秒
+        pdfHttpCallbackRequestDto.setTimeout(90);
+        pdfHttpCallbackRequestDto.setCallbackUrl(callbackUrl);
+
+        PageConfig config = new PageConfig();
+        config.setSize("a4");
+        config.setHeaderTemplate("<div></div>");
+        config.setMargin(new PageMargin().setBottom("10cm"));
+        if (Objects.equals(isReport, Boolean.TRUE)){
+            config.setDisplayHeaderFooter(true);
+            config.setFooterTemplate("<div style='font-size: 8px; text-align: right; width: 95%;'><span>致远青眸-儿童青少年近视防控平台</span> <span class='pageNumber' style='display: inline-block; margin-left: 5px'></span> - <span class='totalPages'></span></div>");
+            config.setSelector(".layout");
+        }else {
+            config.setDisplayHeaderFooter(false);
+            config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
+        }
+        pdfHttpCallbackRequestDto.setConfig(config);
+        return pdfHttpCallbackRequestDto;
+    }
+
     /**
      * 生成请求参数
      *
@@ -150,33 +199,9 @@ public class Html2PdfService {
      * @return HttpEntity<String>
      */
     private HttpEntity<String> getStringHttpEntity(String url, String fileName, String uuid,Boolean report) {
-        PdfRequestDTO requestDTO = new PdfRequestDTO();
-        requestDTO.setUrl(url);
-        requestDTO.setOutput(fileName);
-        requestDTO.setBucket(bucket);
-
-        requestDTO.setRegion(region);
-        requestDTO.setKeyPrefix(prefix + "/" + DateFormatUtil.format(new Date(), DateFormatUtil.FORMAT_ONLY_DATE) + "/" + uuid + "/");
-        requestDTO.setUuid(uuid);
-        requestDTO.setTimeout(90);
-        requestDTO.setCallbackUrl(callbackUrl);
-
-        PdfRequestDTO.Config config = new PdfRequestDTO.Config();
-        config.setSize("a4");
-        config.setHeaderTemplate("<div></div>");
-        config.setMargin("{ \"bottom\": \"10cm\"}");
-        if (Objects.equals(report,Boolean.TRUE)){
-            config.setDisplayHeaderFooter(true);
-            config.setFooterTemplate("<div style='font-size: 8px; text-align: right; width: 95%;'><span>致远青眸-儿童青少年近视防控平台</span> <span class='pageNumber' style='display: inline-block; margin-left: 5px'></span> - <span class='totalPages'></span></div>");
-            config.setSelector(".layout");
-            config.setTimeout(180000);
-        }else {
-            config.setDisplayHeaderFooter(false);
-            config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
-        }
-        requestDTO.setConfig(config);
+        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, report);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(JSON.toJSONString(requestDTO), httpHeaders);
+        return new HttpEntity<>(JSON.toJSONString(pdfHttpCallbackRequestDto), httpHeaders);
     }
 }

@@ -4,9 +4,9 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.cache.RedisUtil;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.domain.vo.PDFRequestDTO;
 import com.wupol.myopia.base.domain.vo.PdfGeneratorVO;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -221,8 +221,8 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      */
     private List<PDFRequestDTO.Item> requestHtml2Pdf(List<PDFRequestDTO.Item> items, String key) {
         return items.stream().map(item -> {
-            PdfResponseDTO pdfResponseDTO = html2PdfService.asyncGeneratorPDF(item.getUrl(), org.apache.commons.lang3.StringUtils.substringAfterLast(item.getFileName(), StrUtil.SLASH), Paths.get(key, item.getFileName()).toString());
-            if (Objects.equals(pdfResponseDTO.getStatus(), Boolean.FALSE)) {
+            PdfGenerateResponse pdfResponse = html2PdfService.asyncGeneratorPDF(item.getUrl(), org.apache.commons.lang3.StringUtils.substringAfterLast(item.getFileName(), StrUtil.SLASH), Paths.get(key, item.getFileName()).toString());
+            if (Objects.equals(pdfResponse.getStatus(), Boolean.FALSE)) {
                 return item;
             }
             return null;
