@@ -218,6 +218,7 @@ public class HospitalController {
     public void getHospitalExportData(Integer districtId) throws IOException {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
+                        .setNotShowTestData(currentUser.isGovDeptUser() ? Boolean.TRUE : Boolean.FALSE)
                         .setApplyExportFileUserId(currentUser.getId())
                         .setDistrictId(districtId),
                 ExportExcelServiceNameConstant.HOSPITAL_EXCEL_SERVICE);
