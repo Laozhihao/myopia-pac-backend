@@ -5,7 +5,10 @@ import com.wupol.myopia.base.util.BigDecimalUtil;
 import com.wupol.myopia.base.util.SEUtil;
 import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
-import com.wupol.myopia.business.core.screening.flow.domain.dos.*;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.ComputerOptometryDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.DeviationDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
+import com.wupol.myopia.business.core.screening.flow.domain.dos.VisionDataDO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import lombok.experimental.UtilityClass;
@@ -33,6 +36,7 @@ public class EyeDataUtil {
 
     /**
      * 戴镜类型(正常情况下，两个眼睛要么同时有带镜类型数据，要么同时没有)
+     *
      * @param visionScreeningResult 筛查结果
      * @return 戴镜类型
      */
@@ -134,14 +138,17 @@ public class EyeDataUtil {
 
     /**
      * 右眼球镜
+     *
      * @param visionScreeningResult 筛查数据
      * @return 右眼球镜
      */
     public static String computerRightSph(VisionScreeningResult visionScreeningResult) {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData).map(ComputerOptometryDO.ComputerOptometry::getSph).map(EyeDataUtil::setSphCyl).orElse(EMPTY_DATA);
     }
+
     /**
      * 右眼球镜非空验证
+     *
      * @param visionScreeningResult 筛查数据
      * @return 右眼球镜非空验证
      */
@@ -181,12 +188,12 @@ public class EyeDataUtil {
         return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData).map(VisionDataDO.VisionData::getNakedVision).map(x -> x.setScale(1, RoundingMode.DOWN).toString()).orElse(null);
     }
 
-    private static String setSphCyl(BigDecimal bigDecimal){
+    private static String setSphCyl(BigDecimal bigDecimal) {
         if (Objects.isNull(bigDecimal)) {
             return EMPTY_DATA;
         }
         int r = bigDecimal.compareTo(BigDecimal.ZERO);
-        if (r >= 0){
+        if (r >= 0) {
             return "+" + bigDecimal.setScale(2, RoundingMode.DOWN);
         }
         return bigDecimal.setScale(2, RoundingMode.DOWN).toString();
@@ -194,142 +201,161 @@ public class EyeDataUtil {
 
     /**
      * 获取右眼裸视力
+     *
      * @param visionScreeningResult 筛查结果
      * @return 右眼裸视力
      */
     public static BigDecimal rightNakedVision(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getNakedVision) .orElse(null);
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getNakedVision).orElse(null);
     }
 
     /**
      * 获取左眼裸视力
+     *
      * @param visionScreeningResult 筛查结果
      * @return 左眼裸视力
      */
     public static BigDecimal leftNakedVision(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getLeftEyeData)
-                .map(VisionDataDO.VisionData::getNakedVision) .orElse(null);
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData)
+                .map(VisionDataDO.VisionData::getNakedVision).orElse(null);
     }
 
     /**
      * 获取右眼裸视力
+     *
      * @param visionScreeningResult 筛查结果
      * @return 右眼戴镜视力
      */
     public static BigDecimal rightCorrectedVision(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getCorrectedVision) .orElse(null);
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
     }
 
     /**
      * 获取左眼裸视力
+     *
      * @param visionScreenResult 筛查结果
      * @return 左眼戴镜视力
      */
     public static BigDecimal leftCorrectedVision(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getLeftEyeData)
-                .map(VisionDataDO.VisionData::getCorrectedVision) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData)
+                .map(VisionDataDO.VisionData::getCorrectedVision).orElse(null);
     }
 
     /**
      * 获取右眼夜戴角膜塑形镜的度数
+     *
      * @param visionScreeningResult 筛查结果
      * @return 右眼戴镜视力
      */
     public static BigDecimal rightOkDegree(VisionScreeningResult visionScreeningResult) {
-        return Optional.ofNullable(visionScreeningResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getOkDegree) .orElse(null);
+        return Optional.ofNullable(visionScreeningResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getOkDegree).orElse(null);
     }
 
     /**
      * 获取左眼夜戴角膜塑形镜的度数
+     *
      * @param visionScreenResult 筛查结果
      * @return 左眼戴镜视力
      */
     public static BigDecimal leftOkDegree(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData) .map(VisionDataDO::getLeftEyeData)
-                .map(VisionDataDO.VisionData::getOkDegree) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getLeftEyeData)
+                .map(VisionDataDO.VisionData::getOkDegree).orElse(null);
     }
 
     /**
      * 获取右眼球镜
+     *
      * @param visionScreenResult 筛查结果
      * @return 右眼球镜
      */
     public static BigDecimal rightSph(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getRightEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getSph) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
     }
+
     /**
      * 获取右眼柱镜
+     *
      * @param visionScreenResult 筛查结果
      * @return 右眼柱镜
      */
     public static BigDecimal rightCyl(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getRightEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getCyl) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
     }
+
     /**
      * 获取右眼轴位
+     *
      * @param visionScreenResult 筛查结果
      * @return 筛查轴位
      */
     public static BigDecimal rightAxial(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getRightEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getAxial) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getRightEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getAxial).orElse(null);
     }
 
     /**
      * 获取左眼球镜
+     *
      * @param visionScreenResult 筛查结果
      * @return 左眼球镜
      */
     public static BigDecimal leftSph(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getLeftEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getSph) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getLeftEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getSph).orElse(null);
     }
+
     /**
      * 获取左眼柱镜
+     *
      * @param visionScreenResult 筛查结果
      * @return 左眼柱镜
      */
     public static BigDecimal leftCyl(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getLeftEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getCyl) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getLeftEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getCyl).orElse(null);
     }
+
     /**
      * 获取左眼轴位
+     *
      * @param visionScreenResult 筛查结果
      * @return 左眼轴位
      */
     public static BigDecimal leftAxial(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getComputerOptometry) .map(ComputerOptometryDO::getLeftEyeData)
-                .map(ComputerOptometryDO.ComputerOptometry::getAxial) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getComputerOptometry).map(ComputerOptometryDO::getLeftEyeData)
+                .map(ComputerOptometryDO.ComputerOptometry::getAxial).orElse(null);
     }
 
     /**
      * 获取身高
+     *
      * @param visionScreenResult 筛查结果
      * @return 身高
      */
     public static BigDecimal height(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getHeightAndWeightData)
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getHeightAndWeightData)
                 .map(HeightAndWeightDataDO::getHeight).orElse(null);
     }
 
     /**
      * 获取体重
+     *
      * @param visionScreenResult 筛查结果
      * @return 体重
      */
     public static BigDecimal weight(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getHeightAndWeightData)
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getHeightAndWeightData)
                 .map(HeightAndWeightDataDO::getWeight).orElse(null);
     }
 
     /**
      * 计算 等效球镜（右眼）
+     *
      * @param visionScreenResult 筛查数据
      * @return 计算 等效球镜（右眼）
      */
@@ -341,6 +367,7 @@ public class EyeDataUtil {
 
     /**
      * 计算 等效球镜（左眼）
+     *
      * @param visionScreenResult 筛查数据
      * @return 计算 等效球镜（右眼）
      */
@@ -352,50 +379,55 @@ public class EyeDataUtil {
 
     /**
      * 电脑验光误差
+     *
      * @param visionScreenResult 筛查结果
      * @return 电脑验光误差
      */
     public static DeviationDO.VisionOrOptometryDeviation optometryDeviation(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData)
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getDeviationData)
                 .map(DeviationDO::getVisionOrOptometryDeviation).orElse(null);
     }
 
     /**
      * 身高/体重误差说明
+     *
      * @param visionScreenResult 筛查结果
      * @return 身高/体重误差说明
      */
     public static DeviationDO.HeightWeightDeviation heightWeightDeviationRemark(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData)
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getDeviationData)
                 .map(DeviationDO::getHeightWeightDeviation).orElse(null);
     }
 
     /**
      * 误差结果
+     *
      * @param visionScreenResult 筛查结果
      * @return 误差结果
      */
     public static DeviationDO deviationData(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getDeviationData) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getDeviationData).orElse(null);
     }
 
     /**
      * 更新时间
+     *
      * @param visionScreenResult 筛查结果
      * @return 更新时间
      */
     public static Date updateTime(VisionScreeningResult visionScreenResult) {
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getUpdateTime) .orElse(null);
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getUpdateTime).orElse(null);
     }
 
     /**
      * 戴镜类型
+     *
      * @param visionScreenResult 筛查结果
      * @return 戴镜类型
      */
-    public static Integer glassesType(VisionScreeningResult visionScreenResult){
-        return Optional.ofNullable(visionScreenResult) .map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
-                .map(VisionDataDO.VisionData::getGlassesType) .orElse(null);
+    public static Integer glassesType(VisionScreeningResult visionScreenResult) {
+        return Optional.ofNullable(visionScreenResult).map(VisionScreeningResult::getVisionData).map(VisionDataDO::getRightEyeData)
+                .map(VisionDataDO.VisionData::getGlassesType).orElse(null);
     }
 
     /**
@@ -403,7 +435,6 @@ public class EyeDataUtil {
      *
      * @param right 右眼
      * @param left  左眼
-     *
      * @return 右眼/左眼
      */
     public static String mergeEyeData(String right, String left) {
@@ -415,7 +446,6 @@ public class EyeDataUtil {
      *
      * @param heightStr 身高
      * @param schoolAge 学龄
-     *
      * @return TwoTuple<String, String>
      */
     public static TwoTuple<String, String> getDeskChairSuggest(String heightStr, Integer schoolAge) {
@@ -434,7 +464,6 @@ public class EyeDataUtil {
      *
      * @param statConclusion 结论
      * @param isKindergarten 是否幼儿园
-     *
      * @return 屈光情况
      */
     public static String getRefractiveResultDesc(StatConclusion statConclusion, boolean isKindergarten) {
@@ -464,6 +493,7 @@ public class EyeDataUtil {
 
     /**
      * 获取身高
+     *
      * @param visionScreenResult 筛查结果
      * @return 身高
      */
@@ -493,7 +523,6 @@ public class EyeDataUtil {
      * 获取体重
      *
      * @param visionScreenResult 筛查结果
-     *
      * @return 体重
      */
     public static String weightToStr(VisionScreeningResult visionScreenResult) {
