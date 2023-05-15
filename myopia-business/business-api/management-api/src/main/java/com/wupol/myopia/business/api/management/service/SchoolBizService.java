@@ -231,7 +231,7 @@ public class SchoolBizService {
         List<Integer> userIds = new ArrayList<>();
 
 
-        if (currentUser.isGovDeptUser()) {
+        if (currentUser.isGovDeptUser() || currentUser.isHospitalUser()) {
             schoolQueryDTO.setNotShowTestData(Boolean.TRUE);
         }
 

@@ -52,6 +52,9 @@
                 <if test="code != null">
                     and (city_code = #{code} or area_code = #{code} or town_code = #{code})
                 </if>
+                <if test="notShowTestData != null and notShowTestData == true">
+                    and cooperation_type != 2
+                </if>
             </trim>
         </where>
     </sql>
