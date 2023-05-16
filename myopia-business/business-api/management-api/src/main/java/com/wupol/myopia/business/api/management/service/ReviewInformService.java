@@ -4,7 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
@@ -20,7 +20,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -226,7 +225,7 @@ public class ReviewInformService {
                 gradeGroup.forEach((gradeKey, gradeValue) -> {
                     Map<Integer, List<ScreeningPlanSchoolStudent>> classGroup = gradeValue.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
                     classGroup.forEach((classKey, classValue) -> {
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
+                        PdfGenerateResponse pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
                         log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
                         try {
                             if (ExportTypeConst.GRADE.equals(type)) {

@@ -104,9 +104,10 @@ public class CommonController {
             // 检查文件并保存到本地临时目录
             String tempPath = resourceFileService.checkFileAndSaveToLocal(file);
             // 上传
-            ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
-            String resourcePath = resourceFileService.getResourcePath(resourceFile.getId());
-            return ApiResult.success(resourcePath);
+            // ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
+            // String resourcePath = resourceFileService.getResourcePath(resourceFile.getId());
+            // return ApiResult.success(resourcePath);
+            return ApiResult.success(s3Utils.uploadStaticS3AndDeleteTempFile(tempPath, UploadUtil.genNewFileName(file)));
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSON;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
@@ -182,11 +183,11 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition, type, gradeId, classId);
         TwoTuple<String, String> dirAndClassName = getDirAndClassName(exportCondition, fileSavePath, fileName, screeningStudentDTO);
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
-        log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
+        PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
+        log.info("响应参数:{}", JSON.toJSONString(pdfResponse));
         try {
             log.info("文件件保存路径:{}",dirAndClassName.getFirst());
-            FileUtils.downloadFile(pdfResponseDTO.getUrl(), Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
+            FileUtils.downloadFile(pdfResponse.getUrl(), Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
         } catch (Exception e) {
             log.error("下载筛查二维码PDF异常", e);
         }
@@ -243,9 +244,9 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
 
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition,type,exportCondition.getGradeId(),exportCondition.getClassId());
 
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
-        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
-        return pdfResponseDTO.getUrl();
+        PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
+        log.info("response:{}", JSON.toJSONString(pdfResponse));
+        return pdfResponse.getUrl();
     }
 
 

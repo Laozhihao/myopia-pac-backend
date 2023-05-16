@@ -36,7 +36,7 @@
         <flyway.version>6.5.7</flyway.version>
         <sentry.version>1.7.16</sentry.version>
         <vistel.utils.version>3.4.14-SNAPSHOT</vistel.utils.version>
-        <node-js-pdf-generator.version>1.01.015.001-RELEASE</node-js-pdf-generator.version>
+        <node-js-pdf-generator.version>1.01.016-SNAPSHOT</node-js-pdf-generator.version>
     </properties>
 
     <dependencyManagement>

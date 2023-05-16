@@ -156,27 +156,29 @@ wechat:
   h5-client:
     url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
 
-### 致远慧图 tools 项目访问域名【目前发送短信用到】
+### Vistel 工具或服务
 vistel:
+  # tools 项目访问域名【目前发送短信用到】
   tools:
     remoteAddress: ${VISTEL_TOOLS_URI}
+  # node-js-pdf-generator服务访问域名，如：http://t-nodejs-pdf-generator.internal
+  framework:
+    nodejs-pdf:
+      uri: ${VISTEL_PDF_GENERATOR_URI}
 
-### 报告相关
+### 生成PDF相关
 report:
   pdf:
-    # 异步请求URL
-    async-request-url: ${VISTEL_PDF_GENERATOR_ASYNC}
-    # 同步请求URL
-    sync-request-url: ${VISTEL_PDF_GENERATOR_SYNC}
+    # node-js-pdf-generator服务回调接口
     callbackUrl: ${VISTEL_MYOPIA_MGMT_EXTERNAL_URL}/management/pdf/callback
   # 筛查报告前端工程访问域名
   html:
     url-host: ${VISTEL_MYOPIA_PAC_REPORT_BASE_URI}
+
+### 文件临时保存目录
 file:
   temp:
     save-path: /tmp/export/
-
-
 
 ### 健康监控 - actuator 配置
 management:

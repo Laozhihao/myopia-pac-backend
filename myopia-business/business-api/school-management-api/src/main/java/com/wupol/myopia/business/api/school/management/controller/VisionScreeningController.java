@@ -2,9 +2,9 @@ package com.wupol.myopia.business.api.school.management.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.vistel.Interface.exception.UtilException;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -267,7 +267,7 @@ public class VisionScreeningController {
      * @param generatorPdfDTO
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfResponseDTO syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
+    public PdfGenerateResponse syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         generatorPdfDTO.setSchoolId(user.getOrgId());
         generatorPdfDTO.setIsSchoolClient(Boolean.TRUE);

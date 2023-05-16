@@ -6,8 +6,7 @@ import com.vistel.Interface.config.AWSConfig;
 import com.vistel.Interface.exception.UtilException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Objects;
+import org.springframework.util.StringUtils;
 
 /**
  * 初始化 S3Client
@@ -20,7 +19,7 @@ public class S3ClientConfig {
 
     @Bean
     public S3Client getS3Client(UploadConfig uploadConfig) throws UtilException {
-        if (Objects.isNull(uploadConfig.getEndpoint())) {
+        if (StringUtils.isEmpty(uploadConfig.getEndpoint())) {
             return S3Client.getInstance();
         }
         return S3Client.getInstance(new AWSConfig(uploadConfig.getEndpoint(), null, null, uploadConfig.getRegion(), false));
