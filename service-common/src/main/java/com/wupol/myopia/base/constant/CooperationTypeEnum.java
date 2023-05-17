@@ -8,7 +8,8 @@ package com.wupol.myopia.base.constant;
 public enum CooperationTypeEnum {
 
     COOPERATION_TYPE_COOPERATE(0, "合作"),
-    COOPERATION_TYPE_TRY_OUT(1, "试用");
+    COOPERATION_TYPE_TRY_OUT(1, "试用"),
+    COOPERATION_TYPE_TEST(2, "测试");
 
     /**
      * 类型
@@ -38,6 +39,9 @@ public enum CooperationTypeEnum {
         }
         if (type.equals(COOPERATION_TYPE_TRY_OUT.type)) {
             return COOPERATION_TYPE_TRY_OUT.name;
+        }
+        if (type.equals(COOPERATION_TYPE_TEST.type)) {
+            return COOPERATION_TYPE_TEST.name;
         }
         return "";
     }

@@ -60,6 +60,7 @@ public class ExportSchoolExcelService extends BaseExportExcelFileService {
 
         SchoolQueryDTO query = new SchoolQueryDTO();
         query.setDistrictId(exportCondition.getDistrictId());
+        query.setNotShowTestData(exportCondition.getNotShowTestData());
         List<School> list = schoolService.getBy(query);
 
         if (CollectionUtils.isEmpty(list)) {
