@@ -13,6 +13,7 @@ import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelSe
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
+import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -89,7 +90,7 @@ public class ExportPlanStudentExcelService extends BaseExportExcelFileService {
             PlanStudentExportDTO exportDTO = new PlanStudentExportDTO();
             exportDTO.setScreeningCode(Objects.isNull(student.getScreeningCode()) ? "" : String.valueOf(student.getScreeningCode()));
             exportDTO.setName(student.getStudentName());
-            // 身份证导出时不显示
+            exportDTO.setIdCard(MaskUtil.maskCredential(student.getIdCard(), student.getPassport()));
             exportDTO.setGender(GenderEnum.getName(student.getGender()));
             exportDTO.setBirthday(DateFormatUtil.format(student.getBirthday(), DateFormatUtil.FORMAT_ONLY_DATE2));
             exportDTO.setNation(NationEnum.getNameByCode(student.getNation()));
