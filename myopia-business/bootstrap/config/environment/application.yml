@@ -133,7 +133,9 @@ upload:
   prefix: ${AWS_S3_PREFIX}/upload
   # 静态文件上传S3的prefix，该目录文件的访问链接要求不能过期
   staticPrefix: ${AWS_S3_PREFIX}/public
-  # 地址（用S3服务的时候为空，用minio则必填）
+  # s3的类型，取值：aws、minio
+  s3-type: aws
+  # 地址，s3-type为minio时必填
   endpoint: ${AWS_ENDPOINT}
   # S3链接失效时间（小时）
   expiredHours: 2

@@ -21,4 +21,5 @@ public class UploadConfig {
     private String endpoint;
     private Integer expiredHours;
     private String region;
+    private String s3Type;
 }

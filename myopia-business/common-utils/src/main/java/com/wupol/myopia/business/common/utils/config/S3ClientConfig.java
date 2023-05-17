@@ -17,11 +17,14 @@ import org.springframework.util.StringUtils;
 @Configuration
 public class S3ClientConfig {
 
+    private static final String S3_TYPE = "minio";
+
     @Bean
     public S3Client getS3Client(UploadConfig uploadConfig) throws UtilException {
-        if (StringUtils.isEmpty(uploadConfig.getEndpoint())) {
-            return S3Client.getInstance();
+        if (S3_TYPE.equals(uploadConfig.getS3Type()) && !StringUtils.isEmpty(uploadConfig.getEndpoint())) {
+            return S3Client.getInstance(new AWSConfig(uploadConfig.getEndpoint(), null, null, uploadConfig.getRegion(), false));
+
         }
-        return S3Client.getInstance(new AWSConfig(uploadConfig.getEndpoint(), null, null, uploadConfig.getRegion(), false));
+        return S3Client.getInstance();
     }
 }
