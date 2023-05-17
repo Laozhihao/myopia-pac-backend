@@ -190,7 +190,7 @@ public class ReviewInformService {
      * @return 文件URL
      */
     public String syncExportReview(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-        return html2PdfService.syncGeneratorPDF(getHtmlUrl(planId, orgId, schoolId, gradeId, classId), RESCREEN_NAME, UUID.randomUUID().toString()).getUrl();
+        return html2PdfService.syncGeneratorPDF(getHtmlUrl(planId, orgId, schoolId, gradeId, classId), RESCREEN_NAME);
 
     }
 
@@ -225,17 +225,16 @@ public class ReviewInformService {
                 gradeGroup.forEach((gradeKey, gradeValue) -> {
                     Map<Integer, List<ScreeningPlanSchoolStudent>> classGroup = gradeValue.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
                     classGroup.forEach((classKey, classValue) -> {
-                        PdfGenerateResponse pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
-                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
+                        String pdfUrl = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME);
                         try {
                             if (ExportTypeConst.GRADE.equals(type)) {
-                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                FileUtils.downloadFile(pdfUrl,
                                         Paths.get(fileSaveParentPath,
                                                 schoolMap.get(schoolKey) + gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
                                                 classMap.get(classKey).getName() + RESCREEN_NAME,
                                                 RESCREEN_NAME + ".pdf").toString());
                             } else {
-                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                FileUtils.downloadFile(pdfUrl,
                                         Paths.get(fileSaveParentPath,
                                                 schoolMap.get(schoolKey) + RESCREEN_NAME,
                                                 gradeMap.get(gradeKey).getName() + RESCREEN_NAME,

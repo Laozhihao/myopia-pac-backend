@@ -189,7 +189,7 @@ public class ArchivePdfGenerator {
 
     private void generateVisionArchivesPDF(Integer planId, Integer classId, String planStudentIds, Integer schoolId, Integer templateId, String fileSavePath, Integer gradeId, String fileName) {
         String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
-        String pdfUrl = html2PdfService.convertHtmlToPdf(studentPdfHtmlUrl, fileName);
+        String pdfUrl = html2PdfService.syncGeneratorPDF(studentPdfHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
         } catch (IOException e) {
@@ -211,7 +211,7 @@ public class ArchivePdfGenerator {
      **/
     private void generateCommonDiseaseArchivesPDF(Integer planId, Integer classId, String planStudentIds, Integer type, Integer templateId, String fileSavePath, String fileName) {
         String archiveHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVE_HTML_URL, htmlUrlHost, templateId, planId, classId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, type);
-        String pdfUrl = html2PdfService.convertHtmlToPdf(archiveHtmlUrl, fileName);
+        String pdfUrl = html2PdfService.syncGeneratorPDF(archiveHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath).toString()));
         } catch (IOException e) {

@@ -183,11 +183,10 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition, type, gradeId, classId);
         TwoTuple<String, String> dirAndClassName = getDirAndClassName(exportCondition, fileSavePath, fileName, screeningStudentDTO);
-        PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
-        log.info("响应参数:{}", JSON.toJSONString(pdfResponse));
+        String pdfUrl = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
         try {
             log.info("文件件保存路径:{}",dirAndClassName.getFirst());
-            FileUtils.downloadFile(pdfResponse.getUrl(), Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
+            FileUtils.downloadFile(pdfUrl, Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
         } catch (Exception e) {
             log.error("下载筛查二维码PDF异常", e);
         }
@@ -244,9 +243,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
 
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition,type,exportCondition.getGradeId(),exportCondition.getClassId());
 
-        PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
-        log.info("response:{}", JSON.toJSONString(pdfResponse));
-        return pdfResponse.getUrl();
+        return html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
     }
 
 

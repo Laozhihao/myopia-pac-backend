@@ -3,9 +3,9 @@ package com.wupol.myopia.business.api.management.controller;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.base.util.CurrentUserUtil;
@@ -487,7 +487,7 @@ public class ScreeningPlanController {
      * @param generatorPdfDTO 导出条件
      */
     @GetMapping("screeningNoticeResult/syncGeneratorPDF")
-    public PdfGenerateResponse syncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
+    public PdfResponseDTO syncGeneratorPDF(@Valid GeneratorPdfDTO generatorPdfDTO) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         generatorPdfDTO.setIsSchoolClient(Boolean.FALSE);
         generatorPdfDTO.setUserId(user.getId());

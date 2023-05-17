@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vistel.Interface.exception.UtilException;
-import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.base.util.ListUtil;
@@ -293,10 +293,9 @@ public class ScreeningPlanStudentBizService {
                 generatorPdfBO.setClassId(classId);
                 String screeningNoticeResultHtmlUrl = getScreeningNoticeResultHtmlUrl(generatorPdfBO);
                 String fileName = SCREENING_NAME;
-                PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
-                log.info("response:{}", JSON.toJSONString(pdfResponse));
+                String pdfUrl = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
                 generatorPdfBO.setFileName(fileName);
-                downloadPDFFile(generatorPdfBO, pdfResponse);
+                downloadPDFFile(generatorPdfBO, pdfUrl);
             }
         });
     }
@@ -305,11 +304,11 @@ public class ScreeningPlanStudentBizService {
      * 下载pdf文件
      *
      * @param generatorPdfBO
-     * @param pdfResponse
+     * @param pdfUrl
      */
-    private void downloadPDFFile(GeneratorPdfBO generatorPdfBO, PdfGenerateResponse pdfResponse) {
+    private void downloadPDFFile(GeneratorPdfBO generatorPdfBO, String pdfUrl) {
         try {
-            FileUtils.downloadFile(pdfResponse.getUrl(),
+            FileUtils.downloadFile(pdfUrl,
                     generatorPdfBO.getFileSaveParentPath() +
                             generatorPdfBO.getSchoolMap().get(generatorPdfBO.getSchoolId()) + SCREENING_NAME + "/" +
                             generatorPdfBO.getGradeMap().get(generatorPdfBO.getGradeId()).getName() + SCREENING_NAME + "/" +
@@ -364,7 +363,7 @@ public class ScreeningPlanStudentBizService {
      *
      * @param generatorPdfDTO      导出条件
      */
-    public PdfGenerateResponse syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
+    public PdfResponseDTO syncGeneratorPDF(GeneratorPdfDTO generatorPdfDTO) {
 
         // 检查学生是否有筛查数据
         if (StringUtils.isNotBlank(generatorPdfDTO.getPlanStudentIdStr())) {
@@ -375,7 +374,8 @@ public class ScreeningPlanStudentBizService {
             }
         }
         String screeningNoticeResultHtmlUrl1 = getScreeningNoticeResultHtmlUrl(generatorPdfDTOToBo(generatorPdfDTO));
-        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl1, getFileName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getGradeId()));
+        String pdfUrl = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl1, getFileName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getGradeId()));
+        return new PdfResponseDTO().setUrl(pdfUrl);
     }
 
     /**

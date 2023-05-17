@@ -155,6 +155,19 @@ public final class S3Utils {
      * @param s3Key
      * @return
      */
+    public String getResourceUrl(String bucketName, String s3Key) throws UtilException {
+        Integer expiredHours= uploadConfig.getExpiredHours();
+        Date expire = DateUtil.getRecentDate(expiredHours);
+        return s3Client.getResourceS3Url(bucketName, s3Key, expire);
+    }
+
+    /**
+     * 获取文件链接
+     *
+     * @param bucketName
+     * @param s3Key
+     * @return
+     */
     public String getResourcePathWithExpiredHours(String bucketName, String s3Key, Integer expiredHours) {
         String key = String.format(FileCacheKey.FILE_URL, s3Key);
         Object fileUrl = redisUtil.get(key);

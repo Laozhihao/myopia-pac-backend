@@ -33,10 +33,7 @@ public class SyncExportStudentScreeningArchivesService {
 
         String studentScreeningArchives = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES,htmlUrlHost, resultId, templateId);
         String fileName = "学生档案卡-近视筛查结果.pdf";
-        log.info("请求地址:{}", studentScreeningArchives);
-        PdfGenerateResponse pdfResponse = html2PdfService.syncGeneratorPDF(studentScreeningArchives, fileName);
-        log.info("响应参数:{}", JSON.toJSONString(pdfResponse));
-        return pdfResponse.getUrl();
+        return html2PdfService.syncGeneratorPDF(studentScreeningArchives, fileName);
     }
 
 }

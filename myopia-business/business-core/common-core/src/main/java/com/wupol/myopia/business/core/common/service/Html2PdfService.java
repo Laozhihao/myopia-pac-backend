@@ -1,22 +1,25 @@
 package com.wupol.myopia.business.core.common.service;
 
 import com.alibaba.fastjson.JSON;
+import com.vistel.Interface.exception.UtilException;
 import com.vistel.framework.nodejs.pdf.client.NodeJSPdfGeneratorBusinessClient;
 import com.vistel.framework.nodejs.pdf.domain.constant.WaitUntil;
 import com.vistel.framework.nodejs.pdf.domain.dto.config.PageConfig;
 import com.vistel.framework.nodejs.pdf.domain.dto.config.PageMargin;
 import com.vistel.framework.nodejs.pdf.domain.dto.request.PdfHttpCallbackRequestDto;
 import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
+import com.wupol.myopia.business.core.common.util.S3Utils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -39,10 +42,10 @@ public class Html2PdfService {
 
     @Autowired
     private UploadConfig uploadConfig;
-
-
     @Resource
     private NodeJSPdfGeneratorBusinessClient nodeJSPdfGeneratorBusinessClient;
+    @Autowired
+    private S3Utils s3Utils;
 
     /**
      * 异步导出PDF
@@ -57,53 +60,15 @@ public class Html2PdfService {
     }
 
     /**
-     * 转换html页面为PDF
-     *
-     * @param url html 地址
-     * @param fileName 文件名，如：student.pdf
-     * @return java.lang.String
-     **/
-    public String convertHtmlToPdf(String url, String fileName) {
-        PdfGenerateResponse pdfResponse = syncGeneratorPDF(url, fileName);
-        log.info("【请求node-js服务】响应：{}", JSON.toJSONString(pdfResponse));
-        return pdfResponse.getUrl();
-    }
-
-    /**
-     * 同步生成PDF
-     *
-     * @param url      文件URL
-     * @param fileName 文件名，如：123.pdf
-     * @return PdfResponseDTO
-     */
-    public PdfGenerateResponse syncGeneratorPDF(String url, String fileName) {
-        return syncGeneratorPDF(url, fileName, UUID.randomUUID().toString());
-    }
-
-    /**
-     * 同步生成PDF (视力分析或者常见病5份大报告专用)
-     *
-     * @param url      文件URL
-     * @param fileName 文件名，如：123.pdf
-     * @return PdfResponseDTO
-     */
-    public PdfGenerateResponse syncGeneratorPdfSpecial(String url, String fileName) {
-        return syncGeneratorPdfSpecial(url, fileName, UUID.randomUUID().toString());
-    }
-
-    /**
      * 同步生成PDF
      *
      * @param url      文件URL
      * @param fileName 文件名
-     * @param uuid     uuid
      * @return PdfResponseDTO
      */
-    public PdfGenerateResponse syncGeneratorPDF(String url, String fileName, String uuid) {
-        log.info("【同步生成PDF】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
-        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid);
-        log.info("【请求node-js服务】：{}", JSON.toJSONString(pdfHttpCallbackRequestDto));
-        return nodeJSPdfGeneratorBusinessClient.syncGeneratePdfWithPresignedUrl(pdfHttpCallbackRequestDto);
+    public String syncGeneratorPDF(String url, String fileName) {
+        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), Boolean.FALSE);
+        return syncGeneratorPDF(requestDto);
     }
 
     /**
@@ -111,26 +76,29 @@ public class Html2PdfService {
      *
      * @param url      文件URL
      * @param fileName 文件名
-     * @param uuid     uuid
      * @return PdfResponseDTO
      */
-    public PdfGenerateResponse syncGeneratorPdfSpecial(String url, String fileName, String uuid) {
-        log.info("【同步生成PDF,专用方法】url = {}，fileName = {}，uuid = {}", url, fileName, uuid);
-        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, Boolean.TRUE);
-        log.info("【请求node-js服务,专用方法】：{}", JSON.toJSONString(pdfHttpCallbackRequestDto));
-        return nodeJSPdfGeneratorBusinessClient.syncGeneratePdfWithPresignedUrl(pdfHttpCallbackRequestDto);
+    public String syncGeneratorReportPdf(String url, String fileName) {
+        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), Boolean.TRUE);
+        return syncGeneratorPDF(requestDto);
     }
 
     /**
-     * 生成请求参数
+     * 同步生成PDF
      *
-     * @param url      文件URL
-     * @param fileName 文件名
-     * @param uuid     uuid
-     * @return HttpEntity<String>
+     * @param requestDto 请求参数
+     * @return String
      */
-    private PdfHttpCallbackRequestDto getPdfHttpCallbackRequestDto(String url, String fileName, String uuid) {
-        return getPdfHttpCallbackRequestDto(url,fileName,uuid,Boolean.FALSE);
+    private String syncGeneratorPDF(PdfHttpCallbackRequestDto requestDto) {
+        log.info("【请求node-js服务】参数：{}", JSON.toJSONString(requestDto));
+        PdfGenerateResponse pdfGenerateResponse = nodeJSPdfGeneratorBusinessClient.syncGeneratePdfWithPresignedUrl(requestDto);
+        log.info("【请求node-js服务】响应：{}", JSON.toJSONString(pdfGenerateResponse));
+        Assert.isTrue(Boolean.TRUE.equals(pdfGenerateResponse.getStatus()), "【请求node-js服务返回失败】" + pdfGenerateResponse.getMessage());
+        try {
+            return s3Utils.getResourceUrl(requestDto.getBucket(), requestDto.getKeyPrefix() + "/" + requestDto.getOutput());
+        } catch (UtilException e) {
+            throw new BusinessException("【同步生成PDF】获取访问链接异常", e);
+        }
     }
 
     /**

@@ -102,7 +102,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         } else {
             reportHtmlUrl = String.format(HtmlPageUrlConstant.DISTRICT_COMMON_DISEASE, htmlUrlHost, districtId, noticeId);
         }
-        String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl, fileName).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorReportPdf(reportHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName).toString()));
         } catch (IOException e) {
@@ -164,7 +164,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
 
     private void generateSchoolCommonDiseaseReport(Integer planId, Integer schoolId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.SCHOOL_COMMON_DISEASE, htmlUrlHost, schoolId, planId);
-        String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl, fileName).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorReportPdf(reportHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName).toString()));
         } catch (IOException e) {
@@ -186,7 +186,7 @@ public class ExportScreeningCommonDiseaseServiceImpl implements ExportPdfFileSer
         } else {
             reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
         }
-        String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl, fileName).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorReportPdf(reportHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName).toString()));
         } catch (IOException e) {
