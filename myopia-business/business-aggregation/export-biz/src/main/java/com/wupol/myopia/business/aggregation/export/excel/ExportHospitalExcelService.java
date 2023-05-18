@@ -61,6 +61,7 @@ public class ExportHospitalExcelService extends BaseExportExcelFileService {
 
         HospitalQuery query = new HospitalQuery();
         query.setDistrictId(districtId);
+        query.setNotShowTestData(exportCondition.getNotShowTestData());
         List<Hospital> hospitalList = hospitalService.getBy(query);
 
         // 筛查机构

@@ -10,6 +10,7 @@ import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.NationEnum;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.constant.WarningLevel;
+import com.wupol.myopia.business.common.utils.util.MaskUtil;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.constant.ScreeningResultPahtConst;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.StatConclusionExportDTO;
@@ -53,7 +54,8 @@ public class VisionScreeningDataServiceImpl implements IScreeningDataService {
                     .setGlassesTypeDesc(StringUtils.defaultIfBlank(GlassesTypeEnum.getDescByCode(vo.getGlassesType()), "--"))
                     .setIsRescreenDesc("否").setWarningLevelDesc(StringUtils.defaultIfBlank(WarningLevel.getDescByCode(vo.getWarningLevel()), "--"))
                     .setAddress(districtService.getAddressDetails(vo.getProvinceCode(), vo.getCityCode(), vo.getAreaCode(), vo.getTownCode(), vo.getAddress()))
-                    .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效");
+                    .setIsValid(Boolean.TRUE.equals(vo.getIsValid()) ? "有效" : "无效")
+                    .setCredential(MaskUtil.maskCredential(vo.getIdCard(), vo.getPassport()));
             // 视力检查、电脑验光
             genScreeningData(vo, exportVo);
             // 组装复筛数据

@@ -120,11 +120,13 @@ public class SchoolBizService {
         // 获取已有计划的学校ID列表
         List<Integer> havePlanSchoolIds = getHavePlanSchoolIds(schoolQueryDTO);
 
-        List<Integer> taskOrgIds = getOrgList(schoolQueryDTO.getTaskId());
+        Integer taskId = schoolQueryDTO.getTaskId();
+        List<Integer> taskOrgIds = getOrgList(taskId);
         // set alreadyHavePlan
         simpleSchoolList.forEach(school -> {
             school.setAlreadyHavePlan(havePlanSchoolIds.contains(school.getId()));
-            if (Objects.nonNull(schoolQueryDTO.getTaskId())) {
+            // 排除单点的
+            if (Objects.nonNull(taskId) && !Objects.equals(taskId, 0)) {
                 school.setIsAlreadyExistsTask(taskOrgIds.contains(school.getId()));
             }
         });
@@ -227,6 +229,11 @@ public class SchoolBizService {
 
         String createUser = schoolQueryDTO.getCreateUser();
         List<Integer> userIds = new ArrayList<>();
+
+
+        if (currentUser.isGovDeptUser() || currentUser.isHospitalUser()) {
+            schoolQueryDTO.setNotShowTestData(Boolean.TRUE);
+        }
 
         if (Objects.equals(schoolQueryDTO.getAllProvince(), Boolean.FALSE)
                 && currentUser.isOverviewUser()
@@ -547,7 +554,7 @@ public class SchoolBizService {
         List<ScreeningSchoolOrgVO> screeningSchoolOrgVOList = schoolList.stream()
                 .map(school -> {
                     ScreeningSchoolOrgVO screeningSchoolOrgVO = ScreeningOrgBizBuilder.getScreeningSchoolOrgVO(haveTaskOrgIds, school.getId(), school.getName(), null);
-                    if (Objects.nonNull(query.getTaskId())) {
+                    if (Objects.nonNull(query.getTaskId()) && !Objects.equals(query.getTaskId(), 0)) {
                         screeningSchoolOrgVO.setIsAlreadyExistsTask(taskOrgIds.contains(screeningSchoolOrgVO.getId()));
                     }
                     return screeningSchoolOrgVO;
@@ -592,7 +599,7 @@ public class SchoolBizService {
      * @return 机构Id
      */
     private List<Integer> getOrgList(Integer taskId) {
-        if (Objects.isNull(taskId)) {
+        if (Objects.isNull(taskId) || Objects.equals(taskId, 0)) {
             return new ArrayList<>();
         }
         List<Integer> schoolIds = screeningTaskOrgService.getOrgIdByTaskIdAndType(taskId, ScreeningOrgTypeEnum.SCHOOL.getType());

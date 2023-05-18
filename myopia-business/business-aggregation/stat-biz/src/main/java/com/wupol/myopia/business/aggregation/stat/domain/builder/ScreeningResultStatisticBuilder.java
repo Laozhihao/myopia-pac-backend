@@ -52,7 +52,7 @@ public class ScreeningResultStatisticBuilder {
         //纳入统计数据
         Map<Boolean, List<StatConclusion>> isRescreenMap = validStatConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));
         List<StatConclusion> validStatConclusionList = isRescreenMap.getOrDefault(Boolean.FALSE, Collections.emptyList());
-        int validScreeningNum = (int)validStatConclusionList.stream().filter(sc->Objects.equals(0,sc.getIsCooperative())).count();
+        int validScreeningNum = (int) validStatConclusionList.stream().filter(sc -> Objects.equals(sc.getIsValid(), Boolean.TRUE)).count();
 
         //复测数据
         Map<Boolean, List<StatConclusion>> isRescreenTotalMap = statConclusions.stream().collect(Collectors.groupingBy(StatConclusion::getIsRescreen));

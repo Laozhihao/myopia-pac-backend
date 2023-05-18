@@ -66,4 +66,9 @@ public class ScreeningOrganizationQueryDTO extends ScreeningOrganization {
      */
     private Integer taskId;
 
+    /**
+     * 不展示测试数据
+     */
+    private Boolean notShowTestData = false;
+
 }

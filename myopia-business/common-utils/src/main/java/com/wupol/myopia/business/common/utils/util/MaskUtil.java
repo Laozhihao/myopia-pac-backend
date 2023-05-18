@@ -12,6 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 public class MaskUtil {
 
     /**
+     * 证件号脱敏
+     */
+    public static String maskCredential(String idCard, String passport) {
+        return StringUtils.isNotBlank(idCard) ? MaskUtil.maskIdCard(idCard) : MaskUtil.maskPassport(passport);
+    }
+
+    /**
      * 脱敏身份证
      *
      * @param idCard 身份证

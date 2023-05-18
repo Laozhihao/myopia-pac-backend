@@ -29,7 +29,7 @@ public abstract class Cooperation {
     private Integer status;
 
     /**
-     * 合作类型 0-合作 1-试用
+     * 合作类型 0-合作 1-试用 2-测试
      */
     private Integer cooperationType;
 
