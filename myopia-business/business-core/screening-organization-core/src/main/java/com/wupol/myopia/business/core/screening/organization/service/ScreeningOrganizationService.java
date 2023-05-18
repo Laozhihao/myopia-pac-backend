@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wupol.framework.core.util.CollectionUtils;
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.constant.CooperationTypeEnum;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.exception.BusinessException;
@@ -299,13 +300,14 @@ public class ScreeningOrganizationService extends BaseService<ScreeningOrganizat
      */
     public IPage<ScreeningOrganization> listByCondition(PageRequest pageRequest, ScreeningOrganizationQueryDTO query,
                                                         List<Integer> districtIds,Date startTime,Date endTime){
-        Page page = pageRequest.toPage();
+        Page<ScreeningOrganization> page = pageRequest.getPage();
         LambdaQueryWrapper<ScreeningOrganization> queryWrapper = Wrappers.lambdaQuery(ScreeningOrganization.class)
                 .in(ScreeningOrganization::getDistrictId, districtIds)
                 .like(StrUtil.isNotBlank(query.getNameLike()), ScreeningOrganization::getName, query.getNameLike())
                 .in(CollUtil.isNotEmpty(query.getIds()), ScreeningOrganization::getId, query.getIds())
                 .ge(Objects.nonNull(startTime),ScreeningOrganization::getCooperationEndTime,startTime)
-                .lt(Objects.nonNull(endTime),ScreeningOrganization::getCooperationStartTime,endTime);
+                .lt(Objects.nonNull(endTime),ScreeningOrganization::getCooperationStartTime,endTime)
+                .ne(ScreeningOrganization::getCooperationType, CooperationTypeEnum.COOPERATION_TYPE_TEST.getType());
         return baseMapper.selectPage(page, queryWrapper);
     }
 

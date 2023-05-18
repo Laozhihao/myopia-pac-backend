@@ -103,4 +103,9 @@ public class SchoolQueryDTO extends School {
      * 任务Id
      */
     private Integer taskId;
+
+    /**
+     * 不展示测试数据
+     */
+    private Boolean notShowTestData = false;
 }

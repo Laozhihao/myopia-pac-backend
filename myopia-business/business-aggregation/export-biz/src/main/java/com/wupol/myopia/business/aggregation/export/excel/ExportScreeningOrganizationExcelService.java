@@ -68,6 +68,7 @@ public class ExportScreeningOrganizationExcelService extends BaseExportExcelFile
         // 查询数据
         ScreeningOrganizationQueryDTO query = new ScreeningOrganizationQueryDTO();
         query.setDistrictId(exportCondition.getDistrictId());
+        query.setNotShowTestData(exportCondition.getNotShowTestData());
         List<ScreeningOrganization> list = screeningOrganizationService.getBy(query);
 
         if (CollectionUtils.isEmpty(list)) {

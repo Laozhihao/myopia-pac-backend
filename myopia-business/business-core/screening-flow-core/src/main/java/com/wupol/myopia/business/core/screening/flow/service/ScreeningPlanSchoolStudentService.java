@@ -962,4 +962,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         }
         return baseMapper.getByCredentials(schoolId, screeningPlanId, idCards, passwords);
     }
+
+    /**
+     * 获取筛查学生数
+     *
+     * @param srcScreeningNoticeId 通知ID
+     * @return 筛查学生数
+     */
+    public Integer countPlanSchoolStudentByNoticeId(int srcScreeningNoticeId) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,srcScreeningNoticeId);
+        return baseMapper.selectCount(queryWrapper);
+    }
 }

@@ -7,7 +7,7 @@ import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
-import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class BigScreenService {
 
     @Autowired
-    private ScreeningPlanService screeningPlanService;
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Autowired
     private DistrictService districtService;
     @Autowired
@@ -82,7 +82,7 @@ public class BigScreenService {
                 .setDistrictId(provinceDistrictId)
                 .setCityCenterMap(cityCenterLocationMap)
                 .setNoticeId(screeningNotice.getId())
-                .setPlanScreeningNum(screeningPlanService.getAllPlanStudentNumByNoticeId(screeningNotice.getId()));
+                .setPlanScreeningNum(Long.valueOf(screeningPlanSchoolStudentService.countPlanSchoolStudentByNoticeId(screeningNotice.getId())));
         if (realScreeningNum > 0 && realValidScreeningNum > 0) {
             //更新城市名
             bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
