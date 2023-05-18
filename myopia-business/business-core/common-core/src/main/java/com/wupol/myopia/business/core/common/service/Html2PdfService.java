@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.core.common.service;
 
+import cn.hutool.core.util.HashUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.vistel.framework.nodejs.pdf.client.NodeJSPdfGeneratorBusinessClient;
@@ -93,9 +94,9 @@ public class Html2PdfService {
         log.info("【请求node-js服务】参数：{}", JSON.toJSONString(requestDto));
         PdfGenerateResponse pdfGenerateResponse = nodeJSPdfGeneratorBusinessClient.syncGeneratePdfWithPresignedUrl(requestDto);
         log.info("【请求node-js服务】响应：{}", JSON.toJSONString(pdfGenerateResponse));
-        Assert.isTrue(Boolean.TRUE.equals(pdfGenerateResponse.getStatus()), "【请求node-js服务返回失败】" + pdfGenerateResponse.getMessage());
+        Assert.isTrue(Boolean.TRUE.equals(pdfGenerateResponse.getStatus()), "【请求node-js服务】生成PDF失败：" + pdfGenerateResponse.getMessage());
         try {
-            return s3Utils.getResourceUrl(requestDto.getBucket(), requestDto.getKeyPrefix() + "/" + requestDto.getOutput());
+            return s3Utils.getResourceUrl(pdfGenerateResponse.getBucket(), pdfGenerateResponse.getS3key());
         } catch (UtilException e) {
             throw new BusinessException("【同步生成PDF】获取访问链接异常", e);
         }
