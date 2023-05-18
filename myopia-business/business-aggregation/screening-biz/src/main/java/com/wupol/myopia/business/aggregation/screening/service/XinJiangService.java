@@ -98,8 +98,6 @@ public class XinJiangService {
         Assert.notNull(plan, "不存在该计划");
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.findByList(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId).setIsDoubleScreen(false));
         Assert.isTrue(!visionScreeningResultList.isEmpty(), "没有需要同步的数据");
-        // TODO：临时处理
-        plan.setYear(2023).setTime(4);
         for (VisionScreeningResult visionScreeningResult : visionScreeningResultList) {
             pushScreeningDataToXinJiang(plan, visionScreeningResult);
         }
