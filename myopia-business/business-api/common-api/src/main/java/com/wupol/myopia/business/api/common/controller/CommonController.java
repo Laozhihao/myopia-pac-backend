@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.api.common.controller;
 
-import com.wupol.myopia.base.domain.ApiResult;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
@@ -95,23 +94,6 @@ public class CommonController {
             return resultMap;
         } catch (Exception e) {
             throw new BusinessException(e instanceof BusinessException ? e.getMessage() : "文件上传失败", e);
-        }
-    }
-
-    @PostMapping("/testMinioUpload")
-    public ApiResult testMinioUpload(MultipartFile file) {
-        try {
-            // 检查文件并保存到本地临时目录
-            String tempPath = resourceFileService.checkFileAndSaveToLocal(file);
-            // 上传
-            // ResourceFile resourceFile = s3Utils.uploadS3AndGetResourceFile(tempPath, UploadUtil.genNewFileName(file));
-            // String resourcePath = resourceFileService.getResourcePath(resourceFile.getId());
-            // return ApiResult.success(resourcePath);
-            return ApiResult.success(s3Utils.uploadStaticS3AndDeleteTempFile(tempPath, UploadUtil.genNewFileName(file)));
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("文件上传失败", e);
         }
     }
 

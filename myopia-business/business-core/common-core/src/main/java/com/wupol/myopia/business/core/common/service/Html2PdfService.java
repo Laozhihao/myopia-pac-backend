@@ -57,6 +57,7 @@ public class Html2PdfService {
      */
     public PdfGenerateResponse asyncGeneratorPDF(String url, String fileName, String uuid) {
         PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, Boolean.TRUE);
+        log.info("【异步 - 请求node-js服务】参数：{}", JSON.toJSONString(pdfHttpCallbackRequestDto));
         return nodeJSPdfGeneratorBusinessClient.asyncGeneratePdfWithPresignedUrl(pdfHttpCallbackRequestDto);
     }
 

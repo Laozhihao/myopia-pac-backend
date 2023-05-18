@@ -76,6 +76,7 @@ public class PdfCallbackController {
                 return;
             }
             // 如果次数相同，则压缩文件
+            log.info("【node-js服务】全部回调完：{}", JSON.toJSONString(responseDTO));
             String zipFileName = pdfGeneratorVO.getZipFileName();
             File file = FileUtil.rename(ZipUtil.zip(Paths.get(pdfSavePath, exportUuid).toString()), zipFileName, true, true);
             noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));

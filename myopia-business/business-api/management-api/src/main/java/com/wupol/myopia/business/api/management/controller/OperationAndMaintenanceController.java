@@ -119,6 +119,4 @@ public class OperationAndMaintenanceController {
     public void triggerErrorNoticeLink() {
         CompletableFuture.runAsync(() -> noticeLinkService.handleErrorLinkList(), asyncServiceExecutor);
     }
-
-
 }
