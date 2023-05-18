@@ -6,11 +6,14 @@ import com.wupol.myopia.business.aggregation.screening.service.XinJiangService;
 import com.wupol.myopia.business.api.management.schedule.StatisticScheduledTaskService;
 import com.wupol.myopia.business.api.management.service.BigScreeningStatService;
 import com.wupol.myopia.business.api.management.service.NoticeLinkService;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
 import com.wupol.myopia.business.core.stat.service.ScreeningResultStatisticService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +50,8 @@ public class OperationAndMaintenanceController {
     private NoticeLinkService noticeLinkService;
     @Autowired
     private XinJiangService xinJiangService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
 
     /**
      * 触发大屏统计
@@ -136,6 +141,18 @@ public class OperationAndMaintenanceController {
     @GetMapping("/syncDataToXinJiang")
     public void syncDataToXinJiang(@NotNull(message = "planId不能为空") Integer planId, Integer schoolId) {
         xinJiangService.syncDataToXinJiang(planId, schoolId);
+    }
+
+    /**
+     * 更新筛查计划信息（例如筛查年份、批次、状态、筛查时间）
+     *
+     * @param screeningPlan  筛查计划信息
+     * @return void
+     **/
+    @PutMapping("/updatePlan")
+    public void updateScreeningPlan(ScreeningPlan screeningPlan) {
+        Assert.notNull(screeningPlan.getId(), "筛查计划ID不能为空");
+        screeningPlanService.updateById(screeningPlan);
     }
 
 }
