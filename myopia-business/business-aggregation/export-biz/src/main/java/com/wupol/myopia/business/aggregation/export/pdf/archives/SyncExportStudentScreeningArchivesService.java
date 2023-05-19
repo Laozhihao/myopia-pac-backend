@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
-import com.alibaba.fastjson.JSON;
-import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,5 @@
 package com.wupol.myopia.business.core.common.service;
 
-import cn.hutool.core.util.HashUtil;
 import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
 import com.vistel.framework.nodejs.pdf.client.NodeJSPdfGeneratorBusinessClient;
