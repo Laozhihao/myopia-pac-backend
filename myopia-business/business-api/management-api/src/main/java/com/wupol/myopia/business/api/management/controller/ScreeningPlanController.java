@@ -677,7 +677,7 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student")
-    public ApiResult<QuestionnaireUser> getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
+    public ApiResult getStudentByCredentialNo(@RequestParam("credentialNo") String credentialNo, @RequestParam("studentName") String studentName) {
         return this.questionnaireLoginService.getStudentByCredentialNo(credentialNo,studentName);
     }
 

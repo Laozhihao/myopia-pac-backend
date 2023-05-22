@@ -73,7 +73,7 @@ public class QuestionnaireLoginService {
      * @param credentialNo
      * @return
      */
-    public ApiResult<QuestionnaireUser> getStudentByCredentialNo(String credentialNo, String studentName) {
+    public ApiResult getStudentByCredentialNo(String credentialNo, String studentName) {
         int id;
         long screeningCode;
 
@@ -81,7 +81,7 @@ public class QuestionnaireLoginService {
             id = Integer.parseInt(credentialNo);
             screeningCode = Long.parseLong(studentName);
         } catch (NumberFormatException e) {
-            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_CONVERT.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
         }
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getCommonDiseasePlanStudent(ScreeningTypeEnum.COMMON_DISEASE.getType(), screeningCode, id);
         if (Objects.isNull(planStudent)) {
@@ -90,7 +90,7 @@ public class QuestionnaireLoginService {
         if (SchoolAge.checkKindergarten(planStudent.getGradeType())) {
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
-        return ApiResult.success(new QuestionnaireUser(planStudent.getId(), planStudent.getSchoolId(), planStudent.getStudentName()));
+        return ApiResult.success(new QuestionnaireUser(planStudent.getId(), planStudent.getSchoolId(), planStudent.getScreeningCode().toString()));
     }
 
 
