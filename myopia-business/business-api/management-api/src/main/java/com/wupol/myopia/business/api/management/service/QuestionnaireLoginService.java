@@ -78,10 +78,10 @@ public class QuestionnaireLoginService {
         long screeningCode;
 
         try {
-            id = Integer.parseInt(studentName);
-            screeningCode = Long.parseLong(credentialNo);
+            id = Integer.parseInt(credentialNo);
+            screeningCode = Long.parseLong(studentName);
         } catch (NumberFormatException e) {
-            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_CONVERT.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
         }
         ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getCommonDiseasePlanStudent(ScreeningTypeEnum.COMMON_DISEASE.getType(), screeningCode, id);
         if (Objects.isNull(planStudent)) {
