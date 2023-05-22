@@ -976,7 +976,7 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     }
 
     /**
-     *
+     * 获取常见病学生
      */
     public ScreeningPlanSchoolStudent getCommonDiseasePlanStudent(Integer type, Long screeningCode, Integer id) {
         return baseMapper.getCommonDiseasePlanStudent(type, screeningCode, id);
