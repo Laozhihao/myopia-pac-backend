@@ -90,7 +90,7 @@ public class QuestionnaireLoginService {
         if (SchoolAge.checkKindergarten(planStudent.getGradeType())) {
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
-        return ApiResult.success(new QuestionnaireUser(planStudent.getId(), planStudent.getSchoolId(), planStudent.getScreeningCode().toString()));
+        return ApiResult.success(new QuestionnaireUser(planStudent.getId(), planStudent.getSchoolId(), planStudent.getStudentName()));
     }
 
 
