@@ -78,8 +78,8 @@ public class QuestionnaireLoginService {
         long screeningCode;
 
         try {
-            id = Integer.parseInt(credentialNo);
-            screeningCode = Long.parseLong(studentName);
+            id = Integer.parseInt(studentName);
+            screeningCode = Long.parseLong(credentialNo);
         } catch (NumberFormatException e) {
             return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
         }
