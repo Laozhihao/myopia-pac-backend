@@ -51,4 +51,9 @@ public class HospitalQuery extends Hospital {
      */
     private List<Integer> ids;
 
+    /**
+     * 不展示测试数据
+     */
+    private Boolean notShowTestData = false;
+
 }

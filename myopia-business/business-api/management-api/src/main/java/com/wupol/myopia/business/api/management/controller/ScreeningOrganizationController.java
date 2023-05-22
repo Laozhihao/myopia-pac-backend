@@ -206,6 +206,9 @@ public class ScreeningOrganizationController {
                 return new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
             }
         }
+        if (user.isGovDeptUser()) {
+            query.setNotShowTestData(Boolean.TRUE);
+        }
         return screeningOrganizationBizService.getScreeningOrganizationList(pageRequest, query, user);
     }
 
@@ -246,6 +249,7 @@ public class ScreeningOrganizationController {
     public void getOrganizationExportData(Integer districtId) throws IOException {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
         exportStrategy.doExport(new ExportCondition()
+                        .setNotShowTestData(user.isGovDeptUser() ? Boolean.TRUE : Boolean.FALSE)
                         .setApplyExportFileUserId(user.getId())
                         .setDistrictId(districtId),
                 ExportExcelServiceNameConstant.SCREENING_ORGANIZATION_EXCEL_SERVICE);

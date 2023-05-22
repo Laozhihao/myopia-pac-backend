@@ -52,6 +52,9 @@
                 <if test="code != null">
                     and (city_code = #{code} or area_code = #{code} or town_code = #{code})
                 </if>
+                <if test="notShowTestData != null and notShowTestData == true">
+                    and cooperation_type != 2
+                </if>
             </trim>
         </where>
     </sql>
@@ -109,6 +112,9 @@
             <foreach collection="query.ids" item="screeningOrganizationId" index="index" open="(" close=")" separator=",">
                 #{screeningOrganizationId}
             </foreach>
+        </if>
+        <if test="query.notShowTestData != null and query.notShowTestData == true">
+            and mso.cooperation_type != 2
         </if>
         order by mso.create_time desc
     </select>
