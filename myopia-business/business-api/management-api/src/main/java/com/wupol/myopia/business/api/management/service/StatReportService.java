@@ -2,7 +2,6 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONPath;
-import com.amazonaws.services.simplesystemsmanagement.model.ParameterNotFoundException;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.GlassesTypeEnum;
 import com.wupol.myopia.base.util.SEUtil;
@@ -905,7 +904,7 @@ public class StatReportService {
                     .filter(x -> x.getSchoolId() == schoolId)
                     .count();
         } else {
-            throw new ParameterNotFoundException("Parameters not illegal");
+            throw new BusinessException("Parameters not illegal");
         }
         List<StatConclusion> statConclusions = statConclusionService.listByQuery(query);
         if (statConclusions == null) {

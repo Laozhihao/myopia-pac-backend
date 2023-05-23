@@ -63,7 +63,7 @@ public class DeviceUploadDataController {
     }
 
     /**
-     * 南京灯箱视力表(益视优，对接的是VS666二维码)
+     * 灯箱视力表(益视优、法里奥，对接的是VS666二维码)
      *
      * @param requestDTO
      * @return com.wupol.myopia.base.domain.ApiResult<java.lang.String>

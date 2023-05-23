@@ -160,6 +160,7 @@ public class ManagementScreeningPlanBizService {
         }
         Set<Integer> noticeSet = new HashSet<>();
         noticeSet.add(noticeId);
+        // TODO: 循环查询改为一次查询
         List<Integer> allGovDeptIds = govDeptService.getGovDetIds(user);
         return managementScreeningPlanFacade.getScreeningPlanByNoticeIdsOrTaskIdsAndUser(noticeSet, null, user,allGovDeptIds);
     }

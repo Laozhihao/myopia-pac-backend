@@ -12,5 +12,4 @@
     <artifactId>common-core</artifactId>
     <description>公共的基础功能，同层的其他core依赖该模块</description>
 
-
 </project>

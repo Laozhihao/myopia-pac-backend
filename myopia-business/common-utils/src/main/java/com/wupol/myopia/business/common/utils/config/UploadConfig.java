@@ -18,6 +18,8 @@ public class UploadConfig {
     private String bucketName;
     private String prefix;
     private String staticPrefix;
-    private String staticHost;
+    private String endpoint;
     private Integer expiredHours;
+    private String region;
+    private String s3Type;
 }

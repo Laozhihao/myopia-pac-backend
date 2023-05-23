@@ -234,7 +234,7 @@ public class ReportController {
         if (StringUtils.isBlank(url)) {
             return ApiResult.failure("根据Type找不到对应URL");
         }
-        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf").getUrl());
+        return ApiResult.success(html2PdfService.syncGeneratorPDF(url, "报告.pdf"));
     }
 
     /**

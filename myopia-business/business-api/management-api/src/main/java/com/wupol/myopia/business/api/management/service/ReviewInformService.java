@@ -2,9 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.fastjson.JSON;
 import com.vistel.Interface.exception.UtilException;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.screening.domain.vos.SchoolGradeVO;
 import com.wupol.myopia.business.aggregation.screening.service.ScreeningPlanSchoolStudentFacadeService;
@@ -20,7 +18,6 @@ import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dos.HeightAndWeightDataDO;
-import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningStudentDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
@@ -191,7 +188,7 @@ public class ReviewInformService {
      * @return 文件URL
      */
     public String syncExportReview(Integer planId, Integer orgId, Integer schoolId, Integer gradeId, Integer classId) {
-        return html2PdfService.syncGeneratorPDF(getHtmlUrl(planId, orgId, schoolId, gradeId, classId), RESCREEN_NAME, UUID.randomUUID().toString()).getUrl();
+        return html2PdfService.syncGeneratorPDF(getHtmlUrl(planId, orgId, schoolId, gradeId, classId), RESCREEN_NAME);
 
     }
 
@@ -226,17 +223,16 @@ public class ReviewInformService {
                 gradeGroup.forEach((gradeKey, gradeValue) -> {
                     Map<Integer, List<ScreeningPlanSchoolStudent>> classGroup = gradeValue.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getClassId));
                     classGroup.forEach((classKey, classValue) -> {
-                        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME, UUID.randomUUID().toString());
-                        log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
+                        String pdfUrl = html2PdfService.syncGeneratorPDF(getHtmlUrl(planKey, orgId, schoolKey, gradeKey, classKey), RESCREEN_NAME);
                         try {
                             if (ExportTypeConst.GRADE.equals(type)) {
-                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                FileUtils.downloadFile(pdfUrl,
                                         Paths.get(fileSaveParentPath,
                                                 schoolMap.get(schoolKey) + gradeMap.get(gradeKey).getName() + RESCREEN_NAME,
                                                 classMap.get(classKey).getName() + RESCREEN_NAME,
                                                 RESCREEN_NAME + ".pdf").toString());
                             } else {
-                                FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+                                FileUtils.downloadFile(pdfUrl,
                                         Paths.get(fileSaveParentPath,
                                                 schoolMap.get(schoolKey) + RESCREEN_NAME,
                                                 gradeMap.get(gradeKey).getName() + RESCREEN_NAME,

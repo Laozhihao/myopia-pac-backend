@@ -66,7 +66,8 @@ public class PdfCallbackController {
             int currentCount = pdfGeneratorVO.getExportCount() + 1;
             boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
             // 下载文件
-            FileUtils.downloadFile(responseDTO.getUrl(), Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
+            String pdfUrl = s3Utils.getResourceUrl(responseDTO.getBucket(), responseDTO.getS3key());
+            FileUtils.downloadFile(pdfUrl, Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
 
             // 如果没有完成，则更新次数
             if (!isFinish) {
@@ -75,6 +76,7 @@ public class PdfCallbackController {
                 return;
             }
             // 如果次数相同，则压缩文件
+            log.info("【node-js服务】全部回调完：{}", JSON.toJSONString(responseDTO));
             String zipFileName = pdfGeneratorVO.getZipFileName();
             File file = FileUtil.rename(ZipUtil.zip(Paths.get(pdfSavePath, exportUuid).toString()), zipFileName, true, true);
             noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));

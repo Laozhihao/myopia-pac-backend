@@ -91,7 +91,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
 
     private void generateDistrictVisionReport(Integer noticeId, Integer districtId, String fileSavePath, String fileName) {
         String reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_AREA_VISION, htmlUrlHost, noticeId, districtId);
-        String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorReportPdf(reportHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {
@@ -158,7 +158,7 @@ public class ExportScreeningVisionService implements ExportPdfFileService {
         } else {
             reportHtmlUrl = String.format(HtmlPageUrlConstant.REPORT_PRIMARY_VISION, htmlUrlHost, planId, schoolId);
         }
-        String pdfUrl = html2PdfService.syncGeneratorPdfSpecial(reportHtmlUrl, fileName, UUID.randomUUID().toString()).getUrl();
+        String pdfUrl = html2PdfService.syncGeneratorReportPdf(reportHtmlUrl, fileName);
         try {
             FileUtils.copyURLToFile(new URL(pdfUrl), new File(Paths.get(fileSavePath, fileName + ".pdf").toString()));
         } catch (IOException e) {

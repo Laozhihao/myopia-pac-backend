@@ -293,10 +293,9 @@ public class ScreeningPlanStudentBizService {
                 generatorPdfBO.setClassId(classId);
                 String screeningNoticeResultHtmlUrl = getScreeningNoticeResultHtmlUrl(generatorPdfBO);
                 String fileName = SCREENING_NAME;
-                PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
-                log.info("response:{}", JSON.toJSONString(pdfResponseDTO));
+                String pdfUrl = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl, fileName);
                 generatorPdfBO.setFileName(fileName);
-                downloadPDFFile(generatorPdfBO, pdfResponseDTO);
+                downloadPDFFile(generatorPdfBO, pdfUrl);
             }
         });
     }
@@ -305,11 +304,11 @@ public class ScreeningPlanStudentBizService {
      * 下载pdf文件
      *
      * @param generatorPdfBO
-     * @param pdfResponseDTO
+     * @param pdfUrl
      */
-    private void downloadPDFFile(GeneratorPdfBO generatorPdfBO, PdfResponseDTO pdfResponseDTO) {
+    private void downloadPDFFile(GeneratorPdfBO generatorPdfBO, String pdfUrl) {
         try {
-            FileUtils.downloadFile(pdfResponseDTO.getUrl(),
+            FileUtils.downloadFile(pdfUrl,
                     generatorPdfBO.getFileSaveParentPath() +
                             generatorPdfBO.getSchoolMap().get(generatorPdfBO.getSchoolId()) + SCREENING_NAME + "/" +
                             generatorPdfBO.getGradeMap().get(generatorPdfBO.getGradeId()).getName() + SCREENING_NAME + "/" +
@@ -375,7 +374,8 @@ public class ScreeningPlanStudentBizService {
             }
         }
         String screeningNoticeResultHtmlUrl1 = getScreeningNoticeResultHtmlUrl(generatorPdfDTOToBo(generatorPdfDTO));
-        return html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl1, getFileName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getGradeId()));
+        String pdfUrl = html2PdfService.syncGeneratorPDF(screeningNoticeResultHtmlUrl1, getFileName(generatorPdfDTO.getSchoolId(), generatorPdfDTO.getGradeId()));
+        return new PdfResponseDTO().setUrl(pdfUrl);
     }
 
     /**
