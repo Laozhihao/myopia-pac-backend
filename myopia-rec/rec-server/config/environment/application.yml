@@ -68,6 +68,7 @@ upload:
   endpoint: ${AWS_ENDPOINT}
   # S3链接失效时间（小时）
   expiredHours: 2
+  # 地区
   region: ${AWS_REGION}
 
 
