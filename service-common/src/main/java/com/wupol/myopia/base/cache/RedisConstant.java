@@ -231,4 +231,9 @@ public interface RedisConstant {
      */
     String NOTICE_LINK_ERROR_LIST = "notice:link:error:list";
 
+    /**
+     * 导出Excel-学生
+     */
+    String FILE_EXPORT_EXCEL_QUESTIONNAIRE_ACCOUNT = "file:export:excel:plan:student:questionnaire:account:%s-%s-%s-%s";
+
 }

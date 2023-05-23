@@ -15,7 +15,7 @@ import java.util.TimeZone;
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients(basePackages = {"com.wupol.myopia.**.client"})
-@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api"})
+@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api", "com.vistel.framework"})
 public class MyopiaBusinessApplication {
 
     public static void main(String[] args) {

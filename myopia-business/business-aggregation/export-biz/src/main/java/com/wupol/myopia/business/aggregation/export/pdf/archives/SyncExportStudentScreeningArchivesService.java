@@ -1,7 +1,5 @@
 package com.wupol.myopia.business.aggregation.export.pdf.archives;
 
-import com.alibaba.fastjson.JSON;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +31,7 @@ public class SyncExportStudentScreeningArchivesService {
 
         String studentScreeningArchives = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVES,htmlUrlHost, resultId, templateId);
         String fileName = "学生档案卡-近视筛查结果.pdf";
-        log.info("请求地址:{}", studentScreeningArchives);
-        PdfResponseDTO pdfResponseDTO = html2PdfService.syncGeneratorPDF(studentScreeningArchives, fileName);
-        log.info("响应参数:{}", JSON.toJSONString(pdfResponseDTO));
-
-        return pdfResponseDTO.getUrl();
+        return html2PdfService.syncGeneratorPDF(studentScreeningArchives, fileName);
     }
 
 }
