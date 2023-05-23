@@ -33,7 +33,7 @@ public interface VisionScreeningResultMapper extends BaseMapper<VisionScreeningR
 
     List<Integer> getHaveSrcScreeningNoticePlanIdsByTime(@Param("startTime") Date yesterdayStartTime, @Param("endTime") Date yesterdayEndTime);
 
-    List<SchoolCountDO> getSchoolCountByPlanIdAndSchoolIds(@Param("planId") Integer planId, Integer isDoubleScreen, @Param("schoolIds") Set<Integer> schoolIds);
+    List<SchoolCountDO> getSchoolCountByPlanIdAndSchoolIds(@Param("planId") Integer planId, @Param("isDoubleScreen") Integer isDoubleScreen, @Param("schoolIds") Set<Integer> schoolIds);
 
     List<VisionScreeningResult> getReleasePlanResultByStudentId(Integer studentId);
 
