@@ -7,6 +7,7 @@ import com.wupol.myopia.base.cache.RedisConstant;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.ExcelUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelFileNameConstant;
+import com.wupol.myopia.business.aggregation.export.excel.constant.ExcelNoticeKeyContentConstant;
 import com.wupol.myopia.business.aggregation.export.excel.constant.ExportExcelServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -86,7 +87,11 @@ public class ExportQuestionnaireAccountExcelService extends BaseExportExcelFileS
 
     @Override
     public String getNoticeKeyContent(ExportCondition exportCondition) {
-        return "问卷账号密码";
+        String schoolName = schoolService.getById(exportCondition.getSchoolId()).getName();
+        if (Objects.nonNull(exportCondition.getGradeId())) {
+            return String.format(ExcelNoticeKeyContentConstant.EXPORT_QUESTIONNAIRE_ACCOUNT_DATA, schoolName + schoolGradeService.getById(exportCondition.getGradeId()).getName());
+        }
+        return String.format(ExcelNoticeKeyContentConstant.EXPORT_QUESTIONNAIRE_ACCOUNT_DATA, schoolName);
     }
 
     @Override
