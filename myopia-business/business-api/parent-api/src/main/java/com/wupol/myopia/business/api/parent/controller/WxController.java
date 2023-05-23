@@ -70,7 +70,7 @@ public class WxController {
      *      2. 重定向到微信获取code
      *      3. 微信回调到“/callback/login”接口
      *      4. 根据code从微信获取openId
-     *      5. 重定向到前端“用户协议”页面（或重定向到步骤11；或自动登录重定向到前端中间页，前端最终根据state跳转到对应页面）
+     *      5. 若该openId未存在，则重定向到前端“用户协议”页面（或重定向到步骤11；或自动登录重定向到前端中间页，前端最终根据state跳转到对应页面）
      *      6. 点击按钮重定向到“/authorize”接口
      *      7. 服务器重定向到微信获取code
      *      8. 微信回调到“/callback/userInfo”接口
@@ -81,6 +81,10 @@ public class WxController {
      * state取值范围
      *      1 - 默认值，会跳到“报告查看”页面
      *      2 - 扫码进来，会跳到“我的孩子”页面
+     *      3 - 绑定新的孩子，也叫在线建档（一般用于生成二维码，贴在医院，配合医院端使用）
+     *      4 - 快速查看报告（不需要绑定孩子）
+     *      5 - 个人中心
+     *      6 - 跳转护眼宝小程序入口
      **/
     @GetMapping("/index")
     public String getCode(String state) {

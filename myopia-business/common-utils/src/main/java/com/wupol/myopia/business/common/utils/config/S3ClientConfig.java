@@ -1,4 +1,4 @@
-package com.wupol.myopia.rec.server.config;
+package com.wupol.myopia.business.common.utils.config;
 
 
 import com.vistel.Interface.aws.S3Client;
@@ -9,12 +9,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 /**
+ * 初始化 S3Client
  *
  * @author SheldonX
  * @date 2018/8/24
  */
 @Configuration
-public class UtilConfig {
+public class S3ClientConfig {
 
     private static final String S3_TYPE = "minio";
 

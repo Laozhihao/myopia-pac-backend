@@ -424,7 +424,8 @@ public class ArchiveService {
         if (Objects.isNull(exportCondition.getPlanId())){
             throw new BusinessException("筛查计划ID不能为空");
         }
-        List<SchoolCountDO> schoolCountList = visionScreeningResultService.getSchoolCountByPlanIdAndSchoolIds(exportCondition.getPlanId(), CommonConst.ZERO, Collections.singleton(exportCondition.getSchoolId()));
+        Integer schoolId = exportCondition.getSchoolId();
+        List<SchoolCountDO> schoolCountList = visionScreeningResultService.getSchoolCountByPlanIdAndSchoolIds(exportCondition.getPlanId(), CommonConst.ZERO, Objects.nonNull(schoolId) ? Collections.singleton(schoolId) : new HashSet<>());
         exceptionInfo(CollUtil.isEmpty(schoolCountList));
     }
 

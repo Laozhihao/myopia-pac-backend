@@ -246,4 +246,9 @@ public interface RedisConstant {
      */
     String HYB_PUSH_DATA = "hyb:push:data:%s";
 
+    /**
+     * 导出Excel-学生
+     */
+    String FILE_EXPORT_EXCEL_QUESTIONNAIRE_ACCOUNT = "file:export:excel:plan:student:questionnaire:account:%s-%s-%s-%s";
+
 }

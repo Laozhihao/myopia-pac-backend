@@ -105,7 +105,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             // 学生登录
             questionnaireUser = businessServiceClient.getStudent(username, password);
-            return questionnaireUser2User(questionnaireUser, username, userType, Objects.nonNull(questionnaireUser) ? questionnaireUser.getRealName() : null);
+            return questionnaireUser2User(questionnaireUser, username, userType, password);
         }
         User user = userService.getByUsername(username, systemCode);
         if (Objects.isNull(user)) {

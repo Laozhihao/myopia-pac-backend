@@ -65,4 +65,9 @@ public class ExportExcelServiceNameConstant {
      */
     public final String EXPORT_SCHOOL_EYE_HEALTH_SERVICE = "schoolEyeHealthService";
 
+    /**
+     * 导出筛查学生问卷账号
+     */
+    public final String EXPORT_PLAN_STUDENT_QUESTIONNAIRE_ACCOUNT_SERVICE = "questionnaireAccountService";
+
 }

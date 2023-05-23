@@ -11,6 +11,7 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.google.common.collect.Lists;
+import com.vistel.Interface.exception.UtilException;
 import com.vistel.Interface.util.ZipUtil;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
@@ -191,14 +192,14 @@ public class ExcelUtil {
      * @param fileNamePrefix 文件名前缀
      * @return java.io.File
      **/
-    public static File zip(String folder, String fileNamePrefix) throws IOException {
+    public static File zip(String folder, String fileNamePrefix) throws UtilException {
         String tempSubPath = IOUtils.getTempSubPath(String.format("export/%s", folder));
         String zipTempSubPath = IOUtils.getTempSubPath(String.format("export/zip/%s", folder));
 
         String fileName = String.format(ZIP_FILE_NAME, fileNamePrefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE))
                 .replaceAll("[\\s\\\\/:\\*\\?\\\"<>\\|]", "");
         String zipFileName = FilenameUtils.concat(zipTempSubPath, fileName);
-        ZipUtil.compressFoldToZip(tempSubPath, zipFileName);
+        ZipUtil.compressFolderToZip(tempSubPath, zipFileName);
         return new File(zipFileName);
     }
 

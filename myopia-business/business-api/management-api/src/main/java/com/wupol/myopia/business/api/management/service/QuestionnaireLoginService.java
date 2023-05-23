@@ -74,19 +74,23 @@ public class QuestionnaireLoginService {
      * @return
      */
     public ApiResult getStudentByCredentialNo(String credentialNo, String studentName) {
-        //查询该学生
-        List<ScreeningPlanSchoolStudent> screeningPlanSchoolStudent = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentName(credentialNo, studentName);
-        if (!org.springframework.util.CollectionUtils.isEmpty(screeningPlanSchoolStudent)) {
-            //是否有筛查计划
-            ScreeningPlanSchoolStudent student = screeningPlanSchoolStudentService.getLastByCredentialNoAndStudentIds(ScreeningTypeEnum.COMMON_DISEASE.getType(),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getScreeningPlanId).collect(Collectors.toList()),
-                    screeningPlanSchoolStudent.stream().map(ScreeningPlanSchoolStudent::getStudentId).collect(Collectors.toList()));
-            if (Objects.nonNull(student) && !(SchoolAge.checkKindergarten(student.getGradeType()))) {
-                return ApiResult.success(new QuestionnaireUser(student.getId(), student.getSchoolId(), student.getStudentName()));
-            }
+        int id;
+        long screeningCode;
+
+        try {
+            id = Integer.parseInt(credentialNo);
+            screeningCode = Long.parseLong(studentName);
+        } catch (NumberFormatException e) {
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        }
+        ScreeningPlanSchoolStudent planStudent = screeningPlanSchoolStudentService.getCommonDiseasePlanStudent(ScreeningTypeEnum.COMMON_DISEASE.getType(), screeningCode, id);
+        if (Objects.isNull(planStudent)) {
+            return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        }
+        if (SchoolAge.checkKindergarten(planStudent.getGradeType())) {
             return ApiResult.failure(ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_PLAN_NOT_EXIST.getMessage());
         }
-        return ApiResult.failure(ResultCode.DATA_STUDENT_NOT_EXIST.getCode(), ResultCode.DATA_STUDENT_NOT_EXIST.getMessage());
+        return ApiResult.success(new QuestionnaireUser(planStudent.getId(), planStudent.getSchoolId(), planStudent.getStudentName()));
     }
 
 
