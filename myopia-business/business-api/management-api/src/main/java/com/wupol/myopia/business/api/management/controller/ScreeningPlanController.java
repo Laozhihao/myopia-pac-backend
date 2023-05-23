@@ -806,4 +806,26 @@ public class ScreeningPlanController {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
         return screeningPlanBizFacade.isXinJiangDistrict(currentUser, screeningOrgId, screeningOrgType);
     }
+
+    /**
+     * 导出问卷账号密码
+     *
+     * @param screeningPlanId 计划Id
+     * @param schoolId        学校Id
+     * @throws IOException IOException
+     */
+    @GetMapping("/export/planStudent/questionnaire/account/{screeningPlanId}/{schoolId}")
+    public void exportQuestionnaireAccount(@PathVariable Integer screeningPlanId, @PathVariable Integer schoolId, Integer gradeId) throws IOException {
+
+        Assert.isTrue(Objects.nonNull(screeningPlanId), "计划Id不能为空");
+        Assert.isTrue(Objects.nonNull(schoolId), "学校Id不能为空");
+
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        exportStrategy.doExport(new ExportCondition()
+                        .setApplyExportFileUserId(user.getId())
+                        .setSchoolId(schoolId)
+                        .setPlanId(screeningPlanId)
+                        .setGradeId(gradeId),
+                ExportExcelServiceNameConstant.EXPORT_PLAN_STUDENT_QUESTIONNAIRE_ACCOUNT_SERVICE);
+    }
 }
