@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -117,11 +118,17 @@ public class ScreeningNoticeBizService {
      */
     public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
         if (user.isGovDeptUser()) {
-            //查找所有的上级部门
-            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
-            superiorGovIds.add(user.getOrgId());
-            //查找政府发布的通知
-            return screeningNoticeService.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            if (districtService.isProvince(govDept.getDistrictId())) {
+                // 查找所有的上级部门
+                Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+                superiorGovIds.add(user.getOrgId());
+                // 查找政府发布的通知
+                return screeningNoticeService.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
+            } else {
+                return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
+            }
+
         }
         if (user.isPlatformAdminUser()) {
             //这里只是查找政府的通知
