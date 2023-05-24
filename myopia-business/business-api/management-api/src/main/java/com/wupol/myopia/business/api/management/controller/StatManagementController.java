@@ -194,7 +194,8 @@ public class StatManagementController {
             throw new ManagementUncheckedException("noticeId 或者 currentUser 不能为空");
         }
         //查找 district
-        District district = districtService.getProvinceDistrict(districtBizService.getNotPlatformAdminUserDistrict(currentUser));
+        District notPlatformAdminUserDistrict = districtBizService.getNotPlatformAdminUserDistrict(currentUser);
+        District district = districtService.getProvinceDistrict(notPlatformAdminUserDistrict);
         if (district == null) {
             throw new ManagementUncheckedException("无法找到该用户的找到所在区域，user = " + JSON.toJSONString(currentUser));
         }
@@ -203,7 +204,7 @@ public class StatManagementController {
         if (screeningNotice == null) {
             throw new ManagementUncheckedException("无法找到该noticeId = " + noticeId);
         }
-        return bigScreeningStatService.getBigScreeningVO(screeningNotice, district);
+        return bigScreeningStatService.getBigScreeningVO(screeningNotice, district, notPlatformAdminUserDistrict.getName());
     }
 
 

@@ -85,22 +85,6 @@ public class BigScreeningVO implements Serializable {
 
     }
 
-
-    /**
-     * 这个方法是为了大屏统计还没来得及统计的时候显示一些基本信息
-     * 空对象
-     *
-     * @param districtName
-     * @param planStudentNum
-     */
-    public static BigScreeningVO getImmutableEmptyInstance(String districtName, long planStudentNum) {
-        BigScreeningVO bigScreeningVO = new BigScreeningVO();
-        bigScreeningVO.title = districtName + TITLE_SUFFIX_STRING;
-        bigScreeningVO.planScreeningNum = planStudentNum;
-        bigScreeningVO.progressRate = 0.0;
-        return bigScreeningVO;
-    }
-
     /**
      * 创建对象
      *
