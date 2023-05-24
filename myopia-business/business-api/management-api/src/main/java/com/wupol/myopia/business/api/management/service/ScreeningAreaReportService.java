@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -123,7 +122,7 @@ public class ScreeningAreaReportService {
         }, executor);
 
         CompletableFuture<SchoolScreeningInfo> c4 = CompletableFuture.supplyAsync(() -> {
-            SchoolScreeningInfo schoolScreeningInfo = schoolScreeningInfo(statConclusions);
+            SchoolScreeningInfo schoolScreeningInfo = schoolScreeningInfo(statConclusions.stream().filter(StatConclusion::getIsValid).collect(Collectors.toList()));
             reportDTO.setSchoolScreeningInfo(schoolScreeningInfo);
             return schoolScreeningInfo;
         }, executor);
@@ -269,7 +268,7 @@ public class ScreeningAreaReportService {
         long total = validList.size();
         areaGeneralVision.setAreaLowVision(generateAreaLowVision(validList, total, noticeId, commonReportService.getHistoryData(districtId, null)));
         areaGeneralVision.setAreaRefraction(generateAreaRefraction(validList, noticeId, districtId));
-        areaGeneralVision.setWarningSituation(commonReportService.getWarningSituation(statConclusions, true, total));
+        areaGeneralVision.setWarningSituation(commonReportService.getWarningSituation(validList, true, total));
         return areaGeneralVision;
     }
 
@@ -690,15 +689,15 @@ public class ScreeningAreaReportService {
     private SchoolScreeningInfo schoolScreeningInfo(List<StatConclusion> statConclusions) {
 
         SchoolScreeningInfo schoolScreeningInfo = new SchoolScreeningInfo();
-        long total = statConclusions.size();
+
         List<StatConclusion> kList = commonReportService.getKList(statConclusions);
         List<StatConclusion> pList = commonReportService.getPList(statConclusions);
 
         if (!CollectionUtils.isEmpty(kList)) {
             SchoolScreeningInfo.Kindergarten kindergarten = new SchoolScreeningInfo.Kindergarten();
-            List<KindergartenScreeningInfoTable> kTables = screeningReportTableService.kindergartenScreeningInfoTables(kList, total);
+            List<KindergartenScreeningInfoTable> kTables = screeningReportTableService.kindergartenScreeningInfoTables(kList, (long) kList.size());
             kindergarten.setTables(kTables);
-            kindergarten.setCharts(stackedChartService.getKindergartenOverallChart(kTables, statConclusions, total));
+            kindergarten.setCharts(stackedChartService.getKindergartenOverallChart(kTables, kList, (long) kList.size()));
             schoolScreeningInfo.setKindergarten(kindergarten);
         }
         if (!CollectionUtils.isEmpty(pList)) {
