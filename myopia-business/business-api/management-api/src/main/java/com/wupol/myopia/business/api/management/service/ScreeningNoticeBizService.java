@@ -118,17 +118,11 @@ public class ScreeningNoticeBizService {
      */
     public List<ScreeningNotice> getRelatedNoticeByUser(CurrentUser user) {
         if (user.isGovDeptUser()) {
-            GovDept govDept = govDeptService.getById(user.getOrgId());
-            if (districtService.isProvince(govDept.getDistrictId())) {
-                // 查找所有的上级部门
-                Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
-                superiorGovIds.add(user.getOrgId());
-                // 查找政府发布的通知
-                return screeningNoticeService.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
-            } else {
-                return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
-            }
-
+            //查找所有的上级部门
+            Set<Integer> superiorGovIds = govDeptService.getSuperiorGovIds(user.getOrgId());
+            superiorGovIds.add(user.getOrgId());
+            //查找政府发布的通知
+            return screeningNoticeService.getNoticeByReleaseOrgId(superiorGovIds, ScreeningNotice.TYPE_GOV_DEPT);
         }
         if (user.isPlatformAdminUser()) {
             //这里只是查找政府的通知
@@ -139,6 +133,19 @@ public class ScreeningNoticeBizService {
             return screeningNoticeService.getNoticeBySreeningUser(user.getScreeningOrgId());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 大屏获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
+     */
+    public List<ScreeningNotice> bigScreeningGetRelatedNoticeByUser(CurrentUser user) {
+        if (user.isGovDeptUser()) {
+            GovDept govDept = govDeptService.getById(user.getOrgId());
+            if (!districtService.isProvince(govDept.getDistrictId())) {
+                return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
+            }
+        }
+        return getRelatedNoticeByUser(user);
     }
 
     /**
