@@ -1,16 +1,23 @@
 package com.wupol.myopia.business.api.management.domain.builder;
 
+import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
+import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RankingDataDO;
 import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.dto.DistributionDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,7 +99,8 @@ public class DistrictBigScreenStatisticBuilder {
             TwoTuple<Double, Double> leftRightNakedVision = this.getAvgNakedVision();
             districtBigScreenStatistic.setAvgVision(new AvgVisionDO(leftRightNakedVision.getFirst(), leftRightNakedVision.getSecond()));
 
-
+            districtBigScreenStatistic.setRadarChartData(generateRadarChartDataDO());
+            districtBigScreenStatistic.setRankingData(generateRankingDataDO());
         }
         //其他数据
         districtBigScreenStatistic.setValidDataNum(realValidScreeningNum);
@@ -206,5 +214,81 @@ public class DistrictBigScreenStatisticBuilder {
             return mapLocationDataDTO;
         }).collect(Collectors.toList());
     }
+
+    /**
+     * 雷达图
+     *
+     * @return RadarChartDataDO
+     */
+    private RadarChartDataDO generateRadarChartDataDO() {
+        List<BigScreenStatDataDTO> validList = bigScreenStatDataDTOList.stream().filter(s -> Objects.equals(s.getIsValid(), Boolean.TRUE)).collect(Collectors.toList());
+        RadarChartDataDO radarChartDataDO = new RadarChartDataDO();
+
+        long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
+        long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
+        long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();
+        long astigmatismCount = validList.stream().filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count();
+
+        radarChartDataDO.setLowVisionCount(lowVisionCount);
+        radarChartDataDO.setScreeningMyopiaCount(screeningMyopiaCount);
+        radarChartDataDO.setLightMyopiaCount(lightMyopiaCount);
+        radarChartDataDO.setHighMyopiaCount(highMyopiaCount);
+        radarChartDataDO.setEarlyMyopiaCount(earlyMyopiaCount);
+        radarChartDataDO.setAstigmatismCount(astigmatismCount);
+
+        RadarChartDataDO.Item item = new RadarChartDataDO.Item();
+        item.setName("视力数据");
+
+        item.setValue(Lists.newArrayList(lowVisionCount, screeningMyopiaCount, highMyopiaCount, lightMyopiaCount, earlyMyopiaCount, astigmatismCount));
+        radarChartDataDO.setData(Lists.newArrayList(item));
+        return radarChartDataDO;
+    }
+
+    /**
+     * 排行榜
+     *
+     * @return RankingDataDO
+     */
+//    private RankingDataDO generateRankingDataDO() {
+//        RankingDataDO rankingData = new RankingDataDO();
+//        List<RankingDataDO.Item> data = new ArrayList<>();
+//
+//        List<BigScreenStatDataDTO> validList = bigScreenStatDataDTOList.stream().filter(s -> Objects.equals(s.getIsValid(), Boolean.TRUE)).collect(Collectors.toList());
+//        // 通过学校名分组
+//        Map<String, List<BigScreenStatDataDTO>> schoolStatMap = validList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolName));
+//
+//        schoolStatMap.forEach((k,v)->{
+//            RankingDataDO.Item item = new RankingDataDO.Item(k, BigDecimalUtil.divide(v.stream().filter(s->Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count(), (long) v.size()));
+//            data.add(item);
+//        });
+//        rankingData.setData(data);
+//        return rankingData;
+//    }
+
+    /**
+     * 排行榜
+     *
+     * @return RankingDataDO
+     */
+    private RankingDataDO generateRankingDataDO() {
+        List<RankingDataDO.Item> data = bigScreenStatDataDTOList.stream()
+                .filter(BigScreenStatDataDTO::getIsValid)
+                .collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolName))
+                .entrySet().stream()
+                .map(entry -> {
+                    long myopiaCount = entry.getValue().stream()
+                            .filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE))
+                            .count();
+                    long totalCount = entry.getValue().size();
+                    return new RankingDataDO.Item(entry.getKey(), BigDecimalUtil.divide(myopiaCount, totalCount));
+                })
+                .sorted((o1, o2) -> o2.getRadio().compareTo(o1.getRadio()))
+                .collect(Collectors.toList());
+
+        return new RankingDataDO(data);
+    }
+
 
 }

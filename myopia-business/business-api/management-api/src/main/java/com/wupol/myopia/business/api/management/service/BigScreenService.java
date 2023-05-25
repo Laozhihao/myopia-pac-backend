@@ -5,6 +5,7 @@ import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatData
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -42,6 +43,8 @@ public class BigScreenService {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 生成结果
@@ -86,6 +89,8 @@ public class BigScreenService {
         if (realScreeningNum > 0 && realValidScreeningNum > 0) {
             //更新城市名
             bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
+            // 设置学校名
+            generateSchoolName(bigScreenStatDataDTOs);
             //构建数据
             districtBigScreenStatisticBuilder.setBigScreenStatDataDTOList(bigScreenStatDataDTOs);
         }
@@ -132,6 +137,18 @@ public class BigScreenService {
             }
             return bigScreenStatDataDTO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 设置学校名
+     *
+     * @param bigScreenStatDataDTOs bigScreenStatDataDTOs
+     */
+    private void generateSchoolName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs) {
+        Map<Integer, String> schoolMap = schoolService.getSchoolMap(bigScreenStatDataDTOs, BigScreenStatDataDTO::getSchoolId);
+        bigScreenStatDataDTOs.forEach(bigScreenStatData -> {
+            bigScreenStatData.setSchoolName(schoolMap.get(bigScreenStatData.getSchoolId()));
+        });
     }
 
 }

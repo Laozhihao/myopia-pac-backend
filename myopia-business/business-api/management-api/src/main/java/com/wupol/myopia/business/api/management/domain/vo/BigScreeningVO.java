@@ -3,6 +3,8 @@ package com.wupol.myopia.business.api.management.domain.vo;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RankingDataDO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import lombok.Data;
 
@@ -80,6 +82,16 @@ public class BigScreeningVO implements Serializable {
      */
     private Object mapData;
 
+    /**
+     * 雷达图数据
+     */
+    private RadarChartDataDO radarChartData;
+
+    /**
+     * 排行榜数据
+     */
+    private RankingDataDO rankingData;
+
 
     private BigScreeningVO() {
 
@@ -111,6 +123,8 @@ public class BigScreeningVO implements Serializable {
         bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
         bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());
         bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
+        bigScreeningVO.setRadarChartData(districtBigScreenStatistic.getRadarChartData());
+        bigScreeningVO.setRankingData(districtBigScreenStatistic.getRankingData());
         return bigScreeningVO;
     }
 }
