@@ -65,6 +65,7 @@ public class XinJiangService {
         }
         School school = schoolService.getById(visionScreeningResult.getSchoolId());
         originalData.setPlanId(screeningPlan.getId())
+                .setPlanTitle(screeningPlan.getTitle())
                 .setSchoolId(school.getId())
                 .setSchoolName(school.getName())
                 .setYear(screeningPlan.getYear())
@@ -97,7 +98,7 @@ public class XinJiangService {
         ScreeningPlan plan = screeningPlanService.getById(planId);
         Assert.notNull(plan, "不存在该计划");
         List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.findByList(new VisionScreeningResult().setPlanId(planId).setSchoolId(schoolId).setIsDoubleScreen(false));
-        Assert.isTrue(!visionScreeningResultList.isEmpty(), "没有需要同步的数据");
+        Assert.isTrue(!visionScreeningResultList.isEmpty(), "没有可同步的数据");
         for (VisionScreeningResult visionScreeningResult : visionScreeningResultList) {
             pushScreeningDataToXinJiang(plan, visionScreeningResult);
         }

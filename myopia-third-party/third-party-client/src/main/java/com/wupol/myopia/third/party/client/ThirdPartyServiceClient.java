@@ -4,7 +4,10 @@ import com.wupol.myopia.base.config.feign.BusinessServiceFeignConfig;
 import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  *
@@ -23,5 +26,14 @@ public interface ThirdPartyServiceClient {
      **/
     @PostMapping("/xinjiang/screening/result/push")
     void pushScreeningResult(@RequestBody VisionScreeningResultDTO visionScreeningResultDTO);
+
+    /**
+     * 更新筛查数据学校名称
+     *
+     * @param oldSchoolName 旧名称
+     * @param newSchoolName 新名称
+     */
+    @PutMapping("/screening/result/updateSchoolName")
+    void updateSchoolName(@NotBlank(message = "oldSchoolName不能为空") String oldSchoolName, @NotBlank(message = "newSchoolName不能为空") String newSchoolName);
 
 }
