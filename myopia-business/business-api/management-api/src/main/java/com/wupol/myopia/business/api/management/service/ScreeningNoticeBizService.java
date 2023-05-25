@@ -140,12 +140,9 @@ public class ScreeningNoticeBizService {
      */
     public List<ScreeningNotice> bigScreeningGetRelatedNoticeByUser(CurrentUser user) {
         if (user.isGovDeptUser()) {
-            GovDept govDept = govDeptService.getById(user.getOrgId());
-            if (!districtService.isProvince(govDept.getDistrictId())) {
-                return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
-            }
+            return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
         }
-        return getRelatedNoticeByUser(user);
+        return new ArrayList<>();
     }
 
     /**

@@ -91,12 +91,14 @@ public class DistrictBigScreenStatisticBuilder {
             //平均视力
             TwoTuple<Double, Double> leftRightNakedVision = this.getAvgNakedVision();
             districtBigScreenStatistic.setAvgVision(new AvgVisionDO(leftRightNakedVision.getFirst(), leftRightNakedVision.getSecond()));
+
+
         }
         //其他数据
         districtBigScreenStatistic.setValidDataNum(realValidScreeningNum);
         districtBigScreenStatistic.setRealScreeningNum(realScreeningNum);
         districtBigScreenStatistic.setPlanScreeningNum(planScreeningNum);
-        Double progressRate = 0.0D;
+        double progressRate = 0.0D;
         if (planScreeningNum > 0) {
             progressRate = MathUtil.getFormatNumWith2Scale((double) realScreeningNum / planScreeningNum * 100);
         }
