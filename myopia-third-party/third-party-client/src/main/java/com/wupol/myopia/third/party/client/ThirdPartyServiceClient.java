@@ -6,8 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -34,6 +33,6 @@ public interface ThirdPartyServiceClient {
      * @param newSchoolName 新名称
      */
     @PutMapping("/screening/result/updateSchoolName")
-    void updateSchoolName(@NotBlank(message = "oldSchoolName不能为空") String oldSchoolName, @NotBlank(message = "newSchoolName不能为空") String newSchoolName);
+    void updateSchoolName(@RequestParam("oldSchoolName") String oldSchoolName, @RequestParam("newSchoolName") String newSchoolName);
 
 }
