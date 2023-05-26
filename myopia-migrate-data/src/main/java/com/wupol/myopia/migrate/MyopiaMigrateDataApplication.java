@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@MapperScan({"com.wupol.myopia.migrate.**.domain.mapper", "com.wupol.myopia.business.core.**.domain.mapper"})
+@MapperScan("com.wupol.myopia.business.core.**.domain.mapper")
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"com.wupol.myopia.business.**.client", "com.wupol.myopia.oauth.sdk.client", "com.wupol.myopia.rec.client"})
-@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api"})
+@EnableFeignClients(basePackages = {"com.wupol.myopia.**.client"})
+@SpringBootApplication(scanBasePackages = { "com.wupol.myopia", "com.wupol.framework.api", "com.vistel.framework"})
 public class MyopiaMigrateDataApplication {
 
     public static void main(String[] args) {
