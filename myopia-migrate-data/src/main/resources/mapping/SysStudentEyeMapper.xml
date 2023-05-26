@@ -77,6 +77,9 @@
                 <if test="@Ognl@isNotEmpty(schoolTimes)">and `school_times` = #{schoolTimes}</if>
                 <if test="@Ognl@isNotEmpty(isAbnormal)">and `is_abnormal` = #{isAbnormal}</if>
                 <if test="@Ognl@isNotEmpty(diyDisease)">and `diy_disease` = #{diyDisease}</if>
+
+                <if test="@Ognl@isNotEmpty(okGlassesLeft)">and `ok_glasses_left` = #{okGlassesLeft}</if>
+                <if test="@Ognl@isNotEmpty(okGlassesRight)">and `ok_glasses_right` = #{okGlassesRight}</if>
             </trim>
         </where>
     </sql>

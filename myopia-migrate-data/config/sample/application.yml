@@ -169,7 +169,10 @@ wechat:
 vistel:
   tools:
     remoteAddress: http://tools.internal
-
+  # node-js-pdf-generator服务访问域名
+  framework:
+    nodejs-pdf:
+      uri: http://t-nodejs-pdf-generator.internal
 ### 报告相关
 report:
   pdf:
@@ -177,7 +180,9 @@ report:
     callbackUrl: https://00c5-240e-3b1-21a-2a70-6d1f-6132-cebb-9349.ngrok.io/management/pdf/callback
   html:
     url-host: http://8.135.35.154:7002
-
+file:
+  temp:
+    save-path: /app/file/
 ### 健康监控 - actuator 配置
 management:
   endpoints:

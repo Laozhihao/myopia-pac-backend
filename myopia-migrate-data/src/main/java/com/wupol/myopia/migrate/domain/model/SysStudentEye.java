@@ -3,6 +3,7 @@ package com.wupol.myopia.migrate.domain.model;
 import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.PhoneUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -18,6 +19,7 @@ import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -359,6 +361,32 @@ public class SysStudentEye implements Serializable {
      * 自定义眼病
      */
     private String diyDisease;
+
+
+    private String okGlassesLeft;
+    private String okGlassesRight;
+
+    /**
+     * 右眼等效球镜
+     */
+    @TableField(exist = false)
+    private String ser;
+    @TableField(exist = false)
+    private String spherrt;
+    @TableField(exist = false)
+    private String cylinrt;
+    @TableField(exist = false)
+    private String axisrt;
+
+    @TableField(exist = false)
+    private String sel;
+    @TableField(exist = false)
+    private String spherlt;
+    @TableField(exist = false)
+    private String cylinlt;
+    @TableField(exist = false)
+    private String axislt;
+
 
     /**
      * 转为Map
