@@ -32,7 +32,7 @@ public interface ThirdPartyServiceClient {
      * @param oldSchoolName 旧名称
      * @param newSchoolName 新名称
      */
-    @PutMapping("/screening/result/updateSchoolName")
+    @PutMapping("/xinjiang/screening/result/updateSchoolName")
     void updateSchoolName(@RequestParam("oldSchoolName") String oldSchoolName, @RequestParam("newSchoolName") String newSchoolName);
 
 }
