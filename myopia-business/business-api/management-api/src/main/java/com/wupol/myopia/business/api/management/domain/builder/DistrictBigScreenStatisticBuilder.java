@@ -3,6 +3,7 @@ package com.wupol.myopia.business.api.management.domain.builder;
 import com.google.common.collect.Lists;
 import com.wupol.framework.core.util.ObjectsUtil;
 import com.wupol.myopia.base.util.BigDecimalUtil;
+import com.wupol.myopia.business.common.utils.constant.GenderEnum;
 import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
@@ -15,9 +16,8 @@ import com.wupol.myopia.business.core.stat.domain.dto.BigScreenStatDataDTO;
 import com.wupol.myopia.business.core.stat.domain.dto.DistributionDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,15 +80,15 @@ public class DistrictBigScreenStatisticBuilder {
             num.setStudentDistribution(MathUtil.getFormatNumWith2Scale(realValidScreeningNum / (double) realScreeningNum * 100));
             districtBigScreenStatistic.setRealScreening(realScreeningData);
             //获取视力低下的地区
-            List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsLowVision())).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> lowVisionBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss -> Objects.equals(Boolean.TRUE, bss.getIsLowVision())).collect(Collectors.toList());
             BigScreenScreeningDO lowVisionScreeningData = this.getScreeningData(lowVisionBigScreenStatDataDTOs);
             districtBigScreenStatistic.setLowVision(lowVisionScreeningData);
             //获取屈光不正
-            List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsRefractiveError())).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> refractiveErrorBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss -> Objects.equals(Boolean.TRUE, bss.getIsRefractiveError())).collect(Collectors.toList());
             BigScreenScreeningDO refractiveErrorScreeningData = this.getScreeningData(refractiveErrorBigScreenStatDataDTOs);
             districtBigScreenStatistic.setAmetropia(refractiveErrorScreeningData);
             //近视
-            List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss-> Objects.equals(Boolean.TRUE,bss.getIsMyopia())).collect(Collectors.toList());
+            List<BigScreenStatDataDTO> myopiaBigScreenStatDataDTOs = bigScreenStatDataDTOList.stream().filter(bss -> Objects.equals(Boolean.TRUE, bss.getIsMyopia())).collect(Collectors.toList());
             BigScreenScreeningDO myopiaScreeningData = this.getScreeningData(myopiaBigScreenStatDataDTOs);
             districtBigScreenStatistic.setMyopia(myopiaScreeningData);
             //重点视力对象
@@ -123,8 +123,8 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     private TwoTuple<Double, Double> getAvgNakedVision() {
-        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionR())).mapToDouble(bs->bs.getVisionR().doubleValue()).average();
-        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionL())).mapToDouble(bs->bs.getVisionL().doubleValue()).average();
+        OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionR())).mapToDouble(bs -> bs.getVisionR().doubleValue()).average();
+        OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionL())).mapToDouble(bs -> bs.getVisionL().doubleValue()).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
         leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
         leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
@@ -239,33 +239,28 @@ public class DistrictBigScreenStatisticBuilder {
         radarChartDataDO.setAstigmatismCount(astigmatismCount);
 
         RadarChartDataDO.Item item = new RadarChartDataDO.Item();
-        item.setName("视力数据");
-
+        item.setName("全部");
         item.setValue(Lists.newArrayList(lowVisionCount, screeningMyopiaCount, highMyopiaCount, lightMyopiaCount, earlyMyopiaCount, astigmatismCount));
-        radarChartDataDO.setData(Lists.newArrayList(item));
+
+        radarChartDataDO.setData(Lists.newArrayList(item, genderRadarChart(validList, GenderEnum.MALE), genderRadarChart(validList, GenderEnum.FEMALE)));
         return radarChartDataDO;
     }
 
     /**
-     * 排行榜
-     *
-     * @return RankingDataDO
+     * 性别雷达图
      */
-//    private RankingDataDO generateRankingDataDO() {
-//        RankingDataDO rankingData = new RankingDataDO();
-//        List<RankingDataDO.Item> data = new ArrayList<>();
-//
-//        List<BigScreenStatDataDTO> validList = bigScreenStatDataDTOList.stream().filter(s -> Objects.equals(s.getIsValid(), Boolean.TRUE)).collect(Collectors.toList());
-//        // 通过学校名分组
-//        Map<String, List<BigScreenStatDataDTO>> schoolStatMap = validList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolName));
-//
-//        schoolStatMap.forEach((k,v)->{
-//            RankingDataDO.Item item = new RankingDataDO.Item(k, BigDecimalUtil.divide(v.stream().filter(s->Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count(), (long) v.size()));
-//            data.add(item);
-//        });
-//        rankingData.setData(data);
-//        return rankingData;
-//    }
+    private RadarChartDataDO.Item genderRadarChart(List<BigScreenStatDataDTO> validList, GenderEnum genderEnum) {
+        long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
+        long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
+        long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();
+        long astigmatismCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getIsAstigmatism(), Boolean.TRUE)).count();
+        RadarChartDataDO.Item item = new RadarChartDataDO.Item();
+        item.setName(genderEnum.cnDesc);
+        item.setValue(Lists.newArrayList(lowVisionCount, screeningMyopiaCount, highMyopiaCount, lightMyopiaCount, earlyMyopiaCount, astigmatismCount));
+        return item;
+    }
 
     /**
      * 排行榜
@@ -273,22 +268,47 @@ public class DistrictBigScreenStatisticBuilder {
      * @return RankingDataDO
      */
     private RankingDataDO generateRankingDataDO() {
-        List<RankingDataDO.Item> data = bigScreenStatDataDTOList.stream()
+        Map<Boolean, List<BigScreenStatDataDTO>> schoolTypeMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(s -> Objects.equals(s.getSchoolType(), 8)));
+        List<RankingDataDO.Item> primaryItem = getItems(schoolTypeMap.get(Boolean.FALSE), Boolean.FALSE);
+        List<RankingDataDO.Item> kindergartenItem = getItems(schoolTypeMap.get(Boolean.TRUE), Boolean.TRUE);
+
+        // 合并小学和幼儿园
+        primaryItem.addAll(kindergartenItem);
+        return new RankingDataDO(primaryItem);
+    }
+
+    /**
+     * 排行榜
+     */
+    private List<RankingDataDO.Item> getItems(List<BigScreenStatDataDTO> bigScreenStatDataList, Boolean isKindergarten) {
+        if (CollectionUtils.isEmpty(bigScreenStatDataList)) {
+            return new ArrayList<>();
+        }
+        return bigScreenStatDataList.stream()
                 .filter(BigScreenStatDataDTO::getIsValid)
                 .collect(Collectors.groupingBy(BigScreenStatDataDTO::getSchoolName))
                 .entrySet().stream()
                 .map(entry -> {
-                    long myopiaCount = entry.getValue().stream()
-                            .filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE))
-                            .count();
+                    long myopiaCount = entry.getValue().stream().filter(s -> Objects.equals(s.getIsMyopia(), Boolean.TRUE)).count();
+                    long lowVisionCount = entry.getValue().stream().filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
                     long totalCount = entry.getValue().size();
-                    return new RankingDataDO.Item(entry.getKey(), BigDecimalUtil.divide(myopiaCount, totalCount));
+
+                    RankingDataDO.Item item = new RankingDataDO.Item(entry.getKey(),
+                            BigDecimalUtil.divide(myopiaCount, totalCount),
+                            BigDecimalUtil.divide(lowVisionCount, totalCount));
+
+                    if (Objects.equals(isKindergarten, Boolean.TRUE)) {
+                        item.setMyopiaRadio(StringUtils.EMPTY);
+                    }
+                    return item;
                 })
-                .sorted((o1, o2) -> o2.getRadio().compareTo(o1.getRadio()))
-                .collect(Collectors.toList());
-
-        return new RankingDataDO(data);
+                .sorted((o1, o2) -> {
+                    if (Objects.equals(isKindergarten, Boolean.TRUE)) {
+                        // 幼儿园根据视力低下排序
+                        return o2.getLowVisionRadio().compareTo(o1.getLowVisionRadio());
+                    }
+                    // 小学以上根据近视率排序
+                    return o2.getMyopiaRadio().compareTo(o1.getMyopiaRadio());
+                }).collect(Collectors.toList());
     }
-
-
 }

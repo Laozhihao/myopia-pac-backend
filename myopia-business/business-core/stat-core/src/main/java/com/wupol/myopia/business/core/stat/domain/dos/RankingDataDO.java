@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -33,8 +32,13 @@ public class RankingDataDO implements Serializable {
         private String name;
 
         /**
-         * 比例
+         * 近视比例
          */
-        private String radio;
+        private String myopiaRadio;
+
+        /**
+         * 视力底下比例
+         */
+        private String lowVisionRadio;
     }
 }

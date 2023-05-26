@@ -80,6 +80,11 @@ public class BigScreenStatDataDTO {
     private String schoolName;
 
     /**
+     * 学校类型
+     */
+    private Integer schoolType;
+
+    /**
      * 学校Id
      */
     private Integer schoolId;

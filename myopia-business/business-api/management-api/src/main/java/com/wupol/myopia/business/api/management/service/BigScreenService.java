@@ -5,6 +5,7 @@ import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatData
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -125,7 +126,7 @@ public class BigScreenService {
      * @param districtSetMap
      */
     private List<BigScreenStatDataDTO> updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
-        return bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
+        return bigScreenStatDataDTOs.stream().peek(bigScreenStatDataDTO -> {
             Set<District> districtSet = districtSetMap.keySet();
             for (District cityDistrict : districtSet) {
                 Set<Integer> districtIds = districtSetMap.get(cityDistrict);
@@ -135,7 +136,6 @@ public class BigScreenService {
                     break;
                 }
             }
-            return bigScreenStatDataDTO;
         }).collect(Collectors.toList());
     }
 
@@ -145,9 +145,11 @@ public class BigScreenService {
      * @param bigScreenStatDataDTOs bigScreenStatDataDTOs
      */
     private void generateSchoolName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs) {
-        Map<Integer, String> schoolMap = schoolService.getSchoolMap(bigScreenStatDataDTOs, BigScreenStatDataDTO::getSchoolId);
+        Map<Integer, School> schoolMap = schoolService.getSchoolMap(bigScreenStatDataDTOs, BigScreenStatDataDTO::getSchoolId);
         bigScreenStatDataDTOs.forEach(bigScreenStatData -> {
-            bigScreenStatData.setSchoolName(schoolMap.get(bigScreenStatData.getSchoolId()));
+            School school = schoolMap.getOrDefault(bigScreenStatData.getSchoolId(), new School());
+            bigScreenStatData.setSchoolName(school.getName());
+            bigScreenStatData.setSchoolType(school.getType());
         });
     }
 
