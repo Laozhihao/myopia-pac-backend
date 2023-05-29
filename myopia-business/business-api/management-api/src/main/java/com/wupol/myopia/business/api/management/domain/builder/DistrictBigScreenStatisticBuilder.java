@@ -126,8 +126,9 @@ public class DistrictBigScreenStatisticBuilder {
         OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionR())).mapToDouble(bs -> bs.getVisionR().doubleValue()).average();
         OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionL())).mapToDouble(bs -> bs.getVisionL().doubleValue()).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
-        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
-        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
+
+        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith1Scale(avgVisionL.isPresent() ? avgVisionL.getAsDouble() : null));
+        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith1Scale(avgVisionR.isPresent() ? avgVisionR.getAsDouble() : null));
         return leftAndRightAvgVisionData;
     }
 
