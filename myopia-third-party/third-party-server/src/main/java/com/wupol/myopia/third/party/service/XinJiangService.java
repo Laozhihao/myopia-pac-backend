@@ -1,18 +1,17 @@
 package com.wupol.myopia.third.party.service;
 
-import com.wupol.myopia.base.util.GlassesTypeEnum;
+import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.third.party.domain.VisionScreeningResultDTO;
 import com.wupol.myopia.third.party.domain.constant.WearGlassTypeEnum;
 import com.wupol.myopia.third.party.domain.model.StudentVisionScreeningResult;
 import com.wupol.myopia.third.party.util.XinJiangParseDataUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -36,7 +35,21 @@ public class XinJiangService {
      *
      * @param originalData 原始数据
      */
+    @Async
     public void handleScreeningResultData(VisionScreeningResultDTO originalData) {
+        try {
+            saveOrUpdateScreeningResult(originalData);
+        } catch (Exception e) {
+            log.error("【同步筛查数据到新疆中间库异常】原始数据：{}", JSON.toJSONString(originalData), e);
+        }
+    }
+
+    /**
+     * 处理原始数据入库
+     *
+     * @param originalData 原始数据
+     */
+    private void saveOrUpdateScreeningResult(VisionScreeningResultDTO originalData) {
         // 构建数据
         StudentVisionScreeningResult newData = buildStudentVisionScreeningResult(originalData);
         // 获取旧数据
@@ -87,6 +100,21 @@ public class XinJiangService {
         // 缺省数据
         return newData.setLeftMirrorCheck(DEFAULT_INT_9).setRightMirrorCheck(DEFAULT_INT_9).setLeftAmetropia(DEFAULT_INT_9).setRightAmetropia(DEFAULT_INT_9);
 
+    }
+
+    /**
+     * 更新筛查数据学校名称
+     *
+     * @param oldSchoolName 旧名称
+     * @param newSchoolName 新名称
+     */
+    public void updateSchoolName(String oldSchoolName, String newSchoolName) {
+        int count = studentVisionScreeningResultService.count(new StudentVisionScreeningResult().setSchoolName(oldSchoolName));
+        if (count == 0) {
+            log.warn("没有需要更新学校名称的筛查数据，旧名称={}，新名称={}", oldSchoolName, newSchoolName);
+            return;
+        }
+        studentVisionScreeningResultService.update(new StudentVisionScreeningResult().setSchoolName(newSchoolName), new StudentVisionScreeningResult().setSchoolName(oldSchoolName));
     }
 
 }
