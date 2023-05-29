@@ -216,7 +216,11 @@ public class MigrateSchoolAndGradeClassService {
                 .setAreaType(2)
                 .setMonitorType(1)
                 .setSchoolNo(schoolService.getLatestSchoolNo(areaDistrictCode.toString(), 2, 1))
-                .setName(sysSchool.getName());
+                .setName(sysSchool.getName())
+                //新增筛查类型
+                .setScreeningTypeConfig(String.valueOf(sysSchool.getScreeningType()))
+                //省级code
+                .setDistrictProvinceCode(sysSchool.getProvinceCode());
         Date date = new Date();
         schoolDTO.setCooperationType(CooperationTypeEnum.COOPERATION_TYPE_TRY_OUT.getType())
                 .setCooperationTimeType(CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_30_DAY.getType())
