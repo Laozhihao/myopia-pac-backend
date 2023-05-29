@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.constant.CooperationTimeTypeEnum;
 import com.wupol.myopia.base.constant.CooperationTypeEnum;
 import com.wupol.myopia.base.constant.StatusConstant;
+import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
@@ -85,27 +86,26 @@ public class MigrateSchoolAndGradeClassService {
             Integer schoolType = school.getType();
             String sysSchoolId = sysSchool.getSchoolId();
             schoolMap.put(sysSchoolId, schoolId);
-            // 迁移年级、班级
+            // 迁移年级、班级（根据年级编码排序）
             List<SysGradeClass> gradeAndClassList = sysStudentEyeService.getAllGradeAndClassBySchoolId(sysSchoolId);
-            Map<String, List<SysGradeClass>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGrade));
-            Arrays.stream(GradeCodeEnum.values()).forEach(gradeCodeEnum -> {
-                String gradeName = gradeCodeEnum.getName();
-                List<SysGradeClass> sysGradeClassList = gradeClassMap.get(gradeName);
-                if (Objects.isNull(sysGradeClassList)) {
-                    return;
-                }
-                // 年级
-                Integer gradeId = saveGrade(schoolId, gradeName, schoolType);
-                gradeMap.put(sysSchoolId + gradeName, gradeId);
-                // 班级（存在同名的则不新增）
-                Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
-                List<SchoolClass> schoolClassList = sysGradeClassList.stream()
-                        .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
-                        .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
-                        .collect(Collectors.toList());
-                schoolClassService.saveOrUpdateBatch(schoolClassList);
-                Map<String, Integer> newClassMap = schoolClassList.stream().collect(Collectors.toMap(x -> sysSchoolId + gradeName + x.getName(), SchoolClass::getId));
-                classMap.putAll(newClassMap);
+            gradeAndClassList.forEach(x -> x.setGradeCode(getGradeCode(x.getGrade(), schoolType)));
+            Map<String, Map<String, List<SysGradeClass>>> gradeClassMap = gradeAndClassList.stream().collect(Collectors.groupingBy(SysGradeClass::getGradeCode, Collectors.groupingBy(SysGradeClass::getGrade)));
+            gradeClassMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEachOrdered(y -> {
+                String gradeCode = y.getKey();
+                y.getValue().forEach((gradeName, classList) -> {
+                    // 年级
+                    Integer gradeId = saveGrade(schoolId, gradeName, gradeCode);
+                    gradeMap.put(sysSchoolId + gradeName, gradeId);
+                    // 班级（存在同名的则不新增）
+                    Map<@NotBlank(message = "班级名称不能为空") String, Integer> existClassMap = schoolClassService.getByGradeId(gradeId).stream().collect(Collectors.toMap(SchoolClass::getName, SchoolClass::getId));
+                    List<SchoolClass> schoolClassList = classList.stream()
+                            .filter(x -> Objects.isNull(existClassMap.get(x.getClazz())))
+                            .map(x -> new SchoolClass().setSchoolId(schoolId).setCreateUserId(1).setGradeId(gradeId).setName(x.getClazz()))
+                            .collect(Collectors.toList());
+                    schoolClassService.saveOrUpdateBatch(schoolClassList);
+                    Map<String, Integer> newClassMap = schoolClassList.stream().collect(Collectors.toMap(x -> sysSchoolId + gradeName + x.getName(), SchoolClass::getId));
+                    classMap.putAll(newClassMap);
+                });
             });
         });
         log.info("==  学校-完成  ==");
@@ -134,10 +134,10 @@ public class MigrateSchoolAndGradeClassService {
      *
      * @param schoolId 学校ID
      * @param gradeName 年级名称
-     * @param schoolType 学校名称
+     * @param gradeCode 年级编码
      * @return java.lang.Integer
      **/
-    private Integer saveGrade(Integer schoolId, String gradeName, Integer schoolType) {
+    private Integer saveGrade(Integer schoolId, String gradeName, String gradeCode) {
         // 存在同名年级则不新增
         SchoolGrade existGrade = schoolGradeService.findOne(new SchoolGrade().setSchoolId(schoolId).setName(gradeName));
         if (Objects.nonNull(existGrade)) {
@@ -147,12 +147,12 @@ public class MigrateSchoolAndGradeClassService {
                 .setSchoolId(schoolId)
                 .setName(gradeName)
                 .setCreateUserId(1)
-                .setGradeCode(getGradeCode(gradeName, schoolType));
+                .setGradeCode(gradeCode);
         schoolGradeService.save(schoolGrade);
         return schoolGrade.getId();
     }
 
-    private String getGradeCode(String gradeName, Integer schoolType) {
+    private static String getGradeCode(String gradeName, Integer schoolType) {
         String gradeCode = GradeCodeEnum.getByName(gradeName.trim()).getCode();
         // 非规范名称，降级处理
         if (GradeCodeEnum.UNKNOWN.getCode().equals(gradeCode)) {
@@ -195,10 +195,9 @@ public class MigrateSchoolAndGradeClassService {
             }else if ("职高三年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
                 log.info("---------------职高三-----------"+schoolType);
                 return GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode();
+            } else {
+                throw new BusinessException("无效年级名称：" + gradeName);
             }
-
-
-
         }
         return gradeCode;
     }
