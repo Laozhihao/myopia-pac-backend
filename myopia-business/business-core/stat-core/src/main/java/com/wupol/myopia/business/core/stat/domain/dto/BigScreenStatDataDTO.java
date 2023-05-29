@@ -63,4 +63,29 @@ public class BigScreenStatDataDTO {
 
     /** 是否有效数据 */
     private Boolean isValid;
+
+    /**
+     * 近视等级
+     */
+    private Integer myopiaLevel;
+
+    /**
+     * 是否散光
+     */
+    private Boolean isAstigmatism;
+
+    /**
+     * 学校名称
+     */
+    private String schoolName;
+
+    /**
+     * 学校类型
+     */
+    private Integer schoolType;
+
+    /**
+     * 学校Id
+     */
+    private Integer schoolId;
 }
