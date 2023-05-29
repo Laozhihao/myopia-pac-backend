@@ -170,6 +170,8 @@ public class MigrateSchoolAndGradeClassService {
                 return GradeCodeEnum.THREE_HIGH_SCHOOL.getCode();
             } else if ("大".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
+            } else if ("幼儿园大班".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
+                return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
             } else if ("中".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.TWO_KINDERGARTEN.getCode();
             } else if ("小".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
