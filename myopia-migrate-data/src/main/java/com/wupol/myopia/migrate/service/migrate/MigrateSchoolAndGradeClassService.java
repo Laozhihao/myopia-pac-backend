@@ -77,7 +77,7 @@ public class MigrateSchoolAndGradeClassService {
         List<SysSchool> sysSchoolList = sysSchoolService.findByList(new SysSchool());
         sysSchoolList.forEach(sysSchool -> {
             // 没有数据的不迁移
-            if (sysStudentEyeService.count(new SysStudentEye().setSchoolId(sysSchool.getSchoolId())) <= 0) {
+            if (sysStudentEyeService.count(new SysStudentEye().setSchoolId(sysSchool.getSchoolId())) <= 0 || sysSchool.getName().contains("测试")) {
                 return;
             }
             // 迁移学校
