@@ -188,6 +188,15 @@ public class MigrateSchoolAndGradeClassService {
                 return GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode();
             } else if ("六".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
                 return GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode();
+            }else if ("职高一年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+                log.info("---------------职高一-----------"+schoolType);
+                return GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getCode();
+            }else if ("职高二年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+                log.info("---------------职高二-----------"+schoolType);
+                return GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getCode();
+            }else if ("职高三年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+                log.info("---------------职高三-----------"+schoolType);
+                return GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode();
             } else {
                 throw new BusinessException("无效年级名称：" + gradeName);
             }

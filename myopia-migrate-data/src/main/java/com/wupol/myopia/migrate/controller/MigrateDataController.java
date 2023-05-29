@@ -4,6 +4,7 @@ import com.wupol.myopia.base.cache.RedisUtil;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.handler.ResponseResultBody;
 import com.wupol.myopia.migrate.service.migrate.MigrateDataHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author HaoHao
  * @Date 2022/3/23
  **/
+@Slf4j
 @ResponseResultBody
 @RestController
 @RequestMapping("/migrate/data")
@@ -36,6 +38,7 @@ public class MigrateDataController {
         try {
             migrateDataHandler.migrateData();
         } catch (Exception e) {
+            log.debug(e.getMessage());
             throw new BusinessException("数据迁移失败", e);
         } finally {
             // 解说
