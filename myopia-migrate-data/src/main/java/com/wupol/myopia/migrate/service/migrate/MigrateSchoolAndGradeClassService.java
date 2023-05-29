@@ -170,6 +170,8 @@ public class MigrateSchoolAndGradeClassService {
                 return GradeCodeEnum.THREE_HIGH_SCHOOL.getCode();
             } else if ("大".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
+            } else if ("幼儿园大班".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
+                return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
             } else if ("中".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.TWO_KINDERGARTEN.getCode();
             } else if ("小".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
@@ -227,7 +229,11 @@ public class MigrateSchoolAndGradeClassService {
                 .setAreaType(2)
                 .setMonitorType(1)
                 .setSchoolNo(schoolService.getLatestSchoolNo(areaDistrictCode.toString(), 2, 1))
-                .setName(sysSchool.getName());
+                .setName(sysSchool.getName())
+                //新增筛查类型
+                .setScreeningTypeConfig(String.valueOf(sysSchool.getScreeningType()))
+                //省级code
+                .setDistrictProvinceCode(sysSchool.getProvinceCode());
         Date date = new Date();
         schoolDTO.setCooperationType(CooperationTypeEnum.COOPERATION_TYPE_TRY_OUT.getType())
                 .setCooperationTimeType(CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_30_DAY.getType())

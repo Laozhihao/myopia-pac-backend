@@ -110,4 +110,15 @@ public class SysSchool implements Serializable {
      */
     private Integer schoolCode;
 
+    /**
+     * 升学时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date entranceTime;
+
+    /**
+     * 学校筛查类型 0视力1常见病
+     */
+    private Integer screeningType;
+
 }
