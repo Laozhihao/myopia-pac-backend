@@ -186,7 +186,7 @@ public class DistrictBigScreenStatisticBuilder {
      */
     private BigScreenScreeningDO getScreeningData(List<BigScreenStatDataDTO> bigScreenStatDataDTOList) {
         DistributionDTO distributionDTO = DistributionDTO.Builder.getBuilder()
-                .setScreeningStudentNum(bigScreenStatDataDTOList.stream().count())
+                .setScreeningStudentNum((long) bigScreenStatDataDTOList.size())
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOList)
                 .setRealScreeningNum(realValidScreeningNum)
                 .build();

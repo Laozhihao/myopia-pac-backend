@@ -26,6 +26,7 @@ public class RankingDataDO implements Serializable {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Item implements Serializable {
+
         /**
          * 名称
          */
@@ -37,7 +38,7 @@ public class RankingDataDO implements Serializable {
         private String myopiaRadio;
 
         /**
-         * 视力底下比例
+         * 视力低下比例
          */
         private String lowVisionRadio;
     }
