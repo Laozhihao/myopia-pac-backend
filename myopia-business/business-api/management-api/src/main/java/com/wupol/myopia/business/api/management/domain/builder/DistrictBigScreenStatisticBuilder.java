@@ -226,7 +226,7 @@ public class DistrictBigScreenStatisticBuilder {
         RadarChartDataDO radarChartDataDO = new RadarChartDataDO();
 
         long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
-        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getScreeningMyopia(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
         long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
         long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
         long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();
@@ -252,7 +252,7 @@ public class DistrictBigScreenStatisticBuilder {
      */
     private RadarChartDataDO.Item genderRadarChart(List<BigScreenStatDataDTO> validList, GenderEnum genderEnum) {
         long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
-        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getScreeningMyopia(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
         long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
         long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
         long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();

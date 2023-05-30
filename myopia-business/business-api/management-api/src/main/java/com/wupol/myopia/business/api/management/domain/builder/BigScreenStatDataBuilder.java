@@ -32,6 +32,7 @@ public class BigScreenStatDataBuilder {
         bigScreenStatDataDTO.setMyopiaLevel(statConclusion.getMyopiaLevel());
         bigScreenStatDataDTO.setIsAstigmatism(statConclusion.getIsAstigmatism());
         bigScreenStatDataDTO.setSchoolId(statConclusion.getSchoolId());
+        bigScreenStatDataDTO.setScreeningMyopia(statConclusion.getScreeningMyopia());
         return bigScreenStatDataDTO;
     }
 }
