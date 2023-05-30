@@ -1172,6 +1172,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     /**
      * 获取当前区域所属省级
      */
+    public District getProvinceDistrict(Integer districtId) {
+        return getProvinceDistrict(getById(districtId));
+    }
+
+    /**
+     * 获取当前区域所属省级
+     */
     public District getProvinceDistrict(District district) {
         return getByCode(Long.valueOf(String.valueOf(district.getCode()).substring(0,2) + "0000000"));
     }

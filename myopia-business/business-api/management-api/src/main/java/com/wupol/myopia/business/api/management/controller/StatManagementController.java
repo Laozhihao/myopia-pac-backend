@@ -180,8 +180,6 @@ public class StatManagementController {
         return districtBizService.getValidDistrictTree(currentUser, districtIds);
     }
 
-
-
     /**
      * 获取大屏展示的数据
      *
