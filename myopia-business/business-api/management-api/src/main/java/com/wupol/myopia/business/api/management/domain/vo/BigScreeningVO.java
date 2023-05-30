@@ -6,6 +6,7 @@ import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RankingDataDO;
+import com.wupol.myopia.business.core.stat.domain.dto.AvgVisionDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import lombok.Data;
 
@@ -77,7 +78,7 @@ public class BigScreeningVO implements Serializable {
     /**
      * 平均视力
      */
-    private AvgVisionDO avgVision;
+    private AvgVisionDTO avgVision;
     /**
      * 地图数据
      */
@@ -112,9 +113,7 @@ public class BigScreeningVO implements Serializable {
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
         AvgVisionDO avgVision = districtBigScreenStatistic.getAvgVision();
-        avgVision.setLeftEyeVision(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision()));
-        avgVision.setRightEyeVision(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()));
-        bigScreeningVO.setAvgVision(avgVision);
+        bigScreeningVO.setAvgVision(new AvgVisionDTO(String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision())), String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()))));
         bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
         bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
