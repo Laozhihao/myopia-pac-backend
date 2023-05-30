@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
@@ -110,7 +111,10 @@ public class BigScreeningVO implements Serializable {
         BigScreeningVO bigScreeningVO = new BigScreeningVO();
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
-        bigScreeningVO.setAvgVision(districtBigScreenStatistic.getAvgVision());
+        AvgVisionDO avgVision = districtBigScreenStatistic.getAvgVision();
+        avgVision.setLeftEyeVision(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision()));
+        avgVision.setRightEyeVision(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()));
+        bigScreeningVO.setAvgVision(avgVision);
         bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
         bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());

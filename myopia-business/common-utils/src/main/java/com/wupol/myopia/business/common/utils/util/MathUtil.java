@@ -156,7 +156,7 @@ public class MathUtil {
      */
     private double getFormatNum(int scale,double num) {
         BigDecimal bigDecimal = BigDecimal.valueOf(num);
-        bigDecimal = bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        bigDecimal = bigDecimal.setScale(scale, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
     }
 
