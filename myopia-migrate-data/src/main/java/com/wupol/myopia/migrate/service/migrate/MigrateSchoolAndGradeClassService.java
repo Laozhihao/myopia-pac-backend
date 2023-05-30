@@ -170,11 +170,15 @@ public class MigrateSchoolAndGradeClassService {
                 return GradeCodeEnum.THREE_HIGH_SCHOOL.getCode();
             } else if ("大".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
-            } else if ("幼儿园大班".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
+            } else if ("幼儿园大班".equals(gradeName)) {
                 return GradeCodeEnum.THREE_KINDERGARTEN.getCode();
             } else if ("中".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
                 return GradeCodeEnum.TWO_KINDERGARTEN.getCode();
-            } else if ("小".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
+            } else if ("幼儿园中班".equals(gradeName)) {
+                return GradeCodeEnum.TWO_KINDERGARTEN.getCode();
+            } else if ("小".equals(gradeName) && SchoolEnum.TYPE_KINDERGARTEN.getType().equals(schoolType)) {
+                return GradeCodeEnum.ONE_KINDERGARTEN.getCode();
+            } else if ("幼儿园小班".equals(gradeName)) {
                 return GradeCodeEnum.ONE_KINDERGARTEN.getCode();
             } else if ("一".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
                 return GradeCodeEnum.ONE_PRIMARY_SCHOOL.getCode();
@@ -262,13 +266,15 @@ public class MigrateSchoolAndGradeClassService {
             return SchoolEnum.TYPE_MIDDLE.getType();
         } else if ("高中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_HIGH.getType();
+        } else if ("大学".equals(sysSchoolState)) {
+            return SchoolEnum.TYPE_UNIVERSITY.getType();
         } else if ("职高".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_VOCATIONAL.getType();
-        } else if ("幼儿园,小学".equals(sysSchoolState)) {
+        } else if ("幼儿园,小学".equals(sysSchoolState) || "小学,幼儿园".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_PRIMARY.getType();
         } else if ("小学,初中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_9.getType();
-        } else if ("小学,初中,高中".equals(sysSchoolState)) {
+        } else if ("小学,初中,高中".equals(sysSchoolState) || "幼儿园,初中,高中,小学".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_12.getType();
         } else if ("初中,高中".equals(sysSchoolState)) {
             return SchoolEnum.TYPE_INTEGRATED_MIDDLE.getType();
