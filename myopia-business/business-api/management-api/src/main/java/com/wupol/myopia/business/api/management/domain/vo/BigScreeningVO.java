@@ -12,6 +12,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Description
@@ -113,7 +114,9 @@ public class BigScreeningVO implements Serializable {
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
         AvgVisionDO avgVision = districtBigScreenStatistic.getAvgVision();
-        bigScreeningVO.setAvgVision(new AvgVisionDTO(String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision())), String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()))));
+        if (Objects.nonNull(avgVision)) {
+            bigScreeningVO.setAvgVision(new AvgVisionDTO(String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision())), String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()))));
+        }
         bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
         bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
