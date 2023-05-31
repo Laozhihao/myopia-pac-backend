@@ -156,7 +156,17 @@ public class MathUtil {
      */
     private double getFormatNum(int scale,double num) {
         BigDecimal bigDecimal = BigDecimal.valueOf(num);
-        bigDecimal = bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        bigDecimal = bigDecimal.setScale(scale, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
+    }
+
+    /**
+     * 四舍五入,保留1位小数
+     */
+    public double getFormatNumWith1Scale(Double num) {
+        if (num == null) {
+            num = 0.0D;
+        }
+        return getFormatNum(NumberCommonConst.ONE_INT, num);
     }
 }

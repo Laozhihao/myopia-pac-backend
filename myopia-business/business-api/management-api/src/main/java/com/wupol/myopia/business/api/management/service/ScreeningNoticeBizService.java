@@ -2,6 +2,7 @@ package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Sets;
 import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.constant.UserType;
 import com.wupol.myopia.base.domain.CurrentUser;
@@ -132,6 +133,16 @@ public class ScreeningNoticeBizService {
             return screeningNoticeService.getNoticeBySreeningUser(user.getScreeningOrgId());
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 大屏获取该用户所在部门参与的筛查通知（发布筛查通知，或者接受过筛查通知）
+     */
+    public List<ScreeningNotice> bigScreeningGetRelatedNoticeByUser(CurrentUser user) {
+        if (user.isGovDeptUser()) {
+            return screeningNoticeService.getNoticeByReleaseOrgId(Sets.newHashSet(user.getOrgId()), ScreeningNotice.TYPE_GOV_DEPT);
+        }
+        return new ArrayList<>();
     }
 
     /**

@@ -5,6 +5,8 @@ import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatData
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.core.common.domain.model.District;
 import com.wupol.myopia.business.core.common.service.DistrictService;
+import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,8 @@ public class BigScreenService {
     private DistrictBigScreenStatisticService districtBigScreenStatisticService;
     @Autowired
     private StatConclusionService statConclusionService;
+    @Autowired
+    private SchoolService schoolService;
 
     /**
      * 生成结果
@@ -53,7 +58,7 @@ public class BigScreenService {
     @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX,key = "#result.screeningNoticeId + '_' + #result.districtId")
     public DistrictBigScreenStatistic generateResultAndSave(Integer provinceDistrictId, ScreeningNotice screeningNotice) {
         DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(provinceDistrictId, screeningNotice);
-        if (districtBigScreenStatistic != null) {
+        if (Objects.nonNull(districtBigScreenStatistic)) {
             districtBigScreenStatisticService.saveOrUpdateByDistrictIdAndNoticeId(districtBigScreenStatistic);
         }
         return districtBigScreenStatistic;
@@ -86,6 +91,8 @@ public class BigScreenService {
         if (realScreeningNum > 0 && realValidScreeningNum > 0) {
             //更新城市名
             bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
+            // 设置学校名
+            generateSchoolName(bigScreenStatDataDTOs);
             //构建数据
             districtBigScreenStatisticBuilder.setBigScreenStatDataDTOList(bigScreenStatDataDTOs);
         }
@@ -120,7 +127,7 @@ public class BigScreenService {
      * @param districtSetMap
      */
     private List<BigScreenStatDataDTO> updateCityName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs, Map<District, Set<Integer>> districtSetMap) {
-        return bigScreenStatDataDTOs.stream().map(bigScreenStatDataDTO -> {
+        return bigScreenStatDataDTOs.stream().peek(bigScreenStatDataDTO -> {
             Set<District> districtSet = districtSetMap.keySet();
             for (District cityDistrict : districtSet) {
                 Set<Integer> districtIds = districtSetMap.get(cityDistrict);
@@ -130,8 +137,21 @@ public class BigScreenService {
                     break;
                 }
             }
-            return bigScreenStatDataDTO;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 设置学校名
+     *
+     * @param bigScreenStatDataDTOs bigScreenStatDataDTOs
+     */
+    private void generateSchoolName(List<BigScreenStatDataDTO> bigScreenStatDataDTOs) {
+        Map<Integer, School> schoolMap = schoolService.getSchoolMap(bigScreenStatDataDTOs, BigScreenStatDataDTO::getSchoolId);
+        bigScreenStatDataDTOs.forEach(bigScreenStatData -> {
+            School school = schoolMap.getOrDefault(bigScreenStatData.getSchoolId(), new School());
+            bigScreenStatData.setSchoolName(school.getName());
+            bigScreenStatData.setSchoolType(school.getType());
+        });
     }
 
 }
