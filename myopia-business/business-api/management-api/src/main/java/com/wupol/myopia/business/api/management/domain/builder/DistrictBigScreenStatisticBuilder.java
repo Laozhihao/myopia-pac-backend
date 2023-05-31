@@ -306,10 +306,10 @@ public class DistrictBigScreenStatisticBuilder {
                 .sorted((o1, o2) -> {
                     if (Objects.equals(isKindergarten, Boolean.TRUE)) {
                         // 幼儿园根据视力低下排序
-                        return Integer.valueOf(o2.getLowVisionRadio()).compareTo(Integer.valueOf(o1.getLowVisionRadio()));
+                        return Double.valueOf(o2.getLowVisionRadio()).compareTo(Double.valueOf(o1.getLowVisionRadio()));
                     }
                     // 小学以上根据近视率排序
-                    return Integer.valueOf(o2.getMyopiaRadio()).compareTo(Integer.valueOf(o1.getMyopiaRadio()));
+                    return Double.valueOf(o2.getMyopiaRadio()).compareTo(Double.valueOf(o1.getMyopiaRadio()));
                 }).collect(Collectors.toList());
     }
 }
