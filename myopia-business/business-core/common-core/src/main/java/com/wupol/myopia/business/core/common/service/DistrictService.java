@@ -45,6 +45,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public static final String XIN_JIANG_DISTRICT_CODE_PREFIX = "65";
 
+    /**
+     * 省级行政区域后缀
+     */
+    private static final String PROVINCE_PARENT_SUFFIX_CODE = "0000000";
+
     @Autowired
     private RedisUtil redisUtil;
 
@@ -1180,7 +1185,7 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      * 获取当前区域所属省级
      */
     public District getProvinceDistrict(District district) {
-        return getByCode(Long.valueOf(String.valueOf(district.getCode()).substring(0,2) + "0000000"));
+        return getByCode(Long.valueOf(String.valueOf(district.getCode()).substring(0,2) + PROVINCE_PARENT_SUFFIX_CODE));
     }
 
 }

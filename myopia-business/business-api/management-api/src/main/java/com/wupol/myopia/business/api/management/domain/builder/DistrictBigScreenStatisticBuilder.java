@@ -8,6 +8,7 @@ import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
@@ -269,7 +270,8 @@ public class DistrictBigScreenStatisticBuilder {
      * @return RankingDataDO
      */
     private RankingDataDO generateRankingDataDO() {
-        Map<Boolean, List<BigScreenStatDataDTO>> schoolTypeMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(s -> Objects.equals(s.getSchoolType(), 8)));
+        Map<Boolean, List<BigScreenStatDataDTO>> schoolTypeMap = bigScreenStatDataDTOList.stream()
+                .collect(Collectors.groupingBy(s -> Objects.equals(s.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())));
         List<RankingDataDO.Item> primaryItem = getItems(schoolTypeMap.get(Boolean.FALSE), Boolean.FALSE);
         List<RankingDataDO.Item> kindergartenItem = getItems(schoolTypeMap.get(Boolean.TRUE), Boolean.TRUE);
 
