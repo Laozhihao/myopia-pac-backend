@@ -1,6 +1,7 @@
 package com.wupol.myopia.business.core.screening.flow.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
@@ -144,5 +145,16 @@ public class ScreeningNoticeDeptOrgService extends BaseService<ScreeningNoticeDe
      */
     public List<ScreeningNoticeDTO> getCanLinkNotice(Integer orgId, Integer type) {
         return baseMapper.getCanLinkNotice(orgId, type);
+    }
+
+    /**
+     * 通过通知对应的筛查任务或筛查计划ID获取
+     *
+     * @param planId 计划Id
+     * @return ScreeningNoticeDeptOrg
+     */
+    public ScreeningNoticeDeptOrg getByScreeningTaskPlanId(Integer planId) {
+        return baseMapper.selectOne(Wrappers.lambdaQuery(ScreeningNoticeDeptOrg.class)
+                .eq(ScreeningNoticeDeptOrg::getScreeningTaskPlanId, planId));
     }
 }
