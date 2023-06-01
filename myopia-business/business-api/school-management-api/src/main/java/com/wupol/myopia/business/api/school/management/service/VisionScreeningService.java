@@ -420,10 +420,11 @@ public class VisionScreeningService {
         screeningPlanSchoolStudentService.remove(new ScreeningPlanSchoolStudent().setScreeningPlanId(screeningPlanId));
         screeningPlanSchoolService.remove(new ScreeningPlanSchool().setScreeningPlanId(screeningPlanId));
         screeningPlanService.remove(new ScreeningPlan().setId(screeningPlanId));
-        ScreeningNoticeDeptOrg screeningTaskPlanId = screeningNoticeDeptOrgService.getByScreeningTaskPlanId(screeningPlanId);
-        if (Objects.nonNull(screeningTaskPlanId)) {
-            screeningTaskPlanId.setOperationStatus(CommonConst.STATUS_NOTICE_UNREAD);
-            screeningTaskPlanId.setScreeningTaskPlanId(CommonConst.DEFAULT_ID);
+        ScreeningNoticeDeptOrg screeningNoticeDeptOrg = screeningNoticeDeptOrgService.getByScreeningTaskPlanId(screeningPlanId);
+        if (Objects.nonNull(screeningNoticeDeptOrg)) {
+            screeningNoticeDeptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_UNREAD);
+            screeningNoticeDeptOrg.setScreeningTaskPlanId(CommonConst.DEFAULT_ID);
+            screeningNoticeDeptOrgService.updateById(screeningNoticeDeptOrg);
         }
 
     }
