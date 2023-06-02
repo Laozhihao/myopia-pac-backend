@@ -48,10 +48,10 @@ public class BigScreeningStatService {
      * @param district
      * @return
      */
-    @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
+//    @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
     public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district)  {
         //根据noticeId 和 districtId 查找数据
-        DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district.getId());
+        DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district);
         Boolean isProvince = districtService.isProvince(district);
         Object provinceMapData = null;
         if (Objects.equals(isProvince, Boolean.TRUE)) {
@@ -68,19 +68,19 @@ public class BigScreeningStatService {
      * NOTES: 根据模式的不同获取数据的方式不同,如果是"TASK"模式,则从数据库表中查出数据,如果是"REALTIME"模式,则是实时计算.
      *
      * @param screeningNotice
-     * @param districtId
+     * @param district
      * @return
      */
-    private DistrictBigScreenStatistic getDistrictBigScreenStatistic(ScreeningNotice screeningNotice, Integer districtId) {
+    private DistrictBigScreenStatistic getDistrictBigScreenStatistic(ScreeningNotice screeningNotice, District district) {
         if (bigScreeningProperties.isDebug()) {
-            return bigScreenService.generateResult(districtId, screeningNotice);
+            return bigScreenService.generateResult(district, screeningNotice);
         }
         // 直接计算
-        return bigScreenService.generateResultAndSave(districtId, screeningNotice);
-//        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), districtId);
+        return bigScreenService.generateResultAndSave(district, screeningNotice);
+//        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district);
 //        if (districtBigScreenStatistic == null) {
 //            //如果是第一天的话,直接触发第一次计算
-//            districtBigScreenStatistic = bigScreenService.generateResultAndSave(districtId, screeningNotice);
+//            districtBigScreenStatistic = bigScreenService.generateResultAndSave(district, screeningNotice);
 //        }
 //        return districtBigScreenStatistic;
     }
@@ -101,7 +101,7 @@ public class BigScreeningStatService {
         for (ScreeningNotice screeningNotice : releaseNotice) {
             try {
                 District district = districtService.getProvinceDistrict(screeningNotice.getDistrictId());
-                bigScreenService.generateResultAndSave(district.getId(), screeningNotice);
+                bigScreenService.generateResultAndSave(district, screeningNotice);
             } catch (Exception e) {
                 log.error("【统计大屏数据】失败！noticeId = {}，通知：{}", screeningNotice.getId(), screeningNotice.getTitle(), e);
             }

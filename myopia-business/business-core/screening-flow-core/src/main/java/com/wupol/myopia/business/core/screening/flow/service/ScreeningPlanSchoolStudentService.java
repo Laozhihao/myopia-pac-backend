@@ -15,6 +15,8 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -56,6 +58,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     private SchoolClassService schoolClassService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 根据学生id获取筛查计划学校学生
@@ -969,9 +973,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param srcScreeningNoticeId 通知ID
      * @return 筛查学生数
      */
-    public Integer countPlanSchoolStudentByNoticeId(int srcScreeningNoticeId) {
+    public Integer countPlanSchoolStudentByNoticeId(int srcScreeningNoticeId, District district) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,srcScreeningNoticeId);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, srcScreeningNoticeId);
+        if (Objects.equals(districtService.isProvince(district), Boolean.FALSE)) {
+            queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId, districtService.getSpecificDistrictTreeAllDistrictIds(district.getDistrictId()));
+        }
         return baseMapper.selectCount(queryWrapper);
     }
 
