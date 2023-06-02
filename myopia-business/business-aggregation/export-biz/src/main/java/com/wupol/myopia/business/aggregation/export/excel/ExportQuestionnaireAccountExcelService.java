@@ -130,4 +130,9 @@ public class ExportQuestionnaireAccountExcelService extends BaseExportExcelFileS
                 exportCondition.getPlanId(),
                 exportCondition.getGradeId());
     }
+
+    @Override
+    public Boolean isPackage() {
+        return true;
+    }
 }
