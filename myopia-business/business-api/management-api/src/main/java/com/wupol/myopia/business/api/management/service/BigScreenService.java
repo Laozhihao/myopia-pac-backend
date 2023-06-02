@@ -67,30 +67,30 @@ public class BigScreenService {
     /**
      * 生成某个省的数据
      *
-     * @param provinceDistrictId
+     * @param districtId
      * @param screeningNotice
      * @return
      */
-    public DistrictBigScreenStatistic generateResult(Integer provinceDistrictId, ScreeningNotice screeningNotice) {
+    public DistrictBigScreenStatistic generateResult(Integer districtId, ScreeningNotice screeningNotice) {
         //根据条件查找所有的元素：条件 cityDistrictIds 非复测 有效
         List<BigScreenStatDataDTO> bigScreenStatDataDTOs = getByNoticeIdAndDistrictIds(screeningNotice.getId());
         //实际筛查数量
         int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         //获取地图数据
-        Map<Integer, List<Double>> cityCenterLocationMap = bigScreenMapService.getCityCenterLocationByDistrictId(provinceDistrictId);
+        Map<Integer, List<Double>> cityCenterLocationMap = bigScreenMapService.getCityCenterLocationByDistrictId(districtId);
         //将基本数据放入构造器
         bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
         int realValidScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         DistrictBigScreenStatisticBuilder districtBigScreenStatisticBuilder = DistrictBigScreenStatisticBuilder.getBuilder()
                 .setRealValidScreeningNum((long) realValidScreeningNum)
                 .setRealScreeningNum((long) realScreeningNum)
-                .setDistrictId(provinceDistrictId)
+                .setDistrictId(districtId)
                 .setCityCenterMap(cityCenterLocationMap)
                 .setNoticeId(screeningNotice.getId())
                 .setPlanScreeningNum(Long.valueOf(screeningPlanSchoolStudentService.countPlanSchoolStudentByNoticeId(screeningNotice.getId())));
         if (realScreeningNum > 0 && realValidScreeningNum > 0) {
             //更新城市名
-            bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(provinceDistrictId));
+            bigScreenStatDataDTOs = this.updateCityName(bigScreenStatDataDTOs, districtService.getCityAllDistrictIds(districtId));
             // 设置学校名
             generateSchoolName(bigScreenStatDataDTOs);
             //构建数据

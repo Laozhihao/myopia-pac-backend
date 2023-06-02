@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author HaoHao
@@ -48,13 +49,18 @@ public class BigScreeningStatService {
      * @return
      */
     @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
-    public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district, String districtName)  {
+    public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district)  {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district.getId());
-        //查找map数据
-        Object provinceMapData = bigScreenMapService.getMapDataByDistrictId(district.getId());
+        Boolean isProvince = districtService.isProvince(district);
+        Object provinceMapData = null;
+        if (Objects.equals(isProvince, Boolean.TRUE)) {
+            //查找map数据
+            provinceMapData = bigScreenMapService.getMapDataByDistrictId(district.getId());
+        }
+
         //对数据进行整合
-        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, districtName, provinceMapData);
+        return BigScreeningVO.getNewInstance(screeningNotice, districtBigScreenStatistic, district.getName(), provinceMapData, isProvince);
     }
 
     /**
@@ -69,12 +75,14 @@ public class BigScreeningStatService {
         if (bigScreeningProperties.isDebug()) {
             return bigScreenService.generateResult(districtId, screeningNotice);
         }
-        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), districtId);
-        if (districtBigScreenStatistic == null) {
-            //如果是第一天的话,直接触发第一次计算
-            districtBigScreenStatistic = bigScreenService.generateResultAndSave(districtId, screeningNotice);
-        }
-        return districtBigScreenStatistic;
+        // 直接计算
+        return bigScreenService.generateResultAndSave(districtId, screeningNotice);
+//        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), districtId);
+//        if (districtBigScreenStatistic == null) {
+//            //如果是第一天的话,直接触发第一次计算
+//            districtBigScreenStatistic = bigScreenService.generateResultAndSave(districtId, screeningNotice);
+//        }
+//        return districtBigScreenStatistic;
     }
 
     /**
