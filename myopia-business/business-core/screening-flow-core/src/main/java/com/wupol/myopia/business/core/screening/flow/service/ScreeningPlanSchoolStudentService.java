@@ -988,4 +988,16 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     public ScreeningPlanSchoolStudent getCommonDiseasePlanStudent(Integer type, Long screeningCode, Integer id) {
         return baseMapper.getCommonDiseasePlanStudent(type, screeningCode, id);
     }
+
+    /**
+     * 获取筛查学生
+     *
+     * @return 筛查学生
+     */
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndDistrictIds(List<Integer> noticeIds, List<Integer> districtIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, noticeIds);
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId, districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
 }

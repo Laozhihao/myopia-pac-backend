@@ -77,12 +77,6 @@ public class BigScreeningStatService {
         }
         // 直接计算
         return bigScreenService.generateResultAndSave(district, screeningNotice);
-//        DistrictBigScreenStatistic districtBigScreenStatistic = districtBigScreenStatisticService.getByNoticeIdAndDistrictId(screeningNotice.getId(), district);
-//        if (districtBigScreenStatistic == null) {
-//            //如果是第一天的话,直接触发第一次计算
-//            districtBigScreenStatistic = bigScreenService.generateResultAndSave(district, screeningNotice);
-//        }
-//        return districtBigScreenStatistic;
     }
 
     /**
