@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wupol.myopia.business.api.management.constant.BigScreeningProperties;
 import com.wupol.myopia.business.api.management.domain.builder.BigScreenStatDataBuilder;
 import com.wupol.myopia.business.api.management.domain.builder.DistrictBigScreenStatisticBuilder;
 import com.wupol.myopia.business.core.common.domain.model.District;
@@ -18,7 +17,6 @@ import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticSer
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,7 +54,6 @@ public class BigScreenService {
      * @param screeningNotice 通知Id
      * @return DistrictBigScreenStatistic
      */
-    @CacheEvict(value = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#result.screeningNoticeId + '_' + #result.districtId")
     public DistrictBigScreenStatistic generateResultAndSave(District district, ScreeningNotice screeningNotice) {
         DistrictBigScreenStatistic districtBigScreenStatistic = this.generateResult(district, screeningNotice);
         if (Objects.nonNull(districtBigScreenStatistic)) {

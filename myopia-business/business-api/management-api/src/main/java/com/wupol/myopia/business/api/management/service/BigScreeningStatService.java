@@ -8,12 +8,10 @@ import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotic
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import com.wupol.myopia.business.core.stat.service.DistrictBigScreenStatisticService;
-import com.wupol.myopia.business.core.system.constants.BigScreeningMapConstants;
 import com.wupol.myopia.business.core.system.service.BigScreenMapService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,7 +46,6 @@ public class BigScreeningStatService {
      * @param district
      * @return
      */
-//    @Cacheable(cacheNames = BigScreeningProperties.BIG_SCREENING_DATA_CACHE_KEY_PREFIX, key = "#screeningNotice.id + '_' + #district.id", cacheManager = BigScreeningMapConstants.BIG_SCREENING_MAP_CACHE_MANAGEMANT_BEAN_ID)
     public BigScreeningVO getBigScreeningVO(ScreeningNotice screeningNotice, District district)  {
         //根据noticeId 和 districtId 查找数据
         DistrictBigScreenStatistic districtBigScreenStatistic = this.getDistrictBigScreenStatistic(screeningNotice, district);

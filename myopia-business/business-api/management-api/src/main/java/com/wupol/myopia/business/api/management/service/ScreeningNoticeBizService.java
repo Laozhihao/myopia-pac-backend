@@ -216,7 +216,7 @@ public class ScreeningNoticeBizService {
 
         return noticeList.stream().filter(s->{
             List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentMap.getOrDefault(s.getId(), new ArrayList<>());
-            return planSchoolStudentList.size() > 0L;
+            return !planSchoolStudentList.isEmpty();
         }).collect(Collectors.toList());
     }
 }
