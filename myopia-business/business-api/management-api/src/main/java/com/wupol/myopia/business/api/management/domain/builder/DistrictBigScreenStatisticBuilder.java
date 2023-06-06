@@ -38,6 +38,7 @@ public class DistrictBigScreenStatisticBuilder {
     private Integer districtId;
     private Integer noticeId;
     private long realScreeningNum;
+    private Boolean isProvince;
 
     public static DistrictBigScreenStatisticBuilder getBuilder() {
         return new DistrictBigScreenStatisticBuilder();
@@ -181,6 +182,14 @@ public class DistrictBigScreenStatisticBuilder {
     }
 
     /**
+     * 设置是否省级
+     */
+    public DistrictBigScreenStatisticBuilder setIsProvince(Boolean isProvince) {
+        this.isProvince = isProvince;
+        return this;
+    }
+
+    /**
      * 获取筛查数据
      *
      * @param bigScreenStatDataDTOList
@@ -191,6 +200,7 @@ public class DistrictBigScreenStatisticBuilder {
                 .setScreeningStudentNum((long) bigScreenStatDataDTOList.size())
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOList)
                 .setRealScreeningNum(realValidScreeningNum)
+                .setIsProvince(isProvince)
                 .build();
         //设置地图数据
         List<BigScreenScreeningDO.MapLocationDataDTO> mapLocationData = this.getMapLocationData(distributionDTO.getStatisticDistrict());
@@ -204,6 +214,9 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     private List<BigScreenScreeningDO.MapLocationDataDTO> getMapLocationData(List<DistributionDTO.StatisticDistrictDTO> statisticDistrictList) {
+        if (Objects.equals(isProvince, Boolean.FALSE)) {
+            return new ArrayList<>();
+        }
         return statisticDistrictList.stream().map(statisticDistrictDTO -> {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());

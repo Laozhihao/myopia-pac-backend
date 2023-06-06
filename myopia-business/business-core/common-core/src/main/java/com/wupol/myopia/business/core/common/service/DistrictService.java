@@ -1175,6 +1175,13 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     }
 
     /**
+     * 是否省级区域
+     */
+    public Boolean isProvince(District district) {
+        return Objects.equals(Long.valueOf(String.valueOf(district.getCode()).substring(2)), 0L);
+    }
+
+    /**
      * 获取当前区域所属省级
      */
     public District getProvinceDistrict(Integer districtId) {

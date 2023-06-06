@@ -95,6 +95,11 @@ public class BigScreeningVO implements Serializable {
      */
     private RankingDataDO rankingData;
 
+    /**
+     * 是否省
+     */
+    private Boolean isProvince;
+
 
     private BigScreeningVO() {
 
@@ -109,7 +114,7 @@ public class BigScreeningVO implements Serializable {
      * @param provinceMapData 省的地图数据
      * @return
      */
-    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName, Object provinceMapData) {
+    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName, Object provinceMapData, Boolean isProvince) {
         BigScreeningVO bigScreeningVO = new BigScreeningVO();
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
@@ -131,6 +136,7 @@ public class BigScreeningVO implements Serializable {
         bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
         bigScreeningVO.setRadarChartData(districtBigScreenStatistic.getRadarChartData());
         bigScreeningVO.setRankingData(districtBigScreenStatistic.getRankingData());
+        bigScreeningVO.setIsProvince(isProvince);
         return bigScreeningVO;
     }
 }
