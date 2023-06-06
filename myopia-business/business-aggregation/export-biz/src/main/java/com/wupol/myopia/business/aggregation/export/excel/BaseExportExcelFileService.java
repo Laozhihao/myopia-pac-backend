@@ -67,13 +67,15 @@ public abstract class BaseExportExcelFileService extends BaseExportFileService {
         try {
             // 0.获取通知的关键内容
             noticeKeyContent = getNoticeKeyContent(exportCondition);
-            // 前置处理
+            // 前置处理（例如参数校验、获取必要参数、参数转换等）
             preProcess(exportCondition);
-            // 1.获取文件名
+            // 1.获取文件名或子目录
+            //  （1）如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名
+            //  （2）希望中学筛查数据.xlsx【文件名】 或 希望小学一年级筛查数据【目录，一般作为压缩包名】)
             String fileName = getFileName(exportCondition);
-            // 2.获取文件保存父目录路径
+            // 2.获取文件保存父目录，由“自定义根目录 + UUID”组成，是一个绝对路径（如：/app/file/ab930ae9444d477fab825c4e76420829 或 D:\app\temp\ab930ae9444d477fab825c4e76420829）
             parentPath = getFileSaveParentPath();
-            // 3.获取文件保存路径
+            // 3.获取文件全路径或目录，parentPath + fileName，（如：D:\app\temp\ab930ae9444d477fab825c4e76420829\希望中学筛查数据.xlsx 或 D:\app\temp\ab930ae9444d477fab825c4e76420829\希望小学一年级筛查数据）
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.获取数据，生成List
             List data = getExcelData(exportCondition);

@@ -131,7 +131,7 @@ public final class S3Utils {
     public String uploadFileToS3(File file, String fileName) throws UtilException {
         String bucket = uploadConfig.getBucketName();
         String prefix = uploadConfig.getPrefix();
-        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), UUID.randomUUID().toString(), fileName);
+        String key = String.format(S3_KEY_FORMAT, prefix, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_ONLY_DATE), UUID.randomUUID(), fileName);
         s3Client.uploadFile(bucket, key, file);
         return key;
     }

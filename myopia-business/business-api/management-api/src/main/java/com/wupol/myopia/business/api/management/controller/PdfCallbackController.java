@@ -1,7 +1,6 @@
 package com.wupol.myopia.business.api.management.controller;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.wupol.myopia.base.cache.RedisConstant;
@@ -13,7 +12,6 @@ import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +49,9 @@ public class PdfCallbackController {
     @PostMapping("callback")
     @Transactional(rollbackFor = Exception.class)
     public synchronized void callback(@RequestBody @Valid PdfResponseDTO responseDTO) {
-        String exportUuid = StringUtils.substringBefore(responseDTO.getUuid(), StrUtil.SLASH);
+        log.info("【node-js服务】回调：{}", JSON.toJSONString(responseDTO));
+        String exportUuid = responseDTO.getUuid();
+        String s3Key = responseDTO.getS3key();
         // Redis Key
         String key = String.format(RedisConstant.FILE_EXPORT_ASYNC_TASK_KEY, exportUuid);
         PdfGeneratorVO pdfGeneratorVO = (PdfGeneratorVO) redisUtil.get(key);
@@ -66,9 +66,8 @@ public class PdfCallbackController {
             int currentCount = pdfGeneratorVO.getExportCount() + 1;
             boolean isFinish = pdfGeneratorVO.getExportTotal().equals(currentCount);
             // 下载文件
-            String pdfUrl = s3Utils.getResourceUrl(responseDTO.getBucket(), responseDTO.getS3key());
-            FileUtils.downloadFile(pdfUrl, Paths.get(pdfSavePath, responseDTO.getUuid()).toString());
-
+            String pdfUrl = s3Utils.getResourceUrl(responseDTO.getBucket(), s3Key);
+            FileUtils.downloadFile(pdfUrl, Paths.get(pdfSavePath, s3Key.substring(s3Key.indexOf(exportUuid))).toString());
             // 如果没有完成，则更新次数
             if (!isFinish) {
                 pdfGeneratorVO.setExportCount(currentCount);
@@ -76,7 +75,7 @@ public class PdfCallbackController {
                 return;
             }
             // 如果次数相同，则压缩文件
-            log.info("【node-js服务】全部回调完：{}", JSON.toJSONString(responseDTO));
+            log.info("【node-js服务】全部回调完：{}", JSON.toJSONString(pdfGeneratorVO));
             String zipFileName = pdfGeneratorVO.getZipFileName();
             File file = FileUtil.rename(ZipUtil.zip(Paths.get(pdfSavePath, exportUuid).toString()), zipFileName, true, true);
             noticeService.sendExportSuccessNotice(pdfGeneratorVO.getUserId(), pdfGeneratorVO.getUserId(), zipFileName, s3Utils.uploadFileToS3(file));

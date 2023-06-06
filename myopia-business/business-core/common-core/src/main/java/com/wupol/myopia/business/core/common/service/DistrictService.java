@@ -45,6 +45,11 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
      */
     public static final String XIN_JIANG_DISTRICT_CODE_PREFIX = "65";
 
+    /**
+     * 省级行政区域后缀
+     */
+    private static final String PROVINCE_PARENT_SUFFIX_CODE = "0000000";
+
     @Autowired
     private RedisUtil redisUtil;
 
@@ -1159,6 +1164,35 @@ public class DistrictService extends BaseService<DistrictMapper, District> {
     public boolean isXinJiangDistrict(Integer districtId) {
         District district = getById(districtId);
         return XIN_JIANG_DISTRICT_CODE_PREFIX.equals(String.valueOf(district.getCode()).substring(0, 2));
+    }
+
+    /**
+     * 是否省级区域
+     */
+    public Boolean isProvince(Integer districtId) {
+        District district = getById(districtId);
+        return Objects.equals(Long.valueOf(String.valueOf(district.getCode()).substring(2)), 0L);
+    }
+
+    /**
+     * 是否省级区域
+     */
+    public Boolean isProvince(District district) {
+        return Objects.equals(Long.valueOf(String.valueOf(district.getCode()).substring(2)), 0L);
+    }
+
+    /**
+     * 获取当前区域所属省级
+     */
+    public District getProvinceDistrict(Integer districtId) {
+        return getProvinceDistrict(getById(districtId));
+    }
+
+    /**
+     * 获取当前区域所属省级
+     */
+    public District getProvinceDistrict(District district) {
+        return getByCode(Long.valueOf(String.valueOf(district.getCode()).substring(0,2) + PROVINCE_PARENT_SUFFIX_CODE));
     }
 
 }

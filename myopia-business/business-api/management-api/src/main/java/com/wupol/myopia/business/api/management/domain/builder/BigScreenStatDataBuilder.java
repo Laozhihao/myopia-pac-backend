@@ -29,6 +29,10 @@ public class BigScreenStatDataBuilder {
         bigScreenStatDataDTO.setVisionR(statConclusion.getVisionR());
         bigScreenStatDataDTO.setIsValid(statConclusion.getIsValid());
         bigScreenStatDataDTO.setDistrictId(statConclusion.getDistrictId());
+        bigScreenStatDataDTO.setMyopiaLevel(statConclusion.getMyopiaLevel());
+        bigScreenStatDataDTO.setIsAstigmatism(statConclusion.getIsAstigmatism());
+        bigScreenStatDataDTO.setSchoolId(statConclusion.getSchoolId());
+        bigScreenStatDataDTO.setScreeningMyopia(statConclusion.getScreeningMyopia());
         return bigScreenStatDataDTO;
     }
 }

@@ -68,7 +68,7 @@ public class HospitalStudentBizService {
             return responseDTOIPage;
         }
         // 获取学校
-        Map<Integer, String> schoolMap = schoolService.getSchoolMap(hospitalStudentList, HospitalStudent::getSchoolId);
+        Map<Integer, String> schoolMap = schoolService.getSchoolNameMap(hospitalStudentList, HospitalStudent::getSchoolId);
 
         // 获取年级
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(hospitalStudentList, HospitalStudent::getGradeId);

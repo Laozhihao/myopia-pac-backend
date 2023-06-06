@@ -180,8 +180,6 @@ public class StatManagementController {
         return districtBizService.getValidDistrictTree(currentUser, districtIds);
     }
 
-
-
     /**
      * 获取大屏展示的数据
      *
@@ -285,6 +283,27 @@ public class StatManagementController {
                 .setSchoolId(schoolId)
                 .setType(type);
         return statService.getSchoolStatisticDetail(statisticDetailBO);
+    }
+
+    /**
+     * 获取大屏通知
+     */
+    @GetMapping("/big-screen-notice-year")
+    public List<Integer> bigScreeningGetNotice() {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        //获取当前部门下的所有id
+        return screeningNoticeService.getYears(screeningNoticeBizService.getRelatedHaveData(user));
+    }
+
+    /**
+     * 获取大屏通知所在年度的筛查任务
+     */
+    @GetMapping("/big-screen-notice")
+    public List<ScreeningNoticeNameDTO> bigScreeningGetNoticeDetailByYearAndUser(@RequestParam Integer year) {
+        CurrentUser user = CurrentUserUtil.getCurrentUser();
+        //找到筛查通知year的所有相关的screeningNotice
+        List<ScreeningNotice> screeningNotices = screeningNoticeBizService.getRelatedHaveData(user);
+        return screeningNoticeService.getScreeningNoticeNameDTO(screeningNotices, year);
     }
 
 

@@ -18,12 +18,19 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentCommonDiseaseIdService;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.CommonDiseasePlanStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlan;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchool;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
+import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanService;
+import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.Organization;
+import com.wupol.myopia.third.party.client.ThirdPartyServiceClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -67,6 +74,14 @@ public class SchoolFacade {
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
     @Resource
     private StudentCommonDiseaseIdService studentCommonDiseaseIdService;
+    @Autowired
+    private ScreeningPlanService screeningPlanService;
+    @Autowired
+    private VisionScreeningResultService visionScreeningResultService;
+    @Autowired
+    private ScreeningPlanSchoolService screenPlanSchoolService;
+    @Autowired
+    private ThirdPartyServiceClient thirdPartyServiceClient;
 
     /**
      * 获取学校详情
@@ -125,6 +140,8 @@ public class SchoolFacade {
         // 更新关联的筛查学生的常见病ID
         School newSchool = schoolService.getById(schoolId);
         updateStudentCommonDiseaseId(oldSchool, newSchool);
+        // 更新新疆中间库筛查数据学校名称
+        updateXinJiangScreeningResultSchoolName(schoolId, oldSchool.getName(), schoolRequestDTO.getName());
         // 组装返回数据
         SchoolResponseDTO schoolResponseDTO = new SchoolResponseDTO();
         BeanUtils.copyProperties(newSchool, schoolResponseDTO);
@@ -181,5 +198,32 @@ public class SchoolFacade {
         screeningPlanSchoolStudentService.updateBatchById(planStudentList);
     }
 
+    /**
+     * 更新筛查数据的学校名称
+     *
+     * @param schoolId      学校ID
+     * @param oldSchoolName 旧学校名称
+     * @param newSchoolName 新学校名称
+     */
+    public void updateXinJiangScreeningResultSchoolName(Integer schoolId, String oldSchoolName, String newSchoolName) {
+        if (oldSchoolName.equals(newSchoolName)) {
+            return;
+        }
+        List<ScreeningPlanSchool> screeningPlanSchoolList = screenPlanSchoolService.getBySchoolId(schoolId);
+        if (screeningPlanSchoolList.isEmpty()) {
+            return;
+        }
+        // 如果该学校没有新疆计划的筛查数据，不需要同步更新
+        List<ScreeningPlan> planList = screeningPlanService.getByIds(screeningPlanSchoolList.stream().map(ScreeningPlanSchool::getScreeningPlanId).collect(Collectors.toList()));
+        List<ScreeningPlan> xinJiangPlanList = planList.stream().filter(x -> Objects.nonNull(x.getYear()) && Objects.nonNull(x.getTime())).collect(Collectors.toList());
+        if (xinJiangPlanList.isEmpty()) {
+            return;
+        }
+        List<VisionScreeningResult> visionScreeningResultList = visionScreeningResultService.getByPlanIdsAndSchoolId(xinJiangPlanList.stream().map(ScreeningPlan::getId).collect(Collectors.toList()), schoolId, Boolean.FALSE);
+        if (visionScreeningResultList.isEmpty()) {
+            return;
+        }
+        thirdPartyServiceClient.updateSchoolName(oldSchoolName, newSchoolName);
+    }
 
 }
