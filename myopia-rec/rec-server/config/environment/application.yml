@@ -65,7 +65,7 @@ upload:
   # s3的类型，取值：aws、minio
   s3-type: aws
   # 地址，s3-type为minio时必填
-  endpoint: ${AWS_ENDPOINT}
+  endpoint: ${AWS_S3_ENDPOINT}
   # S3链接失效时间（小时）
   expiredHours: 2
   # 地区

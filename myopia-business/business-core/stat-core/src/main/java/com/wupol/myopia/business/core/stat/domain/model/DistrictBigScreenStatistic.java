@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RankingDataDO;
 import com.wupol.myopia.business.core.stat.handler.BigScreenScreeningDOHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -92,6 +94,18 @@ public class DistrictBigScreenStatistic implements Serializable {
      */
     @TableField(typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
     private AvgVisionDO avgVision;
+
+    /**
+     * 雷达图数据
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    private RadarChartDataDO radarChartData;
+
+    /**
+     * 排行榜数据
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    private RankingDataDO rankingData;
 
     /**
      * 大屏展示--更新时间

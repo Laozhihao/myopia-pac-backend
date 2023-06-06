@@ -520,9 +520,17 @@ public class SchoolService extends BaseService<SchoolMapper, School> {
     /**
      * 获取学校Map
      */
-    public <T> Map<Integer, String> getSchoolMap(List<T> list, Function<T, Integer> function) {
+    public <T> Map<Integer, String> getSchoolNameMap(List<T> list, Function<T, Integer> function) {
         List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
         return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, School::getName));
+    }
+
+    /**
+     * 获取学校Map
+     */
+    public <T> Map<Integer, School> getSchoolMap(List<T> list, Function<T, Integer> function) {
+        List<Integer> schoolIds = list.stream().map(function).collect(Collectors.toList());
+        return getByIds(schoolIds).stream().collect(Collectors.toMap(School::getId, Function.identity()));
     }
 
     /**

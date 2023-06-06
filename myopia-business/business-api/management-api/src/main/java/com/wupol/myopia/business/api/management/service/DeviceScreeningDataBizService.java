@@ -77,7 +77,7 @@ public class DeviceScreeningDataBizService {
         }
 
         // 获取学校
-        Map<Integer, String> schoolMap = schoolService.getSchoolMap(records, DeviceScreeningDataAndOrgDTO::getScreeningOrgId);
+        Map<Integer, String> schoolMap = schoolService.getSchoolNameMap(records, DeviceScreeningDataAndOrgDTO::getScreeningOrgId);
         // 获取医院
         Map<Integer, Hospital> hospitalMap = hospitalService.getHospitalMap(records, DeviceScreeningDataAndOrgDTO::getScreeningOrgId);
         // 获取机构

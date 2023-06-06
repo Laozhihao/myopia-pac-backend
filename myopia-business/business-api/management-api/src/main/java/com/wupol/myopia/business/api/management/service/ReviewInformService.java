@@ -106,7 +106,7 @@ public class ReviewInformService {
         if (CollectionUtils.isEmpty(matchRescreenResults)) {
             return new ArrayList<>();
         }
-        Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
+        Map<Integer, String> schoolMap = schoolService.getSchoolNameMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         return matchRescreenResults.stream()
                 .filter(ListUtil.distinctByKey(ScreeningPlanSchoolStudent::getSchoolName))
                 .filter(s -> {
@@ -211,7 +211,7 @@ public class ReviewInformService {
         }
         String fileSaveParentPath = FileUtils.getFileSaveParentPath(pdfSavePath);
 
-        Map<Integer, String> schoolMap = schoolService.getSchoolMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
+        Map<Integer, String> schoolMap = schoolService.getSchoolNameMap(matchRescreenResults, ScreeningPlanSchoolStudent::getSchoolId);
         Map<Integer, SchoolGrade> gradeMap = schoolGradeService.getGradeMapByIds(matchRescreenResults, ScreeningPlanSchoolStudent::getGradeId);
         Map<Integer, SchoolClass> classMap = schoolClassService.getClassMapByIds(matchRescreenResults,ScreeningPlanSchoolStudent::getClassId);
 
