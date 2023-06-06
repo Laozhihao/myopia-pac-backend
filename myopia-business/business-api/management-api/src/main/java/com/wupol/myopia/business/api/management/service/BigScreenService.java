@@ -76,7 +76,7 @@ public class BigScreenService {
         //实际筛查数量
         int realScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         //获取地图数据
-        Map<Integer, List<Double>> cityCenterLocationMap = bigScreenMapService.getCityCenterLocationByDistrictId(districtId);
+        Map<String, List<Double>> cityCenterLocationMap = bigScreenMapService.getCityCenterLocationByDistrictId(districtId);
         //将基本数据放入构造器
         bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
         int realValidScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
