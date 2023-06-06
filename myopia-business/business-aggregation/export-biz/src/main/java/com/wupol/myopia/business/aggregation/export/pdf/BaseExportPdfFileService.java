@@ -65,11 +65,13 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
         try {
             // 0.前置处理
             preProcess(exportCondition);
-            // 1.获取文件名(如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名)
+            // 1.获取文件名
+            //  （1）如果导出的是压缩包，这里文件名不带后缀，将作为压缩包的文件名
+            //  （2）如：希望中学视力筛查报告.pdf【文件名】 或 希望小学一年级档案卡【目录】
             fileName = getFileName(exportCondition);
-            // 2.获取文件保存父目录路径
+            // 2.获取文件保存父目录，由“自定义根目录 + UUID”组成，是一个绝对路径（如：/app/file/ab930ae9444d477fab825c4e76420829 或 D:\app\temp\ab930ae9444d477fab825c4e76420829）
             parentPath = getFileSaveParentPath();
-            // 3.获取文件保存路径
+            // 3.获取文件全路径或目录，parentPath + fileName，（如：D:\app\temp\ab930ae9444d477fab825c4e76420829\希望中学视力筛查报告.pdf 或 D:\app\temp\ab930ae9444d477fab825c4e76420829\希望小学一年级档案卡）
             String fileSavePath = getFileSavePath(parentPath, fileName);
             // 4.生成导出的文件
             generatePdfFile(exportCondition, fileSavePath, fileName);
@@ -215,13 +217,13 @@ public abstract class BaseExportPdfFileService extends BaseExportFileService {
      * 发起请求
      *
      * @param items 项目
-     * @param key   值
+     * @param uuid  UUID值
      *
      * @return List<PDFRequestDTO.Item>
      */
-    private List<PDFRequestDTO.Item> requestHtml2Pdf(List<PDFRequestDTO.Item> items, String key) {
+    private List<PDFRequestDTO.Item> requestHtml2Pdf(List<PDFRequestDTO.Item> items, String uuid) {
         return items.stream().map(item -> {
-            PdfGenerateResponse pdfResponse = html2PdfService.asyncGeneratorPDF(item.getUrl(), org.apache.commons.lang3.StringUtils.substringAfterLast(item.getFileName(), StrUtil.SLASH), Paths.get(key, item.getFileName()).toString());
+            PdfGenerateResponse pdfResponse = html2PdfService.asyncGeneratorPDF(item.getUrl(), item.getFileName(), uuid);
             if (Objects.equals(pdfResponse.getStatus(), Boolean.FALSE)) {
                 return item;
             }
