@@ -21,6 +21,7 @@ public enum SchoolAge {
 
 
     UNKNOWN(-1, "未知", -1),
+    GRADUATE(-2, "毕业", -2),
     KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType()),
     PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
     JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),

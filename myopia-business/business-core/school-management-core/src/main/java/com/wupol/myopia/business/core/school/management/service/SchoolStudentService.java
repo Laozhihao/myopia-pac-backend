@@ -368,4 +368,15 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
                 .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
     }
 
+    /**
+     * 统计学生人数
+     *
+     * @return List<StudentCountDTO>
+     */
+    public List<SchoolStudent> getStudentBySchoolIds(List<Integer> schoolIdS) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .in(SchoolStudent::getSchoolId, schoolIdS)
+                .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
+    }
+
 }

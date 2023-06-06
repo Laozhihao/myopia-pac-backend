@@ -75,7 +75,7 @@ public enum GradeCodeEnum {
     TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
     THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN"),
 
-    GRADUATE("毕业", "00", SchoolAge.UNKNOWN.code, "GRADUATE");
+    GRADUATE("毕业", "00", SchoolAge.GRADUATE.code, "GRADUATE");
 
     /**
      * 名称
