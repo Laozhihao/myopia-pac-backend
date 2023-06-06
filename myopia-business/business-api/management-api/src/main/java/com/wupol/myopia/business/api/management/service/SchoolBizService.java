@@ -280,7 +280,7 @@ public class SchoolBizService {
                 .collect(Collectors.groupingBy(SchoolStudent::getSchoolId, Collectors.counting()));
 
         Map<Integer, Long> currentStudentCountMaps = schoolStudentList.stream()
-                .filter(s -> Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode()))
+                .filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode()))
                 .collect(Collectors.groupingBy(SchoolStudent::getSchoolId, Collectors.counting()));
 
         // 学校筛查次数

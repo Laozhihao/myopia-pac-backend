@@ -11,6 +11,7 @@ import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.common.service.ResourceFileService;
 import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
+import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
@@ -100,11 +101,13 @@ public class SchoolFacade {
         int studentCount;
         int currentStudent;
         if (isSchoolManagement) {
-            studentCount = schoolStudentService.count(new SchoolStudent().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
-            currentStudent = schoolStudentService.count(new SchoolStudent().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED).setGradeType(SchoolAge.GRADUATE.getCode()));
+            List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(school.getId());
+            studentCount = schoolStudents.size();
+            currentStudent = (int) schoolStudents.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
         } else {
-            studentCount = studentService.count(new Student().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED));
-            currentStudent = studentService.count(new Student().setSchoolId(school.getId()).setStatus(CommonConst.STATUS_NOT_DELETED).setGradeType(SchoolAge.GRADUATE.getCode()));
+            List<StudentDTO> studentList = studentService.getBySchoolIdAndGradeIdAndClassId(school.getId(), null, null);
+            studentCount = studentList.size();
+            currentStudent = (int) studentList.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
         }
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
