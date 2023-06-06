@@ -13,7 +13,6 @@ import com.wupol.myopia.business.core.school.domain.dto.SaveSchoolRequestDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolResponseDTO;
 import com.wupol.myopia.business.core.school.domain.dto.StudentDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
-import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -103,11 +102,11 @@ public class SchoolFacade {
         if (isSchoolManagement) {
             List<SchoolStudent> schoolStudents = schoolStudentService.listBySchoolId(school.getId());
             studentCount = schoolStudents.size();
-            currentStudent = (int) schoolStudents.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
+            currentStudent = (int) schoolStudents.stream().filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
         } else {
             List<StudentDTO> studentList = studentService.getBySchoolIdAndGradeIdAndClassId(school.getId(), null, null);
             studentCount = studentList.size();
-            currentStudent = (int) studentList.stream().filter(s -> Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
+            currentStudent = (int) studentList.stream().filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode())).count();
         }
         // 统计学生数
         responseDTO.setStudentCount(studentCount);
