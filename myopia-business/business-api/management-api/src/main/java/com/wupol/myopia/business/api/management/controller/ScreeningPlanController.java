@@ -828,4 +828,12 @@ public class ScreeningPlanController {
                         .setGradeId(gradeId),
                 ExportExcelServiceNameConstant.EXPORT_PLAN_STUDENT_QUESTIONNAIRE_ACCOUNT_SERVICE);
     }
+
+    /**
+     * 更新筛查学生不检查说明
+     */
+    @PostMapping("students/updateState/{id}/{state}")
+    public void updatePlanStudentState(@PathVariable("id") Integer id, @PathVariable("state") Integer state) {
+        screeningPlanSchoolStudentService.updateState(id, state);
+    }
 }
