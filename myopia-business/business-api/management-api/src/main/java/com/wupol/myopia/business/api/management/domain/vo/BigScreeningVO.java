@@ -1,13 +1,18 @@
 package com.wupol.myopia.business.api.management.domain.vo;
 
+import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
+import com.wupol.myopia.business.core.stat.domain.dos.RankingDataDO;
+import com.wupol.myopia.business.core.stat.domain.dto.AvgVisionDTO;
 import com.wupol.myopia.business.core.stat.domain.model.DistrictBigScreenStatistic;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @Description
@@ -74,31 +79,30 @@ public class BigScreeningVO implements Serializable {
     /**
      * 平均视力
      */
-    private AvgVisionDO avgVision;
+    private AvgVisionDTO avgVision;
     /**
      * 地图数据
      */
     private Object mapData;
 
+    /**
+     * 雷达图数据
+     */
+    private RadarChartDataDO radarChartData;
+
+    /**
+     * 排行榜数据
+     */
+    private RankingDataDO rankingData;
+
+    /**
+     * 是否省
+     */
+    private Boolean isProvince;
+
 
     private BigScreeningVO() {
 
-    }
-
-
-    /**
-     * 这个方法是为了大屏统计还没来得及统计的时候显示一些基本信息
-     * 空对象
-     *
-     * @param districtName
-     * @param planStudentNum
-     */
-    public static BigScreeningVO getImmutableEmptyInstance(String districtName, long planStudentNum) {
-        BigScreeningVO bigScreeningVO = new BigScreeningVO();
-        bigScreeningVO.title = districtName + TITLE_SUFFIX_STRING;
-        bigScreeningVO.planScreeningNum = planStudentNum;
-        bigScreeningVO.progressRate = 0.0;
-        return bigScreeningVO;
     }
 
     /**
@@ -110,11 +114,14 @@ public class BigScreeningVO implements Serializable {
      * @param provinceMapData 省的地图数据
      * @return
      */
-    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName, Object provinceMapData) {
+    public static BigScreeningVO getNewInstance(ScreeningNotice screeningNotice, DistrictBigScreenStatistic districtBigScreenStatistic, String districtName, Object provinceMapData, Boolean isProvince) {
         BigScreeningVO bigScreeningVO = new BigScreeningVO();
         bigScreeningVO.setRealScreening(districtBigScreenStatistic.getRealScreening());
         bigScreeningVO.setAmetropia(districtBigScreenStatistic.getAmetropia());
-        bigScreeningVO.setAvgVision(districtBigScreenStatistic.getAvgVision());
+        AvgVisionDO avgVision = districtBigScreenStatistic.getAvgVision();
+        if (Objects.nonNull(avgVision)) {
+            bigScreeningVO.setAvgVision(new AvgVisionDTO(String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getLeftEyeVision())), String.valueOf(MathUtil.getFormatNumWith1Scale(avgVision.getRightEyeVision()))));
+        }
         bigScreeningVO.setFocusObjects(districtBigScreenStatistic.getFocusObjects());
         bigScreeningVO.setMapData(provinceMapData);
         bigScreeningVO.setLowVision(districtBigScreenStatistic.getLowVision());
@@ -127,6 +134,9 @@ public class BigScreeningVO implements Serializable {
         bigScreeningVO.setScreeningTitle(screeningNotice.getTitle());
         bigScreeningVO.setScreeningEndTime(screeningNotice.getEndTime());
         bigScreeningVO.setScreeningStartTime(screeningNotice.getStartTime());
+        bigScreeningVO.setRadarChartData(districtBigScreenStatistic.getRadarChartData());
+        bigScreeningVO.setRankingData(districtBigScreenStatistic.getRankingData());
+        bigScreeningVO.setIsProvince(isProvince);
         return bigScreeningVO;
     }
 }

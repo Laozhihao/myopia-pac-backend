@@ -73,6 +73,11 @@ public class DistributionDTO implements Serializable {
          */
         private Long realScreeningNum;
 
+        /**
+         * 是否省
+         */
+        private Boolean isProvince;
+
         public static Builder getBuilder() {
             return new Builder();
         }
@@ -91,6 +96,11 @@ public class DistributionDTO implements Serializable {
 
         public Builder setRealScreeningNum(Long realScreeningNum) {
             this.realScreeningNum = realScreeningNum;
+            return this;
+        }
+
+        public Builder setIsProvince(Boolean isProvince) {
+            this.isProvince = isProvince;
             return this;
         }
 
@@ -133,6 +143,9 @@ public class DistributionDTO implements Serializable {
          * 设置城市数据
          */
         private void setCityData() {
+            if (Objects.equals(isProvince, Boolean.FALSE)) {
+                return;
+            }
             List<StatisticDistrictDTO> statisticDistrictList = new ArrayList<>();
             Map<Integer, String> cityDistrictIdNameMap = bigScreenStatDataDTOList.stream().collect(Collectors.toMap(BigScreenStatDataDTO::getCityDistrictId, BigScreenStatDataDTO::getCityDistrictName,(v1,v2)->v1));
             bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(BigScreenStatDataDTO::getCityDistrictId, Collectors.counting())).forEach((cityDistrictId, count) -> {

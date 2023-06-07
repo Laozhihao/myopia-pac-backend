@@ -275,4 +275,14 @@ public class ScreeningNoticeService extends BaseService<ScreeningNoticeMapper, S
         }
     }
 
+    /**
+     * 获取通知
+     */
+    public List<ScreeningNotice> getReleaseNotice() {
+        LambdaQueryWrapper<ScreeningNotice> screeningNoticeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getType, ScreeningNotice.TYPE_GOV_DEPT);
+        screeningNoticeLambdaQueryWrapper.eq(ScreeningNotice::getReleaseStatus, CommonConst.STATUS_RELEASE);
+        return baseMapper.selectList(screeningNoticeLambdaQueryWrapper);
+    }
+
 }

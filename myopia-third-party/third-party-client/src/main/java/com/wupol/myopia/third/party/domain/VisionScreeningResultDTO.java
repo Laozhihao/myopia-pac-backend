@@ -23,6 +23,11 @@ public class VisionScreeningResultDTO {
     private Integer planId;
 
     /**
+     * 计划标题
+     */
+    private String planTitle;
+
+    /**
      * 计划学生ID
      */
     private Integer planStudentId;

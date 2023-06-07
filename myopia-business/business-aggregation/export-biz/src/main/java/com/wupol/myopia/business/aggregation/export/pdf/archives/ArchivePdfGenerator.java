@@ -283,28 +283,30 @@ public class ArchivePdfGenerator {
         List<PlanSchoolGradeVO> gradeAndClass = getGradeAndClass(planId, schoolId, gradeId);
         List<PDFRequestDTO.Item> result = new ArrayList<>();
         for (PlanSchoolGradeVO grade : gradeAndClass) {
-            grade.getClasses().forEach(schoolClass -> result.add(generateClassArchivesPdfFile2(saveDirectory, planId, templateId, school.getId(), school.getName(), grade.getId(),
+            grade.getClasses().forEach(schoolClass -> result.add(generateClassArchivesPdfFile2(planId, templateId, school.getId(), school.getName(), grade.getId(),
                     grade.getGradeName(), schoolClass.getId(), schoolClass.getName(), exportCondition.getType(), exportCondition.getScreeningType())));
         }
         PDFRequestDTO requestDTO = new PDFRequestDTO();
         requestDTO.setItems(result).setZipFileName(saveDirectory);
         return requestDTO;
     }
-    private PDFRequestDTO.Item generateClassArchivesPdfFile2(String saveDirectory, Integer planId, Integer templateId, Integer schoolId, String schoolName, Integer gradeId, String gradeName,
+    private PDFRequestDTO.Item generateClassArchivesPdfFile2(Integer planId, Integer templateId, Integer schoolId, String schoolName, Integer gradeId, String gradeName,
                                               Integer classId, String className, Integer type, Integer screeningType) {
+        // 如：希望中学一年级2班的学生档案卡.pdf
         String fileName = String.format(PDFFileNameConstant.CLASS_ARCHIVES_PDF_FILE_NAME, schoolName, gradeName, className, ScreeningTypeEnum.isVisionScreeningType(screeningType) ? PDFFileNameConstant.VISION_ARCHIVE : PDFFileNameConstant.COMMON_DISEASE_ARCHIVE);
-        String fileSavePath = Paths.get(saveDirectory, schoolName, gradeName, className, fileName).toString();
-        return generateClassArchivesPdfFile2(planId, templateId, schoolId, gradeId, classId, null, type, fileSavePath, screeningType);
+        // 如：希望中学\一年级\2班\希望中学一年级2班的学生档案卡.pdf
+        String fileRelativePath = Paths.get(schoolName, gradeName, className, fileName).toString();
+        return generateClassArchivesPdfFile2(planId, templateId, schoolId, gradeId, classId, null, type, fileRelativePath, screeningType);
     }
 
     private PDFRequestDTO.Item generateClassArchivesPdfFile2(Integer planId, Integer templateId, Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
-                                              Integer type, String fileSavePath, Integer screeningType) {
+                                              Integer type, String fileName, Integer screeningType) {
         if (ScreeningTypeEnum.VISION.getType().equals(screeningType)) {
             String studentPdfHtmlUrl = String.format(HtmlPageUrlConstant.CLASS_ARCHIVES_HTML_URL, htmlUrlHost, planId, schoolId, templateId, gradeId, Objects.nonNull(classId) ? classId : StringUtils.EMPTY, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY);
-            return new PDFRequestDTO.Item().setUrl(studentPdfHtmlUrl).setFileName(fileSavePath);
+            return new PDFRequestDTO.Item().setUrl(studentPdfHtmlUrl).setFileName(fileName);
         } else {
             String archiveHtmlUrl = String.format(HtmlPageUrlConstant.STUDENT_ARCHIVE_HTML_URL, htmlUrlHost, templateId, planId, classId, StringUtils.isNotBlank(planStudentIds) ? planStudentIds : StringUtils.EMPTY, type);
-            return new PDFRequestDTO.Item().setUrl(archiveHtmlUrl).setFileName(fileSavePath);
+            return new PDFRequestDTO.Item().setUrl(archiveHtmlUrl).setFileName(fileName);
         }
     }
 
