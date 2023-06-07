@@ -79,10 +79,7 @@ public class BigScreenService {
         //获取地图数据
         Map<String, List<Double>> cityCenterLocationMap = bigScreenMapService.getCityCenterLocationByDistrictId(districtId);
         //将基本数据放入构造器
-        bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream()
-                .filter(BigScreenStatDataDTO::getIsValid)
-                .filter(s -> !Objects.equals(s.getSchoolAge(), SchoolAge.UNKNOWN.getCode()))
-                .collect(Collectors.toList());
+        bigScreenStatDataDTOs = bigScreenStatDataDTOs.stream().filter(BigScreenStatDataDTO::getIsValid).collect(Collectors.toList());
         int realValidScreeningNum = CollectionUtils.size(bigScreenStatDataDTOs);
         DistrictBigScreenStatisticBuilder districtBigScreenStatisticBuilder = DistrictBigScreenStatisticBuilder.getBuilder()
                 .setRealValidScreeningNum((long) realValidScreeningNum)
