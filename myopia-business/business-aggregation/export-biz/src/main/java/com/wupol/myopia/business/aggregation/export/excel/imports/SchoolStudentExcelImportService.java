@@ -10,10 +10,7 @@ import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.NationEnum;
-import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
@@ -382,7 +379,17 @@ public class SchoolStudentExcelImportService {
                 String idCard = item.get(SchoolStudentImportEnum.ID_CARD.getIndex());
                 String passport = item.get(SchoolStudentImportEnum.PASSPORT.getIndex());
                 SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
-                String className = Objects.isNull(schoolStudent) ? item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex()) : currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
+                String className;
+                if (Objects.isNull(schoolStudent)) {
+                    className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+                } else {
+                    // 如果学生的年级已经是毕业，则不处理
+                    if (!Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
+                        className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
+                    } else {
+                        continue;
+                    }
+                }
                 classNameList.add(className);
                 item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), className);
             }
