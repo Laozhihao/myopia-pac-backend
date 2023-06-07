@@ -27,7 +27,7 @@ public class BigScreenMapService extends BaseService<BigScreenMapMapper, BigScre
      * @param districtId
      * @return
      */
-    public Map<Integer, List<Double>> getCityCenterLocationByDistrictId(Integer districtId) {
+    public Map<String, List<Double>> getCityCenterLocationByDistrictId(Integer districtId) {
         LambdaQueryWrapper<BigScreenMap> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BigScreenMap::getDistrictId, districtId).select(BigScreenMap::getCityCenterLocation);
         BigScreenMap bigScreenMap = baseMapper.selectOne(queryWrapper);
