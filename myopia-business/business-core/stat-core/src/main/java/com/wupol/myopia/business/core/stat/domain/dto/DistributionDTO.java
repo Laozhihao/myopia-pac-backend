@@ -182,7 +182,7 @@ public class DistributionDTO implements Serializable {
                 } else if (SchoolAge.UNIVERSITY.code.equals(schoolAgeType)) {
                     schoolAgeDTO.university = ratio;
                 } else if (SchoolAge.UNKNOWN.code.equals(schoolAgeType)) {
-                    schoolAgeDTO.university = ratio;
+                    schoolAgeDTO.unknown = ratio;
                 } else {
                     throw new BusinessException("无效学龄段，schoolAgeType = " + schoolAgeType);
                 }
@@ -301,6 +301,7 @@ public class DistributionDTO implements Serializable {
         private Double university;
         private Double kindergarten;
         private Double vocationalHigh;
+        private Double unknown;
 
     }
 
