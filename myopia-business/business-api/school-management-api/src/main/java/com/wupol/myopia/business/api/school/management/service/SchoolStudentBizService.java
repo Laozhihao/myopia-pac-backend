@@ -205,7 +205,7 @@ public class SchoolStudentBizService {
         List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolId(schoolId, isFilterGraduate);
         Map<Integer, List<Integer>> gradeStudentIdMap = schoolStudentList.stream().collect(Collectors.groupingBy(SchoolStudent::getGradeId, Collectors.mapping(SchoolStudent::getStudentId, Collectors.toList())));
         //年级
-        List<SchoolGrade> schoolGradeList = schoolGradeService.listBySchoolId(schoolId);
+        List<SchoolGrade> schoolGradeList = schoolGradeService.listBySchoolId(schoolId, isFilterGraduate);
         //构建
         return new TwoTuple<>(schoolGradeList.stream().map(schoolGrade -> buildGradeInfo(gradeStudentIdMap, schoolGrade)).collect(Collectors.toList()), gradeStudentIdMap);
     }
