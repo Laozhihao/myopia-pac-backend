@@ -387,8 +387,8 @@ public class SchoolStudentExcelImportService {
         for (Map<Integer, String> item : listMap) {
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
             if (StringUtils.equals(gradeName, GradeCodeEnum.GRADUATE.getName())) {
-                String idCard = item.get(SchoolStudentImportEnum.ID_CARD.getIndex());
-                String passport = item.get(SchoolStudentImportEnum.PASSPORT.getIndex());
+                String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+                String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
                 SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
                 String className;
                 if (Objects.isNull(schoolStudent)) {
