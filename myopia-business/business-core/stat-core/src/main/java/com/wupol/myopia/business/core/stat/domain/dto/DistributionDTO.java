@@ -156,8 +156,7 @@ public class DistributionDTO implements Serializable {
                 statisticDistrictDTO.ratio = MathUtil.getFormatNumWith2Scale(count / (double) screeningStudentNum * 100);
                 statisticDistrictList.add(statisticDistrictDTO);
             });
-            Collections.sort(statisticDistrictList,
-                    Comparator.comparingDouble(StatisticDistrictDTO::getRatio));
+            statisticDistrictList.sort(Comparator.comparingDouble(StatisticDistrictDTO::getRatio));
             this.statisticDistrict = statisticDistrictList;
         }
 
@@ -182,6 +181,8 @@ public class DistributionDTO implements Serializable {
                     schoolAgeDTO.vocationalHigh = ratio;
                 } else if (SchoolAge.UNIVERSITY.code.equals(schoolAgeType)) {
                     schoolAgeDTO.university = ratio;
+                } else if (SchoolAge.UNKNOWN.code.equals(schoolAgeType)) {
+                    schoolAgeDTO.unknown = ratio;
                 } else {
                     throw new BusinessException("无效学龄段，schoolAgeType = " + schoolAgeType);
                 }
@@ -300,6 +301,7 @@ public class DistributionDTO implements Serializable {
         private Double university;
         private Double kindergarten;
         private Double vocationalHigh;
+        private Double unknown;
 
     }
 
