@@ -34,6 +34,8 @@ import java.util.*;
 @Log4j2
 public class SchoolStudentService extends BaseService<SchoolStudentMapper, SchoolStudent> {
 
+    private static final String GRADUATE_CODE = "00";
+
     /**
      * 获取学生列表
      *
@@ -376,6 +378,17 @@ public class SchoolStudentService extends BaseService<SchoolStudentMapper, Schoo
     public List<SchoolStudent> getStudentBySchoolIds(List<Integer> schoolIdS) {
         return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
                 .in(SchoolStudent::getSchoolId, schoolIdS)
+                .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
+    }
+
+    /**
+     * 根据学校ID查询学生
+     * @param schoolId 学校ID
+     */
+    public List<SchoolStudent> listBySchoolId(Integer schoolId, Boolean isFilterGraduate) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolStudent.class)
+                .eq(SchoolStudent::getSchoolId, schoolId)
+                .ne(Objects.equals(isFilterGraduate, Boolean.TRUE), SchoolStudent::getGradeType, GRADUATE_CODE)
                 .eq(SchoolStudent::getStatus, CommonConst.STATUS_NOT_DELETED));
     }
 

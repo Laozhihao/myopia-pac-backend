@@ -496,7 +496,7 @@ public class VisionScreeningService {
         IPage<ScreeningStudentListVO> studentListVoPage = processScreeningStudentList(schoolStudentPage, studentListDTO.getSchoolId());
 
         ScreeningStudentVO screeningStudentVO = new ScreeningStudentVO();
-        List<GradeInfoVO> gradeInfoList = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId());
+        List<GradeInfoVO> gradeInfoList = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId(), false);
         screeningStudentVO.setHasScreeningStudent(gradeInfoList.stream().mapToInt(GradeInfoVO::getUnSyncStudentNum).sum() > 0);
         screeningStudentVO.setPageData(studentListVoPage);
         return screeningStudentVO;

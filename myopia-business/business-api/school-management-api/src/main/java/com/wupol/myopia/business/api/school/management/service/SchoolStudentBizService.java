@@ -170,9 +170,9 @@ public class SchoolStudentBizService {
      * @param screeningPlanId 筛查计划ID
      * @param schoolId        学校ID
      */
-    public List<GradeInfoVO> getGradeInfo(Integer screeningPlanId, Integer schoolId) {
+    public List<GradeInfoVO> getGradeInfo(Integer screeningPlanId, Integer schoolId, Boolean isFilterGraduate) {
         // 全部的年级+学生数
-        TwoTuple<List<GradeInfoVO>, Map<Integer, List<Integer>>> gradeInfoAndSchoolStudent = getGradeInfoBySchoolId(schoolId);
+        TwoTuple<List<GradeInfoVO>, Map<Integer, List<Integer>>> gradeInfoAndSchoolStudent = getGradeInfoBySchoolId(schoolId, isFilterGraduate);
         List<GradeInfoVO> gradeInfoVOList = gradeInfoAndSchoolStudent.getFirst();
 
         if (Objects.isNull(screeningPlanId)) {
@@ -200,9 +200,9 @@ public class SchoolStudentBizService {
      * 根据学校ID查询学校年级信息
      * @param schoolId 学校ID
      */
-    private TwoTuple<List<GradeInfoVO>, Map<Integer, List<Integer>>> getGradeInfoBySchoolId(Integer schoolId){
+    private TwoTuple<List<GradeInfoVO>, Map<Integer, List<Integer>>> getGradeInfoBySchoolId(Integer schoolId, Boolean isFilterGraduate){
         //学生
-        List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolId(schoolId);
+        List<SchoolStudent> schoolStudentList = schoolStudentService.listBySchoolId(schoolId, isFilterGraduate);
         Map<Integer, List<Integer>> gradeStudentIdMap = schoolStudentList.stream().collect(Collectors.groupingBy(SchoolStudent::getGradeId, Collectors.mapping(SchoolStudent::getStudentId, Collectors.toList())));
         //年级
         List<SchoolGrade> schoolGradeList = schoolGradeService.listBySchoolId(schoolId);
