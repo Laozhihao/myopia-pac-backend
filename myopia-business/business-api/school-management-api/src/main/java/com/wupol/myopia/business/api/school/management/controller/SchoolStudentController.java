@@ -165,8 +165,8 @@ public class SchoolStudentController {
      */
     @PostMapping("/import")
     public Object importStudent(MultipartFile file) {
-//        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        schoolStudentExcelImportService.importSchoolStudent(1, file, 721);
+        CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
+        schoolStudentExcelImportService.importSchoolStudent(currentUser.getId(), file, currentUser.getOrgId());
         return ApiResult.success();
     }
 
