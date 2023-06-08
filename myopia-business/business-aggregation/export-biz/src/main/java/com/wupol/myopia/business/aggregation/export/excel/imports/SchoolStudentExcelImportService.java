@@ -384,10 +384,11 @@ public class SchoolStudentExcelImportService {
                     className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
                 } else {
                     // 如果学生的年级已经是毕业，则不处理
-                    if (!Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
-                        className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
-                    } else {
+                    if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
+                        item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), schoolStudent.getClassName());
                         continue;
+                    } else {
+                        className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
                     }
                 }
                 classNameList.add(className);
