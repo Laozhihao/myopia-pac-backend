@@ -115,10 +115,13 @@ public class SchoolStudentExcelImportService {
             String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
             String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
             String phone = item.get(SchoolStudentImportEnum.PHONE.getIndex());
-            // 数据校验
-            validateData(snoMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone);
+
             // 获取已经存在的学生（含删除的），优先取身份证，再取护照号
             SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.getOrDefault(passport, new SchoolStudent()));
+
+            // 数据校验
+            validateData(snoMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone, schoolStudent);
+
             // 设置参数
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent, schoolGradeMap, gradeName, className);
             schoolStudents.add(schoolStudent);
@@ -224,9 +227,11 @@ public class SchoolStudentExcelImportService {
      * @param className   班级名称
      * @param passport    护照信息
      * @param phone       手机号码
+     * @param schoolStudent  通过证件获取的学生
      */
-    private void validateData(Map<String, SchoolStudent> snoMap,
-                              String sno, String name, String idCard, String gender, String birthday, String gradeName, String className, String passport, String phone) {
+    private void validateData(Map<String, SchoolStudent> snoMap, String sno, String name, String idCard,
+                              String gender, String birthday, String gradeName, String className, String passport, String phone,
+                              SchoolStudent schoolStudent) {
         // 学籍号
         if (StringUtils.isBlank(sno) || sno.length() > SNO_LENGTH) {
             throw new BusinessException(name + "学籍号为空或超过长度限制");
@@ -261,7 +266,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("学籍号为" + sno + "学生，手机号码为空或格式错误");
         }
         // 校验学籍号是否被占用（得放在身份证和护照号校验后面）
-        validateSno(snoMap, sno, passport, idCard);
+        validateSno(snoMap, sno, passport, idCard, schoolStudent);
     }
 
     /**
@@ -271,14 +276,20 @@ public class SchoolStudentExcelImportService {
      * @param sno           当前学生学籍号
      * @param passport      当前学生护照号
      * @param idCard        当前学生身份证号
+     * @param credentialSchoolStudent  通过证件获取的学生
      */
-    private void validateSno(Map<String, SchoolStudent> snoMap, String sno, String passport, String idCard) {
+    private void validateSno(Map<String, SchoolStudent> snoMap, String sno, String passport, String idCard, SchoolStudent credentialSchoolStudent) {
         SchoolStudent schoolStudent = snoMap.get(sno);
         if (Objects.isNull(schoolStudent)) {
             return;
         }
-        Assert.isTrue((StringUtils.isNotBlank(idCard) && idCard.equals(schoolStudent.getIdCard())) ||
-                (StringUtils.isNotBlank(passport) && passport.equals(schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
+
+        if (Objects.nonNull(credentialSchoolStudent) && (StringUtils.equals(sno, credentialSchoolStudent.getSno()))) {
+            return;
+        }
+
+        Assert.isTrue((StringUtils.isNotBlank(idCard) && StringUtils.equals(idCard, schoolStudent.getIdCard())) ||
+                (StringUtils.isNotBlank(passport) && StringUtils.equals(passport, schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
     }
 
     /**
