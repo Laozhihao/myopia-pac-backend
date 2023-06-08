@@ -153,7 +153,7 @@ public class SchoolManagementController {
     @GetMapping("grade/all")
     public List<SchoolGradeItemsDTO> getAllGradeList() {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return schoolGradeService.getAllGradeList(currentUser.getOrgId());
+        return schoolGradeService.getAllGradeList(currentUser.getOrgId(), false);
     }
 
     /**

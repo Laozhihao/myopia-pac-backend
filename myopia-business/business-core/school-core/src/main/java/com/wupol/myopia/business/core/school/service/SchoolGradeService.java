@@ -115,14 +115,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 年级列表(没有分页)
      *
-     * @param schoolId 学校id
-     *
+     * @param schoolId         学校id
+     * @param isFilterGraduate
      * @return List<SchoolGradeItemsDTO> 返回体
      */
-    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId, Boolean isFilterGraduate) {
 
         // 获取年级
-        List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId, isFilterGraduate);
         if (CollectionUtils.isEmpty(schoolGrades)) {
             return new ArrayList<>();
         }
