@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -436,6 +437,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .setStatus(CommonConst.STATUS_NOT_DELETED);
         schoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
         return baseMapper.selectOne(schoolGradeExportDTOLambdaQueryWrapper);
+    }
+
+    public List<SchoolGrade> listBySchoolId(Integer schoolId, Boolean isFilterGraduate) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolGrade.class)
+                .eq(SchoolGrade::getSchoolId, schoolId)
+                .ne(Objects.equals(isFilterGraduate, Boolean.TRUE), SchoolGrade::getGradeCode, GradeCodeEnum.GRADUATE.getCode())
+                .eq(SchoolGrade::getStatus, CommonConst.STATUS_NOT_DELETED));
     }
 
 }
