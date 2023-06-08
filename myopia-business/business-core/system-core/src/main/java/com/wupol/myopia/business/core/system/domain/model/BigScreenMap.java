@@ -51,7 +51,7 @@ public class BigScreenMap implements Serializable {
      * 城市的经纬度位置
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private Map<Integer, List<Double>> cityCenterLocation;
+    private Map<String, List<Double>> cityCenterLocation;
 
     /**
      * 上级行政区代码（省级统一为100000000000）
