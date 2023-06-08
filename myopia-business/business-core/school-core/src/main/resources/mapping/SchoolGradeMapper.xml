@@ -73,6 +73,7 @@
         <include refid="Base_Column_List"/>
         from m_school_grade msg
         where msg.status = 0
+        and msg.grade_code != 00
         and msg.school_id = #{schoolId}
     </select>
 
