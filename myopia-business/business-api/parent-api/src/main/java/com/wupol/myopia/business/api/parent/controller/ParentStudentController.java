@@ -37,6 +37,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -45,6 +46,7 @@ import java.util.List;
  *
  * @author HaoHao
  */
+@Validated
 @ResponseResultBody
 @CrossOrigin
 @RestController
@@ -297,7 +299,7 @@ public class ParentStudentController {
      * @return 筛查条件
      */
     @GetMapping("report/screening/byCondition")
-    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name, Integer state) {
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(@NotBlank(message = "condition不能为空") String condition, @NotBlank(message = "name不能为空") String name, Integer state) {
         return parentStudentBizService.getScreeningReportByCondition(condition, name, state, CurrentUserUtil.getCurrentUser().getId());
     }
 

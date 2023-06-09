@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 public class ParentStudentBizService {
 
     /** 快速查看报告入口标志参数 */
-    public static final int QUICKLY_VIEW_REPORT_STATE = 4;
+    private static final int QUICKLY_VIEW_REPORT_STATE = 4;
 
     @Resource
     private ResourceFileService resourceFileService;
@@ -631,6 +631,7 @@ public class ParentStudentBizService {
         }
         // 家长绑定学生
         if (Objects.nonNull(state) && QUICKLY_VIEW_REPORT_STATE == state) {
+            log.info("绑定孩子，state = {}", state);
             Parent parent = getParentAndCheckIsExist(userId);
             bindStudent(parent, studentId);
             updateOtherInfo(studentId, parent.getPhone());
