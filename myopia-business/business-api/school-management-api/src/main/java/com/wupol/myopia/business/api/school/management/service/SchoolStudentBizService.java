@@ -8,7 +8,6 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.aggregation.export.excel.imports.SchoolStudentExcelImportService;
 import com.wupol.myopia.business.aggregation.student.domain.builder.SchoolStudentInfoBuilder;
 import com.wupol.myopia.business.aggregation.student.domain.vo.GradeInfoVO;
-import com.wupol.myopia.business.aggregation.student.service.SchoolFacade;
 import com.wupol.myopia.business.aggregation.student.service.SchoolStudentFacade;
 import com.wupol.myopia.business.api.school.management.domain.dto.EyeHealthResponseDTO;
 import com.wupol.myopia.business.common.utils.constant.*;
@@ -28,7 +27,6 @@ import com.wupol.myopia.business.core.school.management.domain.vo.SchoolStudentL
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
-import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.builder.ScreeningBizBuilder;
 import com.wupol.myopia.business.core.screening.flow.domain.model.*;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolService;
@@ -74,10 +72,6 @@ public class SchoolStudentBizService {
 
     @Resource
     private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
-    @Resource
-    private StudentService studentService;
-    @Resource
-    private SchoolFacade schoolFacade;
     @Resource
     private SchoolGradeService schoolGradeService;
     @Resource
