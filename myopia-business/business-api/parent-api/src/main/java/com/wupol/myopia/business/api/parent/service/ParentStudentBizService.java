@@ -53,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -71,6 +72,9 @@ import java.util.stream.Collectors;
 @Service
 @Log4j2
 public class ParentStudentBizService {
+
+    /** 快速查看报告入口标志参数 */
+    public static final int QUICKLY_VIEW_REPORT_STATE = 4;
 
     @Resource
     private ResourceFileService resourceFileService;
@@ -222,16 +226,25 @@ public class ParentStudentBizService {
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStudent(Student student, CurrentUser currentUser) {
         // 查找家长ID
-        Parent parent = parentService.getParentByUserId(currentUser.getId());
-        if (null == parent) {
-            throw new BusinessException("家长信息异常");
-        }
+        Parent parent = getParentAndCheckIsExist(currentUser.getId());
         // 保存孩子
         Integer studentId = studentFacade.saveStudentAndSchoolStudent(student);
         // 绑定孩子
         bindStudent(parent, studentId);
         updateOtherInfo(studentId, parent.getPhone());
         return studentId;
+    }
+
+    /***
+     * 获取家长信息，并校验家长是否存在
+     *
+     * @param userId 用户ID
+     * @return com.wupol.myopia.business.core.parent.domain.model.Parent
+     **/
+    private Parent getParentAndCheckIsExist(Integer userId) {
+        Parent parent = parentService.getParentByUserId(userId);
+        Assert.notNull(parent, "找不到对应家长信息");
+        return parent;
     }
 
     /**
@@ -593,9 +606,12 @@ public class ParentStudentBizService {
      *
      * @param condition 条件
      * @param name      学生名称
+     * @param state     前端入口标志，取值：4、7，为4时是快速查看报告，则同时绑定学生
+     * @param userId    当前用户ID
      * @return 筛查条件
      */
-    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name) {
+    @Transactional(rollbackFor = Exception.class)
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(String condition, String name, Integer state, Integer userId) {
         ScreeningReportInfoResponseDTO responseDTO = new ScreeningReportInfoResponseDTO();
         // 查询学生，若根据身份证/护照/学籍号没找到对应学生，进一步作为筛查编号到计划中查找（此时以管理端学生的姓名为准）
         Student student = studentService.getByCondition(condition, name);
@@ -605,12 +621,19 @@ public class ParentStudentBizService {
             student = studentService.findOne(new Student().setId(screeningPlanSchoolStudent.getStudentId()).setName(name));
             checkStudent(student, condition, name);
         }
-        responseDTO.setStudentId(student.getId());
-        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(student.getId());
+        Integer studentId = student.getId();
+        responseDTO.setStudentId(studentId);
+        List<ScreeningPlanSchoolStudent> planStudents = screeningPlanSchoolStudentService.getReleasePlanStudentByStudentId(studentId);
         // 查询报告
         if (!CollectionUtils.isEmpty(planStudents)) {
             VisionScreeningResult result = visionScreeningResultService.getLatestByPlanStudentIds(planStudents.stream().map(ScreeningPlanSchoolStudent::getId).collect(Collectors.toList()));
             responseDTO.setReportId(Objects.nonNull(result) ? result.getId() : null);
+        }
+        // 家长绑定学生
+        if (Objects.nonNull(state) && QUICKLY_VIEW_REPORT_STATE == state) {
+            Parent parent = getParentAndCheckIsExist(userId);
+            bindStudent(parent, studentId);
+            updateOtherInfo(studentId, parent.getPhone());
         }
         return responseDTO;
     }
