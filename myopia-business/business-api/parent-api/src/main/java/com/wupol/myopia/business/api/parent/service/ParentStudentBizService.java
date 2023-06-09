@@ -630,8 +630,8 @@ public class ParentStudentBizService {
             responseDTO.setReportId(Objects.nonNull(result) ? result.getId() : null);
         }
         // 家长绑定学生
+        log.info("绑定孩子，state = {}", state);
         if (Objects.nonNull(state) && QUICKLY_VIEW_REPORT_STATE == state) {
-            log.info("绑定孩子，state = {}", state);
             Parent parent = getParentAndCheckIsExist(userId);
             bindStudent(parent, studentId);
             updateOtherInfo(studentId, parent.getPhone());
