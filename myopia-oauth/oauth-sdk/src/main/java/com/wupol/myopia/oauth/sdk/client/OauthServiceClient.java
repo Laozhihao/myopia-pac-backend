@@ -314,7 +314,7 @@ public interface OauthServiceClient {
      * @return com.wupol.myopia.base.domain.com.wupol.myopia.business.management.domain.dto.login.LoginInfoDTO>
      **/
     @PostMapping("/login")
-    LoginInfo login(@RequestParam("client_id") String clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
+    LoginInfo login(@RequestParam("client_id") Integer clientId, @RequestParam("client_secret") String clientSecret, @RequestParam("username") String username, @RequestParam("password") String password);
 
     /**
      * 通过templateType获取权限集合
