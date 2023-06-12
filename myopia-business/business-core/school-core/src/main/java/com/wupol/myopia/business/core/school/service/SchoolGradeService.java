@@ -11,6 +11,7 @@ import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
+import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
 import com.wupol.myopia.business.core.school.domain.dto.*;
 import com.wupol.myopia.business.core.school.domain.mapper.SchoolGradeMapper;
 import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
@@ -115,14 +116,14 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
     /**
      * 年级列表(没有分页)
      *
-     * @param schoolId 学校id
-     *
+     * @param schoolId         学校id
+     * @param isFilterGraduate
      * @return List<SchoolGradeItemsDTO> 返回体
      */
-    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId, Boolean isFilterGraduate) {
 
         // 获取年级
-        List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId);
+        List<SchoolGradeItemsDTO> schoolGrades = baseMapper.getAllBySchoolId(schoolId, isFilterGraduate);
         if (CollectionUtils.isEmpty(schoolGrades)) {
             return new ArrayList<>();
         }
@@ -436,6 +437,13 @@ public class SchoolGradeService extends BaseService<SchoolGradeMapper, SchoolGra
                 .setStatus(CommonConst.STATUS_NOT_DELETED);
         schoolGradeExportDTOLambdaQueryWrapper.setEntity(schoolGrade);
         return baseMapper.selectOne(schoolGradeExportDTOLambdaQueryWrapper);
+    }
+
+    public List<SchoolGrade> listBySchoolId(Integer schoolId, Boolean isFilterGraduate) {
+        return baseMapper.selectList(Wrappers.lambdaQuery(SchoolGrade.class)
+                .eq(SchoolGrade::getSchoolId, schoolId)
+                .ne(Objects.equals(isFilterGraduate, Boolean.TRUE), SchoolGrade::getGradeCode, GradeCodeEnum.GRADUATE.getCode())
+                .eq(SchoolGrade::getStatus, CommonConst.STATUS_NOT_DELETED));
     }
 
 }

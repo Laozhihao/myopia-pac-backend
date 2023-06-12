@@ -420,6 +420,13 @@ public class VisionScreeningService {
         screeningPlanSchoolStudentService.remove(new ScreeningPlanSchoolStudent().setScreeningPlanId(screeningPlanId));
         screeningPlanSchoolService.remove(new ScreeningPlanSchool().setScreeningPlanId(screeningPlanId));
         screeningPlanService.remove(new ScreeningPlan().setId(screeningPlanId));
+        ScreeningNoticeDeptOrg screeningNoticeDeptOrg = screeningNoticeDeptOrgService.getByScreeningTaskPlanId(screeningPlanId);
+        if (Objects.nonNull(screeningNoticeDeptOrg)) {
+            screeningNoticeDeptOrg.setOperationStatus(CommonConst.STATUS_NOTICE_UNREAD);
+            screeningNoticeDeptOrg.setScreeningTaskPlanId(CommonConst.DEFAULT_ID);
+            screeningNoticeDeptOrgService.updateById(screeningNoticeDeptOrg);
+        }
+
     }
 
     /**
@@ -489,7 +496,7 @@ public class VisionScreeningService {
         IPage<ScreeningStudentListVO> studentListVoPage = processScreeningStudentList(schoolStudentPage, studentListDTO.getSchoolId());
 
         ScreeningStudentVO screeningStudentVO = new ScreeningStudentVO();
-        List<GradeInfoVO> gradeInfoList = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId());
+        List<GradeInfoVO> gradeInfoList = schoolStudentBizService.getGradeInfo(studentListDTO.getScreeningPlanId(), CurrentUserUtil.getCurrentUser().getOrgId(), false);
         screeningStudentVO.setHasScreeningStudent(gradeInfoList.stream().mapToInt(GradeInfoVO::getUnSyncStudentNum).sum() > 0);
         screeningStudentVO.setPageData(studentListVoPage);
         return screeningStudentVO;

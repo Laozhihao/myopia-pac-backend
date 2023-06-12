@@ -12,6 +12,7 @@ import com.wupol.myopia.base.domain.CurrentUser;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.business.api.management.domain.builder.ScreeningOrgBizBuilder;
 import com.wupol.myopia.business.api.management.domain.vo.ScreeningSchoolOrgVO;
+import com.wupol.myopia.business.common.utils.constant.SchoolAge;
 import com.wupol.myopia.business.common.utils.constant.ScreeningTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.dto.UsernameAndPasswordDTO;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -29,6 +30,7 @@ import com.wupol.myopia.business.core.school.domain.dto.ScreeningSchoolOrgDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.domain.model.SchoolAdmin;
 import com.wupol.myopia.business.core.school.management.domain.dto.StudentCountDTO;
+import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
 import com.wupol.myopia.business.core.school.service.SchoolAdminService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
@@ -273,9 +275,13 @@ public class SchoolBizService {
         Map<Integer, User> userDTOMap = userLists.stream().collect(Collectors.toMap(User::getId, Function.identity()));
 
         // 学生统计
-        List<StudentCountDTO> studentCountDTOS = schoolStudentService.countStudentBySchoolId(schoolIdList);
-        Map<Integer, Integer> studentCountMaps = studentCountDTOS.stream()
-                .collect(Collectors.toMap(StudentCountDTO::getSchoolId, StudentCountDTO::getCount));
+        List<SchoolStudent> schoolStudentList = schoolStudentService.getStudentBySchoolIds(schoolIdList);
+        Map<Integer, Long> allStudentCountMaps = schoolStudentList.stream()
+                .collect(Collectors.groupingBy(SchoolStudent::getSchoolId, Collectors.counting()));
+
+        Map<Integer, Long> currentStudentCountMaps = schoolStudentList.stream()
+                .filter(s -> !Objects.equals(s.getGradeType(), SchoolAge.GRADUATE.getCode()))
+                .collect(Collectors.groupingBy(SchoolStudent::getSchoolId, Collectors.counting()));
 
         // 学校筛查次数
         List<ScreeningPlanSchool> planSchoolList = screeningPlanSchoolService.getBySchoolIds(schoolIdList);
@@ -286,7 +292,7 @@ public class SchoolBizService {
         if (currentUser.isOverviewUser()) {
             bindSchool = overviewService.getBindSchool(currentUser.getOrgId());
         }
-        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, studentCountMaps, planSchoolMaps, bindSchool, orgUserIds));
+        schools.forEach(getSchoolDtoConsumer(currentUser, userDTOMap, allStudentCountMaps, planSchoolMaps, bindSchool, orgUserIds, currentStudentCountMaps));
         return schoolDtoIPage;
     }
 
@@ -363,8 +369,9 @@ public class SchoolBizService {
      * @return Consumer<SchoolDto>
      */
     private Consumer<SchoolResponseDTO> getSchoolDtoConsumer(CurrentUser currentUser, Map<Integer, User> userMap,
-                                                             Map<Integer, Integer> studentCountMaps, Map<Integer, Long> planSchoolMaps,
-                                                             List<Integer> bindSchool, List<Integer> orgUserIds) {
+                                                             Map<Integer, Long> studentCountMaps, Map<Integer, Long> planSchoolMaps,
+                                                             List<Integer> bindSchool, List<Integer> orgUserIds,
+                                                             Map<Integer, Long> currentStudentCountMaps) {
         return school -> {
             // 创建人
             school.setCreateUser(userMap.get(school.getCreateUserId()).getRealName());
@@ -387,7 +394,10 @@ public class SchoolBizService {
             school.setScreeningCount(planSchoolMaps.getOrDefault(school.getId(), 0L));
 
             // 学生统计
-            school.setStudentCount(studentCountMaps.getOrDefault(school.getId(), 0));
+            school.setStudentCount(Math.toIntExact(studentCountMaps.getOrDefault(school.getId(), 0L)));
+
+            // 在读学生
+            school.setCurrentStudent(currentStudentCountMaps.getOrDefault(school.getId(), 0L));
 
             // 详细地址
             school.setAddressDetail(districtService.getAddressDetails(

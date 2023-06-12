@@ -18,9 +18,11 @@ import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningNoticeQ
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningTaskDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNotice;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningNoticeDeptOrg;
+import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.facade.ScreeningRelatedFacade;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeDeptOrgService;
 import com.wupol.myopia.business.core.screening.flow.service.ScreeningNoticeService;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.system.service.NoticeService;
 import com.wupol.myopia.oauth.sdk.client.OauthServiceClient;
 import com.wupol.myopia.oauth.sdk.domain.response.User;
@@ -52,6 +54,10 @@ public class ScreeningNoticeBizService {
     private ScreeningNoticeDeptOrgService screeningNoticeDeptOrgService;
     @Autowired
     private NoticeService noticeService;
+    @Autowired
+    private DistrictBizService districtBizService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 分页查询
@@ -196,5 +202,21 @@ public class ScreeningNoticeBizService {
         }
     }
 
+    /**
+     * 获取该用户所在部门参与的筛查通知(存在数据的)
+     */
+    public List<ScreeningNotice> getRelatedHaveData(CurrentUser user) {
+        List<ScreeningNotice> noticeList = getRelatedNoticeByUser(user);
+        if (CollectionUtils.isEmpty(noticeList)) {
+            return new ArrayList<>();
+        }
+        List<ScreeningPlanSchoolStudent> planStudentList = screeningPlanSchoolStudentService.getByNoticeIdsAndDistrictIds(noticeList.stream().map(ScreeningNotice::getId).collect(Collectors.toList()),
+                districtService.getSpecificDistrictTreeAllDistrictIds(districtBizService.getNotPlatformAdminUserDistrict(user).getId()));
+        Map<Integer, List<ScreeningPlanSchoolStudent>> planStudentMap = planStudentList.stream().collect(Collectors.groupingBy(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId));
 
+        return noticeList.stream().filter(s->{
+            List<ScreeningPlanSchoolStudent> planSchoolStudentList = planStudentMap.getOrDefault(s.getId(), new ArrayList<>());
+            return !planSchoolStudentList.isEmpty();
+        }).collect(Collectors.toList());
+    }
 }

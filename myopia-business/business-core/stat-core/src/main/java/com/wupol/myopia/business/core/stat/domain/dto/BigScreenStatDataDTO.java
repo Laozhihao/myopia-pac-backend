@@ -88,4 +88,9 @@ public class BigScreenStatDataDTO {
      * 学校Id
      */
     private Integer schoolId;
+
+    /**
+     * 筛查性近视
+     */
+    private Integer screeningMyopia;
 }

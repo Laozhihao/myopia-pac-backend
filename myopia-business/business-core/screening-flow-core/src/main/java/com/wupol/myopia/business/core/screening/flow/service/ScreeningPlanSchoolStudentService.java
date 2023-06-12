@@ -15,6 +15,8 @@ import com.wupol.myopia.business.common.utils.constant.CommonConst;
 import com.wupol.myopia.business.common.utils.constant.ContrastTypeEnum;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
+import com.wupol.myopia.business.core.common.domain.model.District;
+import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.domain.model.School;
 import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
@@ -56,6 +58,8 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
     private SchoolClassService schoolClassService;
     @Autowired
     private SchoolGradeService schoolGradeService;
+    @Autowired
+    private DistrictService districtService;
 
     /**
      * 根据学生id获取筛查计划学校学生
@@ -969,9 +973,12 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      * @param srcScreeningNoticeId 通知ID
      * @return 筛查学生数
      */
-    public Integer countPlanSchoolStudentByNoticeId(int srcScreeningNoticeId) {
+    public Integer countPlanSchoolStudentByNoticeId(int srcScreeningNoticeId, District district) {
         LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId,srcScreeningNoticeId);
+        queryWrapper.eq(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, srcScreeningNoticeId);
+        if (Objects.equals(districtService.isProvince(district), Boolean.FALSE)) {
+            queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId, districtService.getSpecificDistrictTreeAllDistrictIds(district.getDistrictId()));
+        }
         return baseMapper.selectCount(queryWrapper);
     }
 
@@ -980,5 +987,30 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
      */
     public ScreeningPlanSchoolStudent getCommonDiseasePlanStudent(Integer type, Long screeningCode, Integer id) {
         return baseMapper.getCommonDiseasePlanStudent(type, screeningCode, id);
+    }
+
+    /**
+     * 获取筛查学生
+     *
+     * @return 筛查学生
+     */
+    public List<ScreeningPlanSchoolStudent> getByNoticeIdsAndDistrictIds(List<Integer> noticeIds, List<Integer> districtIds) {
+        LambdaQueryWrapper<ScreeningPlanSchoolStudent> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSrcScreeningNoticeId, noticeIds);
+        queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId, districtIds);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 更新筛查学生不检查说明
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateState(Integer id, Integer state) {
+        ScreeningPlanSchoolStudent planSchoolStudent = getById(id);
+        if (Objects.isNull(planSchoolStudent)) {
+            throw new BusinessException("筛查学生异常");
+        }
+        planSchoolStudent.setState(state);
+        updateById(planSchoolStudent);
     }
 }

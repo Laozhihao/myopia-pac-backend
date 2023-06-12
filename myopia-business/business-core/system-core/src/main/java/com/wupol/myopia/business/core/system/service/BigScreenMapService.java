@@ -9,8 +9,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author jacob
@@ -22,13 +24,16 @@ public class BigScreenMapService extends BaseService<BigScreenMapMapper, BigScre
 
     /**
      * 通过地区id获取城市位置
-     * @param provinceDistrictId
+     * @param districtId
      * @return
      */
-    public  Map<Integer, List<Double>>  getCityCenterLocationByDistrictId(Integer provinceDistrictId) {
+    public Map<String, List<Double>> getCityCenterLocationByDistrictId(Integer districtId) {
         LambdaQueryWrapper<BigScreenMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BigScreenMap::getDistrictId,provinceDistrictId).select(BigScreenMap::getCityCenterLocation);
+        queryWrapper.eq(BigScreenMap::getDistrictId, districtId).select(BigScreenMap::getCityCenterLocation);
         BigScreenMap bigScreenMap = baseMapper.selectOne(queryWrapper);
+        if (Objects.isNull(bigScreenMap)) {
+            return new HashMap<>();
+        }
         return bigScreenMap.getCityCenterLocation();
     }
 

@@ -3,27 +3,29 @@ package com.wupol.myopia.business.aggregation.export.excel.imports;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdcardUtil;
 import cn.hutool.core.util.PhoneUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
 import com.wupol.myopia.base.util.DateUtil;
 import com.wupol.myopia.business.aggregation.export.excel.constant.SchoolStudentImportEnum;
 import com.wupol.myopia.business.aggregation.export.utils.CommonCheck;
-import com.wupol.myopia.business.common.utils.constant.CommonConst;
-import com.wupol.myopia.business.common.utils.constant.GenderEnum;
-import com.wupol.myopia.business.common.utils.constant.NationEnum;
-import com.wupol.myopia.business.common.utils.constant.SourceClientEnum;
+import com.wupol.myopia.business.common.utils.constant.*;
 import com.wupol.myopia.business.common.utils.util.FileUtils;
 import com.wupol.myopia.business.common.utils.util.IdCardUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
 import com.wupol.myopia.business.core.common.service.DistrictService;
 import com.wupol.myopia.business.core.school.constant.GradeCodeEnum;
+import com.wupol.myopia.business.core.school.domain.dto.SchoolClassDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolClassExportDTO;
 import com.wupol.myopia.business.core.school.domain.dto.SchoolGradeExportDTO;
 import com.wupol.myopia.business.core.school.domain.model.School;
+import com.wupol.myopia.business.core.school.domain.model.SchoolClass;
+import com.wupol.myopia.business.core.school.domain.model.SchoolGrade;
 import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.management.domain.model.SchoolStudent;
 import com.wupol.myopia.business.core.school.management.service.SchoolStudentService;
+import com.wupol.myopia.business.core.school.service.SchoolClassService;
 import com.wupol.myopia.business.core.school.service.SchoolGradeService;
 import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.school.service.StudentService;
@@ -59,6 +61,8 @@ public class SchoolStudentExcelImportService {
     private DistrictService districtService;
     @Resource
     private SchoolStudentService schoolStudentService;
+    @Resource
+    private SchoolClassService schoolClassService;
 
     private static final String ERROR_MSG = "在系统中重复";
     private static final Integer PASSPORT_LENGTH = 7;
@@ -95,6 +99,8 @@ public class SchoolStudentExcelImportService {
         Map<String, SchoolStudent> idCardMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getIdCard())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getIdCard()), Function.identity()));
         Map<String, SchoolStudent> passPortMap = studentList.stream().filter(s -> StringUtils.isNotBlank(s.getPassport())).collect(Collectors.toMap(s -> StringUtils.upperCase(s.getPassport()), Function.identity()));
 
+        preHandleGraduateClass(listMap, idCardMap, passPortMap, schoolId, createUserId);
+
         Map<Integer, List<SchoolGradeExportDTO>> schoolGradeMap = schoolGradeService.getGradeAndClassMap(Lists.newArrayList(school.getId()));
         Map<String, Student> studentMap = studentService.getByIdCardsOrPassports(idCards, passports).stream().collect(Collectors.toMap(x -> StringUtils.upperCase(x.getIdCard()) + x.getPassport(), Function.identity()));
         List<SchoolStudent> schoolStudents = new ArrayList<>();
@@ -109,10 +115,13 @@ public class SchoolStudentExcelImportService {
             String className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
             String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
             String phone = item.get(SchoolStudentImportEnum.PHONE.getIndex());
-            // 数据校验
-            validateData(snoMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone);
+
             // 获取已经存在的学生（含删除的），优先取身份证，再取护照号
             SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.getOrDefault(passport, new SchoolStudent()));
+
+            // 数据校验
+            validateData(snoMap, sno, name, idCard, gender, birthday, gradeName, className, passport, phone, schoolStudent);
+
             // 设置参数
             setSchoolStudentInfo(createUserId, schoolId, item, schoolStudent, schoolGradeMap, gradeName, className);
             schoolStudents.add(schoolStudent);
@@ -218,9 +227,11 @@ public class SchoolStudentExcelImportService {
      * @param className   班级名称
      * @param passport    护照信息
      * @param phone       手机号码
+     * @param schoolStudent  通过证件获取的学生
      */
-    private void validateData(Map<String, SchoolStudent> snoMap,
-                              String sno, String name, String idCard, String gender, String birthday, String gradeName, String className, String passport, String phone) {
+    private void validateData(Map<String, SchoolStudent> snoMap, String sno, String name, String idCard,
+                              String gender, String birthday, String gradeName, String className, String passport, String phone,
+                              SchoolStudent schoolStudent) {
         // 学籍号
         if (StringUtils.isBlank(sno) || sno.length() > SNO_LENGTH) {
             throw new BusinessException(name + "学籍号为空或超过长度限制");
@@ -255,7 +266,7 @@ public class SchoolStudentExcelImportService {
             throw new BusinessException("学籍号为" + sno + "学生，手机号码为空或格式错误");
         }
         // 校验学籍号是否被占用（得放在身份证和护照号校验后面）
-        validateSno(snoMap, sno, passport, idCard);
+        validateSno(snoMap, sno, passport, idCard, schoolStudent);
     }
 
     /**
@@ -265,14 +276,20 @@ public class SchoolStudentExcelImportService {
      * @param sno           当前学生学籍号
      * @param passport      当前学生护照号
      * @param idCard        当前学生身份证号
+     * @param credentialSchoolStudent  通过证件获取的学生
      */
-    private void validateSno(Map<String, SchoolStudent> snoMap, String sno, String passport, String idCard) {
+    private void validateSno(Map<String, SchoolStudent> snoMap, String sno, String passport, String idCard, SchoolStudent credentialSchoolStudent) {
         SchoolStudent schoolStudent = snoMap.get(sno);
         if (Objects.isNull(schoolStudent)) {
             return;
         }
-        Assert.isTrue((StringUtils.isNotBlank(idCard) && idCard.equals(schoolStudent.getIdCard())) ||
-                (StringUtils.isNotBlank(passport) && passport.equals(schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
+
+        if (Objects.nonNull(credentialSchoolStudent) && (StringUtils.equals(sno, credentialSchoolStudent.getSno()))) {
+            return;
+        }
+
+        Assert.isTrue((StringUtils.isNotBlank(idCard) && StringUtils.equals(idCard, schoolStudent.getIdCard())) ||
+                (StringUtils.isNotBlank(passport) && StringUtils.equals(passport, schoolStudent.getPassport())), "学籍号" + sno + ERROR_MSG);
     }
 
     /**
@@ -343,5 +360,71 @@ public class SchoolStudentExcelImportService {
         student.setUpdateTime(new Date());
         student.setGradeType(schoolStudent.getGradeType());
         return student;
+    }
+
+    /**
+     * 预处理毕业班级年级
+     */
+    private void preHandleGraduateClass(List<Map<Integer, String>> listMap, Map<String, SchoolStudent> idCardMap, Map<String, SchoolStudent> passPortMap,
+                                        Integer schoolId, Integer userId) {
+        SchoolGrade schoolGrade = schoolGradeService.getByGradeCodeAndSchoolId(schoolId, GradeCodeEnum.GRADUATE.getCode());
+        List<SchoolClassDTO> schoolClassList = schoolClassService.getVoBySchoolId(schoolId);
+        Map<Integer, String> classMap = schoolClassList.stream()
+                .collect(Collectors.toMap(SchoolClass::getId, SchoolClass::getName));
+
+        if (Objects.isNull(schoolGrade)) {
+            schoolGrade = new SchoolGrade();
+            schoolGrade.setCreateUserId(userId);
+            schoolGrade.setSchoolId(schoolId);
+            schoolGrade.setGradeCode(GradeCodeEnum.GRADUATE.getCode());
+            schoolGrade.setName(GradeCodeEnum.GRADUATE.getName());
+            schoolGradeService.save(schoolGrade);
+        }
+
+        int currentYear = DateUtil.year(new Date());
+        List<String> classNameList = new ArrayList<>();
+
+        for (Map<Integer, String> item : listMap) {
+            String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
+            if (StringUtils.equals(gradeName, GradeCodeEnum.GRADUATE.getName())) {
+                String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+                String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
+                SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
+                String className;
+                if (Objects.isNull(schoolStudent)) {
+                    className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+                } else {
+                    // 如果学生的年级已经是毕业，则不处理
+                    if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
+                        item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), schoolStudent.getClassName());
+                        continue;
+                    } else {
+                        className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
+                    }
+                }
+                classNameList.add(className);
+                item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), className);
+            }
+        }
+
+        SchoolGrade finalSchoolGrade = schoolGrade;
+        List<SchoolClassDTO> graduateClass = schoolClassList.stream()
+                .filter(s -> Objects.equals(s.getGradeId(), finalSchoolGrade.getId()))
+                .collect(Collectors.toList());
+        Map<String, Long> graduateClassCountMap = graduateClass.stream()
+                .collect(Collectors.groupingBy(SchoolClass::getName, Collectors.counting()));
+
+        List<SchoolClass> saveSchoolClassList = new ArrayList<>();
+        for (String className : classNameList) {
+            if (graduateClassCountMap.getOrDefault(className, 0L) == 0) {
+                SchoolClass schoolClass = new SchoolClass();
+                schoolClass.setGradeId(schoolGrade.getId());
+                schoolClass.setCreateUserId(userId);
+                schoolClass.setSchoolId(schoolId);
+                schoolClass.setName(className);
+                saveSchoolClassList.add(schoolClass);
+            }
+        }
+        schoolClassService.saveBatch(saveSchoolClassList);
     }
 }

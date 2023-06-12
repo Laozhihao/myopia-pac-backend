@@ -8,6 +8,7 @@ import com.wupol.myopia.business.common.utils.constant.MyopiaLevelEnum;
 import com.wupol.myopia.business.common.utils.exception.ManagementUncheckedException;
 import com.wupol.myopia.business.common.utils.util.MathUtil;
 import com.wupol.myopia.business.common.utils.util.TwoTuple;
+import com.wupol.myopia.business.core.school.constant.SchoolEnum;
 import com.wupol.myopia.business.core.stat.domain.dos.AvgVisionDO;
 import com.wupol.myopia.business.core.stat.domain.dos.BigScreenScreeningDO;
 import com.wupol.myopia.business.core.stat.domain.dos.RadarChartDataDO;
@@ -33,10 +34,11 @@ public class DistrictBigScreenStatisticBuilder {
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
     private long realValidScreeningNum;
     private long planScreeningNum;
-    private Map<Integer, List<Double>> cityCenterMap;
+    private Map<String, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
     private long realScreeningNum;
+    private Boolean isProvince;
 
     public static DistrictBigScreenStatisticBuilder getBuilder() {
         return new DistrictBigScreenStatisticBuilder();
@@ -53,7 +55,7 @@ public class DistrictBigScreenStatisticBuilder {
      * @param cityCenterMap
      * @return
      */
-    public DistrictBigScreenStatisticBuilder setCityCenterMap(Map<Integer, List<Double>> cityCenterMap) {
+    public DistrictBigScreenStatisticBuilder setCityCenterMap(Map<String, List<Double>> cityCenterMap) {
         this.cityCenterMap = cityCenterMap;
         return this;
     }
@@ -126,8 +128,9 @@ public class DistrictBigScreenStatisticBuilder {
         OptionalDouble avgVisionR = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionR())).mapToDouble(bs -> bs.getVisionR().doubleValue()).average();
         OptionalDouble avgVisionL = bigScreenStatDataDTOList.stream().filter(x -> Objects.nonNull(x.getVisionL())).mapToDouble(bs -> bs.getVisionL().doubleValue()).average();
         TwoTuple<Double, Double> leftAndRightAvgVisionData = new TwoTuple<>();
-        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith2Scale(avgVisionL.getAsDouble()));
-        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith2Scale(avgVisionR.getAsDouble()));
+
+        leftAndRightAvgVisionData.setFirst(MathUtil.getFormatNumWith1Scale(avgVisionL.isPresent() ? avgVisionL.getAsDouble() : null));
+        leftAndRightAvgVisionData.setSecond(MathUtil.getFormatNumWith1Scale(avgVisionR.isPresent() ? avgVisionR.getAsDouble() : null));
         return leftAndRightAvgVisionData;
     }
 
@@ -179,6 +182,14 @@ public class DistrictBigScreenStatisticBuilder {
     }
 
     /**
+     * 设置是否省级
+     */
+    public DistrictBigScreenStatisticBuilder setIsProvince(Boolean isProvince) {
+        this.isProvince = isProvince;
+        return this;
+    }
+
+    /**
      * 获取筛查数据
      *
      * @param bigScreenStatDataDTOList
@@ -189,6 +200,7 @@ public class DistrictBigScreenStatisticBuilder {
                 .setScreeningStudentNum((long) bigScreenStatDataDTOList.size())
                 .setBigScreenStatDataDTOList(bigScreenStatDataDTOList)
                 .setRealScreeningNum(realValidScreeningNum)
+                .setIsProvince(isProvince)
                 .build();
         //设置地图数据
         List<BigScreenScreeningDO.MapLocationDataDTO> mapLocationData = this.getMapLocationData(distributionDTO.getStatisticDistrict());
@@ -202,11 +214,14 @@ public class DistrictBigScreenStatisticBuilder {
      * @return
      */
     private List<BigScreenScreeningDO.MapLocationDataDTO> getMapLocationData(List<DistributionDTO.StatisticDistrictDTO> statisticDistrictList) {
+        if (Objects.equals(isProvince, Boolean.FALSE)) {
+            return new ArrayList<>();
+        }
         return statisticDistrictList.stream().map(statisticDistrictDTO -> {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());
             mapLocationDataDTO.setValue(statisticDistrictDTO.getNum());
-            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId());
+            List<Double> cityCenter = cityCenterMap.get(String.valueOf(statisticDistrictDTO.getCityDistrictId()));
             ArrayList<List<Double>> locationList = new ArrayList<>();
             locationList.add(cityCenter);
             locationList.add(cityCenter);
@@ -225,7 +240,7 @@ public class DistrictBigScreenStatisticBuilder {
         RadarChartDataDO radarChartDataDO = new RadarChartDataDO();
 
         long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
-        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getScreeningMyopia(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
         long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
         long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
         long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();
@@ -251,7 +266,7 @@ public class DistrictBigScreenStatisticBuilder {
      */
     private RadarChartDataDO.Item genderRadarChart(List<BigScreenStatDataDTO> validList, GenderEnum genderEnum) {
         long lowVisionCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getIsLowVision(), Boolean.TRUE)).count();
-        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
+        long screeningMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getScreeningMyopia(), MyopiaLevelEnum.SCREENING_MYOPIA.getCode())).count();
         long highMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_HIGH.getCode())).count();
         long lightMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_LIGHT.getCode())).count();
         long earlyMyopiaCount = validList.stream().filter(s -> Objects.equals(s.getGender(), genderEnum.type)).filter(s -> Objects.equals(s.getMyopiaLevel(), MyopiaLevelEnum.MYOPIA_LEVEL_EARLY.getCode())).count();
@@ -268,7 +283,8 @@ public class DistrictBigScreenStatisticBuilder {
      * @return RankingDataDO
      */
     private RankingDataDO generateRankingDataDO() {
-        Map<Boolean, List<BigScreenStatDataDTO>> schoolTypeMap = bigScreenStatDataDTOList.stream().collect(Collectors.groupingBy(s -> Objects.equals(s.getSchoolType(), 8)));
+        Map<Boolean, List<BigScreenStatDataDTO>> schoolTypeMap = bigScreenStatDataDTOList.stream()
+                .collect(Collectors.groupingBy(s -> Objects.equals(s.getSchoolType(), SchoolEnum.TYPE_KINDERGARTEN.getType())));
         List<RankingDataDO.Item> primaryItem = getItems(schoolTypeMap.get(Boolean.FALSE), Boolean.FALSE);
         List<RankingDataDO.Item> kindergartenItem = getItems(schoolTypeMap.get(Boolean.TRUE), Boolean.TRUE);
 
@@ -305,10 +321,10 @@ public class DistrictBigScreenStatisticBuilder {
                 .sorted((o1, o2) -> {
                     if (Objects.equals(isKindergarten, Boolean.TRUE)) {
                         // 幼儿园根据视力低下排序
-                        return o2.getLowVisionRadio().compareTo(o1.getLowVisionRadio());
+                        return Double.valueOf(o2.getLowVisionRadio()).compareTo(Double.valueOf(o1.getLowVisionRadio()));
                     }
                     // 小学以上根据近视率排序
-                    return o2.getMyopiaRadio().compareTo(o1.getMyopiaRadio());
+                    return Double.valueOf(o2.getMyopiaRadio()).compareTo(Double.valueOf(o1.getMyopiaRadio()));
                 }).collect(Collectors.toList());
     }
 }

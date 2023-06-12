@@ -31,22 +31,22 @@ public class DistrictBigScreenStatisticService extends BaseService<DistrictBigSc
     /**
      * 保存 或 通过id更新
      * 关于缓存驱逐: 缓存驱逐会在方法执行成功后执行,失败则不执行
+     *
      * @param districtBigScreenStatistic
-     * @return
      */
-    public boolean saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic)  {
+    public void saveOrUpdateByDistrictIdAndNoticeId(DistrictBigScreenStatistic districtBigScreenStatistic) {
         if (null == districtBigScreenStatistic) {
-            return false;
+            return;
         }
         Integer districtId = districtBigScreenStatistic.getDistrictId();
         LambdaQueryWrapper<DistrictBigScreenStatistic> districtBigScreenStatisticLambdaQueryWrapper = new LambdaQueryWrapper<>();
         districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getDistrictId, districtId);
-        districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getScreeningNoticeId,districtBigScreenStatistic.getScreeningNoticeId());
+        districtBigScreenStatisticLambdaQueryWrapper.eq(DistrictBigScreenStatistic::getScreeningNoticeId, districtBigScreenStatistic.getScreeningNoticeId());
         DistrictBigScreenStatistic districtBigScreenStatistic1 = new DistrictBigScreenStatistic().setDistrictId(districtId).setScreeningNoticeId(districtBigScreenStatistic.getScreeningNoticeId());
         if (Objects.nonNull(districtId) && Objects.nonNull(this.findOne(districtBigScreenStatistic1))) {
-            return  this.update(districtBigScreenStatistic, districtBigScreenStatisticLambdaQueryWrapper);
+            this.update(districtBigScreenStatistic, districtBigScreenStatisticLambdaQueryWrapper);
         } else {
-            return this.save(districtBigScreenStatistic);
+            this.save(districtBigScreenStatistic);
         }
     }
 }
