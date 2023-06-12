@@ -151,10 +151,10 @@ wechat:
     url: https://open.weixin.qq.com/connect/oauth2/authorize
   api:
     url-host: https://api.weixin.qq.com
-  # 微信回调域名——同家长端域名
+  # 微信回调域名——同家长端域名（如果是单域名部署，还需要加上/parent来区分不同前端工程入口，如：https://s-myopia-pac.tulab.cn/parent/api）
   callback:
     url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}/api
-  # 家长端前端工程访问域名
+  # 家长端前端工程访问域名（如果是单域名部署，还需要加上/parent来区分不同前端工程入口，如：https://s-myopia-pac.tulab.cn/parent）
   h5-client:
     url-host: ${VISTEL_MYOPIA_PAC_PARENT_BASE_URI}
 
