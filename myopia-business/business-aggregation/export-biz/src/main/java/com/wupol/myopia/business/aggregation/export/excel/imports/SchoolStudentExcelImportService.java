@@ -364,6 +364,12 @@ public class SchoolStudentExcelImportService {
 
     /**
      * 预处理毕业班级年级
+     *
+     * @param listMap     上传学生
+     * @param idCardMap   身份证Map
+     * @param passPortMap 护照Map
+     * @param schoolId    学校Id
+     * @param userId      创建人
      */
     private void preHandleGraduateClass(List<Map<Integer, String>> listMap, Map<String, SchoolStudent> idCardMap, Map<String, SchoolStudent> passPortMap,
                                         Integer schoolId, Integer userId) {
@@ -392,7 +398,7 @@ public class SchoolStudentExcelImportService {
                 SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
                 String className;
                 if (Objects.isNull(schoolStudent)) {
-                    className = item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+                    className = currentYear + StrUtil.DASHED + item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
                 } else {
                     // 如果学生的年级已经是毕业，则不处理
                     if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
