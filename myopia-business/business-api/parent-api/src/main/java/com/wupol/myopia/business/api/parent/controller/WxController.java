@@ -1,8 +1,8 @@
 package com.wupol.myopia.business.api.parent.controller;
 
 import com.wupol.framework.core.util.StringUtils;
+import com.wupol.myopia.base.constant.SystemCode;
 import com.wupol.myopia.base.domain.ApiResult;
-import com.wupol.myopia.business.api.parent.constant.ParentClientConstant;
 import com.wupol.myopia.business.api.parent.constant.WxBusinessExceptionCodeEnum;
 import com.wupol.myopia.business.api.parent.constant.WxConstant;
 import com.wupol.myopia.business.api.parent.domain.dto.WxAuthorizationInfo;
@@ -43,6 +43,9 @@ import java.util.Objects;
 public class WxController {
     private static final Logger logger = LoggerFactory.getLogger(WxController.class);
 
+    /** 客户端秘钥 **/
+    private static final String PARENT_CLIENT_SECRET = "123456";
+
     @Value("${wechat.app.id}")
     private String appId;
     @Value("${wechat.app.secret}")
@@ -82,9 +85,10 @@ public class WxController {
      *      1 - 默认值，会跳到“报告查看”页面
      *      2 - 扫码进来，会跳到“我的孩子”页面
      *      3 - 绑定新的孩子，也叫在线建档（一般用于生成二维码，贴在医院，配合医院端使用）
-     *      4 - 快速查看报告（不需要绑定孩子）
+     *      4 - 快速查看报告（绑定孩子）
      *      5 - 个人中心
      *      6 - 跳转护眼宝小程序入口
+     *      7 - 快速查看报告（不绑定孩子）
      **/
     @GetMapping("/index")
     public String getCode(String state) {
@@ -128,7 +132,7 @@ public class WxController {
                 return "redirect:" + url;
             }
             // 自动登录
-            LoginInfo loginInfo = oauthServiceClient.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
+            LoginInfo loginInfo = oauthServiceClient.login(SystemCode.PARENT_CLIENT.getCode(), PARENT_CLIENT_SECRET, user.getPhone(), parent.getHashKey());
             return "redirect:" + String.format(WxConstant.WX_H5_CLIENT_URL_WITH_TOKEN, h5ClientUrlHost,
                     WxBusinessExceptionCodeEnum.OK.getCode(),
                     loginInfo.getTokenInfo().getAccessToken(),
@@ -196,7 +200,7 @@ public class WxController {
         // 家长绑定手机
         wxService.bindPhoneToParent(wxLoginInfo);
         // 自动登录
-        LoginInfo loginInfo = oauthServiceClient.login(ParentClientConstant.PARENT_CLIENT_ID, ParentClientConstant.PARENT_CLIENT_SECRET, wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
+        LoginInfo loginInfo = oauthServiceClient.login(SystemCode.PARENT_CLIENT.getCode(), PARENT_CLIENT_SECRET, wxLoginInfo.getPhone(), wxLoginInfo.getOpenId());
         return ApiResult.success(loginInfo.getTokenInfo());
     }
 }
