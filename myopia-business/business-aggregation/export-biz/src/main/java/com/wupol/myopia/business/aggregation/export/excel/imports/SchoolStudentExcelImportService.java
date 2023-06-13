@@ -386,51 +386,66 @@ public class SchoolStudentExcelImportService {
             schoolGrade.setName(GradeCodeEnum.GRADUATE.getName());
             schoolGradeService.save(schoolGrade);
         }
-
-        int currentYear = DateUtil.year(new Date());
         List<String> classNameList = new ArrayList<>();
 
         for (Map<Integer, String> item : listMap) {
             String gradeName = item.get(SchoolStudentImportEnum.GRADE_NAME.getIndex());
-            if (StringUtils.equals(gradeName, GradeCodeEnum.GRADUATE.getName())) {
-                String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
-                String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
-                SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
-                String className;
-                if (Objects.isNull(schoolStudent)) {
-                    className = currentYear + StrUtil.DASHED + item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
-                } else {
-                    // 如果学生的年级已经是毕业，则不处理
-                    if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
-                        item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), schoolStudent.getClassName());
-                        continue;
-                    } else {
-                        className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
-                    }
-                }
-                classNameList.add(className);
-                item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), className);
+            if (!StringUtils.equals(gradeName, GradeCodeEnum.GRADUATE.getName())) {
+               continue;
             }
+            String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
+            String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
+            SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
+            String className = getClassName(classMap, item, schoolStudent);
+            if (StringUtils.isBlank(className)) {
+                continue;
+            }
+            classNameList.add(className);
+            item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), className);
         }
 
-        SchoolGrade finalSchoolGrade = schoolGrade;
+        Integer gradeId = schoolGrade.getId();
         List<SchoolClassDTO> graduateClass = schoolClassList.stream()
-                .filter(s -> Objects.equals(s.getGradeId(), finalSchoolGrade.getId()))
+                .filter(s -> Objects.equals(s.getGradeId(), gradeId))
                 .collect(Collectors.toList());
         Map<String, Long> graduateClassCountMap = graduateClass.stream()
                 .collect(Collectors.groupingBy(SchoolClass::getName, Collectors.counting()));
 
         List<SchoolClass> saveSchoolClassList = new ArrayList<>();
         for (String className : classNameList) {
-            if (graduateClassCountMap.getOrDefault(className, 0L) == 0) {
-                SchoolClass schoolClass = new SchoolClass();
-                schoolClass.setGradeId(schoolGrade.getId());
-                schoolClass.setCreateUserId(userId);
-                schoolClass.setSchoolId(schoolId);
-                schoolClass.setName(className);
-                saveSchoolClassList.add(schoolClass);
+            if (graduateClassCountMap.getOrDefault(className, 0L) != 0) {
+               continue;
             }
+            SchoolClass schoolClass = new SchoolClass();
+            schoolClass.setGradeId(gradeId);
+            schoolClass.setCreateUserId(userId);
+            schoolClass.setSchoolId(schoolId);
+            schoolClass.setName(className);
+            saveSchoolClassList.add(schoolClass);
         }
         schoolClassService.saveBatch(saveSchoolClassList);
+    }
+
+    /**
+     * 获取班级名称
+     *
+     * @param classMap      班级Map
+     * @param item          Excel学生
+     * @param schoolStudent 学生
+     * @return 班级名称
+     */
+    private static String getClassName(Map<Integer, String> classMap, Map<Integer, String> item, SchoolStudent schoolStudent) {
+        int currentYear = DateUtil.year(new Date());
+        if (Objects.isNull(schoolStudent)) {
+            return currentYear + StrUtil.DASHED + item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+        } else {
+            // 如果学生的年级已经是毕业，则不处理
+            if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
+                item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), schoolStudent.getClassName());
+                return null;
+            } else {
+                return currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
+            }
+        }
     }
 }
