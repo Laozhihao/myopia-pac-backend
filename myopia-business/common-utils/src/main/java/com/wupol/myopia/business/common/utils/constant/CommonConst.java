@@ -303,4 +303,9 @@ public class CommonConst {
      * 学校学生模版导出文件名
      */
     public static final String EXPORT_SCHOOL_RESULT_TEMPLATE_EXCEL_NAME = "%s-导入学生筛查数据";
+
+    /**
+     * 合计
+     */
+    public final static String TOTAL = "合计";
 }

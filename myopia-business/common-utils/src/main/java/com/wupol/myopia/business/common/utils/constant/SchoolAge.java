@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 public enum SchoolAge {
 
 
-    UNKNOWN(-1, "未知", -1),
-    GRADUATE(-2, "毕业", -2),
-    KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType()),
-    PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    HIGH(2, "普高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    VOCATIONAL_HIGH(3, "职高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType()),
-    UNIVERSITY(4, "大学", SchoolTypeEnum.UNIVERSITY.getType());
+    UNKNOWN(-1, "未知", -1, -1),
+    GRADUATE(-2, "毕业", -2, -1),
+    KINDERGARTEN(5, "幼儿园", SchoolTypeEnum.KINDERGARTEN.getType(), 1),
+    PRIMARY(0, "小学", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(), 2),
+    JUNIOR(1, "初中", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(), 3),
+    HIGH(2, "普高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(), 4),
+    VOCATIONAL_HIGH(3, "职高", SchoolTypeEnum.PRIMARY_AND_SECONDARY.getType(), 5),
+    UNIVERSITY(4, "大学", SchoolTypeEnum.UNIVERSITY.getType(), 6);
 
     /**
      * 学龄段ID
@@ -47,10 +47,14 @@ public enum SchoolAge {
     @Getter
     public final Integer type;
 
-    SchoolAge(Integer code, String desc, Integer type) {
+    @Getter
+    private final Integer sort;
+
+    SchoolAge(Integer code, String desc, Integer type,Integer sort) {
         this.desc = desc;
         this.code = code;
         this.type = type;
+        this.sort = sort;
     }
 
     /**

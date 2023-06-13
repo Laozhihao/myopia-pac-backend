@@ -12,6 +12,7 @@ import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportSer
 import com.wupol.myopia.business.aggregation.export.pdf.domain.ExportCondition;
 import com.wupol.myopia.business.api.management.constant.ReportConst;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.area.ScreeningAreaReportDTO;
+import com.wupol.myopia.business.api.management.domain.dto.report.vision.plan.PlanReportResponseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.PrimarySchoolVisionReportDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.SchoolStudentResponseDTO;
 import com.wupol.myopia.business.api.management.domain.dto.report.vision.refactor.kindergarten.KindergartenVisionReportDTO;
@@ -23,6 +24,7 @@ import com.wupol.myopia.business.api.management.service.CommonDiseaseReportServi
 import com.wupol.myopia.business.api.management.service.ScreeningAreaReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningKindergartenReportService;
 import com.wupol.myopia.business.api.management.service.ScreeningPrimaryReportService;
+import com.wupol.myopia.business.api.management.service.report.plan.PlanReportService;
 import com.wupol.myopia.business.api.management.service.report.refactor.KindergartenVisionReportService;
 import com.wupol.myopia.business.api.management.service.report.refactor.PrimarySchoolVisionReportService;
 import com.wupol.myopia.business.core.common.service.Html2PdfService;
@@ -93,6 +95,9 @@ public class ReportController {
 
     @Autowired
     private KindergartenVisionReportService kindergartenVisionReportService;
+
+    @Autowired
+    private PlanReportService planReportService;
 
     /**
      * 导出区域的筛查报告 TODO: 权限校验、导出次数限制
@@ -343,6 +348,17 @@ public class ReportController {
     @GetMapping("/refactor/school/kindergarten")
     public ApiResult<KindergartenVisionReportDTO> refactorKindergartenSchoolVisionReport(@RequestParam Integer planId, @RequestParam Integer schoolId) {
         return ApiResult.success(kindergartenVisionReportService.kindergartenSchoolVisionReport(planId, schoolId));
+    }
+
+    /**
+     * 计划报告
+     *
+     * @param planId 计划Id
+     * @return ApiResult<PlanReportResponseDTO>
+     */
+    @GetMapping("/plan/report")
+    public ApiResult<PlanReportResponseDTO> getPlanReport(@RequestParam Integer planId) {
+        return ApiResult.success(planReportService.getPlanReport(planId));
     }
 
 }

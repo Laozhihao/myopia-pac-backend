@@ -20,62 +20,62 @@ public enum GradeCodeEnum {
     /**
      * 未知
      */
-    UNKNOWN("未知", "-1", SchoolAge.UNKNOWN.code, "UNKNOWN"),
+    UNKNOWN("未知", "-1", SchoolAge.UNKNOWN.code, "UNKNOWN", -1),
 
     /**
      * 小学
      */
-    ONE_PRIMARY_SCHOOL("一年级", "01", SchoolAge.PRIMARY.code, "ONE_PRIMARY_SCHOOL"),
-    TWO_PRIMARY_SCHOOL("二年级", "02", SchoolAge.PRIMARY.code, "TWO_PRIMARY_SCHOOL"),
-    THREE_PRIMARY_SCHOOL("三年级", "03", SchoolAge.PRIMARY.code, "THREE_PRIMARY_SCHOOL"),
-    FOUR_PRIMARY_SCHOOL("四年级", "04", SchoolAge.PRIMARY.code, "FOUR_PRIMARY_SCHOOL"),
-    FIVE_PRIMARY_SCHOOL("五年级", "05", SchoolAge.PRIMARY.code, "FIVE_PRIMARY_SCHOOL"),
-    SIX_PRIMARY_SCHOOL("六年级", "06", SchoolAge.PRIMARY.code, "SIX_PRIMARY_SCHOOL"),
+    ONE_PRIMARY_SCHOOL("一年级", "01", SchoolAge.PRIMARY.code, "ONE_PRIMARY_SCHOOL", 10),
+    TWO_PRIMARY_SCHOOL("二年级", "02", SchoolAge.PRIMARY.code, "TWO_PRIMARY_SCHOOL", 11),
+    THREE_PRIMARY_SCHOOL("三年级", "03", SchoolAge.PRIMARY.code, "THREE_PRIMARY_SCHOOL", 12),
+    FOUR_PRIMARY_SCHOOL("四年级", "04", SchoolAge.PRIMARY.code, "FOUR_PRIMARY_SCHOOL", 13),
+    FIVE_PRIMARY_SCHOOL("五年级", "05", SchoolAge.PRIMARY.code, "FIVE_PRIMARY_SCHOOL", 14),
+    SIX_PRIMARY_SCHOOL("六年级", "06", SchoolAge.PRIMARY.code, "SIX_PRIMARY_SCHOOL", 15),
 
     /**
      * 初中
      */
-    PRELIMINARY_SCHOOL("预初", "10", SchoolAge.JUNIOR.code, "PRELIMINARY_SCHOOL"),
-    ONE_JUNIOR_SCHOOL("初一", "11", SchoolAge.JUNIOR.code, "ONE_JUNIOR_SCHOOL"),
-    TWO_JUNIOR_SCHOOL("初二", "12", SchoolAge.JUNIOR.code, "TWO_JUNIOR_SCHOOL"),
-    THREE_JUNIOR_SCHOOL("初三", "13", SchoolAge.JUNIOR.code, "THREE_JUNIOR_SCHOOL"),
-    FOUR_JUNIOR_SCHOOL("初四", "14", SchoolAge.JUNIOR.code, "FOUR_JUNIOR_SCHOOL"),
+    PRELIMINARY_SCHOOL("预初", "10", SchoolAge.JUNIOR.code, "PRELIMINARY_SCHOOL", 20),
+    ONE_JUNIOR_SCHOOL("初一", "11", SchoolAge.JUNIOR.code, "ONE_JUNIOR_SCHOOL", 21),
+    TWO_JUNIOR_SCHOOL("初二", "12", SchoolAge.JUNIOR.code, "TWO_JUNIOR_SCHOOL", 22),
+    THREE_JUNIOR_SCHOOL("初三", "13", SchoolAge.JUNIOR.code, "THREE_JUNIOR_SCHOOL", 23),
+    FOUR_JUNIOR_SCHOOL("初四", "14", SchoolAge.JUNIOR.code, "FOUR_JUNIOR_SCHOOL", 24),
 
     /**
      * 高中
      */
-    ONE_HIGH_SCHOOL("高一", "21", SchoolAge.HIGH.code, "ONE_HIGH_SCHOOL"),
-    TWO_HIGH_SCHOOL("高二", "22", SchoolAge.HIGH.code, "TWO_HIGH_SCHOOL"),
-    THREE_HIGH_SCHOOL("高三", "23", SchoolAge.HIGH.code, "THREE_HIGH_SCHOOL"),
+    ONE_HIGH_SCHOOL("高一", "21", SchoolAge.HIGH.code, "ONE_HIGH_SCHOOL", 30),
+    TWO_HIGH_SCHOOL("高二", "22", SchoolAge.HIGH.code, "TWO_HIGH_SCHOOL", 31),
+    THREE_HIGH_SCHOOL("高三", "23", SchoolAge.HIGH.code, "THREE_HIGH_SCHOOL", 32),
 
     /**
      * 职高
      */
-    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", SchoolAge.VOCATIONAL_HIGH.code, "ONE_VOCATIONAL_HIGH_SCHOOL"),
-    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", SchoolAge.VOCATIONAL_HIGH.code, "TWO_VOCATIONAL_HIGH_SCHOOL"),
-    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", SchoolAge.VOCATIONAL_HIGH.code, "THREE_VOCATIONAL_HIGH_SCHOOL"),
+    ONE_VOCATIONAL_HIGH_SCHOOL("职高一", "31", SchoolAge.VOCATIONAL_HIGH.code, "ONE_VOCATIONAL_HIGH_SCHOOL", 40),
+    TWO_VOCATIONAL_HIGH_SCHOOL("职高二", "32", SchoolAge.VOCATIONAL_HIGH.code, "TWO_VOCATIONAL_HIGH_SCHOOL", 41),
+    THREE_VOCATIONAL_HIGH_SCHOOL("职高三", "33", SchoolAge.VOCATIONAL_HIGH.code, "THREE_VOCATIONAL_HIGH_SCHOOL", 42),
 
     /**
      * 大学
      */
-    ONE_UNIVERSITY("大一", "41", SchoolAge.UNIVERSITY.code, "ONE_UNIVERSITY"),
-    TWO_UNIVERSITY("大二", "42", SchoolAge.UNIVERSITY.code, "TWO_UNIVERSITY"),
-    THREE_UNIVERSITY("大三", "43", SchoolAge.UNIVERSITY.code, "THREE_UNIVERSITY"),
-    FOUR_UNIVERSITY("大四", "44", SchoolAge.UNIVERSITY.code, "FOUR_UNIVERSITY"),
+    ONE_UNIVERSITY("大一", "41", SchoolAge.UNIVERSITY.code, "ONE_UNIVERSITY", 50),
+    TWO_UNIVERSITY("大二", "42", SchoolAge.UNIVERSITY.code, "TWO_UNIVERSITY", 51),
+    THREE_UNIVERSITY("大三", "43", SchoolAge.UNIVERSITY.code, "THREE_UNIVERSITY", 52),
+    FOUR_UNIVERSITY("大四", "44", SchoolAge.UNIVERSITY.code, "FOUR_UNIVERSITY", 53),
 
     /**
      * 幼儿园
      */
-    SPECIAL_EDUCATION_KINDERGARTEN("特教班", "49", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN"),
+    SPECIAL_EDUCATION_KINDERGARTEN("特教班", "49", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN", 1),
     /**
      * 托班
      */
-    CARE_CLASSES_KINDERGARTEN("托班", "50", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN"),
-    ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN"),
-    TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN"),
-    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN"),
+    CARE_CLASSES_KINDERGARTEN("托班", "50", SchoolAge.KINDERGARTEN.code, "CARE_CLASSES_KINDERGARTEN", 2),
+    ONE_KINDERGARTEN("小班", "51", SchoolAge.KINDERGARTEN.code, "ONE_KINDERGARTEN", 3),
+    TWO_KINDERGARTEN("中班", "52", SchoolAge.KINDERGARTEN.code, "TWO_KINDERGARTEN", 4),
+    THREE_KINDERGARTEN("大班", "53", SchoolAge.KINDERGARTEN.code, "THREE_KINDERGARTEN", 5),
 
-    GRADUATE("毕业", "00", SchoolAge.GRADUATE.code, "GRADUATE");
+    GRADUATE("毕业", "00", SchoolAge.GRADUATE.code, "GRADUATE", -2);
 
     /**
      * 名称
@@ -98,12 +98,18 @@ public enum GradeCodeEnum {
      */
     private final String enName;
 
+    /**
+     * 排序
+     */
+    private final Integer sort;
 
-    GradeCodeEnum(String name, String code, Integer type, String enName) {
+
+    GradeCodeEnum(String name, String code, Integer type, String enName, Integer sort) {
         this.name = name;
         this.code = code;
         this.type = type;
         this.enName = enName;
+        this.sort = sort;
     }
 
     public static final Map<Integer, List<GradeCodeEnum>> gradeByMap = new HashMap<>();
@@ -123,12 +129,12 @@ public enum GradeCodeEnum {
     }
 
     public static List<String> kindergartenSchoolName() {
-        return Lists.newArrayList(GradeCodeEnum.SPECIAL_EDUCATION_KINDERGARTEN.getName(),GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getName(), GradeCodeEnum.ONE_KINDERGARTEN.getName(),
+        return Lists.newArrayList(GradeCodeEnum.SPECIAL_EDUCATION_KINDERGARTEN.getName(), GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getName(), GradeCodeEnum.ONE_KINDERGARTEN.getName(),
                 GradeCodeEnum.TWO_KINDERGARTEN.getName(), GradeCodeEnum.THREE_KINDERGARTEN.getName());
     }
 
     public static List<String> kindergartenSchoolCode() {
-        return Lists.newArrayList(GradeCodeEnum.SPECIAL_EDUCATION_KINDERGARTEN.getCode(),GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode(),
+        return Lists.newArrayList(GradeCodeEnum.SPECIAL_EDUCATION_KINDERGARTEN.getCode(), GradeCodeEnum.CARE_CLASSES_KINDERGARTEN.getCode(), GradeCodeEnum.ONE_KINDERGARTEN.getCode(),
                 GradeCodeEnum.TWO_KINDERGARTEN.getCode(), GradeCodeEnum.THREE_KINDERGARTEN.getCode());
     }
 
@@ -171,7 +177,7 @@ public enum GradeCodeEnum {
 
     public static List<GradeCodeEnum> universitySchool() {
         return Lists.newArrayList(GradeCodeEnum.ONE_UNIVERSITY, GradeCodeEnum.TWO_UNIVERSITY,
-                GradeCodeEnum.THREE_UNIVERSITY,GradeCodeEnum.FOUR_UNIVERSITY);
+                GradeCodeEnum.THREE_UNIVERSITY, GradeCodeEnum.FOUR_UNIVERSITY);
     }
 
     public static List<String> vocationalHighSchoolCodes() {
@@ -181,7 +187,7 @@ public enum GradeCodeEnum {
 
     public static List<String> universitySchoolCodes() {
         return Lists.newArrayList(GradeCodeEnum.ONE_UNIVERSITY.getCode(), GradeCodeEnum.TWO_UNIVERSITY.getCode(),
-                GradeCodeEnum.THREE_UNIVERSITY.getCode(),GradeCodeEnum.FOUR_UNIVERSITY.getCode());
+                GradeCodeEnum.THREE_UNIVERSITY.getCode(), GradeCodeEnum.FOUR_UNIVERSITY.getCode());
     }
 
     public static List<GradeCode> getGradeCodeList() {
@@ -221,14 +227,13 @@ public enum GradeCodeEnum {
     }
 
     public static List<String> primaryAbove() {
-        return Lists.newArrayList(Iterables.concat(privateSchoolCodes(), juniorSchoolCodes(), highSchoolCodes(), vocationalHighSchoolCodes(),universitySchoolCodes()));
+        return Lists.newArrayList(Iterables.concat(privateSchoolCodes(), juniorSchoolCodes(), highSchoolCodes(), vocationalHighSchoolCodes(), universitySchoolCodes()));
     }
 
     /**
      * 通过code 获取学龄段
      *
      * @param code code
-     *
      * @return 学龄段
      */
     public static String getDesc(String code) {
@@ -240,5 +245,18 @@ public enum GradeCodeEnum {
 
     public static List<String> getAllName() {
         return getGradeCodeList().stream().map(GradeCode::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * 通过code 获取排序
+     *
+     * @param code code
+     * @return 学龄段
+     */
+    public static Integer getSort(String code) {
+        return Arrays.stream(GradeCodeEnum.values())
+                .filter(item -> item.code.equals(code))
+                .findFirst().map(GradeCodeEnum::getSort)
+                .orElse(null);
     }
 }

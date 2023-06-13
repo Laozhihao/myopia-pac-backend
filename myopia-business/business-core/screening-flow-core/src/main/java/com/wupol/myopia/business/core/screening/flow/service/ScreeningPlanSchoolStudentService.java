@@ -1016,4 +1016,14 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         planSchoolStudent.setState(state);
         updateById(planSchoolStudent);
     }
+
+    /**
+     * 通过计划Id获取筛查学生
+     *
+     * @param planId 计划Id
+     * @return List<ScreeningPlanSchoolStudent>
+     */
+    public List<ScreeningPlanSchoolStudent> getByPlanId(Integer planId) {
+        return baseMapper.findByPlanId(planId);
+    }
 }

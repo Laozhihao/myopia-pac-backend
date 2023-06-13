@@ -5,6 +5,7 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Lists;
 import com.wupol.myopia.base.service.BaseService;
 import com.wupol.myopia.business.common.utils.constant.ScreeningConstant;
 import com.wupol.myopia.business.common.utils.domain.query.PageRequest;
@@ -333,5 +334,15 @@ public class ScreeningPlanSchoolService extends BaseService<ScreeningPlanSchoolM
      */
     public ScreeningPlanSchool getReleasePlanByScreeningOrgIdAndSchoolId(Integer screeningOrgId, Integer schoolId, Integer channel) {
         return baseMapper.getReleasePlanByScreeningOrgIdAndSchoolId(screeningOrgId, ScreeningConstant.SCREENING_RELEASE_STATUS, new Date(), schoolId, channel);
+    }
+
+    /**
+     * 根据筛查计划获取筛查学校
+     *
+     * @param planId 筛查计划Id
+     * @return List<ScreeningPlanSchool>
+     **/
+    public List<ScreeningPlanSchool> getByPlanId(Integer planId) {
+        return baseMapper.getByPlanIds(Lists.newArrayList(planId));
     }
 }
