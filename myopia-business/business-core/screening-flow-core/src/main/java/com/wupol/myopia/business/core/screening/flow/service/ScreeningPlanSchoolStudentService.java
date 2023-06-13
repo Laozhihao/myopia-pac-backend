@@ -1003,6 +1003,9 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
 
     /**
      * 更新筛查学生不检查说明
+     *
+     * @param id    筛查学生Id
+     * @param state 未做检查状态
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateState(Integer id, Integer state) {

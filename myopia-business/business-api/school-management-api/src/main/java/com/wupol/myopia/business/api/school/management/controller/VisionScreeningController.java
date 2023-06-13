@@ -395,6 +395,9 @@ public class VisionScreeningController {
 
     /**
      * 更新筛查学生不检查说明
+     *
+     * @param id    筛查学生Id
+     * @param state 未做检查状态
      */
     @PostMapping("students/updateState/{id}/{state}")
     public void updatePlanStudentState(@PathVariable("id") Integer id, @PathVariable("state") Integer state) {
