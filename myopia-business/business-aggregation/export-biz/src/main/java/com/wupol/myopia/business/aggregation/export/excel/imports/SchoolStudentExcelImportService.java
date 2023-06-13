@@ -421,7 +421,7 @@ public class SchoolStudentExcelImportService {
     private void batchSaveSchoolClass(Integer schoolId, Integer userId, List<String> classNameList, Integer gradeId, List<String> graduateClassName) {
         List<SchoolClass> saveSchoolClassList = new ArrayList<>();
         for (String className : classNameList) {
-            if (!graduateClassName.contains(className)) {
+            if (graduateClassName.contains(className)) {
                 continue;
             }
             SchoolClass schoolClass = new SchoolClass();
