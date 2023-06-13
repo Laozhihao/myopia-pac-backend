@@ -52,4 +52,8 @@ public class SchoolResponseDTO extends School {
      */
     private String noticeResultFileUrl;
 
+    /**
+     * 在读学生
+     */
+    private Long currentStudent;
 }

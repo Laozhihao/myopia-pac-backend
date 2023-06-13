@@ -108,7 +108,7 @@ public class ParentStudentController {
      */
     @GetMapping("school/grade/list/{schoolId}")
     public List<SchoolGradeItemsDTO> schoolGradeList(@PathVariable("schoolId") Integer schoolId) {
-        return schoolGradeService.getAllGradeList(schoolId);
+        return schoolGradeService.getAllGradeList(schoolId, false);
     }
 
     /**

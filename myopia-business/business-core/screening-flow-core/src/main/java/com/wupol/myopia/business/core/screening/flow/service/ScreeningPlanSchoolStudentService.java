@@ -1000,4 +1000,20 @@ public class ScreeningPlanSchoolStudentService extends BaseService<ScreeningPlan
         queryWrapper.in(ScreeningPlanSchoolStudent::getSchoolDistrictId, districtIds);
         return baseMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 更新筛查学生不检查说明
+     *
+     * @param id    筛查学生Id
+     * @param state 未做检查状态
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateState(Integer id, Integer state) {
+        ScreeningPlanSchoolStudent planSchoolStudent = getById(id);
+        if (Objects.isNull(planSchoolStudent)) {
+            throw new BusinessException("筛查学生异常");
+        }
+        planSchoolStudent.setState(state);
+        updateById(planSchoolStudent);
+    }
 }
