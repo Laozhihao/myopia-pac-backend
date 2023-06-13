@@ -396,25 +396,33 @@ public class SchoolStudentExcelImportService {
             String idCard = StringUtils.upperCase(item.get(SchoolStudentImportEnum.ID_CARD.getIndex()));
             String passport = StringUtils.upperCase(item.get(SchoolStudentImportEnum.PASSPORT.getIndex()));
             SchoolStudent schoolStudent = idCardMap.getOrDefault(idCard, passPortMap.get(passport));
-            String className = getClassName(classMap, item, schoolStudent);
-            if (StringUtils.isBlank(className)) {
-                continue;
-            }
-            classNameList.add(className);
+            String className = getClassName(classMap, item, schoolStudent, classNameList);
             item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), className);
         }
 
         Integer gradeId = schoolGrade.getId();
-        List<SchoolClassDTO> graduateClass = schoolClassList.stream()
+        List<String> graduateClassName = schoolClassList.stream()
                 .filter(s -> Objects.equals(s.getGradeId(), gradeId))
+                .map(SchoolClass::getName)
                 .collect(Collectors.toList());
-        Map<String, Long> graduateClassCountMap = graduateClass.stream()
-                .collect(Collectors.groupingBy(SchoolClass::getName, Collectors.counting()));
 
+        batchSaveSchoolClass(schoolId, userId, classNameList, gradeId, graduateClassName);
+    }
+
+    /**
+     * 保存班级
+     *
+     * @param schoolId          学校Id
+     * @param userId            创建人
+     * @param classNameList     班级名称列表
+     * @param gradeId           毕业年级Id
+     * @param graduateClassName 毕业年级名称
+     */
+    private void batchSaveSchoolClass(Integer schoolId, Integer userId, List<String> classNameList, Integer gradeId, List<String> graduateClassName) {
         List<SchoolClass> saveSchoolClassList = new ArrayList<>();
         for (String className : classNameList) {
-            if (graduateClassCountMap.getOrDefault(className, 0L) != 0) {
-               continue;
+            if (!graduateClassName.contains(className)) {
+                continue;
             }
             SchoolClass schoolClass = new SchoolClass();
             schoolClass.setGradeId(gradeId);
@@ -434,18 +442,23 @@ public class SchoolStudentExcelImportService {
      * @param schoolStudent 学生
      * @return 班级名称
      */
-    private static String getClassName(Map<Integer, String> classMap, Map<Integer, String> item, SchoolStudent schoolStudent) {
+    private static String getClassName(Map<Integer, String> classMap, Map<Integer, String> item, SchoolStudent schoolStudent, List<String> classNameList) {
         int currentYear = DateUtil.year(new Date());
+
+        // 学生不存在，获取Excel的班级
         if (Objects.isNull(schoolStudent)) {
-            return currentYear + StrUtil.DASHED + item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
-        } else {
-            // 如果学生的年级已经是毕业，则不处理
-            if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
-                item.put(SchoolStudentImportEnum.CLASS_NAME.getIndex(), schoolStudent.getClassName());
-                return null;
-            } else {
-                return currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
-            }
+            String className = currentYear + StrUtil.DASHED + item.get(SchoolStudentImportEnum.CLASS_NAME.getIndex());
+            classNameList.add(className);
+            return className;
         }
+        // 如果学生的年级已经是毕业，则不处理
+        if (Objects.equals(schoolStudent.getGradeType(), SchoolAge.GRADUATE.getCode())) {
+            return schoolStudent.getClassName();
+        }
+
+        // 学生年级为毕业，则使用年份+学生的班级
+        String className = currentYear + StrUtil.DASHED + classMap.get(schoolStudent.getClassId());
+        classNameList.add(className);
+        return className;
     }
 }
