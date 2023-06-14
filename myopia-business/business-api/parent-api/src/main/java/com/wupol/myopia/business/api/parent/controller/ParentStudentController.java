@@ -299,7 +299,7 @@ public class ParentStudentController {
      * @return 筛查条件
      */
     @GetMapping("report/screening/byCondition")
-    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(@NotBlank(message = "condition不能为空") String condition, @NotBlank(message = "name不能为空") String name, @NotNull(message = "state不能为空") Integer state) {
+    public ScreeningReportInfoResponseDTO getScreeningReportByCondition(@NotBlank(message = "condition不能为空") String condition, @NotBlank(message = "name不能为空") String name, Integer state) {
         return parentStudentBizService.getScreeningReportByCondition(condition, name, state, CurrentUserUtil.getCurrentUser().getId());
     }
 
