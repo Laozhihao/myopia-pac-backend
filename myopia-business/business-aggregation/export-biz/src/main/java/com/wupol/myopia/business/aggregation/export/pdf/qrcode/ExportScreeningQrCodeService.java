@@ -1,8 +1,12 @@
 package com.wupol.myopia.business.aggregation.export.pdf.qrcode;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.alibaba.fastjson.JSON;
+import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.cache.RedisConstant;
+import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -140,9 +144,11 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
             student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
                     .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
-            student.setQrCodeContent(QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
+            String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
-                    student.getIdCard(), exportCondition.getType()));
+                    student.getIdCard(), exportCondition.getType());
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            student.setQrCodeContent(content);
         });
 
         return students;

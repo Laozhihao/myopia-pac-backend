@@ -54,6 +54,11 @@ public class ScreeningStudentDTO extends StudentDO {
     private String genderDesc;
 
     /**
+     * 筛查二维码地址
+     */
+    private String qrCodeUrl;
+
+    /**
      * 头像URL
      */
     private String avatar;

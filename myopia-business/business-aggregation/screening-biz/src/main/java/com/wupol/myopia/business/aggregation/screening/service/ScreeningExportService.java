@@ -1,5 +1,6 @@
 package com.wupol.myopia.business.aggregation.screening.service;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.lowagie.text.DocumentException;
 import com.vistel.Interface.exception.UtilException;
@@ -115,9 +116,12 @@ public class ScreeningExportService {
             ScreeningPlan plan = screeningPlanService.getById(schoolClassInfo.getScreeningPlanId());
 
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
+                String content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
-                student.setQrCodeContent(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()));
+                student.setQrCodeContent(content);
             });
             NotificationConfig notificationConfig;
             // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
@@ -225,9 +229,10 @@ public class ScreeningExportService {
                     .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setSchoolName(school.getName());
             String content = QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard());
-            student.setQrCodeContent(content);
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
+            student.setQrCodeContent(content);
         });
         return getScreeningQrCodeDTO(school, classDisplay, notificationConfig, students);
     }
@@ -275,13 +280,16 @@ public class ScreeningExportService {
             String fileName = String.format("%s-%s-二维码", classDisplay, DateFormatUtil.formatNow(DateFormatUtil.FORMAT_TIME_WITHOUT_LINE));
 
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
+            QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
-                student.setQrCodeContent(QrcodeUtil.getQrCodeContent(
+                String qrCodeContent = QrcodeUtil.getQrCodeContent(
                         student.getPlanId(), student.getPlanStudentId(),
                         student.getAge(), student.getGender(), student.getParentPhone(),
                         student.getIdCard(),
-                        type));
+                        type);
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(qrCodeContent, config, "jpg"));
+                student.setQrCodeContent(qrCodeContent);
             });
 
             // 3. 处理pdf报告参数
@@ -322,10 +330,12 @@ public class ScreeningExportService {
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
                     .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
-            //TODO 调整内容就好，上完线在来处理，需要和前段对接
-            student.setQrCodeContent(QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
+            String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
-                    student.getIdCard(), type));
+                    student.getIdCard(), type);
+            //TODO 调整内容就好，上完线在来处理，需要和前段对接
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            student.setQrCodeContent(content);
         });
         return students;
     }
