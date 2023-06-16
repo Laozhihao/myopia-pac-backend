@@ -84,7 +84,7 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         generateToscaImageUrls(medicalRecord);
 
         // 设置眼底影像图片地址
-        generateFundusImageUrl(medicalRecord.getFundus());
+        generateFundusImageUrl(medicalRecord);
 
         // 获取除最新一条外的最新记录
         MedicalRecord lastMedicalRecord = getMedicalRecord(hospitalId, medicalRecordDateList.stream().findFirst().get().getMedicalRecordId());
@@ -271,12 +271,13 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
     /**
      * 生成眼底影像的访问地址
      *
-     * @param fundus 眼底影像
+     * @param medicalRecord 眼底影像
      */
-    private void generateFundusImageUrl(FundusMedicalRecord fundus) {
-        if (Objects.isNull(fundus)) {
+    private void generateFundusImageUrl(MedicalRecord medicalRecord) {
+        if (Objects.isNull(medicalRecord) || Objects.isNull(medicalRecord.getFundus())) {
             return;
         }
+        FundusMedicalRecord fundus = medicalRecord.getFundus();
         fundus.setImageUrlList(resourceFileService.getBatchResourcePath(fundus.getImageIdList()));
     }
 
