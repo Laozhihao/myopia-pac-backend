@@ -72,20 +72,16 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         MedicalRecord medicalRecord = getMedicalRecord(hospitalId, medicalRecordId);
         CompareMedicalRecord compareMedicalRecord = new CompareMedicalRecord();
         BeanUtils.copyProperties(medicalRecord, compareMedicalRecord);
+        // 设置角膜地形图的图片
+        generateToscaImageUrls(compareMedicalRecord);
+        // 设置眼底影像图片地址
+        generateFundusImageUrl(compareMedicalRecord.getFundus());
         // 除最新一条外的最近6条就诊记录
         List<MedicalRecordDate> medicalRecordDateList = baseMapper.getMedicalRecordDateList(hospitalId, studentId);
-
         // 没有旧记录，直接返回
         if (CollectionUtils.isEmpty(medicalRecordDateList)) {
             return compareMedicalRecord;
         }
-
-        // 设置角膜地形图的图片
-        generateToscaImageUrls(medicalRecord);
-
-        // 设置眼底影像图片地址
-        generateFundusImageUrl(medicalRecord.getFundus());
-
         // 获取除最新一条外的最新记录
         MedicalRecord lastMedicalRecord = getMedicalRecord(hospitalId, medicalRecordDateList.stream().findFirst().get().getMedicalRecordId());
         compareMedicalRecord.setCompareDateList(medicalRecordDateList)
