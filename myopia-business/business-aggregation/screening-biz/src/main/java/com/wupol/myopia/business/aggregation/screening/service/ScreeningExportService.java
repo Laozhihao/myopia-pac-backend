@@ -118,8 +118,10 @@ public class ScreeningExportService {
             List<ScreeningStudentDTO> students = screeningPlanSchoolStudentService.getByGradeAndClass(schoolClassInfo.getScreeningPlanId(), schoolClassInfo.getGradeId(), schoolClassInfo.getClassId());
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId()), config, "jpg"));
+                String content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
+                student.setQrCodeContent(content);
             });
             NotificationConfig notificationConfig;
             // 如果学校Id不为空，说明是学校端进行的导出，使用学校自己的告知书配置
@@ -226,7 +228,9 @@ public class ScreeningExportService {
             student.setGradeName(gradeMap.getOrDefault(student.getGradeId(), new SchoolGrade()).getName())
                     .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setSchoolName(school.getName());
-            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard()), config, "jpg"));
+            String content = QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard());
+            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            student.setQrCodeContent(content);
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
         });
@@ -279,11 +283,13 @@ public class ScreeningExportService {
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(QrcodeUtil.getQrCodeContent(
+                String qrCodeContent = QrcodeUtil.getQrCodeContent(
                         student.getPlanId(), student.getPlanStudentId(),
-                        student.getAge(),student.getGender(),student.getParentPhone(),
+                        student.getAge(), student.getGender(), student.getParentPhone(),
                         student.getIdCard(),
-                        type), config, "jpg"));
+                        type);
+                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(qrCodeContent, config, "jpg"));
+                student.setQrCodeContent(qrCodeContent);
             });
 
             // 3. 处理pdf报告参数
