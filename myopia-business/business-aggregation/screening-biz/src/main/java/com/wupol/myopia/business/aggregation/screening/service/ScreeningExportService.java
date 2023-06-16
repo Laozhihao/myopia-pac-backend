@@ -329,6 +329,7 @@ public class ScreeningExportService {
                     student.getIdCard(), type);
             //TODO 调整内容就好，上完线在来处理，需要和前段对接
             student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
+            student.setQrCodeContent(content);
         });
         return students;
     }
