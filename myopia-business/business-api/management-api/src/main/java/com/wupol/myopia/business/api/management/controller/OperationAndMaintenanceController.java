@@ -120,8 +120,7 @@ public class OperationAndMaintenanceController {
      */
     @GetMapping("/triggerNoticeLink")
     public void triggerNoticeLink() {
-        noticeLinkService.migratingStudentData();
-//        CompletableFuture.runAsync(() -> noticeLinkService.migratingStudentData(), asyncServiceExecutor);
+        CompletableFuture.runAsync(() -> noticeLinkService.migratingStudentData(), asyncServiceExecutor);
     }
 
     /**
