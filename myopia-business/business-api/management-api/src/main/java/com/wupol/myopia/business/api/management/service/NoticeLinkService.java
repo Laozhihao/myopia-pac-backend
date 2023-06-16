@@ -51,15 +51,16 @@ public class NoticeLinkService {
                 .map(LinkNoticeQueue.class::cast)
                 .collect(Collectors.toList());
 
+        if (CollectionUtils.isEmpty(queueList)) {
+            log.info("暂无需要关联的学生");
+            return;
+        }
+
         log.info("关联通知-迁移学生计划数据:{}", JSON.toJSONString(queueList));
 
         Map<Integer, String> planMap = screeningPlanService.getByIds(queueList.stream().map(LinkNoticeQueue::getPlanId).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningPlan::getId, ScreeningPlan::getTitle));
         Map<Integer, String> taskMap = screeningTaskService.listByIds(queueList.stream().map(LinkNoticeQueue::getScreeningTaskId).collect(Collectors.toList())).stream().collect(Collectors.toMap(ScreeningTask::getId, ScreeningTask::getTitle));
 
-        if (CollectionUtils.isEmpty(queueList)) {
-            log.info("暂无需要关联的学生");
-            return;
-        }
         for (int i = 0; i < queueList.size(); i++) {
             log.info("一共需要关联:{}个计划，当前第:{}个", queueList.size(), i + 1);
             LinkNoticeQueue linkNoticeQueue = queueList.get(i);
