@@ -43,7 +43,7 @@ public class DeviceUploadDataController {
     private DeviceUploadService deviceUploadService;
 
     /**
-     * 上传数据
+     * VS550/VS666 上传数据
      *
      * @param deviceUploadDto
      * @return
@@ -72,7 +72,7 @@ public class DeviceUploadDataController {
     public ApiResult<String> uploadLightBoxData(@RequestBody @Valid DeviceDataRequestDTO requestDTO) {
         IDeviceDataService deviceDataService = DeviceDataFactory.getDeviceDataService(requestDTO.getBusinessType());
         try {
-            deviceDataService.uploadDate(requestDTO);
+            deviceDataService.uploadData(requestDTO);
             return ApiResult.success();
         } catch (BusinessException e) {
             deviceUploadDataService.printErrorLog("益视优灯箱", e, requestDTO);
@@ -84,7 +84,7 @@ public class DeviceUploadDataController {
     }
 
     /**
-     * 体脂秤数据上传
+     * 法里奥体脂秤数据上传
      *
      * @param requestDTO 入参
      * @return ScalesResponseDTO
@@ -126,7 +126,7 @@ public class DeviceUploadDataController {
     }
 
     /**
-     * FKR710 数据上传
+     * 法里奥-FKR710（屈光检查） 数据上传
      *
      * @param requestDTO 数据
      *
@@ -139,7 +139,7 @@ public class DeviceUploadDataController {
     }
 
     /**
-     * 眼底检查数据上传
+     * 桌面版imageHub眼底检查数据上传
      *
      * @param requestDTO 请求DTO
      *

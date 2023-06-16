@@ -92,7 +92,7 @@ public class WxController {
      **/
     @GetMapping("/index")
     public String getCode(String state) {
-        logger.info("家长端入口，访问微信api获取授权code，获取state:{}", state);
+        logger.debug("家长端入口，访问微信api获取授权code，获取state:{}", state);
         return "redirect:" + String.format(WxConstant.WX_AUTHORIZE_BASE_FULL_URL, wechatAuthorizeUrl, appId, wechatCallbackUrlHost, state);
     }
 
