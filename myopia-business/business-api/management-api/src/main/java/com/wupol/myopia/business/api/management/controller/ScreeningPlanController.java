@@ -551,7 +551,7 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student/QRCode")
-    public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+    public List<ScreeningStudentDTO> studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
                                     @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
                                     Integer type) {
         List<Integer> studentIds = null;
