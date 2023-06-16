@@ -28,7 +28,7 @@ public class FundusMedicalRecord implements Serializable {
     private List<Integer> imageIdList;
 
     /**
-     * 影像列表
+     * 影像地址列表（会失效，不能入库固化）
      */
     private List<String> imageUrlList;
 }

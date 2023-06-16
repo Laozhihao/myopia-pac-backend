@@ -83,6 +83,7 @@ public class XinJiangService {
         originalData.setLeftSphericalMirror(EyeDataUtil.leftSph(visionScreeningResult)).setRightSphericalMirror(EyeDataUtil.rightSph(visionScreeningResult))
                 .setLeftCylindricalMirror(EyeDataUtil.leftCyl(visionScreeningResult)).setRightCylindricalMirror(EyeDataUtil.rightCyl(visionScreeningResult))
                 .setLeftAxialPosition(EyeDataUtil.leftAxial(visionScreeningResult)).setRightAxialPosition(EyeDataUtil.rightAxial(visionScreeningResult));
+        log.debug("推送数据：" + JSON.toJSONString(originalData));
         thirdPartyServiceClient.pushScreeningResult(originalData);
     }
 

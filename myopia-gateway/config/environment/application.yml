@@ -42,6 +42,13 @@ spring:
         predicates:
         - Path=/management/**, /hospital/**, /parent/**, /app/**, /api/**, /school/**, /preschool/**, /questionnaire/**
 
+      - id: route_business_health_check
+        uri: lb://myopia-business
+        predicates:
+          - Path=/business/**
+        filters:
+          - StripPrefix=1
+
       - id: route_migrate
         uri: lb://myopia-migrate
         predicates:
@@ -137,6 +144,8 @@ white-list:
   - "/management/student/report/detail/**"
   # 健康检查接口
   - "/actuator/health"
+  - "/auth/actuator/health"
+  - "/business/actuator/health"
   # 学校端
   - "/school/student/**"
   - "/school/student/screening/list/{studentId}"
