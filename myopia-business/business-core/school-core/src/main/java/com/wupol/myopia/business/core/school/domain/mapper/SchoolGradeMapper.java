@@ -27,7 +27,7 @@ public interface SchoolGradeMapper extends BaseMapper<SchoolGrade> {
 
     List<SchoolGradeExportDTO> getBySchoolIds(@Param("ids") List<Integer> ids);
 
-    List<SchoolGradeItemsDTO> getAllBySchoolId(@Param("schoolId") Integer schoolId);
+    List<SchoolGradeItemsDTO> getAllBySchoolId(@Param("schoolId") Integer schoolId, @Param("isFilterGraduate") Boolean isFilterGraduate);
 
     /**
      * 通过学校ID和年级id查找

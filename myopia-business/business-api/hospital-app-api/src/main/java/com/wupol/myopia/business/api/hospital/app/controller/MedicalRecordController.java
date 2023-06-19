@@ -188,7 +188,7 @@ public class MedicalRecordController {
     @PostMapping("/fundus")
     public Boolean createFundusMedicalRecord(@RequestBody FundusMedicalRecord fundusMedicalRecord) {
         CurrentUser user = CurrentUserUtil.getCurrentUser();
-        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, null, null, fundusMedicalRecord, user.getOrgId(), -1, fundusMedicalRecord.getStudentId(), user.getClientId());
+        medicalRecordFacade.addCheckDataAndCreateStudent(null, null, null, null, null, null, fundusMedicalRecord.setImageUrlList(null), user.getOrgId(), -1, fundusMedicalRecord.getStudentId(), user.getClientId());
         return true;
     }
 

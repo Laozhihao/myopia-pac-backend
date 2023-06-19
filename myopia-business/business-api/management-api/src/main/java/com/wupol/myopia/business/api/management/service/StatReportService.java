@@ -932,7 +932,7 @@ public class StatReportService {
                 round2Digits((averageVision.getAverageVisionLeft() + averageVision.getAverageVisionRight()) / 2);
 
         // 通过遍历获取学校班级
-        List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId);
+        List<SchoolGradeItemsDTO> schoolGradeItems = schoolGradeService.getAllGradeList(schoolId, false);
         List<StatConclusionReportDTO> statConclusionReportDTOs =
                 statConclusionService.getReportVo(srcScreeningNoticeId, planId, schoolId);
         Map<String, Object> resultMap = new HashMap<>();

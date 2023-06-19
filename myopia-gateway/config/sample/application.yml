@@ -135,6 +135,8 @@ white-list:
   - "/management/screeningResult/list-result"
   # 健康检查接口
   - "/actuator/health"
+  - "/auth/actuator/health"
+  - "/business/actuator/health"
   - "/management/screeningPlan/screeningNoticeResult"
   - "/management/screeningPlan/student/QRCode"
   - "/management/screeningPlan/student/notice"

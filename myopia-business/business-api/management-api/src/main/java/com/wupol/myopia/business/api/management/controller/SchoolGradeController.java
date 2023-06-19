@@ -79,11 +79,11 @@ public class SchoolGradeController {
      * @return 年级列表
      */
     @GetMapping("all")
-    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId) {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Integer schoolId, Boolean isFilterGraduate) {
         if (null == schoolId) {
             throw new BusinessException("学校ID不能为空");
         }
-        return schoolGradeService.getAllGradeList(schoolId);
+        return schoolGradeService.getAllGradeList(schoolId, isFilterGraduate);
     }
 
     /**

@@ -551,7 +551,7 @@ public class ScreeningPlanController {
      * @return
      */
     @GetMapping("/student/QRCode")
-    public Object studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
+    public List<ScreeningStudentDTO> studentQRCodeFile(@NotNull(message = "筛查计划ID不能为空") Integer screeningPlanId,
                                     @NotNull(message = "学校ID不能为空") Integer schoolId, Integer gradeId, Integer classId, String planStudentIds,
                                     Integer type) {
         List<Integer> studentIds = null;
@@ -827,5 +827,16 @@ public class ScreeningPlanController {
                         .setPlanId(screeningPlanId)
                         .setGradeId(gradeId),
                 ExportExcelServiceNameConstant.EXPORT_PLAN_STUDENT_QUESTIONNAIRE_ACCOUNT_SERVICE);
+    }
+
+    /**
+     * 更新筛查学生不检查说明
+     *
+     * @param id    筛查学生Id
+     * @param state 未做检查状态
+     */
+    @PostMapping("students/updateState/{id}/{state}")
+    public void updatePlanStudentState(@PathVariable("id") Integer id, @PathVariable("state") Integer state) {
+        screeningPlanSchoolStudentService.updateState(id, state);
     }
 }

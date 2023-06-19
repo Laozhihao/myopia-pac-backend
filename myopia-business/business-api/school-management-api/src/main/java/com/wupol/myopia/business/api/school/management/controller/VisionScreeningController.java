@@ -37,6 +37,7 @@ import com.wupol.myopia.business.core.school.service.SchoolService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.*;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.VisionScreeningResult;
+import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchoolStudentService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +80,8 @@ public class VisionScreeningController {
     private SchoolScreeningStatisticFacade schoolScreeningStatisticFacade;
     @Autowired
     private ScreeningNoticeBizFacadeService screeningNoticeBizFacadeService;
+    @Autowired
+    private ScreeningPlanSchoolStudentService screeningPlanSchoolStudentService;
 
     /**
      * 获取学校计划
@@ -388,6 +391,17 @@ public class VisionScreeningController {
     @PostMapping("linkNotice/link")
     public void linkNotice(@RequestBody @Valid PlanLinkNoticeRequestDTO requestDTO) {
         screeningNoticeBizFacadeService.linkNotice(requestDTO, CurrentUserUtil.getCurrentUser().getId());
+    }
+
+    /**
+     * 更新筛查学生不检查说明
+     *
+     * @param id    筛查学生Id
+     * @param state 未做检查状态
+     */
+    @PostMapping("students/updateState/{id}/{state}")
+    public void updatePlanStudentState(@PathVariable("id") Integer id, @PathVariable("state") Integer state) {
+        screeningPlanSchoolStudentService.updateState(id, state);
     }
 
 }

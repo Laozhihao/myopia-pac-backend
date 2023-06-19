@@ -151,9 +151,9 @@ public class SchoolManagementController {
      * @return 年级列表
      */
     @GetMapping("grade/all")
-    public List<SchoolGradeItemsDTO> getAllGradeList() {
+    public List<SchoolGradeItemsDTO> getAllGradeList(Boolean isFilterGraduate) {
         CurrentUser currentUser = CurrentUserUtil.getCurrentUser();
-        return schoolGradeService.getAllGradeList(currentUser.getOrgId());
+        return schoolGradeService.getAllGradeList(currentUser.getOrgId(), isFilterGraduate);
     }
 
     /**

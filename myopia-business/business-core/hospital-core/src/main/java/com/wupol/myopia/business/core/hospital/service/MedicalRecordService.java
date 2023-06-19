@@ -72,12 +72,12 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         MedicalRecord medicalRecord = getMedicalRecord(hospitalId, medicalRecordId);
         CompareMedicalRecord compareMedicalRecord = new CompareMedicalRecord();
         BeanUtils.copyProperties(medicalRecord, compareMedicalRecord);
+        // 设置角膜地形图的图片
+        generateToscaImageUrls(compareMedicalRecord);
+        // 设置眼底影像图片地址
+        generateFundusImageUrl(compareMedicalRecord.getFundus());
         // 除最新一条外的最近6条就诊记录
         List<MedicalRecordDate> medicalRecordDateList = baseMapper.getMedicalRecordDateList(hospitalId, studentId);
-
-        // 设置角膜地形图的图片
-        generateToscaImageUrls(medicalRecord);
-
         // 没有旧记录，直接返回
         if (CollectionUtils.isEmpty(medicalRecordDateList)) {
             return compareMedicalRecord;
@@ -262,6 +262,18 @@ public class MedicalRecordService extends BaseService<MedicalRecordMapper, Medic
         if (Objects.nonNull(mydriasis)) {
             mydriasis.setImageUrlList(resourceFileService.getBatchResourcePath(mydriasis.getImageIdList()));
         }
+    }
+
+    /**
+     * 生成眼底影像的访问地址
+     *
+     * @param fundus 眼底影像
+     */
+    private void generateFundusImageUrl(FundusMedicalRecord fundus) {
+        if (Objects.isNull(fundus)) {
+            return;
+        }
+        fundus.setImageUrlList(resourceFileService.getBatchResourcePath(fundus.getImageIdList()));
     }
 
    /** 创建检查单 */
