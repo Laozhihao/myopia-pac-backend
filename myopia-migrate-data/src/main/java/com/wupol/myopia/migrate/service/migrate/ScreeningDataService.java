@@ -8,6 +8,7 @@ import com.wupol.myopia.business.core.school.domain.model.Student;
 import com.wupol.myopia.business.core.school.service.StudentService;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.ComputerOptometryDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.OtherEyeDiseasesDTO;
+import com.wupol.myopia.business.core.screening.flow.domain.dto.ScreeningResultBasicData;
 import com.wupol.myopia.business.core.screening.flow.domain.dto.VisionDataDTO;
 import com.wupol.myopia.business.core.screening.flow.domain.model.ScreeningPlanSchoolStudent;
 import com.wupol.myopia.business.core.screening.flow.domain.model.StatConclusion;
@@ -16,6 +17,8 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanSchool
 import com.wupol.myopia.business.core.screening.flow.service.StatConclusionService;
 import com.wupol.myopia.business.core.screening.flow.service.VisionScreeningResultService;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
+import com.wupol.myopia.migrate.domain.model.SysStudentEyeReview;
+import com.wupol.myopia.migrate.service.SysStudentEyeReviewService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,8 @@ public class ScreeningDataService {
     private StatConclusionService statConclusionService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private SysStudentEyeReviewService sysStudentEyeReviewService;
 
     /**
      * 逐个学校迁移筛查结果数据
@@ -72,27 +77,64 @@ public class ScreeningDataService {
             }
             String planStudentIdStr = String.valueOf(planStudentId);
             try {
-                // 视力
-                migrateVisionData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
-                // 屈光
-                migrateComputerOptometryData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
-                // TODO: 生物测量（同时间段内测的就属于同一个计划的）
-                // 其他眼病
-                migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye);
-                // 更新创建时间为实际时间
-                VisionScreeningResult visionScreeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(false));
-                if (Objects.isNull(visionScreeningResult)) {
-                    return;
-                }
-                visionScreeningResultService.updateById(new VisionScreeningResult().setId(visionScreeningResult.getId()).setCreateTime(sysStudentEye.getCreateTime()));
-                statConclusionService.update(new StatConclusion().setCreateTime(sysStudentEye.getCreateTime()), new StatConclusion().setResultId(visionScreeningResult.getId()));
-                // 更新最近筛查时间为实际时间
-                studentService.updateById(new Student().setLastScreeningTime(sysStudentEye.getCreateTime()).setId(visionScreeningResult.getStudentId()));
+                // 初筛
+                migrateScreeningData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye, 0, planStudentId);
+                // 复测
+                migrateReviewScreeningData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye, planStudentId);
             } catch (Exception e) {
                 log.error("数据迁移异常：{}" + JSONObject.toJSONString(sysStudentEye));
                 throw new BusinessException("数据迁移异常", e);
             }
         });
+    }
+
+    /**
+     * 迁移筛查数据
+     *
+     * @param schoolId
+     * @param screeningOrgId
+     * @param screeningStaffUserId
+     * @param planStudentIdStr
+     * @param sysStudentEye
+     * @param isDoubleScreen
+     * @param planStudentId
+     */
+    private void migrateScreeningData(Integer schoolId, Integer screeningOrgId, Integer screeningStaffUserId, String planStudentIdStr, SysStudentEye sysStudentEye, int isDoubleScreen, Integer planStudentId) {
+        // 视力
+        migrateVisionData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye, isDoubleScreen);
+        // 屈光
+        migrateComputerOptometryData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye, isDoubleScreen);
+        // 其他眼病F
+        migrateOtherEyeDiseases(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, sysStudentEye, isDoubleScreen);
+        // 更新创建时间为实际时间
+        VisionScreeningResult visionScreeningResult = visionScreeningResultService.findOne(new VisionScreeningResult().setScreeningPlanSchoolStudentId(planStudentId).setIsDoubleScreen(isDoubleScreen == 1));
+        if (Objects.isNull(visionScreeningResult)) {
+            return;
+        }
+        visionScreeningResultService.updateById(new VisionScreeningResult().setId(visionScreeningResult.getId()).setCreateTime(sysStudentEye.getCreateTime()));
+        statConclusionService.update(new StatConclusion().setCreateTime(sysStudentEye.getCreateTime()), new StatConclusion().setResultId(visionScreeningResult.getId()));
+        // 更新最近筛查时间为实际时间
+        studentService.updateById(new Student().setLastScreeningTime(sysStudentEye.getCreateTime()).setId(visionScreeningResult.getStudentId()));
+    }
+
+    /**
+     * 迁移复测数据
+     *
+     * @param schoolId
+     * @param screeningOrgId
+     * @param screeningStaffUserId
+     * @param planStudentIdStr
+     * @param firstScreeningData
+     * @param planStudentId
+     */
+    private void migrateReviewScreeningData(Integer schoolId, Integer screeningOrgId, Integer screeningStaffUserId, String planStudentIdStr, SysStudentEye firstScreeningData, Integer planStudentId) {
+        // 获取复测数据
+        SysStudentEye reviewData = sysStudentEyeReviewService.getOneStudentReview(new SysStudentEyeReview().setStudentId(firstScreeningData.getStudentId()).setSchoolId(firstScreeningData.getSchoolId()).setDeptId(firstScreeningData.getDeptId()).setCreateTime(firstScreeningData.getCreateTime()));
+        if (Objects.isNull(reviewData)) {
+            return;
+        }
+        // 迁移复测数据
+        migrateScreeningData(schoolId, screeningOrgId, screeningStaffUserId, planStudentIdStr, reviewData, 1, planStudentId);
     }
 
     /**
@@ -103,18 +145,15 @@ public class ScreeningDataService {
      * @param userId
      * @param planStudentId
      * @param sysStudentEye
+     * @param isDoubleScreen
      * @return void
      **/
-    private void migrateVisionData(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye) {
+    private void migrateVisionData(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye, int isDoubleScreen) {
         if (StringUtils.isAllBlank(sysStudentEye.getLLsl(), sysStudentEye.getLJzsl(), sysStudentEye.getRLsl(), sysStudentEye.getRJzsl())) {
             return;
         }
         VisionDataDTO visionDataDTO = new VisionDataDTO();
-        visionDataDTO.setSchoolId(String.valueOf(schoolId))
-                .setDeptId(screeningOrgId)
-                .setCreateUserId(userId)
-                .setPlanStudentId(planStudentId)
-                .setIsState(0);
+        setBasicInfo(visionDataDTO, schoolId, screeningOrgId, userId, planStudentId, isDoubleScreen);
         visionDataDTO.setLeftNakedVision(getBigDecimalValue(sysStudentEye.getLLsl()))
                 .setLeftCorrectedVision(getBigDecimalValue(sysStudentEye.getLJzsl()))
                 .setRightNakedVision(getBigDecimalValue(sysStudentEye.getRLsl()))
@@ -132,44 +171,15 @@ public class ScreeningDataService {
      * @param userId
      * @param planStudentId
      * @param sysStudentEye
+     * @param isDoubleScreen
      * @return void
      **/
-    private void migrateComputerOptometryData(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye) {
+    private void migrateComputerOptometryData(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye, int isDoubleScreen) {
         if (StringUtils.isAllBlank(sysStudentEye.getLSph(), sysStudentEye.getLCyl(), sysStudentEye.getLAxial(), sysStudentEye.getRSph(), sysStudentEye.getRCyl(), sysStudentEye.getRAxial())) {
             return;
         }
         ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-        computerOptometryDTO.setSchoolId(String.valueOf(schoolId))
-                .setDeptId(screeningOrgId)
-                .setCreateUserId(userId)
-                .setPlanStudentId(planStudentId)
-                .setIsState(0);
-        computerOptometryDTO.setLSph(getBigDecimalValue(sysStudentEye.getLSph()))
-                .setLCyl(getBigDecimalValue(sysStudentEye.getLCyl()))
-                .setLAxial(getBigDecimalValue(sysStudentEye.getLAxial()))
-                .setRSph(getBigDecimalValue(sysStudentEye.getRSph()))
-                .setRCyl(getBigDecimalValue(sysStudentEye.getRCyl()))
-                .setRAxial(getBigDecimalValue(sysStudentEye.getRAxial()));
-        visionScreeningBizService.saveOrUpdateStudentScreenData(computerOptometryDTO);
-    }
-
-    /**
-     * 生物测量
-     *
-     * @param schoolId
-     * @param screeningOrgId
-     * @param userId
-     * @param planStudentId
-     * @param sysStudentEye
-     * @return void
-     **/
-    private void migrateBiometricData(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye) {
-        ComputerOptometryDTO computerOptometryDTO = new ComputerOptometryDTO();
-        computerOptometryDTO.setSchoolId(String.valueOf(schoolId))
-                .setDeptId(screeningOrgId)
-                .setCreateUserId(userId)
-                .setPlanStudentId(planStudentId)
-                .setIsState(0);
+        setBasicInfo(computerOptometryDTO, schoolId, screeningOrgId, userId, planStudentId, isDoubleScreen);
         computerOptometryDTO.setLSph(getBigDecimalValue(sysStudentEye.getLSph()))
                 .setLCyl(getBigDecimalValue(sysStudentEye.getLCyl()))
                 .setLAxial(getBigDecimalValue(sysStudentEye.getLAxial()))
@@ -187,21 +197,36 @@ public class ScreeningDataService {
      * @param userId
      * @param planStudentId
      * @param sysStudentEye
+     * @param isDoubleScreen
      * @return void
      **/
-    private void migrateOtherEyeDiseases(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye) {
+    private void migrateOtherEyeDiseases(Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, SysStudentEye sysStudentEye, int isDoubleScreen) {
         if (StringUtils.isAllBlank(sysStudentEye.getLDisease(), sysStudentEye.getRDisease())) {
             return;
         }
         OtherEyeDiseasesDTO otherEyeDiseasesDTO = new OtherEyeDiseasesDTO();
-        otherEyeDiseasesDTO.setSchoolId(String.valueOf(schoolId))
-                .setDeptId(screeningOrgId)
-                .setCreateUserId(userId)
-                .setPlanStudentId(planStudentId)
-                .setIsState(0);
+        setBasicInfo(otherEyeDiseasesDTO, schoolId, screeningOrgId, userId, planStudentId, isDoubleScreen);
         otherEyeDiseasesDTO.setLDiseaseStr(sysStudentEye.getLDisease())
                 .setRDiseaseStr(sysStudentEye.getRDisease());
         visionScreeningBizService.saveOrUpdateStudentScreenData(otherEyeDiseasesDTO);
+    }
+
+    /**
+     * 设置基础信息
+     *
+     * @param screeningResultBasicData
+     * @param schoolId
+     * @param screeningOrgId
+     * @param userId
+     * @param planStudentId
+     * @param isDoubleScreen
+     */
+    private void setBasicInfo(ScreeningResultBasicData screeningResultBasicData, Integer schoolId, Integer screeningOrgId, Integer userId, String planStudentId, int isDoubleScreen) {
+        screeningResultBasicData.setSchoolId(String.valueOf(schoolId))
+                .setDeptId(screeningOrgId)
+                .setCreateUserId(userId)
+                .setPlanStudentId(planStudentId)
+                .setIsState(isDoubleScreen);
     }
 
     /**
