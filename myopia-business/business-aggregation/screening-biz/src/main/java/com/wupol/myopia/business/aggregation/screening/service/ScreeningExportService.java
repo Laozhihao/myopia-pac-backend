@@ -119,7 +119,6 @@ public class ScreeningExportService {
             QrConfig config = new QrConfig().setHeight(130).setWidth(130).setBackColor(Color.white).setMargin(1);
             students.forEach(student -> {
                 String content = String.format(QrCodeConstant.QR_CODE_CONTENT_FORMAT_RULE, student.getPlanStudentId());
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
                 student.setGenderDesc(GenderEnum.getName(student.getGender()));
                 student.setQrCodeContent(content);
             });
@@ -229,7 +228,6 @@ public class ScreeningExportService {
                     .setClassName(classMap.getOrDefault(student.getClassId(), new SchoolClass()).getName());
             student.setSchoolName(school.getName());
             String content = QrcodeUtil.setVs666QrCodeRule(screeningPlanId, student.getPlanStudentId(), student.getAge(), student.getGender(), student.getParentPhone(), student.getIdCard());
-            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             student.setGenderDesc(GenderEnum.getName(student.getGender()));
             student.setScreeningOrgConfigs(notificationConfig);
             student.setQrCodeContent(content);
@@ -288,7 +286,6 @@ public class ScreeningExportService {
                         student.getAge(), student.getGender(), student.getParentPhone(),
                         student.getIdCard(),
                         type);
-                student.setQrCodeUrl(QrCodeUtil.generateAsBase64(qrCodeContent, config, "jpg"));
                 student.setQrCodeContent(qrCodeContent);
             });
 
@@ -334,7 +331,6 @@ public class ScreeningExportService {
                     student.getAge(), student.getGender(), student.getParentPhone(),
                     student.getIdCard(), type);
             //TODO 调整内容就好，上完线在来处理，需要和前段对接
-            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             student.setQrCodeContent(content);
         });
         return students;

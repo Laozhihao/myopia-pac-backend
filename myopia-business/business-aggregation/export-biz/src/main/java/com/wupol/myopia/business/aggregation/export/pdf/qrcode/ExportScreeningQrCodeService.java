@@ -144,7 +144,6 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
             String content = QrcodeUtil.getQrCodeContent(student.getPlanId(), student.getPlanStudentId(),
                     student.getAge(), student.getGender(), student.getParentPhone(),
                     student.getIdCard(), exportCondition.getType());
-            student.setQrCodeUrl(QrCodeUtil.generateAsBase64(content, config, "jpg"));
             student.setQrCodeContent(content);
         });
 
