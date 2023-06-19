@@ -184,4 +184,9 @@ public class ScreeningStudentDTO extends StudentDO {
      * 数据完整性
      */
     private String dataIntegrity;
+
+    /**
+     * 二维码内容
+     */
+    private String qrCodeContent;
 }

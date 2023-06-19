@@ -190,6 +190,7 @@
         <foreach collection="planStudentIds" item="planStudentId" index="index" open="(" close=")" separator=",">
             #{planStudentId}
         </foreach>
+        and is_double_screen = false
         order by create_time desc
         limit 1
     </select>

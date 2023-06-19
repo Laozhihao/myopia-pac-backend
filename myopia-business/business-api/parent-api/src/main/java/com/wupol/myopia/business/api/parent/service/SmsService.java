@@ -49,7 +49,7 @@ public class SmsService {
             throw new BusinessException("发送验证码失败");
         }
         saveToken(phone, smsResult.getToken());
-        logger.info("发送验证码消息到{}，产生的Token：{}, 完整结果是：{}", phone, smsResult.getToken(), smsResult);
+        logger.info("发送验证码消息到：{}，产生的Token：{}", phone, smsResult.getToken());
     }
 
     /**
@@ -83,7 +83,6 @@ public class SmsService {
             return false;
         }
         SmsResult smsResult = checkSmsCode(new CheckVerifyCodeData(token, smsCode));
-        logger.info("校验Token：{}，结果是：{}", token, smsResult);
         Boolean successful = smsResult.isSuccessful();
         if (!Boolean.TRUE.equals(successful)) {
             preventVulnerability(phone);

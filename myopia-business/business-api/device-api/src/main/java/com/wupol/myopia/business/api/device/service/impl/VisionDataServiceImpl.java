@@ -48,8 +48,7 @@ public class VisionDataServiceImpl implements IDeviceDataService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void uploadDate(DeviceDataRequestDTO requestDTO) {
-
+    public void uploadData(DeviceDataRequestDTO requestDTO) {
         String deviceSn = requestDTO.getDeviceSn();
         //先查找设备编码是否存在
         Device device = deviceService.getDeviceByDeviceSn(deviceSn);
@@ -72,7 +71,6 @@ public class VisionDataServiceImpl implements IDeviceDataService {
             // 更新或新增筛查学生结果
             saveOrUpdateScreeningResult(visionDataVO, planStudent);
         });
-        log.info(JSON.toJSONString(requestDTO));
     }
 
     @Override

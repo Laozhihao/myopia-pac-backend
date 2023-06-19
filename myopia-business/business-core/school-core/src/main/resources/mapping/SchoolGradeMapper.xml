@@ -73,6 +73,9 @@
         <include refid="Base_Column_List"/>
         from m_school_grade msg
         where msg.status = 0
+        <if test="isFilterGraduate and isFilterGraduate == true">
+            and msg.grade_code != 00
+        </if>
         and msg.school_id = #{schoolId}
     </select>
 

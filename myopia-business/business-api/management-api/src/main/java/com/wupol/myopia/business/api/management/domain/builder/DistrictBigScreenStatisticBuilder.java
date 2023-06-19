@@ -34,7 +34,7 @@ public class DistrictBigScreenStatisticBuilder {
     private List<BigScreenStatDataDTO> bigScreenStatDataDTOList;
     private long realValidScreeningNum;
     private long planScreeningNum;
-    private Map<Integer, List<Double>> cityCenterMap;
+    private Map<String, List<Double>> cityCenterMap;
     private Integer districtId;
     private Integer noticeId;
     private long realScreeningNum;
@@ -55,7 +55,7 @@ public class DistrictBigScreenStatisticBuilder {
      * @param cityCenterMap
      * @return
      */
-    public DistrictBigScreenStatisticBuilder setCityCenterMap(Map<Integer, List<Double>> cityCenterMap) {
+    public DistrictBigScreenStatisticBuilder setCityCenterMap(Map<String, List<Double>> cityCenterMap) {
         this.cityCenterMap = cityCenterMap;
         return this;
     }
@@ -221,7 +221,7 @@ public class DistrictBigScreenStatisticBuilder {
             BigScreenScreeningDO.MapLocationDataDTO mapLocationDataDTO = new BigScreenScreeningDO.MapLocationDataDTO();
             mapLocationDataDTO.setName(statisticDistrictDTO.getCityName());
             mapLocationDataDTO.setValue(statisticDistrictDTO.getNum());
-            List<Double> cityCenter = cityCenterMap.get(statisticDistrictDTO.getCityDistrictId());
+            List<Double> cityCenter = cityCenterMap.get(String.valueOf(statisticDistrictDTO.getCityDistrictId()));
             ArrayList<List<Double>> locationList = new ArrayList<>();
             locationList.add(cityCenter);
             locationList.add(cityCenter);
