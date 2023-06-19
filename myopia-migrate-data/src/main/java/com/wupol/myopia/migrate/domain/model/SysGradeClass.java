@@ -1,5 +1,6 @@
 package com.wupol.myopia.migrate.domain.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -98,5 +99,12 @@ public class SysGradeClass implements Serializable {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    /**
+     * 年级code
+     */
+    @TableField(exist = false)
+    private String gradeCode;
+
 
 }
