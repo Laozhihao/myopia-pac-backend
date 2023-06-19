@@ -3,10 +3,7 @@ package com.wupol.myopia.business.aggregation.export.pdf.qrcode;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import cn.hutool.extra.qrcode.QrConfig;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
-import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.cache.RedisConstant;
-import com.wupol.myopia.base.domain.PdfResponseDTO;
 import com.wupol.myopia.business.aggregation.export.pdf.BaseExportPdfFileService;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.ExportReportServiceNameConstant;
 import com.wupol.myopia.business.aggregation.export.pdf.constant.HtmlPageUrlConstant;
@@ -184,7 +181,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
         ScreeningStudentDTO screeningStudentDTO  = classStudents.get(0);
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition, type, gradeId, classId);
         TwoTuple<String, String> dirAndClassName = getDirAndClassName(exportCondition, fileSavePath, fileName, screeningStudentDTO);
-        String pdfUrl = html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
+        String pdfUrl = html2PdfService.syncGeneratorQrCodePDF(studentQrCodePdfHtmlUrl, dirAndClassName.getSecond());
         try {
             log.info("文件件保存路径:{}",dirAndClassName.getFirst());
             FileUtils.downloadFile(pdfUrl, Paths.get(dirAndClassName.getFirst(),dirAndClassName.getSecond()).toString());
@@ -244,7 +241,7 @@ public class ExportScreeningQrCodeService extends BaseExportPdfFileService {
 
         String studentQrCodePdfHtmlUrl = getUrl(exportCondition,type,exportCondition.getGradeId(),exportCondition.getClassId());
 
-        return html2PdfService.syncGeneratorPDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
+        return html2PdfService.syncGeneratorQrCodePDF(studentQrCodePdfHtmlUrl, fileName+".pdf");
     }
 
 

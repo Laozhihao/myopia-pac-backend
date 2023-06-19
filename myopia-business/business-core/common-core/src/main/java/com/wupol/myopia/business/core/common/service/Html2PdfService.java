@@ -10,6 +10,7 @@ import com.vistel.framework.nodejs.pdf.domain.dto.request.PdfHttpCallbackRequest
 import com.vistel.framework.nodejs.pdf.domain.dto.response.PdfGenerateResponse;
 import com.wupol.myopia.base.exception.BusinessException;
 import com.wupol.myopia.base.util.DateFormatUtil;
+import com.wupol.myopia.base.util.ExportTyeEnum;
 import com.wupol.myopia.business.common.utils.config.UploadConfig;
 import com.wupol.myopia.business.core.common.util.S3Utils;
 import lombok.extern.log4j.Log4j2;
@@ -55,7 +56,7 @@ public class Html2PdfService {
      * @param uuid     uuid
      */
     public PdfGenerateResponse asyncGeneratorPDF(String url, String fileName, String uuid) {
-        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, Boolean.TRUE);
+        PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = getPdfHttpCallbackRequestDto(url, fileName, uuid, ExportTyeEnum.REPORT.getType());
         log.info("【异步 - 请求node-js服务】参数：{}", JSON.toJSONString(pdfHttpCallbackRequestDto));
         return nodeJSPdfGeneratorBusinessClient.asyncGeneratePdfWithPresignedUrl(pdfHttpCallbackRequestDto);
     }
@@ -68,7 +69,7 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public String syncGeneratorPDF(String url, String fileName) {
-        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), Boolean.FALSE);
+        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), ExportTyeEnum.OTHER.getType());
         return syncGeneratorPDF(requestDto);
     }
 
@@ -80,7 +81,7 @@ public class Html2PdfService {
      * @return PdfResponseDTO
      */
     public String syncGeneratorReportPdf(String url, String fileName) {
-        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), Boolean.TRUE);
+        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), ExportTyeEnum.REPORT.getType());
         return syncGeneratorPDF(requestDto);
     }
 
@@ -105,13 +106,13 @@ public class Html2PdfService {
     /**
      * 生成请求参数
      *
-     * @param url      文件URL
-     * @param fileName 文件名
-     * @param uuid     uuid
-     * @param isReport   是否是视力分析或者常见病5份大报告
+     * @param url        文件URL
+     * @param fileName   文件名
+     * @param uuid       uuid
+     * @param exportType {@link ExportTyeEnum}
      * @return PdfHttpCallbackRequestDto
      */
-    private PdfHttpCallbackRequestDto getPdfHttpCallbackRequestDto(String url, String fileName, String uuid, Boolean isReport) {
+    private PdfHttpCallbackRequestDto getPdfHttpCallbackRequestDto(String url, String fileName, String uuid, Integer exportType) {
         PdfHttpCallbackRequestDto pdfHttpCallbackRequestDto = new PdfHttpCallbackRequestDto();
         pdfHttpCallbackRequestDto.setUrl(url);
         pdfHttpCallbackRequestDto.setOutput(fileName);
@@ -127,15 +128,34 @@ public class Html2PdfService {
         config.setHeaderTemplate("<div></div>");
         config.setMargin(new PageMargin().setBottom("10cm"));
         config.setWaitUntilType(WaitUntil.NETWORK_IDLE0);
-        if (Objects.equals(isReport, Boolean.TRUE)){
+
+        if (Objects.equals(exportType, ExportTyeEnum.REPORT.getType())) {
             config.setDisplayHeaderFooter(true);
             config.setFooterTemplate("<div style='font-size: 8px; text-align: right; width: 95%;'><span>致远青眸-儿童青少年近视防控平台</span> <span class='pageNumber' style='display: inline-block; margin-left: 5px'></span> - <span class='totalPages'></span></div>");
             config.setSelector(".layout");
-        }else {
+        }
+
+        if (Objects.equals(exportType, ExportTyeEnum.QR_CODE.getType())) {
+            config.setSelector("#render-ready");
+        }
+
+        if (Objects.equals(exportType, ExportTyeEnum.OTHER.getType())) {
             config.setDisplayHeaderFooter(false);
             config.setFooterTemplate("<h1>Page <span class='pageNumber'></span> of <span class='totalPages'></span></h1>");
         }
         pdfHttpCallbackRequestDto.setConfig(config);
         return pdfHttpCallbackRequestDto;
+    }
+
+    /**
+     * 同步生成PDF
+     *
+     * @param url      文件URL
+     * @param fileName 文件名
+     * @return PdfResponseDTO
+     */
+    public String syncGeneratorQrCodePDF(String url, String fileName) {
+        PdfHttpCallbackRequestDto requestDto = getPdfHttpCallbackRequestDto(url, fileName, UUID.randomUUID().toString(), ExportTyeEnum.QR_CODE.getType());
+        return syncGeneratorPDF(requestDto);
     }
 }
