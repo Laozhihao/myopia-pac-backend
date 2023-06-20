@@ -19,10 +19,13 @@ import com.wupol.myopia.business.core.screening.flow.service.ScreeningPlanServic
 import com.wupol.myopia.business.core.screening.flow.util.ScreeningCodeGenerator;
 import com.wupol.myopia.migrate.domain.dos.SchoolAndGradeClassDO;
 import com.wupol.myopia.migrate.domain.dos.ScreeningDataDO;
+import com.wupol.myopia.migrate.domain.model.SysStudent;
 import com.wupol.myopia.migrate.domain.model.SysStudentEye;
 import com.wupol.myopia.migrate.domain.model.SysStudentEyeSimple;
 import com.wupol.myopia.migrate.service.SysStudentEyeService;
+import com.wupol.myopia.migrate.service.SysStudentService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -60,6 +63,8 @@ public class StudentDataService {
     @Autowired
     private SysStudentEyeService sysStudentEyeService;
     @Autowired
+    private SysStudentService sysStudentService;
+    @Autowired
     private PlanStudentExcelImportService planStudentExcelImportService;
 
 
@@ -93,7 +98,10 @@ public class StudentDataService {
             log.warn("【{}】的所有学生 - 已经迁移到计划，不需要再处理，SchoolId={}", oneSchoolHalfYearStudentEyeList.get(0).getSchoolName(), newSchoolId);
             return;
         }
-
+        // 根据sysStudentEyeList里面的studentId去表sys_student获取学生的学籍号
+        List<SysStudent> sysStudentList = sysStudentService.listByIds(sysStudentEyeList.stream().map(SysStudentEye::getStudentId).collect(Collectors.toList()))
+                .stream().filter(sysStudent -> !StringUtils.isEmpty(sysStudent.getIdCard()) && !StringUtils.isEmpty(sysStudent.getStudentNo())).distinct().collect(Collectors.toList());
+        Map<String, String> studentNos = sysStudentList.stream().collect(Collectors.toMap(SysStudent::getIdCard, SysStudent::getStudentNo));
         // 转为Map，对于没有IdCard的走虚拟学生
         Map<Boolean, List<SysStudentEye>> isHasIdCardSysStudentEyeMap = sysStudentEyeList.stream()
                 .collect(Collectors.partitioningBy(x -> SysStudentEye.isValidIdCard(x.getStudentIdcard())));
@@ -101,8 +109,13 @@ public class StudentDataService {
         List<Map<Integer, String>> noIdCardStudentInfoList = getNoIdCardStudentInfoList(isHasIdCardSysStudentEyeMap.get(false), newSchoolId, schoolAndGradeClassDO.getGradeMap(), schoolAndGradeClassDO.getClassMap(), screeningPlan);
         // 有身份证的
         List<Map<Integer, String>> hasIdCardStudentInfoList = isHasIdCardSysStudentEyeMap.get(true).stream().map(SysStudentEye::convertToMap).collect(Collectors.toList());
+        //遍历hasIdCardStudentInfoList将学籍号放进去
+        hasIdCardStudentInfoList.forEach(e ->{
+            if (StringUtils.isNotBlank(studentNos.get(e.get(ImportExcelEnum.ID_CARD.getIndex())))){
+                e.put(ImportExcelEnum.STUDENT_NO.getIndex(),studentNos.get(e.get(ImportExcelEnum.ID_CARD.getIndex())));
+            }
+        });
         hasIdCardStudentInfoList.addAll(noIdCardStudentInfoList);
-
         // 批量插入（模拟通过Excel上传）
         planStudentExcelImportService.insertByUpload(1, hasIdCardStudentInfoList, screeningPlan, newSchoolId);
         screeningPlanService.updateStudentNumbers(1, planId, screeningPlanSchoolStudentService.getCountByScreeningPlanId(planId));

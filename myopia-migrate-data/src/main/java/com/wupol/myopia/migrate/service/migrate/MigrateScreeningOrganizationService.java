@@ -181,12 +181,14 @@ public class MigrateScreeningOrganizationService {
                 .setName(sysDept.getSimpleName())
                 // 默认为医院，迁移完后需要去管理平台修改
                 .setType(0)
-                // 普通二维码
-                .setQrCodeConfig("1")
+                // 普通二维码和VS660 合并为 筛查二维码
+                .setQrCodeConfig("2")
                 // 筛查类型
                 .setScreeningTypeConfig(String.valueOf(ScreeningTypeEnum.VISION.getType()))
                 // 可筛查项目配置
-                .setScreeningConfig(JSON.parseObject("{\"screeningTypeList\":[0],\"channel\":\"Official\",\"medicalProjectList\":[\"vision\",\"computer_optometry\",\"other_eye_diseases\"]}", ScreeningConfig.class));
+                .setScreeningConfig(JSON.parseObject("{\"screeningTypeList\":[0],\"channel\":\"Official\",\"medicalProjectList\":[\"vision\",\"computer_optometry\",\"other_eye_diseases\"]}", ScreeningConfig.class))
+                // 数据上报模版配置
+                .setDataSubmitConfig(Arrays.asList(0));
         // 设置行政区域信息
         Long areaDistrictCode = districtService.getCodeByName(sysDept.getRegion(), null);
         District areaDistrict = districtService.getByCode(areaDistrictCode);

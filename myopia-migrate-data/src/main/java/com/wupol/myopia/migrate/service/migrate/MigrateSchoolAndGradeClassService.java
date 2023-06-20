@@ -192,13 +192,13 @@ public class MigrateSchoolAndGradeClassService {
                 return GradeCodeEnum.FIVE_PRIMARY_SCHOOL.getCode();
             } else if ("六".equals(gradeName) && SchoolEnum.TYPE_PRIMARY.getType().equals(schoolType)) {
                 return GradeCodeEnum.SIX_PRIMARY_SCHOOL.getCode();
-            }else if ("职高一年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+            }else if ("职高一年级".equals(gradeName)) {
                 log.info("---------------职高一-----------"+schoolType);
                 return GradeCodeEnum.ONE_VOCATIONAL_HIGH_SCHOOL.getCode();
-            }else if ("职高二年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+            }else if ("职高二年级".equals(gradeName)) {
                 log.info("---------------职高二-----------"+schoolType);
                 return GradeCodeEnum.TWO_VOCATIONAL_HIGH_SCHOOL.getCode();
-            }else if ("职高三年级".equals(gradeName) && SchoolEnum.TYPE_VOCATIONAL.getType().equals(schoolType)) {
+            }else if ("职高三年级".equals(gradeName)) {
                 log.info("---------------职高三-----------"+schoolType);
                 return GradeCodeEnum.THREE_VOCATIONAL_HIGH_SCHOOL.getCode();
             } else {
@@ -237,12 +237,14 @@ public class MigrateSchoolAndGradeClassService {
                 //新增筛查类型
                 .setScreeningTypeConfig(String.valueOf(sysSchool.getScreeningType()))
                 //省级code
-                .setDistrictProvinceCode(sysSchool.getProvinceCode());
+                .setDistrictProvinceCode(sysSchool.getProvinceCode())
+                //数据上报模版配置
+                .setDataSubmitConfig(Arrays.asList(0));
         Date date = new Date();
         schoolDTO.setCooperationType(CooperationTypeEnum.COOPERATION_TYPE_TRY_OUT.getType())
                 .setCooperationTimeType(CooperationTimeTypeEnum.COOPERATION_TIME_TYPE_30_DAY.getType())
-                .setCooperationStartTime(DateUtils.addDays(date, -30))
-                .setCooperationEndTime(date)
+                .setCooperationStartTime(date)
+                .setCooperationEndTime(DateUtils.addDays(date, 30))
                 .setStatus(StatusConstant.DISABLE);
         return schoolDTO;
     }
